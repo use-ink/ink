@@ -13,26 +13,20 @@ You can find our code of conduct [here](CODE_OF_CONDUCT.md).
 
 ### Commits
 
-Please follow our simple commit style guidelines.
+Don't be afraid to have a bunch of commits while working on a pull-request. We end up
+squashing all of them before merging to the `master` branch anyways.
 
-1. Prepend all commits with a topic.
-   Available topics are:
-    - `[storage]` For changes to `ink_storage`.
-    - `[env]` For changes to `ink_env`.
-    - `[lang]` For changes to `ink_lang`.
-    - `[allocator]` For changes to `ink_allocator`.
-    - `[metadata]` For changes to `ink_metadata`.
-    - `[prelude]` For changes to `ink_prelude`.
-    - `[primitives]` For changes to `ink_primitives`.
-    - `[ci]` For changes to the continuous integration.
-    - `[chores]` For general non-technical changes.
-    - `[examples]` For changes to the examples.
+We'd appreciate it if kept your commits small and descriptive. It makes the review
+process easier - which means you get a 🟩 from Github sooner (that's why you're
+contributing in the first place anyways, right?)
 
-For other purposes and sections please try to find a good fit for the topic.
+To help you out here's a [really good post](https://cbea.ms/git-commit/) on how to write good commit
+messages.
 
 ### Checklist
 
 Below is a checklist for you before doing a pull request.
+
 Following these will ensure that your pull request is going to be accepted.
 
 1. Run `rustfmt` automatically.
@@ -62,13 +56,15 @@ Following these will ensure that your pull request is going to be accepted.
 
 Our continuous integration (CI) will check for the following properties of all changes.
 
-1. Does the code still compile?
 1. Is `rustfmt` happy with it?
-1. Is `clippy` and all its enabled lints happy with it?
-1. Are tests in debug mode passing?
-1. ~~Are tests in release mode passing?~~
-1. Is the test code coverage increasing or at least stable?
+1. Is `clippy` happy with it?
+1. Does the code still compile?
+1. Do all the examples still compile?
 1. Is the `wasm-32` target still compiling?
+1. Are all the tests passing?
+1. Are all the tests for the examples passing?
+1. Is the test code coverage increasing or at least stable?
+1. Has the size of the example contract binaries changed?
 
 Only if our very demanding CI is happy with your pull request we will eventually merge it.
 Exceptions confirm the rule!
@@ -98,6 +94,10 @@ Before working on a pull request please make sure that the work has not already 
 For complex implementations you are advised to first discuss the feature implementation or bug fix using an issue.
 
 A pull request should be doing or implementing exactly one semantic issue. So for example, when you refactor the code base in a pull request you should not also include code formattings into the same pull request.
+
+It's totally fine to extract changes made in one pull request to multiple pull requests. It makes the review process easier (and hey, more 🟩 for you!).
+
+If you've already opened a pull request, avoid force-pushing any new changes.
 
 For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
