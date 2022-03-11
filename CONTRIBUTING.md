@@ -65,15 +65,22 @@ Following these will ensure that your pull request is going to be accepted.
 
 ## Continuous Integration
 
-Our continuous integration (CI) will check for the following properties of all changes.
+Our [continuous integration (CI)](https://github.com/paritytech/ink/blob/master/.gitlab-ci.yml) will check for the following properties of all changes.
 
-1. Is `rustfmt` happy with it?
+1. Is `rustfmt` happy with it ?
+    - `cargo fmt --all`
 1. Is `clippy` happy with it?
+    - `cargo clippy --all-targets --all-features`
 1. Does the code still compile?
+    - `cargo check --all-features`
 1. Do all the examples still compile?
+    - `cargo +nightly contract check --manifest-path ./examples/.../Cargo.toml`
 1. Is the `wasm-32` target still compiling?
+    - `cargo check --no-default-features --target wasm32-unknown-unknown`
 1. Are all the tests passing?
+    - `cargo test --all-features --workspace`
 1. Are all the tests for the examples passing?
+    - `cargo +nightly test --manifest-path ./examples/.../Cargo.toml`
 1. Is the test code coverage increasing or at least stable?
 1. Has the size of the example contract binaries changed?
 
