@@ -27,7 +27,8 @@ You can find our code of conduct [here](CODE_OF_CONDUCT.md).
 Don't be afraid to have a bunch of commits while working on a pull-request. We end up
 squashing all of them before merging to the `master` branch anyways.
 
-We'd appreciate it if kept your commits small and descriptive. It makes the review
+But please keep your commits small and descriptive. A good rule of thumb is to 
+bundle semantic changes together in one commit. It makes the review
 process easier - which means you get a 🟩 from Github sooner (that's why you're
 contributing in the first place anyways, right?)
 
