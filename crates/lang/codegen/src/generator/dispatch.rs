@@ -751,8 +751,9 @@ impl Dispatch<'_> {
                         && ::ink_lang::is_result_err!(result);
 
                     if failure {
-                        // There is no need to push back the intermediate results of the
-                        // contract since the transaction is going to be reverted.
+                        // We return early here since there is no need to push back the
+                        // intermediate results of the contract - the transaction is going to be
+                        // reverted anyways.
                         ::ink_env::return_value::<#message_output>(
                             ::ink_env::ReturnFlags::default().set_reverted(true), &result
                         )
@@ -804,7 +805,9 @@ impl Dispatch<'_> {
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                    fn execute_dispatchable(
+                        self
+                    ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         use ::core::convert::From;
                         let root_key = ::ink_primitives::Key::from([0x00; 32]);
 
