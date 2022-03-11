@@ -4,6 +4,17 @@ First of all, thank you for taking your time to contribute to ink!
 
 > [I don't want to contribute, I just have some questions! :S](#I-dont-want-to-contribute-I-just-have-some-questions)
 
+## Table of Contents
+* [Code of Conduct](#code-of-conduct)
+* [During Development](#during-development)
+    * [Commits](#commits)
+    * [Checklist](#checklist)
+* [Continuous Integraton](#continuous-integration)
+* [Issues and Pull Requests](#issues-and-pull-requests)
+    * [Issues](#issues)
+    * [Pull Requests](#pull-requests)
+* [Questions](I-dont-want-to-contribute-I-just-have-some-questions)
+
 ## Code of Conduct
 
 We are a friendly and welcoming open source community.
@@ -13,26 +24,21 @@ You can find our code of conduct [here](CODE_OF_CONDUCT.md).
 
 ### Commits
 
-Please follow our simple commit style guidelines.
+Don't be afraid to have a bunch of commits while working on a pull-request. We end up
+squashing all of them before merging to the `master` branch anyways.
 
-1. Prepend all commits with a topic.
-   Available topics are:
-    - `[storage]` For changes to `ink_storage`.
-    - `[env]` For changes to `ink_env`.
-    - `[lang]` For changes to `ink_lang`.
-    - `[allocator]` For changes to `ink_allocator`.
-    - `[metadata]` For changes to `ink_metadata`.
-    - `[prelude]` For changes to `ink_prelude`.
-    - `[primitives]` For changes to `ink_primitives`.
-    - `[ci]` For changes to the continuous integration.
-    - `[chores]` For general non-technical changes.
-    - `[examples]` For changes to the examples.
+But please keep your commits small and descriptive. A good rule of thumb is to 
+bundle semantic changes together in one commit. It makes the review
+process easier - which means you get a 🟩 from Github sooner (that's why you're
+contributing in the first place anyways, right?)
 
-For other purposes and sections please try to find a good fit for the topic.
+To help you out here's a [really good post](https://cbea.ms/git-commit/) on how to write good commit
+messages.
 
 ### Checklist
 
 Below is a checklist for you before doing a pull request.
+
 Following these will ensure that your pull request is going to be accepted.
 
 1. Run `rustfmt` automatically.
@@ -60,20 +66,29 @@ Following these will ensure that your pull request is going to be accepted.
 
 ## Continuous Integration
 
-Our continuous integration (CI) will check for the following properties of all changes.
+Our [continuous integration (CI)](https://github.com/paritytech/ink/blob/master/.gitlab-ci.yml) will check for the following properties of all changes.
 
+1. Is `rustfmt` happy with it ?
+    - `cargo fmt --all`
+1. Is `clippy` happy with it?
+    - `cargo clippy --all-targets --all-features`
 1. Does the code still compile?
-1. Is `rustfmt` happy with it?
-1. Is `clippy` and all its enabled lints happy with it?
-1. Are tests in debug mode passing?
-1. ~~Are tests in release mode passing?~~
-1. Is the test code coverage increasing or at least stable?
+    - `cargo check --all-features`
+1. Do all the examples still compile?
+    - `cargo +nightly contract check --manifest-path ./examples/.../Cargo.toml`
 1. Is the `wasm-32` target still compiling?
+    - `cargo check --no-default-features --target wasm32-unknown-unknown`
+1. Are all the tests passing?
+    - `cargo test --all-features --workspace`
+1. Are all the tests for the examples passing?
+    - `cargo +nightly test --manifest-path ./examples/.../Cargo.toml`
+1. Is the test code coverage increasing or at least stable?
+1. Has the size of the example contract binaries changed?
 
 Only if our very demanding CI is happy with your pull request we will eventually merge it.
 Exceptions confirm the rule!
 
-## Issues & Pull Requests
+## Issues and Pull Requests
 
 Please always respect our [code of conduct](CODE_OF_CONDUCT.md) when writing issues and pull requests or taking part in any kind of discussion.
 
@@ -99,11 +114,18 @@ For complex implementations you are advised to first discuss the feature impleme
 
 A pull request should be doing or implementing exactly one semantic issue. So for example, when you refactor the code base in a pull request you should not also include code formattings into the same pull request.
 
+It's totally fine to extract changes made in one pull request to multiple pull requests. It makes the review process easier (and hey, more 🟩 for you!).
+
+If you've already opened a pull request, avoid force-pushing any new changes.
+
 For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
 ## I don't want to contribute, I just have some questions
 
-For questions about the ink! project, about Parity Technologies or general technical related questions you are welcome to contact us via [Riot][Riot-Smart-Contracts-ink]. For technical questions specifically about the ink! and its sub-projects you may also file an issue. For more information about filing issues go [here](#Issues-&-pull-requests).
+For questions about the ink! project, about Parity Technologies or general technical
+related questions you are welcome to contact us via [Element][Riot-Smart-Contracts-ink]. For
+technical questions specifically about the ink! and its sub-projects you may also file an issue.
+For more information about filing issues go [here](#issues-and-pull-requests).
 
 [Riot-Smart-Contracts-ink]: https://riot.im/app/#/room/#ink:matrix.parity.io
 
