@@ -114,7 +114,10 @@ For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
 ## I don't want to contribute, I just have some questions
 
-For questions about the ink! project, about Parity Technologies or general technical related questions you are welcome to contact us via [Riot][Riot-Smart-Contracts-ink]. For technical questions specifically about the ink! and its sub-projects you may also file an issue. For more information about filing issues go [here](#Issues-&-pull-requests).
+For questions about the ink! project, about Parity Technologies or general technical
+related questions you are welcome to contact us via [Element][Riot-Smart-Contracts-ink]. For
+technical questions specifically about the ink! and its sub-projects you may also file an issue.
+For more information about filing issues go [here](#issues-and-pull-requests).
 
 [Riot-Smart-Contracts-ink]: https://riot.im/app/#/room/#ink:matrix.parity.io
 
