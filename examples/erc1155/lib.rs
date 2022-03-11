@@ -378,7 +378,7 @@ mod erc1155 {
                             .push_arg(value)
                             .push_arg(data),
                     )
-                    .returns::<[u8; 4]>()
+                    .returns::<Vec<u8>>()
                     .params();
 
                 match ink_env::invoke_contract(&params) {
@@ -390,7 +390,7 @@ mod erc1155 {
                         );
                         assert_eq!(
                             v,
-                            ON_ERC_1155_RECEIVED_SELECTOR,
+                            &ON_ERC_1155_RECEIVED_SELECTOR[..],
                             "The recipient contract at {:?} does not accept token transfers.\n
                             Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v
                         )
