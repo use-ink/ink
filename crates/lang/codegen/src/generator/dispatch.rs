@@ -803,26 +803,25 @@ impl Dispatch<'_> {
                     }
                 }
 
+                static ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
+
+                fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
+                    if mutates {
+                        ::ink_storage::traits::push_spread_root::<#storage_ident>(
+                            &contract, &ROOT_KEY
+                        );
+                    }
+                }
+
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
-                        use ::core::convert::From;
-                        let root_key = ::ink_primitives::Key::from([0x00; 32]);
-
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&root_key)
+                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&ROOT_KEY)
                             );
-
-                        let push_contract = |contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool| {
-                            if mutates {
-                                ::ink_storage::traits::push_spread_root::<#storage_ident>(
-                                    &contract, &root_key
-                                );
-                            }
-                        };
 
                         match self {
                             #( #message_execute ),*
