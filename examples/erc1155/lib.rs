@@ -192,6 +192,9 @@ mod erc1155 {
         Mapping,
     };
 
+    type Owner = AccountId;
+    type Operator = AccountId;
+
     /// Indicate that a token transfer has occured.
     ///
     /// This must be emitted even if a zero value transfer occurs.
@@ -232,7 +235,7 @@ mod erc1155 {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
-        approvals: Mapping<(AccountId, AccountId), ()>,
+        approvals: Mapping<(Owner, Operator), ()>,
         /// A unique identifier for the tokens which have been minted (and are therefore supported)
         /// by this contract.
         token_id_nonce: TokenId,
