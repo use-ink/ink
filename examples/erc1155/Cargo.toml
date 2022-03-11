@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 ink_primitives = { version = "3.0.0-rc9", path = "../../crates/primitives", default-features = false }
 ink_metadata = { version = "3.0.0-rc9", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc9", path = "../../crates/env", default-features = false, features = ["ink-debug"] }
+ink_env = { version = "3.0.0-rc9", path = "../../crates/env", default-features = false }
 ink_storage = { version = "3.0.0-rc9", path = "../../crates/storage", default-features = false }
 ink_lang = { version = "3.0.0-rc9", path = "../../crates/lang", default-features = false }
 ink_prelude = { version = "3.0.0-rc9", path = "../../crates/prelude", default-features = false }

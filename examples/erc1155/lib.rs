@@ -188,11 +188,7 @@ mod erc1155 {
     use super::*;
 
     use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadAllocate,
-            SpreadLayout,
-        },
+        traits::SpreadAllocate,
         Mapping,
     };
 
@@ -229,28 +225,6 @@ mod erc1155 {
         token_id: TokenId,
     }
 
-    /// Represents an (Owner, Operator) pair, in which the operator is allowed to spend funds on
-    /// behalf of the operator.
-    #[derive(
-        Copy,
-        Clone,
-        Debug,
-        Ord,
-        PartialOrd,
-        Eq,
-        PartialEq,
-        Default,
-        PackedLayout,
-        SpreadLayout,
-        scale::Encode,
-        scale::Decode,
-    )]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    struct Approval {
-        owner: AccountId,
-        operator: AccountId,
-    }
-
     /// An ERC-1155 contract.
     #[ink(storage)]
     #[derive(Default, SpreadAllocate)]
@@ -258,7 +232,7 @@ mod erc1155 {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
-        approvals: Mapping<Approval, ()>,
+        approvals: Mapping<(AccountId, AccountId), ()>,
         /// A unique identifier for the tokens which have been minted (and are therefore supported)
         /// by this contract.
         token_id_nonce: TokenId,
@@ -404,7 +378,7 @@ mod erc1155 {
                             .push_arg(value)
                             .push_arg(data),
                     )
-                    .returns::<Vec<u8>>()
+                    .returns::<[u8; 4]>()
                     .params();
 
                 match ink_env::invoke_contract(&params) {
@@ -416,7 +390,7 @@ mod erc1155 {
                         );
                         assert_eq!(
                             v,
-                            &ON_ERC_1155_RECEIVED_SELECTOR[..],
+                            ON_ERC_1155_RECEIVED_SELECTOR,
                             "The recipient contract at {:?} does not accept token transfers.\n
                             Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v
                         )
@@ -432,13 +406,10 @@ mod erc1155 {
                             _ => {
                                 // We got some sort of error from the call to our recipient smart
                                 // contract, and as such we must revert this call
-                                let msg = ink_prelude::format!(
+                                panic!(
                                     "Got error \"{:?}\" while trying to call {:?}",
-                                    e,
-                                    from
-                                );
-                                ink_env::debug_println!("{}", &msg);
-                                panic!("{}", &msg)
+                                    e, from
+                                )
                             }
                         }
                     }
@@ -548,19 +519,14 @@ mod erc1155 {
             let caller = self.env().caller();
             ensure!(operator != caller, Error::SelfApproval);
 
-            let approval = Approval {
-                owner: caller,
-                operator,
-            };
-
             if approved {
-                self.approvals.insert(&approval, &());
+                self.approvals.insert((&caller, &operator), &());
             } else {
-                self.approvals.remove(&approval);
+                self.approvals.remove((&caller, &operator));
             }
 
             self.env().emit_event(ApprovalForAll {
-                owner: approval.owner,
+                owner: caller,
                 operator,
                 approved,
             });
@@ -570,7 +536,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.approvals.get(&Approval { owner, operator }).is_some()
+            self.approvals.get((&owner, &operator)).is_some()
         }
     }
 
