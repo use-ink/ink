@@ -27,7 +27,7 @@ never allocate more than <code>isize::MAX</code> bytes.</p>
 }
 
 <span class="kw">let</span> <span class="ident">list</span>: <span class="ident">List</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">List::Cons</span>(<span class="number">1</span>, <span class="ident">Box::new</span>(<span class="ident">List::Cons</span>(<span class="number">2</span>, <span class="ident">Box::new</span>(<span class="ident">List::Nil</span>))));
-<span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">list</span>);</code></pre></div>
+<span class="macro">println!</span>(<span class="string">&quot;{list:?}&quot;</span>);</code></pre></div>
 <p>This will print <code>Cons(1, Cons(2, Nil))</code>.</p>
 <p>Recursive structures must be boxed, because if the definition of <code>Cons</code>
 looked like this:</p>
@@ -98,5 +98,5 @@ definition is just using <code>T*</code> can lead to undefined behavior, as
 described in <a href="https://github.com/rust-lang/unsafe-code-guidelines/issues/198">rust-lang/unsafe-code-guidelines#198</a>.</p>
 </div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Box.html" title="scale_info::prelude::boxed::Box struct">Box</a></div><div class="item-right docblock-short"><p>A pointer type for heap allocation.</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (5f4e06771 2022-03-10)" ></div>
+</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (335ffbfa5 2022-03-11)" ></div>
 </body></html>

@@ -334,9 +334,9 @@ like:</p>
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="ident">myvector</span> <span class="op">=</span> <span class="ident">Vector2D</span> { <span class="ident">x</span>: <span class="number">3</span>, <span class="ident">y</span>: <span class="number">4</span> };
 
-    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">myvector</span>);       <span class="comment">// =&gt; &quot;(3, 4)&quot;</span>
-    <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">myvector</span>);     <span class="comment">// =&gt; &quot;Vector2D {x: 3, y:4}&quot;</span>
-    <span class="macro">println!</span>(<span class="string">&quot;{:10.3b}&quot;</span>, <span class="ident">myvector</span>); <span class="comment">// =&gt; &quot;     5.000&quot;</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{myvector}&quot;</span>);       <span class="comment">// =&gt; &quot;(3, 4)&quot;</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{myvector:?}&quot;</span>);     <span class="comment">// =&gt; &quot;Vector2D {x: 3, y:4}&quot;</span>
+    <span class="macro">println!</span>(<span class="string">&quot;{myvector:10.3b}&quot;</span>); <span class="comment">// =&gt; &quot;     5.000&quot;</span>
 }</code></pre></div>
 <h4 id="fmtdisplay-vs-fmtdebug"><a href="#fmtdisplay-vs-fmtdebug"><code>fmt::Display</code> vs <code>fmt::Debug</code></a></h4>
 <p>These two formatting traits have distinct purposes:</p>
@@ -447,5 +447,5 @@ formatted string.</p>
 that can be precompiled with the <code>format_args!</code> macro.</p>
 </div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.Result.html" title="scale_info::prelude::fmt::Result type">Result</a></div><div class="item-right docblock-short"><p>The type returned by formatter methods.</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (5f4e06771 2022-03-10)" ></div>
+</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (335ffbfa5 2022-03-11)" ></div>
 </body></html>
