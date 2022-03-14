@@ -32,7 +32,9 @@
 <br/>
 
 [Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1)&nbsp;&nbsp;•&nbsp;&nbsp;
-[ink! Documentation Portal](https://paritytech.github.io/ink-docs)
+[ink! Documentation Portal](https://paritytech.github.io/ink-docs)&nbsp;&nbsp;•&nbsp;&nbsp;
+[Developer Documentation](https://paritytech.github.io/ink/ink_lang/)
+
 
 <br/>
 </div>
@@ -43,6 +45,7 @@ More relevant links:
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
+* [Substrate Stack Exchange](https://substrate.stackexchange.com/) - Forum for getting your ink! questions answered
 
 
 ## Table of Contents
@@ -66,7 +69,7 @@ More relevant links:
 If you want to have a local setup you can use our [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) for a quickstart.
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
-We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-crown)
+We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-)
 called [Canvas](https://paritytech.github.io/ink-docs/canvas). Canvas is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
 testnet, follow the instructions in the
@@ -217,11 +220,11 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 | Attribute | Where Applicable | Description |
 |:--|:--|:--|
 | `#[ink(storage)]` | On `struct` definitions. | Defines the ink! storage struct. There can only be one ink! storage definition per contract. |
+| `#[ink(message)]` | Applicable to methods. | Flags a method for the ink! storage struct as message making it available to the API for calling the contract. |
+| `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
 | `#[ink(event)]` | On `struct` definitions. | Defines an ink! event. A contract can define multiple such ink! events. |
 | `#[ink(anonymous)]` | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
 | `#[ink(topic)]` | Applicable on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
-| `#[ink(message)]` | Applicable to methods. | Flags a method for the ink! storage struct as message making it available to the API for calling the contract. |
-| `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
 | `#[ink(payable)]` | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
 | `#[ink(selector = S:u32)]` | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
 | `#[ink(selector = _)]` | Applicable to ink! messages. | Specifies a fallback message that is invoked if no other ink! message matches a selector. |
