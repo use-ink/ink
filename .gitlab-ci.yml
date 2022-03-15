@@ -119,7 +119,7 @@ spellcheck:
   <<:                              *test-refs
   script:
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
+    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/
   allow_failure:                   true
 
 fmt:
@@ -129,8 +129,8 @@ fmt:
   script:
     - cargo fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
 examples-fmt:
@@ -143,7 +143,7 @@ examples-fmt:
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
   allow_failure:                   true
 
@@ -153,7 +153,7 @@ clippy-std:
   <<:                              *test-refs
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -162,7 +162,7 @@ clippy-wasm:
   <<:                              *test-refs
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
   allow_failure:                   true
 
@@ -175,7 +175,7 @@ examples-clippy-std:
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
   allow_failure:                   true
 
@@ -188,7 +188,7 @@ examples-clippy-wasm:
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
   allow_failure:                   true
 
@@ -201,7 +201,7 @@ check-std:
   <<:                              *test-refs
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
+        cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 check-wasm:
@@ -210,7 +210,7 @@ check-wasm:
   <<:                              *test-refs
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 
@@ -225,7 +225,7 @@ build-std:
       artifacts:                   false
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
+        cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 build-wasm:
@@ -237,7 +237,7 @@ build-wasm:
       artifacts:                   false
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 test:
@@ -338,7 +338,7 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
       done
 
 examples-contract-build:
@@ -352,7 +352,7 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
-    - cd examples/delegator/ && ./build-all.sh
+    - cd ./examples/delegator/ && ./build-all.sh
 
 examples-docs:
   stage:                           examples
@@ -369,7 +369,7 @@ examples-docs:
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+        cargo doc --manifest-path ./examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
 
 
@@ -423,8 +423,8 @@ publish-docs:
     - git fetch origin gh-pages
     # saving README and docs
     - cp -r ./crate-docs/ /tmp/doc/
-    - cp README.md /tmp/doc/
-    - cp -r .images/ /tmp/doc/
+    - cp ./README.md /tmp/doc/
+    - cp -r ./.images/ /tmp/doc/
     - git checkout gh-pages
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
@@ -461,9 +461,9 @@ fuzz-tests:
     # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
     - all_tests_passed=0
     - for crate in ${ALL_CRATES}; do
-        if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
+        if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
         then
-          cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+          cargo test --verbose --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
           all_tests_passed=$(( all_tests_passed | exit_code ));
         fi
       done
