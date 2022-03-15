@@ -72,7 +72,7 @@ workflow:
   image:                           "${CI_IMAGE}"
   before_script:
     - *rust-info-script
-    - ./scripts/.ci/pre_cache.sh
+    - ./scripts/ci/pre_cache.sh
     - sccache -s
   interruptible:                   true
   tags:
@@ -386,7 +386,7 @@ ink-waterfall:
     # The `ink-waterfall` project id in GitLab
     DWNSTRM_ID:                    409
   script:
-    - ./scripts/.ci/trigger_pipeline.sh
+    - ./scripts/ci/trigger_pipeline.sh
   allow_failure:                   true
 
 
