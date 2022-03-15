@@ -9,11 +9,11 @@ smaller releases more often.
 
 ## Compatibility
 We recommend using a version of the `contracts` pallet later than
-[47bb6089bb87c66a7600e06419534e9959fdaa6f](https://github.com/paritytech/substrate/tree/47bb6089bb87c66a7600e06419534e9959fdaa6f)
-(March 04, 2022) in your node.
+[cc282f84ba53ed2a08374d2a655dc8f08cbc5e86](https://github.com/paritytech/substrate/tree/cc282f84ba53ed2a08374d2a655dc8f08cbc5e86)
+(March 15, 2022) in your node.
 
 This is the case in the latest release of the `substrate-contracts-node`:
-[v0.8.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.8.0).
+[v0.10.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.10.0).
 
 ## Breaking Changes
 ### We replaced the default off-chain testing environment
@@ -69,7 +69,7 @@ about the change in [#1165](https://github.com/paritytech/ink/pull/1165).
 
 ## Changed
 - Replaced default off-chain testing engine with experimental one ‒ [#1144](https://github.com/paritytech/ink/pull/1144).
-- Changed `CallBuilder` API to now support (unstable) delegate calls ‒ [#1133](https://github.com/paritytech/ink/pull/1133) (thanks [@VargSupercolony](https://github.com/VargSupercolony) and [@xgreenx](https://github.com/xgreenx)).
+- Changed `CallBuilder` API to now support delegate calls ‒ [#1133](https://github.com/paritytech/ink/pull/1133) (thanks [@VargSupercolony](https://github.com/VargSupercolony) and [@xgreenx](https://github.com/xgreenx)).
 - Unify `ink_env::{eval_contract, invoke_contract}` ‒ [#1165](https://github.com/paritytech/ink/pull/1165).
 
 ## Removed
