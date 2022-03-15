@@ -111,6 +111,7 @@ impl CallBuilder<'_> {
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
             #[derive(::scale::Encode, ::scale::Decode)]
+            #[codec(crate = ::scale)]
             #[repr(transparent)]
             pub struct #call_builder_ident<E>
             where
