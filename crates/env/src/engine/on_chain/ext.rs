@@ -290,6 +290,15 @@ mod sys {
 
         #[cfg(feature = "ink-debug")]
         pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
+
+        pub fn seal_delegate_call(
+            flags: u32,
+            code_hash_ptr: Ptr32<[u8]>,
+            input_data_ptr: Ptr32<[u8]>,
+            input_data_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal1")]
@@ -337,15 +346,6 @@ mod sys {
             // 32 bytes hash of the message
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
-        ) -> ReturnCode;
-
-        pub fn seal_delegate_call(
-            flags: u32,
-            code_hash_ptr: Ptr32<[u8]>,
-            input_data_ptr: Ptr32<[u8]>,
-            input_data_len: u32,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
     }
 }
