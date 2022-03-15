@@ -422,6 +422,7 @@
 <span id="417">417</span>
 <span id="418">418</span>
 <span id="419">419</span>
+<span id="420">420</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -525,6 +526,7 @@
                 <span class="ident">::core::cmp::Eq</span>,
                 <span class="ident">::core::clone::Clone</span>,
             )]</span>
+            <span class="attribute">#[<span class="ident">codec</span>(<span class="kw">crate</span> <span class="op">=</span> <span class="ident">::scale</span>)]</span>
             #( #<span class="ident">doc_attrs</span> )<span class="op">*</span>
             <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ref_ident</span> {
                 <span class="ident">inner</span>: <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::ContractCallBuilder</span><span class="op">&gt;</span><span class="ident">::Type</span>,

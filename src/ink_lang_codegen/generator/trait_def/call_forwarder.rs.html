@@ -436,6 +436,7 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -553,6 +554,7 @@
             <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
             <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::scale::Encode</span>, <span class="ident">::scale::Decode</span>)]</span>
+            <span class="attribute">#[<span class="ident">codec</span>(<span class="kw">crate</span> <span class="op">=</span> <span class="ident">::scale</span>)]</span>
             <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
             <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
             <span class="kw">where</span>
