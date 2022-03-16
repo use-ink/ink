@@ -57,8 +57,8 @@ impl FromLittleEndian for u8 {
     type Bytes = [u8; 1];
 
     #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+    fn from_le_bytes(_bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(_bytes)
     }
 }
 
@@ -66,8 +66,8 @@ impl FromLittleEndian for u16 {
     type Bytes = [u8; 2];
 
     #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+    fn from_le_bytes(_bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(_bytes)
     }
 }
 
@@ -75,8 +75,8 @@ impl FromLittleEndian for u32 {
     type Bytes = [u8; 4];
 
     #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+    fn from_le_bytes(_bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(_bytes)
     }
 }
 
@@ -84,8 +84,8 @@ impl FromLittleEndian for u64 {
     type Bytes = [u8; 8];
 
     #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+    fn from_le_bytes(_bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(_bytes)
     }
 }
 
@@ -93,8 +93,8 @@ impl FromLittleEndian for u128 {
     type Bytes = [u8; 16];
 
     #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+    fn from_le_bytes(_bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(_bytes)
     }
 }
 
