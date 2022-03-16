@@ -397,7 +397,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_le_bytes</span>(<span class="ident">bytes</span>: <span class="ident"><span class="self">Self</span>::Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_le_bytes</span>(<span class="ident">bytes</span>)
+        <span class="ident">u8::from_le_bytes</span>(<span class="ident">bytes</span>)
     }
 }
 
@@ -406,7 +406,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_le_bytes</span>(<span class="ident">bytes</span>: <span class="ident"><span class="self">Self</span>::Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_le_bytes</span>(<span class="ident">bytes</span>)
+        <span class="ident">u16::from_le_bytes</span>(<span class="ident">bytes</span>)
     }
 }
 
@@ -415,7 +415,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_le_bytes</span>(<span class="ident">bytes</span>: <span class="ident"><span class="self">Self</span>::Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_le_bytes</span>(<span class="ident">bytes</span>)
+        <span class="ident">u32::from_le_bytes</span>(<span class="ident">bytes</span>)
     }
 }
 
@@ -424,7 +424,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_le_bytes</span>(<span class="ident">bytes</span>: <span class="ident"><span class="self">Self</span>::Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_le_bytes</span>(<span class="ident">bytes</span>)
+        <span class="ident">u64::from_le_bytes</span>(<span class="ident">bytes</span>)
     }
 }
 
@@ -433,7 +433,7 @@
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_le_bytes</span>(<span class="ident">bytes</span>: <span class="ident"><span class="self">Self</span>::Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_le_bytes</span>(<span class="ident">bytes</span>)
+        <span class="ident">u128::from_le_bytes</span>(<span class="ident">bytes</span>)
     }
 }
 
