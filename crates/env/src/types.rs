@@ -58,7 +58,7 @@ impl FromLittleEndian for u8 {
 
     #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+        u8::from_le_bytes(bytes)
     }
 }
 
@@ -67,7 +67,7 @@ impl FromLittleEndian for u16 {
 
     #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+        u16::from_le_bytes(bytes)
     }
 }
 
@@ -76,7 +76,7 @@ impl FromLittleEndian for u32 {
 
     #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+        u32::from_le_bytes(bytes)
     }
 }
 
@@ -85,7 +85,7 @@ impl FromLittleEndian for u64 {
 
     #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+        u64::from_le_bytes(bytes)
     }
 }
 
@@ -94,7 +94,7 @@ impl FromLittleEndian for u128 {
 
     #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        Self::from_le_bytes(bytes)
+        u128::from_le_bytes(bytes)
     }
 }
 
