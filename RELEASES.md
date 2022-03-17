@@ -1,3 +1,81 @@
+# Version 3.0.0
+
+This is the stable release for ink! 3.0.
+
+It took us a while to get here and going forward we want to do
+smaller releases more often.
+
+*Please note that ink! has not been audited.*
+
+## Compatibility
+We recommend using a version of the `contracts` pallet later than
+[cc282f84ba53ed2a08374d2a655dc8f08cbc5e86](https://github.com/paritytech/substrate/tree/cc282f84ba53ed2a08374d2a655dc8f08cbc5e86)
+(March 15, 2022) in your node.
+
+This is the case in the latest release of the `substrate-contracts-node`:
+[v0.10.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.10.0).
+
+## Breaking Changes
+### We replaced the default off-chain testing environment
+The off-chain testing environment can be used to write unit tests
+for your smart contract with a simulated chain.
+We've now replaced the existing off-chain environment with a new
+one, which has a bit of a different API.
+
+The major changes are that there is no longer any notion of "execution
+context" ‒ so no more `push_execution_context` or `pop_execution_context`.
+You can achieve all the same things with the new API, see [here](https://paritytech.github.io/ink/ink_env/test/index.html)
+for the API documentation.
+
+We've also switched all our examples to this new environment, you
+can find more "template use-cases" there (e.g. for
+[chain extension testing](https://github.com/paritytech/ink/tree/master/examples/rand-extension))
+
+### We removed the dynamic storage allocator
+More details on the reasoning behind this can be found in [#1148](https://github.com/paritytech/ink/pull/1148).
+
+### `CallBuilder` API changed to support `delegate` calls
+The `CallBuilder` API changed to now support two types of calls:
+
+* `Call`: a cross-contract call.<br/>
+   This was the default until this new API change.
+* `DelegateCall`: a delegated call.<br/>
+  This enables writing upgradeable contracts using
+  the `delegate` pattern. An example has been added to demonstrate this:
+  [`upgradeable-contract`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contract).
+  Please note that this is an _unstable_ API for now.
+  You have to enable the feature `pallet-contracts/unstable-interface` in the target runtime.
+  For `substrate-contracts-node` this is done by default [here](https://github.com/paritytech/substrate-contracts-node/blob/main/runtime/Cargo.toml).
+
+This is a breaking change, users must now specify the `call_type` to the builder manually.
+
+_If you want to keep existing behavior you just need to specify the type `Call` now._
+
+More details on this change can be found in [#1133](https://github.com/paritytech/ink/pull/1133).
+
+### Unify `ink_env::{eval_contract, invoke_contract}`
+
+The API for `eval_contract` and `invoke_contract` changed. You can read more
+about the change in [#1165](https://github.com/paritytech/ink/pull/1165).
+
+## Added
+- Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145) (thanks [@xgreenx](https://github.com/xgreenx))..
+- Implemented the `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129) [#1166](https://github.com/paritytech/ink/pull/1166).
+- Add tests in experimental off-chain env for `trait-erc20` ‒ [#1158](https://github.com/paritytech/ink/pull/1158).
+- Add tests in experimental off-chain env for `erc721` ‒ [#1157](https://github.com/paritytech/ink/pull/1157).
+- Add tests in experimental off-chain env for `multisig` ‒ [#1159](https://github.com/paritytech/ink/pull/1159).
+- Add tests in experimental off-chain env for `dns` ‒ [#1156](https://github.com/paritytech/ink/pull/1156).
+- Implemented chain extension testing in experimental off-chain env ‒ [#1152](https://github.com/paritytech/ink/pull/1152).
+
+## Changed
+- Replaced default off-chain testing engine with experimental one ‒ [#1144](https://github.com/paritytech/ink/pull/1144).
+- Changed `CallBuilder` API to now support delegate calls ‒ [#1133](https://github.com/paritytech/ink/pull/1133) (thanks [@VargSupercolony](https://github.com/VargSupercolony) and [@xgreenx](https://github.com/xgreenx)).
+- Unify `ink_env::{eval_contract, invoke_contract}` ‒ [#1165](https://github.com/paritytech/ink/pull/1165).
+
+## Removed
+- Removed the dynamic storage allocator ‒ [#1148](https://github.com/paritytech/ink/pull/1148).
+- Removed `compile_as_dependency` config option ‒ [#1168](https://github.com/paritytech/ink/pull/1168).
+
 # Version 3.0-rc9
 
 This is the 9th release candidate for ink! 3.0.
