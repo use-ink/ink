@@ -1,5 +1,5 @@
 [package]
-name = "upgradeable_contract"
+name = "delegate_call"
 version = "3.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -16,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "upgradeable_contract"
+name = "delegate_call"
 path = "lib.rs"
 crate-type = ["cdylib"]
 
