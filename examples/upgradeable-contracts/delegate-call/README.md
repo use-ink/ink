@@ -1,4 +1,4 @@
-# Proxy Smart Contract
+# Upgradeable Smart Contract
 
 The proxy smart contract delegates any call that does not match a
 selector of itself to another, specified contract.
@@ -28,21 +28,21 @@ In order to test it out you need to do the following:
    ```
    cargo +nightly contract build --manifest-path=./Cargo.toml
    ```
-   You will receive the respective `upgradeable_contract.contract` bundle
+   You will receive the respective `delegate_call.contract` bundle
    in the `./target/ink/` folder.
 1. Upload the `upgradeable_flipper.contract` to the chain.
-1. Upload the `upgradeable_contract.contract` to the chain. During instantiation
+1. Upload the `delegate_call.contract` to the chain. During instantiation
    specify the just instantiated `upgradeable_flipper` contract as the `delegate_to` parameter.
-1. Switch the metadata of the just instantiated `upgradeable_contract` contract to the
+1. Switch the metadata of the just instantiated `delegate_call` contract to the
    metadata of the `upgradeable_flipper` contract. In the `polkadot-js` UI this can be
    done this way:
-   1. Click the icon left of the instantiated `upgradeable_contract` contract to copy the
+   1. Click the icon left of the instantiated `delegate_call` contract to copy the
       address of it into your clipboard.
    1. Click `Add an existing contract`, insert the just copied address, upload the
       `upgradeable_flipper.contract` for the `Contract ABI`.
 1. Now you are able to run the operations provided by the `upgradeable_flipper` smart
-   contract via the `upgradeable_contract` contract.
+   contract via the `delegate_call` contract.
 
 To change the address of the smart contract where calls are forwarded to you would
-switch the metadata (i.e. the `Contract ABI`) back to the `upgradeable_contract` contract
+switch the metadata (i.e. the `Contract ABI`) back to the `delegate_call` contract
 and then invoke the `change_delegate_code` message.
