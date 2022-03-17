@@ -374,7 +374,7 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
-    - cd ./examples/delegator/ && ./build-all.sh
+    - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         pushd $example &&
         cargo contract build &&
