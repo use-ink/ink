@@ -376,9 +376,7 @@ examples-contract-build:
       done
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        pushd $example &&
-        cargo contract build &&
-        popd;
+        cargo contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
     - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
 
