@@ -33,7 +33,7 @@ variables:
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-call"
+  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
   VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
   VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
   VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
@@ -150,7 +150,7 @@ examples-fmt:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
-    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
+    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
   allow_failure:                   true
 
 clippy-std:
@@ -187,7 +187,7 @@ examples-clippy-std:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml -- -D warnings;
+    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- -D warnings;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -205,7 +205,7 @@ examples-clippy-wasm:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
-    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
   allow_failure:                   true
 
 
@@ -360,7 +360,7 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml;
+    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -380,7 +380,7 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
-    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml
+    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
 
 examples-docs:
   stage:                           examples
@@ -403,7 +403,7 @@ examples-docs:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
+    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
