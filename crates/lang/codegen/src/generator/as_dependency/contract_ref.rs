@@ -101,7 +101,6 @@ impl ContractRef<'_> {
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
-            #[codec(crate = ::scale)]
             #( #doc_attrs )*
             pub struct #ref_ident {
                 inner: <#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type,

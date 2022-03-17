@@ -115,7 +115,6 @@ impl CallForwarder<'_> {
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
             #[derive(::scale::Encode, ::scale::Decode)]
-            #[codec(crate = ::scale)]
             #[repr(transparent)]
             pub struct #call_forwarder_ident<E>
             where

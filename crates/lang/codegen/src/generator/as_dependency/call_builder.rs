@@ -97,7 +97,6 @@ impl CallBuilder<'_> {
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
-            #[codec(crate = ::scale)]
             pub struct #cb_ident {
                 account_id: AccountId,
             }

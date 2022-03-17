@@ -1,11 +1,12 @@
 [package]
-name = "incrementer"
+name = "proxy"
 version = "3.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
 [dependencies]
 ink_primitives = { version = "3.0.0", path = "../../crates/primitives", default-features = false }
+ink_prelude = { version = "3.0.0", path = "../../crates/prelude", default-features = false }
 ink_metadata = { version = "3.0.0", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.0.0", path = "../../crates/env", default-features = false }
 ink_storage = { version = "3.0.0", path = "../../crates/storage", default-features = false }
@@ -15,7 +16,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "incrementer"
+name = "proxy"
 path = "lib.rs"
 crate-type = ["cdylib"]
 
