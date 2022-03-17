@@ -33,6 +33,7 @@ variables:
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-call"
   VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
   VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
   VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
@@ -140,11 +141,16 @@ examples-fmt:
   script:
     # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
+      done
+    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
   allow_failure:                   true
 
 clippy-std:
@@ -172,11 +178,16 @@ examples-clippy-std:
   <<:                              *test-refs
   script:
     - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
+      done
+    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml -- -D warnings;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -185,11 +196,16 @@ examples-clippy-wasm:
   <<:                              *test-refs
   script:
     - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
+    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
   allow_failure:                   true
 
 
@@ -335,11 +351,16 @@ examples-test:
       artifacts:                   false
   script:
     - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
       done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+      done
+    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -348,11 +369,18 @@ examples-contract-build:
   script:
     - cargo contract -V
     - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         pushd $example &&
         cargo contract build &&
         popd;
       done
-    - cd ./examples/delegator/ && ./build-all.sh
+    - pushd ./examples/delegator/ && ./build-all.sh && popd
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        pushd $example &&
+        cargo contract build &&
+        popd;
+      done
+    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml
 
 examples-docs:
   stage:                           examples
@@ -366,11 +394,16 @@ examples-docs:
     # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
     # of this flag.
     - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo doc --manifest-path ./examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
+    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
