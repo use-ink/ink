@@ -147,7 +147,7 @@ examples-fmt:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
-    - for contract in ${UPGRDADEABLE_CONTRACTS}; do
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
   allow_failure:                   true
@@ -183,7 +183,7 @@ examples-clippy-std:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
-    - for contract in ${UPGRDADEABLE_CONTRACTS}; do
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
       done
   allow_failure:                   true
@@ -200,7 +200,7 @@ examples-clippy-wasm:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
-    - for contract in ${UPGRDADEABLE_CONTRACTS}; do
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
   allow_failure:                   true
@@ -354,7 +354,7 @@ examples-test:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
       done
-    - for contract in ${UPGRDADEABLE_CONTRACTS}; do
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
 
@@ -371,7 +371,7 @@ examples-contract-build:
         popd;
       done
     - cd ./examples/delegator/ && ./build-all.sh
-    - for contract in ${UPGRDADEABLE_CONTRACTS}; do
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo contract build;
       done
 
