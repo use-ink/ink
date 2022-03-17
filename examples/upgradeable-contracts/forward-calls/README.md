@@ -19,9 +19,10 @@ In order to test it out you need to do the following:
    You will receive the respective `flipper.contract` bundle in the `examples/flipper/target/ink/` folder.
 1. Build the proxy contract:
    ```
-   cargo +nightly contract build --manifest-path=examples/proxy/Cargo.toml
+   cd upgradeable-contracts/forward-calls/
+   cargo +nightly contract build
    ```
-   You will receive the respective `proxy.contract` bundle in the `examples/proxy/target/ink/` folder.
+   You will receive the respective `proxy.contract` bundle in the `target/ink/` folder.
 1. Upload the `flipper.contract` to the chain.
 1. Upload the `proxy.contract` to the chain. During instantiation specify the just instantiated
    `flipper` contract as the `forward_to` parameter.
