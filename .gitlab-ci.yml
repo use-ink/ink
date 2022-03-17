@@ -150,6 +150,7 @@ examples-fmt:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
+    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
   allow_failure:                   true
 
 clippy-std:
@@ -186,6 +187,7 @@ examples-clippy-std:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
       done
+    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml -- -D warnings;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -203,6 +205,7 @@ examples-clippy-wasm:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
+    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
   allow_failure:                   true
 
 
@@ -357,6 +360,7 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
+    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -372,8 +376,11 @@ examples-contract-build:
       done
     - cd ./examples/delegator/ && ./build-all.sh
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo contract build;
+        pushd $example &&
+        cargo contract build &&
+        popd;
       done
+    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml
 
 examples-docs:
   stage:                           examples
@@ -393,6 +400,10 @@ examples-docs:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo doc --manifest-path ./examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
+    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-call/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
