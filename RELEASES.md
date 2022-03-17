@@ -42,10 +42,7 @@ The `CallBuilder` API changed to now support two types of calls:
 * `DelegateCall`: a delegated call.<br/>
   This enables writing upgradeable contracts using
   the `delegate` pattern. An example has been added to demonstrate this:
-  [`upgradeable-contract`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contract).
-  Please note that this is an _unstable_ API for now.
-  You have to enable the feature `pallet-contracts/unstable-interface` in the target runtime.
-  For `substrate-contracts-node` this is done by default [here](https://github.com/paritytech/substrate-contracts-node/blob/main/runtime/Cargo.toml).
+  [`delegate-call`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/delegate-call).
 
 This is a breaking change, users must now specify the `call_type` to the builder manually.
 
