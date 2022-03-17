@@ -95,7 +95,6 @@ impl<'a> Events<'a> {
         quote! {
             #[allow(non_camel_case_types)]
             #[derive(::scale::Encode, ::scale::Decode)]
-            #[codec(crate = ::scale)]
             #[cfg(not(feature = "__ink_dylint_EventBase"))]
             pub enum #base_event_ident {
                 #( #event_idents(#event_idents), )*
