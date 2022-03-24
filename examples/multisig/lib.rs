@@ -308,8 +308,8 @@ mod multisig {
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
-        /// ```no_run
-        /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
+        /// ```should_panic
+        /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector, ExecutionInput, Call}, test::CallData};
         /// use multisig::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing `Multisig` contract
@@ -317,31 +317,45 @@ mod multisig {
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
         /// let alice: AccountId = [1u8; 32].into();
-        /// let mut call = CallData::new(Selector::new([166, 229, 27, 154])); // add_owner
-        /// call.push_arg(&alice);
-        /// let transaction = Transaction {
+        /// // Note: The selector bytes for `add_owner` are [166, 229, 27, 154]
+        /// let mut add_owner_call = CallData::new(Selector::new([166, 229, 27, 154]));
+        /// add_owner_call.push_arg(&alice);
+        ///
+        /// let transaction_candidate = Transaction {
         ///     callee: wallet_id,
-        ///     selector: call.selector().to_bytes(),
-        ///     input: call.params().to_owned(),
+        ///     selector: add_owner_call.selector().to_bytes(),
+        ///     input: add_owner_call.params().to_owned(),
         ///     transferred_value: 0,
         ///     gas_limit: 0
         /// };
         ///
-        /// // submit the transaction for confirmation
-        /// let mut submit = CallParams::<Env, _, _>::eval(
-        ///     wallet_id,
-        ///     Selector::new([86, 244, 13, 223]) // submit_transaction
-        /// );
-        /// let (id, _): (u32, ConfirmationStatus)  = submit.push_arg(&transaction)
+        /// // Submit the transaction for confirmation
+        /// //
+        /// // Note that the selector bytes of the `submit_transaction` method
+        /// // are `[86, 244, 13, 223]`.
+        /// let (id, _status) = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        ///     .call_type(Call::new().callee(wallet_id))
+        ///     .gas_limit(0)
+        ///     .exec_input(ExecutionInput::new(Selector::new([86, 244, 13, 223]))
+        ///         .push_arg(&transaction_candidate)
+        ///     )
+        ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .fire()
-        ///     .expect("submit_transaction won't panic.");
+        ///     .expect("submit_transaction won't panic");
         ///
-        /// // wait until all required owners have confirmed and then execute the transaction
-        /// let mut invoke = CallParams::<Env, _, ()>::invoke(
-        ///     wallet_id,
-        ///     Selector::new([185, 50, 225, 236]) // invoke_transaction
-        /// );
-        /// invoke.push_arg(&id).fire();
+        /// // Wait until all required owners have confirmed and then execute the transaction
+        /// //
+        /// // Note that the selector bytes of the `invoke_transaction` method
+        /// // are `[185, 50, 225, 236]`.
+        /// ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        ///     .call_type(Call::new().callee(wallet_id))
+        ///     .gas_limit(0)
+        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236]))
+        ///         .push_arg(&id)
+        ///     )
+        ///     .returns::<()>()
+        ///     .fire()
+        ///     .expect("invoke_transaction won't panic");
         /// ```
         #[ink(message)]
         pub fn add_owner(&mut self, new_owner: AccountId) {
