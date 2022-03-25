@@ -79,6 +79,10 @@ User ---- tx ---> Proxy ----------> Implementation_v0
 This required some work in both `pallet-contracts` and ink!. Shoutout to the team over
 at [Supercolony](https://supercolony.net/) for driving the development here!
 
+We now have two example contracts for writing upgradeable contracts in ink!.
+[See here](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts)
+for a deeper explanation.
+
 ### Workshop & Talk at EthDenver
 
 [Hernando](https://github.com/hcastano) and [Achim](https://github.com/achimcc) went to EthDenver to
