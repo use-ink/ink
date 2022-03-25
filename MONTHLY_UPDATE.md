@@ -1,15 +1,15 @@
 # Monthly Update: Parity Smart Contracts
 
 ## What is this?
-Hey there reader 👋
+Hey there reader 👋!
 
 This is meant to be a high-level overview of the changes that have taken place as part of
 Parity's Web Assembly (Wasm) smart contract efforts. These efforts include the [`ink!`](https://github.com/paritytech/ink)
 programming language, the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts) execution environment, the [`cargo-contract`](https://github.com/paritytech/cargo-contract)
 development tool, and the [Canvas parachain](https://github.com/paritytech/cumulus/tree/master/polkadot-parachains/canvas-kusama). For anything UI related go check out the
-[`contract-ui` repo](https://github.com/paritytech/contracts-ui).
+[`contracts-ui` repository](https://github.com/paritytech/contracts-ui).
 
-If these update are too high-level for you you can always check out the release notes for
+If these updates are too high-level for you you can always check out the release notes for
 the various projects:
 - [`ink!`](https://github.com/paritytech/ink/blob/master/RELEASES.md)
 - [`pallet-contracts`](https://github.com/paritytech/substrate/blob/master/frame/contracts/CHANGELOG.md)
@@ -18,12 +18,26 @@ the various projects:
 If you're new here and aren't sure where to get started with ink! check out our
 [guided tutorial for beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/).
 
-This was inspired by the [Polkadot Staking Progress Report](https://gist.github.com/kianenigma/aa835946455b9a3f167821b9d05ba376) ❤️
+This was inspired by the [Polkadot Staking Progress Report](https://gist.github.com/kianenigma/aa835946455b9a3f167821b9d05ba376) ❤️.
 
 ## March 2022
 
+### StackExchange Beta
+
+We are participating in the Beta of [the Substrate StackExchange](https://substrate.stackexchange.com/) site!
+
+If this StackExchange site gains traction it will be made available to the general public.
+To reach this goal it's important to have the community engage there though.
+
+Head over to [substrate.stackexchange.com](https://substrate.stackexchange.com/)
+to ask us any questions (there is an `ink` tag)!
+
 ### ink! 3.0 🦑
-The star of the show this month is the release of ink! 3.0.
+The star of the show this month is the release of ink! 3.0:
+
+- You can find the release notes [here](https://github.com/paritytech/ink/releases/tag/v3.0.0).
+- We've also published a blog post with some more context:<br>
+[ink! 3.0: Parity’s Rust-Based Language for WASM Smart Contracts Gets a Major Update](https://www.parity.io/blog/ink-3-0-paritys-rust-based-language-gets-a-major-update).
 
 The team has been working on this release for a while. If you're a developer you're
 probably aware of this thanks to the long list of release candidates (`v3.0.0-rcX`) we've
@@ -34,18 +48,19 @@ identical, and all the tooling you know and love, such as `rust-analyzer` and Cl
 just works.
 
 Some other included changes worth highlighting:
-- Reduced contract sizes for better performance in a parachain context
-- Support for cross-contract calls, making it easier to write complex applications
-- Trait support, allowing for a more Rusty development experience
+- Reduced contract sizes for better performance in a parachain context.
+- Support for cross-contract calls, making it easier to write complex applications.
+- Trait support, allowing for a more Rusty development experience.
 
 ### cargo-contract 1.0
-Alongside the release of ink! 3.0 we're also releasing `cargo-contract` 1.0.
+Alongside the release of ink! 3.0 we're also releasing [`cargo-contract`](https://github.com/paritytech/cargo-contract) in
+its first stable version 1.0.
 `cargo-contract` is a handy developer tool for building, testing, and deploying ink!
 contracts.
 
 Some notable updates in this release include:
-- Support for uploading and calling contracts on a chain with `pallet-contracts`
-- Linting rules for ink! contracts, giving developers warnings about common errors
+- Support for uploading and calling contracts on a chain with `pallet-contracts`.
+- Linting rules for ink! contracts, giving developers warnings about common errors.
 
 ### Delegate Call
 Another update worth pointing out is the addition of `delegate_call`. What this allows is
@@ -63,3 +78,14 @@ User ---- tx ---> Proxy ----------> Implementation_v0
 
 This required some work in both `pallet-contracts` and ink!. Shoutout to the team over
 at [Supercolony](https://supercolony.net/) for driving the development here!
+
+We now have two example contracts for writing upgradeable contracts in ink!.
+[See here](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts)
+for a deeper explanation.
+
+### Workshop & Talk at EthDenver
+
+[Hernando](https://github.com/hcastano) and [Achim](https://github.com/achimcc) went to EthDenver to
+give a workshop and talk regarding ink! on the Substrate stage!
+
+The recording is available [here](https://www.youtube.com/watch?t=7122&v=NrG3co6UWEg).
