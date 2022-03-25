@@ -312,6 +312,10 @@ impl EnvBackend for EnvInstance {
         let decoded = decode_to_result(&output[..])?;
         Ok(decoded)
     }
+
+    fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
+        ext::set_code_hash(code_hash_ptr).map_err(Into::into)
+    }
 }
 
 impl TypedEnvBackend for EnvInstance {

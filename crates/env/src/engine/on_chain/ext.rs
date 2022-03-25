@@ -347,6 +347,8 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn seal_set_code_hash(code_hash_ptr: Ptr32<[u8]>) -> ReturnCode;
     }
 }
 
@@ -675,4 +677,9 @@ pub fn is_contract(account_id: &[u8]) -> bool {
 pub fn caller_is_origin() -> bool {
     let ret_val = unsafe { sys::seal_caller_is_origin() };
     ret_val.into_bool()
+}
+
+pub fn set_code_hash(code_hash: &[u8]) -> Result {
+    let ret_val = unsafe { sys::seal_set_code_hash(Ptr32::from_slice(code_hash)) };
+    ret_val.into()
 }
