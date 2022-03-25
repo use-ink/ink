@@ -23,7 +23,11 @@ This was inspired by the [Polkadot Staking Progress Report](https://gist.github.
 ## March 2022
 
 ### ink! 3.0 🦑
-The star of the show this month is the release of ink! 3.0.
+The star of the show this month is the release of ink! 3.0:
+
+- You can find the release notes [here](https://github.com/paritytech/ink/releases/tag/v3.0.0).
+- We've also published a blog post with some more context:<br>
+[ink! 3.0: Parity’s Rust-Based Language for WASM Smart Contracts Gets a Major Update](https://www.parity.io/blog/ink-3-0-paritys-rust-based-language-gets-a-major-update).
 
 The team has been working on this release for a while. If you're a developer you're
 probably aware of this thanks to the long list of release candidates (`v3.0.0-rcX`) we've
