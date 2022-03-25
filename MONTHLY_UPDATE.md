@@ -22,6 +22,16 @@ This was inspired by the [Polkadot Staking Progress Report](https://gist.github.
 
 ## March 2022
 
+### StackExchange Beta
+
+We are participating in the Beta of [the Substrate StackExchange](https://substrate.stackexchange.com/) site!
+
+If this StackExchange site gains traction it will be made available to the general public.
+To reach this goal it's important to have the community engage there though.
+
+Head over to [substrate.stackexchange.com](https://substrate.stackexchange.com/)
+to ask us any questions (there is an `ink` tag)!
+
 ### ink! 3.0 🦑
 The star of the show this month is the release of ink! 3.0:
 
@@ -67,3 +77,10 @@ User ---- tx ---> Proxy ----------> Implementation_v0
 
 This required some work in both `pallet-contracts` and ink!. Shoutout to the team over
 at [Supercolony](https://supercolony.net/) for driving the development here!
+
+### Workshop & Talk at EthDenver
+
+[Hernando](https://github.com/hcastano) and [Achim](https://github.com/achimcc) went to EthDenver to
+give a workshop and talk regarding ink! on the Substrate stage!
+
+The recording is available [here](https://www.youtube.com/watch?t=7122&v=NrG3co6UWEg).
