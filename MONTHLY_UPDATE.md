@@ -53,7 +53,8 @@ Some other included changes worth highlighting:
 - Trait support, allowing for a more Rusty development experience.
 
 ### cargo-contract 1.0
-Alongside the release of ink! 3.0 we're also releasing `cargo-contract` 1.0.
+Alongside the release of ink! 3.0 we're also releasing [`cargo-contract`](https://github.com/paritytech/cargo-contract) in
+its first stable version 1.0.
 `cargo-contract` is a handy developer tool for building, testing, and deploying ink!
 contracts.
 
