@@ -7,9 +7,9 @@ This is meant to be a high-level overview of the changes that have taken place a
 Parity's Web Assembly (Wasm) smart contract efforts. These efforts include the [`ink!`](https://github.com/paritytech/ink)
 programming language, the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts) execution environment, the [`cargo-contract`](https://github.com/paritytech/cargo-contract)
 development tool, and the [Canvas parachain](https://github.com/paritytech/cumulus/tree/master/polkadot-parachains/canvas-kusama). For anything UI related go check out the
-[`contract-ui` repo](https://github.com/paritytech/contracts-ui).
+[`contracts-ui` repository](https://github.com/paritytech/contracts-ui).
 
-If these update are too high-level for you you can always check out the release notes for
+If these updates are too high-level for you you can always check out the release notes for
 the various projects:
 - [`ink!`](https://github.com/paritytech/ink/blob/master/RELEASES.md)
 - [`pallet-contracts`](https://github.com/paritytech/substrate/blob/master/frame/contracts/CHANGELOG.md)
