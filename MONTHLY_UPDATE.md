@@ -1,7 +1,7 @@
 # Monthly Update: Parity Smart Contracts
 
 ## What is this?
-Hey there reader 👋
+Hey there reader 👋!
 
 This is meant to be a high-level overview of the changes that have taken place as part of
 Parity's Web Assembly (Wasm) smart contract efforts. These efforts include the [`ink!`](https://github.com/paritytech/ink)
@@ -18,7 +18,7 @@ the various projects:
 If you're new here and aren't sure where to get started with ink! check out our
 [guided tutorial for beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1/).
 
-This was inspired by the [Polkadot Staking Progress Report](https://gist.github.com/kianenigma/aa835946455b9a3f167821b9d05ba376) ❤️
+This was inspired by the [Polkadot Staking Progress Report](https://gist.github.com/kianenigma/aa835946455b9a3f167821b9d05ba376) ❤️.
 
 ## March 2022
 
@@ -34,9 +34,9 @@ identical, and all the tooling you know and love, such as `rust-analyzer` and Cl
 just works.
 
 Some other included changes worth highlighting:
-- Reduced contract sizes for better performance in a parachain context
-- Support for cross-contract calls, making it easier to write complex applications
-- Trait support, allowing for a more Rusty development experience
+- Reduced contract sizes for better performance in a parachain context.
+- Support for cross-contract calls, making it easier to write complex applications.
+- Trait support, allowing for a more Rusty development experience.
 
 ### cargo-contract 1.0
 Alongside the release of ink! 3.0 we're also releasing `cargo-contract` 1.0.
@@ -44,8 +44,8 @@ Alongside the release of ink! 3.0 we're also releasing `cargo-contract` 1.0.
 contracts.
 
 Some notable updates in this release include:
-- Support for uploading and calling contracts on a chain with `pallet-contracts`
-- Linting rules for ink! contracts, giving developers warnings about common errors
+- Support for uploading and calling contracts on a chain with `pallet-contracts`.
+- Linting rules for ink! contracts, giving developers warnings about common errors.
 
 ### Delegate Call
 Another update worth pointing out is the addition of `delegate_call`. What this allows is
