@@ -715,7 +715,7 @@ mod multisig {
     mod tests {
         use super::*;
         use ink_env::{
-            call,
+            call::utils::ArgumentList,
             test,
         };
         use ink_lang as ink;
@@ -724,13 +724,14 @@ mod multisig {
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
+                use scale::Encode;
+                let call_args = ArgumentList::empty().push_arg(&requirement);
+
                 // Multisig::change_requirement()
-                let mut call = test::CallData::new(call::Selector::new([0x00; 4]));
-                call.push_arg(&requirement);
                 Self {
                     callee: AccountId::from(WALLET),
-                    selector: call.selector().to_bytes(),
-                    input: call.params().to_owned(),
+                    selector: ink::selector_bytes!("change_requirement"),
+                    input: call_args.encode(),
                     transferred_value: 0,
                     gas_limit: 1000000,
                 }
