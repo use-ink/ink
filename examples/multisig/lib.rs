@@ -309,7 +309,19 @@ mod multisig {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
         /// ```should_panic
-        /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector, ExecutionInput, Call}, test::CallData};
+        /// use ink_env::{
+        ///     call::{
+        ///         utils::ArgumentList,
+        ///         Call,
+        ///         CallParams,
+        ///         ExecutionInput,
+        ///         Selector,
+        ///     },
+        ///     AccountId,
+        ///     DefaultEnvironment as Env,
+        /// };
+        /// use ink_lang::selector_bytes;
+        /// use scale::Encode;
         /// use multisig::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing `Multisig` contract
@@ -317,14 +329,12 @@ mod multisig {
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
         /// let alice: AccountId = [1u8; 32].into();
-        /// // Note: The selector bytes for `add_owner` are [166, 229, 27, 154]
-        /// let mut add_owner_call = CallData::new(Selector::new([166, 229, 27, 154]));
-        /// add_owner_call.push_arg(&alice);
+        /// let add_owner_args = ArgumentList::empty().push_arg(&alice);
         ///
         /// let transaction_candidate = Transaction {
         ///     callee: wallet_id,
-        ///     selector: add_owner_call.selector().to_bytes(),
-        ///     input: add_owner_call.params().to_owned(),
+        ///     selector: selector_bytes!("add_owner"),
+        ///     input: add_owner_args.encode(),
         ///     transferred_value: 0,
         ///     gas_limit: 0
         /// };
