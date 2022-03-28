@@ -553,10 +553,6 @@ where
 /// would revert the changes made by `seal_set_code_hash` and the next caller would use
 /// the old code.
 ///
-/// # Parameters
-///
-/// - code_hash:New code hash.
-///
 /// # Errors
 ///
 /// `ReturnCode::CodeNotFound`

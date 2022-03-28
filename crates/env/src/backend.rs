@@ -285,9 +285,6 @@ pub trait EnvBackend {
 
     /// Replace the contract code at the specified address with new code.
     ///
-    /// # Parameters
-    ///
-    /// - code_hash:New code hash.
     /// # Errors
     ///
     /// - If code not found.
