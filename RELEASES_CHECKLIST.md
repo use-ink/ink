@@ -24,6 +24,7 @@ Reasons for doing it this way:
 ## Checklist
 
 1. Make sure you've moved the changes in the `RELEASES.md` from `[Unreleased]` into a new section for the release.
+1. Check that all PRs since the last release are now in the new release section, in case the `[Unreleased]` section was incomplete.
 1. Make sure you've merged the latest `master` into your branch.
 1. Execute `cargo unleash em-dragons --dry-run` in the ink! repository.
 1. If successful, execute `cargo unleash em-dragons`.<br><br>
