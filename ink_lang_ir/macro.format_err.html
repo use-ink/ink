@@ -7,11 +7,11 @@
     <h1 class="fqn"><span class="in-band">Macro <a href="index.html">ink_lang_ir</a>::<wbr><a class="macro" href="#">format_err</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_lang_ir/error.rs.html#73-80">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">format_err</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">spanned</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; { ... };
 }</code></pre></div>
-</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a <a href="https://docs.rs/syn/1.0.89/syn/error/struct.Error.html" title="syn::Error"><code>syn::Error</code></a> with the format message and infers the
-<a href="https://docs.rs/proc-macro2/1.0.36/proc_macro2/struct.Span.html"><code>Span</code></a> using <a href="https://docs.rs/syn/1.0.89/syn/spanned/trait.Spanned.html"><code>Spanned</code></a>.</p>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a <a href="https://docs.rs/syn/1.0.90/syn/error/struct.Error.html" title="syn::Error"><code>syn::Error</code></a> with the format message and infers the
+<a href="https://docs.rs/proc-macro2/1.0.36/proc_macro2/struct.Span.html"><code>Span</code></a> using <a href="https://docs.rs/syn/1.0.90/syn/spanned/trait.Spanned.html"><code>Spanned</code></a>.</p>
 <h2 id="parameters"><a href="#parameters">Parameters</a></h2>
 <ul>
-<li>The first argument must be a type that implements <a href="https://docs.rs/syn/1.0.89/syn/spanned/trait.Spanned.html" title="syn::spanned::Spanned"><code>syn::spanned::Spanned</code></a>.</li>
+<li>The first argument must be a type that implements <a href="https://docs.rs/syn/1.0.90/syn/spanned/trait.Spanned.html" title="syn::spanned::Spanned"><code>syn::spanned::Spanned</code></a>.</li>
 <li>The second argument is a format string.</li>
 <li>The rest are format string arguments.</li>
 </ul>
