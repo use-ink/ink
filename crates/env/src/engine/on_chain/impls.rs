@@ -513,7 +513,11 @@ impl TypedEnvBackend for EnvInstance {
         ext::caller_is_origin()
     }
 
-    fn code_hash<E>(&mut self, account_id: &E::AccountId, output: E::Hash) -> Result<()>
+    fn code_hash<E>(
+        &mut self,
+        account_id: &E::AccountId,
+        output: &mut E::Hash,
+    ) -> Result<()>
     where
         E: Environment,
     {
@@ -522,7 +526,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::code_hash(enc_account_id, output).map_err(Into::into)
     }
 
-    fn own_code_hash<E>(&mut self, output: E::Hash) -> Result<()>
+    fn own_code_hash<E>(&mut self, output: &mut E::Hash) -> Result<()>
     where
         E: Environment,
     {
