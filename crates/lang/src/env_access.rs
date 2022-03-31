@@ -935,4 +935,37 @@ where
         let mut output = <E as Environment>::Hash::clear();
         ink_env::code_hash::<E>(account_id, &mut output).map(|_| output.into())
     }
+
+    /// Returns the code hash of the contract living at the given `account`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn own_code_hash(&mut self) -> Result<Hash> {
+    ///     self.env().own_code_hash()
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::own_code_hash`]
+    pub fn own_code_hash(self) -> Result<E::Hash> {
+        let mut output = <E as Environment>::Hash::clear();
+        ink_env::own_code_hash::<E>(&mut output).map(|_| output.into())
+    }
 }

@@ -497,4 +497,11 @@ impl TypedEnvBackend for EnvInstance {
     {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
+
+    fn own_code_hash<E>(&mut self, _output: &mut E::Hash) -> Result<()>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
 }

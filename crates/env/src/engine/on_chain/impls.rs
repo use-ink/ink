@@ -521,4 +521,11 @@ impl TypedEnvBackend for EnvInstance {
         let enc_account_id = scope.take_encoded(account_id);
         ext::code_hash(enc_account_id, output).map_err(Into::into)
     }
+
+    fn own_code_hash<E>(&mut self, output: E::Hash) -> Result<()>
+    where
+        E: Environment,
+    {
+        ext::own_code_hash(output).map_err(Into::into)
+    }
 }

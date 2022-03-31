@@ -683,3 +683,8 @@ pub fn code_hash(account_id: &[u8], output: &mut &mut [u8]) -> Result {
     };
     ret_code.into()
 }
+
+pub fn own_code_hash(output: &mut &mut [u8]) -> Result {
+    let ret_val = unsafe { sys::seal_own_code_hash(Ptr32Mut::from_slice(output)) };
+    ret_code.into()
+}

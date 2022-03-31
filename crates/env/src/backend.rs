@@ -461,4 +461,13 @@ pub trait TypedEnvBackend: EnvBackend {
     ) -> Result<()>
     where
         E: Environment;
+
+    /// Retrieves the code hash of the currently executing contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
+    fn own_code_hash<E>(&mut self, output: &mut E::Hash) -> Result<()>
+    where
+        E: Environment;
 }

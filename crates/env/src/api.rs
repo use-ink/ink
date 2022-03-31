@@ -524,6 +524,16 @@ where
     })
 }
 
+/// Retrieves the code hash of the currently executing contract.
+pub fn own_code_hash<E>(output: &mut E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.own_code_hash::<E>(output)
+    })
+}
+
 /// Checks whether the caller of the current contract is the origin of the whole call stack.
 ///
 /// Prefer this over [`is_contract`] when checking whether your contract is being called by
