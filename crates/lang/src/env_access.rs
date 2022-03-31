@@ -966,6 +966,6 @@ where
     /// For more details visit: [`ink_env::own_code_hash`]
     pub fn own_code_hash(self) -> Result<E::Hash> {
         let mut output = <E as Environment>::Hash::clear();
-        ink_env::own_code_hash::<E>(&mut output).map(|_| output.into())
+        ink_env::own_code_hash::<E>(&mut output).map(|_| output)
     }
 }
