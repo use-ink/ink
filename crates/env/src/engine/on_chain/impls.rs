@@ -523,13 +523,13 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let enc_account_id = scope.take_encoded(account_id);
-        ext::code_hash(enc_account_id, output).map_err(Into::into)
+        ext::code_hash(enc_account_id, output.as_mut()).map_err(Into::into)
     }
 
     fn own_code_hash<E>(&mut self, output: &mut E::Hash) -> Result<()>
     where
         E: Environment,
     {
-        ext::own_code_hash(output).map_err(Into::into)
+        ext::own_code_hash(output.as_mut()).map_err(Into::into)
     }
 }

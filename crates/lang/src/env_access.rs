@@ -933,7 +933,7 @@ where
     /// For more details visit: [`ink_env::code_hash`]
     pub fn code_hash(self, account_id: &E::AccountId) -> Result<E::Hash> {
         let mut output = <E as Environment>::Hash::clear();
-        ink_env::code_hash::<E>(account_id, &mut output).map(|_| output.into())
+        ink_env::code_hash::<E>(account_id, &mut output).map(|_| output)
     }
 
     /// Returns the code hash of the contract living at the given `account`.
