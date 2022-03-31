@@ -514,6 +514,16 @@ where
     })
 }
 
+///
+pub fn code_hash<E>(account: &E::AccountId, output: &mut E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.code_hash::<E>(account, output)
+    })
+}
+
 /// Checks whether the caller of the current contract is the origin of the whole call stack.
 ///
 /// Prefer this over [`is_contract`] when checking whether your contract is being called by

@@ -25,6 +25,7 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
+    Clear,
     Environment,
     Error,
     Result,
@@ -900,5 +901,11 @@ where
     /// For more details visit: [`ink_env::caller_is_origin`]
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
+    }
+
+    ///
+    pub fn code_hash(self, account_id: &E::AccountId) -> Result<E::Hash> {
+        let mut output = <E as Environment>::Hash::clear();
+        ink_env::code_hash::<E>(account_id, &mut output).map(|_| output.into())
     }
 }

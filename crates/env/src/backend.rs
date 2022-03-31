@@ -447,4 +447,18 @@ pub trait TypedEnvBackend: EnvBackend {
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment;
+
+    /// Reads the code hash of the contract for the given `account`,
+    /// and stores the result in `output`.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`code_hash`][`crate::code_hash`]
+    fn code_hash<E>(
+        &mut self,
+        account: &E::AccountId,
+        output: &mut E::Hash,
+    ) -> Result<()>
+    where
+        E: Environment;
 }
