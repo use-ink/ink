@@ -448,7 +448,7 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    /// Reads the code hash of the contract for the given `account`,
+    /// Retrieves the code hash of the contract for the given `account`,
     /// and stores the result in `output`.
     ///
     /// # Note
