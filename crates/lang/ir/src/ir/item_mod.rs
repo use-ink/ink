@@ -587,7 +587,6 @@ impl<'a> Iterator for IterItemImpls<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate as ir;
 
     #[test]
