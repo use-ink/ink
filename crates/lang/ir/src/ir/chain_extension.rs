@@ -17,10 +17,7 @@ use crate::{
     ir,
     ir::idents_lint,
 };
-use core::{
-    convert::TryFrom,
-    slice::Iter as SliceIter,
-};
+use core::slice::Iter as SliceIter;
 use proc_macro2::TokenStream as TokenStream2;
 use std::collections::HashMap;
 use syn::{

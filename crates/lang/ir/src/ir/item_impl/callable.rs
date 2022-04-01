@@ -536,10 +536,7 @@ impl<'a> ExactSizeIterator for InputsIter<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::{
-        convert::TryFrom,
-        fmt::Debug,
-    };
+    use core::fmt::Debug;
 
     pub enum ExpectedSelector {
         Raw([u8; 4]),
