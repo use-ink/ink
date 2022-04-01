@@ -17,7 +17,6 @@ use crate::{
     ast::MetaNameValue,
     error::ExtError as _,
 };
-use core::convert::TryFrom;
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 

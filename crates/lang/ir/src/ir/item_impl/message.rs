@@ -24,7 +24,6 @@ use crate::ir::{
     attrs::SelectorOrWildcard,
     utils,
 };
-use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
     Span,
@@ -69,7 +68,6 @@ impl Receiver {
 /// ## Inherent implementation message:
 ///
 /// ```
-/// # use core::convert::TryFrom;
 /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(message)]
@@ -84,7 +82,6 @@ impl Receiver {
 /// ## Trait implementation message:
 ///
 /// ```
-/// # use core::convert::TryFrom;
 /// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(message)]

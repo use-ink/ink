@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::ir::idents_lint;
-use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 
 /// The ink! test with all required information.

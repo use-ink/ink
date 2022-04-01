@@ -28,7 +28,6 @@ use crate::{
     ir,
     ir::attrs::Attrs as _,
 };
-use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
 /// An item in the root of the ink! module ([`ir::ItemMod`](`crate::ir::ItemMod`)).

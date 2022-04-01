@@ -24,7 +24,6 @@ use core::{
         Ord,
         PartialEq,
     },
-    iter::FromIterator,
     ops,
 };
 use ink_env::hash::{

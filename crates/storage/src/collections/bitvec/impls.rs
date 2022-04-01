@@ -16,7 +16,6 @@ use super::{
     BitsIter,
     Bitvec as StorageBitvec,
 };
-use core::iter::FromIterator;
 
 impl Default for StorageBitvec {
     fn default() -> Self {
