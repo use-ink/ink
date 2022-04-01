@@ -51,6 +51,7 @@ pub use self::{
         Event,
         ExtensionId,
         ImplItem,
+        InkEventDefinition,
         InkItem,
         InkItemTrait,
         InkTest,

@@ -1,10 +1,7 @@
 use ink_lang as ink;
 
-#[derive(ink::Event)]
+#[ink::event_definition]
 pub struct Event0 {}
-
-// #[ink(event)]
-// pub enum Event1 {}
 
 #[ink::contract]
 mod contract {

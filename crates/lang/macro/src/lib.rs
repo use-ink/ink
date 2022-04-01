@@ -17,6 +17,7 @@ extern crate proc_macro;
 mod blake2b;
 mod chain_extension;
 mod contract;
+mod event_def;
 mod ink_test;
 mod selector;
 mod trait_def;
@@ -663,6 +664,13 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
+}
+
+/// todo derive Event docs
+
+#[proc_macro_attribute]
+pub fn event_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
+    event_def::generate(attr.into(),item.into()).into()
 }
 
 /// Defines a unit test that makes use of ink!'s off-chain testing capabilities.
