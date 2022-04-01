@@ -28,7 +28,6 @@ pub use self::{
     },
 };
 use super::attrs::InkAttribute;
-use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 

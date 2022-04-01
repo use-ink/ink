@@ -17,7 +17,6 @@ use crate::{
     ir,
     ir::attrs::Attrs as _,
 };
-use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
     Span,
@@ -124,7 +123,6 @@ impl ItemImpl {
     /// - The ink! implementation block has been annotated as in:
     ///
     /// ```
-    /// # use core::convert::TryFrom;
     /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// #[ink(impl)]
     /// impl MyStorage {
@@ -140,7 +138,6 @@ impl ItemImpl {
     ///   specific annotations:
     ///
     /// ```
-    /// # use core::convert::TryFrom;
     /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::ir;
-use core::convert::TryFrom;
 
 #[test]
 fn is_ink_impl_block_eval_false_works() {

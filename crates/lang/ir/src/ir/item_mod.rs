@@ -17,7 +17,6 @@ use crate::{
     ir::idents_lint,
     Callable,
 };
-use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
     Span,
@@ -41,7 +40,6 @@ use syn::{
 ///
 /// ```
 /// // #[ink::contract] <-- this line belongs to the ink! configuration!
-/// # use core::convert::TryFrom;
 /// # use ink_lang_ir as ir;
 /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
 /// mod my_contract {
@@ -413,7 +411,6 @@ impl ItemMod {
     /// least one `#[ink(message)]` or `#[ink(constructor)]` annotation, e.g.:
     ///
     /// ```
-    /// # use core::convert::TryFrom;
     /// # use ink_lang_ir as ir;
     /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
     /// # mod my_module {
@@ -442,7 +439,6 @@ impl ItemMod {
     /// e.g.:
     ///
     /// ```
-    /// # use core::convert::TryFrom;
     /// # use ink_lang_ir as ir;
     /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
     /// # mod my_module {
