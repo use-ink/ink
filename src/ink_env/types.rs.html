@@ -334,9 +334,6 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -371,10 +368,7 @@
 <span class="doccomment">//! the trait bounds on the `Environment` trait types.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::arithmetic::AtLeast32BitUnsigned</span>;
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">array::TryFromSliceError</span>,
-    <span class="ident">convert::TryFrom</span>,
-};
+<span class="kw">use</span> <span class="ident">core::array::TryFromSliceError</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">scale</span>::{
     <span class="ident">Decode</span>,

@@ -378,9 +378,6 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -400,7 +397,6 @@
     <span class="ident">ir</span>,
     <span class="ident">ir::attrs::Attrs</span> <span class="kw">as</span> <span class="kw">_</span>,
 };
-<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
     <span class="ident">Span</span>,
@@ -507,7 +503,6 @@
     <span class="doccomment">/// - The ink! implementation block has been annotated as in:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use core::convert::TryFrom;</span>
     <span class="doccomment">/// # &lt;ink_lang_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {</span>
     <span class="doccomment">/// #[ink(impl)]</span>
     <span class="doccomment">/// impl MyStorage {</span>
@@ -523,7 +518,6 @@
     <span class="doccomment">///   specific annotations:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use core::convert::TryFrom;</span>
     <span class="doccomment">/// # &lt;ink_lang_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {</span>
     <span class="doccomment">/// impl MyStorage {</span>
     <span class="doccomment">///     #[ink(constructor)]</span>

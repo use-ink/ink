@@ -237,8 +237,6 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -257,7 +255,6 @@
     <span class="ident">ir</span>,
     <span class="ident">ir::utils</span>,
 };
-<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::Ident</span>;
 <span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
@@ -273,7 +270,6 @@
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use core::convert::TryFrom;</span>
 <span class="doccomment">/// # &lt;ink_lang_ir::Storage as TryFrom&lt;syn::ItemStruct&gt;&gt;::try_from(syn::parse_quote! {</span>
 <span class="doccomment">/// #[ink(storage)]</span>
 <span class="doccomment">/// pub struct MyStorage {</span>

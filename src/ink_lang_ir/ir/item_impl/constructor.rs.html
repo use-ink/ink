@@ -641,9 +641,6 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -669,7 +666,6 @@
     <span class="ident">ir</span>,
     <span class="ident">ir::attrs::SelectorOrWildcard</span>,
 };
-<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
     <span class="ident">Span</span>,
@@ -683,7 +679,6 @@
 <span class="doccomment">/// ## Inherent implementation constructor:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use core::convert::TryFrom;</span>
 <span class="doccomment">/// # let event = &lt;ink_lang_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {</span>
 <span class="doccomment">/// impl MyStorage {</span>
 <span class="doccomment">///     #[ink(constructor)]</span>
@@ -698,7 +693,6 @@
 <span class="doccomment">/// ## Trait implementation constructor:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use core::convert::TryFrom;</span>
 <span class="doccomment">/// # &lt;ink_lang_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {</span>
 <span class="doccomment">/// impl MyTrait for MyStorage {</span>
 <span class="doccomment">///     #[ink(constructor)]</span>

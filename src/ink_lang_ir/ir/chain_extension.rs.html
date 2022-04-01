@@ -986,9 +986,6 @@
 <span id="981">981</span>
 <span id="982">982</span>
 <span id="983">983</span>
-<span id="984">984</span>
-<span id="985">985</span>
-<span id="986">986</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1008,10 +1005,7 @@
     <span class="ident">ir</span>,
     <span class="ident">ir::idents_lint</span>,
 };
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">convert::TryFrom</span>,
-    <span class="ident">slice::Iter</span> <span class="kw">as</span> <span class="ident">SliceIter</span>,
-};
+<span class="kw">use</span> <span class="ident">core::slice::Iter</span> <span class="kw">as</span> <span class="ident">SliceIter</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">syn</span>::{

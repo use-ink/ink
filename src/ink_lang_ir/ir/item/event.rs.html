@@ -482,8 +482,6 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -503,7 +501,6 @@
     <span class="ident">ir</span>,
     <span class="ident">ir::utils</span>,
 };
-<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
     <span class="ident">Span</span>,
@@ -515,7 +512,6 @@
 <span class="doccomment">/// # Example</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use core::convert::TryFrom;</span>
 <span class="doccomment">/// # let event = &lt;ink_lang_ir::Event as TryFrom&lt;syn::ItemStruct&gt;&gt;::try_from(syn::parse_quote! {</span>
 <span class="doccomment">/// #[ink(event)]</span>
 <span class="doccomment">/// pub struct Transaction {</span>
