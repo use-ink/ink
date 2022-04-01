@@ -35,6 +35,10 @@ impl<'a> CodeGenerator for &'a ir::Contract {
     type Generator = generator::Contract<'a>;
 }
 
+impl<'a> CodeGenerator for &'a ir::InkEventDefinition {
+    type Generator = generator::EventDefinition<'a>;
+}
+
 impl<'a> CodeGenerator for &'a ir::InkTraitDefinition {
     type Generator = generator::TraitDefinition<'a>;
 }

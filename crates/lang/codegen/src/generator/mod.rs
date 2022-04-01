@@ -33,6 +33,7 @@ mod chain_extension;
 mod contract;
 mod dispatch;
 mod env;
+mod event_def;
 mod events;
 mod ink_test;
 mod item_impls;
@@ -57,6 +58,7 @@ pub use self::{
     contract::Contract,
     dispatch::Dispatch,
     env::Env,
+    event_def::EventDefinition,
     events::Events,
     ink_test::InkTest,
     item_impls::ItemImpls,

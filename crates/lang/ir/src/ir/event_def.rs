@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
@@ -24,6 +25,7 @@ pub struct InkEventDefinition {
 impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! trait definition.
     pub fn new(config: TokenStream2, input: TokenStream2) -> Result<Self> {
+        todo!()
         // let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         // let parsed_item = syn::parse2::<syn::ItemTrait>(input)?;
         // let config = TraitDefinitionConfig::try_from(parsed_config)?;
