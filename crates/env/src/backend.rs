@@ -454,11 +454,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`code_hash`][`crate::code_hash`]
-    fn code_hash<E>(
-        &mut self,
-        account: &E::AccountId,
-        output: &mut E::Hash,
-    ) -> Result<()>
+    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
     where
         E: Environment;
 
@@ -467,7 +463,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash<E>(&mut self, output: &mut E::Hash) -> Result<()>
+    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment;
 }

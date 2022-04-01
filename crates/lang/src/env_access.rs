@@ -25,7 +25,6 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
-    Clear,
     Environment,
     Error,
     Result,
@@ -921,8 +920,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn code_hash(&mut self, account_id: AccountId) -> Result<Hash> {
-    ///     self.env().code_hash(&account_id)
+    /// pub fn code_hash(&mut self, account_id: AccountId) -> Option<Hash> {
+    ///     self.env().code_hash(&account_id).ok()
     /// }
     /// #    }
     /// # }
@@ -932,8 +931,7 @@ where
     ///
     /// For more details visit: [`ink_env::code_hash`]
     pub fn code_hash(self, account_id: &E::AccountId) -> Result<E::Hash> {
-        let mut output = <E as Environment>::Hash::clear();
-        ink_env::code_hash::<E>(account_id, &mut output).map(|_| output)
+        ink_env::code_hash::<E>(account_id)
     }
 
     /// Returns the code hash of the contract living at the given `account`.
@@ -954,8 +952,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn own_code_hash(&mut self) -> Result<Hash> {
-    ///     self.env().own_code_hash()
+    /// pub fn own_code_hash(&mut self) -> Hash {
+    ///     self.env().own_code_hash().expect("contract should have a code hash")
     /// }
     /// #    }
     /// # }
@@ -965,7 +963,6 @@ where
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
     pub fn own_code_hash(self) -> Result<E::Hash> {
-        let mut output = <E as Environment>::Hash::clear();
-        ink_env::own_code_hash::<E>(&mut output).map(|_| output)
+        ink_env::own_code_hash::<E>()
     }
 }

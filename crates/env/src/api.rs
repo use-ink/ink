@@ -515,23 +515,19 @@ where
 }
 
 /// Retrieves the code hash of a contract living at specified account
-pub fn code_hash<E>(account: &E::AccountId, output: &mut E::Hash) -> Result<()>
+pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.code_hash::<E>(account, output)
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.code_hash::<E>(account))
 }
 
 /// Retrieves the code hash of the currently executing contract.
-pub fn own_code_hash<E>(output: &mut E::Hash) -> Result<()>
+pub fn own_code_hash<E>() -> Result<E::Hash>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.own_code_hash::<E>(output)
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.own_code_hash::<E>())
 }
 
 /// Checks whether the caller of the current contract is the origin of the whole call stack.
