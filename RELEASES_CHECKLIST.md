@@ -21,6 +21,15 @@ Reasons for doing it this way:
   released at the same time.
 * Third party tooling like dependabot can easily extract the changelog.
 
+## Examples
+Examples (so anything in the `examples/` folder) are a bit of a special case in our
+release pipeline since they are considered as ink! internals and not part of the library
+per-say.
+
+What this means is that any changes to the examples (breaking or not) should only be
+considered a `PATCH` level change. Additionally, they should not be published to
+crates.io.
+
 ## Checklist
 
 1. Make sure you've moved the changes in the `RELEASES.md` from `[Unreleased]` into a new section for the release.
