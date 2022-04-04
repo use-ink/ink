@@ -3,7 +3,7 @@ name = "delegator"
 version = "3.0.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
-publish = "false"
+publish = false
 
 [dependencies]
 ink_primitives = { version = "3.0.1", path = "../../crates/primitives", default-features = false }
