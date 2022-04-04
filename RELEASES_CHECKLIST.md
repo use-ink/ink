@@ -26,6 +26,7 @@ per-say.
 
 What this means is that any changes to the examples (breaking or not) should only be
 considered a `PATCH` level change. Additionally, they should not be published to
+crates.io.
 
 
 ## Checklist
