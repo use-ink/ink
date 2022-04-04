@@ -12,24 +12,113 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::TokenStream as TokenStream2;
-use syn::Result;
+use crate::ir;
+use proc_macro2::{
+    Ident,
+    Span,
+    TokenStream as TokenStream2,
+};
+use syn::{Result, spanned::Spanned as _};
 
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkEventDefinition {
-    // config: TraitDefinitionConfig,
-    // item: InkItemTrait,
+    item: syn::ItemStruct,
+    pub anonymous: bool,
 }
 
 impl InkEventDefinition {
-    /// Returns `Ok` if the input matches all requirements for an ink! trait definition.
+    /// Returns `Ok` if the input matches all requirements for an ink! event definition.
     pub fn new(config: TokenStream2, input: TokenStream2) -> Result<Self> {
-        todo!()
-        // let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
-        // let parsed_item = syn::parse2::<syn::ItemTrait>(input)?;
-        // let config = TraitDefinitionConfig::try_from(parsed_config)?;
+        let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
+        let anonymous = false; // todo parse this from attr config
+        let item = syn::parse2::<syn::ItemStruct>(input)?;
         // let item = InkItemTrait::new(&config, parsed_item)?;
-        // Ok(Self { config, item })
+        Ok(Self { anonymous, item })
+    }
+
+    /// Returns the identifier of the event struct.
+    pub fn ident(&self) -> &Ident {
+        &self.item.ident
+    }
+
+    /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
+    /// of the event struct.
+    pub fn fields(&self) -> EventFieldsIter {
+        EventFieldsIter::new(self)
+    }
+
+    /// Returns all non-ink! attributes.
+    pub fn attrs(&self) -> &[syn::Attribute] {
+        &self.item.attrs
+    }
+}
+
+/// An event field with a flag indicating if this field is an event topic.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct EventField<'a> {
+    /// The associated `field` is an event topic if this is `true`.
+    pub is_topic: bool,
+    /// The event field.
+    field: &'a syn::Field,
+}
+
+impl<'a> EventField<'a> {
+    /// Returns the span of the event field.
+    pub fn span(self) -> Span {
+        self.field.span()
+    }
+
+    /// Returns all non-ink! attributes of the event field.
+    pub fn attrs(self) -> Vec<syn::Attribute> {
+        let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
+            .expect("encountered invalid event field attributes");
+        non_ink_attrs
+    }
+
+    /// Returns the visibility of the event field.
+    pub fn vis(self) -> &'a syn::Visibility {
+        &self.field.vis
+    }
+
+    /// Returns the identifier of the event field if any.
+    pub fn ident(self) -> Option<&'a Ident> {
+        self.field.ident.as_ref()
+    }
+
+    /// Returns the type of the event field.
+    pub fn ty(self) -> &'a syn::Type {
+        &self.field.ty
+    }
+}
+
+/// Iterator yielding all `#[ink(topic)]` annotated fields of an event struct.
+pub struct EventFieldsIter<'a> {
+    iter: syn::punctuated::Iter<'a, syn::Field>,
+}
+
+impl<'a> EventFieldsIter<'a> {
+    /// Creates a new topics fields iterator for the given ink! event struct.
+    fn new(event: &'a InkEventDefinition) -> Self {
+        Self {
+            iter: event.item.fields.iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for EventFieldsIter<'a> {
+    type Item = EventField<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iter.next() {
+            None => None,
+            Some(field) => {
+                let is_topic = ir::first_ink_attribute(&field.attrs)
+                    .unwrap_or_default()
+                    .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
+                    .unwrap_or_default();
+                Some(EventField { is_topic, field })
+            }
+        }
     }
 }

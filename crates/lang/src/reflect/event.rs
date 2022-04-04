@@ -50,3 +50,17 @@ pub trait ContractEventBase {
     /// The generated base event enum.
     type Type;
 }
+
+/// todo: docs
+pub trait EventInfo {
+    /// The complete path of the ink! event definition.
+    ///
+    /// This is equivalent to Rust's builtin `module_path!` macro
+    /// invocation at the definition site of the ink! event, concatenated with
+    /// the event identifier.
+    ///
+    /// todo: rename?
+    const PATH: &'static str;
+
+
+}

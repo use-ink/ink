@@ -23,7 +23,10 @@ pub fn generate(config: TokenStream2, input: TokenStream2) -> TokenStream2 {
     }
 }
 
-pub fn generate_or_err(config: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+pub fn generate_or_err(
+    config: TokenStream2,
+    input: TokenStream2,
+) -> Result<TokenStream2> {
     let trait_definition = ink_lang_ir::InkEventDefinition::new(config, input)?;
     Ok(generate_code(&trait_definition))
 }

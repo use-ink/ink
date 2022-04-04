@@ -670,7 +670,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn event_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
-    event_def::generate(attr.into(),item.into()).into()
+    event_def::generate(attr.into(), item.into()).into()
 }
 
 /// Defines a unit test that makes use of ink!'s off-chain testing capabilities.
