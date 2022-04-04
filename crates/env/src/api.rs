@@ -514,7 +514,7 @@ where
     })
 }
 
-/// Retrieves the code hash of a contract living at specified account
+/// Retrieves the code hash of the contract at the specified account id.
 pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,

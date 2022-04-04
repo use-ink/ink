@@ -902,7 +902,7 @@ where
         ink_env::caller_is_origin::<E>()
     }
 
-    /// Returns the code hash of the contract living at the given `account`.
+    /// Returns the code hash of the contract at the given `account` id.
     ///
     /// # Example
     ///
