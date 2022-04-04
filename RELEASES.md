@@ -3,11 +3,11 @@
 # Version 3.0.1
 
 ## Changed
-- Improve upgradeable examples folder structure, explain differences [#1188](https://github.com/paritytech/ink/pull/1188)
+- Improve upgradeable examples folder structure, explain differences ‒ [#1188](https://github.com/paritytech/ink/pull/1188)
 
 ## Fixed
-- Update codegen after SCALE v3.1.2 release [#1189](https://github.com/paritytech/ink/pull/1189)
-- Stop using CallData in Multisig doc test [#1202](https://github.com/paritytech/ink/pull/1202)
+- Update codegen after SCALE v3.1.2 release ‒ [#1189](https://github.com/paritytech/ink/pull/1189)
+- Stop using `CallData` in `multisig` example doc test ‒ [#1202](https://github.com/paritytech/ink/pull/1202)
 
 # Version 3.0.0
 
