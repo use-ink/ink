@@ -32,8 +32,16 @@ crates.io.
 
 ## Checklist
 
-1. Make sure you've moved the changes in the `RELEASES.md` from `[Unreleased]` into a new section for the release.
-1. Check that all PRs since the last release are now in the new release section, in case the `[Unreleased]` section was incomplete.
+1. Bump the version in all the TOML files to the new version.
+    ```
+    find . -type f -name *.toml -exec sed -i -e 's/$OLD_VERSION/$NEW_VERSION/g' {} \;
+    ```
+1. Make sure you've moved the changes in the `RELEASES.md` from `[Unreleased]` into a new
+   section for the release.
+1. Check that all notable PRs since the last release are now in the new release section,
+   in case the `[Unreleased]` section was incomplete.<br>
+   Notable changes are changes that affect users in some way. This means that something
+   like a change to our CI pipeline is likely not notable and should not be included.
 1. Make sure you've merged the latest `master` into your branch.
 1. Execute `cargo unleash em-dragons --dry-run` in the ink! repository.
 1. If successful, execute `cargo unleash em-dragons`.<br><br>
@@ -41,15 +49,15 @@ crates.io.
    If this is the case you need to do it manually, by executing `cargo publish --allow-dirty`
    for the individual crates. The `--allow-dirty` is necessary because `cargo-unleash`
    will have removed all `[dev-dependencies]`.
-1. Merge the PR if everything went fine.
+1. Merge the PR into `master` if everything went fine.
 1. Replace `vX.X.X` with the new version in the following command and then execute it:
-	```
-	git checkout master && git pull && git tag vX.X.X && git push origin vX.X.X
-	```
+    ```
+    git checkout master && git pull && git tag vX.X.X && git push origin vX.X.X
+    ```
 1. Create a GitHub release for this tag. In the [tag overview](https://github.com/paritytech/ink/tags)
    you'll see your new tag appear. Click the `…` on the right of the tag and then `Create release`.
 1. Paste the release notes that appear in the [`RELEASES.md`](https://github.com/paritytech/ink/blob/master/RELEASES.md)
    there. The title of the release should be `vX.X.X`.
 1. Post an announcement to those Element channels:
-	* [Smart Contracts & Parity ink!](https://matrix.to/#/#ink:matrix.parity.io)
-	* [ink! Announcements](https://matrix.to/#/#ink-announcements:matrix.parity.io)
+    * [Smart Contracts & Parity ink!](https://matrix.to/#/#ink:matrix.parity.io)
+    * [ink! Announcements](https://matrix.to/#/#ink-announcements:matrix.parity.io)
