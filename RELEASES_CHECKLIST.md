@@ -1,8 +1,5 @@
 # How to release
 
-Obviously there has to be an ink! PR, it has to be approved by core team
-members, and the CI has to be green.
-
 Generally, we bump and publish the versions of all crates in this
 mono-repository in lockstep.
 It does not matter if it's a `PATCH`, `MINOR`, `MAJOR` release.
@@ -22,16 +19,18 @@ Reasons for doing it this way:
 * Third party tooling like dependabot can easily extract the changelog.
 
 ## Examples
+
 Examples (so anything in the `examples/` folder) are a bit of a special case in our
 release pipeline since they are considered as ink! internals and not part of the library
 per-say.
 
 What this means is that any changes to the examples (breaking or not) should only be
 considered a `PATCH` level change. Additionally, they should not be published to
-crates.io.
+
 
 ## Checklist
 
+1. Create a new feature branch off `master`.
 1. Bump the version in all the TOML files to the new version.
     ```
     find . -type f -name *.toml -exec sed -i -e 's/$OLD_VERSION/$NEW_VERSION/g' {} \;
@@ -43,13 +42,18 @@ crates.io.
    Notable changes are changes that affect users in some way. This means that something
    like a change to our CI pipeline is likely not notable and should not be included.
 1. Make sure you've merged the latest `master` into your branch.
+1. Open a release PR
+    1. Wait for approvals from Core team members
+    1. Ensure the entire CI pipeline is green
 1. Execute `cargo unleash em-dragons --dry-run` in the ink! repository.
-1. If successful, execute `cargo unleash em-dragons`.<br><br>
+1. If successful, execute `cargo unleash em-dragons`.<br>
    In some versions of `cargo-unleash` there is a bug during publishing.
    If this is the case you need to do it manually, by executing `cargo publish --allow-dirty`
    for the individual crates. The `--allow-dirty` is necessary because `cargo-unleash`
    will have removed all `[dev-dependencies]`.
 1. Merge the PR into `master` if everything went fine.
+   We do this _after_ publishing since the publishing step can fail and we want to ensure
+   that what gets merged into `master` is what actually got published.
 1. Replace `vX.X.X` with the new version in the following command and then execute it:
     ```
     git checkout master && git pull && git tag vX.X.X && git push origin vX.X.X
