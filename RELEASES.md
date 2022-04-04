@@ -1,4 +1,6 @@
-# [Unreleased] - Version 3.0.1
+# [Unreleased]
+
+# Version 3.0.1
 
 ## Changed
 - Improve upgradeable examples folder structure, explain differences [#1188](https://github.com/paritytech/ink/pull/1188)
