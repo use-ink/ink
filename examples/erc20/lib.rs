@@ -247,22 +247,10 @@ mod erc20 {
                 panic!("encountered unexpected event kind: expected a Transfer event")
             }
             let expected_topics = vec![
-                encoded_into_hash(&PrefixedValue {
-                    value: b"Erc20::Transfer",
-                    prefix: b"",
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::from",
-                    value: &expected_from,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::to",
-                    value: &expected_to,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::value",
-                    value: &expected_value,
-                }),
+                encoded_into_hash(b"Erc20::Transfer", &()),
+                encoded_into_hash(b"Erc20::Transfer::from", &expected_from),
+                encoded_into_hash(b"Erc20::Transfer::to", &expected_to),
+                encoded_into_hash(b"Erc20::Transfer::value", &expected_value),
             ];
 
             let topics = event.topics.clone();
@@ -488,29 +476,7 @@ mod erc20 {
             )
         }
 
-        /// For calculating the event topic hash.
-        struct PrefixedValue<'a, 'b, T> {
-            pub prefix: &'a [u8],
-            pub value: &'b T,
-        }
-
-        impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-        where
-            X: scale::Encode,
-        {
-            #[inline]
-            fn size_hint(&self) -> usize {
-                self.prefix.size_hint() + self.value.size_hint()
-            }
-
-            #[inline]
-            fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-                self.prefix.encode_to(dest);
-                self.value.encode_to(dest);
-            }
-        }
-
-        fn encoded_into_hash<T>(entity: &T) -> Hash
+        fn encoded_into_hash<T>(prefix: &[u8], entity: &T) -> Hash
         where
             T: scale::Encode,
         {
@@ -524,7 +490,8 @@ mod erc20 {
             };
             let mut result = Hash::clear();
             let len_result = result.as_ref().len();
-            let encoded = entity.encode();
+            let mut encoded = prefix.to_vec();
+            entity.encode_to(&mut encoded);
             let len_encoded = encoded.len();
             if len_encoded <= len_result {
                 result.as_mut()[..len_encoded].copy_from_slice(&encoded);
