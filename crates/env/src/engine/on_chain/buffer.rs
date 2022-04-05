@@ -152,7 +152,7 @@ impl<'a> ScopedBuffer<'a> {
         buffer
     }
 
-    /// todo
+    /// Appends the given `bytes` to the scoped buffer.
     pub fn append_bytes(&mut self, bytes: &[u8]) {
         debug_assert_eq!(self.offset, 0);
         let buffer = self.take(bytes.len());
