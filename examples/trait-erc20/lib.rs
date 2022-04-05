@@ -295,13 +295,14 @@ mod erc20 {
                 panic!("encountered unexpected event kind: expected a Transfer event")
             }
 
-            fn encoded_into_hash<T>(entity: &T) -> Hash
+            fn encoded_into_hash<T>(prefix: &[u8], entity: &T) -> Hash
             where
                 T: scale::Encode,
             {
                 let mut result = Hash::clear();
                 let len_result = result.as_ref().len();
-                let encoded = entity.encode();
+                let mut encoded = prefix.to_vec();
+                entity.encode_to(&mut encoded);
                 let len_encoded = encoded.len();
                 if len_encoded <= len_result {
                     result.as_mut()[..len_encoded].copy_from_slice(&encoded);
@@ -315,23 +316,11 @@ mod erc20 {
                 result
             }
 
-            let expected_topics = [
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"",
-                    value: b"Erc20::Transfer",
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::from",
-                    value: &expected_from,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::to",
-                    value: &expected_to,
-                }),
-                encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer::value",
-                    value: &expected_value,
-                }),
+            let expected_topics = vec![
+                encoded_into_hash(b"Erc20::Transfer", &()),
+                encoded_into_hash(b"Erc20::Transfer::from", &expected_from),
+                encoded_into_hash(b"Erc20::Transfer::to", &expected_to),
+                encoded_into_hash(b"Erc20::Transfer::value", &expected_value),
             ];
             for (n, (actual_topic, expected_topic)) in
                 event.topics.iter().zip(expected_topics).enumerate()
