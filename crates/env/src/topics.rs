@@ -202,36 +202,3 @@ pub trait Topics {
         E: Environment,
         B: TopicsBuilderBackend<E>;
 }
-
-/// For each topic a hash is generated. This hash must be unique
-/// for a field and its value. The `prefix` is concatenated
-/// with the `value`. This result is then hashed.
-/// The `prefix` is typically set to the path a field has in
-/// an event struct plus the identifier of the event struct.
-///
-/// For example, in the case of our ERC-20 example contract the
-/// prefix `Erc20::Transfer::from` is concatenated with the
-/// field value of `from` and then hashed.
-/// In this example `Erc20` would be the contract identified,
-/// `Transfer` the event identifier, and `from` the field identifier.
-#[doc(hidden)]
-pub struct PrefixedValue<'a, 'b, T> {
-    pub prefix: &'a [u8],
-    pub value: &'b T,
-}
-
-impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-where
-    X: scale::Encode,
-{
-    #[inline]
-    fn size_hint(&self) -> usize {
-        self.prefix.size_hint() + self.value.size_hint()
-    }
-
-    #[inline]
-    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-        self.prefix.encode_to(dest);
-        self.value.encode_to(dest);
-    }
-}
