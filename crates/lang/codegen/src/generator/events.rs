@@ -208,18 +208,14 @@ impl<'a> Events<'a> {
                             field_ident
                         ).as_bytes(), span);
                     quote_spanned!(span =>
-                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                            &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
-                        )
+                        .push_topic::<#field_type>(#signature, &self.#field_ident)
                     )
                 });
             // Only include topic for event signature in case of non-anonymous event.
             let event_signature_topic = match event.anonymous {
                 true => None,
                 false => Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
-                        &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
-                    )
+                    .push_topic::<[u8; #len_event_signature]>(b"", #event_signature)
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.

@@ -130,7 +130,7 @@ where
 
     fn expect(&mut self, _expected_topics: usize) {}
 
-    fn push_topic<T>(&mut self, topic_value: &T)
+    fn push_topic<T>(&mut self, topic_prefix: &[u8], topic_value: &T)
     where
         T: scale::Encode,
     {

@@ -31,7 +31,7 @@ where
     fn expect(&mut self, expected_topics: usize);
 
     /// Pushes another topic for serialization to the backend.
-    fn push_topic<T>(&mut self, topic_value: &T)
+    fn push_topic<T>(&mut self, topic_prefix: &[u8], topic_value: &T)
     where
         T: scale::Encode;
 
@@ -105,12 +105,13 @@ where
     /// than before the call.
     pub fn push_topic<T>(
         mut self,
+        prefix: &[u8],
         value: &T,
     ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, E, B>
     where
         T: scale::Encode,
     {
-        self.backend.push_topic(value);
+        self.backend.push_topic(prefix, value);
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),

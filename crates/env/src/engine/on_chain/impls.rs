@@ -142,7 +142,7 @@ where
             .append_encoded(&scale::Compact(expected_topics as u32));
     }
 
-    fn push_topic<T>(&mut self, topic_value: &T)
+    fn push_topic<T>(&mut self, topic_prefix: &[u8], topic_value: &T)
     where
         T: scale::Encode,
     {
@@ -161,6 +161,7 @@ where
             result
         }
 
+        let _ = self.scoped_buffer.take_bytes(topic_prefix);
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
         let result = inner::<E>(encoded);
