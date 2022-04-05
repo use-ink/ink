@@ -161,11 +161,11 @@ where
             result
         }
 
-        let _ = self.scoped_buffer.take_bytes(topic_prefix);
+        self.scoped_buffer.append_bytes(topic_prefix);
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
         let result = inner::<E>(encoded);
-        self.scoped_buffer.append_encoded(&result);
+        self.scoped_buffer.append_bytes(result.as_ref());
     }
 
     fn output(mut self) -> Self::Output {

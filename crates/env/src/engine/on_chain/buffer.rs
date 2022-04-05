@@ -152,6 +152,13 @@ impl<'a> ScopedBuffer<'a> {
         buffer
     }
 
+    /// todo
+    pub fn append_bytes(&mut self, bytes: &[u8]) {
+        debug_assert_eq!(self.offset, 0);
+        let buffer = self.take(bytes.len());
+        buffer.copy_from_slice(bytes);
+    }
+
     /// Encode the given value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
     pub fn take_encoded<T>(&mut self, value: &T) -> &'a mut [u8]
