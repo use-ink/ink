@@ -134,7 +134,8 @@ where
     where
         T: scale::Encode,
     {
-        let encoded = topic_value.encode();
+        let mut encoded = topic_prefix.to_vec();
+        topic_value.encode_to(&mut encoded);
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
