@@ -463,7 +463,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    fn own_code_hash<E>(&mut self) -> E::Hash
     where
         E: Environment;
 }

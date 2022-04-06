@@ -953,7 +953,7 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn own_code_hash(&mut self) -> Hash {
-    ///     self.env().own_code_hash().expect("contract should have a code hash")
+    ///     self.env().own_code_hash()
     /// }
     /// #    }
     /// # }
@@ -962,7 +962,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::own_code_hash`]
-    pub fn own_code_hash(self) -> Result<E::Hash> {
+    pub fn own_code_hash(self) -> E::Hash {
         ink_env::own_code_hash::<E>()
     }
 }

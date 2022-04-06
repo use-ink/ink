@@ -525,13 +525,12 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    fn own_code_hash<E>(&mut self) -> E::Hash
     where
         E: Environment,
     {
         let mut output = <E as Environment>::Hash::clear();
-        ext::own_code_hash(output.as_mut())
-            .map(|_| output)
-            .map_err(Into::into)
+        ext::own_code_hash(output.as_mut());
+        output
     }
 }

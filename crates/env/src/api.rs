@@ -515,6 +515,10 @@ where
 }
 
 /// Retrieves the code hash of the contract at the specified account id.
+///
+/// # Errors
+///
+/// If no code hash found for the specified account id.
 pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,
@@ -525,7 +529,7 @@ where
 }
 
 /// Retrieves the code hash of the currently executing contract.
-pub fn own_code_hash<E>() -> Result<E::Hash>
+pub fn own_code_hash<E>() -> E::Hash
 where
     E: Environment,
 {
