@@ -32,7 +32,7 @@ crates.io.
 ## Checklist
 
 1. Create a new feature branch of `master`.
-1. Bump the version in all the TOML files to the new version.
+1. Bump the version in all TOML files to the new version.
     ```
     find . -type f -name *.toml -exec sed -i -e 's/$OLD_VERSION/$NEW_VERSION/g' {} \;
     ```
