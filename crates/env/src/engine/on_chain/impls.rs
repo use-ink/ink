@@ -161,11 +161,11 @@ where
             result
         }
 
-        self.scoped_buffer
-            .append_encoded(&scale::Compact::<u64>(topic_prefix.len() as u64));
-        self.scoped_buffer.append_bytes(topic_prefix);
         let mut split = self.scoped_buffer.split();
-        let encoded = split.take_encoded(topic_value);
+        // split.append_encoded(&scale::Compact::<u64>(topic_prefix.len() as u64));
+        split.append_bytes(topic_prefix);
+        split.append_encoded(topic_value);
+        let encoded = split.take_appended();
         let result = inner::<E>(encoded);
         self.scoped_buffer.append_bytes(result.as_ref());
     }

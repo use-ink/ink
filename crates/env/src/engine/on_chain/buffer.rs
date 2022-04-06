@@ -193,7 +193,7 @@ impl<'a> ScopedBuffer<'a> {
     }
 
     /// Returns the buffer containing all encodings appended via [`append_encoded`]
-    /// in a single byte buffer.
+    /// and [`append_bytes`] in a single byte buffer.
     pub fn take_appended(&mut self) -> &'a mut [u8] {
         debug_assert_ne!(self.offset, 0);
         let offset = self.offset;
