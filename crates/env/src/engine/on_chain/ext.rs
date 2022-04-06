@@ -357,7 +357,7 @@ mod sys {
         pub fn seal_own_code_hash(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
-        ) -> ReturnCode;
+        );
     }
 }
 
