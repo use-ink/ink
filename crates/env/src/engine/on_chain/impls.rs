@@ -167,8 +167,6 @@ where
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
         let result = inner::<E>(encoded);
-        self.scoped_buffer
-            .append_encoded(&scale::Compact::<u64>(result.as_ref().len() as u64));
         self.scoped_buffer.append_bytes(result.as_ref());
     }
 

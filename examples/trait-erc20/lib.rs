@@ -301,7 +301,7 @@ mod erc20 {
             {
                 let mut result = Hash::clear();
                 let len_result = result.as_ref().len();
-                let mut encoded = prefix.to_vec();
+                let mut encoded = scale::Encode::encode(prefix);
                 entity.encode_to(&mut encoded);
                 let len_encoded = encoded.len();
                 if len_encoded <= len_result {
@@ -317,7 +317,7 @@ mod erc20 {
             }
 
             let expected_topics = vec![
-                encoded_into_hash(b"Erc20::Transfer", &()),
+                encoded_into_hash(b"", b"Erc20::Transfer"),
                 encoded_into_hash(b"Erc20::Transfer::from", &expected_from),
                 encoded_into_hash(b"Erc20::Transfer::to", &expected_to),
                 encoded_into_hash(b"Erc20::Transfer::value", &expected_value),
