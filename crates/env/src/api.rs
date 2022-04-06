@@ -519,7 +519,9 @@ pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| instance.code_hash::<E>(account))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::code_hash::<E>(instance, account)
+    })
 }
 
 /// Retrieves the code hash of the currently executing contract.
@@ -527,7 +529,9 @@ pub fn own_code_hash<E>() -> Result<E::Hash>
 where
     E: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| instance.own_code_hash::<E>())
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::own_code_hash::<E>(instance)
+    })
 }
 
 /// Checks whether the caller of the current contract is the origin of the whole call stack.
