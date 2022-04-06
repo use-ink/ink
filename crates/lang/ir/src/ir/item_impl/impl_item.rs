@@ -21,7 +21,6 @@ use crate::{
     ir,
     ir::attrs::Attrs as _,
 };
-use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
 /// An item within an ink! implementation block.

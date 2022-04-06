@@ -17,7 +17,6 @@ use crate::{
     error::ExtError as _,
     ir::config::WhitelistedAttributes,
 };
-use core::convert::TryFrom;
 use syn::spanned::Spanned;
 
 /// The ink! configuration.

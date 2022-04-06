@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::convert::TryFrom as _;
 use ink_lang_codegen::generate_code;
 use ink_lang_ir::Blake2x256Macro;
 use proc_macro2::TokenStream as TokenStream2;

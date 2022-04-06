@@ -16,7 +16,6 @@ use crate::{
     ast,
     ir,
 };
-use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 
 /// An ink! contract definition consisting of the ink! configuration and module.

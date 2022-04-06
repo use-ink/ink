@@ -36,7 +36,6 @@ use core::{
     },
     fmt,
     fmt::Debug,
-    iter::FromIterator,
     marker::PhantomData,
     ptr::NonNull,
 };

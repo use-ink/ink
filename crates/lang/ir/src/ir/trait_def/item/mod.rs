@@ -32,8 +32,6 @@ use crate::{
     },
     Selector,
 };
-#[cfg(test)]
-use core::convert::TryFrom;
 use ir::TraitPrefix;
 use proc_macro2::{
     Ident,
