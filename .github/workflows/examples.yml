@@ -30,7 +30,9 @@ jobs:
           - test
     runs-on: ${{ matrix.platform }}
     env:
-      RUST_BACKTRACE: full
+      UPGRADEABLE_CONTRACTS:    "forward-calls delegate-calls"
+      DELEGATOR_SUBCONTRACTS:   "accumulator adder subber"
+      RUST_BACKTRACE:           full
     steps:
 
       - uses: actions/setup-node@v2
@@ -86,7 +88,14 @@ jobs:
                echo "Processing delegator contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
            }
+           $upgradeable_contracts = "forward-calls","delegate-calls"
+           foreach ($contract in $upgradeable_contracts) {
+               echo "Processing upgradeable contract: $contract";
+               cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/${contract}/Cargo.toml;
+           }
+           cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
            foreach ($example in Get-ChildItem  -Directory "examples\*") {
+               if ($example -Match 'upgradeable-contracts') { continue }
                echo "Processing example: $example";
                cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
                cargo clean --manifest-path=$example/Cargo.toml;
@@ -99,7 +108,13 @@ jobs:
                echo "Processing delegator contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
            done
+           for contract in ${UPGRADEABLE_CONTRACTS}; do
+                echo "Processing upgradeable contract: $contract";
+                cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/$contract/Cargo.toml;
+           done
+           cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
            for example in examples/*/; do
+               if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
                echo "Processing example: $example";
                cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            done
