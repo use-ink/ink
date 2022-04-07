@@ -88,10 +88,10 @@ workflow:
 .vault-secrets:                    &vault-secrets
   secrets:
     CODECOV_P_TOKEN:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/CODECOV_P_TOKEN@kv
+      vault:                       cicd/gitlab/ink/CODECOV_P_TOKEN@kv
       file:                        false
     CODECOV_TOKEN:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/CODECOV_TOKEN@kv
+      vault:                       cicd/gitlab/ink/CODECOV_TOKEN@kv
       file:                        false
     GITHUB_EMAIL:
       vault:                       cicd/gitlab/parity/GITHUB_EMAIL@kv
@@ -103,10 +103,10 @@ workflow:
       vault:                       cicd/gitlab/parity/GITHUB_PR_TOKEN@kv
       file:                        false
     PIPELINE_TOKEN:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/PIPELINE_TOKEN@kv
+      vault:                       cicd/gitlab/ink/PIPELINE_TOKEN@kv
       file:                        false
     GITHUB_SSH_PRIV_KEY:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_SSH_PRIV_KEY@kv
+      vault:                       cicd/gitlab/ink/GITHUB_SSH_PRIV_KEY@kv
       file:                        false
 
 #### stage:                        lint
