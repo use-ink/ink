@@ -22,7 +22,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
-    missing_docs,
+    // missing_docs,
     bad_style,
     bare_trait_objects,
     const_err,
@@ -70,7 +70,7 @@ mod arithmetic;
 mod backend;
 pub mod call;
 pub mod chain_extension;
-mod engine;
+pub mod engine;
 mod error;
 pub mod hash;
 #[doc(hidden)]

@@ -64,10 +64,26 @@ impl<'a> Events<'a> {
                     where
                         E: Into<<#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type>,
                     {
-                        ::ink_env::emit_event::<
-                            Environment,
-                            <#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type
-                        >(event.into());
+                        use ::ink_env::engine::on_chain as oc;
+
+                        let mut static_buffer = oc::buffer::StaticBuffer::new();
+                        let mut scoped_buffer = oc::buffer::ScopedBuffer::from(&mut static_buffer[..]);
+
+                        let event = event.into();
+
+                        let (mut scope, enc_topics) = event.topics_raw(&mut scoped_buffer);
+                        let enc_data = scope.take_encoded(&event);
+                        oc::ext::deposit_event(enc_topics, enc_data);
+
+                        // ::ink_env::emit_event::<
+                        //     Environment,
+                        //     <#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type
+                        // >(event.into());
+
+                        // let (mut scope, enc_topics) =
+                        //     event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+                        // let enc_data = scope.take_encoded(&event);
+                        // ext::deposit_event(enc_topics, enc_data);
                     }
                 }
             };
@@ -122,26 +138,34 @@ impl<'a> Events<'a> {
                     const AMOUNT: usize = 0;
                 }
 
-                impl ::ink_env::Topics for #base_event_ident {
-                    type RemainingTopics = __ink_UndefinedAmountOfTopics;
-
-                    fn topics<E, B>(
-                        &self,
-                        builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-                    where
-                        E: ::ink_env::Environment,
-                        B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                impl #base_event_ident {
+                    fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>)
+                        -> (::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, &'a mut [u8])
                     {
-                        match self {
-                            #(
-                                Self::#event_idents(event) => {
-                                    <#event_idents as ::ink_env::Topics>::topics::<E, B>(event, builder)
-                                }
-                            )*
-                        }
+                        todo!()
                     }
                 }
+
+                // impl ::ink_env::Topics for #base_event_ident {
+                //     type RemainingTopics = __ink_UndefinedAmountOfTopics;
+                //
+                //     fn topics<E, B>(
+                //         &self,
+                //         builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
+                //     ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+                //     where
+                //         E: ::ink_env::Environment,
+                //         B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                //     {
+                //         match self {
+                //             #(
+                //                 Self::#event_idents(event) => {
+                //                     <#event_idents as ::ink_env::Topics>::topics::<E, B>(event, builder)
+                //                 }
+                //             )*
+                //         }
+                //     }
+                // }
             };
         }
     }
