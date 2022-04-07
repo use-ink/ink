@@ -142,7 +142,13 @@ impl<'a> Events<'a> {
                     fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>)
                         -> (::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, &'a mut [u8])
                     {
-                        todo!()
+                        match self {
+                            #(
+                                Self::#event_idents(event) => {
+                                    event.topics_raw(buffer)
+                                }
+                            )*
+                        }
                     }
                 }
 
@@ -254,26 +260,33 @@ impl<'a> Events<'a> {
             };
             quote_spanned!(span =>
                 const _: () = {
-                    impl ::ink_env::Topics for #event_ident {
-                        type RemainingTopics = #remaining_topics_ty;
-
-                        fn topics<E, B>(
-                            &self,
-                            builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                        ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-                        where
-                            E: ::ink_env::Environment,
-                            B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                    impl #event_ident {
+                        fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>)
+                            -> (::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, &'a mut [u8])
                         {
-                            builder
-                                .build::<Self>()
-                                #event_signature_topic
-                                #(
-                                    #topic_impls
-                                )*
-                                .finish()
+                            todo!()
                         }
                     }
+                    // impl ::ink_env::Topics for #event_ident {
+                    //     type RemainingTopics = #remaining_topics_ty;
+                    //
+                    //     fn topics<E, B>(
+                    //         &self,
+                    //         builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
+                    //     ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+                    //     where
+                    //         E: ::ink_env::Environment,
+                    //         B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                    //     {
+                    //         builder
+                    //             .build::<Self>()
+                    //             #event_signature_topic
+                    //             #(
+                    //                 #topic_impls
+                    //             )*
+                    //             .finish()
+                    //     }
+                    // }
                 };
             )
         })
