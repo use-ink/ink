@@ -116,6 +116,32 @@ impl<'a> Events<'a> {
                 #( #event_idents(#event_idents), )*
             }
 
+            fn push_topic<E, T>(buffer: &mut ::ink_env::engine::on_chain::buffer::ScopedBuffer, topic_value: &T)
+            where
+                E: ::ink_env::Environment,
+                T: ::scale::Encode,
+            {
+                fn inner<E: ::ink_env::Environment>(encoded: &mut [u8]) -> <E as ::ink_env::Environment>::Hash {
+                    let len_encoded = encoded.len();
+                    let mut result = <<E as ::ink_env::Environment>::Hash as ::ink_env::Clear>::clear();
+                    let len_result = result.as_ref().len();
+                    if len_encoded <= len_result {
+                        result.as_mut()[..len_encoded].copy_from_slice(encoded);
+                    } else {
+                        let mut hash_output = <::ink_env::hash::Blake2x256 as ::ink_env::hash::HashOutput>::Type::default();
+                        <::ink_env::hash::Blake2x256 as ::ink_env::hash::CryptoHash>::hash(encoded, &mut hash_output);
+                        let copy_len = core::cmp::min(hash_output.len(), len_result);
+                        result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+                    }
+                    result
+                }
+
+                let mut split = buffer.split();
+                let encoded = split.take_encoded(topic_value);
+                let result = inner::<E>(encoded);
+                buffer.append_encoded(&result);
+            }
+
             const _: () = {
                 impl ::ink_lang::reflect::ContractEventBase for #storage_ident {
                     type Type = #base_event_ident;
@@ -151,27 +177,6 @@ impl<'a> Events<'a> {
                         }
                     }
                 }
-
-                // impl ::ink_env::Topics for #base_event_ident {
-                //     type RemainingTopics = __ink_UndefinedAmountOfTopics;
-                //
-                //     fn topics<E, B>(
-                //         &self,
-                //         builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                //     ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-                //     where
-                //         E: ::ink_env::Environment,
-                //         B: ::ink_env::topics::TopicsBuilderBackend<E>,
-                //     {
-                //         match self {
-                //             #(
-                //                 Self::#event_idents(event) => {
-                //                     <#event_idents as ::ink_env::Topics>::topics::<E, B>(event, builder)
-                //                 }
-                //             )*
-                //         }
-                //     }
-                // }
             };
         }
     }
