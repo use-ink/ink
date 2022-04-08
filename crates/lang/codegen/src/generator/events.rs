@@ -109,28 +109,29 @@ impl<'a> Events<'a> {
                 #( #event_idents(#event_idents), )*
             }
 
+            fn inner(encoded: &mut [u8]) -> <<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env as ::ink_env::Environment>::Hash {
+                let len_encoded = encoded.len();
+                let mut result = <<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env as ::ink_env::Environment>::Hash as ::ink_env::Clear>::clear();
+                let len_result = result.as_ref().len();
+                if len_encoded <= len_result {
+                    result.as_mut()[..len_encoded].copy_from_slice(encoded);
+                } else {
+                    let mut hash_output = <::ink_env::hash::Blake2x256 as ::ink_env::hash::HashOutput>::Type::default();
+                    <::ink_env::hash::Blake2x256 as ::ink_env::hash::CryptoHash>::hash(encoded, &mut hash_output);
+                    let copy_len = core::cmp::min(hash_output.len(), len_result);
+                    result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+                }
+                result
+            }
+
             fn push_topic<'a, 'b, T>(buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'b>, topic_value: &T)
             where
                 T: ::scale::Encode,
             {
-                fn inner<E: ::ink_env::Environment>(encoded: &mut [u8]) -> <E as ::ink_env::Environment>::Hash {
-                    let len_encoded = encoded.len();
-                    let mut result = <<E as ::ink_env::Environment>::Hash as ::ink_env::Clear>::clear();
-                    let len_result = result.as_ref().len();
-                    if len_encoded <= len_result {
-                        result.as_mut()[..len_encoded].copy_from_slice(encoded);
-                    } else {
-                        let mut hash_output = <::ink_env::hash::Blake2x256 as ::ink_env::hash::HashOutput>::Type::default();
-                        <::ink_env::hash::Blake2x256 as ::ink_env::hash::CryptoHash>::hash(encoded, &mut hash_output);
-                        let copy_len = core::cmp::min(hash_output.len(), len_result);
-                        result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
-                    }
-                    result
-                }
-
                 let mut split = buffer.split();
+                // let mut encoded = [0u8; 2];
                 let encoded = split.take_encoded(topic_value);
-                let result = inner::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>(encoded);
+                let result = inner(encoded);
                 buffer.append_encoded(&result);
             }
 
