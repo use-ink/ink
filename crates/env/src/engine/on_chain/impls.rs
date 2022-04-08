@@ -523,8 +523,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_account_id = scope.take_appended();
 
         ext::code_hash(enc_account_id, output)?;
-        let hash = scale::Decode::decode(&mut &output[..])?;
-        Ok(hash)
+        scale::Decode::decode(&mut &output[..])
     }
 
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
@@ -533,7 +532,6 @@ impl TypedEnvBackend for EnvInstance {
     {
         let output = &mut self.scoped_buffer().take(32);
         ext::own_code_hash(output);
-        let hash = scale::Decode::decode(&mut &output[..])?;
-        Ok(hash)
+        scale::Decode::decode(&mut &output[..])
     }
 }
