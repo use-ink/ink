@@ -235,9 +235,6 @@ impl<'a> Events<'a> {
                             field_ident
                         ).as_bytes(), span);
                     quote_spanned!(span =>
-                        // .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                        //     &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
-                        // )
                         push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
                             buffer, &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
                         );
@@ -247,9 +244,6 @@ impl<'a> Events<'a> {
             let event_signature_topic = match event.anonymous {
                 true => None,
                 false => Some(quote_spanned!(span=>
-                    // .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
-                    //     &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
-                    // )
                     push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
                         buffer, &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
                     );
@@ -273,26 +267,6 @@ impl<'a> Events<'a> {
                             )*
                         }
                     }
-                    // impl ::ink_env::Topics for #event_ident {
-                    //     type RemainingTopics = #remaining_topics_ty;
-                    //
-                    //     fn topics<E, B>(
-                    //         &self,
-                    //         builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                    //     ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-                    //     where
-                    //         E: ::ink_env::Environment,
-                    //         B: ::ink_env::topics::TopicsBuilderBackend<E>,
-                    //     {
-                    //         builder
-                    //             .build::<Self>()
-                    //             #event_signature_topic
-                    //             #(
-                    //                 #topic_impls
-                    //             )*
-                    //             .finish()
-                    //     }
-                    // }
                 };
             )
         })
