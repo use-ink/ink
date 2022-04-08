@@ -71,9 +71,10 @@ impl<'a> Events<'a> {
 
                         let event = event.into();
 
-                        let (mut scope, enc_topics) = event.topics_raw(&mut scoped_buffer);
-                        let enc_data = scope.take_encoded(&event);
-                        oc::ext::deposit_event(enc_topics, enc_data);
+                        event.topics_raw::<'a>(&mut scoped_buffer);
+
+                        // let enc_data = scope.take_encoded(&event);
+                        // oc::ext::deposit_event(enc_topics, enc_data);
 
                         // ::ink_env::emit_event::<
                         //     Environment,
@@ -116,9 +117,8 @@ impl<'a> Events<'a> {
                 #( #event_idents(#event_idents), )*
             }
 
-            fn push_topic<E, T>(buffer: &mut ::ink_env::engine::on_chain::buffer::ScopedBuffer, topic_value: &T)
+            fn push_topic<'a, T>(buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, topic_value: &T)
             where
-                E: ::ink_env::Environment,
                 T: ::scale::Encode,
             {
                 fn inner<E: ::ink_env::Environment>(encoded: &mut [u8]) -> <E as ::ink_env::Environment>::Hash {
@@ -138,7 +138,7 @@ impl<'a> Events<'a> {
 
                 let mut split = buffer.split();
                 let encoded = split.take_encoded(topic_value);
-                let result = inner::<E>(encoded);
+                let result = inner::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>(encoded);
                 buffer.append_encoded(&result);
             }
 
@@ -165,9 +165,7 @@ impl<'a> Events<'a> {
                 }
 
                 impl #base_event_ident {
-                    fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>)
-                        -> (::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, &'a mut [u8])
-                    {
+                    fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>) {
                         match self {
                             #(
                                 Self::#event_idents(event) => {
@@ -252,9 +250,12 @@ impl<'a> Events<'a> {
             let event_signature_topic = match event.anonymous {
                 true => None,
                 false => Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
-                        &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
-                    )
+                    // .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
+                    //     &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
+                    // )
+                    push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
+                        buffer, &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
+                    );
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.
@@ -266,10 +267,12 @@ impl<'a> Events<'a> {
             quote_spanned!(span =>
                 const _: () = {
                     impl #event_ident {
-                        fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>)
-                            -> (::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, &'a mut [u8])
-                        {
-                            todo!()
+                        fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>) {
+                            #event_signature_topic
+                            // #(
+                            //     #topic_impls
+                            // )*
+
                         }
                     }
                     // impl ::ink_env::Topics for #event_ident {
