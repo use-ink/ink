@@ -700,13 +700,12 @@ pub fn code_hash(account_id: &[u8], output: &mut [u8]) -> Result {
     ret_val.into()
 }
 
-pub fn own_code_hash(output: &mut [u8]) -> Result {
+pub fn own_code_hash(output: &mut [u8]) {
     let mut output_len = output.len() as u32;
-    let ret_val = unsafe {
+    unsafe {
         sys::seal_own_code_hash(
             Ptr32Mut::from_slice(output),
             Ptr32Mut::from_ref(&mut output_len),
         )
-    };
-    ret_val.into()
+    }
 }
