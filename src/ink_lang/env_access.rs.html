@@ -907,6 +907,70 @@
 <span id="902">902</span>
 <span id="903">903</span>
 <span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1809,6 +1873,70 @@
     <span class="doccomment">/// For more details visit: [`ink_env::caller_is_origin`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller_is_origin</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="ident">ink_env::caller_is_origin</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>()
+    }
+
+    <span class="doccomment">/// Returns the code hash of the contract at the given `account` id.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use ink_lang as ink;</span>
+    <span class="doccomment">/// # #[ink::contract]</span>
+    <span class="doccomment">/// # pub mod my_contract {</span>
+    <span class="doccomment">/// #     #[ink(storage)]</span>
+    <span class="doccomment">/// #     pub struct MyContract { }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #     impl MyContract {</span>
+    <span class="doccomment">/// #         #[ink(constructor)]</span>
+    <span class="doccomment">/// #         pub fn new() -&gt; Self {</span>
+    <span class="doccomment">/// #             Self {}</span>
+    <span class="doccomment">/// #         }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #[ink(message)]</span>
+    <span class="doccomment">/// pub fn code_hash(&amp;mut self, account_id: AccountId) -&gt; Option&lt;Hash&gt; {</span>
+    <span class="doccomment">///     self.env().code_hash(&amp;account_id).ok()</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// #    }</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`ink_env::code_hash`]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="self">self</span>, <span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span> {
+        <span class="ident">ink_env::code_hash</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">account_id</span>)
+    }
+
+    <span class="doccomment">/// Returns the code hash of the contract at the given `account` id.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use ink_lang as ink;</span>
+    <span class="doccomment">/// # #[ink::contract]</span>
+    <span class="doccomment">/// # pub mod my_contract {</span>
+    <span class="doccomment">/// #     #[ink(storage)]</span>
+    <span class="doccomment">/// #     pub struct MyContract { }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #     impl MyContract {</span>
+    <span class="doccomment">/// #         #[ink(constructor)]</span>
+    <span class="doccomment">/// #         pub fn new() -&gt; Self {</span>
+    <span class="doccomment">/// #             Self {}</span>
+    <span class="doccomment">/// #         }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #[ink(message)]</span>
+    <span class="doccomment">/// pub fn own_code_hash(&amp;mut self) -&gt; Hash {</span>
+    <span class="doccomment">///     self.env().own_code_hash().expect(&quot;contract should have a code hash&quot;)</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// #    }</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`ink_env::own_code_hash`]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">own_code_hash</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span> {
+        <span class="ident">ink_env::own_code_hash</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>()
     }
 }
 </code></pre></div>
