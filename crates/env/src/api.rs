@@ -518,7 +518,8 @@ where
 ///
 /// # Errors
 ///
-/// Returns `Error::KeyNotFound` if no code hash was found for the specified account id.
+/// - If no code hash was found for the specified account id.
+/// - If the returned value cannot be properly decoded.
 pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,
@@ -529,7 +530,11 @@ where
 }
 
 /// Retrieves the code hash of the currently executing contract.
-pub fn own_code_hash<E>() -> E::Hash
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn own_code_hash<E>() -> Result<E::Hash>
 where
     E: Environment,
 {

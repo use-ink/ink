@@ -494,7 +494,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support `code_hash`")
     }
 
-    fn own_code_hash<E>(&mut self) -> E::Hash
+    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment,
     {

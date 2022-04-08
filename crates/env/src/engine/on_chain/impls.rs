@@ -518,19 +518,24 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let mut scope = self.scoped_buffer();
-        let enc_account_id = scope.take_encoded(account_id);
-        let mut output = <E as Environment>::Hash::clear();
-        ext::code_hash(enc_account_id, output.as_mut())
-            .map(|_| output)
+        let mut output = scope.take(32);
+        scope.append_encoded(account_id);
+        let enc_account_id = scope.take_appended();
+
+        ext::code_hash(enc_account_id, output.as_mut());
+        scale::Decode::decode(&mut &output[..])
             .map_err(Into::into)
+            .into()
     }
 
-    fn own_code_hash<E>(&mut self) -> E::Hash
+    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment,
     {
-        let mut output = <E as Environment>::Hash::clear();
-        ext::own_code_hash(output.as_mut());
-        output
+        let output = &mut self.scoped_buffer().take(32);
+        ext::own_code_hash(output);
+        scale::Decode::decode(&mut &output[..])
+            .map_err(Into::into)
+            .into()
     }
 }
