@@ -934,7 +934,7 @@ where
         ink_env::code_hash::<E>(account_id)
     }
 
-    /// Returns the code hash of the contract living at the given `account`.
+    /// Returns the code hash of the contract at the given `account` id.
     ///
     /// # Example
     ///
