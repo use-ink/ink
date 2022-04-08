@@ -518,7 +518,7 @@ where
 ///
 /// # Errors
 ///
-/// If no code hash found for the specified account id.
+/// Returns `Error::KeyNotFound` if no code hash was found for the specified account id.
 pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
 where
     E: Environment,
