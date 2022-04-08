@@ -522,7 +522,7 @@ impl TypedEnvBackend for EnvInstance {
         scope.append_encoded(account_id);
         let enc_account_id = scope.take_appended();
 
-        ext::code_hash(enc_account_id, output.as_mut())?;
+        ext::code_hash(enc_account_id, output)?;
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
     }
