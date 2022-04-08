@@ -62,7 +62,7 @@ impl<'a> Events<'a> {
                 impl<'a> ::ink_lang::codegen::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
-                        E: Into<<#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type>,
+                        E: ::scale::Encode + Into<<#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type>,
                     {
                         use ::ink_env::engine::on_chain as oc;
 
@@ -71,20 +71,12 @@ impl<'a> Events<'a> {
 
                         let event = event.into();
 
-                        event.topics_raw::<'a>(&mut scoped_buffer);
+                        event.topics_raw(&mut scoped_buffer);
 
-                        // let enc_data = scope.take_encoded(&event);
-                        // oc::ext::deposit_event(enc_topics, enc_data);
+                        let enc_topics = scoped_buffer.take_appended();
+                        let enc_data = scoped_buffer.take_encoded(&event); // 0.8KB (7.0 - 6.2)
 
-                        // ::ink_env::emit_event::<
-                        //     Environment,
-                        //     <#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type
-                        // >(event.into());
-
-                        // let (mut scope, enc_topics) =
-                        //     event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
-                        // let enc_data = scope.take_encoded(&event);
-                        // ext::deposit_event(enc_topics, enc_data);
+                        oc::ext::deposit_event(enc_topics, enc_data);
                     }
                 }
             };
@@ -117,7 +109,7 @@ impl<'a> Events<'a> {
                 #( #event_idents(#event_idents), )*
             }
 
-            fn push_topic<'a, T>(buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>, topic_value: &T)
+            fn push_topic<'a, 'b, T>(buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'b>, topic_value: &T)
             where
                 T: ::scale::Encode,
             {
@@ -165,7 +157,9 @@ impl<'a> Events<'a> {
                 }
 
                 impl #base_event_ident {
-                    fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>) {
+                    fn topics_raw<'a, 'b>(&'a self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'b>)
+                        where 'b: 'a
+                    {
                         match self {
                             #(
                                 Self::#event_idents(event) => {
@@ -241,9 +235,12 @@ impl<'a> Events<'a> {
                             field_ident
                         ).as_bytes(), span);
                     quote_spanned!(span =>
-                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                            &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
-                        )
+                        // .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                        //     &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
+                        // )
+                        push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                            buffer, &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
+                        );
                     )
                 });
             // Only include topic for event signature in case of non-anonymous event.
@@ -267,12 +264,13 @@ impl<'a> Events<'a> {
             quote_spanned!(span =>
                 const _: () = {
                     impl #event_ident {
-                        fn topics_raw<'a>(&self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'a>) {
+                        fn topics_raw<'a, 'b>(&'a self, buffer: &'a mut ::ink_env::engine::on_chain::buffer::ScopedBuffer<'b>)
+                        where 'b: 'a
+                        {
                             #event_signature_topic
-                            // #(
-                            //     #topic_impls
-                            // )*
-
+                            #(
+                                #topic_impls
+                            )*
                         }
                     }
                     // impl ::ink_env::Topics for #event_ident {

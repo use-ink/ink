@@ -22,5 +22,5 @@ where
     /// Emits an event that can be trivially converted into the base event.
     fn emit_event<E>(self, event: E)
     where
-        E: Into<<C as ContractEventBase>::Type>;
+        E: scale::Encode + Into<<C as ContractEventBase>::Type>;
 }

@@ -25,8 +25,8 @@ mod erc20 {
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
     pub struct Transfer {
-        #[ink(topic)]
-        from: Option<AccountId>,
+        // #[ink(topic)]
+        // from: Option<AccountId>,
         #[ink(topic)]
         to: Option<AccountId>,
         value: Balance,
@@ -73,7 +73,7 @@ mod erc20 {
             self.balances.insert(&caller, &initial_supply);
             self.total_supply = initial_supply;
             Self::env().emit_event(Transfer {
-                from: None,
+                // from: None,
                 to: Some(caller),
                 value: initial_supply,
             });
@@ -214,7 +214,7 @@ mod erc20 {
             let to_balance = self.balance_of_impl(to);
             self.balances.insert(to, &(to_balance + value));
             self.env().emit_event(Transfer {
-                from: Some(*from),
+                // from: Some(*from),
                 to: Some(*to),
                 value,
             });
