@@ -514,6 +514,35 @@ where
     })
 }
 
+/// Retrieves the code hash of the contract at the specified account id.
+///
+/// # Errors
+///
+/// - If no code hash was found for the specified account id.
+/// - If the returned value cannot be properly decoded.
+pub fn code_hash<E>(account: &E::AccountId) -> Result<E::Hash>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::code_hash::<E>(instance, account)
+    })
+}
+
+/// Retrieves the code hash of the currently executing contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn own_code_hash<E>() -> Result<E::Hash>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::own_code_hash::<E>(instance)
+    })
+}
+
 /// Checks whether the caller of the current contract is the origin of the whole call stack.
 ///
 /// Prefer this over [`is_contract`] when checking whether your contract is being called by
