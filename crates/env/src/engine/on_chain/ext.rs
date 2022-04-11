@@ -347,6 +347,17 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn seal_code_hash(
+            account_id_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
+
+        pub fn seal_own_code_hash(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
     }
 }
 
@@ -675,4 +686,26 @@ pub fn is_contract(account_id: &[u8]) -> bool {
 pub fn caller_is_origin() -> bool {
     let ret_val = unsafe { sys::seal_caller_is_origin() };
     ret_val.into_bool()
+}
+
+pub fn code_hash(account_id: &[u8], output: &mut [u8]) -> Result {
+    let mut output_len = output.len() as u32;
+    let ret_val = unsafe {
+        sys::seal_code_hash(
+            Ptr32::from_slice(account_id),
+            Ptr32Mut::from_slice(output),
+            Ptr32Mut::from_ref(&mut output_len),
+        )
+    };
+    ret_val.into()
+}
+
+pub fn own_code_hash(output: &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    unsafe {
+        sys::seal_own_code_hash(
+            Ptr32Mut::from_slice(output),
+            Ptr32Mut::from_ref(&mut output_len),
+        )
+    }
 }

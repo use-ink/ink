@@ -901,4 +901,68 @@ where
     pub fn caller_is_origin(self) -> bool {
         ink_env::caller_is_origin::<E>()
     }
+
+    /// Returns the code hash of the contract at the given `account` id.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn code_hash(&mut self, account_id: AccountId) -> Option<Hash> {
+    ///     self.env().code_hash(&account_id).ok()
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::code_hash`]
+    pub fn code_hash(self, account_id: &E::AccountId) -> Result<E::Hash> {
+        ink_env::code_hash::<E>(account_id)
+    }
+
+    /// Returns the code hash of the contract at the given `account` id.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn own_code_hash(&mut self) -> Hash {
+    ///     self.env().own_code_hash().expect("contract should have a code hash")
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::own_code_hash`]
+    pub fn own_code_hash(self) -> Result<E::Hash> {
+        ink_env::own_code_hash::<E>()
+    }
 }
