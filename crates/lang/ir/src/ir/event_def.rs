@@ -27,6 +27,14 @@ pub struct InkEventDefinition {
     pub anonymous: bool,
 }
 
+impl quote::ToTokens for InkEventDefinition {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        self.item.to_tokens(tokens)
+    }
+}
+
 impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
     pub fn new(config: TokenStream2, input: TokenStream2) -> Result<Self> {

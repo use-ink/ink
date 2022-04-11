@@ -48,7 +48,7 @@ pub use self::{
     },
     event::{
         ContractEventBase,
-        ContractEvent,
+        EventInfo,
     },
     trait_def::{
         TraitDefinitionRegistry,

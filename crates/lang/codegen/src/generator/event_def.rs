@@ -15,14 +15,12 @@
 use crate::GenerateCode;
 use derive_more::From;
 use proc_macro2::{
-    Span,
     TokenStream as TokenStream2,
 };
 use quote::{
     quote,
     quote_spanned,
 };
-use std::marker::PhantomData;
 use syn::spanned::Spanned as _;
 
 /// Generates code for an event definition.
@@ -33,15 +31,15 @@ pub struct EventDefinition<'a> {
 
 impl GenerateCode for EventDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let emit_event_trait_impl = self.generate_emit_event_trait_impl();
-        let topic_guards = self.generate_topic_guard();
-        let topics_impls = self.generate_topics_impl();
-        let event_structs = self.generate_event_struct();
+        let event_struct = self.generate_event_struct();
+        let event_info_impl = self.generate_event_info_impl();
+        let topics_impl = self.generate_topics_impl();
+        let topics_guard = self.generate_topics_guard();
         quote! {
-            #emit_event_trait_impl
-            #( #topic_guards )*
-            #( #event_structs )*
-            #( #topics_impls )*
+            #event_struct
+            #event_info_impl
+            #topics_impl
+            #topics_guard
         }
     }
 }
@@ -71,6 +69,16 @@ impl<'a> EventDefinition<'a> {
         )
     }
 
+    fn generate_event_info_impl(&'a self) -> TokenStream2 {
+        let span = self.event_def.span();
+        let event_ident = self.event_def.ident();
+        quote_spanned!(span=>
+            impl ::ink_lang::reflect::EventInfo for #event_ident {
+                const PATH: &'static str = module_path!();
+            }
+        )
+    }
+
     /// Generate checks to guard against too many topics in event definitions.
     fn generate_topics_guard(&self) -> TokenStream2 {
         let span = self.event_def.span();
@@ -88,7 +96,7 @@ impl<'a> EventDefinition<'a> {
     }
 
     /// Generates the `Topics` trait implementations for the user defined events.
-    fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_topics_impl(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
         let len_topics = self.event_def.fields().filter(|field| field.is_topic).count();
@@ -106,7 +114,6 @@ impl<'a> EventDefinition<'a> {
                 quote_spanned!(span =>
                         .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
                             &::ink_env::topics::PrefixedValue {
-                                value: &self.#field_ident,
                                 // todo: deduplicate with EVENT_SIGNATURE
                                 prefix: ::core::concat!(
                                     ::core::module_path!(),
@@ -115,6 +122,7 @@ impl<'a> EventDefinition<'a> {
                                     "::",
                                     ::core::stringify!(#field_ident),
                                 ).as_bytes(),
+                                value: &self.#field_ident,
                             }
                         )
                     )
@@ -124,9 +132,9 @@ impl<'a> EventDefinition<'a> {
             true => None,
             false => {
                 Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; EVENT_SIGNATURE.len()]>>(
+                    .push_topic::<::ink_env::topics::PrefixedValue<()>>(
                         &::ink_env::topics::PrefixedValue {
-                            value: EVENT_SIGNATURE, prefix: b""
+                            prefix: EVENT_SIGNATURE, value: &(),
                         }
                     )
                 ))
@@ -153,7 +161,7 @@ impl<'a> EventDefinition<'a> {
                         E: ::ink_env::Environment,
                         B: ::ink_env::topics::TopicsBuilderBackend<E>,
                     {
-                        const EVENT_SIGNATURE: &[u8] = <Self as ::ink_lang::reflect::ContractEvent>::PATH.as_bytes();
+                        const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink_lang::reflect::EventInfo>::PATH.as_bytes();
 
                         builder
                             .build::<Self>()
