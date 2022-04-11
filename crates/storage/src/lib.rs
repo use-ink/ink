@@ -65,7 +65,11 @@ mod hashmap_entry_api_tests;
 mod test_utils;
 
 #[doc(inline)]
-pub use self::lazy::Mapping;
+pub use self::lazy::{
+    Mapping,
+    StorageMapping,
+    StorageValue,
+};
 
 #[doc(inline)]
 pub(crate) use self::{

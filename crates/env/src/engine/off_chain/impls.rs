@@ -44,7 +44,11 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    OldStorageKey,
+    StorageKey,
+};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -208,6 +212,35 @@ impl EnvBackend for EnvInstance {
 
     fn clear_contract_storage(&mut self, key: &Key) {
         self.engine.clear_storage(key.as_ref())
+    }
+
+    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V)
+    where
+        V: scale::Encode,
+    {
+        let v = scale::Encode::encode(value);
+        self.engine.set_storage(key.old_key().as_ref(), &v[..]);
+    }
+
+    fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
+    where
+        R: scale::Decode,
+    {
+        let mut output: [u8; 9600] = [0; 9600];
+        match self
+            .engine
+            .get_storage(key.old_key().as_ref(), &mut &mut output[..])
+        {
+            Ok(_) => (),
+            Err(ext::Error::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = scale::Decode::decode(&mut &output[..])?;
+        Ok(Some(decoded))
+    }
+
+    fn clear_storage_value(&mut self, key: &StorageKey) {
+        self.engine.clear_storage(key.old_key().as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

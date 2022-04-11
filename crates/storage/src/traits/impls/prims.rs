@@ -19,6 +19,7 @@ use crate::traits::{
     PackedLayout,
     SpreadAllocate,
     SpreadLayout,
+    StorageKeyHolder,
 };
 use ink_env::{
     AccountId,
@@ -28,7 +29,10 @@ use ink_prelude::{
     boxed::Box,
     string::String,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 
 macro_rules! impl_layout_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
@@ -49,6 +53,14 @@ macro_rules! impl_layout_for_primitive {
         )*
     };
 }
+macro_rules! impl_storage_info_for_primitive {
+    ( $($ty:ty),* $(,)? ) => {
+        $(
+            impl_always_storage_info!($ty);
+        )*
+    };
+}
+
 #[rustfmt::skip]
 impl_layout_for_primitive!(
     // We do not include `f32` and `f64` since Wasm contracts currently
@@ -60,6 +72,22 @@ impl_layout_for_primitive!(
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,
 );
+
+#[rustfmt::skip]
+impl_storage_info_for_primitive!(
+    // We do not include `f32` and `f64` since Wasm contracts currently
+    // do not support them since they are non deterministic. We might add them
+    // to this list once we add deterministic support for those primitives.
+    Hash, AccountId, (),
+    String,
+    bool,
+    u8, u16, u32, u64, u128,
+    i8, i16, i32, i64, i128,
+);
+
+impl StorageKeyHolder for () {
+    const KEY: StorageKey = 0;
+}
 
 impl<T> SpreadLayout for Option<T>
 where

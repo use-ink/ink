@@ -19,6 +19,7 @@ mod chain_extension;
 mod contract;
 mod ink_test;
 mod selector;
+mod storage_item;
 mod trait_def;
 
 use proc_macro::TokenStream;
@@ -663,6 +664,12 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
+}
+
+/// TODO: Add comment
+#[proc_macro_attribute]
+pub fn storage_item(attr: TokenStream, item: TokenStream) -> TokenStream {
+    storage_item::generate(attr.into(), item.into()).into()
 }
 
 /// Defines a unit test that makes use of ink!'s off-chain testing capabilities.

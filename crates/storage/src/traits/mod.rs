@@ -31,6 +31,7 @@ mod spread;
 
 #[cfg(feature = "std")]
 mod layout;
+mod storage;
 
 #[cfg(feature = "std")]
 pub use self::layout::{
@@ -63,6 +64,13 @@ pub use self::{
         SpreadAllocate,
         SpreadLayout,
         FOOTPRINT_CLEANUP_THRESHOLD,
+    },
+    storage::{
+        AtomicStatus,
+        AutoKey,
+        ManualKey,
+        StorageKeyHolder,
+        StorageType,
     },
 };
 use ink_primitives::Key;

@@ -30,6 +30,11 @@ mod key_ptr;
 mod tests;
 
 pub use self::{
-    key::Key,
+    key::{
+        Key,
+        OldStorageKey,
+        StorageKey,
+        AUTO_KEY,
+    },
     key_ptr::KeyPtr,
 };

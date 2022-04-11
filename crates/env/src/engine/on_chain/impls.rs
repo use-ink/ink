@@ -46,7 +46,11 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    OldStorageKey,
+    StorageKey,
+};
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -243,6 +247,32 @@ impl EnvBackend for EnvInstance {
 
     fn clear_contract_storage(&mut self, key: &Key) {
         ext::clear_storage(key.as_ref())
+    }
+
+    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V)
+    where
+        V: scale::Encode,
+    {
+        let buffer = self.scoped_buffer().take_encoded(value);
+        ext::set_storage(key.old_key().as_ref(), buffer);
+    }
+
+    fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
+    where
+        R: scale::Decode,
+    {
+        let output = &mut self.scoped_buffer().take_rest();
+        match ext::get_storage(key.old_key().as_ref(), output) {
+            Ok(_) => (),
+            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = scale::Decode::decode(&mut &output[..])?;
+        Ok(Some(decoded))
+    }
+
+    fn clear_storage_value(&mut self, key: &StorageKey) {
+        ext::clear_storage(key.old_key().as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

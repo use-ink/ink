@@ -88,6 +88,49 @@ macro_rules! impl_always_packed_layout {
     };
 }
 
+macro_rules! impl_always_storage_info {
+    ( $name:ident < $($frag:ident),+ > ) => {
+        impl<
+            const KEY: ::ink_primitives::StorageKey,
+            Salt: $crate::traits::StorageKeyHolder,
+            const IS_ATOMIC: ::core::primitive::bool,
+            $($frag),+> $crate::traits::StorageType<KEY, Salt, IS_ATOMIC> for $name < $($frag),+ >
+        where
+            $(
+                $frag: $crate::traits::AtomicStatus,
+            )+
+        {
+            type Type = $name < $($frag),+ >;
+        }
+        impl<$($frag),+> $crate::traits::AtomicStatus for $name < $($frag),+ >
+        where
+            $(
+                $frag: $crate::traits::AtomicStatus,
+            )+
+        {
+            const IS_ATOMIC: ::core::primitive::bool = Self::INNER_IS_ATOMIC;
+            const INNER_IS_ATOMIC: ::core::primitive::bool = true $(
+                && <$frag as $crate::traits::AtomicStatus>::IS_ATOMIC
+            )+;
+        }
+    };
+    ( $name:ty ) => {
+        impl<
+            const KEY: ::ink_primitives::StorageKey,
+            Salt: $crate::traits::StorageKeyHolder,
+            const IS_ATOMIC: ::core::primitive::bool,
+            > $crate::traits::StorageType<KEY, Salt, IS_ATOMIC> for $name
+        {
+            type Type = $name;
+        }
+        impl $crate::traits::AtomicStatus for $name
+        {
+            const IS_ATOMIC: ::core::primitive::bool = Self::INNER_IS_ATOMIC;
+            const INNER_IS_ATOMIC: ::core::primitive::bool = true;
+        }
+    };
+}
+
 mod arrays;
 mod collections;
 mod prims;

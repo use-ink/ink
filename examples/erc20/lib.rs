@@ -5,9 +5,63 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc20 {
     use ink_storage::{
-        traits::SpreadAllocate,
+        traits::{
+            SpreadAllocate,
+            StorageKeyHolder,
+        },
         Mapping,
+        StorageMapping,
+        StorageValue,
     };
+
+    #[ink_lang::storage_item]
+    struct Jora<KEY: StorageKeyHolder> {
+        s1: StorageMapping<u128, u128>,
+        s2: StorageValue<u128>,
+    }
+    // It generates the next code
+    // struct Jora<KEY: StorageKeyHolder> {
+    //     s1: <StorageMapping<u128, u128> as ::ink_storage::traits::StorageType<
+    //         2827647485u32,
+    //         KEY,
+    //         { <StorageMapping<u128, u128> as ::ink_storage::traits::AtomicStatus>::INNER_IS_ATOMIC },
+    //     >>::Type,
+    //     s2: <StorageValue<u128> as ::ink_storage::traits::StorageType<
+    //         2021173057u32,
+    //         KEY,
+    //         { <StorageValue<u128> as ::ink_storage::traits::AtomicStatus>::INNER_IS_ATOMIC },
+    //     >>::Type,
+    // }
+    // impl<KEY: StorageKeyHolder> ::ink_storage::traits::AtomicStatus for Jora<KEY> {
+    //     const IS_ATOMIC: bool = Self::INNER_IS_ATOMIC;
+    //     const INNER_IS_ATOMIC: bool =
+    //         <StorageMapping<u128, u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
+    //             && <StorageValue<u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC;
+    // }
+    // impl<
+    //     KEY: StorageKeyHolder,
+    //     const __ink_generic_key: ::ink_primitives::StorageKey,
+    //     const __ink_generic_is_atomic: ::core::primitive::bool,
+    // > ::ink_storage::traits::StorageType<__ink_generic_key, KEY, __ink_generic_is_atomic>
+    // for Jora<::ink_storage::traits::AutoKey>
+    // {
+    //     type Type = Jora<::ink_storage::traits::AutoKey>;
+    // }
+    // impl<
+    //     KEY: StorageKeyHolder,
+    //     const __ink_generic_key: ::ink_primitives::StorageKey,
+    //     const __ink_generic_is_atomic: ::core::primitive::bool,
+    //     const __ink_generic_manual_key: ::ink_primitives::StorageKey,
+    //     __ink_generic_manual_salt: ::ink_storage::traits::StorageKeyHolder,
+    // > ::ink_storage::traits::StorageType<__ink_generic_key, KEY, __ink_generic_is_atomic>
+    // for Jora<
+    //     ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
+    // >
+    // {
+    //     type Type = Jora<
+    //         ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
+    //     >;
+    // }
 
     /// A simple ERC-20 contract.
     #[ink(storage)]

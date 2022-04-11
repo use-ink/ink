@@ -286,3 +286,7 @@ macro_rules! impl_push_at_for_collection {
     };
 }
 impl_push_at_for_collection!(Vec, StdLinkedList, StdVecDeque,);
+
+impl_always_storage_info!(Vec<T>);
+impl_always_storage_info!(StdLinkedList<T>);
+impl_always_storage_info!(StdVecDeque<T>);

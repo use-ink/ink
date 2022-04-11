@@ -48,6 +48,7 @@ pub use ink_lang_macro::{
     contract,
     selector_bytes,
     selector_id,
+    storage_item,
     test,
     trait_definition,
 };

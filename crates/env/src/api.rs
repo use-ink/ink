@@ -39,7 +39,10 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -215,6 +218,41 @@ where
 pub fn clear_contract_storage(key: &Key) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::clear_contract_storage(instance, key)
+    })
+}
+
+/// Writes the value to the contract storage under the given key.
+///
+/// # Panics
+///
+/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+pub fn set_storage_value<V>(key: &StorageKey, value: &V)
+where
+    V: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::set_storage_value::<V>(instance, key, value)
+    })
+}
+
+/// Returns the value stored under the given key in the contract's storage if any.
+///
+/// # Errors
+///
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+pub fn get_storage_value<R>(key: &StorageKey) -> Result<Option<R>>
+where
+    R: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::get_storage_value::<R>(instance, key)
+    })
+}
+
+/// Clears the contract's storage key entry.
+pub fn clear_storage_value(key: &StorageKey) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::clear_storage_value(instance, key)
     })
 }
 

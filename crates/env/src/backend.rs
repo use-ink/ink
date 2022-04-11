@@ -27,7 +27,10 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -178,6 +181,16 @@ pub trait EnvBackend {
 
     /// Clears the contract's storage key entry.
     fn clear_contract_storage(&mut self, key: &Key);
+
+    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V)
+    where
+        V: scale::Encode;
+
+    fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
+    where
+        R: scale::Decode;
+
+    fn clear_storage_value(&mut self, key: &StorageKey);
 
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///

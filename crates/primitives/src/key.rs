@@ -30,6 +30,22 @@ use scale_info::{
     TypeInfo,
 };
 
+pub trait OldStorageKey {
+    fn old_key(&self) -> Key;
+}
+
+pub type StorageKey = u32;
+
+pub const AUTO_KEY: StorageKey = StorageKey::MAX;
+
+impl OldStorageKey for StorageKey {
+    fn old_key(&self) -> Key {
+        let mut key = Key::new([0; 32]);
+        key += *self as u64;
+        key
+    }
+}
+
 /// A key into the smart contract storage.
 ///
 /// # Note

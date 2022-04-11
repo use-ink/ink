@@ -32,6 +32,8 @@ mod entry;
 mod lazy_array;
 mod lazy_cell;
 mod lazy_imap;
+mod storage_mapping;
+mod storage_value;
 
 #[doc(inline)]
 pub use self::lazy_array::LazyArray;
@@ -48,6 +50,8 @@ pub use self::{
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
     mapping::Mapping,
+    storage_mapping::StorageMapping,
+    storage_value::StorageValue,
 };
 use crate::traits::{
     KeyPtr,
