@@ -40,14 +40,14 @@ impl GenerateCode for Events<'_> {
         let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         let event_base = self.generate_event_base();
         let topic_guards = self.generate_topic_guards();
-        let topics_impls = self.generate_topics_impls();
+        // let topics_impls = self.generate_topics_impls(); // todo: call into shared event_def code for inline events
         let event_structs = self.generate_event_structs();
         quote! {
             #emit_event_trait_impl
             #event_base
             #( #topic_guards )*
             #( #event_structs )*
-            #( #topics_impls )*
+            // #( #topics_impls )*
         }
     }
 }
@@ -177,80 +177,6 @@ impl<'a> Events<'a> {
             let topics_guard = self.generate_topics_guard(event);
             quote_spanned!(span =>
                 #topics_guard
-            )
-        })
-    }
-
-    /// Generates the `Topics` trait implementations for the user defined events.
-    fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let contract_ident = self.contract.module().storage().ident();
-        self.contract.module().events().map(move |event| {
-            let span = event.span();
-            let event_ident = event.ident();
-            let event_signature = syn::LitByteStr::new(
-                format!("{}::{}", contract_ident, event_ident
-            ).as_bytes(), span);
-            let len_event_signature = event_signature.value().len();
-            let len_topics = event.fields().filter(|field| field.is_topic).count();
-            let topic_impls = event
-                .fields()
-                .enumerate()
-                .filter(|(_, field)| field.is_topic)
-                .map(|(n, topic_field)| {
-                    let span = topic_field.span();
-                    let field_ident = topic_field
-                        .ident()
-                        .map(quote::ToTokens::into_token_stream)
-                        .unwrap_or_else(|| quote_spanned!(span => #n));
-                    let field_type = topic_field.ty();
-                    let signature = syn::LitByteStr::new(
-                        format!("{}::{}::{}", contract_ident, event_ident,
-                            field_ident
-                        ).as_bytes(), span);
-                    quote_spanned!(span =>
-                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                            &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
-                        )
-                    )
-                });
-            // Only include topic for event signature in case of non-anonymous event.
-            let event_signature_topic = match event.anonymous {
-                true => None,
-                false => Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
-                        &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
-                    )
-                ))
-            };
-            // Anonymous events require 1 fewer topics since they do not include their signature.
-            let anonymous_topics_offset = if event.anonymous { 0 } else { 1 };
-            let remaining_topics_ty = match len_topics + anonymous_topics_offset {
-                0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
-                n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
-            };
-            quote_spanned!(span =>
-                const _: () = {
-                    impl ::ink_env::Topics for #event_ident {
-                        type RemainingTopics = #remaining_topics_ty;
-
-                        fn topics<E, B>(
-                            &self,
-                            builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                        ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-                        where
-                            E: ::ink_env::Environment,
-                            B: ::ink_env::topics::TopicsBuilderBackend<E>,
-                        {
-                            builder
-                                .build::<Self>()
-                                #event_signature_topic
-                                #(
-                                    #topic_impls
-                                )*
-                                .finish()
-                        }
-                    }
-                };
             )
         })
     }

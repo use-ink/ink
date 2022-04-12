@@ -22,6 +22,13 @@ use proc_macro2::{
     Span,
 };
 use syn::spanned::Spanned as _;
+use crate::ast::PathOrLit::Path;
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum Event {
+    Inline(InlineEvent),
+    Imported(ImportedEvent),
+}
 
 /// An ink! event struct definition.
 ///
@@ -40,16 +47,25 @@ use syn::spanned::Spanned as _;
 /// # }).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
-pub struct Event {
+pub struct InlineEvent {
     item: syn::ItemStruct,
     pub anonymous: bool,
+}
+
+/// todo add ImportedEvent docs
+#[derive(Debug, PartialEq, Eq)]
+pub struct ImportedEvent {
+    item: syn::ItemType,
 }
 
 impl quote::ToTokens for Event {
     /// We mainly implement this trait for this ink! type to have a derived
     /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        self.item.to_tokens(tokens)
+        match self {
+            Event::Inline(inline) => inline.item.to_tokens(tokens),
+            Event::Imported(imported) => imported.item.to_tokens(tokens),
+        }
     }
 }
 
@@ -61,15 +77,15 @@ impl Event {
     ///
     /// If the first found ink! attribute is malformed.
     pub(super) fn is_ink_event(
-        item_struct: &syn::ItemStruct,
+        attrs: &[syn::Attribute],
     ) -> Result<bool, syn::Error> {
-        if !ir::contains_ink_attributes(&item_struct.attrs) {
+        if !ir::contains_ink_attributes(attrs) {
             return Ok(false)
         }
         // At this point we know that there must be at least one ink!
         // attribute. This can be either the ink! storage struct,
         // an ink! event or an invalid ink! attribute.
-        let attr = ir::first_ink_attribute(&item_struct.attrs)?
+        let attr = ir::first_ink_attribute(attrs)?
             .expect("missing expected ink! attribute for struct");
         Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
     }
@@ -123,31 +139,50 @@ impl TryFrom<syn::ItemStruct> for Event {
                 }
             }
         }
-        Ok(Self {
+        Ok(Self::Inline(InlineEvent {
             item: syn::ItemStruct {
                 attrs: other_attrs,
                 ..item_struct
             },
             anonymous: ink_attrs.is_anonymous(),
-        })
+        }))
+    }
+}
+
+impl TryFrom<syn::ItemType> for Event {
+    type Error = syn::Error;
+
+    fn try_from(item_type: syn::ItemType) -> Result<Self, Self::Error> {
+        Ok(Self::Imported(ImportedEvent {
+            item: item_type
+        }))
     }
 }
 
 impl Event {
     /// Returns the identifier of the event struct.
     pub fn ident(&self) -> &Ident {
-        &self.item.ident
+        match self {
+            Event::Inline(inline) => &inline.item.ident,
+            Event::Imported(_) => unimplemented!()
+        }
     }
 
     /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
     /// of the event struct.
     pub fn fields(&self) -> EventFieldsIter {
-        EventFieldsIter::new(self)
+        match self {
+            Event::Inline(inline) => EventFieldsIter::new(inline),
+            Event::Imported(_) => unimplemented!(),
+        }
     }
 
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> &[syn::Attribute] {
-        &self.item.attrs
+        match self {
+            Event::Inline(inline) => &inline.item.attrs,
+            Event::Imported(imported) => &imported.item.attrs,
+        }
     }
 }
 
@@ -196,7 +231,7 @@ pub struct EventFieldsIter<'a> {
 
 impl<'a> EventFieldsIter<'a> {
     /// Creates a new topics fields iterator for the given ink! event struct.
-    fn new(event: &'a Event) -> Self {
+    fn new(event: &'a InlineEvent) -> Self {
         Self {
             iter: event.item.fields.iter(),
         }
