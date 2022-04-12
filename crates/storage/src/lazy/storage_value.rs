@@ -75,31 +75,25 @@ impl<V: Encode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
 }
 
 impl<
-        V: AtomicStatus,
-        const KEY: StorageKey,
+        V: StorageType<ManualKey<MANUAL_KEY, ManualSalt>>,
         Salt: StorageKeyHolder,
         const MANUAL_KEY: StorageKey,
         ManualSalt: StorageKeyHolder,
-        const IS_ATOMIC: bool,
-    > StorageType<KEY, Salt, IS_ATOMIC>
-    for StorageValue<V, ManualKey<MANUAL_KEY, ManualSalt>>
+    > StorageType<Salt> for StorageValue<V, ManualKey<MANUAL_KEY, ManualSalt>>
 {
-    type Type = StorageValue<V, ManualKey<MANUAL_KEY, ManualSalt>>;
+    type Type = StorageValue<
+        <V as StorageType<ManualKey<MANUAL_KEY, ManualSalt>>>::Type,
+        ManualKey<MANUAL_KEY, ManualSalt>,
+    >;
 }
 
-impl<
-        V: AtomicStatus,
-        const KEY: StorageKey,
-        Salt: StorageKeyHolder,
-        const IS_ATOMIC: bool,
-    > StorageType<KEY, Salt, IS_ATOMIC> for StorageValue<V, AutoKey>
+impl<V: StorageType<ManualKey<0, Salt>>, Salt: StorageKeyHolder> StorageType<Salt>
+    for StorageValue<V, AutoKey>
 {
-    type Type = StorageValue<V, ManualKey<KEY, Salt>>;
+    type Type =
+        StorageValue<<V as StorageType<ManualKey<0, Salt>>>::Type, ManualKey<0, Salt>>;
 }
 
-impl<V: AtomicStatus, KeyType: StorageKeyHolder> AtomicStatus
-    for StorageValue<V, KeyType>
-{
+impl<V, KeyType: StorageKeyHolder> AtomicStatus for StorageValue<V, KeyType> {
     const IS_ATOMIC: bool = false;
-    const INNER_IS_ATOMIC: bool = V::IS_ATOMIC;
 }

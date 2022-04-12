@@ -74,9 +74,7 @@ impl<'a> StorageItem<'a> {
             let ty = field.ty.clone();
             new_field.ty = parse2(quote! {
                 <#ty as ::ink_storage::traits::StorageType<
-                    #key,
-                    #salt,
-                    { <#ty as ::ink_storage::traits::AtomicStatus>::INNER_IS_ATOMIC },
+                    ::ink_storage::traits::ManualKey<#key, #salt>,
                 >>::Type
             })
             .unwrap();
@@ -96,16 +94,21 @@ impl<'a> StorageItem<'a> {
         let ident = item.ident();
 
         let (impl_generics, ty_generics, where_clause) = item.generics().split_for_impl();
-        let inner_is_atomic = item.fields().map(|field| {
-            let ty = field.ty.clone();
-            quote! { <#ty as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC }
-        });
+        let inner_is_atomic: Vec<_> = item
+            .fields()
+            .map(|field| {
+                let ty = field.ty.clone();
+                quote! { <#ty as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC }
+            })
+            .collect();
 
         quote! {
             impl #impl_generics ::ink_storage::traits::AtomicStatus for #ident #ty_generics #where_clause {
-                const IS_ATOMIC: bool = Self::INNER_IS_ATOMIC;
-                const INNER_IS_ATOMIC: bool = #(#inner_is_atomic)&&*;
+                const IS_ATOMIC: bool = #(#inner_is_atomic)&&*;
             }
+
+            impl #impl_generics ::ink_storage::traits::AtomicGuard< { #(#inner_is_atomic)&&* } >
+                for #ident #ty_generics #where_clause {}
         }
     }
 
@@ -115,21 +118,6 @@ impl<'a> StorageItem<'a> {
         let (_, ty_generics, where_clause) = item.generics().split_for_impl();
 
         let mut generics = item.generics().clone();
-
-        let key_ident = format_ident!("__ink_generic_key");
-        let atomic_ident = format_ident!("__ink_generic_is_atomic");
-        generics.params.push(
-            parse2(quote! {
-                const #key_ident : ::ink_primitives::StorageKey
-            })
-            .unwrap(),
-        );
-        generics.params.push(
-            parse2(quote! {
-                const #atomic_ident : ::core::primitive::bool
-            })
-            .unwrap(),
-        );
 
         // If the generic salt is specified, then we add two implementations. One for `AutoKey`
         // and another for `ManualKey`. The implementation for `AutoKey` uses key and salt from the
@@ -190,13 +178,13 @@ impl<'a> StorageItem<'a> {
             let (manual_impl_generics, _, _) = manual_key_generics.split_for_impl();
 
             quote! {
-                impl #auto_impl_generics ::ink_storage::traits::StorageType<#key_ident, #salt_ident, #atomic_ident>
+                impl #auto_impl_generics ::ink_storage::traits::StorageType<#salt_ident>
                     for #ident <#(#auto_key_ty_generics),*> #where_clause {
 
                     type Type = #ident <#(#auto_key_ty_generics),*>;
                 }
 
-                impl #manual_impl_generics ::ink_storage::traits::StorageType<#key_ident, #salt_ident, #atomic_ident>
+                impl #manual_impl_generics ::ink_storage::traits::StorageType<#salt_ident>
                     for #ident <#(#manual_key_ty_generics),*> #where_clause {
 
                     type Type = #ident <#(#manual_key_ty_generics),*>;
@@ -213,7 +201,7 @@ impl<'a> StorageItem<'a> {
 
             let (impl_generics, _, _) = generics.split_for_impl();
             quote! {
-                impl #impl_generics ::ink_storage::traits::StorageType<#key_ident, #salt_ident, #atomic_ident>
+                impl #impl_generics ::ink_storage::traits::StorageType<#salt_ident>
                     for #ident #ty_generics #where_clause {
 
                     type Type = #ident #ty_generics;

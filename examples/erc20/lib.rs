@@ -15,9 +15,25 @@ mod erc20 {
     };
 
     #[ink_lang::storage_item]
+    struct Atomic {
+        s1: u128,
+        s2: Vec<u128>,
+    }
+
+    #[ink_lang::storage_item]
+    struct NonAtomic {
+        s1: StorageMapping<u128, u128>,
+        s2: StorageValue<u128>,
+    }
+
+    #[ink_lang::storage_item]
     struct Jora<KEY: StorageKeyHolder> {
         s1: StorageMapping<u128, u128>,
         s2: StorageValue<u128>,
+        s3: StorageMapping<u128, Atomic>,
+        s4: StorageValue<NonAtomic>,
+        // Fails because: the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
+        // s5: StorageMapping<u128, NonAtomic>,
     }
     // It generates the next code
     // struct Jora<KEY: StorageKeyHolder> {

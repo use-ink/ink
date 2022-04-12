@@ -7,21 +7,19 @@ pub trait StorageKeyHolder {
     const KEY: StorageKey;
 }
 
-/// Helps to identify is the type is atomic or not
+/// Helps to identify is the type is atomic or not. Type is not atomic if it requires
+/// a separate storage cell.
 pub trait AtomicStatus {
-    /// Atomic status
+    /// Atomic status of the type.
     const IS_ATOMIC: bool;
-    /// Atomic status of inner type if it exists
-    const INNER_IS_ATOMIC: bool;
 }
 
+/// `AtomicGuard<true>` is implemented for all primitive types and atomic structures.
+/// It can be used to add requirement for the generic to be atomic.
+pub trait AtomicGuard<const IS_ATOMIC: bool> {}
+
 /// Returns the type that should be used for storing the value
-pub trait StorageType<
-    const KEY: StorageKey,
-    Salt: StorageKeyHolder,
-    const IS_ATOMIC: bool,
->
-{
+pub trait StorageType<Salt: StorageKeyHolder> {
     /// Type with storage key inside
     type Type: AtomicStatus;
 }

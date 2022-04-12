@@ -1,4 +1,5 @@
 use crate::traits::{
+    AtomicGuard,
     AtomicStatus,
     AutoKey,
     ManualKey,
@@ -20,12 +21,14 @@ use scale::{
 };
 
 /// TODO: Add comment
-pub struct StorageMapping<K, V, KeyType: StorageKeyHolder = AutoKey> {
+pub struct StorageMapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey> {
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<K, V, KeyType: StorageKeyHolder> Default for StorageMapping<K, V, KeyType> {
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Default
+    for StorageMapping<K, V, KeyType>
+{
     fn default() -> Self {
         Self {
             _marker: Default::default(),
@@ -33,7 +36,7 @@ impl<K, V, KeyType: StorageKeyHolder> Default for StorageMapping<K, V, KeyType> 
     }
 }
 
-impl<K, V, KeyType: StorageKeyHolder> StorageMapping<K, V, KeyType> {
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageMapping<K, V, KeyType> {
     /// TODO: Add comment
     pub fn new() -> Self {
         Self {
@@ -42,7 +45,9 @@ impl<K, V, KeyType: StorageKeyHolder> StorageMapping<K, V, KeyType> {
     }
 }
 
-impl<K, V, KeyType: StorageKeyHolder> core::fmt::Debug for StorageMapping<K, V, KeyType> {
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> core::fmt::Debug
+    for StorageMapping<K, V, KeyType>
+{
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("StorageMapping")
             .field("storage_key", &KeyType::KEY)
@@ -53,7 +58,7 @@ impl<K, V, KeyType: StorageKeyHolder> core::fmt::Debug for StorageMapping<K, V, 
 impl<K, V, KeyType> StorageMapping<K, V, KeyType>
 where
     K: Encode,
-    V: Encode + Decode,
+    V: AtomicGuard<true> + Encode + Decode,
     KeyType: StorageKeyHolder,
 {
     /// Insert the given `value` to the contract storage.
@@ -110,26 +115,23 @@ where
 
 impl<
         K,
-        V: AtomicStatus,
-        const KEY: StorageKey,
+        V: AtomicGuard<true>,
         Salt: StorageKeyHolder,
         const MANUAL_KEY: StorageKey,
         ManualSalt: StorageKeyHolder,
-    > StorageType<KEY, Salt, true>
-    for StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>
+    > StorageType<Salt> for StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>
 {
     type Type = StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>;
 }
 
-impl<K, V: AtomicStatus, const KEY: StorageKey, Salt: StorageKeyHolder>
-    StorageType<KEY, Salt, true> for StorageMapping<K, V, AutoKey>
+impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType<Salt>
+    for StorageMapping<K, V, AutoKey>
 {
-    type Type = StorageMapping<K, V, ManualKey<KEY, Salt>>;
+    type Type = StorageMapping<K, V, ManualKey<0, Salt>>;
 }
 
-impl<K, V: AtomicStatus, KeyType: StorageKeyHolder> AtomicStatus
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> AtomicStatus
     for StorageMapping<K, V, KeyType>
 {
     const IS_ATOMIC: bool = false;
-    const INNER_IS_ATOMIC: bool = V::IS_ATOMIC;
 }

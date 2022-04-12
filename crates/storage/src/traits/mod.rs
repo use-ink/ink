@@ -66,6 +66,7 @@ pub use self::{
         FOOTPRINT_CLEANUP_THRESHOLD,
     },
     storage::{
+        AtomicGuard,
         AtomicStatus,
         AutoKey,
         ManualKey,
