@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use crate::{
+    GenerateCode,
+    generator::EventDefinition,
+};
 use derive_more::From;
 use proc_macro2::{
     Span,
@@ -23,6 +26,7 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
+use ir::Event;
 
 /// Generates code for the ink! event structs of the contract.
 #[derive(From)]
@@ -40,14 +44,14 @@ impl GenerateCode for Events<'_> {
         let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         let event_base = self.generate_event_base();
         let topic_guards = self.generate_topic_guards();
-        // let topics_impls = self.generate_topics_impls(); // todo: call into shared event_def code for inline events
+        let topics_impls = self.generate_topics_impls(); // todo: call into shared event_def code for inline events
         let event_structs = self.generate_event_structs();
         quote! {
             #emit_event_trait_impl
             #event_base
             #( #topic_guards )*
             #( #event_structs )*
-            // #( #topics_impls )*
+            #( #topics_impls )*
         }
     }
 }
@@ -180,6 +184,23 @@ impl<'a> Events<'a> {
             )
         })
     }
+
+    /// Generates the `Topics` trait implementations for the user defined events.
+    fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+        let contract_ident = self.contract.module().storage().ident();
+        self.contract.module().events().map(move |event| {
+            match event {
+                Event::Inline(event_def) => {
+                    let event_def_gen = EventDefinition::from(event_def);
+                    event_def_gen.generate_code()
+                }
+                Event::Imported(imported_event) => {
+                    todo!()
+                }
+            }
+        })
+    }
+
 
     /// Generates all the user defined event struct definitions.
     fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
