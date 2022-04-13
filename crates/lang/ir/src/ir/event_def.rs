@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    error::ExtError as _,
+    ir,
+    ir::utils,
+};
 use proc_macro2::{
     Ident,
     Span,
@@ -23,9 +27,34 @@ use syn::{Result, spanned::Spanned as _};
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkEventDefinition {
-    item: syn::ItemStruct,
+    pub item: syn::ItemStruct,
     pub anonymous: bool,
 }
+
+impl TryFrom<syn::ItemStruct> for InkEventDefinition {
+    type Error = syn::Error;
+
+    fn try_from(item_struct: syn::ItemStruct) -> Result<Self> {
+        let struct_span = item_struct.span();
+        let (ink_attrs, other_attrs) = ir::sanitize_attributes(
+            struct_span,
+            item_struct.attrs,
+            &ir::AttributeArgKind::Event,
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
+                    _ => Err(None),
+                }
+            },
+        )?;
+        let item_struct = syn::ItemStruct {
+            attrs: other_attrs,
+            ..item_struct
+        };
+        Self::new(item_struct, ink_attrs.is_anonymous())
+    }
+}
+
 
 impl quote::ToTokens for InkEventDefinition {
     /// We mainly implement this trait for this ink! type to have a derived
@@ -37,7 +66,45 @@ impl quote::ToTokens for InkEventDefinition {
 
 impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn new(config: TokenStream2, input: TokenStream2) -> Result<Self> {
+    pub fn new(item_struct: syn::ItemStruct, anonymous: bool) -> Result<Self> {
+        if !item_struct.generics.params.is_empty() {
+            return Err(format_err_spanned!(
+                item_struct.generics.params,
+                "generic ink! event structs are not supported",
+            ))
+        }
+        let struct_span = item_struct.span();
+        utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
+        'repeat: for field in item_struct.fields.iter() {
+            let field_span = field.span();
+            let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
+            if ink_attrs.is_empty() {
+                continue 'repeat
+            }
+            let normalized =
+                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                    err.into_combine(format_err!(field_span, "at this invocation",))
+                })?;
+            if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
+                return Err(format_err!(
+                    field_span,
+                    "first optional ink! attribute of an event field must be #[ink(topic)]",
+                ))
+            }
+            for arg in normalized.args() {
+                if !matches!(arg.kind(), ir::AttributeArg::Topic) {
+                    return Err(format_err!(
+                        arg.span(),
+                        "encountered conflicting ink! attribute for event field",
+                    ))
+                }
+            }
+        }
+        Ok(Self { item: item_struct, anonymous })
+    }
+
+    /// Returns `Ok` if the input matches all requirements for an ink! event definition.
+    pub fn from_event_def_tokens(config: TokenStream2, input: TokenStream2) -> Result<Self> {
         let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let anonymous = false; // todo parse this from attr config
         let item = syn::parse2::<syn::ItemStruct>(input)?;

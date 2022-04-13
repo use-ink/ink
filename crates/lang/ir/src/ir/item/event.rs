@@ -12,44 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir,
-    ir::utils,
-};
+use crate::{InkEventDefinition, ir};
 use proc_macro2::{
     Ident,
     Span,
 };
 use syn::spanned::Spanned as _;
-use crate::ast::PathOrLit::Path;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Event {
-    Inline(InlineEvent),
+    Inline(ir::InkEventDefinition),
     Imported(ImportedEvent),
-}
-
-/// An ink! event struct definition.
-///
-/// # Example
-///
-/// ```
-/// # let event = <ink_lang_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
-/// #[ink(event)]
-/// pub struct Transaction {
-///     #[ink(topic)]
-///     from: AccountId,
-///     #[ink(topic)]
-///     to: AccountId,
-///     value: Balance,
-/// }
-/// # }).unwrap();
-/// ```
-#[derive(Debug, PartialEq, Eq)]
-pub struct InlineEvent {
-    item: syn::ItemStruct,
-    pub anonymous: bool,
 }
 
 /// todo add ImportedEvent docs
@@ -95,57 +68,8 @@ impl TryFrom<syn::ItemStruct> for Event {
     type Error = syn::Error;
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
-        let struct_span = item_struct.span();
-        let (ink_attrs, other_attrs) = ir::sanitize_attributes(
-            struct_span,
-            item_struct.attrs,
-            &ir::AttributeArgKind::Event,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
-                    _ => Err(None),
-                }
-            },
-        )?;
-        if !item_struct.generics.params.is_empty() {
-            return Err(format_err_spanned!(
-                item_struct.generics.params,
-                "generic ink! event structs are not supported",
-            ))
-        }
-        utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
-        'repeat: for field in item_struct.fields.iter() {
-            let field_span = field.span();
-            let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
-            if ink_attrs.is_empty() {
-                continue 'repeat
-            }
-            let normalized =
-                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err!(field_span, "at this invocation",))
-                })?;
-            if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
-                return Err(format_err!(
-                    field_span,
-                    "first optional ink! attribute of an event field must be #[ink(topic)]",
-                ))
-            }
-            for arg in normalized.args() {
-                if !matches!(arg.kind(), ir::AttributeArg::Topic) {
-                    return Err(format_err!(
-                        arg.span(),
-                        "encountered conflicting ink! attribute for event field",
-                    ))
-                }
-            }
-        }
-        Ok(Self::Inline(InlineEvent {
-            item: syn::ItemStruct {
-                attrs: other_attrs,
-                ..item_struct
-            },
-            anonymous: ink_attrs.is_anonymous(),
-        }))
+        let event_def = InkEventDefinition::try_from(item_struct)?;
+        Ok(Self::Inline(event_def))
     }
 }
 
@@ -231,7 +155,7 @@ pub struct EventFieldsIter<'a> {
 
 impl<'a> EventFieldsIter<'a> {
     /// Creates a new topics fields iterator for the given ink! event struct.
-    fn new(event: &'a InlineEvent) -> Self {
+    fn new(event: &'a InkEventDefinition) -> Self {
         Self {
             iter: event.item.fields.iter(),
         }
