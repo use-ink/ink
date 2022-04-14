@@ -4,10 +4,6 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeDecode` is not satisfied
 8  |     fn message(&self, input: NonCodec);
    |                       ^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodec`
    |
-   = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
-             Box<T>
-             Rc<T>
    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodec`
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
@@ -22,16 +18,6 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
 8  | |     fn message(&self, input: NonCodec);
    | |_______________________________________^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
    |
-   = help: the following other types implement trait `WrapperTypeEncode`:
-             &T
-             &mut T
-             Arc<T>
-             Box<T>
-             Cow<'a, T>
-             Rc<T>
-             String
-             Vec<T>
-             parity_scale_codec::Ref<'a, T, U>
    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
   --> $WORKSPACE/crates/env/src/call/execution_input.rs
