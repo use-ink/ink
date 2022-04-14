@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::GenerateCode;
+
 use derive_more::From;
 use proc_macro2::{
     TokenStream as TokenStream2,
@@ -33,11 +34,13 @@ impl GenerateCode for EventDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let event_struct = self.generate_event_struct();
         let event_info_impl = self.generate_event_info_impl();
+        let event_metadata_impl = self.generate_event_metadata_impl();
         let topics_impl = self.generate_topics_impl();
         let topics_guard = self.generate_topics_guard();
         quote! {
             #event_struct
             #event_info_impl
+            #event_metadata_impl
             #topics_impl
             #topics_guard
         }
@@ -69,7 +72,7 @@ impl<'a> EventDefinition<'a> {
         )
     }
 
-    fn generate_event_info_impl(&'a self) -> TokenStream2 {
+    fn generate_event_info_impl(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
         quote_spanned!(span=>
@@ -77,6 +80,11 @@ impl<'a> EventDefinition<'a> {
                 const PATH: &'static str = module_path!();
             }
         )
+    }
+
+    fn generate_event_metadata_impl(&self) -> TokenStream2 {
+        let event_metadata = super::metadata::EventMetadata::from(self.event_def);
+        event_metadata.generate_code()
     }
 
     /// Generate checks to guard against too many topics in event definitions.

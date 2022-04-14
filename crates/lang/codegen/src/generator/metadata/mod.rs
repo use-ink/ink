@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod event;
+
+pub use event::EventMetadata;
+
 use crate::GenerateCode;
 use ::core::iter;
 use derive_more::From;
@@ -142,7 +146,7 @@ impl Metadata<'_> {
             syn::Pat::Ident(ident) => &ident.ident,
             _ => unreachable!("encountered ink! dispatch input with missing identifier"),
         };
-        let type_spec = Self::generate_type_spec(&pat_type.ty);
+        let type_spec = generate_type_spec(&pat_type.ty);
         quote! {
             ::ink_metadata::MessageParamSpec::new(::core::stringify!(#ident))
                 .of_type(#type_spec)
@@ -310,42 +314,39 @@ impl Metadata<'_> {
         self.contract.module().events().map(|event| {
             let span = event.span();
             let ident = event.ident();
-            let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
-            let args = Self::generate_event_args(event);
             quote_spanned!(span =>
-                ::ink_metadata::EventSpec::new(::core::stringify!(#ident))
-                    .args([
-                        #( #args ),*
-                    ])
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
+                <#ident as ::ink_metadata::EventMetadata>::event_spec()
             )
         })
     }
+}
 
-    /// Generate ink! metadata for a single argument of an ink! event definition.
-    fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
-        event.fields().map(|event_field| {
-            let span = event_field.span();
-            let ident = event_field.ident();
-            let is_topic = event_field.is_topic;
-            let docs = event_field
-                .attrs()
-                .into_iter()
-                .filter_map(|attr| attr.extract_docs());
-            let ty = Self::generate_type_spec(event_field.ty());
-            quote_spanned!(span =>
-                ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
-                    .of_type(#ty)
-                    .indexed(#is_topic)
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
-            )
-        })
+/// Generates the ink! metadata for the given type.
+pub fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
+    fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+        quote! { ::ink_metadata::TypeSpec::new::<#ty>() }
+    }
+    if let syn::Type::Path(type_path) = ty {
+        if type_path.qself.is_some() {
+            return without_display_name(ty)
+        }
+        let path = &type_path.path;
+        if path.segments.is_empty() {
+            return without_display_name(ty)
+        }
+        let segs = path
+            .segments
+            .iter()
+            .map(|seg| &seg.ident)
+            .collect::<Vec<_>>();
+        quote! {
+                ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
+                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
+                        .map(::core::convert::AsRef::as_ref)
+                )
+            }
+    } else {
+        without_display_name(ty)
     }
 }
 

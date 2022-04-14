@@ -129,3 +129,9 @@ impl InkProject {
         &self.spec
     }
 }
+
+/// todo EventMetadata docs
+pub trait EventMetadata {
+    /// todo event_spec docs
+    fn event_spec() -> EventSpec;
+}
