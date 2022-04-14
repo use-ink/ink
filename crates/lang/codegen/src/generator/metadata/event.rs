@@ -69,7 +69,7 @@ impl GenerateCode for EventMetadata<'_> {
                             .done()
                     }
                 }
-            }
+            };
         )
     }
 }
