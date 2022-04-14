@@ -88,7 +88,7 @@ impl Event {
     pub fn ident(&self) -> &Ident {
         match self {
             Event::Inline(inline) => &inline.item.ident,
-            Event::Imported(_) => unimplemented!()
+            Event::Imported(imported) => &imported.item.ident,
         }
     }
 
