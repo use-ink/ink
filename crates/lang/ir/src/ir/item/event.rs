@@ -84,20 +84,11 @@ impl TryFrom<syn::ItemType> for Event {
 }
 
 impl Event {
-    /// Returns the identifier of the event struct.
+    /// Returns the identifier of the event.
     pub fn ident(&self) -> &Ident {
         match self {
             Event::Inline(inline) => &inline.item.ident,
             Event::Imported(_) => unimplemented!()
-        }
-    }
-
-    /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
-    /// of the event struct.
-    pub fn fields(&self) -> EventFieldsIter {
-        match self {
-            Event::Inline(inline) => EventFieldsIter::new(inline),
-            Event::Imported(_) => unimplemented!(),
         }
     }
 
