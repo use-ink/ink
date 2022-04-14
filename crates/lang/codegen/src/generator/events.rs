@@ -44,14 +44,12 @@ impl GenerateCode for Events<'_> {
         let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         let event_base = self.generate_event_base();
         let topic_guards = self.generate_topic_guards();
-        let topics_impls = self.generate_topics_impls(); // todo: call into shared event_def code for inline events
-        let event_structs = self.generate_event_structs();
+        let event_defs = self.generate_event_definitions(); // todo: call into shared event_def code for inline events
         quote! {
             #emit_event_trait_impl
             #event_base
             #( #topic_guards )*
-            #( #event_structs )*
-            #( #topics_impls )*
+            #( #event_defs )*
         }
     }
 }
@@ -155,16 +153,11 @@ impl<'a> Events<'a> {
         let span = event.span();
         let storage_ident = self.contract.module().storage().ident();
         let event_ident = event.ident();
-        let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
             <<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env
                 as ::ink_env::Environment>::MAX_EVENT_TOPICS
         );
         quote_spanned!(span=>
-            impl ::ink_lang::codegen::EventLenTopics for #event_ident {
-                type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
-            }
-
             const _: () = ::ink_lang::codegen::utils::consume_type::<
                 ::ink_lang::codegen::EventRespectsTopicLimit<
                     #event_ident,
@@ -186,8 +179,7 @@ impl<'a> Events<'a> {
     }
 
     /// Generates the `Topics` trait implementations for the user defined events.
-    fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let contract_ident = self.contract.module().storage().ident();
+    fn generate_event_definitions(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             match event {
                 Event::Inline(event_def) => {
@@ -195,37 +187,11 @@ impl<'a> Events<'a> {
                     event_def_gen.generate_code()
                 }
                 Event::Imported(imported_event) => {
-                    todo!()
+                    // todo: hook up to base event and figure out metadata
+                    let item_type = &imported_event.item;
+                    quote! { #item_type }
                 }
             }
-        })
-    }
-
-
-    /// Generates all the user defined event struct definitions.
-    fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        self.contract.module().events().map(move |event| {
-            let span = event.span();
-            let ident = event.ident();
-            let attrs = event.attrs();
-            let fields = event.fields().map(|event_field| {
-                let span = event_field.span();
-                let attrs = event_field.attrs();
-                let vis = event_field.vis();
-                let ident = event_field.ident();
-                let ty = event_field.ty();
-                quote_spanned!(span=>
-                    #( #attrs )*
-                    #vis #ident : #ty
-                )
-            });
-            quote_spanned!(span =>
-                #( #attrs )*
-                #[derive(scale::Encode, scale::Decode)]
-                pub struct #ident {
-                    #( #fields ),*
-                }
-            )
         })
     }
 }

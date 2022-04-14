@@ -28,7 +28,7 @@ pub enum Event {
 /// todo add ImportedEvent docs
 #[derive(Debug, PartialEq, Eq)]
 pub struct ImportedEvent {
-    item: syn::ItemType,
+    pub item: syn::ItemType,
 }
 
 impl quote::ToTokens for Event {
