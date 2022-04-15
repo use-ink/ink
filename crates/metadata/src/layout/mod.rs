@@ -82,7 +82,7 @@ impl serde::Serialize for LayoutKey {
     where
         S: serde::Serializer,
     {
-        serde_hex::serialize(&self.key.to_le_bytes(), serializer)
+        serde_hex::serialize(&self.key.to_be_bytes(), serializer)
     }
 }
 
@@ -93,7 +93,7 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     {
         let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        Ok(StorageKey::from_le_bytes(arr).into())
+        Ok(StorageKey::from_be_bytes(arr).into())
     }
 }
 
