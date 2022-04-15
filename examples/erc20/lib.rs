@@ -18,7 +18,7 @@ mod erc20 {
     struct Atomic {
         s1: u128,
         s2: Vec<u128>,
-        // Fails because `StorageType` implemented for Vec if T is not AtomicGuard<true>
+        // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
         // s3: Vec<NonAtomic>,
     }
 
