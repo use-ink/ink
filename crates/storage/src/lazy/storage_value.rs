@@ -1,4 +1,6 @@
 use crate::traits::{
+    pull_storage,
+    push_storage,
     AtomicStatus,
     AutoKey,
     ManualKey,
@@ -10,6 +12,9 @@ use ink_primitives::StorageKey;
 use scale::{
     Decode,
     Encode,
+    Error,
+    Input,
+    Output,
 };
 
 /// TODO: Add comment
@@ -46,15 +51,7 @@ impl<V, KeyType: StorageKeyHolder> core::fmt::Debug for StorageValue<V, KeyType>
 impl<V: Decode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
     /// TODO: Add comment
     pub fn get() -> V {
-        ink_env::get_storage_value::<V>(&KeyType::KEY)
-            .unwrap_or_else(|error| {
-                panic!(
-                    "failed to get storage value from key {}: {:?}",
-                    KeyType::KEY,
-                    error
-                )
-            })
-            .unwrap()
+        pull_storage(&KeyType::KEY)
     }
 }
 
@@ -70,7 +67,7 @@ impl<V: Decode + Default, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
 impl<V: Encode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
     /// TODO: Add comment
     pub fn set(value: &V) {
-        ink_env::set_storage_value::<V>(&KeyType::KEY, value)
+        push_storage(value, &KeyType::KEY)
     }
 }
 
@@ -96,4 +93,14 @@ impl<V: StorageType<ManualKey<0, Salt>>, Salt: StorageKeyHolder> StorageType<Sal
 
 impl<V, KeyType: StorageKeyHolder> AtomicStatus for StorageValue<V, KeyType> {
     const IS_ATOMIC: bool = false;
+}
+
+impl<V, KeyType: StorageKeyHolder> Encode for StorageValue<V, KeyType> {
+    fn encode_to<T: Output + ?Sized>(&self, _dest: &mut T) {}
+}
+
+impl<V, KeyType: StorageKeyHolder> Decode for StorageValue<V, KeyType> {
+    fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
+        Ok(Default::default())
+    }
 }

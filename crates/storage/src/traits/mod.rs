@@ -38,13 +38,7 @@ pub use self::layout::{
     LayoutCryptoHasher,
     StorageLayout,
 };
-pub(crate) use self::optspec::{
-    clear_spread_root_opt,
-    pull_packed_root_opt,
-    pull_spread_root_opt,
-    push_packed_root_opt,
-    push_spread_root_opt,
-};
+pub(crate) use self::optspec::pull_packed_root_opt;
 pub use self::{
     impls::{
         forward_allocate_packed,
@@ -74,12 +68,19 @@ pub use self::{
         StorageType,
     },
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 pub use ink_storage_derive::{
     PackedLayout,
     SpreadAllocate,
     SpreadLayout,
     StorageLayout,
+};
+use scale::{
+    Decode,
+    Encode,
 };
 
 /// Pulls an instance of type `T` from the contract storage using spread layout.
@@ -99,6 +100,18 @@ where
 {
     let mut ptr = KeyPtr::from(*root_key);
     <T as SpreadLayout>::pull_spread(&mut ptr)
+}
+
+/// Pulls an instance of type `T` from the contract storage using decode and its storage key.
+pub fn pull_storage<T>(key: &StorageKey) -> T
+where
+    T: Decode,
+{
+    ink_env::get_storage_value(key)
+        .unwrap_or_else(|error| {
+            panic!("failed to get storage value from key {}: {:?}", key, error)
+        })
+        .unwrap()
 }
 
 /// Pulls an instance of type `T` from the contract storage using spread layout.
@@ -156,6 +169,14 @@ where
 {
     let mut ptr = KeyPtr::from(*root_key);
     <T as SpreadLayout>::push_spread(entity, &mut ptr);
+}
+
+/// Pushes the entity to the contract storage using encode and storage key.
+pub fn push_storage<T>(entity: &T, key: &StorageKey)
+where
+    T: Encode,
+{
+    ink_env::set_storage_value(key, entity)
 }
 
 /// Pulls an instance of type `T` from the contract storage using packed layout.

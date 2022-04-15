@@ -1,4 +1,7 @@
-use core::marker::PhantomData;
+use core::{
+    fmt::Debug,
+    marker::PhantomData,
+};
 use ink_primitives::StorageKey;
 
 /// Returns storage key for the type
@@ -25,6 +28,8 @@ pub trait StorageType<Salt: StorageKeyHolder> {
 }
 
 /// That key type means that the storage key should be calculated automatically.
+#[derive(Default, Copy, Clone, PartialEq, PartialOrd, Debug)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct AutoKey;
 
 impl StorageKeyHolder for AutoKey {
@@ -32,6 +37,8 @@ impl StorageKeyHolder for AutoKey {
 }
 
 /// That key type specifies the storage key.
+#[derive(Default, Copy, Clone, PartialEq, PartialOrd, Debug)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct ManualKey<const KEY: StorageKey, Salt: StorageKeyHolder = ()>(
     PhantomData<fn() -> Salt>,
 );

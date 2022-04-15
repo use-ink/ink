@@ -20,8 +20,6 @@ pub use self::{
     execution::{
         deny_payment,
         execute_constructor,
-        initialize_contract,
-        ContractRootKey,
         ExecuteConstructorConfig,
     },
     info::ContractCallBuilder,

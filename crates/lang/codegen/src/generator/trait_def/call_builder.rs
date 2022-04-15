@@ -139,14 +139,14 @@ impl CallBuilder<'_> {
                 <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::StorageLayout,
             {
                 fn layout(
-                    __key_ptr: &mut ::ink_storage::traits::KeyPtr,
+                    __key: &::ink_primitives::StorageKey,
                 ) -> ::ink_metadata::layout::Layout {
                     ::ink_metadata::layout::Layout::Struct(
                         ::ink_metadata::layout::StructLayout::new([
                             ::ink_metadata::layout::FieldLayout::new(
                                 ::core::option::Option::Some("account_id"),
                                 <<E as ::ink_env::Environment>::AccountId
-                                    as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
+                                    as ::ink_storage::traits::StorageLayout>::layout(__key)
                             )
                         ])
                     )

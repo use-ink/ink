@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::StorageLayout;
 use crate::traits::{
-    ExtKeyPtr as _,
-    KeyPtr,
-    SpreadLayout,
+    AtomicGuard,
+    StorageLayout,
 };
 use ink_env::{
     AccountId,
@@ -38,15 +36,18 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {
     ( $($name:ty),* $(,)? ) => {
         $(
             impl StorageLayout for $name {
-                fn layout(key_ptr: &mut KeyPtr) -> Layout {
-                    Layout::Cell(CellLayout::new::<$name>(LayoutKey::from(key_ptr.advance_by(1))))
+                fn layout(key: &StorageKey) -> Layout {
+                    Layout::Cell(CellLayout::new::<$name>(LayoutKey::from(key)))
                 }
             }
         )*
@@ -65,16 +66,16 @@ macro_rules! impl_storage_layout_for_arrays {
         $(
             impl<T> StorageLayout for [T; $len]
             where
-                T: StorageLayout + SpreadLayout,
+                T: StorageLayout + AtomicGuard<true>,
             {
-                fn layout(key_ptr: &mut KeyPtr) -> Layout {
+                fn layout(key: &StorageKey) -> Layout {
                     let len: u32 = $len;
-                    let elem_footprint = <T as SpreadLayout>::FOOTPRINT;
+                    // Generic type is atomic, so it doesn't take any cell
                     Layout::Array(ArrayLayout::new(
-                        LayoutKey::from(key_ptr.next_for::<[T; $len]>()),
+                        LayoutKey::from(key),
                         len,
-                        elem_footprint,
-                        <T as StorageLayout>::layout(&mut key_ptr.clone()),
+                        0,
+                        <T as StorageLayout>::layout(&key),
                     ))
                 }
             }
@@ -97,11 +98,11 @@ macro_rules! impl_layout_for_tuple {
                 $frag: StorageLayout,
             )*
         {
-            fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            fn layout(key: &StorageKey) -> Layout {
                 Layout::Struct(
                     StructLayout::new([
                         $(
-                            FieldLayout::new(None, <$frag as StorageLayout>::layout(key_ptr)),
+                            FieldLayout::new(None, <$frag as StorageLayout>::layout(key)),
                         )*
                     ])
                 )
@@ -124,8 +125,8 @@ impl<T> StorageLayout for Box<T>
 where
     T: StorageLayout,
 {
-    fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        <T as StorageLayout>::layout(key_ptr)
+    fn layout(key: &StorageKey) -> Layout {
+        <T as StorageLayout>::layout(key)
     }
 }
 
@@ -133,16 +134,15 @@ impl<T> StorageLayout for Option<T>
 where
     T: StorageLayout,
 {
-    fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        let dispatch_key = key_ptr.advance_by(1);
+    fn layout(key: &StorageKey) -> Layout {
         Layout::Enum(EnumLayout::new(
-            *dispatch_key,
+            key,
             [
                 (
                     Discriminant::from(0),
                     StructLayout::new([FieldLayout::new(
                         None,
-                        <T as StorageLayout>::layout(&mut key_ptr.clone()),
+                        <T as StorageLayout>::layout(key),
                     )]),
                 ),
                 (Discriminant::from(1), StructLayout::new(Vec::new())),
@@ -156,23 +156,22 @@ where
     T: StorageLayout,
     E: StorageLayout,
 {
-    fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        let dispatch_key = key_ptr.advance_by(1);
+    fn layout(key: &StorageKey) -> Layout {
         Layout::Enum(EnumLayout::new(
-            *dispatch_key,
+            *key,
             [
                 (
                     Discriminant::from(0),
                     StructLayout::new([FieldLayout::new(
                         None,
-                        <T as StorageLayout>::layout(&mut key_ptr.clone()),
+                        <T as StorageLayout>::layout(key),
                     )]),
                 ),
                 (
                     Discriminant::from(1),
                     StructLayout::new([FieldLayout::new(
                         None,
-                        <E as StorageLayout>::layout(&mut key_ptr.clone()),
+                        <E as StorageLayout>::layout(key),
                     )]),
                 ),
             ],
@@ -182,23 +181,19 @@ where
 
 impl<T> StorageLayout for Vec<T>
 where
-    T: TypeInfo + 'static,
+    T: TypeInfo + 'static + AtomicGuard<true>,
 {
-    fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
-            key_ptr.advance_by(1),
-        )))
+    fn layout(key: &StorageKey) -> Layout {
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
 impl<K, V> StorageLayout for BTreeMap<K, V>
 where
     K: TypeInfo + 'static,
-    V: TypeInfo + 'static,
+    V: TypeInfo + 'static + AtomicGuard<true>,
 {
-    fn layout(key_ptr: &mut KeyPtr) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
-            key_ptr.advance_by(1),
-        )))
+    fn layout(key: &StorageKey) -> Layout {
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }

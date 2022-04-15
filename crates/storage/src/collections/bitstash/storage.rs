@@ -31,7 +31,10 @@ use crate::{
         SpreadLayout,
     },
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 
 #[cfg(feature = "std")]
 const _: () = {
@@ -43,16 +46,13 @@ const _: () = {
     };
 
     impl StorageLayout for BitStash {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        fn layout(key: &StorageKey) -> Layout {
             Layout::Struct(StructLayout::new([
                 FieldLayout::new(
                     "counts",
-                    <StorageVec<CountFree> as StorageLayout>::layout(key_ptr),
+                    <StorageVec<CountFree> as StorageLayout>::layout(key),
                 ),
-                FieldLayout::new(
-                    "elems",
-                    <StorageBitvec as StorageLayout>::layout(key_ptr),
-                ),
+                FieldLayout::new("elems", <StorageBitvec as StorageLayout>::layout(key)),
             ]))
         }
     }

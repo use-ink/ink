@@ -88,14 +88,15 @@ macro_rules! impl_always_packed_layout {
     };
 }
 
-macro_rules! impl_always_storage_info {
+// Collection works only with atomic structures
+macro_rules! impl_always_storage_type {
     ( $name:ident < $($frag:ident),+ > ) => {
         impl<
             Salt: $crate::traits::StorageKeyHolder,
             $($frag),+> $crate::traits::StorageType<Salt> for $name < $($frag),+ >
         where
             $(
-                $frag: $crate::traits::AtomicStatus,
+                $frag: $crate::traits::AtomicStatus + $crate::traits::AtomicGuard< { true } >,
             )+
         {
             type Type = $name < $($frag),+ >;

@@ -18,9 +18,13 @@ use ink_primitives::{
 use scale::{
     Decode,
     Encode,
+    Error,
+    Input,
+    Output,
 };
 
 /// TODO: Add comment
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageMapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey> {
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
@@ -80,14 +84,12 @@ where
         Q: scale::EncodeLike<K>,
     {
         let root_key = self.storage_key(&key);
-        ink_env::get_contract_storage(&root_key)
-            .unwrap_or_else(|error| {
-                panic!(
-                    "failed to get packed from root key {}: {:?}",
-                    root_key, error
-                )
-            })
-            .unwrap()
+        ink_env::get_contract_storage::<V>(&root_key).unwrap_or_else(|error| {
+            panic!(
+                "failed to get packed from root key {}: {:?}",
+                root_key, error
+            )
+        })
     }
 
     /// Clears the value at `key` from storage.
@@ -135,3 +137,39 @@ impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> AtomicStatus
 {
     const IS_ATOMIC: bool = false;
 }
+
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Encode
+    for StorageMapping<K, V, KeyType>
+{
+    fn encode_to<T: Output + ?Sized>(&self, _dest: &mut T) {}
+}
+
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Decode
+    for StorageMapping<K, V, KeyType>
+{
+    fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
+        Ok(Default::default())
+    }
+}
+
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::traits::StorageLayout;
+    use ink_metadata::layout::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+
+    impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageLayout
+        for StorageMapping<K, V, KeyType>
+    where
+        K: scale_info::TypeInfo + 'static,
+        V: scale_info::TypeInfo + 'static,
+        KeyType: scale_info::TypeInfo + 'static,
+    {
+        fn layout(_key: &StorageKey) -> Layout {
+            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(&KeyType::KEY)))
+        }
+    }
+};

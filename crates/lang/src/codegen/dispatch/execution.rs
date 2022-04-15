@@ -24,28 +24,11 @@ use ink_env::{
     Environment,
     ReturnFlags,
 };
-use ink_primitives::{
-    Key,
-    KeyPtr,
-};
 use ink_storage::traits::{
-    push_spread_root,
-    SpreadAllocate,
-    SpreadLayout,
+    push_storage,
+    StorageKeyHolder,
 };
-
-/// The root key of the ink! smart contract.
-///
-/// # Note
-///
-/// - This is the key where storage allocation, pushing and pulling is rooted
-///   using the `SpreadLayout` and `SpreadAllocate` traits primarily.
-/// - This trait is automatically implemented by the ink! codegen.
-/// - The existence of this trait allows to customize the root key in future
-///   versions of ink! if needed.
-pub trait ContractRootKey {
-    const ROOT_KEY: Key;
-}
+use scale::Encode;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
@@ -83,9 +66,9 @@ pub fn execute_constructor<Contract, F, R>(
     f: F,
 ) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout + ContractRootKey + ContractEnv,
+    Contract: Encode + StorageKeyHolder + ContractEnv,
     F: FnOnce() -> R,
-    <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
+    <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
 {
     if !config.payable {
@@ -97,8 +80,7 @@ where
             // Constructor is infallible or is fallible but succeeded.
             //
             // This requires us to sync back the changes of the contract storage.
-            let root_key = <Contract as ContractRootKey>::ROOT_KEY;
-            push_spread_root::<Contract>(contract, &root_key);
+            push_storage::<Contract>(contract, &Contract::KEY);
             Ok(())
         }
         Err(_) => {
@@ -113,32 +95,6 @@ where
             )
         }
     }
-}
-
-/// Initializes the ink! contract using the given initialization routine.
-///
-/// # Note
-///
-/// - This uses `SpreadAllocate` trait in order to default initialize the
-///   ink! smart contract before calling the initialization routine.
-/// - This either returns `Contract` or `Result<Contract, E>` depending
-///   on the return type `R` of the initializer closure `F`.
-///   If `R` is `()` then `Contract` is returned and if `R` is any type of
-///   `Result<(), E>` then `Result<Contract, E>` is returned.
-///   Other return types for `F` than the ones listed above are not allowed.
-#[inline]
-pub fn initialize_contract<Contract, F, R>(
-    initializer: F,
-) -> <R as InitializerReturnType<Contract>>::Wrapped
-where
-    Contract: ContractRootKey + SpreadAllocate,
-    F: FnOnce(&mut Contract) -> R,
-    R: InitializerReturnType<Contract>,
-{
-    let mut key_ptr = KeyPtr::from(<Contract as ContractRootKey>::ROOT_KEY);
-    let mut instance = <Contract as SpreadAllocate>::allocate_spread(&mut key_ptr);
-    let result = initializer(&mut instance);
-    result.into_wrapped(instance)
 }
 
 mod private {

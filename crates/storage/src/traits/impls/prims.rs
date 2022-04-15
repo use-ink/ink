@@ -56,7 +56,7 @@ macro_rules! impl_layout_for_primitive {
 macro_rules! impl_storage_info_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
         $(
-            impl_always_storage_info!($ty);
+            impl_always_storage_type!($ty);
         )*
     };
 }

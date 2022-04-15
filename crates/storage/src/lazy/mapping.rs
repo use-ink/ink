@@ -219,16 +219,15 @@ const _: () = {
         Layout,
         LayoutKey,
     };
+    use ink_primitives::StorageKey;
 
     impl<K, V> StorageLayout for Mapping<K, V>
     where
         K: scale_info::TypeInfo + 'static,
         V: scale_info::TypeInfo + 'static,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
-                key_ptr.advance_by(1),
-            )))
+        fn layout(key: &StorageKey) -> Layout {
+            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
         }
     }
 };

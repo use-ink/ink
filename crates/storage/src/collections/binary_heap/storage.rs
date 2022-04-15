@@ -19,11 +19,13 @@ use super::{
     ChildrenVec,
 };
 use crate::traits::{
+    AtomicGuard,
     KeyPtr,
     PackedLayout,
     SpreadAllocate,
     SpreadLayout,
 };
+use ink_primitives::StorageKey;
 
 #[cfg(feature = "std")]
 const _: () = {
@@ -37,12 +39,12 @@ const _: () = {
 
     impl<T> StorageLayout for BinaryHeap<T>
     where
-        T: PackedLayout + Ord + TypeInfo + 'static,
+        T: PackedLayout + Ord + TypeInfo + 'static + AtomicGuard<true>,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        fn layout(key: &StorageKey) -> Layout {
             Layout::Struct(StructLayout::new([FieldLayout::new(
                 "elements",
-                <ChildrenVec<T> as StorageLayout>::layout(key_ptr),
+                <ChildrenVec<T> as StorageLayout>::layout(key),
             )]))
         }
     }
@@ -65,14 +67,14 @@ const _: () = {
 
     impl<T> StorageLayout for ChildrenVec<T>
     where
-        T: PackedLayout + Ord + TypeInfo + 'static,
+        T: PackedLayout + Ord + TypeInfo + 'static + AtomicGuard<true>,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+        fn layout(key: &StorageKey) -> Layout {
             Layout::Struct(StructLayout::new(vec![
-                FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key)),
                 FieldLayout::new(
                     "children",
-                    <StorageVec<Children<T>> as StorageLayout>::layout(key_ptr),
+                    <StorageVec<Children<T>> as StorageLayout>::layout(key),
                 ),
             ]))
         }

@@ -143,10 +143,10 @@ impl CallForwarder<'_> {
                 <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::StorageLayout,
             {
                 fn layout(
-                    __key_ptr: &mut ::ink_storage::traits::KeyPtr,
+                    __key: &::ink_primitives::StorageKey,
                 ) -> ::ink_metadata::layout::Layout {
                     <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
+                        as ::ink_storage::traits::StorageLayout>::layout(__key)
                 }
             }
         )

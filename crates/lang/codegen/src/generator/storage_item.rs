@@ -39,11 +39,13 @@ impl GenerateCode for StorageItem<'_> {
         let generated_struct = self.generate_struct();
         let generated_atomic_status = self.generate_atomic_status();
         let generated_storage_type = self.generate_storage_type();
+        let generated_storage_key_holder = self.generate_storage_key_holder();
 
         quote! {
             #generated_struct
             #generated_atomic_status
             #generated_storage_type
+            #generated_storage_key_holder
         }
     }
 }
@@ -206,6 +208,20 @@ impl<'a> StorageItem<'a> {
 
                     type Type = #ident #ty_generics;
                 }
+            }
+        }
+    }
+
+    fn generate_storage_key_holder(&self) -> TokenStream2 {
+        let item = self.item;
+        let ident = item.ident();
+        let salt = item.salt();
+
+        let (impl_generics, ty_generics, where_clause) = item.generics().split_for_impl();
+
+        quote! {
+            impl #impl_generics ::ink_storage::traits::StorageKeyHolder for #ident #ty_generics #where_clause {
+                const KEY: ::ink_primitives::StorageKey = <#salt as ::ink_storage::traits::StorageKeyHolder>::KEY;
             }
         }
     }

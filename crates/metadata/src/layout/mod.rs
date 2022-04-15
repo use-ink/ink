@@ -24,7 +24,7 @@ use crate::{
 };
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
-use ink_primitives::Key;
+use ink_primitives::StorageKey;
 use scale_info::{
     form::{
         Form,
@@ -74,7 +74,7 @@ pub enum Layout<F: Form = MetaForm> {
 /// A pointer into some storage region.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From)]
 pub struct LayoutKey {
-    key: [u8; 32],
+    key: StorageKey,
 }
 
 impl serde::Serialize for LayoutKey {
@@ -82,7 +82,7 @@ impl serde::Serialize for LayoutKey {
     where
         S: serde::Serializer,
     {
-        serde_hex::serialize(&self.key, serializer)
+        serde_hex::serialize(&self.key.to_le_bytes(), serializer)
     }
 }
 
@@ -91,27 +91,21 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     where
         D: serde::Deserializer<'de>,
     {
-        let mut arr = [0; 32];
+        let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        Ok(arr.into())
+        Ok(StorageKey::from_le_bytes(arr).into())
     }
 }
 
-impl<'a> From<&'a Key> for LayoutKey {
-    fn from(key: &'a Key) -> Self {
-        Self { key: *key.as_ref() }
-    }
-}
-
-impl From<Key> for LayoutKey {
-    fn from(key: Key) -> Self {
-        Self { key: *key.as_ref() }
+impl<'a> From<&'a StorageKey> for LayoutKey {
+    fn from(key: &'a StorageKey) -> Self {
+        Self { key: *key }
     }
 }
 
 impl LayoutKey {
-    /// Returns the underlying bytes of the layout key.
-    pub fn to_bytes(&self) -> &[u8] {
+    /// Returns the key of the layout key.
+    pub fn key(&self) -> &StorageKey {
         &self.key
     }
 }

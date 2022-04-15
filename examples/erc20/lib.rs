@@ -4,12 +4,12 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
+    use ink_prelude::vec::Vec;
     use ink_storage::{
         traits::{
-            SpreadAllocate,
+            ManualKey,
             StorageKeyHolder,
         },
-        Mapping,
         StorageMapping,
         StorageValue,
     };
@@ -18,6 +18,8 @@ mod erc20 {
     struct Atomic {
         s1: u128,
         s2: Vec<u128>,
+        // Fails because `StorageType` implemented for Vec if T is not AtomicGuard<true>
+        // s3: Vec<NonAtomic>,
     }
 
     #[ink_lang::storage_item]
@@ -36,60 +38,73 @@ mod erc20 {
         // s5: StorageMapping<u128, NonAtomic>,
     }
     // It generates the next code
+    //
     // struct Jora<KEY: StorageKeyHolder> {
     //     s1: <StorageMapping<u128, u128> as ::ink_storage::traits::StorageType<
-    //         2827647485u32,
-    //         KEY,
-    //         { <StorageMapping<u128, u128> as ::ink_storage::traits::AtomicStatus>::INNER_IS_ATOMIC },
+    //         ::ink_storage::traits::ManualKey<2827647485u32, KEY>,
     //     >>::Type,
     //     s2: <StorageValue<u128> as ::ink_storage::traits::StorageType<
-    //         2021173057u32,
-    //         KEY,
-    //         { <StorageValue<u128> as ::ink_storage::traits::AtomicStatus>::INNER_IS_ATOMIC },
+    //         ::ink_storage::traits::ManualKey<2021173057u32, KEY>,
+    //     >>::Type,
+    //     s3: <StorageMapping<u128, Atomic> as ::ink_storage::traits::StorageType<
+    //         ::ink_storage::traits::ManualKey<1012304298u32, KEY>,
+    //     >>::Type,
+    //     s4: <StorageValue<NonAtomic> as ::ink_storage::traits::StorageType<
+    //         ::ink_storage::traits::ManualKey<4259792457u32, KEY>,
     //     >>::Type,
     // }
     // impl<KEY: StorageKeyHolder> ::ink_storage::traits::AtomicStatus for Jora<KEY> {
-    //     const IS_ATOMIC: bool = Self::INNER_IS_ATOMIC;
-    //     const INNER_IS_ATOMIC: bool =
+    //     const IS_ATOMIC: bool =
     //         <StorageMapping<u128, u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
-    //             && <StorageValue<u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC;
+    //             && <StorageValue<u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
+    //             && <StorageMapping<u128, Atomic> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
+    //             && <StorageValue<NonAtomic> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC;
     // }
-    // impl<
-    //     KEY: StorageKeyHolder,
-    //     const __ink_generic_key: ::ink_primitives::StorageKey,
-    //     const __ink_generic_is_atomic: ::core::primitive::bool,
-    // > ::ink_storage::traits::StorageType<__ink_generic_key, KEY, __ink_generic_is_atomic>
-    // for Jora<::ink_storage::traits::AutoKey>
+    // impl<KEY: StorageKeyHolder>
+    //     ::ink_storage::traits::AtomicGuard<
+    //         {
+    //              < StorageMapping < u128 , u128 > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC &&
+    //              < StorageValue < u128 > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC &&
+    //              < StorageMapping < u128 , Atomic > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC &&
+    //              < StorageValue < NonAtomic > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC
+    //         },
+    //     > for Jora<KEY>
+    // {
+    // }
+    // impl<KEY: StorageKeyHolder> ::ink_storage::traits::StorageType<KEY>
+    //     for Jora<::ink_storage::traits::AutoKey>
     // {
     //     type Type = Jora<::ink_storage::traits::AutoKey>;
     // }
     // impl<
-    //     KEY: StorageKeyHolder,
-    //     const __ink_generic_key: ::ink_primitives::StorageKey,
-    //     const __ink_generic_is_atomic: ::core::primitive::bool,
-    //     const __ink_generic_manual_key: ::ink_primitives::StorageKey,
-    //     __ink_generic_manual_salt: ::ink_storage::traits::StorageKeyHolder,
-    // > ::ink_storage::traits::StorageType<__ink_generic_key, KEY, __ink_generic_is_atomic>
-    // for Jora<
-    //     ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
-    // >
+    //         KEY: StorageKeyHolder,
+    //         const __ink_generic_manual_key: ::ink_primitives::StorageKey,
+    //         __ink_generic_manual_salt: ::ink_storage::traits::StorageKeyHolder,
+    //     > ::ink_storage::traits::StorageType<KEY>
+    //     for Jora<
+    //         ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
+    //     >
     // {
     //     type Type = Jora<
     //         ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
     //     >;
     // }
+    // impl<KEY: StorageKeyHolder> ::ink_storage::traits::StorageKeyHolder for Jora<KEY> {
+    //     const KEY: ::ink_primitives::StorageKey =
+    //         <KEY as ::ink_storage::traits::StorageKeyHolder>::KEY;
+    // }
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
-    pub struct Erc20 {
+    #[derive(Default)]
+    pub struct Erc20<KEY: StorageKeyHolder = ManualKey<123>> {
         /// Total token supply.
         total_supply: Balance,
         /// Mapping from owner to number of owned token.
-        balances: Mapping<AccountId, Balance>,
+        balances: StorageMapping<AccountId, Balance>,
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
-        allowances: Mapping<(AccountId, AccountId), Balance>,
+        allowances: StorageMapping<(AccountId, AccountId), Balance>,
     }
 
     /// Event emitted when a token transfer occurs.
@@ -130,23 +145,16 @@ mod erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            ink_lang::utils::initialize_contract(|contract| {
-                Self::new_init(contract, initial_supply)
-            })
-        }
-
-        /// Default initializes the ERC-20 contract with the specified initial supply.
-        fn new_init(&mut self, initial_supply: Balance) {
+            let mut instance = Erc20::default();
             let caller = Self::env().caller();
-            self.balances.insert(&caller, &initial_supply);
-            self.total_supply = initial_supply;
+            instance.balances.insert(&caller, &initial_supply);
+            instance.total_supply = initial_supply;
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
                 value: initial_supply,
             });
+            instance
         }
 
         /// Returns the total token supply.
