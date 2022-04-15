@@ -97,7 +97,7 @@ mod erc20 {
     /// A simple ERC-20 contract.
     #[ink(storage)]
     #[derive(Default)]
-    pub struct Erc20<KEY: StorageKeyHolder = ManualKey<123>> {
+    pub struct Erc20<KEY: StorageKeyHolder = ManualKey<0x123>> {
         /// Total token supply.
         total_supply: Balance,
         /// Mapping from owner to number of owned token.
