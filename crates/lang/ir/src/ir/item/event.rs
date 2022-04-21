@@ -389,12 +389,16 @@ mod tests {
             }
         })
         .unwrap();
-        let mut fields_iter = input.fields();
-        for (is_topic, expected_field) in expected_fields {
-            let field = fields_iter.next().unwrap();
-            assert_eq!(field.is_topic, is_topic);
-            assert_eq!(field.ident(), Some(expected_field.ident()));
-            assert_eq!(field.ty(), expected_field.ty());
+        if let Event::Inline(event_def) = input {
+            let mut fields_iter = event_def.fields();
+            for (is_topic, expected_field) in expected_fields {
+                let field = fields_iter.next().unwrap();
+                assert_eq!(field.is_topic, is_topic);
+                assert_eq!(field.ident(), Some(expected_field.ident()));
+                assert_eq!(field.ty(), expected_field.ty());
+            }
+        } else {
+            panic!("Expected an inline event definition")
         }
     }
 
@@ -402,9 +406,10 @@ mod tests {
     fn anonymous_event_works() {
         fn assert_anonymous_event(event: syn::ItemStruct) {
             match Event::try_from(event) {
-                Ok(event) => {
+                Ok(Event::Inline(event)) => {
                     assert!(event.anonymous);
-                }
+                },
+                Ok(_) => panic!("Expected an inline event definition"),
                 Err(_) => panic!("encountered unexpected invalid anonymous event"),
             }
         }
