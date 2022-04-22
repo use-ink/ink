@@ -241,6 +241,10 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
+        ext::storage_contains(key.as_ref())
+    }
+
     fn clear_contract_storage(&mut self, key: &Key) {
         ext::clear_storage(key.as_ref())
     }

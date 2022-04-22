@@ -206,6 +206,12 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    fn contract_storage_contains(&mut self, _key: &Key) -> Option<u32> {
+        unimplemented!(
+            "the off-chain env does not implement `seal_contains_storage`, yet"
+        )
+    }
+
     fn clear_contract_storage(&mut self, key: &Key) {
         self.engine.clear_storage(key.as_ref())
     }

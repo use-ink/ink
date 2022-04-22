@@ -176,6 +176,9 @@ pub trait EnvBackend {
     where
         R: scale::Decode;
 
+    /// Returns the size of a value stored under the specified key is returned if any.
+    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32>;
+
     /// Clears the contract's storage key entry.
     fn clear_contract_storage(&mut self, key: &Key);
 

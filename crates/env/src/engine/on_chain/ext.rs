@@ -18,6 +18,7 @@
 
 use crate::ReturnFlags;
 use core::marker::PhantomData;
+use ink_storage::SENTINEL;
 
 macro_rules! define_error_codes {
     (
@@ -190,6 +191,11 @@ impl ReturnCode {
     pub fn into_bool(self) -> bool {
         self.0.ne(&0)
     }
+    /// Returns Some(val) for underlying `u32` val if it is less than SENTINEL.
+    /// Otherwise returns None.
+    pub fn into_option_u32(self) -> Option<u32> {
+        (self.0 < SENTINEL).then_some(self.0)
+    }
 }
 
 type Result = core::result::Result<(), Error>;
@@ -222,11 +228,13 @@ mod sys {
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
         );
+
         pub fn seal_get_storage(
             key_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
         pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
 
         pub fn seal_call_chain_extension(
@@ -358,6 +366,8 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
+
+        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>) -> ReturnCode;
     }
 }
 
@@ -500,6 +510,11 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     };
     extract_from_slice(output, output_len as usize);
     ret_code.into()
+}
+
+pub fn storage_contains(key: &[u8]) -> Option<u32> {
+    let ret_code = unsafe { sys::seal_contains_storage(Ptr32::from_slice(key)) };
+    ret_code.into_option_u32()
 }
 
 pub fn terminate(beneficiary: &[u8]) -> ! {

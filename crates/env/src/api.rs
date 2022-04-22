@@ -211,6 +211,16 @@ where
     })
 }
 
+/// Checks whether there is a value stored under the given key in
+/// the contract's storage.
+///
+/// Size of a value stored under the specified key is returned if any.
+pub fn contract_storage_contains(key: &Key) -> Option<u32> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::contract_storage_contains(instance, key)
+    })
+}
+
 /// Clears the contract's storage key entry.
 pub fn clear_contract_storage(key: &Key) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
