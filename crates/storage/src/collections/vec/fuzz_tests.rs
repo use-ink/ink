@@ -30,10 +30,7 @@ use quickcheck::{
     Arbitrary,
     Gen,
 };
-use std::{
-    iter::FromIterator,
-    vec::Vec,
-};
+use std::vec::Vec;
 
 impl<T> Arbitrary for StorageVec<T>
 where

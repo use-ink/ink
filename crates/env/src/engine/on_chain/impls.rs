@@ -516,4 +516,28 @@ impl TypedEnvBackend for EnvInstance {
     {
         ext::caller_is_origin()
     }
+
+    fn code_hash<E>(&mut self, account_id: &E::AccountId) -> Result<E::Hash>
+    where
+        E: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let output = scope.take(32);
+        scope.append_encoded(account_id);
+        let enc_account_id = scope.take_appended();
+
+        ext::code_hash(enc_account_id, output)?;
+        let hash = scale::Decode::decode(&mut &output[..])?;
+        Ok(hash)
+    }
+
+    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    where
+        E: Environment,
+    {
+        let output = &mut self.scoped_buffer().take(32);
+        ext::own_code_hash(output);
+        let hash = scale::Decode::decode(&mut &output[..])?;
+        Ok(hash)
+    }
 }

@@ -490,4 +490,18 @@ impl TypedEnvBackend for EnvInstance {
     {
         unimplemented!("off-chain environment does not support cross-contract calls")
     }
+
+    fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `code_hash`")
+    }
+
+    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `own_code_hash`")
+    }
 }

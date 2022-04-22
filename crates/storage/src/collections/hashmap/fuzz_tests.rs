@@ -31,10 +31,7 @@ use quickcheck::{
     Arbitrary,
     Gen,
 };
-use std::{
-    collections::HashMap,
-    iter::FromIterator,
-};
+use std::collections::HashMap;
 
 /// Conducts repeated insert and remove operations into the map by iterating
 /// over `xs`. For each odd `x` in `xs` a defined number of insert operations

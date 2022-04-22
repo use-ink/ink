@@ -17,7 +17,6 @@ use crate::{
     ir,
     ir::utils,
 };
-use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
     Span,
@@ -29,7 +28,6 @@ use syn::spanned::Spanned as _;
 /// # Example
 ///
 /// ```
-/// # use core::convert::TryFrom;
 /// # let event = <ink_lang_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(event)]
 /// pub struct Transaction {

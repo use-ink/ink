@@ -456,4 +456,22 @@ pub trait TypedEnvBackend: EnvBackend {
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment;
+
+    /// Retrieves the code hash of the contract at the given `account` id.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`code_hash`][`crate::code_hash`]
+    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
+    where
+        E: Environment;
+
+    /// Retrieves the code hash of the currently executing contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
+    fn own_code_hash<E>(&mut self) -> Result<E::Hash>
+    where
+        E: Environment;
 }

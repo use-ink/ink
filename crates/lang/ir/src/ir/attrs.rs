@@ -20,10 +20,7 @@ use crate::{
         Selector,
     },
 };
-use core::{
-    convert::TryFrom,
-    result::Result,
-};
+use core::result::Result;
 use proc_macro2::{
     Group as Group2,
     Ident,

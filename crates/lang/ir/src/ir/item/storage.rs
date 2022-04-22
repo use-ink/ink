@@ -16,7 +16,6 @@ use crate::{
     ir,
     ir::utils,
 };
-use core::convert::TryFrom;
 use proc_macro2::Ident;
 use syn::spanned::Spanned as _;
 
@@ -32,7 +31,6 @@ use syn::spanned::Spanned as _;
 /// # Example
 ///
 /// ```
-/// # use core::convert::TryFrom;
 /// # <ink_lang_ir::Storage as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(storage)]
 /// pub struct MyStorage {

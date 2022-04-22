@@ -40,16 +40,16 @@ macro_rules! push_pull_works_for_primitive {
             #[test]
             #[allow(non_snake_case)]
             fn [<$name _pull_push_works>] () {
-                crate::test_utils::run_test(|| {
+                $crate::test_utils::run_test(|| {
                     $({
                         let x: $name = $value;
                         let key = ink_primitives::Key::from([0x42; 32]);
                         let key2 = ink_primitives::Key::from([0x77; 32]);
-                        crate::traits::push_spread_root(&x, &key);
-                        let y: $name = crate::traits::pull_spread_root(&key);
+                        $crate::traits::push_spread_root(&x, &key);
+                        let y: $name = $crate::traits::pull_spread_root(&key);
                         assert_eq!(x, y);
-                        crate::traits::push_packed_root(&x, &key2);
-                        let z: $name = crate::traits::pull_packed_root(&key2);
+                        $crate::traits::push_packed_root(&x, &key2);
+                        let z: $name = $crate::traits::pull_packed_root(&key2);
                         assert_eq!(x, z);
                     })*
                 })
@@ -59,17 +59,17 @@ macro_rules! push_pull_works_for_primitive {
             #[should_panic(expected = "storage entry was empty")]
             #[allow(non_snake_case)]
             fn [<$name _clean_works>]() {
-                crate::test_utils::run_test(|| {
+                $crate::test_utils::run_test(|| {
                     $({
                         let x: $name = $value;
                         let key = ink_primitives::Key::from([0x42; 32]);
-                        crate::traits::push_spread_root(&x, &key);
+                        $crate::traits::push_spread_root(&x, &key);
                         // Works since we just populated the storage.
-                        let y: $name = crate::traits::pull_spread_root(&key);
+                        let y: $name = $crate::traits::pull_spread_root(&key);
                         assert_eq!(x, y);
-                        crate::traits::clear_spread_root(&x, &key);
+                        $crate::traits::clear_spread_root(&x, &key);
                         // Panics since it loads eagerly from cleared storage.
-                        let _: $name = crate::traits::pull_spread_root(&key);
+                        let _: $name = $crate::traits::pull_spread_root(&key);
                     })*
                 })
             }
@@ -123,10 +123,10 @@ macro_rules! fuzz_storage {
                     // we push the generated object into storage
                     let root_key = ink_primitives::Key::from([0x42; 32]);
                     let ptr = KeyPtr::from(root_key);
-                    crate::traits::push_spread_root(&instance1, &root_key.clone());
+                    $crate::traits::push_spread_root(&instance1, &root_key.clone());
 
                     // we pull what's in storage and assert that this is what was just pushed
-                    let mut pulled: $collection_type = crate::traits::pull_spread_root(&root_key.clone());
+                    let mut pulled: $collection_type = $crate::traits::pull_spread_root(&root_key.clone());
                     assert_eq!(instance1, pulled);
 
                     // we iterate over what was pulled and call `assign` for all entries.
@@ -142,15 +142,15 @@ macro_rules! fuzz_storage {
 
                     // we push the `pulled` object, on which we just executed mutations
                     // back into storage and asserts it can be pulled out intact again.
-                    crate::traits::push_spread_root(&pulled, &root_key.clone());
-                    let pulled2: $collection_type = crate::traits::pull_spread_root(&root_key.clone());
+                    $crate::traits::push_spread_root(&pulled, &root_key.clone());
+                    let pulled2: $collection_type = $crate::traits::pull_spread_root(&root_key.clone());
                     assert_eq!(pulled, pulled2);
 
                     // we clear the objects from storage and assert that everything was
                     // removed without any leftovers.
                     SpreadLayout::clear_spread(&pulled2, &mut ptr.clone());
                     SpreadLayout::clear_spread(&pulled, &mut ptr.clone());
-                    crate::test_utils::assert_storage_clean();
+                    $crate::test_utils::assert_storage_clean();
 
                     Ok(())
                 })
@@ -169,10 +169,10 @@ macro_rules! fuzz_storage {
                     // we push the generated object into storage
                     let root_key = ink_primitives::Key::from([0x42; 32]);
                     let ptr = KeyPtr::from(root_key);
-                    crate::traits::push_spread_root(&instance1, &root_key.clone());
+                    $crate::traits::push_spread_root(&instance1, &root_key.clone());
 
                     // we pull what's in storage and assert that this is what was just pushed
-                    let mut pulled: $collection_type = crate::traits::pull_spread_root(&root_key.clone());
+                    let mut pulled: $collection_type = $crate::traits::pull_spread_root(&root_key.clone());
                     assert_eq!(instance1, pulled);
 
                     // `pulled` is going to be equalized to `
@@ -181,8 +181,8 @@ macro_rules! fuzz_storage {
                     // we push the `pulled` object, on which we just executed mutations
                     // back into storage and assert it can be pulled out intact again and
                     // is equal to `instance2`.
-                    crate::traits::push_spread_root(&pulled, &root_key.clone());
-                    let pulled2: $collection_type = crate::traits::pull_spread_root(&root_key.clone());
+                    $crate::traits::push_spread_root(&pulled, &root_key.clone());
+                    let pulled2: $collection_type = $crate::traits::pull_spread_root(&root_key.clone());
                     assert_eq!(pulled, pulled2);
                     assert_eq!(pulled2, instance2);
 
@@ -190,7 +190,7 @@ macro_rules! fuzz_storage {
                     // removed without any leftovers.
                     SpreadLayout::clear_spread(&pulled2, &mut ptr.clone());
                     SpreadLayout::clear_spread(&pulled, &mut ptr.clone());
-                    crate::test_utils::assert_storage_clean();
+                    $crate::test_utils::assert_storage_clean();
 
                     Ok(())
 

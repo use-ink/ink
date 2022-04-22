@@ -14,7 +14,6 @@
 
 use super::blake2::blake2b_256;
 use crate::literal::HexLiteral;
-use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use std::marker::PhantomData;
 use syn::spanned::Spanned as _;
