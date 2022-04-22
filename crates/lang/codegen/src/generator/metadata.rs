@@ -60,7 +60,7 @@ impl Metadata<'_> {
         let storage_span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(storage_span=>
-            <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
+            <#storage_ident as ::ink::storage::traits::StorageLayout>::layout(
                 &mut <::ink::primitives::KeyPtr as ::core::convert::From<::ink::primitives::Key>>::from(
                     <::ink::primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from([0x00_u8; 32usize])
                 )

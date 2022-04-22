@@ -84,12 +84,12 @@ impl CallBuilder<'_> {
             #[repr(transparent)]
             #[cfg_attr(feature = "std", derive(
                 ::scale_info::TypeInfo,
-                ::ink_storage::traits::StorageLayout,
+                ::ink::storage::traits::StorageLayout,
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::ink_storage::traits::SpreadLayout,
-                ::ink_storage::traits::PackedLayout,
+                ::ink::storage::traits::SpreadLayout,
+                ::ink::storage::traits::PackedLayout,
                 ::scale::Encode,
                 ::scale::Decode,
                 ::core::hash::Hash,

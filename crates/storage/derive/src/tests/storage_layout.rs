@@ -22,8 +22,8 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for UnitStruct {
-                    fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                impl ::ink::storage::traits::StorageLayout for UnitStruct {
+                    fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new([])
                         )
@@ -42,21 +42,21 @@ fn tuple_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for TupleStruct {
-                    fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                impl ::ink::storage::traits::StorageLayout for TupleStruct {
+                    fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new([
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::None,
-                                    <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                    <bool as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::None,
-                                    <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                    <u32 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::None,
-                                    <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                    <i64 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                             ])
                         )
@@ -79,21 +79,21 @@ fn named_fields_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for NamedFieldsStruct {
-                    fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                impl ::ink::storage::traits::StorageLayout for NamedFieldsStruct {
+                    fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new([
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::Some("a"),
-                                    <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                    <bool as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::Some("b"),
-                                    <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                    <u32 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::Some("c"),
-                                    <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                    <i64 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                             ])
                         )
@@ -112,8 +112,8 @@ fn clike_enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for ClikeEnum {
-                    fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                impl ::ink::storage::traits::StorageLayout for ClikeEnum {
+                    fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         let dispatch_key = __key_ptr.advance_by(1);
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
@@ -169,8 +169,8 @@ fn mixed_enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for MixedEnum {
-                    fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+                impl ::ink::storage::traits::StorageLayout for MixedEnum {
+                    fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         let dispatch_key = __key_ptr.advance_by(1);
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
@@ -192,15 +192,15 @@ fn mixed_enum_works() {
                                             ::ink_metadata::layout::StructLayout::new([
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::None,
-                                                    <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                                    <bool as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::None,
-                                                    <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                                    <u32 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::None,
-                                                    <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                                    <i64 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                             ]),
                                         )
@@ -213,15 +213,15 @@ fn mixed_enum_works() {
                                             ::ink_metadata::layout::StructLayout::new([
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::Some("a"),
-                                                    <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                                    <bool as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::Some("b"),
-                                                    <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                                    <u32 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::Some("c"),
-                                                    <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
+                                                    <i64 as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                             ]),
                                         )

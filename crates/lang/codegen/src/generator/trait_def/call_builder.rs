@@ -132,21 +132,21 @@ impl CallBuilder<'_> {
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
             #[cfg(feature = "std")]
-            impl<E> ::ink_storage::traits::StorageLayout
+            impl<E> ::ink::storage::traits::StorageLayout
                 for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink_storage::traits::StorageLayout,
+                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::StorageLayout,
             {
                 fn layout(
-                    __key_ptr: &mut ::ink_storage::traits::KeyPtr,
+                    __key_ptr: &mut ::ink::storage::traits::KeyPtr,
                 ) -> ::ink::metadata::layout::Layout {
                     ::ink::metadata::layout::Layout::Struct(
                         ::ink::metadata::layout::StructLayout::new([
                             ::ink::metadata::layout::FieldLayout::new(
                                 ::core::option::Option::Some("account_id"),
                                 <<E as ::ink::env::Environment>::AccountId
-                                    as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
+                                    as ::ink::storage::traits::StorageLayout>::layout(__key_ptr)
                             )
                         ])
                     )
@@ -166,11 +166,11 @@ impl CallBuilder<'_> {
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::ink_storage::traits::SpreadLayout
+            impl<E> ::ink::storage::traits::SpreadLayout
                 for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink_storage::traits::SpreadLayout,
+                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::SpreadLayout,
             {
                 const FOOTPRINT: ::core::primitive::u64 = 1;
                 const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = false;
@@ -179,20 +179,20 @@ impl CallBuilder<'_> {
                 fn pull_spread(ptr: &mut ::ink::primitives::KeyPtr) -> Self {
                     Self {
                         account_id: <<E as ::ink::env::Environment>::AccountId
-                            as ::ink_storage::traits::SpreadLayout>::pull_spread(ptr)
+                            as ::ink::storage::traits::SpreadLayout>::pull_spread(ptr)
                     }
                 }
 
                 #[inline]
                 fn push_spread(&self, ptr: &mut ::ink::primitives::KeyPtr) {
                     <<E as ::ink::env::Environment>::AccountId
-                        as ::ink_storage::traits::SpreadLayout>::push_spread(&self.account_id, ptr)
+                        as ::ink::storage::traits::SpreadLayout>::push_spread(&self.account_id, ptr)
                 }
 
                 #[inline]
                 fn clear_spread(&self, ptr: &mut ::ink::primitives::KeyPtr) {
                     <<E as ::ink::env::Environment>::AccountId
-                        as ::ink_storage::traits::SpreadLayout>::clear_spread(&self.account_id, ptr)
+                        as ::ink::storage::traits::SpreadLayout>::clear_spread(&self.account_id, ptr)
                 }
             }
         )
@@ -209,11 +209,11 @@ impl CallBuilder<'_> {
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
             /// We require this manual implementation since the derive produces incorrect trait bounds.
-            impl<E> ::ink_storage::traits::PackedLayout
+            impl<E> ::ink::storage::traits::PackedLayout
                 for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink_storage::traits::PackedLayout,
+                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::PackedLayout,
             {
                 #[inline]
                 fn pull_packed(&mut self, _at: &::ink::primitives::Key) {}

@@ -23,3 +23,11 @@ pub use ink_storage as storage;
 pub use scale;
 #[cfg(feature = "std")]
 pub use scale_info;
+
+// The top level macros:
+//  - `#[ink::contract]`
+//  - `#[ink::trait_definition]`
+pub use self::lang::{
+    contract,
+    trait_definition,
+};

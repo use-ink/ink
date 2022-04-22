@@ -99,9 +99,9 @@ impl Storage<'_> {
             #(#attrs)*
             #[cfg_attr(
                 feature = "std",
-                derive(::ink_storage::traits::StorageLayout)
+                derive(::ink::storage::traits::StorageLayout)
             )]
-            #[derive(::ink_storage::traits::SpreadLayout)]
+            #[derive(::ink::storage::traits::SpreadLayout)]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
             #[cfg(not(feature = "__ink_dylint_Storage"))]
             pub struct #ident {

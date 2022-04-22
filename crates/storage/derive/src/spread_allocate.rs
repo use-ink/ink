@@ -38,11 +38,11 @@ fn derive_struct(s: synstructure::Structure) -> TokenStream2 {
     let allocate_body = variant.construct(|field, _index| {
         let ty = &field.ty;
         quote! {
-            <#ty as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
+            <#ty as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
         }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::SpreadAllocate for @Self {
+        gen impl ::ink::storage::traits::SpreadAllocate for @Self {
             fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
                 #allocate_body
             }

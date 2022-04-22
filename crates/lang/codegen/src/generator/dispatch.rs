@@ -807,7 +807,7 @@ impl Dispatch<'_> {
 
                 fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
                     if mutates {
-                        ::ink_storage::traits::push_spread_root::<#storage_ident>(
+                        ::ink::storage::traits::push_spread_root::<#storage_ident>(
                             &contract, &ROOT_KEY
                         );
                     }
@@ -820,7 +820,7 @@ impl Dispatch<'_> {
                     ) -> ::core::result::Result<(), ::ink::lang::reflect::DispatchError> {
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&ROOT_KEY)
+                                ::ink::storage::traits::pull_spread_root::<#storage_ident>(&ROOT_KEY)
                             );
 
                         match self {
