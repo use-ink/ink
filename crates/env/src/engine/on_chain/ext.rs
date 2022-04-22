@@ -494,7 +494,7 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
 
 pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
     let ret_code = unsafe {
-        sys::seal_set_storage_checked(
+        sys::seal_set_storage(
             Ptr32::from_slice(key),
             Ptr32::from_slice(encoded_value),
             encoded_value.len() as u32,
