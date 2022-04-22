@@ -283,11 +283,13 @@ pub trait EnvBackend {
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>;
 
-    /// Replace the contract code at the specified address with new code.
+    /// Sets a new code hash for the current contract.
+    ///
+    /// This effectively replaces the code which is executed for this contract address.
     ///
     /// # Errors
     ///
-    /// - If code not found.
+    /// - If the supplied `code_hash` cannot be found on-chain.
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
 }
 

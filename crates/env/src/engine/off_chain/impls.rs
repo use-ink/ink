@@ -320,7 +320,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
-        unimplemented!("off-chain environment does not support contract invocation")
+        unimplemented!("off-chain environment does not support `set_code_hash`")
     }
 }
 

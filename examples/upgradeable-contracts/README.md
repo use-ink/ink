@@ -21,6 +21,6 @@ more information on proxy patterns.
 * State is stored in the storage of the originally called contract.
 
 
-## [`set-code`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/set-code-hash)
+## [`set-code-hash`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/set-code-hash)
 
 * Update contract code by `set_code_hash`.

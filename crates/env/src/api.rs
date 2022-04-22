@@ -542,7 +542,7 @@ where
 /// There are a couple of important considerations which must be taken into account when
 /// using this API:
 ///
-/// 1. The storage at the code address will remain untouched. This means that contract developers
+/// 1. The storage at the code hash will remain untouched. This means that contract developers
 /// must ensure that the storage layout of the new code is compatible with that of the old code.
 ///
 /// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
@@ -555,7 +555,7 @@ where
 ///
 /// # Errors
 ///
-/// `ReturnCode::CodeNotFound`
+/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
