@@ -23,4 +23,7 @@ more information on proxy patterns.
 
 ## [`set-code-hash`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/set-code-hash)
 
-* Update contract code by `set_code_hash`.
+* Updates the contract code using `set_code_hash`.
+  This effectively replaces the code which is executed for the contract address.
+* The other contract (`updated-incrementer`) needs to be deployed on-chain.
+* State is stored in the storage of the originally instantiated contract (`incrementer`).
