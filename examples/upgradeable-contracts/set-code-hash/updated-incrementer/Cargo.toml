@@ -1,0 +1,36 @@
+[package]
+name = "updated-incrementer"
+version = "3.0.1"
+edition = "2021"
+authors = ["Parity Technologies <admin@parity.io>"]
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ink_primitives = { version = "3.0.1", path = "../../../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.1", path = "../../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.1", path = "../../../../crates/env", default-features = false, features = ["ink-debug"] }
+ink_storage = { version = "3.0.1", path = "../../../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.1", path = "../../../../crates/lang", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
+[lib]
+name = "updated_incrementer"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = ["std"]
+std = [
+    "ink_primitives/std",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_lang/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
