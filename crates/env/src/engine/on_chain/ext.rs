@@ -348,7 +348,6 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
 
-
         pub fn seal_set_code_hash(code_hash_ptr: Ptr32<[u8]>) -> ReturnCode;
 
         pub fn seal_code_hash(
