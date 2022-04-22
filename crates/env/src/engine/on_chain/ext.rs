@@ -201,7 +201,7 @@ impl ReturnCode {
     /// Returns Some(val) for underlying `u32` val if it is less than SENTINEL.
     /// Otherwise returns None.
     pub fn into_option_u32(self) -> Option<u32> {
-        (self.0 < SENTINEL).then_some(self.0)
+        (self.0 < SENTINEL).then(|| self.0)
     }
 }
 
