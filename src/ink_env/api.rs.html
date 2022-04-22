@@ -568,6 +568,31 @@
 <span id="563">563</span>
 <span id="564">564</span>
 <span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1133,6 +1158,31 @@
         <span class="ident">TypedEnvBackend::caller_is_origin</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
+
+<span class="doccomment">/// Replace the contract code at the specified address with new code.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// There are a couple of important considerations which must be taken into account when</span>
+<span class="doccomment">/// using this API:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 1. The storage at the code hash will remain untouched. This means that contract developers</span>
+<span class="doccomment">/// must ensure that the storage layout of the new code is compatible with that of the old code.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 2. Contracts using this API can&#39;t be assumed as having deterministic addresses. Said another way,</span>
+<span class="doccomment">/// when using this API you lose the guarantee that an address always identifies a specific code hash.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// 3. If a contract calls into itself after changing its code the new call would use</span>
+<span class="doccomment">/// the new code. However, if the original caller panics after returning from the sub call it</span>
+<span class="doccomment">/// would revert the changes made by `seal_set_code_hash` and the next caller would use</span>
+<span class="doccomment">/// the old code.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_code_hash</span>(<span class="ident">code_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">instance</span>.<span class="ident">set_code_hash</span>(<span class="ident">code_hash</span>))
+}
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (76d770ac2 2022-04-02)" ></div>
 </body></html>
