@@ -170,7 +170,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         type Hash = [u8; 32];
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
-///         type ChainExtension = ::ink_env::NoChainExtension;
+///         type ChainExtension = ::ink::env::NoChainExtension;
 ///     }
 ///     ```
 ///     A user might implement their ink! smart contract using the above custom `Environment`
@@ -188,7 +188,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #     type Hash = [u8; 32];
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
-///         #     type ChainExtension = ::ink_env::NoChainExtension;
+///         #     type ChainExtension = ::ink::env::NoChainExtension;
 ///         # }
 ///         #
 ///         # #[ink(storage)]

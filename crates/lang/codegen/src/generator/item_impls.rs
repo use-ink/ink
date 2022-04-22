@@ -49,12 +49,12 @@ impl GenerateCode for ItemImpls<'_> {
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
                 // Required to make `self.env().emit_event(...)` syntax available.
-                quote! { use ::ink_lang::codegen::EmitEvent as _; }
+                quote! { use ::ink::lang::codegen::EmitEvent as _; }
             });
         quote! {
             const _: () = {
                 // Required to make `self.env()` and `Self::env()` syntax available.
-                use ::ink_lang::codegen::{Env as _, StaticEnv as _};
+                use ::ink::lang::codegen::{Env as _, StaticEnv as _};
                 #use_emit_event
 
                 #( #item_impls )*
@@ -90,23 +90,23 @@ impl ItemImpls<'_> {
                 let message_local_id = message.local_id().hex_padded_suffixed();
                 let message_guard_payable = message.is_payable().then(|| {
                     quote_spanned!(message_span=>
-                        const _: ::ink_lang::codegen::TraitMessagePayable<{
-                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                        const _: ::ink::lang::codegen::TraitMessagePayable<{
+                            <<::ink::lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::lang::reflect::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
-                                as ::ink_lang::reflect::TraitMessageInfo<#message_local_id>>::PAYABLE
-                        }> = ::ink_lang::codegen::TraitMessagePayable::<true>;
+                                as ::ink::lang::reflect::TraitMessageInfo<#message_local_id>>::PAYABLE
+                        }> = ::ink::lang::codegen::TraitMessagePayable::<true>;
                     )
                 });
                 let message_guard_selector = message.user_provided_selector().map(|selector| {
                     let given_selector = selector.into_be_u32().hex_padded_suffixed();
                     quote_spanned!(message_span=>
-                        const _: ::ink_lang::codegen::TraitMessageSelector<{
+                        const _: ::ink::lang::codegen::TraitMessageSelector<{
                             ::core::primitive::u32::from_be_bytes(
-                                <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                                <<::ink::lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::lang::reflect::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
-                                    as ::ink_lang::reflect::TraitMessageInfo<#message_local_id>>::SELECTOR
+                                    as ::ink::lang::reflect::TraitMessageInfo<#message_local_id>>::SELECTOR
                             )
-                        }> = ::ink_lang::codegen::TraitMessageSelector::<#given_selector>;
+                        }> = ::ink::lang::codegen::TraitMessageSelector::<#given_selector>;
                     )
                 });
                 quote_spanned!(message_span=>
@@ -133,8 +133,8 @@ impl ItemImpls<'_> {
                     let span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::utils::consume_type::<
-                            ::ink_lang::codegen::DispatchInput<#input_type>
+                        let _: () = ::ink::lang::codegen::utils::consume_type::<
+                            ::ink::lang::codegen::DispatchInput<#input_type>
                         >();
                     )
                 });
@@ -153,16 +153,16 @@ impl ItemImpls<'_> {
                     let span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::utils::consume_type::<
-                            ::ink_lang::codegen::DispatchInput<#input_type>
+                        let _: () = ::ink::lang::codegen::utils::consume_type::<
+                            ::ink::lang::codegen::DispatchInput<#input_type>
                         >();
                     )
                 });
                 let message_output = message.output().map(|output_type| {
                     let span = output_type.span();
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::utils::consume_type::<
-                            ::ink_lang::codegen::DispatchOutput<#output_type>
+                        let _: () = ::ink::lang::codegen::utils::consume_type::<
+                            ::ink::lang::codegen::DispatchOutput<#output_type>
                         >();
                     )
                 });
@@ -218,7 +218,7 @@ impl ItemImpls<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             impl #trait_path for #self_type {
-                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink::lang::reflect::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #( #messages )*
@@ -300,8 +300,8 @@ impl ItemImpls<'_> {
         let span = self_ty.span();
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span =>
-            const _: ::ink_lang::codegen::utils::IsSameType<#storage_ident> =
-                ::ink_lang::codegen::utils::IsSameType::<#self_ty>::new();
+            const _: ::ink::lang::codegen::utils::IsSameType<#storage_ident> =
+                ::ink::lang::codegen::utils::IsSameType::<#self_ty>::new();
         )
     }
 

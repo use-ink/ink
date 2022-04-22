@@ -103,16 +103,16 @@ impl ContractRef<'_> {
             )]
             #( #doc_attrs )*
             pub struct #ref_ident {
-                inner: <#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type,
+                inner: <#storage_ident as ::ink::lang::codegen::ContractCallBuilder>::Type,
             }
 
             const _: () = {
-                impl ::ink_lang::reflect::ContractReference for #storage_ident {
+                impl ::ink::lang::reflect::ContractReference for #storage_ident {
                     type Type = #ref_ident;
                 }
 
-                impl ::ink_lang::reflect::ContractEnv for #ref_ident {
-                    type Env = <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env;
+                impl ::ink::lang::reflect::ContractEnv for #ref_ident {
+                    type Env = <#storage_ident as ::ink::lang::reflect::ContractEnv>::Env;
                 }
             };
         )
@@ -127,21 +127,21 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
-            impl ::ink_env::call::FromAccountId<Environment> for #ref_ident {
+            impl ::ink::env::call::FromAccountId<Environment> for #ref_ident {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { inner: <<#storage_ident
-                        as ::ink_lang::codegen::ContractCallBuilder>::Type
-                        as ::ink_env::call::FromAccountId<Environment>>::from_account_id(account_id)
+                        as ::ink::lang::codegen::ContractCallBuilder>::Type
+                        as ::ink::env::call::FromAccountId<Environment>>::from_account_id(account_id)
                     }
                 }
             }
 
-            impl ::ink_lang::ToAccountId<Environment> for #ref_ident {
+            impl ::ink::lang::ToAccountId<Environment> for #ref_ident {
                 #[inline]
                 fn to_account_id(&self) -> AccountId {
-                    <<#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type
-                        as ::ink_lang::ToAccountId<Environment>>::to_account_id(&self.inner)
+                    <<#storage_ident as ::ink::lang::codegen::ContractCallBuilder>::Type
+                        as ::ink::lang::ToAccountId<Environment>>::to_account_id(&self.inner)
                 }
             }
         )
@@ -157,8 +157,8 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span=>
             const _: () = {
-                impl ::ink_lang::codegen::TraitCallBuilder for #ref_ident {
-                    type Builder = <#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type;
+                impl ::ink::lang::codegen::TraitCallBuilder for #ref_ident {
+                    type Builder = <#storage_ident as ::ink::lang::codegen::ContractCallBuilder>::Type;
 
                     #[inline]
                     fn call(&self) -> &Self::Builder {
@@ -210,7 +210,7 @@ impl ContractRef<'_> {
             #( #attrs )*
             impl #trait_path for #forwarder_ident {
                 #[doc(hidden)]
-                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink::lang::reflect::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #messages
@@ -258,7 +258,7 @@ impl ContractRef<'_> {
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         quote_spanned!(span=>
             type #output_ident =
-                <<Self::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
+                <<Self::__ink_TraitInfo as ::ink::lang::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
 
             #[inline]
             fn #message_ident(
@@ -266,8 +266,8 @@ impl ContractRef<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <_ as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::#forward_operator(
-                        <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_operator(self),
+                    <_ as ::ink::lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::#forward_operator(
+                        <Self as ::ink::lang::codegen::TraitCallBuilder>::#call_operator(self),
                     )
                     #( , #input_bindings )*
                 )
@@ -354,7 +354,7 @@ impl ContractRef<'_> {
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) #output_type {
-                <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_operator(self)
+                <Self as ::ink::lang::codegen::TraitCallBuilder>::#call_operator(self)
                     .#message_ident( #( #input_bindings ),* )
                     .fire()
                     .unwrap_or_else(|error| ::core::panic!(
@@ -395,19 +395,19 @@ impl ContractRef<'_> {
             #[allow(clippy::type_complexity)]
             pub fn #constructor_ident(
                 #( #input_bindings : #input_types ),*
-            ) -> ::ink_env::call::CreateBuilder<
+            ) -> ::ink::env::call::CreateBuilder<
                 Environment,
-                ::ink_env::call::utils::Unset<Hash>,
-                ::ink_env::call::utils::Unset<u64>,
-                ::ink_env::call::utils::Unset<Balance>,
-                ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
-                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
+                ::ink::env::call::utils::Unset<Hash>,
+                ::ink::env::call::utils::Unset<u64>,
+                ::ink::env::call::utils::Unset<Balance>,
+                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
+                ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
                 Self,
             > {
-                ::ink_env::call::build_create::<Environment, Self>()
+                ::ink::env::call::build_create::<Environment, Self>()
                     .exec_input(
-                        ::ink_env::call::ExecutionInput::new(
-                            ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)

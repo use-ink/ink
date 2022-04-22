@@ -88,8 +88,8 @@ impl ChainExtension<'_> {
         let result_handling = if returns_result {
             quote_spanned!(span=>
                 .output_result::<
-                    <#output_type as ::ink_lang::IsResultType>::Ok,
-                    <#output_type as ::ink_lang::IsResultType>::Err,
+                    <#output_type as ::ink::lang::IsResultType>::Ok,
+                    <#output_type as ::ink::lang::IsResultType>::Err,
                 >()
             )
         } else {
@@ -112,12 +112,12 @@ impl ChainExtension<'_> {
         };
 
         let where_output_is_result = Some(quote_spanned!(span=>
-            #output_type: ::ink_lang::IsResultType,
+            #output_type: ::ink::lang::IsResultType,
         ))
         .filter(|_| returns_result);
 
         let where_output_impls_from_error_code = Some(quote_spanned!(span=>
-            <#output_type as ::ink_lang::IsResultType>::Err: ::core::convert::From<#error_code>,
+            <#output_type as ::ink::lang::IsResultType>::Err: ::core::convert::From<#error_code>,
         )).filter(|_| returns_result && handle_status);
 
         quote_spanned!(span=>
@@ -128,7 +128,7 @@ impl ChainExtension<'_> {
                 #where_output_is_result
                 #where_output_impls_from_error_code
             {
-                ::ink_env::chain_extension::ChainExtensionMethod::build(#func_id)
+                ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
                     .input::<#compound_input_type>()
                     #result_handling
                     #error_code_handling
@@ -165,7 +165,7 @@ impl GenerateCode for ChainExtension<'_> {
                     #( #instance_methods )*
                 }
 
-                impl ::ink_lang::ChainExtensionInstance for #ident {
+                impl ::ink::lang::ChainExtensionInstance for #ident {
                     type Instance = #instance_ident;
 
                     fn instantiate() -> Self::Instance {

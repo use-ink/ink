@@ -102,12 +102,12 @@ impl CallBuilder<'_> {
             }
 
             const _: () = {
-                impl ::ink_lang::codegen::ContractCallBuilder for #storage_ident {
+                impl ::ink::lang::codegen::ContractCallBuilder for #storage_ident {
                     type Type = #cb_ident;
                 }
 
-                impl ::ink_lang::reflect::ContractEnv for #cb_ident {
-                    type Env = <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env;
+                impl ::ink::lang::reflect::ContractEnv for #cb_ident {
+                    type Env = <#storage_ident as ::ink::lang::reflect::ContractEnv>::Env;
                 }
             };
         )
@@ -121,14 +121,14 @@ impl CallBuilder<'_> {
         let span = self.contract.module().storage().span();
         let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
-            impl ::ink_env::call::FromAccountId<Environment> for #cb_ident {
+            impl ::ink::env::call::FromAccountId<Environment> for #cb_ident {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { account_id }
                 }
             }
 
-            impl ::ink_lang::ToAccountId<Environment> for #cb_ident {
+            impl ::ink::lang::ToAccountId<Environment> for #cb_ident {
                 #[inline]
                 fn to_account_id(&self) -> AccountId {
                     <AccountId as ::core::clone::Clone>::clone(&self.account_id)
@@ -185,8 +185,8 @@ impl CallBuilder<'_> {
         let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         quote_spanned!(span=>
             #[doc(hidden)]
-            impl ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}> for #cb_ident {
-                type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder;
+            impl ::ink::lang::codegen::TraitCallForwarderFor<{#trait_info_id}> for #cb_ident {
+                type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink::lang::codegen::TraitCallForwarder>::Forwarder;
 
                 #[inline]
                 fn forward(&self) -> &Self::Forwarder {
@@ -215,18 +215,18 @@ impl CallBuilder<'_> {
                 }
 
                 #[inline]
-                fn build(&self) -> &<Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder {
-                    <_ as ::ink_lang::codegen::TraitCallBuilder>::call(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward(self)
+                fn build(&self) -> &<Self::Forwarder as ::ink::lang::codegen::TraitCallBuilder>::Builder {
+                    <_ as ::ink::lang::codegen::TraitCallBuilder>::call(
+                        <Self as ::ink::lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward(self)
                     )
                 }
 
                 #[inline]
                 fn build_mut(&mut self)
-                    -> &mut <Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder
+                    -> &mut <Self::Forwarder as ::ink::lang::codegen::TraitCallBuilder>::Builder
                 {
-                    <_ as ::ink_lang::codegen::TraitCallBuilder>::call_mut(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward_mut(self)
+                    <_ as ::ink::lang::codegen::TraitCallBuilder>::call_mut(
+                        <Self as ::ink::lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward_mut(self)
                     )
                 }
             }
@@ -246,7 +246,7 @@ impl CallBuilder<'_> {
             .map(|message| self.generate_ink_trait_impl_for_message(trait_path, message));
         quote_spanned!(span=>
             impl #trait_path for #cb_ident {
-                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink::lang::reflect::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #( #messages )*
@@ -287,8 +287,8 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             type #output_ident = <<<
                 Self
-                as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::Forwarder
-                as ::ink_lang::codegen::TraitCallBuilder>::Builder
+                as ::ink::lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::Forwarder
+                as ::ink::lang::codegen::TraitCallBuilder>::Builder
                 as #trait_path>::#output_ident;
 
             #[inline]
@@ -298,7 +298,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings: #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::#build_cmd(self)
+                    <Self as ::ink::lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::#build_cmd(self)
                     #( , #input_bindings )*
                 )
             }
@@ -376,11 +376,11 @@ impl CallBuilder<'_> {
             output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let output_span = output.span();
         let output_type = quote_spanned!(output_span=>
-            ::ink_env::call::CallBuilder<
+            ::ink::env::call::CallBuilder<
                 Environment,
-                ::ink_env::call::utils::Set< ::ink_env::call::Call< Environment > >,
-                ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                ::ink_env::call::utils::Set< ::ink_env::call::utils::ReturnType<#return_type> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::Call< Environment > >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
             >
         );
         quote_spanned!(span=>
@@ -391,11 +391,11 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
-                ::ink_env::call::build_call::<Environment>()
-                    .call_type(::ink_env::call::Call::new().callee(::ink_lang::ToAccountId::to_account_id(self)))
+                ::ink::env::call::build_call::<Environment>()
+                    .call_type(::ink::env::call::Call::new().callee(::ink::lang::ToAccountId::to_account_id(self)))
                     .exec_input(
-                        ::ink_env::call::ExecutionInput::new(
-                            ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)

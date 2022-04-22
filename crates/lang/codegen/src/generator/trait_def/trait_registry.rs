@@ -104,9 +104,9 @@ impl TraitRegistry<'_> {
         let trait_info_ident = self.trait_def.trait_info_ident();
         let messages = self.generate_registry_messages();
         quote_spanned!(span=>
-            impl<E> #name for ::ink_lang::reflect::TraitDefinitionRegistry<E>
+            impl<E> #name for ::ink::lang::reflect::TraitDefinitionRegistry<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
@@ -138,16 +138,16 @@ impl TraitRegistry<'_> {
             let input_span = input.span();
             let input_type = &*input.ty;
             quote_spanned!(input_span=>
-                let _: () = ::ink_lang::codegen::utils::consume_type::<
-                    ::ink_lang::codegen::DispatchInput<#input_type>
+                let _: () = ::ink::lang::codegen::utils::consume_type::<
+                    ::ink::lang::codegen::DispatchInput<#input_type>
                 >();
             )
         });
         let message_output = message.output().map(|output_type| {
             let output_span = output_type.span();
             quote_spanned!(output_span=>
-                let _: () = ::ink_lang::codegen::utils::consume_type::<
-                    ::ink_lang::codegen::DispatchOutput<#output_type>
+                let _: () = ::ink::lang::codegen::utils::consume_type::<
+                    ::ink::lang::codegen::DispatchOutput<#output_type>
                 >();
             )
         });
@@ -257,9 +257,9 @@ impl TraitRegistry<'_> {
 
             #trait_message_info
 
-            impl<E> ::ink_lang::reflect::TraitInfo for #trait_info_ident<E>
+            impl<E> ::ink::lang::reflect::TraitInfo for #trait_info_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 const ID: u32 = #trait_id;
 
@@ -268,9 +268,9 @@ impl TraitRegistry<'_> {
                 const NAME: &'static ::core::primitive::str = ::core::stringify!(#trait_ident);
             }
 
-            impl<E> ::ink_lang::codegen::TraitCallForwarder for #trait_info_ident<E>
+            impl<E> ::ink::lang::codegen::TraitCallForwarder for #trait_info_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 type Forwarder = #trait_call_forwarder<E>;
             }
@@ -296,7 +296,7 @@ impl TraitRegistry<'_> {
         syn::LitInt::new(&format!("{}", id), span)
     }
 
-    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementations for all
+    /// Generates the [`::ink::lang::reflect::TraitMessageInfo`] implementations for all
     /// ink! messages defined by the ink! trait definition.
     fn generate_info_for_trait_messages(&self) -> TokenStream2 {
         let span = self.span();
@@ -312,7 +312,7 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementation for a single
+    /// Generates the [`::ink::lang::reflect::TraitMessageInfo`] implementation for a single
     /// ink! message defined by the ink! trait definition.
     fn generate_info_for_trait_for_message(
         &self,
@@ -325,7 +325,7 @@ impl TraitRegistry<'_> {
         let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
         quote_spanned!(span=>
-            impl<E> ::ink_lang::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
+            impl<E> ::ink::lang::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
                 const PAYABLE: ::core::primitive::bool = #is_payable;
 
                 const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];

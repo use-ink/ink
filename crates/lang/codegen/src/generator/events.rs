@@ -59,14 +59,14 @@ impl<'a> Events<'a> {
         let storage_ident = &self.contract.module().storage().ident();
         quote! {
             const _: () = {
-                impl<'a> ::ink_lang::codegen::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
+                impl<'a> ::ink::lang::codegen::EmitEvent<#storage_ident> for ::ink::lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
-                        E: Into<<#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type>,
+                        E: Into<<#storage_ident as ::ink::lang::reflect::ContractEventBase>::Type>,
                     {
-                        ::ink_env::emit_event::<
+                        ::ink::env::emit_event::<
                             Environment,
-                            <#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type
+                            <#storage_ident as ::ink::lang::reflect::ContractEventBase>::Type
                         >(event.into());
                     }
                 }
@@ -101,7 +101,7 @@ impl<'a> Events<'a> {
             }
 
             const _: () = {
-                impl ::ink_lang::reflect::ContractEventBase for #storage_ident {
+                impl ::ink::lang::reflect::ContractEventBase for #storage_ident {
                     type Type = #base_event_ident;
                 }
             };
@@ -118,25 +118,25 @@ impl<'a> Events<'a> {
 
             const _: () = {
                 pub enum __ink_UndefinedAmountOfTopics {}
-                impl ::ink_env::topics::EventTopicsAmount for __ink_UndefinedAmountOfTopics {
+                impl ::ink::env::topics::EventTopicsAmount for __ink_UndefinedAmountOfTopics {
                     const AMOUNT: usize = 0;
                 }
 
-                impl ::ink_env::Topics for #base_event_ident {
+                impl ::ink::env::Topics for #base_event_ident {
                     type RemainingTopics = __ink_UndefinedAmountOfTopics;
 
                     fn topics<E, B>(
                         &self,
-                        builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
                     where
-                        E: ::ink_env::Environment,
-                        B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
                     {
                         match self {
                             #(
                                 Self::#event_idents(event) => {
-                                    <#event_idents as ::ink_env::Topics>::topics::<E, B>(event, builder)
+                                    <#event_idents as ::ink::env::Topics>::topics::<E, B>(event, builder)
                                 }
                             )*
                         }
@@ -153,16 +153,16 @@ impl<'a> Events<'a> {
         let event_ident = event.ident();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
-            <<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env
-                as ::ink_env::Environment>::MAX_EVENT_TOPICS
+            <<#storage_ident as ::ink::lang::reflect::ContractEnv>::Env
+                as ::ink::env::Environment>::MAX_EVENT_TOPICS
         );
         quote_spanned!(span=>
-            impl ::ink_lang::codegen::EventLenTopics for #event_ident {
-                type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
+            impl ::ink::lang::codegen::EventLenTopics for #event_ident {
+                type LenTopics = ::ink::lang::codegen::EventTopics<#len_topics>;
             }
 
-            const _: () = ::ink_lang::codegen::utils::consume_type::<
-                ::ink_lang::codegen::EventRespectsTopicLimit<
+            const _: () = ::ink::lang::codegen::utils::consume_type::<
+                ::ink::lang::codegen::EventRespectsTopicLimit<
                     #event_ident,
                     { #max_len_topics },
                 >
@@ -208,8 +208,8 @@ impl<'a> Events<'a> {
                             field_ident
                         ).as_bytes(), span);
                     quote_spanned!(span =>
-                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                            &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
+                        .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
+                            &::ink::env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
                         )
                     )
                 });
@@ -217,29 +217,29 @@ impl<'a> Events<'a> {
             let event_signature_topic = match event.anonymous {
                 true => None,
                 false => Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
-                        &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
+                    .push_topic::<::ink::env::topics::PrefixedValue<[u8; #len_event_signature]>>(
+                        &::ink::env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
                     )
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.
             let anonymous_topics_offset = if event.anonymous { 0 } else { 1 };
             let remaining_topics_ty = match len_topics + anonymous_topics_offset {
-                0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
-                n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
+                0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
+                n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
             };
             quote_spanned!(span =>
                 const _: () = {
-                    impl ::ink_env::Topics for #event_ident {
+                    impl ::ink::env::Topics for #event_ident {
                         type RemainingTopics = #remaining_topics_ty;
 
                         fn topics<E, B>(
                             &self,
-                            builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                        ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+                            builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                        ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
                         where
-                            E: ::ink_env::Environment,
-                            B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                            E: ::ink::env::Environment,
+                            B: ::ink::env::topics::TopicsBuilderBackend<E>,
                         {
                             builder
                                 .build::<Self>()

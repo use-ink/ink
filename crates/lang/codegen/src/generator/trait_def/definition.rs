@@ -38,7 +38,7 @@ impl<'a> TraitDefinition<'a> {
             format_ident!("{}Output", ident.to_string().to_lower_camel_case());
         quote_spanned!(span =>
             /// Output type of the respective trait message.
-            type #output_ident: ::ink_lang::codegen::ImpliesReturn<#output>;
+            type #output_ident: ::ink::lang::codegen::ImpliesReturn<#output>;
 
             #(#attrs)*
             fn #ident(#inputs) -> Self::#output_ident;
@@ -59,11 +59,11 @@ impl TraitDefinition<'_> {
             .map(Self::generate_for_message);
         quote_spanned!(span =>
             #(#attrs)*
-            pub trait #ident: ::ink_lang::reflect::ContractEnv {
+            pub trait #ident: ::ink::lang::reflect::ContractEnv {
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
-                type __ink_TraitInfo: ::ink_lang::codegen::TraitCallForwarder;
+                type __ink_TraitInfo: ::ink::lang::codegen::TraitCallForwarder;
 
                 #(#messages)*
             }

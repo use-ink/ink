@@ -77,11 +77,11 @@ where
 {
     use syn::spanned::Spanned as _;
     args.into_iter().fold(
-        quote! { ::ink_env::call::utils::EmptyArgumentList },
+        quote! { ::ink::env::call::utils::EmptyArgumentList },
         |rest, arg| {
             let span = arg.span();
             quote_spanned!(span=>
-                ::ink_env::call::utils::ArgumentList<::ink_env::call::utils::Argument<#arg>, #rest>
+                ::ink::env::call::utils::ArgumentList<::ink::env::call::utils::Argument<#arg>, #rest>
             )
         }
     )
@@ -98,7 +98,7 @@ pub fn generate_reference_to_trait_info(
     trait_path: &syn::Path,
 ) -> TokenStream2 {
     quote_spanned!(span=>
-        <<::ink_lang::reflect::TraitDefinitionRegistry<Environment>
-            as #trait_path>::__ink_TraitInfo as ::ink_lang::reflect::TraitInfo>::ID
+        <<::ink::lang::reflect::TraitDefinitionRegistry<Environment>
+            as #trait_path>::__ink_TraitInfo as ::ink::lang::reflect::TraitInfo>::ID
     )
 }
