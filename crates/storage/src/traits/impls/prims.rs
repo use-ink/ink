@@ -36,15 +36,15 @@ macro_rules! impl_layout_for_primitive {
             impl_always_packed_layout!($ty, deep: false);
             impl $crate::traits::PackedLayout for $ty {
                 #[inline]
-                fn pull_packed(&mut self, _at: &::ink::primitives::Key) {}
+                fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
                 #[inline]
-                fn push_packed(&self, _at: &::ink::primitives::Key) {}
+                fn push_packed(&self, _at: &::ink_primitives::Key) {}
                 #[inline]
-                fn clear_packed(&self, _at: &::ink::primitives::Key) {}
+                fn clear_packed(&self, _at: &::ink_primitives::Key) {}
             }
             impl $crate::traits::PackedAllocate for $ty {
                 #[inline]
-                fn allocate_packed(&mut self, _at: &::ink::primitives::Key) {}
+                fn allocate_packed(&mut self, _at: &::ink_primitives::Key) {}
             }
         )*
     };
