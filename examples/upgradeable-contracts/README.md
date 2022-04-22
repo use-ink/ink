@@ -19,3 +19,8 @@ more information on proxy patterns.
 * Executes any call that does not match a selector of itself with the code of another contract.
 * The other contract does not need to be deployed on-chain.
 * State is stored in the storage of the originally called contract.
+
+
+## [`set-code-hash`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/set-code-hash)
+
+* Update contract code by `set_code_hash`.

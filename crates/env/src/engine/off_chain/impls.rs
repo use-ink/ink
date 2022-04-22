@@ -318,6 +318,10 @@ impl EnvBackend for EnvInstance {
         let decoded = decode_to_result(&out[..])?;
         Ok(decoded)
     }
+
+    fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
+        unimplemented!("off-chain environment does not support `set_code_hash`")
+    }
 }
 
 impl TypedEnvBackend for EnvInstance {

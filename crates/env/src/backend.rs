@@ -282,6 +282,15 @@ pub trait EnvBackend {
         E: From<ErrorCode>,
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>;
+
+    /// Sets a new code hash for the current contract.
+    ///
+    /// This effectively replaces the code which is executed for this contract address.
+    ///
+    /// # Errors
+    ///
+    /// - If the supplied `code_hash` cannot be found on-chain.
+    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
 }
 
 /// Environmental contract functionality.
