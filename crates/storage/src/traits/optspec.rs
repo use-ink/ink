@@ -127,7 +127,7 @@ where
             //
             // Sadly this does not work well with `Option<Option<T>>`.
             // For this we'd need specialization in Rust or similar.
-            super::push_packed_root(value, root_key)
+            super::push_packed_root(value, root_key);
         }
         None => {
             // Clear the associated storage cell since the entity is `None`.

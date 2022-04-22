@@ -219,12 +219,12 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
     where
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), buffer);
+        ext::set_storage(key.as_ref(), buffer)
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
