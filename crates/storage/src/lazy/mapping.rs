@@ -145,6 +145,17 @@ where
         pull_packed_root_opt(&self.storage_key(&key))
     }
 
+    /// Get the size of a value stored at `key` in the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
+    #[inline]
+    pub fn contains<Q>(&self, key: Q) -> Option<u32>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        ink_env::contract_storage_contains(&self.storage_key(&key))
+    }
+
     /// Clears the value at `key` from storage.
     pub fn remove<Q>(&self, key: Q)
     where
