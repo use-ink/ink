@@ -31,13 +31,13 @@ pub fn packed_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     });
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::PackedLayout for @Self {
-            fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
+            fn pull_packed(&mut self, __key: &::ink::primitives::Key) {
                 match self { #pull_body }
             }
-            fn push_packed(&self, __key: &::ink_primitives::Key) {
+            fn push_packed(&self, __key: &::ink::primitives::Key) {
                 match self { #push_body }
             }
-            fn clear_packed(&self, __key: &::ink_primitives::Key) {
+            fn clear_packed(&self, __key: &::ink::primitives::Key) {
                 match self { #clear_body }
             }
         }

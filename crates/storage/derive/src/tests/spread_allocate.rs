@@ -41,7 +41,7 @@ fn unit_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::SpreadAllocate for UnitStruct {
-                    fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
+                    fn allocate_spread(__key_ptr: &mut ::ink::primitives::KeyPtr) -> Self {
                         UnitStruct
                     }
                 }
@@ -64,7 +64,7 @@ fn struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::SpreadAllocate for NamedFields {
-                    fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
+                    fn allocate_spread(__key_ptr: &mut ::ink::primitives::KeyPtr) -> Self {
                         NamedFields {
                             a: <i32 as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
                             b: <[u8; 32] as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
@@ -94,7 +94,7 @@ fn generic_struct_works() {
                     T1: ::ink::storage::traits::SpreadAllocate,
                     T2: ::ink::storage::traits::SpreadAllocate
                 {
-                    fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
+                    fn allocate_spread(__key_ptr: &mut ::ink::primitives::KeyPtr) -> Self {
                         GenericStruct {
                             a: <T1 as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
                             b: <(T1, T2) as ::ink::storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),

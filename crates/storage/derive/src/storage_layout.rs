@@ -28,7 +28,7 @@ fn field_layout<'a>(
         };
         let ty = &field.ty;
         quote! {
-            ::ink_metadata::layout::FieldLayout::new(
+            ::ink::metadata::layout::FieldLayout::new(
                 #ident,
                 <#ty as ::ink::storage::traits::StorageLayout>::layout(__key_ptr),
             )
@@ -49,9 +49,9 @@ fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
     let field_layouts = field_layout(variant);
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
-            fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
-                ::ink_metadata::layout::Layout::Struct(
-                    ::ink_metadata::layout::StructLayout::new([
+            fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink::metadata::layout::Layout {
+                ::ink::metadata::layout::Layout::Struct(
+                    ::ink::metadata::layout::StructLayout::new([
                         #(#field_layouts ,)*
                     ])
                 )
@@ -78,8 +78,8 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
                 let mut __variant_key_ptr = *__key_ptr;
                 let mut __key_ptr = &mut __variant_key_ptr;
                 (
-                    ::ink_metadata::layout::Discriminant::from(#discriminant),
-                    ::ink_metadata::layout::StructLayout::new([
+                    ::ink::metadata::layout::Discriminant::from(#discriminant),
+                    ::ink::metadata::layout::StructLayout::new([
                         #(#field_layouts ,)*
                     ]),
                 )
@@ -88,11 +88,11 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
     });
     s.gen_impl(quote! {
         gen impl ::ink::storage::traits::StorageLayout for @Self {
-            fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
+            fn layout(__key_ptr: &mut ::ink::storage::traits::KeyPtr) -> ::ink::metadata::layout::Layout {
                 let dispatch_key = __key_ptr.advance_by(1);
-                ::ink_metadata::layout::Layout::Enum(
-                    ::ink_metadata::layout::EnumLayout::new(
-                        ::ink_metadata::layout::LayoutKey::from(dispatch_key),
+                ::ink::metadata::layout::Layout::Enum(
+                    ::ink::metadata::layout::EnumLayout::new(
+                        ::ink::metadata::layout::LayoutKey::from(dispatch_key),
                         [
                             #(#variant_layouts ,)*
                         ]
