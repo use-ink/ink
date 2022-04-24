@@ -73,51 +73,6 @@ impl From<[u8; 20]> for EthereumAddress {
 }
 
 impl ECDSAPublicKey {
-    /// Returns Ethereum address from the ECDSA compressed public key.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use ink_eth_compatibility::{ECDSAPublicKey, EthereumAddress};
-    /// let pub_key: ECDSAPublicKey = [
-    ///     2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
-    ///     7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
-    ///     152,
-    /// ].into();
-    ///
-    /// let EXPECTED_ETH_ADDRESS: EthereumAddress = [
-    ///     126, 95, 69, 82, 9, 26, 105, 18, 93, 93, 252, 183, 184, 194, 101, 144, 41, 57, 91, 223
-    /// ].into();
-    ///
-    /// assert_eq!(pub_key.to_eth_address().as_ref(), EXPECTED_ETH_ADDRESS.as_ref());
-    /// ```
-    // We do not include this function on Windows, since it depends on `libsecp256k1`,
-    // which is incompatible with Windows.
-    // We have https://github.com/paritytech/ink/issues/1068 for removing this
-    // dependency altogether.
-    #[cfg(not(target_os = "windows"))]
-    pub fn to_eth_address(&self) -> EthereumAddress {
-        use ink_env::hash;
-        use libsecp256k1::PublicKey;
-
-        // Transform compressed public key into uncompressed.
-        let pub_key = PublicKey::parse_compressed(&self.0)
-            .expect("Unable to parse the compressed ECDSA public key");
-        let uncompressed = pub_key.serialize();
-
-        // Hash the uncompressed public key by Keccak256 algorithm.
-        let mut hash = <hash::Keccak256 as hash::HashOutput>::Type::default();
-        // The first byte indicates that the public key is uncompressed.
-        // Let's skip it for hashing the public key directly.
-        ink_env::hash_bytes::<hash::Keccak256>(&uncompressed[1..], &mut hash);
-
-        // Take the last 20 bytes as an Address
-        let mut result = EthereumAddress::default();
-        result.as_mut().copy_from_slice(&hash[12..]);
-
-        result
-    }
-
     /// Returns the default Substrate's `AccountId` from the ECDSA compressed public key.
     /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
     ///
