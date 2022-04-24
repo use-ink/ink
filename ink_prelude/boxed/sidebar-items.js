@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Box","A pointer type for heap allocation."],["ThinBox","ThinBox."]]});
+initSidebarItems({"struct":[["Box","A pointer type for heap allocation."]]});
