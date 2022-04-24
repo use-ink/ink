@@ -184,7 +184,7 @@ where
 }
 
 /// Writes the value to the contract storage under the given key and returns
-/// the size of the pre-existing value at the specified key if any, or None.
+/// the size of pre-existing value at the specified key if any, or None.
 ///
 /// # Panics
 ///

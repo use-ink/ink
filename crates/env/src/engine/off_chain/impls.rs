@@ -184,11 +184,12 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, _key: &Key, _value: &V) -> Option<u32>
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
     where
         V: scale::Encode,
     {
-        unimplemented!("the off-chain env does not implement `seal_set_storage`, yet")
+        let v = scale::Encode::encode(value);
+        self.engine.set_storage(key.as_ref(), &v[..])
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
