@@ -77,6 +77,7 @@ impl TryFrom<syn::ItemType> for Event {
     type Error = syn::Error;
 
     fn try_from(item_type: syn::ItemType) -> Result<Self, Self::Error> {
+        // todo: remove ink::event attribute and check no anonymous config
         Ok(Self::Imported(ImportedEvent {
             item: item_type
         }))
