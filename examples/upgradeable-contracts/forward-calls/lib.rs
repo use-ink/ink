@@ -33,7 +33,7 @@ pub mod proxy {
         admin: AccountId,
     }
 
-    /// The trait provides managing of forwarder methods.
+    /// The trait provides information about `Proxy`
     #[ink_lang::trait_definition]
     pub trait Forwarder {
         /// Returns `AccountId` of contract that calls are forward to
@@ -43,11 +43,6 @@ pub mod proxy {
         /// Returns `AccountId` of administrator of current contract
         #[ink(message)]
         fn admin(&self) -> AccountId;
-
-        /// Changes the `AccountId` of the contract where any call that does
-        /// not match a selector of this contract is forwarded to.
-        #[ink(message)]
-        fn change_forward_address(&mut self, new_address: AccountId);
     }
 
     impl Forwarder for Proxy {
@@ -59,18 +54,6 @@ pub mod proxy {
         #[ink(message)]
         fn admin(&self) -> AccountId {
             self.admin
-        }
-
-        #[ink(message)]
-        fn change_forward_address(&mut self, new_address: AccountId) {
-            assert_eq!(
-                self.env().caller(),
-                self.admin,
-                "caller {:?} does not have sufficient permissions, only {:?} does",
-                self.env().caller(),
-                self.admin,
-            );
-            self.forward_to = new_address;
         }
     }
 
@@ -85,6 +68,20 @@ pub mod proxy {
                 admin: Self::env().caller(),
                 forward_to,
             }
+        }
+
+        /// Changes the `AccountId` of the contract where any call that does
+        /// not match a selector of this contract is forwarded to.
+        #[ink(message)]
+        pub fn change_forward_address(&mut self, new_address: AccountId) {
+            assert_eq!(
+                self.env().caller(),
+                self.admin,
+                "caller {:?} does not have sufficient permissions, only {:?} does",
+                self.env().caller(),
+                self.admin,
+            );
+            self.forward_to = new_address;
         }
 
         /// Fallback message for a contract call that doesn't match any
