@@ -154,48 +154,38 @@ impl Dispatch<'_> {
     ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let inherent_ids = self
+        let message_ids = self
             .contract
             .module()
             .impls()
-            .filter(|item_impl| item_impl.trait_path().is_none())
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .map(|message| {
-                let span = message.span();
-                message_spans.push(span);
-                let id = message
-                    .composed_selector()
-                    .into_be_u32()
-                    .hex_padded_suffixed();
-                quote_spanned!(span=> #id)
-            })
-            .collect::<Vec<_>>();
-        let trait_ids = self
-            .contract
-            .module()
-            .impls()
-            .filter_map(|item_impl| {
-                item_impl
-                    .trait_path()
-                    .map(|trait_path| {
-                        iter::repeat(trait_path).zip(item_impl.iter_messages())
-                    })
+            .map(|item_impl| {
+                iter::repeat(item_impl.trait_path()).zip(item_impl.iter_messages())
             })
             .flatten()
             .map(|(trait_path, message)| {
-                let local_id = message.local_id().hex_padded_suffixed();
                 let span = message.span();
                 message_spans.push(span);
-                quote_spanned!(span=>
-                    {
-                        ::core::primitive::u32::from_be_bytes(
-                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
-                                as #trait_path>::__ink_TraitInfo
-                                as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
-                        )
-                    }
-                )
-            });
+
+                if let Some(trait_path) = trait_path {
+                    let local_id = message.local_id().hex_padded_suffixed();
+                    quote_spanned!(span=>
+                        {
+                            ::core::primitive::u32::from_be_bytes(
+                                <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                                    as #trait_path>::__ink_TraitInfo
+                                    as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                            )
+                        }
+                    )
+                } else {
+                    let id = message
+                        .composed_selector()
+                        .into_be_u32()
+                        .hex_padded_suffixed();
+                    quote_spanned!(span=> #id)
+                }
+            })
+            .collect::<Vec<_>>();
         quote_spanned!(span=>
             impl ::ink_lang::reflect::ContractDispatchableMessages<{
                 <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
@@ -204,8 +194,7 @@ impl Dispatch<'_> {
                     ::core::primitive::u32;
                     <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                 ] = [
-                    #( #inherent_ids , )*
-                    #( #trait_ids ),*
+                    #( #message_ids , )*
                 ];
             }
         )
