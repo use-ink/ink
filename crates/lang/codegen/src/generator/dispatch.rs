@@ -158,10 +158,9 @@ impl Dispatch<'_> {
             .contract
             .module()
             .impls()
-            .map(|item_impl| {
+            .flat_map(|item_impl| {
                 iter::repeat(item_impl.trait_path()).zip(item_impl.iter_messages())
             })
-            .flatten()
             .map(|(trait_path, message)| {
                 let span = message.span();
                 message_spans.push(span);
