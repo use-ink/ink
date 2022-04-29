@@ -33,10 +33,6 @@ variables:
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
-  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
-  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
-  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
 
 workflow:
   rules:
@@ -83,31 +79,6 @@ workflow:
   interruptible:                   true
   tags:
     - kubernetes-parity-build
-
-#### Vault secrets
-.vault-secrets:                    &vault-secrets
-  secrets:
-    CODECOV_P_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/CODECOV_P_TOKEN@kv
-      file:                        false
-    CODECOV_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/CODECOV_TOKEN@kv
-      file:                        false
-    GITHUB_EMAIL:
-      vault:                       cicd/gitlab/parity/GITHUB_EMAIL@kv
-      file:                        false
-    GITHUB_USER:
-      vault:                       cicd/gitlab/parity/GITHUB_USER@kv
-      file:                        false
-    GITHUB_PR_TOKEN:
-      vault:                       cicd/gitlab/parity/GITHUB_PR_TOKEN@kv
-      file:                        false
-    PIPELINE_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/PIPELINE_TOKEN@kv
-      file:                        false
-    GITHUB_SSH_PRIV_KEY:
-      vault:                       cicd/gitlab/parity/ink/GITHUB_SSH_PRIV_KEY@kv
-      file:                        false
 
 #### stage:                        lint
 #
@@ -427,7 +398,6 @@ publish-docs:
   stage:                           publish
   <<:                              *kubernetes-env
   image:                           paritytech/tools:latest
-  <<:                              *vault-secrets
   needs:
     - job:                         docs
       artifacts:                   true
@@ -481,7 +451,6 @@ publish-docs:
 fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
-  <<:                              *vault-secrets
   variables:
     # The QUICKCHECK_TESTS default is 100
     QUICKCHECK_TESTS:              5000
