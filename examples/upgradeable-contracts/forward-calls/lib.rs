@@ -33,14 +33,14 @@ pub mod proxy {
         admin: AccountId,
     }
 
-    /// The trait provides information about `Proxy`
+    /// The trait provides information about the forward pattern used in this contract.
     #[ink_lang::trait_definition]
     pub trait Forwarder {
-        /// Returns `AccountId` of contract that calls are forward to
+        /// Returns the `AccountId` of the contract that calls are forward to.
         #[ink(message)]
         fn forward_to(&self) -> AccountId;
 
-        /// Returns `AccountId` of administrator of current contract
+        /// Returns the `AccountId` of the admin of the current contract.
         #[ink(message)]
         fn admin(&self) -> AccountId;
     }
