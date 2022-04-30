@@ -29,7 +29,6 @@ use ink_env::{
     Error,
     Result,
 };
-use ink_eth_compatibility::ECDSAPublicKey;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -831,10 +830,10 @@ where
         self,
         signature: &[u8; 65],
         message_hash: &[u8; 32],
-    ) -> Result<ECDSAPublicKey> {
+    ) -> Result<[u8; 33]> {
         let mut output = [0; 33];
         ink_env::ecdsa_recover(signature, message_hash, &mut output)
-            .map(|_| output.into())
+            .map(|_| output)
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
