@@ -189,6 +189,12 @@ const SENTINEL: u32 = u32::MAX;
 #[repr(transparent)]
 pub struct ReturnCode(u32);
 
+impl From<ReturnCode> for Option<u32> {
+    fn from(code: ReturnCode) -> Self {
+        (code.0 < SENTINEL).then(|| code.0)
+    }
+}
+
 impl ReturnCode {
     /// Returns the raw underlying `u32` representation.
     pub fn into_u32(self) -> u32 {
@@ -197,11 +203,6 @@ impl ReturnCode {
     /// Returns the underlying `u32` converted into `bool`.
     pub fn into_bool(self) -> bool {
         self.0.ne(&0)
-    }
-    /// Returns Some(val) for underlying `u32` val if it is less than SENTINEL.
-    /// Otherwise returns None.
-    pub fn into_option_u32(self) -> Option<u32> {
-        (self.0 < SENTINEL).then(|| self.0)
     }
 }
 
@@ -500,7 +501,7 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
             encoded_value.len() as u32,
         )
     };
-    ret_code.into_option_u32()
+    ret_code.into()
 }
 
 pub fn clear_storage(key: &[u8]) {
@@ -524,7 +525,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
 
 pub fn storage_contains(key: &[u8]) -> Option<u32> {
     let ret_code = unsafe { sys::seal_contains_storage(Ptr32::from_slice(key)) };
-    ret_code.into_option_u32()
+    ret_code.into()
 }
 
 pub fn terminate(beneficiary: &[u8]) -> ! {
