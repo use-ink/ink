@@ -838,6 +838,13 @@ where
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
+    pub fn ecdsa_to_eth_address(self, pubkey: &[u8; 33]) -> Result<[u8; 20]> {
+        let mut output = [0; 20];
+        ink_env::ecdsa_to_eth_address(pubkey, &mut output)
+            .map(|_| output)
+            .map_err(|_| Error::EcdsaRecoveryFailed)
+    }
+
     /// Checks whether a specified account belongs to a contract.
     ///
     /// # Example

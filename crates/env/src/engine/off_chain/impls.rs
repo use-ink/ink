@@ -287,6 +287,20 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    fn ecdsa_to_eth_address(
+        &mut self,
+        _pubkey: &[u8; 33],
+        _output: &mut [u8; 20],
+    ) -> Result<()> {
+        // 	use secp256k1::PublicKey as ECDSAPubkey;
+        // let pk = ECDSAPubkey::from_slice(pubkey).expect("Unable to parse the compressed ECDSA public key");
+        // let uncompressed = pk.serialize();
+        // let mut hash = <Keccak256 as HashOutput>::Type::default();
+        // <Keccak256>::(&uncompressed[1..], &mut hash)
+
+        unimplemented!("off-chain environment does not support `ecdsa_to_eth_address`")
+    }
+
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         func_id: u32,

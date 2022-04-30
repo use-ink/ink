@@ -500,6 +500,13 @@ pub fn ecdsa_recover(
     })
 }
 
+/// Returns Ethereum address from the ECDSA compressed public key.
+pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.ecdsa_to_eth_address(pubkey, output)
+    })
+}
+
 /// Checks whether the specified account is a contract.
 ///
 /// # Errors

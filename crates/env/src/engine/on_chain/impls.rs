@@ -291,6 +291,14 @@ impl EnvBackend for EnvInstance {
         ext::ecdsa_recover(signature, message_hash, output).map_err(Into::into)
     }
 
+    fn ecdsa_to_eth_address(
+        &mut self,
+        pubkey: &[u8; 33],
+        output: &mut [u8; 20],
+    ) -> Result<()> {
+        ext::ecdsa_to_eth_address(pubkey, output).map_err(Into::into)
+    }
+
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         func_id: u32,
