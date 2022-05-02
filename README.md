@@ -39,18 +39,13 @@
 <br/>
 </div>
 
-More relevant things:
+More relevant links:
 * Talk to us on [Element][k2] or in [Discord][l2]
   on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * [Substrate Stack Exchange](https://substrate.stackexchange.com/) - Forum for getting your ink! questions answered
-* Community Badges ‒ [![built-with-ink][ink0]][ink2] [![built-with-ink][ink1]][ink2]
-
-[ink0]: /.images/badge.svg
-[ink1]: /.images/badge_flat.svg
-[ink2]: https://github.com/paritytech/ink
 
 
 ## Table of Contents
@@ -65,6 +60,7 @@ More relevant things:
   * [Trait Definitions](#trait-definitions)
   * [Off-chain Testing](#off-chain-testing)
 * [Developer Documentation](#developer-documentation)
+* [Community Badges](#community-badges)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -260,6 +256,23 @@ the relevant links:
 `ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. Contains [the off-chain testing API](https://paritytech.github.io/ink/ink_env/test/index.html) as well. |
 `ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
 
+## Community Badges
+
+### Normal Design
+
+[![Built with ink!](.images/badge.svg)](https://github.com/paritytech/ink)
+
+```markdown
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+```
+
+### Flat Design
+
+[![Built with ink!](.images/badge_flat.svg)](https://github.com/paritytech/ink)
+
+```markdown
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
+```
 
 ## Contributing
 
