@@ -20,6 +20,68 @@ If you're new here and aren't sure where to get started with ink! check out our
 
 This was inspired by the [Polkadot Staking Progress Report](https://gist.github.com/kianenigma/aa835946455b9a3f167821b9d05ba376) ❤️.
 
+## April 2022
+
+### Community Badges 🙌
+
+We've added two versions of a community badge (right one is in flat design).
+
+[![built-with-ink][i0]][i2] [![built-with-ink][i1]][i2]
+
+[i0]: /.images/badge.svg
+[i1]: /.images/badge_flat.svg
+[i2]: https://github.com/paritytech/ink
+
+If you have a public repository with an ink! contract it would be awesome
+if you could add one of those!
+
+### Team Retreat in Athens 🇬🇷
+
+We ‒ the developers working on ink!, Substrate's [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
+and the [Contracts UI](https://github.com/paritytech/contracts-ui) ‒
+went on a team retreat to discuss our roadmap for the rest of this
+year, as well as some technical designs of how we want to implement e.g.
+XCM in ink!.
+
+We also did a little hackathon to do some dog-fooding: we've built a
+Dapp that makes use of all components by the above teams. We plan
+to open source it soon, stay tuned for that 😎.
+
+There's a lot on the horizon and we're enthusiastic about the rest of this year!
+
+![Athens 2022](.images/monthly-update/athens-2022.jpg)
+
+### Spanish Twitter Space 🐦
+
+[Hernando](https://github.com/hcastano) was a guest at the spanish Polkadot
+Twitter Space. The space has been recorded:
+
+* https://twitter.com/i/spaces/1MnGnkgmNdBJO
+* https://twitter.com/i/spaces/1jMKgedkMgYJL
+
+The network connection of the organizer had a bad day, hence it's two
+recordings.
+
+### StackExchange Public Beta
+
+The [Substrate & Polkadot StackExchange](https://substrate.stackexchange.com/) site
+has graduated from its private beta ‒ the site is now in public beta!
+
+This means that the site is now indexed by search engines and can be 
+browser without any user account.
+
+If you have any questions regarding ink! or smart contracts on Substrate this is
+the place to be.
+
+### Canvas Update
+
+You may know that we were working on a common good smart contracts parachain
+named Canvas. We've decided to put this project on hold. This gives us more
+room to make ink! and the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+as competitive as possible, as well as help parachain teams include those.
+This is not to say that we'll never get back to Canvas, but as of right now
+we're no longer working on this project.
+
 ## March 2022
 
 ### StackExchange Beta
