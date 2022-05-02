@@ -39,13 +39,18 @@
 <br/>
 </div>
 
-More relevant links:
+More relevant things:
 * Talk to us on [Element][k2] or in [Discord][l2]
   on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * [Substrate Stack Exchange](https://substrate.stackexchange.com/) - Forum for getting your ink! questions answered
+* Community Badges ‒ [![built-with-ink][ink0]][ink2] [![built-with-ink][ink1]][ink2]
+
+[ink0]: /.images/badge.svg
+[ink1]: /.images/badge_flat.svg
+[ink2]: https://github.com/paritytech/ink
 
 
 ## Table of Contents
