@@ -184,7 +184,7 @@ where
 }
 
 /// Writes the value to the contract storage under the given key and returns
-/// the size of pre-existing value at the specified key if any, or None.
+/// the size of pre-existing value at the specified key if any.
 ///
 /// # Panics
 ///
@@ -215,7 +215,7 @@ where
 /// Checks whether there is a value stored under the given key in
 /// the contract's storage.
 ///
-/// Size of a value stored under the specified key is returned if any.
+/// If a value is stored under the specified key, the size of the value is returned.
 pub fn contract_storage_contains(key: &Key) -> Option<u32> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::contract_storage_contains(instance, key)

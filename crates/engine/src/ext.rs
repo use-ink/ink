@@ -228,7 +228,7 @@ impl Engine {
     }
 
     /// Writes the encoded value into the storage at the given key.
-    /// Returns the size of the previously stored value at the key if any, or None.
+    /// Returns the size of the previously stored value at the key if any.
     pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);

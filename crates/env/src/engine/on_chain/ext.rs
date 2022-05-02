@@ -179,10 +179,10 @@ where
 
 /// Used as a sentinel value when reading and writing contract memory.
 ///
-/// It is usually used to signal `None` to a contract when only a primitive is allowed
+/// We use this value to signal `None` to a contract when only a primitive is allowed
 /// and we don't want to go through encoding a full Rust type. Using `u32::Max` is a safe
-/// sentinel because contracts are never allowed to use such a large amount of resources
-/// that this value makes sense for a memory location or length.
+/// sentinel because contracts are never allowed to use such a large amount of resources.
+/// So this value doesn't make sense for a memory location or length.
 const SENTINEL: u32 = u32::MAX;
 
 /// The raw return code returned by the host side.
