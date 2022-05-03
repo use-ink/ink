@@ -71,13 +71,13 @@ pub trait Psp22Extension {
         value: <ink_env::DefaultEnvironment as Environment>::Balance,
     ) -> Result<(), Psp22Error>;
 
-     // PSP22 decrease_allowance
-     #[ink(extension = 0xfecb57d5)]
-     fn decrease_allowance(
-         asset_id: u32,
-         spender: <ink_env::DefaultEnvironment as Environment>::AccountId,
-         value: <ink_env::DefaultEnvironment as Environment>::Balance,
-     ) -> Result<(), Psp22Error>;
+    // PSP22 decrease_allowance
+    #[ink(extension = 0xfecb57d5)]
+    fn decrease_allowance(
+        asset_id: u32,
+        spender: <ink_env::DefaultEnvironment as Environment>::AccountId,
+        value: <ink_env::DefaultEnvironment as Environment>::Balance,
+    ) -> Result<(), Psp22Error>;
 }
 
 #[derive(scale::Encode, scale::Decode)]
@@ -119,7 +119,8 @@ impl ink_env::chain_extension::FromStatusCode for Psp22ErrorCode {
 pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {
-    const MAX_EVENT_TOPICS: usize = <ink_env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+    const MAX_EVENT_TOPICS: usize =
+        <ink_env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
 
     type AccountId = <ink_env::DefaultEnvironment as Environment>::AccountId;
     type Balance = <ink_env::DefaultEnvironment as Environment>::Balance;
@@ -179,14 +180,22 @@ mod psp22_ext_test {
         /// Returns the account balance for the specified asset & owner.
         #[ink(message)]
         #[ink(selector = 0x6568382f)]
-        pub fn balance_of(&self, asset_id: u32, owner: AccountId) -> Result<Balance, Psp22Error> {
+        pub fn balance_of(
+            &self,
+            asset_id: u32,
+            owner: AccountId,
+        ) -> Result<Balance, Psp22Error> {
             self.env().extension().balance_of(asset_id, owner)
         }
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner` for the specified asset.
         #[ink(message)]
         #[ink(selector = 0x4d47d921)]
-        pub fn allowance(&self, asset_id: u32, spender: AccountId) -> Result<Balance, Psp22Error> {
+        pub fn allowance(
+            &self,
+            asset_id: u32,
+            spender: AccountId,
+        ) -> Result<Balance, Psp22Error> {
             self.env().extension().allowance(asset_id, spender)
         }
 
@@ -216,7 +225,9 @@ mod psp22_ext_test {
             to: AccountId,
             value: Balance,
         ) -> Result<(), Psp22Error> {
-            self.env().extension().transfer_from(asset_id, from, to, value)
+            self.env()
+                .extension()
+                .transfer_from(asset_id, from, to, value)
         }
 
         // PSP22 approve
@@ -244,7 +255,9 @@ mod psp22_ext_test {
             spender: AccountId,
             value: Balance,
         ) -> Result<(), Psp22Error> {
-            self.env().extension().increase_allowance(asset_id, spender, value)
+            self.env()
+                .extension()
+                .increase_allowance(asset_id, spender, value)
         }
 
         // PSP22 decrease_allowance
@@ -258,7 +271,9 @@ mod psp22_ext_test {
             spender: AccountId,
             value: Balance,
         ) -> Result<(), Psp22Error> {
-            self.env().extension().decrease_allowance(asset_id, spender, value)
+            self.env()
+                .extension()
+                .decrease_allowance(asset_id, spender, value)
         }
     }
 }
