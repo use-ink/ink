@@ -24,24 +24,36 @@ This was inspired by the [Polkadot Staking Progress Report](https://gist.github.
 
 ### Community Badges 🙌
 
-We've added two versions of a community badge (right one is in flat design).
-
-[![built-with-ink][i0]][i2] [![built-with-ink][i1]][i2]
-
-[i0]: /.images/badge.svg
-[i1]: /.images/badge_flat.svg
-[i2]: https://github.com/paritytech/ink
+We've added two versions of a community badge.
 
 If you have a public repository with an ink! contract it would be awesome
 if you could add one of those!
+
+#### Normal Design
+
+[![Built with ink!](.images/badge.svg)](https://github.com/paritytech/ink)
+
+```markdown
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+```
+
+#### Flat Design
+
+[![Built with ink!](.images/badge_flat.svg)](https://github.com/paritytech/ink)
+
+```markdown
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
+```
 
 ### Team Retreat in Athens 🇬🇷
 
 We ‒ the developers working on ink!, Substrate's [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
 and the [Contracts UI](https://github.com/paritytech/contracts-ui) ‒
-went on a team retreat to discuss our roadmap for the rest of this
-year, as well as some technical designs of how we want to implement e.g.
-XCM in ink!.
+went on a team retreat in April. We discussed our roadmap for the rest
+of this year, as well as some technical designs of how we want to implement
+e.g.  XCM in ink!. We're normally working across different time zones, with
+some of us embracing the digital nomad lifestyle. Hence it was very
+productive to gather together for a week.
 
 We also did a little hackathon to do some dog-fooding: we've built a
 Dapp that makes use of all components by the above teams. We plan
