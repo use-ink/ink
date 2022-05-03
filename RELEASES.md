@@ -1,5 +1,24 @@
 # [Unreleased]
 
+# Version 3.1.0
+
+There is a breaking change in this release:
+
+As part of [#1235](https://github.com/paritytech/ink/pull/1235) the message selectors of
+your contract may change. A change of selectors could affect your client/frontend/Dapp/etc..
+
+## Added
+- Implement `seal_code_hash` and `seal_own_code_hash` ‒ [#1205](https://github.com/paritytech/ink/pull/1205)
+- Add `set_code_hash` function and example ‒ [#1203](https://github.com/paritytech/ink/pull/1203)
+- Implement `ink_env::ecdsa_to_eth_address` ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+- Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+
+## Fixed
+- Fix ordering of message ids if the trait is implemented before the inherent section ‒ [#1235](https://github.com/paritytech/ink/pull/1235)
+
+## Removed
+- Removed `eth_compatibility` crate and replaced it with `ink_env` functionality ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+
 # Version 3.0.1
 
 ## Changed
