@@ -28,15 +28,17 @@ For ink! we released [v3.0.1](https://github.com/paritytech/ink/releases/tag/v3.
 minor bugfixes. Besides that we made a number of improvements to our examples ‒ mostly to
 our [upgradeable contracts examples](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts).
 
-For `cargo-contract` we released [v1.1.1](https://github.com/paritytech/cargo-contract/releases/tag/v1.1.1) and
+For [`cargo-contract`](https://github.com/paritytech/cargo-contract) we released
+[v1.1.1](https://github.com/paritytech/cargo-contract/releases/tag/v1.1.1) and
 [v1.2.0](https://github.com/paritytech/cargo-contract/releases/tag/v1.2.0)
 with bug fixes, a new sub-command `decode`, and improved support for the `call` and
 `instantiate` sub-commands.
 
-For tutorials, development and testing we recommend using our `substrate-contracts-node`.
+For tutorials, development and testing we recommend using our 
+[`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node).
 We issued the release [v0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0),
-which is in sync with recent Substrate `master`. Pre-built binaries for the release are
-available for Linux and Mac.
+which is in sync with a recent Substrate `master` (see the release notes for the specific commit hash).
+Pre-built binaries for the release are available for Linux and Mac.
 
 ### Community Badges 🙌
 
