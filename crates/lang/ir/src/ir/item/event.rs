@@ -399,7 +399,7 @@ mod tests {
                 assert_eq!(field.ty(), expected_field.ty());
             }
         } else {
-            panic!("Expected inline event definition")
+            panic!("Expected an inline event definition")
         }
     }
 
@@ -407,11 +407,10 @@ mod tests {
     fn anonymous_event_works() {
         fn assert_anonymous_event(event: syn::ItemStruct) {
             match Event::try_from(event) {
-                Ok(event) => {
-                    if let Event::Inline(event_def) = event {
-                        assert!(event_def.anonymous)
-                    }
-                }
+                Ok(Event::Inline(event)) => {
+                    assert!(event.anonymous);
+                },
+                Ok(_) => panic!("Expected an inline event definition"),
                 Err(_) => panic!("encountered unexpected invalid anonymous event"),
             }
         }
