@@ -22,6 +22,24 @@ This was inspired by the [Polkadot Staking Progress Report](https://gist.github.
 
 ## April 2022
 
+### Releases 🆕
+
+For ink! we released [v3.0.1](https://github.com/paritytech/ink/releases/tag/v3.0.1) with
+minor bugfixes. Besides that we made a number of improvements to our examples ‒ mostly to
+our [upgradeable contracts examples](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts).
+
+For [`cargo-contract`](https://github.com/paritytech/cargo-contract) we released
+[v1.1.1](https://github.com/paritytech/cargo-contract/releases/tag/v1.1.1) and
+[v1.2.0](https://github.com/paritytech/cargo-contract/releases/tag/v1.2.0)
+with bug fixes, a new sub-command `decode`, and improved support for the `call` and
+`instantiate` sub-commands.
+
+For tutorials, development and testing we recommend using our 
+[`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node).
+We issued the release [v0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0),
+which is in sync with a recent Substrate `master` (see the release notes for the specific commit hash).
+Pre-built binaries for the release are available for Linux and Mac.
+
 ### Community Badges 🙌
 
 We've added two versions of a community badge.
@@ -79,7 +97,7 @@ recordings.
 The [Substrate & Polkadot StackExchange](https://substrate.stackexchange.com/) site
 has graduated from its private beta ‒ the site is now in public beta!
 
-This means that the site is now indexed by search engines and can be 
+This means that the site is now indexed by search engines and can be
 browser without any user account.
 
 If you have any questions regarding ink! or smart contracts on Substrate this is
