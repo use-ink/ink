@@ -1,6 +1,6 @@
 [package]
 name = "ink_lang"
-version = "3.0.1"
+version = "3.1.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -15,20 +15,20 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env = { version = "3.0.1", path = "../env", default-features = false }
-ink_storage = { version = "3.0.1", path = "../storage", default-features = false }
-ink_primitives = { version = "3.0.1", path = "../primitives", default-features = false }
-ink_metadata = { version = "3.0.1", path = "../metadata", default-features = false, optional = true }
-ink_prelude = { version = "3.0.1", path = "../prelude", default-features = false }
-ink_eth_compatibility = { version = "3.0.1", path = "../eth_compatibility", default-features = false }
-ink_lang_macro = { version = "3.0.1", path = "macro", default-features = false }
+ink_env = { version = "3.1.0", path = "../env", default-features = false }
+ink_storage = { version = "3.1.0", path = "../storage", default-features = false }
+ink_primitives = { version = "3.1.0", path = "../primitives", default-features = false }
+ink_metadata = { version = "3.1.0", path = "../metadata", default-features = false, optional = true }
+ink_prelude = { version = "3.1.0", path = "../prelude", default-features = false }
+ink_eth_compatibility = { version = "3.1.0", path = "../eth_compatibility", default-features = false }
+ink_lang_macro = { version = "3.1.0", path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 
 [dev-dependencies]
-ink_lang_ir = { version = "3.0.1", path = "ir" }
-ink_metadata = { version = "3.0.1", default-features = false, path = "../metadata" }
+ink_lang_ir = { version = "3.1.0", path = "ir" }
+ink_metadata = { version = "3.1.0", default-features = false, path = "../metadata" }
 
 trybuild = { version = "1.0.60", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
