@@ -135,7 +135,7 @@ impl Environment for CustomEnvironment {
 mod psp22_ext_test {
     use super::{
         Psp22Error,
-        Vec
+        Vec,
     };
 
     #[ink(storage)]
