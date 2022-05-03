@@ -510,6 +510,12 @@
 <span id="505">505</span>
 <span id="506">506</span>
 <span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -696,12 +702,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">EnvBackend</span> <span class="kw">for</span> <span class="ident">EnvInstance</span> {
-    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>)
+    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">scale::Encode</span>,
     {
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="ident">value</span>);
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">set_storage</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">v</span>[..]);
+        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">set_storage</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">v</span>[..])
     }
 
     <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
@@ -716,6 +722,12 @@
         }
         <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">decoded</span>))
+    }
+
+    <span class="kw">fn</span> <span class="ident">contract_storage_contains</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+        <span class="macro">unimplemented!</span>(
+            <span class="string">&quot;the off-chain env does not implement `seal_contains_storage`, yet&quot;</span>
+        )
     }
 
     <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {

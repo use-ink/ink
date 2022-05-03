@@ -269,7 +269,7 @@
             <span class="comment">//</span>
             <span class="comment">// Sadly this does not work well with `Option&lt;Option&lt;T&gt;&gt;`.</span>
             <span class="comment">// For this we&#39;d need specialization in Rust or similar.</span>
-            <span class="ident"><span class="kw">super</span>::push_packed_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
+            <span class="ident"><span class="kw">super</span>::push_packed_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>);
         }
         <span class="prelude-val">None</span> =&gt; {
             <span class="comment">// Clear the associated storage cell since the entity is `None`.</span>
