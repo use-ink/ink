@@ -133,8 +133,10 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env = crate::CustomEnvironment)]
 mod psp22_ext_test {
-    use super::Psp22Error;
-    use super::Vec;
+    use super::{
+        Psp22Error,
+        Vec
+    };
 
     #[ink(storage)]
     pub struct Psp22ExtTest {}
