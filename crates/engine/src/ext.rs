@@ -228,7 +228,8 @@ impl Engine {
     }
 
     /// Writes the encoded value into the storage at the given key.
-    pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
+    /// Returns the size of the previously stored value at the key if any.
+    pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
@@ -236,12 +237,9 @@ impl Engine {
         self.debug_info
             .record_cell_for_account(account_id, key.to_vec());
 
-        // We ignore if storage is already set for this key
-        let _ = self.database.insert_into_contract_storage(
-            &callee,
-            key,
-            encoded_value.to_vec(),
-        );
+        self.database
+            .insert_into_contract_storage(&callee, key, encoded_value.to_vec())
+            .map(|v| <u32>::try_from(v.len()).expect("usize to u32 conversion failed"))
     }
 
     /// Returns the decoded contract storage at the key if any.

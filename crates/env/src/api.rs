@@ -183,12 +183,13 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key.
+/// Writes the value to the contract storage under the given key and returns
+/// the size of pre-existing value at the specified key if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V)
+pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
 where
     V: scale::Encode,
 {
@@ -208,6 +209,16 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::get_contract_storage::<R>(instance, key)
+    })
+}
+
+/// Checks whether there is a value stored under the given key in
+/// the contract's storage.
+///
+/// If a value is stored under the specified key, the size of the value is returned.
+pub fn contract_storage_contains(key: &Key) -> Option<u32> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::contract_storage_contains(instance, key)
     })
 }
 

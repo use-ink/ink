@@ -202,12 +202,12 @@ where
 ///   packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
-pub fn push_packed_root<T>(entity: &T, root_key: &Key)
+pub fn push_packed_root<T>(entity: &T, root_key: &Key) -> Option<u32>
 where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage(root_key, entity);
+    ink_env::set_contract_storage(root_key, entity)
 }
 
 /// Clears the entity from the contract storage using packed layout.
