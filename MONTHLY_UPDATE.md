@@ -98,7 +98,7 @@ The [Substrate & Polkadot StackExchange](https://substrate.stackexchange.com/) s
 has graduated from its private beta ‒ the site is now in public beta!
 
 This means that the site is now indexed by search engines and can be
-browser without any user account.
+browsed without any user account.
 
 If you have any questions regarding ink! or smart contracts on Substrate this is
 the place to be.
