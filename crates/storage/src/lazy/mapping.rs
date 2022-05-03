@@ -161,7 +161,7 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
-    pub fn contains<Q>(&self, key: Q) -> Option<u32>
+    pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
     {
