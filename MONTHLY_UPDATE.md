@@ -25,12 +25,12 @@ This was inspired by the [Polkadot Staking Progress Report](https://gist.github.
 ### Releases 🆕
 
 For ink! we released [v3.0.1](https://github.com/paritytech/ink/releases/tag/v3.0.1) with
-minor bugfixes. Besides that we made a number of improvements to our examples ‒ mostly for
+minor bugfixes. Besides that we made a number of improvements to our examples ‒ mostly to
 our [upgradeable contracts examples](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts).
 
 For `cargo-contract` we released [v1.1.1](https://github.com/paritytech/cargo-contract/releases/tag/v1.1.1) and
 [v1.2.0](https://github.com/paritytech/cargo-contract/releases/tag/v1.2.0)
-with bug fixes, a new sub-command `decode` and improved support for the `call` and
+with bug fixes, a new sub-command `decode`, and improved support for the `call` and
 `instantiate` sub-commands.
 
 For tutorials, development and testing we recommend using our `substrate-contracts-node`.
