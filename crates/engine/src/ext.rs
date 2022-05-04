@@ -257,7 +257,7 @@ impl Engine {
         }
     }
 
-    /// Returns the decoded contract storage at the key if any.
+    /// Returns the size of the value stored in the contract storage at the key if any.
     pub fn contains_storage(&mut self, key: &[u8; 32]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
