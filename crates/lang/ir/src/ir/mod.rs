@@ -21,6 +21,7 @@ mod config;
 mod contract;
 mod event_def;
 mod idents_lint;
+mod interface;
 mod ink_test;
 mod item;
 mod item_impl;
@@ -69,6 +70,7 @@ pub use self::{
     contract::Contract,
     event_def::InkEventDefinition,
     ink_test::InkTest,
+    interface::Interface,
     item::{
         Event,
         InkItem,
