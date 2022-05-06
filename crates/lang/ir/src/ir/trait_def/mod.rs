@@ -49,11 +49,6 @@ impl InkTraitDefinition {
     }
 
     /// Constructs an ink! trait definition from its raw parts.
-    ///
-    /// # Note
-    ///
-    /// This is a test-only API.
-    #[cfg(test)]
     pub fn from_raw_parts(config: TraitDefinitionConfig, item: InkItemTrait) -> Self {
         Self { config, item }
     }

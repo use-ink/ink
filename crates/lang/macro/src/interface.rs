@@ -24,9 +24,10 @@ pub fn generate(config: TokenStream2, input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(
-    config: TokenStream2,
+    _config: TokenStream2,
     input: TokenStream2,
 ) -> Result<TokenStream2> {
-    let interface = ink_lang_ir::Interface::new(config, input)?;
+    let item_mod = syn::parse2::<syn::ItemMod>(input)?;
+    let interface = ink_lang_ir::Interface::try_from(item_mod)?;
     Ok(generate_code(&interface))
 }

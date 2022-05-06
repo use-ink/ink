@@ -23,6 +23,7 @@ use proc_macro2::{
     TokenStream as TokenStream2,
 };
 use syn::{Result, spanned::Spanned as _};
+use crate::ir::trait_def::TraitDefinitionConfig;
 
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
@@ -35,8 +36,18 @@ pub struct Interface {
 impl TryFrom<syn::ItemMod> for Interface {
     type Error = syn::Error;
 
-    fn try_from(item_mod: syn::ItemMod) -> Result<Self> {
-        todo!()
+    fn try_from(item: syn::ItemMod) -> Result<Self> {
+        let (_, items) = item.content
+            .ok_or_else(|| format_err!("#[ink::interface] must not be an empty module"))?;
+        let item_trait = items.iter().find_map(|item|)
+
+
+        let trait_def = ir::InkTraitDefinition::from_raw_parts(config, ink_item_trait);
+        Ok(Self {
+            item,
+            trait_def,
+            event_def,
+        })
     }
 }
 
@@ -49,11 +60,6 @@ impl quote::ToTokens for Interface {
 }
 
 impl Interface {
-    /// Returns `Ok` if the input matches all requirements for an ink! interface definition.
-    pub fn new(item_mod: syn::ItemMod) -> Result<Self> {
-        todo!()
-    }
-
     /// Returns the identifier of the interface module.
     pub fn ident(&self) -> &Ident {
         &self.item.ident
