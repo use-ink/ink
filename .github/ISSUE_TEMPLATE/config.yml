@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Support & Troubleshooting with the Stack Exchange Community
-    url: https://substrate.stackexchange.com
+  - name: Ask questions and find answers using our dedicated StackExchange site
+    url: https://substrate.stackexchange.com/questions/tagged/ink/
     about: |
         For general questions you might already find an answer in our community.
-        We encourage everyone to also share their understanding by answering questions for others.
+        We encourage everyone to also share their understanding by answering questions for others too.

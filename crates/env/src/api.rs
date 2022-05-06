@@ -186,12 +186,13 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key.
+/// Writes the value to the contract storage under the given key and returns
+/// the size of pre-existing value at the specified key if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V)
+pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
 where
     V: scale::Encode,
 {
@@ -211,6 +212,16 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::get_contract_storage::<R>(instance, key)
+    })
+}
+
+/// Checks whether there is a value stored under the given key in
+/// the contract's storage.
+///
+/// If a value is stored under the specified key, the size of the value is returned.
+pub fn contract_storage_contains(key: &Key) -> Option<u32> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::contract_storage_contains(instance, key)
     })
 }
 
@@ -600,4 +611,29 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::caller_is_origin::<E>(instance)
     })
+}
+
+/// Replace the contract code at the specified address with new code.
+///
+/// # Note
+///
+/// There are a couple of important considerations which must be taken into account when
+/// using this API:
+///
+/// 1. The storage at the code hash will remain untouched. This means that contract developers
+/// must ensure that the storage layout of the new code is compatible with that of the old code.
+///
+/// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
+/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+///
+/// 3. If a contract calls into itself after changing its code the new call would use
+/// the new code. However, if the original caller panics after returning from the sub call it
+/// would revert the changes made by `seal_set_code_hash` and the next caller would use
+/// the old code.
+///
+/// # Errors
+///
+/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
