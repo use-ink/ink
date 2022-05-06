@@ -1,0 +1,41 @@
+[package]
+name = "payment_channel"
+version = "3.0.1"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink_primitives = { version = "3.0.1", path = "../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.1", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.1", path = "../../crates/env", default-features = false }
+ink_storage = { version = "3.0.1", path = "../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.1", path = "../../crates/lang", default-features = false }
+
+eth = { package="ink_eth_compatibility", version = "3.0.1", path="../../crates/eth_compatibility", default-features = false }
+hex-literal = { version = "0.3" }
+
+scale = { package = "parity-scale-codec", version = "3.1.2", default-features = false, features = ["derive"] }
+scale-info = { version = "2.1.1", default-features = false, features = ["derive"] }
+
+sp-core = { version = "6.0.0", default-features = false }
+
+[lib]
+name = "payment_channel"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = ["std"]
+std = [
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+	"sp-core/std",
+    "eth/std",
+]
+
+ink-as-dependency = []
