@@ -14,9 +14,6 @@
 
 mod impls;
 
-#[cfg(test)]
-mod tests;
-
 use ink_env::hash::{
     Blake2x256,
     Keccak256,

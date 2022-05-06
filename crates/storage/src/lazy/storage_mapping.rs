@@ -74,6 +74,18 @@ where
         ink_env::set_contract_storage(&self.storage_key(&key), value);
     }
 
+    /// Insert the given `value` to the contract storage.
+    ///
+    /// Returns the size of the pre-existing value at the specified key if any.
+    #[inline]
+    pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    where
+        Q: scale::EncodeLike<K>,
+        R: scale::EncodeLike<V>,
+    {
+        ink_env::set_contract_storage(&self.storage_key(&key), value)
+    }
+
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
@@ -89,6 +101,17 @@ where
                 root_key, error
             )
         })
+    }
+
+    /// Get the size of a value stored at `key` in the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
+    #[inline]
+    pub fn contains<Q>(&self, key: Q) -> Option<u32>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        ink_env::contract_storage_contains(&self.storage_key(&key))
     }
 
     /// Clears the value at `key` from storage.
