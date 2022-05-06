@@ -54,10 +54,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc721 {
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink_storage::StorageMapping;
 
     use scale::{
         Decode,
@@ -68,16 +65,16 @@ mod erc721 {
     pub type TokenId = u32;
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct Erc721 {
         /// Mapping from token to owner.
-        token_owner: Mapping<TokenId, AccountId>,
+        token_owner: StorageMapping<TokenId, AccountId>,
         /// Mapping from token to approvals users.
-        token_approvals: Mapping<TokenId, AccountId>,
+        token_approvals: StorageMapping<TokenId, AccountId>,
         /// Mapping from owner to number of owned token.
-        owned_tokens_count: Mapping<AccountId, u32>,
+        owned_tokens_count: StorageMapping<AccountId, u32>,
         /// Mapping from owner to operator approvals.
-        operator_approvals: Mapping<(AccountId, AccountId), ()>,
+        operator_approvals: StorageMapping<(AccountId, AccountId), ()>,
     }
 
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -129,9 +126,7 @@ mod erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            ink_lang::utils::initialize_contract(|_| {})
+            Default::default()
         }
 
         /// Returns the balance of the owner.

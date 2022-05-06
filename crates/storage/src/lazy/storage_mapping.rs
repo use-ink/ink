@@ -1,6 +1,5 @@
 use crate::traits::{
     AtomicGuard,
-    AtomicStatus,
     AutoKey,
     ManualKey,
     StorageKeyHolder,
@@ -132,12 +131,6 @@ impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType<Salt>
     type Type = StorageMapping<K, V, ManualKey<0, Salt>>;
 }
 
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> AtomicStatus
-    for StorageMapping<K, V, KeyType>
-{
-    const IS_ATOMIC: bool = false;
-}
-
 impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Encode
     for StorageMapping<K, V, KeyType>
 {
@@ -173,3 +166,68 @@ const _: () = {
         }
     }
 };
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn insert_and_get_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: StorageMapping<u8, _> = StorageMapping::new();
+            mapping.insert(&1, &2);
+            assert_eq!(mapping.get(&1), Some(2));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn gets_default_if_no_key_set() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mapping: StorageMapping<u8, u8> = StorageMapping::new();
+            assert_eq!(mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn can_clear_entries() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // Given
+            let mut mapping: StorageMapping<u8, u8> = StorageMapping::new();
+
+            mapping.insert(&1, &2);
+            assert_eq!(mapping.get(&1), Some(2));
+
+            // When
+            mapping.remove(&1);
+
+            // Then
+            assert_eq!(mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn can_clear_unexistent_entries() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // Given
+            let mapping: StorageMapping<u8, u8> = StorageMapping::new();
+
+            // When
+            mapping.remove(&1);
+
+            // Then
+            assert_eq!(mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+}

@@ -25,7 +25,6 @@
 
 mod impls;
 mod keyptr;
-mod optspec;
 mod packed;
 mod spread;
 
@@ -38,7 +37,6 @@ pub use self::layout::{
     LayoutCryptoHasher,
     StorageLayout,
 };
-pub(crate) use self::optspec::pull_packed_root_opt;
 pub use self::{
     impls::{
         forward_allocate_packed,
@@ -61,7 +59,6 @@ pub use self::{
     },
     storage::{
         AtomicGuard,
-        AtomicStatus,
         AutoKey,
         ManualKey,
         StorageKeyHolder,

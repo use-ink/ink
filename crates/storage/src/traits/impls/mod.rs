@@ -12,82 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-macro_rules! impl_always_packed_layout {
-    ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
-        impl<$($frag),+> $crate::traits::SpreadLayout for $name < $($frag),+ >
-        where
-            $(
-                $frag: $crate::traits::PackedLayout,
-            )+
-        {
-            const FOOTPRINT: ::core::primitive::u64 = 1_u64;
-            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
-
-            #[inline]
-            fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_pull_packed::<Self>(ptr)
-            }
-
-            #[inline]
-            fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
-            }
-
-            #[inline]
-            fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
-            }
-        }
-
-        impl<$($frag),+> $crate::traits::SpreadAllocate for $name < $($frag),+ >
-        where
-            Self: ::core::default::Default,
-            $(
-                $frag: $crate::traits::PackedAllocate,
-            )+
-        {
-            #[inline]
-            fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
-            }
-        }
-    };
-    ( $name:ty, deep: $deep:expr ) => {
-        impl $crate::traits::SpreadLayout for $name
-        where
-            Self: $crate::traits::PackedLayout,
-        {
-            const FOOTPRINT: ::core::primitive::u64 = 1_u64;
-            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
-
-            #[inline]
-            fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_pull_packed::<Self>(ptr)
-            }
-
-            #[inline]
-            fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
-            }
-
-            #[inline]
-            fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
-            }
-        }
-
-        impl $crate::traits::SpreadAllocate for $name
-        where
-            Self: $crate::traits::PackedLayout + ::core::default::Default,
-        {
-            #[inline]
-            fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
-            }
-        }
-    };
-}
-
 // Collection works only with atomic structures
 macro_rules! impl_always_storage_type {
     ( $name:ident < $($frag:ident),+ > ) => {
@@ -96,20 +20,10 @@ macro_rules! impl_always_storage_type {
             $($frag),+> $crate::traits::StorageType<Salt> for $name < $($frag),+ >
         where
             $(
-                $frag: $crate::traits::AtomicStatus + $crate::traits::AtomicGuard< { true } >,
+                $frag: $crate::traits::AtomicGuard< { true } >,
             )+
         {
             type Type = $name < $($frag),+ >;
-        }
-        impl<$($frag),+> $crate::traits::AtomicStatus for $name < $($frag),+ >
-        where
-            $(
-                $frag: $crate::traits::AtomicStatus,
-            )+
-        {
-            const IS_ATOMIC: ::core::primitive::bool = true $(
-                && <$frag as $crate::traits::AtomicStatus>::IS_ATOMIC
-            )+;
         }
         impl<$($frag),+> $crate::traits::AtomicGuard< { true } >
             for $name < $($frag),+ >
@@ -126,10 +40,6 @@ macro_rules! impl_always_storage_type {
         {
             type Type = $name;
         }
-        impl $crate::traits::AtomicStatus for $name
-        {
-            const IS_ATOMIC: ::core::primitive::bool = true;
-        }
         impl $crate::traits::AtomicGuard< { true } > for $name {}
     };
 }
@@ -138,9 +48,6 @@ mod arrays;
 mod collections;
 mod prims;
 mod tuples;
-
-#[cfg(all(test, feature = "ink-fuzz-tests"))]
-mod fuzz_tests;
 
 use super::{
     allocate_packed_root,
@@ -154,11 +61,6 @@ use crate::traits::{
     ExtKeyPtr as _,
     KeyPtr,
 };
-
-/// Returns the greater of both values.
-const fn max(a: u64, b: u64) -> u64 {
-    [a, b][(a > b) as usize]
-}
 
 /// Pulls an instance of type `T` in packed fashion from the contract storage.
 ///

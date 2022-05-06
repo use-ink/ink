@@ -793,7 +793,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// A chain extension method that is flagged with `handle_status = false` assumes that the returned error code
 /// will always indicate success. Therefore it will always load and decode the output buffer and loses
-/// the `E: From<Self::ErrorCode` constraint for the call.
+/// the `E: From<Self::ErrorCode>` constraint for the call.
 ///
 /// ## Details: `returns_result`
 ///

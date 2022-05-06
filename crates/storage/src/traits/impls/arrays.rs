@@ -13,112 +13,26 @@
 // limitations under the License.
 
 use crate::traits::{
-    KeyPtr,
-    PackedAllocate,
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
+    AtomicGuard,
+    StorageKeyHolder,
+    StorageType,
 };
-use array_init::array_init;
-use ink_primitives::Key;
 
-impl<T, const N: usize> SpreadLayout for [T; N]
-where
-    T: SpreadLayout,
+impl<T: AtomicGuard<true>, const N: usize> AtomicGuard<true> for [T; N] {}
+
+impl<T: AtomicGuard<true>, const N: usize, Salt: StorageKeyHolder> StorageType<Salt>
+    for [T; N]
 {
-    const FOOTPRINT: u64 = N as u64 * <T as SpreadLayout>::FOOTPRINT;
-    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
-
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        for elem in self {
-            <T as SpreadLayout>::push_spread(elem, ptr)
-        }
-    }
-
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        for elem in self {
-            <T as SpreadLayout>::clear_spread(elem, ptr)
-        }
-    }
-
-    #[inline]
-    fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        array_init::<_, T, N>(|_| <T as SpreadLayout>::pull_spread(ptr))
-    }
-}
-
-impl<T, const N: usize> SpreadAllocate for [T; N]
-where
-    T: SpreadAllocate,
-{
-    #[inline]
-    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        array_init::<_, T, N>(|_| <T as SpreadAllocate>::allocate_spread(ptr))
-    }
-}
-
-impl<T, const N: usize> PackedLayout for [T; N]
-where
-    T: PackedLayout,
-{
-    #[inline]
-    fn push_packed(&self, at: &Key) {
-        for elem in self {
-            <T as PackedLayout>::push_packed(elem, at)
-        }
-    }
-
-    #[inline]
-    fn clear_packed(&self, at: &Key) {
-        for elem in self {
-            <T as PackedLayout>::clear_packed(elem, at)
-        }
-    }
-
-    #[inline]
-    fn pull_packed(&mut self, at: &Key) {
-        for elem in self {
-            <T as PackedLayout>::pull_packed(elem, at)
-        }
-    }
-}
-
-impl<T, const N: usize> PackedAllocate for [T; N]
-where
-    T: PackedAllocate,
-{
-    #[inline]
-    fn allocate_packed(&mut self, at: &Key) {
-        for elem in self {
-            <T as PackedAllocate>::allocate_packed(elem, at)
-        }
-    }
+    type Type = [T; N];
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::push_pull_works_for_primitive;
+    use crate::storage_type_works_for_primitive;
 
     type Array = [i32; 4];
-    push_pull_works_for_primitive!(
-        Array,
-        [
-            [0, 1, 2, 3],
-            [i32::MAX, i32::MIN, i32::MAX, i32::MIN],
-            [Default::default(), i32::MAX, Default::default(), i32::MIN]
-        ]
-    );
+    storage_type_works_for_primitive!(Array);
 
     type ArrayTuples = [(i32, i32); 2];
-    push_pull_works_for_primitive!(
-        ArrayTuples,
-        [
-            [(0, 1), (2, 3)],
-            [(i32::MAX, i32::MIN), (i32::MIN, i32::MAX)],
-            [
-                (Default::default(), i32::MAX),
-                (Default::default(), i32::MIN)
-            ]
-        ]
-    );
+    storage_type_works_for_primitive!(ArrayTuples);
 }

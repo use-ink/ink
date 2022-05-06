@@ -13,165 +13,45 @@
 // limitations under the License.
 
 use crate::traits::{
-    KeyPtr,
-    PackedAllocate,
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
+    AtomicGuard,
+    StorageKeyHolder,
+    StorageType,
 };
-use ink_primitives::Key;
 
-macro_rules! impl_layout_for_tuple {
+macro_rules! impl_storage_type_for_tuple {
     ( $($frag:ident),* $(,)? ) => {
-        impl<$($frag),*> SpreadLayout for ($($frag),* ,)
+        impl<$($frag),*> AtomicGuard<true> for ($($frag),* ,)
         where
             $(
-                $frag: SpreadLayout,
+                $frag: AtomicGuard<true>,
             )*
-        {
-            const FOOTPRINT: ::core::primitive::u64 =
-                0_u64 $(+ <$frag as SpreadLayout>::FOOTPRINT)*;
-            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool =
-                false $(|| <$frag as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP)*;
+        {}
 
-            #[inline]
-            fn push_spread(&self, ptr: &mut KeyPtr) {
-                #[allow(non_snake_case)]
-                let ($($frag),*,) = self;
-                $(
-                    <$frag as SpreadLayout>::push_spread($frag, ptr);
-                )*
-            }
-
-            #[inline]
-            fn clear_spread(&self, ptr: &mut KeyPtr) {
-                #[allow(non_snake_case)]
-                let ($($frag),*,) = self;
-                $(
-                    <$frag as SpreadLayout>::clear_spread($frag, ptr);
-                )*
-            }
-
-            #[inline]
-            fn pull_spread(ptr: &mut KeyPtr) -> Self {
-                (
-                    $(
-                        <$frag as SpreadLayout>::pull_spread(ptr),
-                    )*
-                )
-            }
-        }
-
-        impl<$($frag),*> SpreadAllocate for ($($frag),* ,)
+        impl<$($frag),*, Salt: StorageKeyHolder> StorageType<Salt> for ($($frag),* ,)
         where
             $(
-                $frag: SpreadAllocate,
+                $frag: StorageType<Salt>,
             )*
         {
-            #[inline]
-            fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-                (
-                    $(
-                        <$frag as SpreadAllocate>::allocate_spread(ptr),
-                    )*
-                )
-            }
-        }
-
-        impl<$($frag),*> PackedLayout for ($($frag),* ,)
-        where
-            $(
-                $frag: PackedLayout,
-            )*
-        {
-            #[inline]
-            fn push_packed(&self, at: &Key) {
-                #[allow(non_snake_case)]
-                let ($($frag),*,) = self;
-                $(
-                    <$frag as PackedLayout>::push_packed($frag, at);
-                )*
-            }
-
-            #[inline]
-            fn clear_packed(&self, at: &Key) {
-                #[allow(non_snake_case)]
-                let ($($frag),*,) = self;
-                $(
-                    <$frag as PackedLayout>::clear_packed($frag, at);
-                )*
-            }
-
-            #[inline]
-            fn pull_packed(&mut self, at: &Key) {
-                #[allow(non_snake_case)]
-                let ($($frag),*,) = self;
-                $(
-                    <$frag as PackedLayout>::pull_packed($frag, at);
-                )*
-            }
-        }
-
-        impl<$($frag),*> PackedAllocate for ($($frag),* ,)
-        where
-            $(
-                $frag: PackedAllocate,
-            )*
-        {
-            #[inline]
-            fn allocate_packed(&mut self, at: &Key) {
-                #[allow(non_snake_case)]
-                let ($($frag),*,) = self;
-                $(
-                    <$frag as PackedAllocate>::allocate_packed($frag, at);
-                )*
-            }
+            type Type = ($(<$frag as StorageType<Salt>>::Type),* ,);
         }
     }
 }
-impl_layout_for_tuple!(A);
-impl_layout_for_tuple!(A, B);
-impl_layout_for_tuple!(A, B, C);
-impl_layout_for_tuple!(A, B, C, D);
-impl_layout_for_tuple!(A, B, C, D, E);
-impl_layout_for_tuple!(A, B, C, D, E, F);
-impl_layout_for_tuple!(A, B, C, D, E, F, G);
-impl_layout_for_tuple!(A, B, C, D, E, F, G, H);
-impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I);
-impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I, J);
+impl_storage_type_for_tuple!(A);
+impl_storage_type_for_tuple!(A, B);
+impl_storage_type_for_tuple!(A, B, C);
+impl_storage_type_for_tuple!(A, B, C, D);
+impl_storage_type_for_tuple!(A, B, C, D, E);
+impl_storage_type_for_tuple!(A, B, C, D, E, F);
+impl_storage_type_for_tuple!(A, B, C, D, E, F, G);
+impl_storage_type_for_tuple!(A, B, C, D, E, F, G, H);
+impl_storage_type_for_tuple!(A, B, C, D, E, F, G, H, I);
+impl_storage_type_for_tuple!(A, B, C, D, E, F, G, H, I, J);
 
 #[cfg(test)]
 mod tests {
-    use crate::push_pull_works_for_primitive;
+    use crate::storage_type_works_for_primitive;
 
     type TupleSix = (i32, u32, String, u8, bool, Box<Option<i32>>);
-    push_pull_works_for_primitive!(
-        TupleSix,
-        [
-            (
-                -1,
-                1,
-                String::from("foobar"),
-                13,
-                true,
-                Box::new(Some(i32::MIN))
-            ),
-            (
-                i32::MIN,
-                u32::MAX,
-                String::from("❤ ♡ ❤ ♡ ❤"),
-                Default::default(),
-                false,
-                Box::new(Some(i32::MAX))
-            ),
-            (
-                Default::default(),
-                Default::default(),
-                Default::default(),
-                Default::default(),
-                Default::default(),
-                Default::default()
-            )
-        ]
-    );
+    storage_type_works_for_primitive!(TupleSix);
 }

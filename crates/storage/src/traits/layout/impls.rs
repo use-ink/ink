@@ -32,7 +32,11 @@ use ink_metadata::layout::{
 };
 use ink_prelude::{
     boxed::Box,
-    collections::BTreeMap,
+    collections::{
+        BTreeMap,
+        BTreeSet,
+        VecDeque,
+    },
     string::String,
     vec::Vec,
 };
@@ -190,8 +194,26 @@ where
 
 impl<K, V> StorageLayout for BTreeMap<K, V>
 where
-    K: TypeInfo + 'static,
+    K: TypeInfo + 'static + AtomicGuard<true>,
     V: TypeInfo + 'static + AtomicGuard<true>,
+{
+    fn layout(key: &StorageKey) -> Layout {
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
+    }
+}
+
+impl<T> StorageLayout for BTreeSet<T>
+where
+    T: TypeInfo + 'static + AtomicGuard<true>,
+{
+    fn layout(key: &StorageKey) -> Layout {
+        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
+    }
+}
+
+impl<T> StorageLayout for VecDeque<T>
+where
+    T: TypeInfo + 'static + AtomicGuard<true>,
 {
     fn layout(key: &StorageKey) -> Layout {
         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))

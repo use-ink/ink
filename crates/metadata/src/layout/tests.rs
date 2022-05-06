@@ -13,16 +13,13 @@
 // limitations under the License.
 
 use super::*;
-use ink_primitives::KeyPtr;
+use ink_primitives::StorageKey;
 
 #[test]
 fn layout_key_works() {
-    let layout_key = LayoutKey::from(Key::from([0x01; 32]));
+    let layout_key = LayoutKey::from(&1);
     let json = serde_json::to_string(&layout_key).unwrap();
-    assert_eq!(
-        json,
-        "\"0x0101010101010101010101010101010101010101010101010101010101010101\"",
-    );
+    assert_eq!(json, "\"0x00000001\"",);
 }
 
 fn named_fields_struct_layout(key_ptr: &mut KeyPtr) -> Layout {

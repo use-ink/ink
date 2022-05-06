@@ -1,7 +1,6 @@
 use crate::traits::{
     pull_storage,
     push_storage,
-    AtomicStatus,
     AutoKey,
     ManualKey,
     StorageKeyHolder,
@@ -18,6 +17,7 @@ use scale::{
 };
 
 /// TODO: Add comment
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct StorageValue<V, KeyType: StorageKeyHolder = AutoKey> {
     _marker: PhantomData<fn() -> (V, KeyType)>,
 }
@@ -89,10 +89,6 @@ impl<V: StorageType<ManualKey<0, Salt>>, Salt: StorageKeyHolder> StorageType<Sal
 {
     type Type =
         StorageValue<<V as StorageType<ManualKey<0, Salt>>>::Type, ManualKey<0, Salt>>;
-}
-
-impl<V, KeyType: StorageKeyHolder> AtomicStatus for StorageValue<V, KeyType> {
-    const IS_ATOMIC: bool = false;
 }
 
 impl<V, KeyType: StorageKeyHolder> Encode for StorageValue<V, KeyType> {

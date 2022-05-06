@@ -70,14 +70,7 @@ mod multisig {
         ExecutionInput,
     };
     use ink_prelude::vec::Vec;
-    use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadAllocate,
-            SpreadLayout,
-        },
-        Mapping,
-    };
+    use ink_storage::StorageMapping;
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
@@ -99,7 +92,8 @@ mod multisig {
     }
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
-    #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
+    #[ink_lang::storage_item]
+    #[derive(scale::Encode, scale::Decode, Clone, Copy)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
@@ -113,7 +107,8 @@ mod multisig {
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
-    #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+    #[ink_lang::storage_item]
+    #[derive(scale::Encode, scale::Decode)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -147,9 +142,8 @@ mod multisig {
 
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
-    #[derive(
-        scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate, Default,
-    )]
+    #[ink_lang::storage_item]
+    #[derive(scale::Encode, scale::Decode, Default)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -247,17 +241,17 @@ mod multisig {
     }
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    #[derive(Default)]
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
-        confirmations: Mapping<(TransactionId, AccountId), ()>,
+        confirmations: StorageMapping<(TransactionId, AccountId), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information and is kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
-        confirmation_count: Mapping<TransactionId, u32>,
+        confirmation_count: StorageMapping<TransactionId, u32>,
         /// Map the transaction id to its unexecuted transaction.
-        transactions: Mapping<TransactionId, Transaction>,
+        transactions: StorageMapping<TransactionId, Transaction>,
         /// We need to hold a list of all transactions so that we can clean up storage
         /// when an owner is removed.
         transaction_list: Transactions,
@@ -265,7 +259,7 @@ mod multisig {
         /// up the confirmation set.
         owners: Vec<AccountId>,
         /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: Mapping<AccountId, ()>,
+        is_owner: StorageMapping<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: u32,
     }
@@ -281,19 +275,19 @@ mod multisig {
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
         pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                owners.sort_unstable();
-                owners.dedup();
-                ensure_requirement_is_valid(owners.len() as u32, requirement);
+            let mut contract = Multisig::default();
+            owners.sort_unstable();
+            owners.dedup();
+            ensure_requirement_is_valid(owners.len() as u32, requirement);
 
-                for owner in &owners {
-                    contract.is_owner.insert(owner, &());
-                }
+            for owner in &owners {
+                contract.is_owner.insert(owner, &());
+            }
 
-                contract.owners = owners;
-                contract.transaction_list = Default::default();
-                contract.requirement = requirement;
-            })
+            contract.owners = owners;
+            contract.transaction_list = Default::default();
+            contract.requirement = requirement;
+            contract
         }
 
         /// Add a new owner to the contract.

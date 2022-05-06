@@ -15,7 +15,11 @@
 use crate::GenerateCode;
 use derive_more::From;
 use ir::Selector;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+    TokenStream,
+};
 use quote::{
     format_ident,
     quote,
@@ -23,6 +27,12 @@ use quote::{
 };
 use syn::{
     parse2,
+    Data,
+    DataEnum,
+    DataStruct,
+    DataUnion,
+    Field,
+    Fields,
     GenericParam,
 };
 
@@ -36,7 +46,11 @@ pub struct StorageItem<'a> {
 impl GenerateCode for StorageItem<'_> {
     /// Generates ink! storage item code.
     fn generate_code(&self) -> TokenStream2 {
-        let generated_struct = self.generate_struct();
+        let generated_struct = match self.item.data().clone() {
+            Data::Struct(struct_item) => self.generate_struct(struct_item),
+            Data::Enum(enum_item) => self.generate_enum(enum_item),
+            Data::Union(union_item) => self.generate_union(union_item),
+        };
         let generated_atomic_status = self.generate_atomic_status();
         let generated_storage_type = self.generate_storage_type();
         let generated_storage_key_holder = self.generate_storage_key_holder();
@@ -51,41 +65,98 @@ impl GenerateCode for StorageItem<'_> {
 }
 
 impl<'a> StorageItem<'a> {
-    fn generate_struct(&self) -> TokenStream2 {
+    fn generate_struct(&self, struct_item: DataStruct) -> TokenStream2 {
         let item = self.item;
-        let ident = item.ident();
+        let struct_ident = item.ident();
         let attrs = item.attrs();
         let vis = item.vis();
         let generics = item.generics();
         let salt = item.salt();
 
-        let fields = item.fields().map(|field| {
-            let key_bytes: Vec<u8> = if let Some(field_ident) = &field.ident {
-                [
-                    &ident.to_string().into_bytes()[..],
-                    &field_ident.to_string().into_bytes()[..],
-                ]
-                .concat()
-            } else {
-                ident.to_string().into_bytes()
-            };
-
-            let key = Selector::compute(&key_bytes).into_be_u32();
-
-            let mut new_field = field.clone();
-            let ty = field.ty.clone();
-            new_field.ty = parse2(quote! {
-                <#ty as ::ink_storage::traits::StorageType<
-                    ::ink_storage::traits::ManualKey<#key, #salt>,
-                >>::Type
-            })
-            .unwrap();
-            new_field
+        let fields = struct_item.fields.iter().enumerate().map(|(i, field)| {
+            convert_into_storage_field(struct_ident, None, &salt, i, field)
         });
 
         quote! {
             #(#attrs)*
-            #vis struct #ident #generics {
+            #vis struct #struct_ident #generics {
+                #(#fields),*
+            }
+        }
+    }
+
+    fn generate_enum(&self, enum_item: DataEnum) -> TokenStream2 {
+        let item = self.item;
+        let enum_ident = item.ident();
+        let attrs = item.attrs();
+        let vis = item.vis();
+        let generics = item.generics();
+        let salt = item.salt();
+
+        let variants = enum_item.variants.into_iter().map(|variant| {
+            let attrs = variant.attrs;
+            let variant_ident = &variant.ident;
+            let discriminant = if let Some((eq, expr)) = variant.discriminant {
+                quote! { #eq #expr}
+            } else {
+                quote! {}
+            };
+
+            let fields: Vec<_> = variant
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(i, field)| {
+                    convert_into_storage_field(
+                        enum_ident,
+                        Some(variant_ident),
+                        &salt,
+                        i,
+                        field,
+                    )
+                })
+                .collect();
+
+            let fields = match variant.fields {
+                Fields::Named(_) => quote! { { #(#fields),* } },
+                Fields::Unnamed(_) => quote! { ( #(#fields),* ) },
+                Fields::Unit => quote! {},
+            };
+
+            quote! {
+                #(#attrs)*
+                #variant_ident #fields #discriminant
+            }
+        });
+
+        quote! {
+            #(#attrs)*
+            #vis enum #enum_ident #generics {
+                #(#variants),*
+            }
+        }
+    }
+
+    fn generate_union(&self, union_item: DataUnion) -> TokenStream2 {
+        let item = self.item;
+        let union_ident = item.ident();
+        let attrs = item.attrs();
+        let vis = item.vis();
+        let generics = item.generics();
+        let salt = item.salt();
+
+        let fields = union_item
+            .fields
+            .named
+            .iter()
+            .enumerate()
+            .map(|(i, field)| {
+                convert_into_storage_field(union_ident, None, &salt, i, field)
+            });
+
+        quote! {
+            #(#attrs)*
+            #vis union #union_ident #generics {
                 #(#fields),*
             }
         }
@@ -96,19 +167,34 @@ impl<'a> StorageItem<'a> {
         let ident = item.ident();
 
         let (impl_generics, ty_generics, where_clause) = item.generics().split_for_impl();
-        let inner_is_atomic: Vec<_> = item
-            .fields()
-            .map(|field| {
-                let ty = field.ty.clone();
-                quote! { <#ty as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC }
+
+        let types: Vec<_> = match item.data() {
+            Data::Struct(st) => st.fields.iter().map(|field| field.ty.clone()).collect(),
+            Data::Enum(en) => {
+                en.variants
+                    .iter()
+                    .map(|variant| variant.fields.iter())
+                    .flatten()
+                    .map(|field| field.ty.clone())
+                    .collect()
+            }
+            Data::Union(un) => {
+                un.fields
+                    .named
+                    .iter()
+                    .map(|field| field.ty.clone())
+                    .collect()
+            }
+        };
+
+        let inner_is_atomic: Vec<_> = types
+            .iter()
+            .map(|t| {
+                quote! { ::ink_storage::is_atomic!(#t) }
             })
             .collect();
 
         quote! {
-            impl #impl_generics ::ink_storage::traits::AtomicStatus for #ident #ty_generics #where_clause {
-                const IS_ATOMIC: bool = #(#inner_is_atomic)&&*;
-            }
-
             impl #impl_generics ::ink_storage::traits::AtomicGuard< { #(#inner_is_atomic)&&* } >
                 for #ident #ty_generics #where_clause {}
         }
@@ -225,4 +311,67 @@ impl<'a> StorageItem<'a> {
             }
         }
     }
+}
+
+/// # Note
+///
+/// - `variant_ident` is `None` for structures and unions.
+/// - if the field is unnamed then `field_ident` is `field_{}` where `{}` is a number of the field.
+///
+/// Evaluates the storage key of the field in the structure, variant or union.
+///
+/// 1. Compute the ASCII byte representation of `struct_ident` and call it `S`.
+/// 1. If `variant_ident` is `Some` then computes the ASCII byte representation and call it `V`.
+/// 1. Compute the ASCII byte representation of `field_ident` and call it `F`.
+/// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
+/// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
+/// 1. The first 4 bytes of `H` make up the storage key.
+fn compute_storage_key(
+    struct_ident: &syn::Ident,
+    variant_ident: Option<&syn::Ident>,
+    field_ident: &syn::Ident,
+) -> u32 {
+    let separator = &b"::"[..];
+    let composed_key = if let Some(variant) = variant_ident {
+        [
+            &struct_ident.to_string().into_bytes()[..],
+            &variant.to_string().into_bytes()[..],
+            &field_ident.to_string().into_bytes()[..],
+        ]
+        .join(separator)
+    } else {
+        [
+            &struct_ident.to_string().into_bytes()[..],
+            &field_ident.to_string().into_bytes()[..],
+        ]
+        .join(separator)
+    };
+
+    Selector::compute(&composed_key).into_be_u32()
+}
+
+fn convert_into_storage_field(
+    struct_ident: &Ident,
+    variant_ident: Option<&syn::Ident>,
+    salt: &TokenStream,
+    index: usize,
+    field: &Field,
+) -> Field {
+    let field_ident = if let Some(field_ident) = &field.ident {
+        field_ident.clone()
+    } else {
+        format_ident!("field_{}", index)
+    };
+
+    let key = compute_storage_key(&struct_ident, variant_ident, &field_ident);
+
+    let mut new_field = field.clone();
+    let ty = field.ty.clone();
+    new_field.ty = parse2(quote! {
+        <#ty as ::ink_storage::traits::StorageType<
+            ::ink_storage::traits::ManualKey<#key, #salt>,
+        >>::Type
+    })
+    .unwrap();
+    new_field
 }

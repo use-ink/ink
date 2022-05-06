@@ -20,44 +20,45 @@ use quote::{
 
 /// TODO: Add comment
 pub struct StorageItem {
-    ast: syn::ItemStruct,
+    ast: syn::DeriveInput,
 }
 
 impl StorageItem {
     /// TODO: Add comment
     pub fn new(_: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
-        let ast = syn::parse2::<syn::ItemStruct>(item)?;
+        let ast = syn::parse2::<syn::DeriveInput>(item)?;
+
         Ok(Self { ast })
     }
 
-    /// Returns the ast of the storage struct
-    pub fn ast(&self) -> &syn::ItemStruct {
+    /// Returns the ast of the storage.
+    pub fn ast(&self) -> &syn::DeriveInput {
         &self.ast
     }
 
-    /// Returns the visibility of the storage struct.
+    /// Returns the visibility of the storage.
     pub fn vis(&self) -> &syn::Visibility {
         &self.ast.vis
     }
 
-    /// Returns the attributes of the storage struct.
+    /// Returns the attributes of the storage.
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.ast.attrs
     }
 
-    /// Returns the identifier of the storage struct.
+    /// Returns the identifier of the storage.
     pub fn ident(&self) -> &syn::Ident {
         &self.ast.ident
     }
 
-    /// Returns the generics of the storage struct.
+    /// Returns the generics of the storage.
     pub fn generics(&self) -> &syn::Generics {
         &self.ast.generics
     }
 
-    /// Returns an iterator yielding all fields of the storage struct.
-    pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
-        self.ast.fields.iter()
+    /// Returns data pf the storage.
+    pub fn data(&self) -> &syn::Data {
+        &self.ast.data
     }
 
     /// Returns true if the generic of the struct contains salt for storage key specified

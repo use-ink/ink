@@ -47,33 +47,20 @@
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 
+#[macro_use]
+#[doc(hidden)]
+pub mod is_atomic;
+
 pub mod traits;
 
-// // Tracking issue [#1119]: We allow `dead_code` here since we're purposefully hiding the
-// // collections and will remove them at a later time.
-// #[allow(dead_code)]
-// pub(crate) mod collections;
 #[allow(dead_code)]
 pub(crate) mod lazy;
-
-// mod pack;
-
-#[cfg(test)]
-mod hashmap_entry_api_tests;
 
 #[cfg(test)]
 mod test_utils;
 
 #[doc(inline)]
 pub use self::lazy::{
-    Mapping,
     StorageMapping,
     StorageValue,
 };
-
-// #[doc(inline)]
-// pub(crate) use self::{
-//     collections::Vec,
-//     lazy::Lazy,
-//     pack::Pack,
-// };

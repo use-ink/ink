@@ -59,8 +59,6 @@ impl GenerateCode for CallForwarder<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let struct_definition = self.generate_struct_definition();
         let storage_layout_impl = self.generate_storage_layout_impl();
-        let spread_layout_impl = self.generate_spread_layout_impl();
-        let packed_layout_impl = self.generate_packed_layout_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         let to_from_account_id_impls = self.generate_to_from_account_id_impls();
         let call_builder_impl = self.generate_call_builder_trait_impl();
@@ -68,8 +66,6 @@ impl GenerateCode for CallForwarder<'_> {
         quote! {
             #struct_definition
             #storage_layout_impl
-            #spread_layout_impl
-            #packed_layout_impl
             #auxiliary_trait_impls
             #to_from_account_id_impls
             #call_builder_impl
@@ -148,74 +144,6 @@ impl CallForwarder<'_> {
                     <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::StorageLayout>::layout(__key)
                 }
-            }
-        )
-    }
-
-    /// Generates the `SpreadLayout` trait implementation for the account wrapper.
-    ///
-    /// # Note
-    ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `SpreadLayout` trait implementation.
-    fn generate_spread_layout_impl(&self) -> TokenStream2 {
-        let span = self.span();
-        let call_forwarder_ident = self.ident();
-        quote_spanned!(span=>
-            impl<E> ::ink_storage::traits::SpreadLayout
-                for #call_forwarder_ident<E>
-            where
-                E: ::ink_env::Environment,
-                <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::SpreadLayout,
-            {
-                const FOOTPRINT: ::core::primitive::u64 = 1;
-                const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = false;
-
-                #[inline]
-                fn pull_spread(ptr: &mut ::ink_primitives::KeyPtr) -> Self {
-                    Self {
-                        builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
-                            as ::ink_storage::traits::SpreadLayout>::pull_spread(ptr)
-                    }
-                }
-
-                #[inline]
-                fn push_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
-                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink_storage::traits::SpreadLayout>::push_spread(&self.builder, ptr)
-                }
-
-                #[inline]
-                fn clear_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
-                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink_storage::traits::SpreadLayout>::clear_spread(&self.builder, ptr)
-                }
-            }
-        )
-    }
-
-    /// Generates the `PackedLayout` trait implementation for the account wrapper.
-    ///
-    /// # Note
-    ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `PackedLayout` trait implementation.
-    fn generate_packed_layout_impl(&self) -> TokenStream2 {
-        let span = self.span();
-        let call_forwarder_ident = self.ident();
-        quote_spanned!(span=>
-            impl<E> ::ink_storage::traits::PackedLayout
-                for #call_forwarder_ident<E>
-            where
-                E: ::ink_env::Environment,
-                <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::PackedLayout,
-            {
-                #[inline]
-                fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
-                #[inline]
-                fn push_packed(&self, _at: &::ink_primitives::Key) {}
-                #[inline]
-                fn clear_packed(&self, _at: &::ink_primitives::Key) {}
             }
         )
     }
