@@ -28,14 +28,14 @@ mod bioc {
 
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(scale::Encode, scale::Decode, PartialEq, Debug, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct Bids(Vec<Option<(AccountId, Balance)>>);
 
     /// Auction statuses.
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(scale::Encode, scale::Decode, PartialEq, Debug, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Status {
         /// An auction has not started yet.
@@ -54,7 +54,7 @@ mod bioc {
     }
 
     /// Struct for storing auction data.
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(Debug, PartialEq, scale::Encode, scale::Decode, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct Auction {
         /// Branded name of the auction event
@@ -74,7 +74,7 @@ mod bioc {
     }
 
     /// Way to fail a contract execution.
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(scale::Encode, scale::Decode, Debug, PartialEq)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Failure {
         Revert,
@@ -109,6 +109,49 @@ mod bioc {
         #[ink(message)]
         pub fn debug_log(&mut self, _str: String) {
             ink_env::debug_println!("debug_log: {}", _str);
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn echo_auction_works() {
+            let accounts = ink_env::test::default_accounts::<Environment>();
+            let bids = Bids(
+                [Some((accounts.alice, 100)), None, Some((accounts.bob, 101))].to_vec(),
+            );
+
+            let auction = Auction {
+                name: "Some NFT Auction".to_string(),
+                subject: Hash::default(),
+                bids,
+                terms: [1245, 10, 100],
+                status: Status::OpeningPeriod,
+                finalized: false,
+            };
+
+            let mut contract = Bioc::new();
+            assert_eq!(contract.echo_auction(auction.clone()), auction);
+        }
+
+        #[ink::test]
+        fn revert_works() {
+            let mut contract = Bioc::new();
+            assert_eq!(
+                contract.revert_or_trap(Some(Failure::Revert)),
+                Err(Failure::Revert)
+            );
+            contract.revert_or_trap(None).expect("asd");
+        }
+
+        #[ink::test]
+        #[should_panic]
+        fn trap_works() {
+            let mut contract = Bioc::new();
+            let _ = contract.revert_or_trap(Some(Failure::Panic));
         }
     }
 }
