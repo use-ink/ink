@@ -23,6 +23,7 @@ mod bioc {
 
     /// No storage is needed for this contract.
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Bioc {}
 
     /// Struct for storing winning bids per bidding sample (a block).
@@ -107,7 +108,7 @@ mod bioc {
         /// Prints the specified string into node's debug log.
         #[ink(message)]
         pub fn debug_log(&mut self, str: String) {
-            ink_env::debug_println!("debug_log: {:?}", str);
+            ink_env::debug_println!("debug_log: {}", str);
         }
     }
 }
