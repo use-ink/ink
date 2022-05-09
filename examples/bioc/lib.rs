@@ -107,9 +107,8 @@ mod bioc {
 
         /// Prints the specified string into node's debug log.
         #[ink(message)]
-        #[allow(dead_code)]
-        pub fn debug_log(&mut self, str: String) {
-            ink_env::debug_println!("debug_log: {}", str);
+        pub fn debug_log(&mut self, _str: String) {
+            ink_env::debug_println!("debug_log: {}", _str);
         }
     }
 }
