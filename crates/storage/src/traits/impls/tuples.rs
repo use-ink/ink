@@ -14,8 +14,10 @@
 
 use crate::traits::{
     AtomicGuard,
+    AutoKey,
     StorageKeyHolder,
     StorageType,
+    StorageType2,
 };
 
 macro_rules! impl_storage_type_for_tuple {
@@ -34,6 +36,16 @@ macro_rules! impl_storage_type_for_tuple {
             )*
         {
             type Type = ($(<$frag as StorageType<Salt>>::Type),* ,);
+        }
+
+        impl<$($frag),*> StorageType2 for ($($frag),* ,)
+        where
+            $(
+                $frag: StorageType2,
+            )*
+        {
+            type Type<Salt: StorageKeyHolder> = ($(<$frag as StorageType2>::Type<Salt>),* ,);
+            type PreferredKey = AutoKey;
         }
     }
 }

@@ -86,10 +86,9 @@ impl CallBuilder<'_> {
                 ::scale_info::TypeInfo,
                 ::ink_storage::traits::StorageLayout,
             ))]
+            #[::ink_lang::storage_item]
             #[derive(
                 ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,

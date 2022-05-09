@@ -16,7 +16,7 @@ use crate::storage_layout_derive;
 
 #[test]
 fn unit_struct_works() {
-    synstructure::test_derive! {
+    crate::test_derive! {
         storage_layout_derive {
             struct UnitStruct;
         }
@@ -36,7 +36,7 @@ fn unit_struct_works() {
 
 #[test]
 fn tuple_struct_works() {
-    synstructure::test_derive! {
+    crate::test_derive! {
         storage_layout_derive {
             struct TupleStruct(bool, u32, i64);
         }
@@ -69,7 +69,7 @@ fn tuple_struct_works() {
 
 #[test]
 fn named_fields_struct_works() {
-    synstructure::test_derive! {
+    crate::test_derive! {
         storage_layout_derive {
             struct NamedFieldsStruct {
                 a: bool,
@@ -106,7 +106,7 @@ fn named_fields_struct_works() {
 
 #[test]
 fn clike_enum_works() {
-    synstructure::test_derive! {
+    crate::test_derive! {
         storage_layout_derive {
             enum ClikeEnum { A, B, C }
         }
@@ -116,7 +116,7 @@ fn clike_enum_works() {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
-                                ::ink_metadata::layout::LayoutKey::from(*__key),
+                                ::ink_metadata::layout::LayoutKey::from(__key),
                                 [
                                     {
                                         (
@@ -148,7 +148,7 @@ fn clike_enum_works() {
 
 #[test]
 fn mixed_enum_works() {
-    synstructure::test_derive! {
+    crate::test_derive! {
         storage_layout_derive {
             enum MixedEnum {
                 A,
@@ -166,7 +166,7 @@ fn mixed_enum_works() {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
-                                ::ink_metadata::layout::LayoutKey::from(*__key),
+                                ::ink_metadata::layout::LayoutKey::from(__key),
                                 [
                                     {
                                         (

@@ -15,57 +15,29 @@
 //! Custom derive for `ink_storage` traits.
 //!
 //! This crate provides helpers to define your very own custom storage data
-//! structures that work along the `ink_storage` data structures by implementing
-//! `SpreadLayout` and `PackedLayout` traits.
-//!
-//! See [Spread vs. Packed](https://paritytech.github.io/ink-docs/datastructures/spread-packed-layout)
-//! for more details of these two root strategies.
-//!
-//! # Examples
-//!
-//! ```no_run
-//! use ink_storage::traits::{SpreadLayout, push_spread_root};
-//! use ink_primitives::Key;
-//!
-//! # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-//! // Enum
-//! #[derive(SpreadLayout)]
-//! enum Vote {
-//!     Yes,
-//!     No
-//! }
-//!
-//! // Strucut
-//! #[derive(SpreadLayout)]
-//! struct NamedFields {
-//!     a: u32,
-//!     b: [u32; 32],
-//! };
-//!
-//! // Created a custom structure and told which key to update.
-//! push_spread_root(&NamedFields{ a: 123, b: [22; 32] }, &mut Key::from([0x42; 32]));
-//! # Ok(())
-//! # });
-//! ```
+//! structures that work along the `ink_storage` data structures.
 
 extern crate proc_macro;
 
-mod packed_layout;
-mod spread_allocate;
-mod spread_layout;
+mod atomic_guard;
+mod storage_key_holder;
 mod storage_layout;
+mod storage_type;
 
 #[cfg(test)]
 mod tests;
 
 use self::{
-    packed_layout::packed_layout_derive,
-    spread_allocate::spread_allocate_derive,
-    spread_layout::spread_layout_derive,
+    atomic_guard::atomic_guard_derive,
+    storage_key_holder::storage_key_holder_derive,
     storage_layout::storage_layout_derive,
+    storage_type::{
+        storage_type_derive,
+        storage_type_derive2,
+    },
 };
 synstructure::decl_derive!(
-    [SpreadLayout] =>
+    [AtomicGuard] =>
     /// Derives `ink_storage`'s `SpreadLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
@@ -96,10 +68,10 @@ synstructure::decl_derive!(
     /// # Ok(())
     /// # });
     /// ```
-    spread_layout_derive
+    atomic_guard_derive
 );
 synstructure::decl_derive!(
-    [PackedLayout] =>
+    [StorageType] =>
     /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
@@ -132,46 +104,80 @@ synstructure::decl_derive!(
     /// # Ok(())
     /// # });
     /// ```
-    packed_layout_derive
+    storage_type_derive
 );
-
 synstructure::decl_derive!(
-    [SpreadAllocate] =>
-    /// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct`.
-    ///
-    /// # Note
-    ///
-    /// As of now `enum` types are not supported!
+    [StorageType2] =>
+    /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
     /// ```
+    /// use scale::{Encode, Decode};
     /// use ink_primitives::Key;
     /// use ink_storage::traits::{
-    ///     SpreadAllocate,
     ///     SpreadLayout,
-    ///     allocate_spread_root,
-    ///};
+    ///     PackedLayout,
+    ///     push_packed_root,
+    ///     pull_packed_root
+    /// };
     ///
-    /// #[derive(SpreadAllocate, SpreadLayout)]
-    /// # #[derive(Debug, PartialEq)]
+    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+    /// #[derive(Encode, Decode, SpreadLayout, PackedLayout)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let allocated: NamedFields = allocate_spread_root(&Key::from([0x42; 32]));
-    /// assert_eq!(
-    ///     allocated,
-    ///     NamedFields {
-    ///         a: 0,
-    ///         b: [0; 32],
-    ///     }
-    /// );
+    /// let mut value = NamedFields {
+    ///     a: 123,
+    ///     b: [22; 32],
+    /// };
+    ///
+    /// push_packed_root(&value, &mut Key::from([0x42; 32]));
+    /// let value2: NamedFields = pull_packed_root(&mut Key::from([0x42; 32]));
+    /// assert_eq!(value.a, value2.a);
+    /// # Ok(())
+    /// # });
     /// ```
-    spread_allocate_derive
+    storage_type_derive2
 );
-
+synstructure::decl_derive!(
+    [StorageKeyHolder] =>
+    /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use scale::{Encode, Decode};
+    /// use ink_primitives::Key;
+    /// use ink_storage::traits::{
+    ///     SpreadLayout,
+    ///     PackedLayout,
+    ///     push_packed_root,
+    ///     pull_packed_root
+    /// };
+    ///
+    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+    /// #[derive(Encode, Decode, SpreadLayout, PackedLayout)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 32],
+    /// }
+    ///
+    /// let mut value = NamedFields {
+    ///     a: 123,
+    ///     b: [22; 32],
+    /// };
+    ///
+    /// push_packed_root(&value, &mut Key::from([0x42; 32]));
+    /// let value2: NamedFields = pull_packed_root(&mut Key::from([0x42; 32]));
+    /// assert_eq!(value.a, value2.a);
+    /// # Ok(())
+    /// # });
+    /// ```
+    storage_key_holder_derive
+);
 synstructure::decl_derive!(
     [StorageLayout] =>
     /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.

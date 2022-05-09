@@ -4,6 +4,7 @@ use crate::traits::{
     ManualKey,
     StorageKeyHolder,
     StorageType,
+    StorageType2,
 };
 use core::marker::PhantomData;
 use ink_env::hash::{
@@ -146,6 +147,13 @@ impl<
     > StorageType<Salt> for StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>
 {
     type Type = StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>;
+}
+
+impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType2
+    for StorageMapping<K, V, Salt>
+{
+    type Type<SaltInner: StorageKeyHolder> = StorageMapping<K, V, SaltInner>;
+    type PreferredKey = Salt;
 }
 
 impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType<Salt>

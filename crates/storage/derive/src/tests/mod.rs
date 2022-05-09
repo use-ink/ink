@@ -12,7 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod packed_layout;
-mod spread_allocate;
-mod spread_layout;
+mod atomic_guard;
 mod storage_layout;
+
+#[macro_export]
+macro_rules! test_derive {
+    ($name:path { $($i:tt)* } expands to { $($o:tt)* }) => {
+        {
+            #[allow(dead_code)]
+            fn ensure_compiles() {
+                $($i)*
+                $($o)*
+            }
+
+            $crate::test_derive!($name { $($i)* } expands to { $($o)* } no_build);
+        }
+    };
+
+    ($name:path { $($i:tt)* } expands to { $($o:tt)* } no_build) => {
+        {
+            let i = stringify!( $($i)* );
+            let parsed = ::syn::parse_str::<::syn::DeriveInput>(i)
+                .expect(concat!(
+                    "Failed to parse input to `#[derive(",
+                    stringify!($name),
+                    ")]`",
+                ));
+
+            let res = $name(::synstructure::Structure::new(&parsed));
+
+            let expected = quote::quote!( $($o)* );
+            assert_eq!(expected.to_string(), res.to_string());
+        }
+    };
+}

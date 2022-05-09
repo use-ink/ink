@@ -5,6 +5,7 @@ use crate::traits::{
     ManualKey,
     StorageKeyHolder,
     StorageType,
+    StorageType2,
 };
 use core::marker::PhantomData;
 use ink_primitives::StorageKey;
@@ -82,6 +83,11 @@ impl<
         <V as StorageType<ManualKey<MANUAL_KEY, ManualSalt>>>::Type,
         ManualKey<MANUAL_KEY, ManualSalt>,
     >;
+}
+
+impl<V: StorageType2, Salt: StorageKeyHolder> StorageType2 for StorageValue<V, Salt> {
+    type Type<SaltInner: StorageKeyHolder> = StorageValue<V::Type<SaltInner>, SaltInner>;
+    type PreferredKey = Salt;
 }
 
 impl<V: StorageType<ManualKey<0, Salt>>, Salt: StorageKeyHolder> StorageType<Salt>

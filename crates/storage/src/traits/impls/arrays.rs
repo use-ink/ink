@@ -14,8 +14,10 @@
 
 use crate::traits::{
     AtomicGuard,
+    AutoKey,
     StorageKeyHolder,
     StorageType,
+    StorageType2,
 };
 
 impl<T: AtomicGuard<true>, const N: usize> AtomicGuard<true> for [T; N] {}
@@ -24,6 +26,11 @@ impl<T: AtomicGuard<true>, const N: usize, Salt: StorageKeyHolder> StorageType<S
     for [T; N]
 {
     type Type = [T; N];
+}
+
+impl<T: AtomicGuard<true>, const N: usize> StorageType2 for [T; N] {
+    type Type<Salt: StorageKeyHolder> = [T; N];
+    type PreferredKey = AutoKey;
 }
 
 #[cfg(test)]

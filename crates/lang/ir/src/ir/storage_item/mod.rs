@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod config;
+
+#[cfg(test)]
+mod tests;
+
+use config::StorageItemConfig;
+use ink_storage_codegen::DeriveUtils;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -21,19 +28,27 @@ use quote::{
 /// TODO: Add comment
 pub struct StorageItem {
     ast: syn::DeriveInput,
+    config: StorageItemConfig,
 }
 
 impl StorageItem {
     /// TODO: Add comment
-    pub fn new(_: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
+    pub fn new(config: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
         let ast = syn::parse2::<syn::DeriveInput>(item)?;
+        let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
+        let config = StorageItemConfig::try_from(parsed_config)?;
 
-        Ok(Self { ast })
+        Ok(Self { ast, config })
     }
 
     /// Returns the ast of the storage.
     pub fn ast(&self) -> &syn::DeriveInput {
         &self.ast
+    }
+
+    /// Returns the config of the storage.
+    pub fn config(&self) -> &StorageItemConfig {
+        &self.config
     }
 
     /// Returns the visibility of the storage.
@@ -61,51 +76,12 @@ impl StorageItem {
         &self.ast.data
     }
 
-    /// Returns true if the generic of the struct contains salt for storage key specified
-    /// by the user.
-    ///
-    /// ```no_compile
-    /// struct<Salt: ::ink_storage::traits::StorageKeyHolder> SomeStruct;
-    /// ```
-    pub fn has_specified_salt(&self) -> bool {
-        self.find_salt().is_some()
-    }
-
     /// Returns salt for storage key
     pub fn salt(&self) -> TokenStream2 {
-        if let Some(param) = self.find_salt() {
+        if let Some(param) = self.ast.find_salt() {
             param.ident.to_token_stream()
         } else {
             quote! { () }
         }
-    }
-
-    /// Returns salt ident
-    pub fn salt_ident(&self) -> Option<syn::Ident> {
-        if let Some(param) = self.find_salt() {
-            Some(param.ident)
-        } else {
-            None
-        }
-    }
-
-    fn find_salt(&self) -> Option<syn::TypeParam> {
-        self.generics().params.iter().find_map(|param| {
-            if let syn::GenericParam::Type(type_param) = param {
-                if type_param.bounds.len() == 1 {
-                    let bound = type_param.bounds.first().unwrap();
-                    if let syn::TypeParamBound::Trait(trait_bound) = bound {
-                        let segments = &trait_bound.path.segments;
-                        if !segments.is_empty()
-                            && segments.last().unwrap().ident.to_string()
-                                == "StorageKeyHolder"
-                        {
-                            return Some(type_param.clone())
-                        }
-                    }
-                }
-            }
-            None
-        })
     }
 }

@@ -98,14 +98,11 @@ impl Storage<'_> {
         let fields = storage.fields();
         quote_spanned!( span =>
             #(#attrs)*
-            // `::ink_lang::storage_item` should be called before any derive to have a correct types.
             #[::ink_lang::storage_item]
             #[cfg_attr(
                 feature = "std",
                 derive(::ink_storage::traits::StorageLayout)
             )]
-            #[derive(::scale::Decode)]
-            #[derive(::scale::Encode)]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
             #[cfg(not(feature = "__ink_dylint_Storage"))]
             pub struct #ident #generics {

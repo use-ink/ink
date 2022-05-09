@@ -1,3 +1,5 @@
+#![feature(generic_associated_types)]
+#![feature(trivial_bounds)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
@@ -7,14 +9,17 @@ mod erc20 {
     use ink_prelude::vec::Vec;
     use ink_storage::{
         traits::{
+            AtomicGuard,
             ManualKey,
             StorageKeyHolder,
+            StorageType2,
         },
         StorageMapping,
         StorageValue,
     };
 
     #[ink_lang::storage_item]
+    #[derive(Default, Debug, Eq, PartialEq)]
     struct Atomic {
         s1: u128,
         s2: Vec<u128>,
@@ -22,11 +27,48 @@ mod erc20 {
         // s3: Vec<NonAtomic>,
     }
 
+    #[derive(Default, Debug, AtomicGuard, StorageType2, scale::Encode, scale::Decode)]
+    struct AtomicManual {
+        s1: u128,
+        s2: Vec<u128>,
+        // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
+        // s3: Vec<NonAtomic>,
+    }
+
+    #[derive(Default, AtomicGuard, StorageType2, scale::Encode, scale::Decode)]
+    struct AtomicManual2 {
+        s1: u128,
+        s2: Vec<u128>,
+        s3: NonAtomic,
+    }
+
     #[ink_lang::storage_item]
+    #[derive(Default, Debug)]
+    struct AtomicComplex {
+        s1: u128,
+        s2: Vec<u128>,
+        s3: Vec<AtomicManual>,
+    }
+
+    #[ink_lang::storage_item]
+    #[derive(Default)]
     struct NonAtomic {
         s1: StorageMapping<u128, u128>,
         s2: StorageValue<u128>,
     }
+
+    // AtomicGuard derive macro can't evaluate constant for generics.
+    // It is why it should be implemented manually.
+    #[ink_lang::storage_item(derive = false)]
+    #[derive(Default, StorageKeyHolder, StorageType2, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
+    struct Generic<T: StorageType2> {
+        s1: u128,
+        s2: u32,
+        s3: T,
+    }
+
+    impl<T: StorageType2 + AtomicGuard<true>> AtomicGuard<true> for Generic<T> {}
 
     #[ink_lang::storage_item]
     struct Jora<KEY: StorageKeyHolder> {
@@ -37,62 +79,6 @@ mod erc20 {
         // Fails because: the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
         // s5: StorageMapping<u128, NonAtomic>,
     }
-    // It generates the next code
-    //
-    // struct Jora<KEY: StorageKeyHolder> {
-    //     s1: <StorageMapping<u128, u128> as ::ink_storage::traits::StorageType<
-    //         ::ink_storage::traits::ManualKey<2827647485u32, KEY>,
-    //     >>::Type,
-    //     s2: <StorageValue<u128> as ::ink_storage::traits::StorageType<
-    //         ::ink_storage::traits::ManualKey<2021173057u32, KEY>,
-    //     >>::Type,
-    //     s3: <StorageMapping<u128, Atomic> as ::ink_storage::traits::StorageType<
-    //         ::ink_storage::traits::ManualKey<1012304298u32, KEY>,
-    //     >>::Type,
-    //     s4: <StorageValue<NonAtomic> as ::ink_storage::traits::StorageType<
-    //         ::ink_storage::traits::ManualKey<4259792457u32, KEY>,
-    //     >>::Type,
-    // }
-    // impl<KEY: StorageKeyHolder> ::ink_storage::traits::AtomicStatus for Jora<KEY> {
-    //     const IS_ATOMIC: bool =
-    //         <StorageMapping<u128, u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
-    //             && <StorageValue<u128> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
-    //             && <StorageMapping<u128, Atomic> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC
-    //             && <StorageValue<NonAtomic> as ::ink_storage::traits::AtomicStatus>::IS_ATOMIC;
-    // }
-    // impl<KEY: StorageKeyHolder>
-    //     ::ink_storage::traits::AtomicGuard<
-    //         {
-    //              < StorageMapping < u128 , u128 > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC &&
-    //              < StorageValue < u128 > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC &&
-    //              < StorageMapping < u128 , Atomic > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC &&
-    //              < StorageValue < NonAtomic > as :: ink_storage :: traits :: AtomicStatus > :: IS_ATOMIC
-    //         },
-    //     > for Jora<KEY>
-    // {
-    // }
-    // impl<KEY: StorageKeyHolder> ::ink_storage::traits::StorageType<KEY>
-    //     for Jora<::ink_storage::traits::AutoKey>
-    // {
-    //     type Type = Jora<::ink_storage::traits::AutoKey>;
-    // }
-    // impl<
-    //         KEY: StorageKeyHolder,
-    //         const __ink_generic_manual_key: ::ink_primitives::StorageKey,
-    //         __ink_generic_manual_salt: ::ink_storage::traits::StorageKeyHolder,
-    //     > ::ink_storage::traits::StorageType<KEY>
-    //     for Jora<
-    //         ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
-    //     >
-    // {
-    //     type Type = Jora<
-    //         ::ink_storage::traits::ManualKey<__ink_generic_manual_key, __ink_generic_manual_salt>,
-    //     >;
-    // }
-    // impl<KEY: StorageKeyHolder> ::ink_storage::traits::StorageKeyHolder for Jora<KEY> {
-    //     const KEY: ::ink_primitives::StorageKey =
-    //         <KEY as ::ink_storage::traits::StorageKeyHolder>::KEY;
-    // }
 
     /// A simple ERC-20 contract.
     #[ink(storage)]

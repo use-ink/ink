@@ -21,12 +21,13 @@ proc-macro = true
 quote = "1"
 syn = { version = "1", features = ["full"] }
 proc-macro2 = "1"
-synstructure = "0.12.4"
+synstructure = "0.12.6"
+ink_storage_codegen = { version = "3.0.1", path = "../codegen" }
 
 [dev-dependencies]
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 ink_env = { version = "3.0.1", path = "../../env" }
 ink_primitives = { version = "3.0.1", path = "../../primitives" }
 ink_metadata = { version = "3.0.1", path = "../../metadata" }
-ink_prelude = { version = "3.0.1", path = "../../prelude/" }
+ink_prelude = { version = "3.0.1", path = "../../prelude" }
 ink_storage = { version = "3.0.1", path = ".." }

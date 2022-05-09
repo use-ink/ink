@@ -14,6 +14,7 @@
 
 use crate::GenerateCode;
 use derive_more::From;
+use ink_storage_codegen::DeriveUtils;
 use ir::Selector;
 use proc_macro2::{
     Ident,
@@ -23,7 +24,6 @@ use proc_macro2::{
 use quote::{
     format_ident,
     quote,
-    ToTokens,
 };
 use syn::{
     parse2,
@@ -33,7 +33,6 @@ use syn::{
     DataUnion,
     Field,
     Fields,
-    GenericParam,
 };
 
 /// Generates code for the storage item.
@@ -46,20 +45,36 @@ pub struct StorageItem<'a> {
 impl GenerateCode for StorageItem<'_> {
     /// Generates ink! storage item code.
     fn generate_code(&self) -> TokenStream2 {
+        let attrs = self.item.attrs();
         let generated_struct = match self.item.data().clone() {
             Data::Struct(struct_item) => self.generate_struct(struct_item),
             Data::Enum(enum_item) => self.generate_enum(enum_item),
             Data::Union(union_item) => self.generate_union(union_item),
         };
-        let generated_atomic_status = self.generate_atomic_status();
-        let generated_storage_type = self.generate_storage_type();
-        let generated_storage_key_holder = self.generate_storage_key_holder();
+
+        let mut derive = quote! {};
+        let mut impls = quote! {};
+        if self.item.config().derive() {
+            derive = quote! {
+                #[derive(
+                    // ::ink_storage::traits::StorageType,
+                    ::ink_storage::traits::StorageType2,
+                    ::ink_storage::traits::StorageKeyHolder,
+                    ::scale::Encode,
+                    ::scale::Decode,
+                )]
+            };
+            // Derive `AtomicGuard` requires `AtomicGuard<true>` for all types.
+            // For storage item we try to calculate is the struct is atomic or not
+            // via `ink_storage::is_atomic` macro.
+            impls = self.generic_atomic_guard();
+        }
 
         quote! {
+            #(#attrs)*
+            #derive
             #generated_struct
-            #generated_atomic_status
-            #generated_storage_type
-            #generated_storage_key_holder
+            #impls
         }
     }
 }
@@ -68,7 +83,6 @@ impl<'a> StorageItem<'a> {
     fn generate_struct(&self, struct_item: DataStruct) -> TokenStream2 {
         let item = self.item;
         let struct_ident = item.ident();
-        let attrs = item.attrs();
         let vis = item.vis();
         let generics = item.generics();
         let salt = item.salt();
@@ -78,7 +92,6 @@ impl<'a> StorageItem<'a> {
         });
 
         quote! {
-            #(#attrs)*
             #vis struct #struct_ident #generics {
                 #(#fields),*
             }
@@ -88,7 +101,6 @@ impl<'a> StorageItem<'a> {
     fn generate_enum(&self, enum_item: DataEnum) -> TokenStream2 {
         let item = self.item;
         let enum_ident = item.ident();
-        let attrs = item.attrs();
         let vis = item.vis();
         let generics = item.generics();
         let salt = item.salt();
@@ -130,7 +142,6 @@ impl<'a> StorageItem<'a> {
         });
 
         quote! {
-            #(#attrs)*
             #vis enum #enum_ident #generics {
                 #(#variants),*
             }
@@ -140,7 +151,6 @@ impl<'a> StorageItem<'a> {
     fn generate_union(&self, union_item: DataUnion) -> TokenStream2 {
         let item = self.item;
         let union_ident = item.ident();
-        let attrs = item.attrs();
         let vis = item.vis();
         let generics = item.generics();
         let salt = item.salt();
@@ -155,160 +165,35 @@ impl<'a> StorageItem<'a> {
             });
 
         quote! {
-            #(#attrs)*
             #vis union #union_ident #generics {
                 #(#fields),*
             }
         }
     }
 
-    fn generate_atomic_status(&self) -> TokenStream2 {
-        let item = self.item;
-        let ident = item.ident();
+    fn generic_atomic_guard(&self) -> TokenStream2 {
+        let ident = self.item.ident();
 
-        let (impl_generics, ty_generics, where_clause) = item.generics().split_for_impl();
+        let (impl_generics, ty_generics, where_clause) =
+            self.item.generics().split_for_impl();
 
-        let types: Vec<_> = match item.data() {
-            Data::Struct(st) => st.fields.iter().map(|field| field.ty.clone()).collect(),
-            Data::Enum(en) => {
-                en.variants
-                    .iter()
-                    .map(|variant| variant.fields.iter())
-                    .flatten()
-                    .map(|field| field.ty.clone())
-                    .collect()
-            }
-            Data::Union(un) => {
-                un.fields
-                    .named
-                    .iter()
-                    .map(|field| field.ty.clone())
-                    .collect()
-            }
-        };
-
-        let inner_is_atomic: Vec<_> = types
+        let mut inner_is_atomic: Vec<_> = self
+            .item
+            .ast()
+            .all_types()
             .iter()
             .map(|t| {
                 quote! { ::ink_storage::is_atomic!(#t) }
             })
             .collect();
 
+        if inner_is_atomic.is_empty() {
+            inner_is_atomic.push(quote! { true })
+        }
+
         quote! {
             impl #impl_generics ::ink_storage::traits::AtomicGuard< { #(#inner_is_atomic)&&* } >
                 for #ident #ty_generics #where_clause {}
-        }
-    }
-
-    fn generate_storage_type(&self) -> TokenStream2 {
-        let item = self.item;
-        let ident = item.ident();
-        let (_, ty_generics, where_clause) = item.generics().split_for_impl();
-
-        let mut generics = item.generics().clone();
-
-        // If the generic salt is specified, then we add two implementations. One for `AutoKey`
-        // and another for `ManualKey`. The implementation for `AutoKey` uses key and salt from the
-        // `StorageType` trait. The `ManualKey` ignores the `StorageType` trait and uses its values.
-        if item.has_specified_salt() {
-            let salt_ident = item.salt_ident().unwrap();
-            let manual_key_ident = format_ident!("__ink_generic_manual_key");
-            let manual_salt_ident = format_ident!("__ink_generic_manual_salt");
-
-            let mut auto_key_ty_generics = Vec::new();
-            let mut manual_key_ty_generics = Vec::new();
-
-            for param in item.generics().params.iter() {
-                match param {
-                    GenericParam::Type(t) => {
-                        if t.ident == salt_ident {
-                            auto_key_ty_generics.push(quote! {
-                                ::ink_storage::traits::AutoKey
-                            });
-                            manual_key_ty_generics.push(quote! {
-                                ::ink_storage::traits::ManualKey<
-                                    #manual_key_ident,
-                                    #manual_salt_ident
-                                >
-                            });
-                        } else {
-                            auto_key_ty_generics.push(t.ident.to_token_stream());
-                            manual_key_ty_generics.push(t.ident.to_token_stream());
-                        }
-                    }
-                    GenericParam::Lifetime(l) => {
-                        auto_key_ty_generics.push(l.lifetime.to_token_stream());
-                        manual_key_ty_generics.push(l.lifetime.to_token_stream());
-                    }
-                    GenericParam::Const(c) => {
-                        auto_key_ty_generics.push(c.ident.to_token_stream());
-                        manual_key_ty_generics.push(c.ident.to_token_stream());
-                    }
-                }
-            }
-
-            let auto_key_generics = generics.clone();
-            let mut manual_key_generics = generics;
-
-            manual_key_generics.params.push(
-                parse2(quote! {
-                    const #manual_key_ident : ::ink_primitives::StorageKey
-                })
-                .unwrap(),
-            );
-            manual_key_generics.params.push(
-                parse2(quote! {
-                    #manual_salt_ident : ::ink_storage::traits::StorageKeyHolder
-                })
-                .unwrap(),
-            );
-            let (auto_impl_generics, _, _) = auto_key_generics.split_for_impl();
-            let (manual_impl_generics, _, _) = manual_key_generics.split_for_impl();
-
-            quote! {
-                impl #auto_impl_generics ::ink_storage::traits::StorageType<#salt_ident>
-                    for #ident <#(#auto_key_ty_generics),*> #where_clause {
-
-                    type Type = #ident <#(#auto_key_ty_generics),*>;
-                }
-
-                impl #manual_impl_generics ::ink_storage::traits::StorageType<#salt_ident>
-                    for #ident <#(#manual_key_ty_generics),*> #where_clause {
-
-                    type Type = #ident <#(#manual_key_ty_generics),*>;
-                }
-            }
-        } else {
-            let salt_ident = format_ident!("__ink_generic_salt");
-            generics.params.push(
-                parse2(quote! {
-                    #salt_ident : ::ink_storage::traits::StorageKeyHolder
-                })
-                .unwrap(),
-            );
-
-            let (impl_generics, _, _) = generics.split_for_impl();
-            quote! {
-                impl #impl_generics ::ink_storage::traits::StorageType<#salt_ident>
-                    for #ident #ty_generics #where_clause {
-
-                    type Type = #ident #ty_generics;
-                }
-            }
-        }
-    }
-
-    fn generate_storage_key_holder(&self) -> TokenStream2 {
-        let item = self.item;
-        let ident = item.ident();
-        let salt = item.salt();
-
-        let (impl_generics, ty_generics, where_clause) = item.generics().split_for_impl();
-
-        quote! {
-            impl #impl_generics ::ink_storage::traits::StorageKeyHolder for #ident #ty_generics #where_clause {
-                const KEY: ::ink_primitives::StorageKey = <#salt as ::ink_storage::traits::StorageKeyHolder>::KEY;
-            }
         }
     }
 }
@@ -368,7 +253,7 @@ fn convert_into_storage_field(
     let mut new_field = field.clone();
     let ty = field.ty.clone();
     new_field.ty = parse2(quote! {
-        <#ty as ::ink_storage::traits::StorageType<
+        <#ty as ::ink_storage::traits::AutomationStorageType<
             ::ink_storage::traits::ManualKey<#key, #salt>,
         >>::Type
     })
