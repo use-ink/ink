@@ -77,7 +77,7 @@ mod bioc {
     #[derive(scale::Encode, scale::Decode, Debug, PartialEq)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Failure {
-        Revert,
+        Revert(String),
         Panic,
     }
 
@@ -97,7 +97,7 @@ mod bioc {
         #[ink(message)]
         pub fn revert_or_trap(&mut self, fail: Option<Failure>) -> Result<(), Failure> {
             match fail {
-                Some(Failure::Revert) => Err(Failure::Revert),
+                Some(Failure::Revert) => Err(Failure::Revert("Reverting on user demand!".to_string()),
                 Some(Failure::Panic) => {
                     panic!("Trapping on user demand!")
                 }
@@ -107,8 +107,8 @@ mod bioc {
 
         /// Prints the specified string into node's debug log.
         #[ink(message)]
-        pub fn debug_log(&mut self, _str: String) {
-            ink_env::debug_println!("debug_log: {}", _str);
+        pub fn debug_log(&mut self, message: String) {
+            ink_env::debug_println!("debug_log: {}", message);
         }
     }
 
