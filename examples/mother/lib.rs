@@ -21,23 +21,33 @@ mod mother {
         vec::Vec,
     };
 
-        use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadLayout,
-	    StorageLayout,
-        }};
+    use ink_storage::traits::{
+        PackedLayout,
+        SpreadLayout,
+        StorageLayout,
+    };
 
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
-    #[derive(Default, scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout)]
+    #[derive(
+        Default,
+        scale::Encode,
+        scale::Decode,
+        PartialEq,
+        Debug,
+        Clone,
+        SpreadLayout,
+        PackedLayout,
+    )]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct Bids(Vec<Option<(AccountId, Balance)>>);
-    
+
     /// Auction statuses.
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
-    #[derive(scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout)]
+    #[derive(
+        scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
+    )]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub enum Status {
         /// An auction has not started yet.
@@ -56,7 +66,9 @@ mod mother {
     }
 
     /// Struct for storing auction data.
-    #[derive(Debug, PartialEq, scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
+    #[derive(
+        Debug, PartialEq, scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout,
+    )]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct Auction {
         /// Branded name of the auction event
@@ -75,21 +87,19 @@ mod mother {
         finalized: bool,
     }
 
-    /// TODO: refactor
     impl Default for Auction {
-	fn default() ->  Auction {
-            let bids = Bids::default();
-
-	    Auction {
-                name: "Some NFT Auction".to_string(),
+        fn default() -> Auction {
+            Auction {
+                name: String::default(),
                 subject: Hash::default(),
-                bids,
-                terms: [1245, 10, 100],
+                bids: Bids::default(),
+                terms: <[BlockNumber; 3]>::default(),
                 status: Status::OpeningPeriod,
                 finalized: false,
-            }}
+            }
+        }
     }
-    
+
     /// Way to fail a contract execution.
     #[derive(scale::Encode, scale::Decode, Debug, PartialEq)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -102,7 +112,7 @@ mod mother {
     #[ink(storage)]
     #[derive(Default)]
     pub struct Mother {
-	auction: Auction
+        auction: Auction,
     }
 
     impl Mother {
@@ -141,31 +151,29 @@ mod mother {
         use super::*;
         use ink_lang as ink;
 
-	fn default_auction() -> Auction {
-	    Auction::default()
-	}
-	
         #[ink::test]
         fn echo_auction_works() {
-	    let auction = default_auction();
+            let auction = Auction::default();
             let mut contract = Mother::new(auction.clone());
             assert_eq!(contract.echo_auction(auction.clone()), auction);
         }
 
         #[ink::test]
         fn revert_works() {
-            let mut contract = Mother::new(default_auction());
+            let mut contract = Mother::new(Auction::default());
             assert_eq!(
                 contract.revert_or_trap(Some(Failure::Revert)),
                 Err(Failure::Revert)
             );
-            contract.revert_or_trap(None).expect("Contract unexpected failure!");
+            contract
+                .revert_or_trap(None)
+                .expect("Contract unexpected failure!");
         }
 
         #[ink::test]
         #[should_panic]
         fn trap_works() {
-            let mut contract = Mother::new(default_auction());
+            let mut contract = Mother::new(Auction::default());
             let _ = contract.revert_or_trap(Some(Failure::Panic));
         }
     }
