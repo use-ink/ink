@@ -21,12 +21,18 @@ mod mother {
         vec::Vec,
     };
 
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-        StorageLayout,
+    use ink_lang::utils::initialize_contract;
+    use ink_storage::{
+        traits::{
+            PackedLayout,
+            SpreadAllocate,
+            SpreadLayout,
+            StorageLayout,
+        },
+        Mapping,
     };
 
+    use ink_storage::traits::KeyPtr;
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
     #[derive(
@@ -39,7 +45,10 @@ mod mother {
         SpreadLayout,
         PackedLayout,
     )]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, StorageLayout, SpreadAllocate,)
+    )]
     pub struct Bids(Vec<Option<(AccountId, Balance)>>);
 
     /// Auction statuses.
@@ -65,9 +74,23 @@ mod mother {
         RfDelay(BlockNumber),
     }
 
+    impl SpreadAllocate for Status {
+        #[inline]
+        fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+            ptr.advance_by(<BlockNumber>::FOOTPRINT * 2);
+            Self::NotStarted
+        }
+    }
     /// Struct for storing auction data.
     #[derive(
-        Debug, PartialEq, scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout,
+        Debug,
+        PartialEq,
+        scale::Encode,
+        scale::Decode,
+        Clone,
+        SpreadLayout,
+        PackedLayout,
+        SpreadAllocate,
     )]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct Auction {
@@ -110,15 +133,19 @@ mod mother {
 
     /// Storage of the contract.
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct Mother {
         auction: Auction,
+        balances: Mapping<AccountId, Balance>,
     }
 
     impl Mother {
         #[ink(constructor)]
         pub fn new(auction: Auction) -> Self {
-            Self { auction }
+            initialize_contract(|c: &mut Self| {
+                c.balances = <Mapping<AccountId, Balance>>::default();
+                c.auction = auction;
+            })
         }
 
         /// Takes an auction data struct as input and returns it back.
