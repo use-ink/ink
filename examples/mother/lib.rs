@@ -148,6 +148,14 @@ mod mother {
             })
         }
 
+        #[ink(constructor)]
+        pub fn default() -> Self {
+            initialize_contract(|c: &mut Self| {
+                c.balances = <Mapping<AccountId, Balance>>::default();
+                c.auction = Auction::default();
+            })
+        }
+
         /// Takes an auction data struct as input and returns it back.
         #[ink(message)]
         pub fn echo_auction(&mut self, auction: Auction) -> Auction {
@@ -181,13 +189,13 @@ mod mother {
         #[ink::test]
         fn echo_auction_works() {
             let auction = Auction::default();
-            let mut contract = Mother::new(auction.clone());
+            let mut contract = Mother::default();
             assert_eq!(contract.echo_auction(auction.clone()), auction);
         }
 
         #[ink::test]
         fn revert_works() {
-            let mut contract = Mother::new(Auction::default());
+            let mut contract = Mother::default();
             assert_eq!(
                 contract.revert_or_trap(Some(Failure::Revert)),
                 Err(Failure::Revert)
@@ -200,7 +208,7 @@ mod mother {
         #[ink::test]
         #[should_panic]
         fn trap_works() {
-            let mut contract = Mother::new(Auction::default());
+            let mut contract = Mother::default();
             let _ = contract.revert_or_trap(Some(Failure::Panic));
         }
     }
