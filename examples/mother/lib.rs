@@ -166,7 +166,9 @@ mod mother {
         #[ink(message)]
         pub fn revert_or_trap(&mut self, fail: Option<Failure>) -> Result<(), Failure> {
             match fail {
-                Some(Failure::Revert) => Err(Failure::Revert("Reverting on user demand!".to_string()),
+                Some(Failure::Revert(_)) => {
+                    Err(Failure::Revert("Reverting on user demand!".to_string()))
+                }
                 Some(Failure::Panic) => {
                     panic!("Trapping on user demand!")
                 }
@@ -197,8 +199,10 @@ mod mother {
         fn revert_works() {
             let mut contract = Mother::default();
             assert_eq!(
-                contract.revert_or_trap(Some(Failure::Revert)),
-                Err(Failure::Revert)
+                contract.revert_or_trap(Some(Failure::Revert(
+                    "Testing reverting on demand!".to_string()
+                ))),
+                Err(Failure::Revert("Reverting on user demand!".to_string()))
             );
             contract
                 .revert_or_trap(None)
