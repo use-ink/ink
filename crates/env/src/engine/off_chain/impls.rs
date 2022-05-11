@@ -184,12 +184,12 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
     where
         V: scale::Encode,
     {
         let v = scale::Encode::encode(value);
-        self.engine.set_storage(key.as_ref(), &v[..]);
+        self.engine.set_storage(key.as_ref(), &v[..])
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -204,6 +204,12 @@ impl EnvBackend for EnvInstance {
         }
         let decoded = scale::Decode::decode(&mut &output[..])?;
         Ok(Some(decoded))
+    }
+
+    fn contract_storage_contains(&mut self, _key: &Key) -> Option<u32> {
+        unimplemented!(
+            "the off-chain env does not implement `seal_contains_storage`, yet"
+        )
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {

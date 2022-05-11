@@ -45,7 +45,7 @@ More relevant links:
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
-* [Substrate Stack Exchange](https://substrate.stackexchange.com/) - Forum for getting your ink! questions answered
+* [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink/) - Forum for getting your ink! questions answered
 
 
 ## Table of Contents
@@ -60,6 +60,7 @@ More relevant links:
   * [Trait Definitions](#trait-definitions)
   * [Off-chain Testing](#off-chain-testing)
 * [Developer Documentation](#developer-documentation)
+* [Community Badges](#community-badges)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -255,6 +256,23 @@ the relevant links:
 `ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. Contains [the off-chain testing API](https://paritytech.github.io/ink/ink_env/test/index.html) as well. |
 `ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
 
+## Community Badges
+
+### Normal Design
+
+[![Built with ink!](.images/badge.svg)](https://github.com/paritytech/ink)
+
+```markdown
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge.svg)](https://github.com/paritytech/ink)
+```
+
+### Flat Design
+
+[![Built with ink!](.images/badge_flat.svg)](https://github.com/paritytech/ink)
+
+```markdown
+[![Built with ink!](https://raw.githubusercontent.com/paritytech/ink/master/.images/badge_flat.svg)](https://github.com/paritytech/ink)
+```
 
 ## Contributing
 
