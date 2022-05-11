@@ -22,14 +22,17 @@ use crate::traits::{
 
 impl<T: AtomicGuard<true>, const N: usize> AtomicGuard<true> for [T; N] {}
 
-impl<T: AtomicGuard<true>, const N: usize, Salt: StorageKeyHolder> StorageType<Salt>
-    for [T; N]
+impl<
+        T: AtomicGuard<true> + StorageType<Salt>,
+        const N: usize,
+        Salt: StorageKeyHolder,
+    > StorageType<Salt> for [T; N]
 {
-    type Type = [T; N];
+    type Type = [T::Type; N];
 }
 
-impl<T: AtomicGuard<true>, const N: usize> StorageType2 for [T; N] {
-    type Type<Salt: StorageKeyHolder> = [T; N];
+impl<T: AtomicGuard<true> + StorageType2, const N: usize> StorageType2 for [T; N] {
+    type Type<Salt: StorageKeyHolder> = [T::Type<Salt>; N];
     type PreferredKey = AutoKey;
 }
 

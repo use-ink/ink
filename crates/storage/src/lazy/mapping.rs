@@ -25,13 +25,13 @@ use scale::{
 
 /// TODO: Add comment
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct StorageMapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey> {
+pub struct Mapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey> {
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
 impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Default
-    for StorageMapping<K, V, KeyType>
+    for Mapping<K, V, KeyType>
 {
     fn default() -> Self {
         Self {
@@ -40,7 +40,7 @@ impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Default
     }
 }
 
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageMapping<K, V, KeyType> {
+impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Mapping<K, V, KeyType> {
     /// TODO: Add comment
     pub fn new() -> Self {
         Self {
@@ -50,16 +50,16 @@ impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageMapping<K, V, Ke
 }
 
 impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> core::fmt::Debug
-    for StorageMapping<K, V, KeyType>
+    for Mapping<K, V, KeyType>
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("StorageMapping")
+        f.debug_struct("Mapping")
             .field("storage_key", &KeyType::KEY)
             .finish()
     }
 }
 
-impl<K, V, KeyType> StorageMapping<K, V, KeyType>
+impl<K, V, KeyType> Mapping<K, V, KeyType>
 where
     K: Encode,
     V: AtomicGuard<true> + Encode + Decode,
@@ -144,32 +144,32 @@ impl<
         Salt: StorageKeyHolder,
         const MANUAL_KEY: StorageKey,
         ManualSalt: StorageKeyHolder,
-    > StorageType<Salt> for StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>
+    > StorageType<Salt> for Mapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>
 {
-    type Type = StorageMapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>;
+    type Type = Mapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>;
 }
 
 impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType2
-    for StorageMapping<K, V, Salt>
+    for Mapping<K, V, Salt>
 {
-    type Type<SaltInner: StorageKeyHolder> = StorageMapping<K, V, SaltInner>;
+    type Type<SaltInner: StorageKeyHolder> = Mapping<K, V, SaltInner>;
     type PreferredKey = Salt;
 }
 
 impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType<Salt>
-    for StorageMapping<K, V, AutoKey>
+    for Mapping<K, V, AutoKey>
 {
-    type Type = StorageMapping<K, V, ManualKey<0, Salt>>;
+    type Type = Mapping<K, V, ManualKey<0, Salt>>;
 }
 
 impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Encode
-    for StorageMapping<K, V, KeyType>
+    for Mapping<K, V, KeyType>
 {
     fn encode_to<T: Output + ?Sized>(&self, _dest: &mut T) {}
 }
 
 impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Decode
-    for StorageMapping<K, V, KeyType>
+    for Mapping<K, V, KeyType>
 {
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
@@ -186,7 +186,7 @@ const _: () = {
     };
 
     impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageLayout
-        for StorageMapping<K, V, KeyType>
+        for Mapping<K, V, KeyType>
     where
         K: scale_info::TypeInfo + 'static,
         V: scale_info::TypeInfo + 'static,
@@ -205,7 +205,7 @@ mod tests {
     #[test]
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: StorageMapping<u8, _> = StorageMapping::new();
+            let mut mapping: Mapping<u8, _> = Mapping::new();
             mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
@@ -217,7 +217,7 @@ mod tests {
     #[test]
     fn gets_default_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mapping: StorageMapping<u8, u8> = StorageMapping::new();
+            let mapping: Mapping<u8, u8> = Mapping::new();
             assert_eq!(mapping.get(&1), None);
 
             Ok(())
@@ -229,7 +229,7 @@ mod tests {
     fn can_clear_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // Given
-            let mut mapping: StorageMapping<u8, u8> = StorageMapping::new();
+            let mut mapping: Mapping<u8, u8> = Mapping::new();
 
             mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
@@ -249,7 +249,7 @@ mod tests {
     fn can_clear_unexistent_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // Given
-            let mapping: StorageMapping<u8, u8> = StorageMapping::new();
+            let mapping: Mapping<u8, u8> = Mapping::new();
 
             // When
             mapping.remove(&1);

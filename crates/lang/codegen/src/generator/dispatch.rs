@@ -807,8 +807,9 @@ impl Dispatch<'_> {
                     ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                ::ink_storage::traits::pull_storage(
-                                    &<#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY,
+                                ::ink_storage::pull_or_init!(
+                                    #storage_ident,
+                                    <#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY
                                 )
                             );
 

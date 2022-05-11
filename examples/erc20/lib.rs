@@ -1,4 +1,3 @@
-#![feature(generic_associated_types)]
 #![feature(trivial_bounds)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -14,7 +13,7 @@ mod erc20 {
             StorageKeyHolder,
             StorageType2,
         },
-        StorageMapping,
+        Mapping,
         StorageValue,
     };
 
@@ -53,14 +52,14 @@ mod erc20 {
     #[ink_lang::storage_item]
     #[derive(Default)]
     struct NonAtomic {
-        s1: StorageMapping<u128, u128>,
+        s1: Mapping<u128, u128>,
         s2: StorageValue<u128>,
     }
 
     // AtomicGuard derive macro can't evaluate constant for generics.
     // It is why it should be implemented manually.
     #[ink_lang::storage_item(derive = false)]
-    #[derive(Default, StorageKeyHolder, StorageType2, scale::Encode, scale::Decode)]
+    #[derive(StorageKeyHolder, StorageType2, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
     struct Generic<T: StorageType2> {
         s1: u128,
@@ -72,12 +71,12 @@ mod erc20 {
 
     #[ink_lang::storage_item]
     struct Jora<KEY: StorageKeyHolder> {
-        s1: StorageMapping<u128, u128>,
+        s1: Mapping<u128, u128>,
         s2: StorageValue<u128>,
-        s3: StorageMapping<u128, Atomic>,
+        s3: Mapping<u128, Atomic>,
         s4: StorageValue<NonAtomic>,
         // Fails because: the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
-        // s5: StorageMapping<u128, NonAtomic>,
+        // s5: Mapping<u128, NonAtomic>,
     }
 
     /// A simple ERC-20 contract.
@@ -87,10 +86,10 @@ mod erc20 {
         /// Total token supply.
         total_supply: Balance,
         /// Mapping from owner to number of owned token.
-        balances: StorageMapping<AccountId, Balance>,
+        balances: Mapping<AccountId, Balance>,
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
-        allowances: StorageMapping<(AccountId, AccountId), Balance>,
+        allowances: Mapping<(AccountId, AccountId), Balance>,
     }
 
     /// Event emitted when a token transfer occurs.

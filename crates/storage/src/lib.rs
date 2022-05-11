@@ -1,4 +1,3 @@
-#![feature(generic_associated_types)]
 // Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,6 +61,9 @@ mod test_utils;
 
 #[doc(inline)]
 pub use self::lazy::{
-    StorageMapping,
+    Mapping,
     StorageValue,
 };
+
+#[doc(inline)]
+pub use self::traits::pull_or_init;

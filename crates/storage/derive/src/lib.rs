@@ -38,41 +38,29 @@ use self::{
 };
 synstructure::decl_derive!(
     [AtomicGuard] =>
-    /// Derives `ink_storage`'s `SpreadLayout` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s `AtomicGuard<true>` trait for the given `struct`, `enum` or `union`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use ink_primitives::Key;
-    /// use ink_storage::traits::{
-    ///     SpreadLayout,
-    ///     push_spread_root,
-    ///     pull_spread_root,
-    ///};
+    /// use ink_storage::traits::AtomicGuard;
     ///
-    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    /// #[derive(SpreadLayout)]
+    /// #[derive(AtomicGuard)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let value = NamedFields {
+    /// let value: &dyn AtomicGuard<true> = &NamedFields {
     ///     a: 123,
     ///     b: [22; 32],
     /// };
-    ///
-    /// push_spread_root(&value, &mut Key::from([0x42; 32]));
-    /// let value2: NamedFields = pull_spread_root(&mut Key::from([0x42; 32]));
-    /// assert_eq!(value.a, value2.a);
-    /// # Ok(())
-    /// # });
     /// ```
     atomic_guard_derive
 );
 synstructure::decl_derive!(
     [StorageType] =>
-    /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s `StorageType` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
@@ -108,7 +96,7 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageType2] =>
-    /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s `StorageType2` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
@@ -144,37 +132,34 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageKeyHolder] =>
-    /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s `StorageKeyHolder` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use scale::{Encode, Decode};
-    /// use ink_primitives::Key;
     /// use ink_storage::traits::{
-    ///     SpreadLayout,
-    ///     PackedLayout,
-    ///     push_packed_root,
-    ///     pull_packed_root
+    ///     StorageKeyHolder,
+    ///     ManualKey,
+    ///     AutoKey,
     /// };
     ///
-    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    /// #[derive(Encode, Decode, SpreadLayout, PackedLayout)]
+    /// #[derive(StorageKeyHolder)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let mut value = NamedFields {
-    ///     a: 123,
-    ///     b: [22; 32],
-    /// };
+    /// assert_eq!(<NameFields as StorageKeyHolder>::KEY, 0);
     ///
-    /// push_packed_root(&value, &mut Key::from([0x42; 32]));
-    /// let value2: NamedFields = pull_packed_root(&mut Key::from([0x42; 32]));
-    /// assert_eq!(value.a, value2.a);
-    /// # Ok(())
-    /// # });
+    /// #[derive(StorageKeyHolder)]
+    /// struct NamedFieldsManualKey<KEY: StorageKeyHolder> {
+    ///     a: u32,
+    ///     b: [u32; 32],
+    /// }
+    ///
+    /// assert_eq!(<NamedFieldsManualKey<()> as StorageKeyHolder>::KEY, 0);
+    /// assert_eq!(<NamedFieldsManualKey<AutoKey> as StorageKeyHolder>::KEY, 0);
+    /// assert_eq!(<NamedFieldsManualKey<ManualKey<123>> as StorageKeyHolder>::KEY, 123);
     /// ```
     storage_key_holder_derive
 );
@@ -186,30 +171,22 @@ synstructure::decl_derive!(
     ///
     /// ```
     /// use ink_metadata::layout::Layout::Struct;
-    /// use ink_primitives::Key;
-    /// use ink_storage::traits::{
-    ///     SpreadLayout,
-    ///     StorageLayout,
-    ///     push_spread_root,
-    ///     KeyPtr,
-    /// };
+    /// use ink_storage::traits::StorageLayout;
     ///
     /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    /// #[derive(SpreadLayout, StorageLayout)]
+    /// #[derive(StorageLayout)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let mut key = Key::from([0x42; 32]);
+    /// let key = 0x123;
     /// let mut value = NamedFields {
     ///     a: 123,
     ///     b: [22; 32],
     /// };
     ///
-    /// push_spread_root(&value, &key);
-    ///
-    /// if let Struct(layout) = <NamedFields as StorageLayout>::layout(&mut KeyPtr::from(key)) {
+    /// if let Struct(layout) = <NamedFields as StorageLayout>::layout(&key) {
     ///     assert_eq!(*layout.fields()[0].name().unwrap(), "a");
     ///     assert_eq!(*layout.fields()[1].name().unwrap(), "b");
     /// }

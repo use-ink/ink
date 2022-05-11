@@ -74,8 +74,8 @@ impl<T: StorageType<Salt>, E: StorageType<Salt>, Salt: StorageKeyHolder> Storage
     type Type = Result<<T as StorageType<Salt>>::Type, <E as StorageType<Salt>>::Type>;
 }
 
-impl<T: StorageType2, E> StorageType2 for Result<T, E> {
-    type Type<Salt: StorageKeyHolder> = Result<T::Type<Salt>, E>;
+impl<T: StorageType2, E: StorageType2> StorageType2 for Result<T, E> {
+    type Type<Salt: StorageKeyHolder> = Result<T::Type<Salt>, E::Type<Salt>>;
     type PreferredKey = T::PreferredKey;
 }
 

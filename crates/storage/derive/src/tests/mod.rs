@@ -13,6 +13,7 @@
 // limitations under the License.
 
 mod atomic_guard;
+mod storage_key_holder;
 mod storage_layout;
 
 #[macro_export]

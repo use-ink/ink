@@ -70,7 +70,7 @@ mod multisig {
         ExecutionInput,
     };
     use ink_prelude::vec::Vec;
-    use ink_storage::StorageMapping;
+    use ink_storage::Mapping;
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
@@ -93,7 +93,7 @@ mod multisig {
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
     #[ink_lang::storage_item]
-    #[derive(scale::Encode, scale::Decode, Clone, Copy)]
+    #[derive(Clone, Copy)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
@@ -108,7 +108,6 @@ mod multisig {
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
     #[ink_lang::storage_item]
-    #[derive(scale::Encode, scale::Decode)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -143,7 +142,7 @@ mod multisig {
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
     #[ink_lang::storage_item]
-    #[derive(scale::Encode, scale::Decode, Default)]
+    #[derive(Default)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -245,13 +244,13 @@ mod multisig {
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
-        confirmations: StorageMapping<(TransactionId, AccountId), ()>,
+        confirmations: Mapping<(TransactionId, AccountId), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information and is kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
-        confirmation_count: StorageMapping<TransactionId, u32>,
+        confirmation_count: Mapping<TransactionId, u32>,
         /// Map the transaction id to its unexecuted transaction.
-        transactions: StorageMapping<TransactionId, Transaction>,
+        transactions: Mapping<TransactionId, Transaction>,
         /// We need to hold a list of all transactions so that we can clean up storage
         /// when an owner is removed.
         transaction_list: Transactions,
@@ -259,7 +258,7 @@ mod multisig {
         /// up the confirmation set.
         owners: Vec<AccountId>,
         /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: StorageMapping<AccountId, ()>,
+        is_owner: Mapping<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
         requirement: u32,
     }

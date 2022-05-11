@@ -15,34 +15,42 @@
 //! Traits and interfaces to operate with storage entities.
 //!
 //! Generally a type is said to be a storage entity if it implements the
-//! `SpreadLayout` trait. This defines certain constants and routines in order
+//! `StorageType` trait. This defines certain constants and routines in order
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!
-//! The `PackedLayout` trait can then be implemented on top of the `SpreadLayout`
-//! for types that further allow to be stored in the contract storage in a more
-//! compressed format to a single storage cell.
+//! The `AtomicGuard<true>` shows that the type is atomic and can be stored
+//! into single storage cell. Some collections works only with atomic structures.
 
 mod impls;
+mod storage;
 
 #[cfg(feature = "std")]
 mod layout;
-mod storage;
+
+#[macro_use]
+#[doc(hidden)]
+pub mod pull_or_init;
 
 #[cfg(feature = "std")]
 pub use self::layout::{
     LayoutCryptoHasher,
     StorageLayout,
 };
-pub use self::storage::{
-    AtomicGuard,
-    AutoKey,
-    AutomationStorageType,
-    ManualKey,
-    ResolverKey,
-    StorageKeyHolder,
-    StorageType,
-    StorageType2,
+pub use self::{
+    impls::storage::{
+        AutoKey,
+        ManualKey,
+        ResolverKey,
+    },
+    storage::{
+        AtomicGuard,
+        AutomationStorageType,
+        OnCallInitializer,
+        StorageKeyHolder,
+        StorageType,
+        StorageType2,
+    },
 };
 use ink_primitives::StorageKey;
 pub use ink_storage_derive::{
@@ -63,10 +71,8 @@ where
     T: Decode,
 {
     ink_env::get_storage_value(key)
-        .unwrap_or_else(|error| {
-            panic!("failed to get storage value from key {}: {:?}", key, error)
-        })
-        .unwrap()
+        .expect("could not properly decode storage entry")
+        .expect("storage entry was empty")
 }
 
 /// Pushes the entity to the contract storage using encode and storage key.

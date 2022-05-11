@@ -14,9 +14,6 @@
 
 mod config;
 
-#[cfg(test)]
-mod tests;
-
 use config::StorageItemConfig;
 use ink_storage_codegen::DeriveUtils;
 use proc_macro2::TokenStream as TokenStream2;
@@ -25,14 +22,14 @@ use quote::{
     ToTokens,
 };
 
-/// TODO: Add comment
+/// A checked ink! storage item with its configuration.
 pub struct StorageItem {
     ast: syn::DeriveInput,
     config: StorageItemConfig,
 }
 
 impl StorageItem {
-    /// TODO: Add comment
+    /// Returns `Ok` if the input matches all requirements for an ink! storage item.
     pub fn new(config: TokenStream2, item: TokenStream2) -> Result<Self, syn::Error> {
         let ast = syn::parse2::<syn::DeriveInput>(item)?;
         let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
@@ -71,7 +68,7 @@ impl StorageItem {
         &self.ast.generics
     }
 
-    /// Returns data pf the storage.
+    /// Returns data of the storage.
     pub fn data(&self) -> &syn::Data {
         &self.ast.data
     }

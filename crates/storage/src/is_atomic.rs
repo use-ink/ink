@@ -43,7 +43,7 @@ macro_rules! is_atomic {
 #[cfg(test)]
 mod tests {
     use crate::{
-        StorageMapping,
+        Mapping,
         StorageValue,
     };
 
@@ -81,7 +81,7 @@ mod tests {
         type MyResult = Result<(), ()>;
         assert!(is_atomic!(MyResult));
 
-        assert!(!is_atomic!(StorageMapping<u32, u32>));
+        assert!(!is_atomic!(Mapping<u32, u32>));
         assert!(!is_atomic!(StorageValue<u32>));
     }
 }

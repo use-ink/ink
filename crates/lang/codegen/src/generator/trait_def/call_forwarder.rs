@@ -110,11 +110,18 @@ impl CallForwarder<'_> {
             /// will be handled by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[::ink_lang::storage_item]
+            #[derive(
+                ::scale::Encode,
+                ::scale::Decode,
+                ::ink_storage::traits::AtomicGuard,
+                ::ink_storage::traits::StorageType2,
+                ::ink_storage::traits::StorageKeyHolder,
+            )]
             #[repr(transparent)]
             pub struct #call_forwarder_ident<E>
             where
                 E: ::ink_env::Environment,
+                <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder: ::ink_storage::traits::StorageType2,
             {
                 builder: <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder,
             }

@@ -14,13 +14,13 @@
 
 // Collection works only with atomic structures
 macro_rules! impl_always_storage_type {
-    ( $name:ident < $($frag:ident),+ > ) => {
+    ( $name:ident < $( $frag:ident $( : $bound:tt $(+ $others:tt )* )? ),* > ) => {
         impl<
             Salt: $crate::traits::StorageKeyHolder,
             $($frag),+> $crate::traits::StorageType<Salt> for $name < $($frag),+ >
         where
             $(
-                $frag: $crate::traits::AtomicGuard< { true } >,
+                $frag: $crate::traits::AtomicGuard< { true } > $( + $bound $(+ $others )* )?,
             )+
         {
             type Type = $name < $($frag),+ >;
@@ -28,7 +28,7 @@ macro_rules! impl_always_storage_type {
         impl<$($frag),+> $crate::traits::StorageType2 for $name < $($frag),+ >
         where
             $(
-                $frag: $crate::traits::AtomicGuard< { true } >,
+                $frag: $crate::traits::AtomicGuard< { true } > $( + $bound $(+ $others )* )?,
             )+
         {
             type Type<Salt: $crate::traits::StorageKeyHolder> = $name < $($frag),+ >;
@@ -62,3 +62,5 @@ mod arrays;
 mod collections;
 mod prims;
 mod tuples;
+
+pub(crate) mod storage;

@@ -22,10 +22,14 @@ use ink_prelude::{
     },
     vec::Vec,
 };
+use scale::{
+    Decode,
+    Encode,
+};
 
-impl_always_storage_type!(Vec<T>);
-impl_always_storage_type!(StdBTreeMap<K, V>);
-impl_always_storage_type!(StdLinkedList<T>);
-impl_always_storage_type!(StdBinaryHeap<T>);
-impl_always_storage_type!(StdBTreeSet<T>);
-impl_always_storage_type!(StdVecDeque<T>);
+impl_always_storage_type!(Vec<T: Encode + Decode>);
+impl_always_storage_type!(StdBTreeMap<K: Ord + Encode + Decode, V: Encode + Decode>);
+impl_always_storage_type!(StdLinkedList<T: Encode + Decode>);
+impl_always_storage_type!(StdBinaryHeap<T: Ord + Encode + Decode>);
+impl_always_storage_type!(StdBTreeSet<T: Ord + Encode + Decode>);
+impl_always_storage_type!(StdVecDeque<T: Encode + Decode>);

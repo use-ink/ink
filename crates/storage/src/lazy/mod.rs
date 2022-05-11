@@ -24,11 +24,11 @@
 //! These low-level collections are not aware of the elements they manage thus
 //! extra care has to be taken when operating directly on them.
 
-mod storage_mapping;
+mod mapping;
 mod storage_value;
 
 #[doc(inline)]
 pub use self::{
-    storage_mapping::StorageMapping,
+    mapping::Mapping,
     storage_value::StorageValue,
 };

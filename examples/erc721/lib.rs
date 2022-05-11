@@ -54,7 +54,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc721 {
-    use ink_storage::StorageMapping;
+    use ink_storage::Mapping;
 
     use scale::{
         Decode,
@@ -68,13 +68,13 @@ mod erc721 {
     #[derive(Default)]
     pub struct Erc721 {
         /// Mapping from token to owner.
-        token_owner: StorageMapping<TokenId, AccountId>,
+        token_owner: Mapping<TokenId, AccountId>,
         /// Mapping from token to approvals users.
-        token_approvals: StorageMapping<TokenId, AccountId>,
+        token_approvals: Mapping<TokenId, AccountId>,
         /// Mapping from owner to number of owned token.
-        owned_tokens_count: StorageMapping<AccountId, u32>,
+        owned_tokens_count: Mapping<AccountId, u32>,
         /// Mapping from owner to operator approvals.
-        operator_approvals: StorageMapping<(AccountId, AccountId), ()>,
+        operator_approvals: Mapping<(AccountId, AccountId), ()>,
     }
 
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
