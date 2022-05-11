@@ -49,7 +49,7 @@ impl ExecutionInput<EmptyArgumentList> {
     }
 }
 
-impl<'a, Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
+impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
     /// Pushes an argument to the execution input.
     #[inline]
     pub fn push_arg<T>(self, arg: T) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
@@ -167,7 +167,7 @@ impl scale::Encode for EmptyArgumentList {
     fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
 }
 
-impl<'a, Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
+impl<Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
 where
     Head: scale::Encode,
     Rest: scale::Encode,
