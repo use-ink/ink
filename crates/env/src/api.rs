@@ -36,6 +36,7 @@ use crate::{
     },
     topics::Topics,
     types::Gas,
+    AccountId,
     Environment,
     Result,
 };
@@ -626,4 +627,16 @@ where
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
+}
+
+/// Returns the default Substrate's `AccountId` [u8;32] from the ECDSA compressed public key.
+/// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
+///
+/// # Note
+///
+/// This function implies a standart `AccountId` type which is [u8;32].
+pub fn ecdsa_to_default_account_id(pubkey: &[u8; 33]) -> AccountId {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.ecdsa_to_default_account_id(pubkey)
+    })
 }

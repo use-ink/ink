@@ -25,6 +25,7 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
+    AccountId,
     Environment,
     Error,
     Result,
@@ -1012,5 +1013,15 @@ where
     /// For more details visit: [`ink_env::own_code_hash`]
     pub fn own_code_hash(self) -> Result<E::Hash> {
         ink_env::own_code_hash::<E>()
+    }
+
+    /// Returns the default Substrate's `AccountId` from the ECDSA compressed public key.
+    /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::ecdsa_to_default_account_id`]
+    pub fn ecdsa_to_default_account_id(self, pubkey: &[u8; 33]) -> AccountId {
+        ink_env::ecdsa_to_default_account_id(pubkey)
     }
 }

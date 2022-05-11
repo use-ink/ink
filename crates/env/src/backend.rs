@@ -24,6 +24,7 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    AccountId,
     Environment,
     Result,
 };
@@ -303,6 +304,14 @@ pub trait EnvBackend {
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
+
+    /// Returns the default Substrate's `AccountId` ([u8;32]) from the ECDSA compressed public key.
+    /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ecdsa_to_default_account_id`][`crate::ecdsa_to_default_account_id`]
+    fn ecdsa_to_default_account_id(&mut self, pubkey: &[u8; 33]) -> AccountId;
 }
 
 /// Environmental contract functionality.
