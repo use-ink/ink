@@ -559,14 +559,4 @@ impl TypedEnvBackend for EnvInstance {
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
     }
-
-    fn ecdsa_to_default_account_id<E, H>(&mut self, pubkey: &[u8; 33]) -> E::AccountId
-    where
-        H: CryptoHash,
-        E: Environment,
-    {
-        let mut output = <hash::Blake2x256 as hash::HashOutput>::Type::default();
-        <H as CryptoHash>::hash(pubkey[..], &mut output);
-        output.into()
-    }
 }
