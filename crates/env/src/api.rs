@@ -500,7 +500,27 @@ pub fn ecdsa_recover(
     })
 }
 
-/// Returns Ethereum address from the ECDSA compressed public key.
+/// Returns an Ethereum address from the ECDSA compressed public key.
+///
+/// # Example
+///
+/// ```
+/// let pub_key = [
+///     2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+///     7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+///     152,
+/// ];
+///
+/// let EXPECTED_ETH_ADDRESS = [
+///     126, 95, 69, 82, 9, 26, 105, 18, 93, 93, 252, 183, 184, 194, 101, 144, 41, 57, 91, 223
+/// ];
+///
+/// let mut output = [0; 33];
+/// ink_env::ecsda_to_eth_address(&pubkey, &mut output);
+/// assert_eq!(output, Ok(EXPECTED_ETH_ADDRESS));
+/// ```
+///
+/// # Errors
 pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_to_eth_address(pubkey, output)
