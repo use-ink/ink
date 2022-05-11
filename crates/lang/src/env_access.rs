@@ -837,6 +837,48 @@ where
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
+    /// Returns an Ethereum address from the ECDSA compressed public key.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn ecdsa_to_eth_address(&self) {
+    ///     let pub_key = [
+    ///         2, 141, 181, 91, 5, 219, 134, 192, 177, 120, 108, 164, 159, 9, 93, 118,
+    ///         52, 76, 158, 96, 86, 178, 240, 39, 1, 167, 231, 243, 194, 10, 171, 253,
+    ///         145,
+    ///     ];
+    ///      let EXPECTED_ETH_ADDRESS = [
+    ///         9, 35, 29, 167, 177, 154, 1, 111, 158, 87, 109, 35, 177, 98, 119, 6, 47,
+    ///         77, 70, 168,
+    ///     ];
+    ///     let output = self
+    ///         .env()
+    ///         .ecdsa_to_eth_address(&pub_key)
+    ///         .expect("Should get ETH address from compressed public key");
+    ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::ecdsa_to_eth_address`]
     pub fn ecdsa_to_eth_address(self, pubkey: &[u8; 33]) -> Result<[u8; 20]> {
         let mut output = [0; 20];
         ink_env::ecdsa_to_eth_address(pubkey, &mut output)
