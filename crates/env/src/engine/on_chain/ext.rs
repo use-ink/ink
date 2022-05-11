@@ -237,6 +237,8 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
+        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>) -> ReturnCode;
+
         pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
 
         pub fn seal_call_chain_extension(
@@ -359,6 +361,12 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
+        pub fn seal_set_storage(
+            key_ptr: Ptr32<[u8]>,
+            value_ptr: Ptr32<[u8]>,
+            value_len: u32,
+        ) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "__unstable__")]
@@ -374,14 +382,6 @@ mod sys {
         pub fn seal_ecdsa_to_eth_address(
             public_key_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
-        ) -> ReturnCode;
-
-        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>) -> ReturnCode;
-
-        pub fn seal_set_storage(
-            key_ptr: Ptr32<[u8]>,
-            value_ptr: Ptr32<[u8]>,
-            value_len: u32,
         ) -> ReturnCode;
     }
 }
