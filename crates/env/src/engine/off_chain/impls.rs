@@ -300,7 +300,7 @@ impl EnvBackend for EnvInstance {
     ) -> Result<()> {
         let pk = secp256k1::PublicKey::from_slice(pubkey)
             .map_err(|_| Error::EcdsaRecoveryFailed)?;
-        let uncompressed = pk.serialize();
+        let uncompressed = pk.serialize_uncompressed();
         let mut hash = <Keccak256 as HashOutput>::Type::default();
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
         output.as_mut().copy_from_slice(&hash[12..]);
