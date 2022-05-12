@@ -17,7 +17,10 @@ use ink_lang as ink;
 #[ink::contract]
 mod mother {
     use ink_prelude::{
-        string::{String, ToString},
+        string::{
+            String,
+            ToString,
+        },
         vec::Vec,
     };
 
@@ -44,12 +47,9 @@ mod mother {
         Clone,
         SpreadLayout,
         PackedLayout,
-	SpreadAllocate,
+        SpreadAllocate,
     )]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, StorageLayout,)
-    )]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
     pub struct Bids(Vec<Option<(AccountId, Balance)>>);
 
     /// Auction statuses.
