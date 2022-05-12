@@ -666,7 +666,119 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
 }
 
-/// TODO: Add comment
+/// Prepares the type to be fully compatible and usable with the storage.
+/// It implements all necessary traits and calculates the storage key for types.
+/// All atomic types don't have a storage key, but non-atomic types
+/// (like `Mapping`, `StorageValue` etc.) require calculating the storage key during compilation.
+///
+/// All structs and enums that plan to be a part of the storage better to be marked by this macro.
+/// The macro should be called before `derive` macros because it can change the type.
+///
+/// If the type is atomic then the usage of the macro is optional.
+/// All required traits can be derived manually.
+///
+/// If the type is non-atomic better to have automated storage key calculation,
+/// but you can specify it manually.
+///
+/// # Example
+///
+/// # Trait implementation
+///
+/// ```
+/// use ink_prelude::vec::Vec;
+/// use ink_storage::{
+///     StorageValue,
+///     Mapping,
+/// };
+/// use ink_storage::traits::{
+///     AtomicGuard,
+///     StorageKeyHolder,
+///     StorageType,
+/// };
+///
+/// #[ink_lang::storage_item]
+/// struct Atomic {
+///     s1: u128,
+///     s2: Vec<u128>,
+///     // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
+///     // s3: Vec<NonAtomic>,
+/// }
+///
+/// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+/// struct AtomicManual {
+///     s1: u32,
+///     s2: Vec<(u128, String)>,
+///     // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
+///     // s3: Vec<NonAtomic>,
+/// }
+///
+/// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+/// struct AtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
+///     s1: (u128, bool),
+///     s2: Vec<T>,
+///     s3: String,
+/// }
+///
+/// #[ink_lang::storage_item(derive = false)]
+/// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+/// struct NonAtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
+///     s1: u32,
+///     s2: Mapping<u128, T>,
+/// }
+///
+/// #[ink_lang::storage_item]
+/// struct AtomicComplex {
+///     s1: u128,
+///     s2: Vec<u128>,
+///     s3: Vec<AtomicManual>,
+/// }
+///
+/// #[ink_lang::storage_item]
+/// struct NonAtomic {
+///     s1: Mapping<u32, u128>,
+///     s2: StorageValue<u128>,
+/// }
+///
+/// #[ink_lang::storage_item]
+/// struct NonAtomicComplex<KEY: StorageKeyHolder> {
+///     s1: (NonAtomic, String, u128, Atomic),
+///     s2: Mapping<u128, u128>,
+///     s3: StorageValue<u128>,
+///     s4: Mapping<u128, Atomic>,
+///     s5: StorageValue<NonAtomic>,
+///     s6: AtomicGeneric<Atomic>,
+///     s7: NonAtomicGeneric<Atomic>,
+///     // Fails because: the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
+///     // s8: Mapping<u128, NonAtomic>,
+/// }
+/// ```
+///
+/// ## Header Arguments
+///
+/// The `#[ink::storage_item]` macro can be provided with some additional comma-separated
+/// header arguments:
+///
+/// - `derive: bool`
+///
+///     The `derive` configuration parameter is used to enable/disable auto deriving of
+///     all required storage traits.
+///
+///     **Usage Example:**
+///     ```
+///     use ink_storage::Mapping;
+///     use ink_storage::traits::{
+///         AtomicGuard,
+///         StorageType,
+///     };
+///     #[ink_lang::storage_item(derive = false)]
+///     #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+///     struct NonAtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
+///         s1: u32,
+///         s2: Mapping<u128, T>,
+///     }
+///     ```
+///
+///     **Default value:** true.
 #[proc_macro_attribute]
 pub fn storage_item(attr: TokenStream, item: TokenStream) -> TokenStream {
     storage_item::generate(attr.into(), item.into()).into()

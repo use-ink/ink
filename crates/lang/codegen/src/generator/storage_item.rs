@@ -14,7 +14,6 @@
 
 use crate::GenerateCode;
 use derive_more::From;
-use ink_storage_codegen::DeriveUtils;
 use ir::Selector;
 use proc_macro2::{
     Ident,
@@ -178,8 +177,7 @@ impl<'a> StorageItem<'a> {
 
         let mut inner_is_atomic: Vec<_> = self
             .item
-            .ast()
-            .all_types()
+            .all_used_types()
             .iter()
             .map(|t| {
                 quote! { ::ink_storage::is_atomic!(#t) }

@@ -1,70 +1,16 @@
-#![feature(trivial_bounds)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    use ink_prelude::vec::Vec;
     use ink_storage::{
         traits::{
-            AtomicGuard,
             ManualKey,
             StorageKeyHolder,
-            StorageType,
         },
         Mapping,
-        StorageValue,
     };
-
-    #[ink_lang::storage_item]
-    #[derive(Default, Debug, Eq, PartialEq)]
-    struct Atomic {
-        s1: u128,
-        s2: Vec<u128>,
-        // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
-        // s3: Vec<NonAtomic>,
-    }
-
-    #[derive(Default, Debug, AtomicGuard, StorageType, scale::Encode, scale::Decode)]
-    struct AtomicManual {
-        s1: u128,
-        s2: Vec<u128>,
-        // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
-        // s3: Vec<NonAtomic>,
-    }
-
-    #[derive(Default, AtomicGuard, StorageType, scale::Encode, scale::Decode)]
-    struct AtomicManual2 {
-        s1: u128,
-        s2: Vec<u128>,
-        s3: NonAtomic,
-    }
-
-    #[ink_lang::storage_item]
-    #[derive(Default, Debug)]
-    struct AtomicComplex {
-        s1: u128,
-        s2: Vec<u128>,
-        s3: Vec<AtomicManual>,
-    }
-
-    #[ink_lang::storage_item]
-    #[derive(Default)]
-    struct NonAtomic {
-        s1: Mapping<u128, u128>,
-        s2: StorageValue<u128>,
-    }
-
-    #[ink_lang::storage_item]
-    struct Jora<KEY: StorageKeyHolder> {
-        s1: Mapping<u128, u128>,
-        s2: StorageValue<u128>,
-        s3: Mapping<u128, Atomic>,
-        s4: StorageValue<NonAtomic>,
-        // Fails because: the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
-        // s5: Mapping<u128, NonAtomic>,
-    }
 
     /// A simple ERC-20 contract.
     #[ink(storage)]

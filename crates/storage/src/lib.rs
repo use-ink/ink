@@ -43,10 +43,6 @@
     unused_extern_crates
 )]
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
-
 #[macro_use]
 #[doc(hidden)]
 pub mod is_atomic;
