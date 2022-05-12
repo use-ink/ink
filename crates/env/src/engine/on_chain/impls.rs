@@ -329,12 +329,6 @@ impl EnvBackend for EnvInstance {
     fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
         ext::set_code_hash(code_hash_ptr).map_err(Into::into)
     }
-
-    fn ecdsa_to_default_account_id(&mut self, pubkey: &[u8; 33]) -> AccountId {
-        let mut output = <Blake2x256 as HashOutput>::Type::default();
-        <Blake2x256 as CryptoHash>::hash(&pubkey[..], &mut output);
-        output.into()
-    }
 }
 
 impl TypedEnvBackend for EnvInstance {

@@ -32,7 +32,6 @@ use crate::{
         Topics,
         TopicsBuilderBackend,
     },
-    AccountId,
     Clear,
     EnvBackend,
     Environment,
@@ -342,12 +341,6 @@ impl EnvBackend for EnvInstance {
 
     fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
         unimplemented!("off-chain environment does not support `set_code_hash`")
-    }
-
-    fn ecdsa_to_default_account_id(&mut self, pubkey: &[u8; 33]) -> AccountId {
-        let mut output = <Blake2x256 as HashOutput>::Type::default();
-        <Blake2x256 as CryptoHash>::hash(&pubkey[..], &mut output);
-        output.into()
     }
 }
 
