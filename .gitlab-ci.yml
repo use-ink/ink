@@ -130,6 +130,9 @@ clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    # Temporary Rust version override for clippy until ICE in nightly clippy is fixed.
+    - rustup override set nightly-2022-05-05
+
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
       done
@@ -139,6 +142,9 @@ clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    # Temporary Rust version override for clippy until ICE in nightly clippy is fixed.
+    - rustup override set nightly-2022-05-05
+
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
@@ -149,6 +155,9 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    # Temporary Rust version override for clippy until ICE in nightly clippy is fixed.
+    - rustup override set nightly-2022-05-05
+
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -167,6 +176,9 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    # Temporary Rust version override for clippy until ICE in nightly clippy is fixed.
+    - rustup override set nightly-2022-05-05
+
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
