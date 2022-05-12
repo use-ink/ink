@@ -57,8 +57,7 @@ impl GenerateCode for StorageItem<'_> {
         if self.item.config().derive() {
             derive = quote! {
                 #[derive(
-                    // ::ink_storage::traits::StorageType,
-                    ::ink_storage::traits::StorageType2,
+                    ::ink_storage::traits::StorageType,
                     ::ink_storage::traits::StorageKeyHolder,
                     ::scale::Encode,
                     ::scale::Decode,
@@ -253,7 +252,7 @@ fn convert_into_storage_field(
     let mut new_field = field.clone();
     let ty = field.ty.clone();
     new_field.ty = parse2(quote! {
-        <#ty as ::ink_storage::traits::AutomationStorageType<
+        <#ty as ::ink_storage::traits::AutoStorageType<
             ::ink_storage::traits::ManualKey<#key, #salt>,
         >>::Type
     })

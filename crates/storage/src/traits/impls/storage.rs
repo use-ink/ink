@@ -1,7 +1,7 @@
 use crate::traits::{
-    AutomationStorageType,
+    AutoStorageType,
     StorageKeyHolder,
-    StorageType2,
+    StorageType,
 };
 use core::{
     fmt::Debug,
@@ -45,12 +45,15 @@ impl<L: StorageKeyHolder, R: StorageKeyHolder> StorageKeyHolder for ResolverKey<
     const KEY: StorageKey = if L::KEY == 0 { R::KEY } else { L::KEY };
 }
 
-impl<T, const KEY: StorageKey, Salt> AutomationStorageType<ManualKey<KEY, Salt>> for T
+impl<T, const KEY: StorageKey, Salt> AutoStorageType<ManualKey<KEY, Salt>> for T
 where
-    T: StorageType2,
+    T: StorageType<Salt>,
+    T: StorageType<
+        ResolverKey<<T as StorageType<Salt>>::PreferredKey, ManualKey<KEY, Salt>>,
+    >,
     Salt: StorageKeyHolder,
 {
-    type Type = <T as StorageType2>::Type<
-        ResolverKey<<T as StorageType2>::PreferredKey, ManualKey<KEY, Salt>>,
-    >;
+    type Type = <T as StorageType<
+        ResolverKey<<T as StorageType<Salt>>::PreferredKey, ManualKey<KEY, Salt>>,
+    >>::Type;
 }

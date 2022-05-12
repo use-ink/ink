@@ -39,7 +39,7 @@ macro_rules! storage_type_works_for_primitive {
                 $crate::test_utils::run_test(|| {
                     assert_eq!(
                         ::core::any::TypeId::of::<$ty>(),
-                        ::core::any::TypeId::of::<<$ty as $crate::traits::StorageType<$crate::traits::ManualKey<0>>>::Type>()
+                        ::core::any::TypeId::of::<<$ty as $crate::traits::StorageType<$crate::traits::ManualKey<123>>>::Type>()
                     );
                     assert!($crate::is_atomic!($ty));
                 })

@@ -31,10 +31,7 @@ use self::{
     atomic_guard::atomic_guard_derive,
     storage_key_holder::storage_key_holder_derive,
     storage_layout::storage_layout_derive,
-    storage_type::{
-        storage_type_derive,
-        storage_type_derive2,
-    },
+    storage_type::storage_type_derive,
 };
 synstructure::decl_derive!(
     [AtomicGuard] =>
@@ -65,70 +62,35 @@ synstructure::decl_derive!(
     /// # Examples
     ///
     /// ```
-    /// use scale::{Encode, Decode};
-    /// use ink_primitives::Key;
     /// use ink_storage::traits::{
-    ///     SpreadLayout,
-    ///     PackedLayout,
-    ///     push_packed_root,
-    ///     pull_packed_root
+    ///     StorageType,
+    ///     StorageKeyHolder,
+    ///     AutoStorageType,
+    ///     AutoKey,
+    ///     ManualKey,
     /// };
     ///
-    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    /// #[derive(Encode, Decode, SpreadLayout, PackedLayout)]
+    /// #[derive(Default, StorageType, scale::Encode, scale::Decode)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let mut value = NamedFields {
-    ///     a: 123,
-    ///     b: [22; 32],
-    /// };
+    /// let _: NamedFields = <NamedFields as StorageType<AutoKey>>::Type::default();
+    /// let _: NamedFields = <NamedFields as StorageType<ManualKey<123>>>::Type::default();
     ///
-    /// push_packed_root(&value, &mut Key::from([0x42; 32]));
-    /// let value2: NamedFields = pull_packed_root(&mut Key::from([0x42; 32]));
-    /// assert_eq!(value.a, value2.a);
-    /// # Ok(())
-    /// # });
+    /// #[derive(StorageType, StorageKeyHolder, scale::Encode, scale::Decode)]
+    /// struct NamedFieldsStorage<KEY: ink_storage::traits::StorageKeyHolder> {
+    ///     a: <u32 as AutoStorageType<ManualKey<0, KEY>>>::Type,
+    ///     b: <[u32; 32] as AutoStorageType<ManualKey<1, KEY>>>::Type,
+    /// }
+    ///
+    /// // (AutoKey | ManualKey<123>) -> ManualKey<123>
+    /// assert_eq!(123, <NamedFieldsStorage<AutoKey> as AutoStorageType<ManualKey<123>>>::Type::KEY);
+    /// // (ManualKey<321> | ManualKey<123>) -> ManualKey<321>
+    /// assert_eq!(321, <NamedFieldsStorage<ManualKey<321>> as AutoStorageType<ManualKey<123>>>::Type::KEY);
     /// ```
     storage_type_derive
-);
-synstructure::decl_derive!(
-    [StorageType2] =>
-    /// Derives `ink_storage`'s `StorageType2` trait for the given `struct` or `enum`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use scale::{Encode, Decode};
-    /// use ink_primitives::Key;
-    /// use ink_storage::traits::{
-    ///     SpreadLayout,
-    ///     PackedLayout,
-    ///     push_packed_root,
-    ///     pull_packed_root
-    /// };
-    ///
-    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-    /// #[derive(Encode, Decode, SpreadLayout, PackedLayout)]
-    /// struct NamedFields {
-    ///     a: u32,
-    ///     b: [u32; 32],
-    /// }
-    ///
-    /// let mut value = NamedFields {
-    ///     a: 123,
-    ///     b: [22; 32],
-    /// };
-    ///
-    /// push_packed_root(&value, &mut Key::from([0x42; 32]));
-    /// let value2: NamedFields = pull_packed_root(&mut Key::from([0x42; 32]));
-    /// assert_eq!(value.a, value2.a);
-    /// # Ok(())
-    /// # });
-    /// ```
-    storage_type_derive2
 );
 synstructure::decl_derive!(
     [StorageKeyHolder] =>
@@ -138,6 +100,7 @@ synstructure::decl_derive!(
     ///
     /// ```
     /// use ink_storage::traits::{
+    ///     AutoStorageType,
     ///     StorageKeyHolder,
     ///     ManualKey,
     ///     AutoKey,
@@ -149,12 +112,12 @@ synstructure::decl_derive!(
     ///     b: [u32; 32],
     /// }
     ///
-    /// assert_eq!(<NameFields as StorageKeyHolder>::KEY, 0);
+    /// assert_eq!(<NamedFields as StorageKeyHolder>::KEY, 0);
     ///
     /// #[derive(StorageKeyHolder)]
     /// struct NamedFieldsManualKey<KEY: StorageKeyHolder> {
-    ///     a: u32,
-    ///     b: [u32; 32],
+    ///     a: <u32 as AutoStorageType<ManualKey<0, KEY>>>::Type,
+    ///     b: <[u32; 32] as AutoStorageType<ManualKey<1, KEY>>>::Type,
     /// }
     ///
     /// assert_eq!(<NamedFieldsManualKey<()> as StorageKeyHolder>::KEY, 0);
@@ -173,7 +136,6 @@ synstructure::decl_derive!(
     /// use ink_metadata::layout::Layout::Struct;
     /// use ink_storage::traits::StorageLayout;
     ///
-    /// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
     /// #[derive(StorageLayout)]
     /// struct NamedFields {
     ///     a: u32,
@@ -190,8 +152,6 @@ synstructure::decl_derive!(
     ///     assert_eq!(*layout.fields()[0].name().unwrap(), "a");
     ///     assert_eq!(*layout.fields()[1].name().unwrap(), "b");
     /// }
-    /// # Ok(())
-    /// # });
     /// ```
     storage_layout_derive
 );

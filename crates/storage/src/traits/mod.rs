@@ -45,11 +45,10 @@ pub use self::{
     },
     storage::{
         AtomicGuard,
-        AutomationStorageType,
+        AutoStorageType,
         OnCallInitializer,
         StorageKeyHolder,
         StorageType,
-        StorageType2,
     },
 };
 use ink_primitives::StorageKey;
@@ -58,7 +57,6 @@ pub use ink_storage_derive::{
     StorageKeyHolder,
     StorageLayout,
     StorageType,
-    StorageType2,
 };
 use scale::{
     Decode,

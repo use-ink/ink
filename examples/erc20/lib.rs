@@ -11,7 +11,7 @@ mod erc20 {
             AtomicGuard,
             ManualKey,
             StorageKeyHolder,
-            StorageType2,
+            StorageType,
         },
         Mapping,
         StorageValue,
@@ -26,7 +26,7 @@ mod erc20 {
         // s3: Vec<NonAtomic>,
     }
 
-    #[derive(Default, Debug, AtomicGuard, StorageType2, scale::Encode, scale::Decode)]
+    #[derive(Default, Debug, AtomicGuard, StorageType, scale::Encode, scale::Decode)]
     struct AtomicManual {
         s1: u128,
         s2: Vec<u128>,
@@ -34,7 +34,7 @@ mod erc20 {
         // s3: Vec<NonAtomic>,
     }
 
-    #[derive(Default, AtomicGuard, StorageType2, scale::Encode, scale::Decode)]
+    #[derive(Default, AtomicGuard, StorageType, scale::Encode, scale::Decode)]
     struct AtomicManual2 {
         s1: u128,
         s2: Vec<u128>,
@@ -55,19 +55,6 @@ mod erc20 {
         s1: Mapping<u128, u128>,
         s2: StorageValue<u128>,
     }
-
-    // AtomicGuard derive macro can't evaluate constant for generics.
-    // It is why it should be implemented manually.
-    #[ink_lang::storage_item(derive = false)]
-    #[derive(StorageKeyHolder, StorageType2, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
-    struct Generic<T: StorageType2> {
-        s1: u128,
-        s2: u32,
-        s3: T,
-    }
-
-    impl<T: StorageType2 + AtomicGuard<true>> AtomicGuard<true> for Generic<T> {}
 
     #[ink_lang::storage_item]
     struct Jora<KEY: StorageKeyHolder> {

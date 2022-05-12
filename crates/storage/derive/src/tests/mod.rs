@@ -15,6 +15,7 @@
 mod atomic_guard;
 mod storage_key_holder;
 mod storage_layout;
+mod storage_type;
 
 #[macro_export]
 macro_rules! test_derive {

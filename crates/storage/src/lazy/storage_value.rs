@@ -2,13 +2,10 @@ use crate::traits::{
     pull_storage,
     push_storage,
     AutoKey,
-    ManualKey,
     StorageKeyHolder,
     StorageType,
-    StorageType2,
 };
 use core::marker::PhantomData;
-use ink_primitives::StorageKey;
 use scale::{
     Decode,
     Encode,
@@ -72,29 +69,14 @@ impl<V: Encode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
     }
 }
 
-impl<
-        V: StorageType<ManualKey<MANUAL_KEY, ManualSalt>>,
-        Salt: StorageKeyHolder,
-        const MANUAL_KEY: StorageKey,
-        ManualSalt: StorageKeyHolder,
-    > StorageType<Salt> for StorageValue<V, ManualKey<MANUAL_KEY, ManualSalt>>
+impl<V, Salt, InnerSalt> StorageType<Salt> for StorageValue<V, InnerSalt>
+where
+    Salt: StorageKeyHolder,
+    InnerSalt: StorageKeyHolder,
+    V: StorageType<Salt>,
 {
-    type Type = StorageValue<
-        <V as StorageType<ManualKey<MANUAL_KEY, ManualSalt>>>::Type,
-        ManualKey<MANUAL_KEY, ManualSalt>,
-    >;
-}
-
-impl<V: StorageType2, Salt: StorageKeyHolder> StorageType2 for StorageValue<V, Salt> {
-    type Type<SaltInner: StorageKeyHolder> = StorageValue<V::Type<SaltInner>, SaltInner>;
-    type PreferredKey = Salt;
-}
-
-impl<V: StorageType<ManualKey<0, Salt>>, Salt: StorageKeyHolder> StorageType<Salt>
-    for StorageValue<V, AutoKey>
-{
-    type Type =
-        StorageValue<<V as StorageType<ManualKey<0, Salt>>>::Type, ManualKey<0, Salt>>;
+    type Type = StorageValue<V::Type, Salt>;
+    type PreferredKey = InnerSalt;
 }
 
 impl<V, KeyType: StorageKeyHolder> Encode for StorageValue<V, KeyType> {

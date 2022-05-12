@@ -1,20 +1,15 @@
 use crate::traits::{
     AtomicGuard,
     AutoKey,
-    ManualKey,
     StorageKeyHolder,
     StorageType,
-    StorageType2,
 };
 use core::marker::PhantomData;
 use ink_env::hash::{
     Blake2x256,
     HashOutput,
 };
-use ink_primitives::{
-    Key,
-    StorageKey,
-};
+use ink_primitives::Key;
 use scale::{
     Decode,
     Encode,
@@ -138,28 +133,14 @@ where
     }
 }
 
-impl<
-        K,
-        V: AtomicGuard<true>,
-        Salt: StorageKeyHolder,
-        const MANUAL_KEY: StorageKey,
-        ManualSalt: StorageKeyHolder,
-    > StorageType<Salt> for Mapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>
+impl<K, V, Salt, InnerSalt> StorageType<Salt> for Mapping<K, V, InnerSalt>
+where
+    V: AtomicGuard<true>,
+    Salt: StorageKeyHolder,
+    InnerSalt: StorageKeyHolder,
 {
-    type Type = Mapping<K, V, ManualKey<MANUAL_KEY, ManualSalt>>;
-}
-
-impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType2
-    for Mapping<K, V, Salt>
-{
-    type Type<SaltInner: StorageKeyHolder> = Mapping<K, V, SaltInner>;
-    type PreferredKey = Salt;
-}
-
-impl<K, V: AtomicGuard<true>, Salt: StorageKeyHolder> StorageType<Salt>
-    for Mapping<K, V, AutoKey>
-{
-    type Type = Mapping<K, V, ManualKey<0, Salt>>;
+    type Type = Mapping<K, V, Salt>;
+    type PreferredKey = InnerSalt;
 }
 
 impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Encode
@@ -184,6 +165,7 @@ const _: () = {
         Layout,
         LayoutKey,
     };
+    use ink_primitives::StorageKey;
 
     impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageLayout
         for Mapping<K, V, KeyType>

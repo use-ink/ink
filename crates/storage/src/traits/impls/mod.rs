@@ -24,14 +24,6 @@ macro_rules! impl_always_storage_type {
             )+
         {
             type Type = $name < $($frag),+ >;
-        }
-        impl<$($frag),+> $crate::traits::StorageType2 for $name < $($frag),+ >
-        where
-            $(
-                $frag: $crate::traits::AtomicGuard< { true } > $( + $bound $(+ $others )* )?,
-            )+
-        {
-            type Type<Salt: $crate::traits::StorageKeyHolder> = $name < $($frag),+ >;
             type PreferredKey = $crate::traits::AutoKey;
         }
         impl<$($frag),+> $crate::traits::AtomicGuard< { true } >
@@ -48,10 +40,6 @@ macro_rules! impl_always_storage_type {
             > $crate::traits::StorageType<Salt> for $name
         {
             type Type = $name;
-        }
-        impl $crate::traits::StorageType2 for $name
-        {
-            type Type<Salt: $crate::traits::StorageKeyHolder> = $name;
             type PreferredKey = $crate::traits::AutoKey;
         }
         impl $crate::traits::AtomicGuard< { true } > for $name {}

@@ -26,16 +26,10 @@ pub trait StorageKeyHolder {
 /// `AtomicGuard<false>` is useless bound because every type can implements it without any restriction.
 pub trait AtomicGuard<const IS_ATOMIC: bool> {}
 
-/// Returns the type that should be used for storing the value
+/// Describes the type that should be used for storing the value and preferred storage key.
 pub trait StorageType<Salt: StorageKeyHolder> {
     /// Type with storage key inside
     type Type: scale::Encode + scale::Decode;
-}
-
-/// Describes the type that should be used for storing the value and preferred storage key.
-pub trait StorageType2 {
-    /// Type with storage key inside
-    type Type<SaltInner: StorageKeyHolder>: scale::Encode + scale::Decode;
     /// Preferred storage key
     type PreferredKey: StorageKeyHolder;
 }
@@ -43,7 +37,7 @@ pub trait StorageType2 {
 /// Automatically returns the type that should be used for storing the value.
 ///
 /// Trait is used be codegen to use the right storage type.
-pub trait AutomationStorageType<Salt: StorageKeyHolder> {
+pub trait AutoStorageType<Salt: StorageKeyHolder> {
     /// Type with storage key inside
     type Type;
 }

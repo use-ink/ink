@@ -110,7 +110,7 @@ impl CallBuilder<'_> {
                 ::scale::Encode,
                 ::scale::Decode,
                 ::ink_storage::traits::AtomicGuard,
-                ::ink_storage::traits::StorageType2,
+                ::ink_storage::traits::StorageType,
                 ::ink_storage::traits::StorageKeyHolder,
             )]
             #[repr(transparent)]

@@ -16,7 +16,6 @@ use crate::traits::{
     AtomicGuard,
     StorageKeyHolder,
     StorageType,
-    StorageType2,
 };
 use ink_env::{
     AccountId,
@@ -59,10 +58,6 @@ impl<T: AtomicGuard<true>> AtomicGuard<true> for Option<T> {}
 
 impl<T: StorageType<Salt>, Salt: StorageKeyHolder> StorageType<Salt> for Option<T> {
     type Type = Option<<T as StorageType<Salt>>::Type>;
-}
-
-impl<T: StorageType2> StorageType2 for Option<T> {
-    type Type<Salt: StorageKeyHolder> = Option<T::Type<Salt>>;
     type PreferredKey = T::PreferredKey;
 }
 
@@ -72,10 +67,6 @@ impl<T: StorageType<Salt>, E: StorageType<Salt>, Salt: StorageKeyHolder> Storage
     for Result<T, E>
 {
     type Type = Result<<T as StorageType<Salt>>::Type, <E as StorageType<Salt>>::Type>;
-}
-
-impl<T: StorageType2, E: StorageType2> StorageType2 for Result<T, E> {
-    type Type<Salt: StorageKeyHolder> = Result<T::Type<Salt>, E::Type<Salt>>;
     type PreferredKey = T::PreferredKey;
 }
 
@@ -83,10 +74,6 @@ impl<T: AtomicGuard<true>> AtomicGuard<true> for Box<T> {}
 
 impl<T: StorageType<Salt>, Salt: StorageKeyHolder> StorageType<Salt> for Box<T> {
     type Type = Box<<T as StorageType<Salt>>::Type>;
-}
-
-impl<T: StorageType2> StorageType2 for Box<T> {
-    type Type<Salt: StorageKeyHolder> = Box<T::Type<Salt>>;
     type PreferredKey = T::PreferredKey;
 }
 
