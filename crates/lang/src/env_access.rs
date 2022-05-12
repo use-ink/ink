@@ -869,7 +869,7 @@ where
     ///     let output = self
     ///         .env()
     ///         .ecdsa_to_eth_address(&pub_key)
-    ///         .expect("Should get ETH address from compressed public key");
+    ///         .expect("must return an Ethereum address for the compressed public key");
     ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
     /// }
     /// #
@@ -1015,7 +1015,7 @@ where
         ink_env::own_code_hash::<E>()
     }
 
-    /// Returns the default Substrate's `AccountId` from the ECDSA compressed public key.
+    /// Returns the default Substrate `AccountId` from the ECDSA compressed public key.
     /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
     ///
     /// # Note

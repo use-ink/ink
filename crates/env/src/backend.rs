@@ -254,7 +254,7 @@ pub trait EnvBackend {
         output: &mut [u8; 33],
     ) -> Result<()>;
 
-    /// Retrieves an Ethereum address from the ECDSA compressed `pubkey`,
+    /// Retrieves an Ethereum address from the ECDSA compressed `pubkey`
     /// and stores the result in `output`.
     fn ecdsa_to_eth_address(
         &mut self,
@@ -305,7 +305,7 @@ pub trait EnvBackend {
     /// - If the supplied `code_hash` cannot be found on-chain.
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
 
-    /// Returns the default Substrate's `AccountId` ([u8;32]) from the ECDSA compressed public key.
+    /// Returns the default Substrate `AccountId` (`[u8; 32]`) from the ECDSA compressed public key.
     /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
     ///
     /// # Note

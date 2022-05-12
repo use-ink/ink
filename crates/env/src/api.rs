@@ -533,7 +533,7 @@ pub fn ecdsa_recover(
 ///
 /// # Errors
 ///
-/// - if cannot retrieve ECDSA public key from the provided input
+/// - If the ECDSA public key cannot be recovered from the provided public key.
 pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_to_eth_address(pubkey, output)
@@ -629,12 +629,12 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
-/// Returns the default Substrate's `AccountId` (`\[u8;32\]`) from the ECDSA compressed public key.
+/// Returns the default Substrate `AccountId` (`[u8; 32]`) from the ECDSA compressed public key.
 /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
 ///
 /// # Note
 ///
-/// This function implies a standart `AccountId` type which is `\[u8;32\]`.
+/// This function assumes an `AccountId` type of `[u8; 32]` for the Substrate chain.
 pub fn ecdsa_to_default_account_id(pubkey: &[u8; 33]) -> AccountId {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_to_default_account_id(pubkey)
