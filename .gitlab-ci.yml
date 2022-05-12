@@ -91,8 +91,8 @@ spellcheck:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/
+    - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+    - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/
   allow_failure:                   true
 
 fmt:
