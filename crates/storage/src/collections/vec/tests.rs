@@ -399,7 +399,7 @@ fn spread_layout_clear_works() {
 fn set_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-        let _ = vec.set(0, b'x').unwrap();
+        vec.set(0, b'x').unwrap();
         let expected = vec_from_slice(&[b'x', b'b', b'c', b'd']);
         assert_eq!(vec, expected);
         Ok(())
