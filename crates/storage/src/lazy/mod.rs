@@ -15,9 +15,6 @@
 //! Low-level collections and data structures to manage storage entities in the
 //! persisted contract storage.
 //!
-//! Users should generally avoid using these collections directly in their
-//! contracts and should instead adhere to the high-level collections found
-//! in [`collections`][`crate::collections`].
 //! The low-level collections are mainly used as building blocks for internals
 //! of other higher-level storage collections.
 //!
