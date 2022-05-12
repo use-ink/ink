@@ -1,7 +1,7 @@
 //! # Mother of All Contracts
 //!
 //! This contracts is intented to
-//! demonstrate rich I/O posibilities of ink! contracts, namely:
+//! demonstrate rich posibilities of ink! contracts, namely:
 //!
 //!   1. Use complicated nested input and ouput types.
 //!      This is done through the real use case example of data structure
@@ -17,7 +17,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod mother {
     use ink_prelude::{
-        string::String,
+        string::{String, ToString},
         vec::Vec,
     };
 
@@ -44,10 +44,11 @@ mod mother {
         Clone,
         SpreadLayout,
         PackedLayout,
+	SpreadAllocate,
     )]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, StorageLayout, SpreadAllocate,)
+        derive(scale_info::TypeInfo, StorageLayout,)
     )]
     pub struct Bids(Vec<Option<(AccountId, Balance)>>);
 
