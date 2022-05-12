@@ -36,8 +36,7 @@ impl DeriveUtils for syn::DeriveInput {
                     if let syn::TypeParamBound::Trait(trait_bound) = bound {
                         let segments = &trait_bound.path.segments;
                         if !segments.is_empty()
-                            && segments.last().unwrap().ident.to_string()
-                                == "StorageKeyHolder"
+                            && segments.last().unwrap().ident == "StorageKeyHolder"
                         {
                             return Some(type_param.clone())
                         }
@@ -54,8 +53,7 @@ impl DeriveUtils for syn::DeriveInput {
             Data::Enum(en) => {
                 en.variants
                     .iter()
-                    .map(|variant| variant.fields.iter())
-                    .flatten()
+                    .flat_map(|variant| variant.fields.iter())
                     .map(|field| field.ty.clone())
                     .collect()
             }

@@ -44,7 +44,7 @@ fn storage_type_inner(s: synstructure::Structure) -> TokenStream2 {
             .params
             .clone()
             .into_iter()
-            .filter_map(|param| {
+            .map(|param| {
                 let ident = match param {
                     GenericParam::Type(t) => t.ident.to_token_stream(),
                     GenericParam::Lifetime(l) => l.lifetime.to_token_stream(),

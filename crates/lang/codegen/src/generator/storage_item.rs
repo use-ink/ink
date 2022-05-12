@@ -247,7 +247,7 @@ fn convert_into_storage_field(
         format_ident!("field_{}", index)
     };
 
-    let key = compute_storage_key(&struct_ident, variant_ident, &field_ident);
+    let key = compute_storage_key(struct_ident, variant_ident, &field_ident);
 
     let mut new_field = field.clone();
     let ty = field.ty.clone();

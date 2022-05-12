@@ -18,9 +18,60 @@ use scale::{
     Output,
 };
 
-/// TODO: Add comment
+/// A mapping of key-value pairs directly into contract storage.
+///
+/// # Important
+///
+/// The mapping requires its own pre-defined storage key where to store values. By default,
+/// it is [`AutoKey`](crate::traits::AutoKey) and during compilation is calculated based on
+/// the name of the structure and the field. But anyone can specify its storage key
+/// via [`ManualKey`](crate::traits::ManualKey).
+///
+/// This is an example of how you can do this:
+/// ```rust
+/// # use ink_lang as ink;
+/// # use ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// # };
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+///
+/// # #[ink::contract]
+/// # mod my_module {
+/// use ink_storage::{traits::ManualKey, Mapping};
+///
+/// #[ink(storage)]
+/// #[derive(Default)]
+/// pub struct MyContract {
+///     balances: Mapping<AccountId, Balance>,
+///     allowance: Mapping<AccountId, Balance, ManualKey<123>>,
+/// }
+///
+/// impl MyContract {
+///     #[ink(constructor)]
+///     pub fn new() -> Self {
+///         let mut instance = Self::default();
+///         instance.new_init();
+///         instance
+///     }
+///
+///     /// Default initializes the contract.
+///     fn new_init(&mut self) {
+///         let caller = Self::env().caller();
+///         let value: Balance = Default::default();
+///         self.balances.insert(&caller, &value);
+///     }
+///
+/// #   #[ink(message)]
+/// #   pub fn my_message(&self) { }
+/// }
+/// # }
+/// ```
+///
+/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey> {
+    #[allow(clippy::type_complexity)]
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
 

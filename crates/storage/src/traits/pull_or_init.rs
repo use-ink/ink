@@ -27,12 +27,13 @@ impl<T: OnCallInitializer + Decode + Sized> PullOrInit<T> {
     #[allow(dead_code)]
     pub fn pull_or_init(key: &StorageKey) -> T {
         let maybe_instance = ink_env::get_storage_value(key);
-        if maybe_instance.is_err() || maybe_instance.as_ref().unwrap().is_none() {
-            let mut instance = Default::default();
-            <T as OnCallInitializer>::initialize(&mut instance);
-            instance
-        } else {
-            maybe_instance.unwrap().unwrap()
+        match maybe_instance {
+            Ok(None) | Err(_) => {
+                let mut instance = Default::default();
+                <T as OnCallInitializer>::initialize(&mut instance);
+                instance
+            }
+            Ok(Some(instance)) => instance,
         }
     }
 }

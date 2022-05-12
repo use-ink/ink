@@ -20,8 +20,7 @@ use quote::{
 };
 
 pub fn storage_key_holder_derive(mut s: synstructure::Structure) -> TokenStream2 {
-    s.bind_with(|_| synstructure::BindStyle::Move)
-        .add_bounds(synstructure::AddBounds::None)
+    s.add_bounds(synstructure::AddBounds::None)
         .underscore_const(true);
 
     let salt = if let Some(param) = s.ast().find_salt() {
