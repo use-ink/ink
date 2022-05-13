@@ -8,8 +8,8 @@ later than [7d233c2446b5a60662400a0a4bcfb78bb3b79ff7](https://github.com/parityt
 (May 13, 2022) in your node.
 
 This is the case in the latest release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
-[v0.15.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.15.0) and
-the latest Polkadot release [v0.9.22](michi-will-add-the-link-once-published).
+[v0.15.1](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.15.1) and
+the latest Polkadot release [v0.9.22](https://github.com/paritytech/polkadot/releases/tag/v0.9.22).
 
 ## Breaking Changes
 There are two breaking changes in this release:
