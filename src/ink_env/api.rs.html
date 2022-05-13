@@ -604,6 +604,34 @@
 <span id="599">599</span>
 <span id="600">600</span>
 <span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1114,6 +1142,34 @@
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">ecdsa_recover</span>(<span class="ident">signature</span>, <span class="ident">message_hash</span>, <span class="ident">output</span>)
+    })
+}
+
+<span class="doccomment">/// Returns an Ethereum address from the ECDSA compressed public key.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// let pub_key = [</span>
+<span class="doccomment">///     2, 141, 181, 91, 5, 219, 134, 192, 177, 120, 108, 164, 159, 9, 93, 118,</span>
+<span class="doccomment">///     52, 76, 158, 96, 86, 178, 240, 39, 1, 167, 231, 243, 194, 10, 171, 253,</span>
+<span class="doccomment">///     145,</span>
+<span class="doccomment">/// ];</span>
+<span class="doccomment">///  let EXPECTED_ETH_ADDRESS = [</span>
+<span class="doccomment">///     9, 35, 29, 167, 177, 154, 1, 111, 158, 87, 109, 35, 177, 98, 119, 6, 47,</span>
+<span class="doccomment">///     77, 70, 168,</span>
+<span class="doccomment">/// ];</span>
+<span class="doccomment">/// let mut output = [0; 20];</span>
+<span class="doccomment">/// ink_env::ecdsa_to_eth_address(&amp;pub_key, &amp;mut output);</span>
+<span class="doccomment">/// assert_eq!(output, EXPECTED_ETH_ADDRESS);</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - If the ECDSA public key cannot be recovered from the provided public key.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ecdsa_to_eth_address</span>(<span class="ident">pubkey</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">33</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">20</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">ecdsa_to_eth_address</span>(<span class="ident">pubkey</span>, <span class="ident">output</span>)
     })
 }
 
