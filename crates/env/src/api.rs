@@ -511,6 +511,34 @@ pub fn ecdsa_recover(
     })
 }
 
+/// Returns an Ethereum address from the ECDSA compressed public key.
+///
+/// # Example
+///
+/// ```
+/// let pub_key = [
+///     2, 141, 181, 91, 5, 219, 134, 192, 177, 120, 108, 164, 159, 9, 93, 118,
+///     52, 76, 158, 96, 86, 178, 240, 39, 1, 167, 231, 243, 194, 10, 171, 253,
+///     145,
+/// ];
+///  let EXPECTED_ETH_ADDRESS = [
+///     9, 35, 29, 167, 177, 154, 1, 111, 158, 87, 109, 35, 177, 98, 119, 6, 47,
+///     77, 70, 168,
+/// ];
+/// let mut output = [0; 20];
+/// ink_env::ecdsa_to_eth_address(&pub_key, &mut output);
+/// assert_eq!(output, EXPECTED_ETH_ADDRESS);
+/// ```
+///
+/// # Errors
+///
+/// - If the ECDSA public key cannot be recovered from the provided public key.
+pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.ecdsa_to_eth_address(pubkey, output)
+    })
+}
+
 /// Checks whether the specified account is a contract.
 ///
 /// # Errors

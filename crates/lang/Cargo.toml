@@ -20,7 +20,6 @@ ink_storage = { version = "3.1.0", path = "../storage", default-features = false
 ink_primitives = { version = "3.1.0", path = "../primitives", default-features = false }
 ink_metadata = { version = "3.1.0", path = "../metadata", default-features = false, optional = true }
 ink_prelude = { version = "3.1.0", path = "../prelude", default-features = false }
-ink_eth_compatibility = { version = "3.1.0", path = "../eth_compatibility", default-features = false }
 ink_lang_macro = { version = "3.1.0", path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
