@@ -110,8 +110,7 @@ pub trait Environment {
         + Eq
         + Ord
         + AsRef<[u8]>
-        + AsMut<[u8]>
-        + Default;
+        + AsMut<[u8]>;
 
     /// The type of balances.
     type Balance: 'static
@@ -202,18 +201,7 @@ pub type BlockNumber = u32;
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Encode,
-    Decode,
-    From,
-    Default,
+    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Encode, Decode, From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
