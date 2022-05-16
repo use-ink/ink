@@ -73,7 +73,11 @@ where
     /// Returns the account ID of the called contract instance.
     #[inline]
     pub(crate) fn callee(&self) -> &E::AccountId {
-        &self.call_type.callee
+        &self
+            .call_type
+            .callee
+            .as_ref()
+            .expect("TODO, probably return Option here")
     }
 
     /// Returns the chosen gas limit for the called contract execution.
@@ -261,7 +265,7 @@ where
 /// The default call type for cross-contract calls. Performs a cross-contract call to `callee`
 /// with gas limit `gas_limit`, transferring `transferred_value` of currency.
 pub struct Call<E: Environment> {
-    callee: E::AccountId,
+    callee: Option<E::AccountId>,
     gas_limit: Gas,
     transferred_value: E::Balance,
 }
@@ -290,7 +294,7 @@ where
     /// Sets the `callee` for the current cross-contract call.
     pub fn callee(self, callee: E::AccountId) -> Self {
         Call {
-            callee,
+            callee: Some(callee),
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
         }
@@ -448,7 +452,7 @@ where
         let call_type = self.call_type.value();
         CallBuilder {
             call_type: Set(Call {
-                callee,
+                callee: Some(callee),
                 gas_limit: call_type.gas_limit,
                 transferred_value: call_type.transferred_value,
             }),
