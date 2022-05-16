@@ -54,7 +54,7 @@ impl_layout_for_primitive!(
     // We do not include `f32` and `f64` since Wasm contracts currently
     // do not support them since they are non deterministic. We might add them
     // to this list once we add deterministic support for those primitives.
-    Key, Hash, AccountId, (),
+    Key, Hash, (),
     String,
     bool,
     u8, u16, u32, u64, u128,
@@ -286,6 +286,53 @@ where
     fn allocate_packed(&mut self, at: &Key) {
         <T as PackedAllocate>::allocate_packed(&mut *self, at)
     }
+}
+
+impl SpreadLayout for AccountId
+where
+    Self: PackedLayout,
+{
+    const FOOTPRINT: u64 = 1_u64;
+    const REQUIRES_DEEP_CLEAN_UP: bool = false;
+
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
+        crate::traits::impls::forward_pull_packed::<Self>(ptr)
+    }
+
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        crate::traits::impls::forward_push_packed::<Self>(self, ptr)
+    }
+
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
+    }
+}
+
+// TODO: Not sure if this can actually be implemented, since we need some sort of "sane" default
+// here
+impl SpreadAllocate for AccountId
+where
+    Self: PackedLayout,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        ptr.advance_by(<Self as SpreadLayout>::FOOTPRINT);
+        [0u8; 32].into()
+    }
+}
+
+impl PackedLayout for AccountId {
+    #[inline]
+    fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
+    #[inline]
+    fn push_packed(&self, _at: &::ink_primitives::Key) {}
+    #[inline]
+    fn clear_packed(&self, _at: &::ink_primitives::Key) {}
+}
+
+impl PackedAllocate for AccountId {
+    #[inline]
+    fn allocate_packed(&mut self, _at: &::ink_primitives::Key) {}
 }
 
 #[cfg(test)]
