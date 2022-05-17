@@ -41,6 +41,7 @@ mod mother {
     use ink_storage::traits::KeyPtr;
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
+    /// Wrapping vector just added for testing UI components.
     #[derive(
         Default,
         scale::Encode,
@@ -53,7 +54,18 @@ mod mother {
         SpreadAllocate,
     )]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
-    pub struct Bids(Vec<Option<(AccountId, Balance)>>);
+    pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
+
+    /// Auction outline.
+    #[derive(
+        scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
+    )]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    pub enum Outline {
+        NoWinner,
+        WinnerDetected,
+        PayoutCompleted,
+    }
 
     /// Auction statuses.
     /// Logic inspired by
@@ -72,7 +84,7 @@ mod mother {
         /// to take snapshots of on arbitrary length (in blocks)
         EndingPeriod(BlockNumber),
         /// Candle was blown
-        Ended,
+        Ended(Outline),
         /// We have completed the bidding process and are waiting for the Random Function to return some acceptable
         /// randomness to select the winner. The number represents how many blocks we have been waiting.
         RfDelay(BlockNumber),
@@ -112,6 +124,8 @@ mod mother {
         /// Candle auction can have no winner.
         /// If auction is finalized, that means that the winner is determined.
         finalized: bool,
+        /// Just a vector for UI tests
+        vector: Vec<u8>,
     }
 
     impl Default for Auction {
@@ -123,6 +137,7 @@ mod mother {
                 terms: <[BlockNumber; 3]>::default(),
                 status: Status::OpeningPeriod,
                 finalized: false,
+                vector: <Vec<u8>>::default(),
             }
         }
     }
