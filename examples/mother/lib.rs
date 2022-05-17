@@ -33,7 +33,6 @@ mod mother {
             PackedLayout,
             SpreadAllocate,
             SpreadLayout,
-            StorageLayout,
         },
         Mapping,
     };
@@ -53,14 +52,20 @@ mod mother {
         PackedLayout,
         SpreadAllocate,
     )]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout,))]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+    )]
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
     /// Auction outline.
     #[derive(
         scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
     )]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+    )]
     pub enum Outline {
         NoWinner,
         WinnerDetected,
@@ -73,7 +78,10 @@ mod mother {
     #[derive(
         scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
     )]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+    )]
     pub enum Status {
         /// An auction has not started yet.
         NotStarted,
@@ -108,7 +116,10 @@ mod mother {
         PackedLayout,
         SpreadAllocate,
     )]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+    )]
     pub struct Auction {
         /// Branded name of the auction event
         name: String,
