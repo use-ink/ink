@@ -1,15 +1,4 @@
 error[E0277]: the trait bound `NonAtomic: AtomicGuard<true>` is not satisfied
- --> tests/ui/storage_item/fail/collections_only_atomic_2.rs:9:1
-  |
-9 | #[ink_lang::storage_item]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
-  |
-  = help: the trait `AtomicGuard<false>` is implemented for `NonAtomic`
-  = note: required because of the requirements on the impl of `StorageType<()>` for `BTreeMap<u128, NonAtomic>`
-  = note: required because of the requirements on the impl of `AutoStorageType<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonAtomic>`
-  = note: this error originates in the attribute macro `ink_lang::storage_item` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0277]: the trait bound `NonAtomic: AtomicGuard<true>` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_atomic_2.rs:9:1
    |
 9  | #[ink_lang::storage_item]
@@ -71,3 +60,14 @@ note: required by a bound in `Result`
     | pub enum Result<T, E> {
     |                 ^ required by this bound in `Result`
     = note: this error originates in the derive macro `::scale::Decode` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NonAtomic: AtomicGuard<true>` is not satisfied
+ --> tests/ui/storage_item/fail/collections_only_atomic_2.rs:9:1
+  |
+9 | #[ink_lang::storage_item]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
+  |
+  = help: the trait `AtomicGuard<false>` is implemented for `NonAtomic`
+  = note: required because of the requirements on the impl of `StorageType<()>` for `BTreeMap<u128, NonAtomic>`
+  = note: required because of the requirements on the impl of `AutoStorageType<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonAtomic>`
+  = note: this error originates in the attribute macro `ink_lang::storage_item` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -10,7 +10,7 @@ mod contract {
     }
 
     #[ink_lang::storage_item]
-    #[derive(Debug, Default, StorageLayout)]
+    #[derive(Debug, Default)]
     pub struct PackedFields {
         field_1: i8,
         field_2: i16,

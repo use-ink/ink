@@ -705,6 +705,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+/// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout))]
 /// struct AtomicManual {
 ///     s1: u32,
 ///     s2: Vec<(u128, String)>,
@@ -713,6 +714,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+/// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout))]
 /// struct AtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
 ///     s1: (u128, bool),
 ///     s2: Vec<T>,
@@ -721,6 +723,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// #[ink_lang::storage_item(derive = false)]
 /// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
+/// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout))]
 /// struct NonAtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
 ///     s1: u32,
 ///     s2: Mapping<u128, T>,
