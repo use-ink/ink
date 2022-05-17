@@ -328,6 +328,20 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    fn ecdsa_to_eth_address(
+        &mut self,
+        pubkey: &[u8; 33],
+        output: &mut [u8; 20],
+    ) -> Result<()> {
+        let pk = secp256k1::PublicKey::from_slice(pubkey)
+            .map_err(|_| Error::EcdsaRecoveryFailed)?;
+        let uncompressed = pk.serialize_uncompressed();
+        let mut hash = <Keccak256 as HashOutput>::Type::default();
+        <Keccak256>::hash(&uncompressed[1..], &mut hash);
+        output.as_mut().copy_from_slice(&hash[12..]);
+        Ok(())
+    }
+
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         func_id: u32,

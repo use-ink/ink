@@ -378,6 +378,11 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn seal_ecdsa_to_eth_address(
+            public_key_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+        ) -> ReturnCode;
     }
 }
 
@@ -698,6 +703,16 @@ pub fn ecdsa_recover(
         sys::seal_ecdsa_recover(
             Ptr32::from_slice(signature),
             Ptr32::from_slice(message_hash),
+            Ptr32Mut::from_slice(output),
+        )
+    };
+    ret_code.into()
+}
+
+pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result {
+    let ret_code = unsafe {
+        sys::seal_ecdsa_to_eth_address(
+            Ptr32::from_slice(pubkey),
             Ptr32Mut::from_slice(output),
         )
     };
