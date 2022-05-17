@@ -18,7 +18,7 @@ In order to test it out you need to do the following:
    `./upgradeable-flipper/target/ink/` folder.
 
    In order to perform migrations and have proxy working for contracts with different
-   [storage layouts](https://paritytech.github.io/ink-docs/datastructures/spread-storage-layout),
+   [storage layouts](https://ink.substrate.io/datastructures/spread-storage-layout),
    we use the [`Upgradeable`](upgradeable-flipper/upgradeable.rs) type
    wrapper, which ensures that we write different fields of desired struct to different
    storage locations, while also tracking the initialization status (e.g., we uploaded
