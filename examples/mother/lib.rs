@@ -154,7 +154,10 @@ mod mother {
 
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(Auction::default())
+            initialize_contract(|c: &mut Self| {
+                c.balances = <Mapping<AccountId, Balance>>::default();
+                c.auction = Auction::default();
+            })
         }
 
         /// Takes an auction data struct as input and returns it back.
