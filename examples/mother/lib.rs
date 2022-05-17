@@ -1,7 +1,9 @@
 //! # Mother of All Contracts
 //!
-//! This contracts is intented to
-//! demonstrate rich posibilities of ink! contracts, namely:
+//! This contracts is intended to make use of all features that are observable
+//! by off chain tooling (for example UIs). It doesn't do anything useful beyond
+//! serving off chain tooling developers with a contract to test their software against.
+//! Currently, this includes the following:
 //!
 //!   1. Use complicated nested input and ouput types.
 //!      This is done through the real use case example of data structure
@@ -9,6 +11,7 @@
 //!   2. Make contract fail with `ContractTrapped`.
 //!   3. Make contract fail with returning an Error.
 //!   4. Perform debug printing from contract into node's log.
+//!   5. Use complicated types in storage.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
