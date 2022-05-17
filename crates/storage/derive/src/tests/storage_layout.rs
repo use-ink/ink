@@ -25,7 +25,7 @@ fn unit_struct_works() {
                 impl ::ink_storage::traits::StorageLayout for UnitStruct {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new("UnitStruct", [])
+                            ::ink_metadata::layout::StructLayout::new(::core::stringify!(UnitStruct), [])
                         )
                     }
                 }
@@ -46,7 +46,7 @@ fn tuple_struct_works() {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(
-                                "TupleStruct",
+                                ::core::stringify!(TupleStruct),
                                 [
                                     ::ink_metadata::layout::FieldLayout::new(
                                         "0",
@@ -86,7 +86,7 @@ fn named_fields_struct_works() {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(
-                                "NamedFieldsStruct",
+                                ::core::stringify!(NamedFieldsStruct),
                                 [
                                     ::ink_metadata::layout::FieldLayout::new(
                                         "a",
@@ -122,25 +122,31 @@ fn clike_enum_works() {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
-                                "ClikeEnum",
+                                ::core::stringify!(ClikeEnum),
                                 ::ink_metadata::layout::LayoutKey::from(__key),
                                 [
                                     {
                                         (
                                             ::ink_metadata::layout::Discriminant::from(0usize),
-                                            ::ink_metadata::layout::StructLayout::new("A", []),
+                                            ::ink_metadata::layout::StructLayout::new(
+                                                ::core::stringify!(A), []
+                                            ),
                                         )
                                     },
                                     {
                                         (
                                             ::ink_metadata::layout::Discriminant::from(1usize),
-                                            ::ink_metadata::layout::StructLayout::new("B", []),
+                                            ::ink_metadata::layout::StructLayout::new(
+                                                ::core::stringify!(B), []
+                                            ),
                                         )
                                     },
                                     {
                                         (
                                             ::ink_metadata::layout::Discriminant::from(2usize),
-                                            ::ink_metadata::layout::StructLayout::new("C", []),
+                                            ::ink_metadata::layout::StructLayout::new(
+                                                ::core::stringify!(C), []
+                                            ),
                                         )
                                     },
                                 ]
@@ -173,20 +179,22 @@ fn mixed_enum_works() {
                     fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
-                                "MixedEnum",
+                                ::core::stringify!(MixedEnum),
                                 ::ink_metadata::layout::LayoutKey::from(__key),
                                 [
                                     {
                                         (
                                             ::ink_metadata::layout::Discriminant::from(0usize),
-                                            ::ink_metadata::layout::StructLayout::new("A", []),
+                                            ::ink_metadata::layout::StructLayout::new(
+                                                ::core::stringify!(A), []
+                                            ),
                                         )
                                     },
                                     {
                                         (
                                             ::ink_metadata::layout::Discriminant::from(1usize),
                                             ::ink_metadata::layout::StructLayout::new(
-                                                "B",
+                                                ::core::stringify!(B),
                                                 [
                                                     ::ink_metadata::layout::FieldLayout::new(
                                                         "0",
@@ -208,7 +216,7 @@ fn mixed_enum_works() {
                                         (
                                             ::ink_metadata::layout::Discriminant::from(2usize),
                                             ::ink_metadata::layout::StructLayout::new(
-                                                "C",
+                                                ::core::stringify!(C),
                                                 [
                                                     ::ink_metadata::layout::FieldLayout::new(
                                                         "a",

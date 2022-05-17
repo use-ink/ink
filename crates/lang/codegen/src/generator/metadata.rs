@@ -65,11 +65,16 @@ impl Metadata<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let storage_key =
             quote! { <#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY };
+
+        let layout_key = quote! {
+            <::ink_metadata::layout::LayoutKey
+                as ::core::convert::From<::ink_primitives::StorageKey>>::from(#storage_key)
+        };
         quote_spanned!(storage_span=>
             // Wrap the layout of the contract into the `RootLayout`, because
             // contract storage key is reserved for all atomic fields
             ::ink_metadata::layout::Layout::Root(::ink_metadata::layout::RootLayout::new(
-                ::ink_metadata::layout::LayoutKey::from(&#storage_key),
+                #layout_key,
                 <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
                     &#storage_key,
                 ),

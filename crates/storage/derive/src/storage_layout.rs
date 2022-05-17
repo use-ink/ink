@@ -24,7 +24,10 @@ fn field_layout<'a>(
                 let ident_str = ident.to_string();
                 quote! { #ident_str }
             }
-            None => quote! { ::core::stringify!(#i) },
+            None => {
+                let index = i.to_string();
+                quote! { #index }
+            }
         };
         let ty = &field.ty;
         quote! {
