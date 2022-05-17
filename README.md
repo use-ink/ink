@@ -34,7 +34,7 @@
 <br/>
 
 [Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1)&nbsp;&nbsp;•&nbsp;&nbsp;
-[ink! Documentation Portal](https://paritytech.github.io/ink-docs)&nbsp;&nbsp;•&nbsp;&nbsp;
+[ink! Documentation Portal](https://ink.substrate.io)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://paritytech.github.io/ink/ink_lang/)
 
 
@@ -73,10 +73,10 @@ If you want to have a local setup you can use our [`substrate-contracts-node`](h
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-)
-called [Canvas](https://paritytech.github.io/ink-docs/canvas). Canvas is a Substrate based
+called [Canvas](https://ink.substrate.io/canvas). Canvas is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
 testnet, follow the instructions in the
-[our documentation](https://paritytech.github.io/ink-docs/canvas#rococo-deployment).
+[our documentation](https://ink.substrate.io/canvas#rococo-deployment).
 
 For both types of chains the [Contracts UI](https://paritytech.github.io/contracts-ui/)
 can be used to instantiate your contract to a chain and interact with it.
@@ -247,7 +247,7 @@ The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`ex
 
 ## Developer Documentation
 
-We have [a very comprehensive documentation portal](https://paritytech.github.io/ink-docs),
+We have [a very comprehensive documentation portal](https://ink.substrate.io),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 

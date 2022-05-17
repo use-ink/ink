@@ -13,7 +13,7 @@ In order to test this bundle of smart contracts you need to execute the
 following steps.
 
 You can upload the contracts using our [Contracts UI](https://paritytech.github.io/contracts-ui/).
-If you want to test it locally, our [`substrate-contracts-node`](https://paritytech.github.io/ink-docs/getting-started/setup/#installing-the-substrate-smart-contracts-node)
+If you want to test it locally, our [`substrate-contracts-node`](https://ink.substrate.io/getting-started/setup/#installing-the-substrate-smart-contracts-node)
 is an easy way to get a local smart contract chain running.
 
 1. Compile all contracts using the `./build-all.sh` script.
