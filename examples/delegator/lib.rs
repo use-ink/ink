@@ -16,10 +16,6 @@ mod delegator {
     /// The initial state is `Adder`.
     #[ink_lang::storage_item]
     #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-    #[cfg_attr(
-        feature = "std",
-        derive(::scale_info::TypeInfo, ::ink_storage::traits::StorageLayout)
-    )]
     pub enum Which {
         Adder,
         Subber,

@@ -99,10 +99,6 @@ impl Storage<'_> {
         quote_spanned!( span =>
             #(#attrs)*
             #[::ink_lang::storage_item]
-            #[cfg_attr(
-                feature = "std",
-                derive(::ink_storage::traits::StorageLayout)
-            )]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
             #[cfg(not(feature = "__ink_dylint_Storage"))]
             pub struct #ident #generics {

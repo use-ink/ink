@@ -82,10 +82,6 @@ impl CallBuilder<'_> {
             /// Implements the underlying on-chain calling of the ink! smart contract
             /// messages and trait implementations in a type safe way.
             #[repr(transparent)]
-            #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
-                ::ink_storage::traits::StorageLayout,
-            ))]
             #[::ink_lang::storage_item]
             #[derive(
                 ::core::fmt::Debug,

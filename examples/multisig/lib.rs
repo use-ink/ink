@@ -94,10 +94,6 @@ mod multisig {
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
     #[ink_lang::storage_item]
     #[derive(Clone, Copy)]
-    #[cfg_attr(
-        feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
-    )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
         Confirmed,
@@ -108,16 +104,7 @@ mod multisig {
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
     #[ink_lang::storage_item]
-    #[cfg_attr(
-        feature = "std",
-        derive(
-            Debug,
-            PartialEq,
-            Eq,
-            scale_info::TypeInfo,
-            ink_storage::traits::StorageLayout
-        )
-    )]
+    #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq,))]
     pub struct Transaction {
         /// The `AccountId` of the contract that is called in this transaction.
         pub callee: AccountId,
@@ -143,16 +130,7 @@ mod multisig {
     /// also the next id to use. We need it for cleaning up the storage.
     #[ink_lang::storage_item]
     #[derive(Default)]
-    #[cfg_attr(
-        feature = "std",
-        derive(
-            Debug,
-            PartialEq,
-            Eq,
-            scale_info::TypeInfo,
-            ink_storage::traits::StorageLayout
-        )
-    )]
+    #[cfg_attr(feature = "std", derive(Debug, PartialEq, Eq,))]
     pub struct Transactions {
         /// Just store all transaction ids packed.
         transactions: Vec<TransactionId>,

@@ -57,6 +57,10 @@ impl GenerateCode for StorageItem<'_> {
                     ::scale::Encode,
                     ::scale::Decode,
                 )]
+                #[cfg_attr(feature = "std", derive(
+                    ::scale_info::TypeInfo,
+                    ::ink_storage::traits::StorageLayout,
+                ))]
             };
             // Derive `AtomicGuard` requires `AtomicGuard<true>` for all types.
             // For storage item we try to calculate is the struct is atomic or not
