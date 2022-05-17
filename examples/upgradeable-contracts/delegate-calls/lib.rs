@@ -19,13 +19,16 @@ use ink_lang as ink;
 #[ink::contract]
 pub mod upgradeable_contract {
     use ink_env::call::DelegateCall;
-    use ink_primitives::StorageKey;
+    use ink_primitives::{
+        StorageKey,
+        StorageKeyComposer,
+    };
     use ink_storage::traits::{
         ManualKey,
         StorageKeyHolder,
     };
 
-    const PROXY_STORAGE_KEY: StorageKey = ink_lang::selector_id!("ProxyFields");
+    const PROXY_STORAGE_KEY: StorageKey = StorageKeyComposer::from_str("ProxyFields");
 
     /// A simple proxy contract.
     ///

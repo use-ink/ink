@@ -14,16 +14,12 @@
 
 use crate::GenerateCode;
 use derive_more::From;
-use ir::Selector;
 use proc_macro2::{
     Ident,
     TokenStream as TokenStream2,
     TokenStream,
 };
-use quote::{
-    format_ident,
-    quote,
-};
+use quote::quote;
 use syn::{
     parse2,
     Data,
@@ -89,9 +85,20 @@ impl<'a> StorageItem<'a> {
             convert_into_storage_field(struct_ident, None, &salt, i, field)
         });
 
-        quote! {
-            #vis struct #struct_ident #generics {
-                #(#fields),*
+        match struct_item.fields {
+            Fields::Unnamed(_) => {
+                quote! {
+                    #vis struct #struct_ident #generics (
+                        #(#fields),*
+                    );
+                }
+            }
+            _ => {
+                quote! {
+                    #vis struct #struct_ident #generics {
+                        #(#fields),*
+                    }
+                }
             }
         }
     }
@@ -195,43 +202,6 @@ impl<'a> StorageItem<'a> {
     }
 }
 
-/// # Note
-///
-/// - `variant_ident` is `None` for structures and unions.
-/// - if the field is unnamed then `field_ident` is `field_{}` where `{}` is a number of the field.
-///
-/// Evaluates the storage key of the field in the structure, variant or union.
-///
-/// 1. Compute the ASCII byte representation of `struct_ident` and call it `S`.
-/// 1. If `variant_ident` is `Some` then computes the ASCII byte representation and call it `V`.
-/// 1. Compute the ASCII byte representation of `field_ident` and call it `F`.
-/// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
-/// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
-/// 1. The first 4 bytes of `H` make up the storage key.
-fn compute_storage_key(
-    struct_ident: &syn::Ident,
-    variant_ident: Option<&syn::Ident>,
-    field_ident: &syn::Ident,
-) -> u32 {
-    let separator = &b"::"[..];
-    let composed_key = if let Some(variant) = variant_ident {
-        [
-            &struct_ident.to_string().into_bytes()[..],
-            &variant.to_string().into_bytes()[..],
-            &field_ident.to_string().into_bytes()[..],
-        ]
-        .join(separator)
-    } else {
-        [
-            &struct_ident.to_string().into_bytes()[..],
-            &field_ident.to_string().into_bytes()[..],
-        ]
-        .join(separator)
-    };
-
-    Selector::compute(&composed_key).into_be_u32()
-}
-
 fn convert_into_storage_field(
     struct_ident: &Ident,
     variant_ident: Option<&syn::Ident>,
@@ -239,13 +209,23 @@ fn convert_into_storage_field(
     index: usize,
     field: &Field,
 ) -> Field {
-    let field_ident = if let Some(field_ident) = &field.ident {
-        field_ident.clone()
+    let field_name = if let Some(field_ident) = &field.ident {
+        field_ident.to_string()
     } else {
-        format_ident!("field_{}", index)
+        index.to_string()
     };
 
-    let key = compute_storage_key(struct_ident, variant_ident, &field_ident);
+    let variant_name = if let Some(variant_ident) = variant_ident {
+        variant_ident.to_string()
+    } else {
+        "".to_string()
+    };
+
+    let key = ink_primitives::StorageKeyComposer::compute_storage_key(
+        struct_ident.to_string().as_str(),
+        variant_name.as_str(),
+        field_name.as_str(),
+    );
 
     let mut new_field = field.clone();
     let ty = field.ty.clone();

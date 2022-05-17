@@ -4,18 +4,12 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    use ink_storage::{
-        traits::{
-            ManualKey,
-            StorageKeyHolder,
-        },
-        Mapping,
-    };
+    use ink_storage::Mapping;
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
     #[derive(Default)]
-    pub struct Erc20<KEY: StorageKeyHolder = ManualKey<0x123>> {
+    pub struct Erc20 {
         /// Total token supply.
         total_supply: Balance,
         /// Mapping from owner to number of owned token.

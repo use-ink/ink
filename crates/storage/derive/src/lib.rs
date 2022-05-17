@@ -149,8 +149,8 @@ synstructure::decl_derive!(
     /// };
     ///
     /// if let Struct(layout) = <NamedFields as StorageLayout>::layout(&key) {
-    ///     assert_eq!(*layout.fields()[0].name().unwrap(), "a");
-    ///     assert_eq!(*layout.fields()[1].name().unwrap(), "b");
+    ///     assert_eq!(*layout.fields()[0].name(), "a");
+    ///     assert_eq!(*layout.fields()[1].name(), "b");
     /// }
     /// ```
     storage_layout_derive

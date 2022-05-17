@@ -23,6 +23,7 @@ use crate::traits::{
     StorageType,
 };
 use core::marker::PhantomData;
+use ink_primitives::StorageKey;
 use scale::{
     Decode,
     Encode,
@@ -87,7 +88,10 @@ pub struct StorageValue<V, KeyType: StorageKeyHolder = AutoKey> {
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<V, KeyType: StorageKeyHolder> Default for StorageValue<V, KeyType> {
+impl<V, KeyType> Default for StorageValue<V, KeyType>
+where
+    KeyType: StorageKeyHolder,
+{
     fn default() -> Self {
         Self {
             _marker: Default::default(),
@@ -95,7 +99,10 @@ impl<V, KeyType: StorageKeyHolder> Default for StorageValue<V, KeyType> {
     }
 }
 
-impl<V, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
+impl<V, KeyType> StorageValue<V, KeyType>
+where
+    KeyType: StorageKeyHolder,
+{
     /// Creates a new empty `StorageValue`.
     pub fn new() -> Self {
         Self {
@@ -104,7 +111,10 @@ impl<V, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
     }
 }
 
-impl<V, KeyType: StorageKeyHolder> core::fmt::Debug for StorageValue<V, KeyType> {
+impl<V, KeyType> core::fmt::Debug for StorageValue<V, KeyType>
+where
+    KeyType: StorageKeyHolder,
+{
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("StorageValue")
             .field("storage_key", &KeyType::KEY)
@@ -112,7 +122,11 @@ impl<V, KeyType: StorageKeyHolder> core::fmt::Debug for StorageValue<V, KeyType>
     }
 }
 
-impl<V: Decode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
+impl<V, KeyType> StorageValue<V, KeyType>
+where
+    V: Decode,
+    KeyType: StorageKeyHolder,
+{
     /// Get the `value` from the contract storage.
     ///
     /// Panics if no `value` exists.
@@ -121,7 +135,11 @@ impl<V: Decode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
     }
 }
 
-impl<V: Decode + Default, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
+impl<V, KeyType> StorageValue<V, KeyType>
+where
+    V: Decode + Default,
+    KeyType: StorageKeyHolder,
+{
     /// Get the `value` from the contract storage.
     ///
     /// Returns `Default::default()` if no `value` exists.
@@ -132,7 +150,11 @@ impl<V: Decode + Default, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
     }
 }
 
-impl<V: Encode, KeyType: StorageKeyHolder> StorageValue<V, KeyType> {
+impl<V, KeyType> StorageValue<V, KeyType>
+where
+    V: Encode,
+    KeyType: StorageKeyHolder,
+{
     /// Sets the given `value` to the contract storage.
     pub fn set(&mut self, value: &V) {
         push_storage(value, &KeyType::KEY)
@@ -149,33 +171,48 @@ where
     type PreferredKey = InnerSalt;
 }
 
-impl<V, KeyType: StorageKeyHolder> Encode for StorageValue<V, KeyType> {
+impl<V, KeyType> Encode for StorageValue<V, KeyType>
+where
+    KeyType: StorageKeyHolder,
+{
     fn encode_to<T: Output + ?Sized>(&self, _dest: &mut T) {}
 }
 
-impl<V, KeyType: StorageKeyHolder> Decode for StorageValue<V, KeyType> {
+impl<V, KeyType> Decode for StorageValue<V, KeyType>
+where
+    KeyType: StorageKeyHolder,
+{
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
     }
+}
+
+impl<V, KeyType> StorageKeyHolder for StorageValue<V, KeyType>
+where
+    KeyType: StorageKeyHolder,
+{
+    const KEY: StorageKey = KeyType::KEY;
 }
 
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
     use ink_metadata::layout::{
-        CellLayout,
         Layout,
         LayoutKey,
+        RootLayout,
     };
-    use ink_primitives::StorageKey;
 
-    impl<V, KeyType: StorageKeyHolder> StorageLayout for StorageValue<V, KeyType>
+    impl<V, KeyType> StorageLayout for StorageValue<V, KeyType>
     where
-        V: scale_info::TypeInfo + 'static,
-        KeyType: scale_info::TypeInfo + 'static,
+        V: StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKeyHolder + scale_info::TypeInfo + 'static,
     {
-        fn layout(_key: &StorageKey) -> Layout {
-            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(&KeyType::KEY)))
+        fn layout(_: &StorageKey) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };

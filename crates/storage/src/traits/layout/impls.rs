@@ -51,7 +51,7 @@ macro_rules! impl_storage_layout_for_primitives {
         $(
             impl StorageLayout for $name {
                 fn layout(key: &StorageKey) -> Layout {
-                    Layout::Cell(CellLayout::new::<$name>(LayoutKey::from(key)))
+                    Layout::Leaf(CellLayout::new::<$name>(LayoutKey::from(key)))
                 }
             }
         )*
@@ -78,7 +78,6 @@ macro_rules! impl_storage_layout_for_arrays {
                     Layout::Array(ArrayLayout::new(
                         LayoutKey::from(key),
                         len,
-                        0,
                         <T as StorageLayout>::layout(&key),
                     ))
                 }
@@ -95,35 +94,77 @@ impl_storage_layout_for_arrays!(
 );
 
 macro_rules! impl_layout_for_tuple {
-    ( $($frag:ident),* $(,)? ) => {
-        impl<$($frag),*> StorageLayout for ($($frag),* ,)
-        where
-            $(
-                $frag: StorageLayout,
-            )*
-        {
-            fn layout(key: &StorageKey) -> Layout {
-                Layout::Struct(
-                    StructLayout::new([
-                        $(
-                            FieldLayout::new(None, <$frag as StorageLayout>::layout(key)),
-                        )*
-                    ])
-                )
+    ( $(($frag:ident, $id:literal)),* $(,)? ) => {
+        const _: () = {
+            // The name of the tuple looks like `(A)`, `(A, B)` ... `(A, B, ..., J)`
+            const TUPLE_NAME: &'static str = stringify!(($($frag),*));
+
+            impl<$($frag),*> StorageLayout for ($($frag),* ,)
+            where
+                $(
+                    $frag: StorageLayout,
+                )*
+            {
+                fn layout(key: &StorageKey) -> Layout {
+                    Layout::Struct(
+                        StructLayout::new(
+                            TUPLE_NAME,
+                            [
+                                $(
+                                    FieldLayout::new(
+                                        ::core::stringify!($id),
+                                        <$frag as StorageLayout>::layout(key)
+                                    ),
+                                )*
+                            ]
+                        )
+                    )
+                }
             }
-        }
+        };
     }
 }
-impl_layout_for_tuple!(A);
-impl_layout_for_tuple!(A, B);
-impl_layout_for_tuple!(A, B, C);
-impl_layout_for_tuple!(A, B, C, D);
-impl_layout_for_tuple!(A, B, C, D, E);
-impl_layout_for_tuple!(A, B, C, D, E, F);
-impl_layout_for_tuple!(A, B, C, D, E, F, G);
-impl_layout_for_tuple!(A, B, C, D, E, F, G, H);
-impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I);
-impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I, J);
+
+impl_layout_for_tuple!((A, 0));
+impl_layout_for_tuple!((A, 0), (B, 1));
+impl_layout_for_tuple!((A, 0), (B, 1), (C, 2));
+impl_layout_for_tuple!((A, 0), (B, 1), (C, 2), (D, 3));
+impl_layout_for_tuple!((A, 0), (B, 1), (C, 2), (D, 3), (E, 4));
+impl_layout_for_tuple!((A, 0), (B, 1), (C, 2), (D, 3), (E, 4), (F, 5));
+impl_layout_for_tuple!((A, 0), (B, 1), (C, 2), (D, 3), (E, 4), (F, 5), (G, 6));
+impl_layout_for_tuple!(
+    (A, 0),
+    (B, 1),
+    (C, 2),
+    (D, 3),
+    (E, 4),
+    (F, 5),
+    (G, 6),
+    (H, 7)
+);
+impl_layout_for_tuple!(
+    (A, 0),
+    (B, 1),
+    (C, 2),
+    (D, 3),
+    (E, 4),
+    (F, 5),
+    (G, 6),
+    (H, 7),
+    (I, 8)
+);
+impl_layout_for_tuple!(
+    (A, 0),
+    (B, 1),
+    (C, 2),
+    (D, 3),
+    (E, 4),
+    (F, 5),
+    (G, 6),
+    (H, 7),
+    (I, 8),
+    (J, 9)
+);
 
 impl<T> StorageLayout for Box<T>
 where
@@ -140,16 +181,17 @@ where
 {
     fn layout(key: &StorageKey) -> Layout {
         Layout::Enum(EnumLayout::new(
+            "Option",
             key,
             [
+                (Discriminant::from(0), StructLayout::new("None", Vec::new())),
                 (
-                    Discriminant::from(0),
-                    StructLayout::new([FieldLayout::new(
-                        None,
-                        <T as StorageLayout>::layout(key),
-                    )]),
+                    Discriminant::from(1),
+                    StructLayout::new(
+                        "Some",
+                        [FieldLayout::new("0", <T as StorageLayout>::layout(key))],
+                    ),
                 ),
-                (Discriminant::from(1), StructLayout::new(Vec::new())),
             ],
         ))
     }
@@ -162,21 +204,22 @@ where
 {
     fn layout(key: &StorageKey) -> Layout {
         Layout::Enum(EnumLayout::new(
+            "Result",
             *key,
             [
                 (
                     Discriminant::from(0),
-                    StructLayout::new([FieldLayout::new(
-                        None,
-                        <T as StorageLayout>::layout(key),
-                    )]),
+                    StructLayout::new(
+                        "Ok",
+                        [FieldLayout::new("0", <T as StorageLayout>::layout(key))],
+                    ),
                 ),
                 (
                     Discriminant::from(1),
-                    StructLayout::new([FieldLayout::new(
-                        None,
-                        <E as StorageLayout>::layout(key),
-                    )]),
+                    StructLayout::new(
+                        "Err",
+                        [FieldLayout::new("1", <E as StorageLayout>::layout(key))],
+                    ),
                 ),
             ],
         ))
@@ -188,7 +231,7 @@ where
     T: TypeInfo + 'static + AtomicGuard<true>,
 {
     fn layout(key: &StorageKey) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
@@ -198,7 +241,7 @@ where
     V: TypeInfo + 'static + AtomicGuard<true>,
 {
     fn layout(key: &StorageKey) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
@@ -207,7 +250,7 @@ where
     T: TypeInfo + 'static + AtomicGuard<true>,
 {
     fn layout(key: &StorageKey) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
@@ -216,6 +259,6 @@ where
     T: TypeInfo + 'static + AtomicGuard<true>,
 {
     fn layout(key: &StorageKey) -> Layout {
-        Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }

@@ -29,20 +29,80 @@ use scale_info::{
     Type,
     TypeInfo,
 };
-
-pub trait OldStorageKey {
-    fn old_key(&self) -> Key;
-}
+use sha2_const::Sha256;
 
 pub type StorageKey = u32;
 
-pub const AUTO_KEY: StorageKey = StorageKey::MAX;
+/// Contains all rules related to storage key creation.
+pub struct StorageKeyComposer;
 
-impl OldStorageKey for StorageKey {
-    fn old_key(&self) -> Key {
-        let mut key = Key::new([0; 32]);
-        key += *self as u64;
-        key
+impl StorageKeyComposer {
+    /// Concatenate two `StorageKey` into one. If one of the keys is zero, then return another
+    /// without hashing. If both keys are non-zero, return the hash of both keys.
+    pub const fn concat(left: StorageKey, right: StorageKey) -> StorageKey {
+        match (left, right) {
+            (0, 0) => 0,
+            (0, _) => right,
+            (_, 0) => left,
+            (left, right) => {
+                let hash = Sha256::new()
+                    .update(&left.to_be_bytes())
+                    .update(&right.to_be_bytes())
+                    .finalize();
+                StorageKey::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+            }
+        }
+    }
+
+    /// Return storage key from the string
+    pub const fn from_str(str: &str) -> StorageKey {
+        Self::from_bytes(str.as_bytes())
+    }
+
+    /// Return storage key from the bytes
+    pub const fn from_bytes(bytes: &[u8]) -> StorageKey {
+        let hash = Sha256::new().update(bytes).finalize();
+        StorageKey::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+    }
+
+    /// # Note
+    ///
+    /// - `variant_name` is `None` for structures and unions.
+    /// - if the field is unnamed then `field_name` is `"{}"` where `{}` is a number of the field.
+    ///
+    /// Evaluates the storage key of the field in the structure, variant or union.
+    ///
+    /// 1. Compute the ASCII byte representation of `struct_name` and call it `S`.
+    /// 1. If `variant_name` is `Some` then computes the ASCII byte representation and call it `V`.
+    /// 1. Compute the ASCII byte representation of `field_name` and call it `F`.
+    /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
+    /// 1. Apply the `SHA2` 256-bit hash `H` of `C`.
+    /// 1. The first 4 bytes of `H` make up the storage key.
+    pub fn compute_storage_key(
+        struct_name: &str,
+        variant_name: &str,
+        field_name: &str,
+    ) -> u32 {
+        let separator = &b"::"[..];
+        let composed_key = if !variant_name.is_empty() {
+            [
+                struct_name.as_bytes(),
+                variant_name.as_bytes(),
+                field_name.as_bytes(),
+            ]
+            .join(separator)
+        } else {
+            [struct_name.as_bytes(), field_name.as_bytes()].join(separator)
+        };
+
+        Self::from_bytes(composed_key.as_slice())
+    }
+
+    /// Return the 32 bytes representation of the storage key for old version of the storage.
+    pub fn old_key(new_key: &StorageKey) -> Key {
+        let mut old_key = Key::new([0; 32]);
+        old_key += *new_key as u64;
+        old_key
     }
 }
 

@@ -32,9 +32,8 @@ mod tests;
 pub use self::{
     key::{
         Key,
-        OldStorageKey,
         StorageKey,
-        AUTO_KEY,
+        StorageKeyComposer,
     },
     key_ptr::KeyPtr,
 };

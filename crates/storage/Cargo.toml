@@ -26,6 +26,7 @@ derive_more = { version = "0.99", default-features = false, features = ["from", 
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
 array-init = { version = "2.0", default-features = false }
+const_format = "0.2.23"
 
 [dev-dependencies]
 quickcheck = "1.0"

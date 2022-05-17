@@ -46,8 +46,8 @@ use ink_engine::{
 };
 use ink_primitives::{
     Key,
-    OldStorageKey,
     StorageKey,
+    StorageKeyComposer,
 };
 
 /// The capacity of the static buffer.
@@ -225,7 +225,8 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let v = scale::Encode::encode(value);
-        self.engine.set_storage(key.old_key().as_ref(), &v[..]);
+        self.engine
+            .set_storage(StorageKeyComposer::old_key(key).as_ref(), &v[..]);
     }
 
     fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
@@ -233,10 +234,10 @@ impl EnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let mut output: [u8; 9600] = [0; 9600];
-        match self
-            .engine
-            .get_storage(key.old_key().as_ref(), &mut &mut output[..])
-        {
+        match self.engine.get_storage(
+            StorageKeyComposer::old_key(key).as_ref(),
+            &mut &mut output[..],
+        ) {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -246,7 +247,8 @@ impl EnvBackend for EnvInstance {
     }
 
     fn clear_storage_value(&mut self, key: &StorageKey) {
-        self.engine.clear_storage(key.old_key().as_ref())
+        self.engine
+            .clear_storage(StorageKeyComposer::old_key(key).as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

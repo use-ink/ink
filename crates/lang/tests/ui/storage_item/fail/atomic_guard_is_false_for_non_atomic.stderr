@@ -1,0 +1,8 @@
+error[E0277]: the trait bound `NonAtomic: AtomicGuard<true>` is not satisfied
+  --> tests/ui/storage_item/fail/atomic_guard_is_false_for_non_atomic.rs:13:37
+   |
+13 |     let _: &dyn AtomicGuard<true> = &NonAtomic::default();
+   |                                     ^^^^^^^^^^^^^^^^^^^^^ the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
+   |
+   = help: the trait `AtomicGuard<false>` is implemented for `NonAtomic`
+   = note: required for the cast to the object type `dyn AtomicGuard<true>`

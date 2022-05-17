@@ -1,0 +1,5 @@
+error: expected a bool literal for `derive` ink! storage item configuration argument
+ --> tests/ui/storage_item/fail/argument_derive_invalid_type.rs:1:26
+  |
+1 | #[ink_lang::storage_item(derive = "false")]
+  |                          ^^^^^^^^^^^^^^^^

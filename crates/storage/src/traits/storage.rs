@@ -16,8 +16,13 @@ use ink_primitives::StorageKey;
 
 /// Returns storage key for the type
 pub trait StorageKeyHolder {
-    /// Storage key
+    /// Storage key of the type
     const KEY: StorageKey;
+
+    /// Returns the storage key.
+    fn storage_key(&self) -> StorageKey {
+        Self::KEY
+    }
 }
 
 /// `AtomicGuard<true>` is automatically implemented for all primitive types and atomic structures.

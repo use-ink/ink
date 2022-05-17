@@ -30,7 +30,10 @@ use ink_env::hash::{
     Blake2x256,
     HashOutput,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    StorageKey,
+};
 use scale::{
     Decode,
     Encode,
@@ -97,8 +100,10 @@ pub struct Mapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey>
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Default
-    for Mapping<K, V, KeyType>
+impl<K, V, KeyType> Default for Mapping<K, V, KeyType>
+where
+    V: AtomicGuard<true>,
+    KeyType: StorageKeyHolder,
 {
     fn default() -> Self {
         Self {
@@ -107,7 +112,11 @@ impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Default
     }
 }
 
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Mapping<K, V, KeyType> {
+impl<K, V, KeyType> Mapping<K, V, KeyType>
+where
+    V: AtomicGuard<true>,
+    KeyType: StorageKeyHolder,
+{
     /// Creates a new empty `Mapping`.
     pub fn new() -> Self {
         Self {
@@ -116,8 +125,10 @@ impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Mapping<K, V, KeyType> 
     }
 }
 
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> core::fmt::Debug
-    for Mapping<K, V, KeyType>
+impl<K, V, KeyType> ::core::fmt::Debug for Mapping<K, V, KeyType>
+where
+    V: AtomicGuard<true>,
+    KeyType: StorageKeyHolder,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("Mapping")
@@ -215,39 +226,52 @@ where
     type PreferredKey = InnerSalt;
 }
 
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Encode
-    for Mapping<K, V, KeyType>
+impl<K, V, KeyType> Encode for Mapping<K, V, KeyType>
+where
+    V: AtomicGuard<true>,
+    KeyType: StorageKeyHolder,
 {
     fn encode_to<T: Output + ?Sized>(&self, _dest: &mut T) {}
 }
 
-impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> Decode
-    for Mapping<K, V, KeyType>
+impl<K, V, KeyType> Decode for Mapping<K, V, KeyType>
+where
+    V: AtomicGuard<true>,
+    KeyType: StorageKeyHolder,
 {
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
     }
 }
 
+impl<K, V, KeyType> StorageKeyHolder for Mapping<K, V, KeyType>
+where
+    V: AtomicGuard<true>,
+    KeyType: StorageKeyHolder,
+{
+    const KEY: StorageKey = KeyType::KEY;
+}
+
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
     use ink_metadata::layout::{
-        CellLayout,
         Layout,
         LayoutKey,
+        RootLayout,
     };
-    use ink_primitives::StorageKey;
 
-    impl<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder> StorageLayout
-        for Mapping<K, V, KeyType>
+    impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where
         K: scale_info::TypeInfo + 'static,
-        V: scale_info::TypeInfo + 'static,
-        KeyType: scale_info::TypeInfo + 'static,
+        V: AtomicGuard<true> + StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKeyHolder + scale_info::TypeInfo + 'static,
     {
-        fn layout(_key: &StorageKey) -> Layout {
-            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(&KeyType::KEY)))
+        fn layout(_: &StorageKey) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };

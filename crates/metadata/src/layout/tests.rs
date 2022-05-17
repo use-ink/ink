@@ -23,10 +23,13 @@ fn layout_key_works() {
 }
 
 fn named_fields_struct_layout(key: &StorageKey) -> Layout {
-    StructLayout::new(vec![
-        FieldLayout::new("a", CellLayout::new::<i32>(LayoutKey::from(key))),
-        FieldLayout::new("b", CellLayout::new::<i64>(LayoutKey::from(key))),
-    ])
+    StructLayout::new(
+        "Struct",
+        vec![
+            FieldLayout::new("a", CellLayout::new::<i32>(LayoutKey::from(key))),
+            FieldLayout::new("b", CellLayout::new::<i64>(LayoutKey::from(key))),
+        ],
+    )
     .into()
 }
 
@@ -42,7 +45,7 @@ fn named_fields_work() {
                 "fields": [
                     {
                         "layout": {
-                            "cell": {
+                            "leaf": {
                                 "key": "0x00000159",
                                 "ty": 0,
                             }
@@ -51,14 +54,15 @@ fn named_fields_work() {
                     },
                     {
                         "layout": {
-                            "cell": {
+                            "leaf": {
                                 "key": "0x00000159",
                                 "ty": 1,
                             }
                         },
                         "name": "b",
                     }
-                ]
+                ],
+                "name": "Struct",
             }
         }
     };
@@ -66,10 +70,13 @@ fn named_fields_work() {
 }
 
 fn tuple_struct_layout(key: &StorageKey) -> Layout {
-    StructLayout::new(vec![
-        FieldLayout::new(None, CellLayout::new::<i32>(LayoutKey::from(key))),
-        FieldLayout::new(None, CellLayout::new::<i64>(LayoutKey::from(key))),
-    ])
+    StructLayout::new(
+        "(A, B)",
+        vec![
+            FieldLayout::new("0", CellLayout::new::<i32>(LayoutKey::from(key))),
+            FieldLayout::new("1", CellLayout::new::<i64>(LayoutKey::from(key))),
+        ],
+    )
     .into()
 }
 
@@ -85,23 +92,24 @@ fn tuple_struct_work() {
                 "fields": [
                     {
                         "layout": {
-                            "cell": {
+                            "leaf": {
                                 "key": "0x000000ea",
                                 "ty": 0,
                             }
                         },
-                        "name": null,
+                        "name": "0",
                     },
                     {
                         "layout": {
-                            "cell": {
+                            "leaf": {
                                 "key": "0x000000ea",
                                 "ty": 1,
                             }
                         },
-                        "name": null,
+                        "name": "1",
                     }
-                ]
+                ],
+                "name": "(A, B)",
             }
         }
     };
@@ -110,11 +118,12 @@ fn tuple_struct_work() {
 
 fn clike_enum_layout(key: &StorageKey) -> Layout {
     EnumLayout::new(
+        "Enum",
         key,
         vec![
-            (Discriminant(0), StructLayout::new(vec![])),
-            (Discriminant(1), StructLayout::new(vec![])),
-            (Discriminant(2), StructLayout::new(vec![])),
+            (Discriminant(0), StructLayout::new("Struct0", vec![])),
+            (Discriminant(1), StructLayout::new("Struct1", vec![])),
+            (Discriminant(2), StructLayout::new("Struct2", vec![])),
         ],
     )
     .into()
@@ -130,15 +139,19 @@ fn clike_enum_work() {
         {
             "enum": {
                 "dispatchKey": "0x0000007b",
+                "name": "Enum",
                 "variants": {
                     "0": {
                         "fields": [],
+                        "name": "Struct0",
                     },
                     "1": {
                         "fields": [],
+                        "name": "Struct1",
                     },
                     "2": {
                         "fields": [],
+                        "name": "Struct2",
                     },
                 }
             }
@@ -149,39 +162,46 @@ fn clike_enum_work() {
 
 fn mixed_enum_layout(key: &StorageKey) -> Layout {
     EnumLayout::new(
+        "Enum",
         *key,
         vec![
-            (Discriminant(0), StructLayout::new(vec![])),
+            (Discriminant(0), StructLayout::new("Struct0", vec![])),
             {
-                let variant_key = *key;
+                let variant_key = key;
                 (
                     Discriminant(1),
-                    StructLayout::new(vec![
-                        FieldLayout::new(
-                            None,
-                            CellLayout::new::<i32>(LayoutKey::from(variant_key)),
-                        ),
-                        FieldLayout::new(
-                            None,
-                            CellLayout::new::<i64>(LayoutKey::from(variant_key)),
-                        ),
-                    ]),
+                    StructLayout::new(
+                        "Struct1",
+                        vec![
+                            FieldLayout::new(
+                                "0",
+                                CellLayout::new::<i32>(LayoutKey::from(variant_key)),
+                            ),
+                            FieldLayout::new(
+                                "1",
+                                CellLayout::new::<i64>(LayoutKey::from(variant_key)),
+                            ),
+                        ],
+                    ),
                 )
             },
             {
-                let variant_key = *key;
+                let variant_key = key;
                 (
                     Discriminant(2),
-                    StructLayout::new(vec![
-                        FieldLayout::new(
-                            "a",
-                            CellLayout::new::<i32>(LayoutKey::from(variant_key)),
-                        ),
-                        FieldLayout::new(
-                            "b",
-                            CellLayout::new::<i64>(LayoutKey::from(variant_key)),
-                        ),
-                    ]),
+                    StructLayout::new(
+                        "Struct2",
+                        vec![
+                            FieldLayout::new(
+                                "a",
+                                CellLayout::new::<i32>(LayoutKey::from(variant_key)),
+                            ),
+                            FieldLayout::new(
+                                "b",
+                                CellLayout::new::<i64>(LayoutKey::from(variant_key)),
+                            ),
+                        ],
+                    ),
                 )
             },
         ],
@@ -199,37 +219,40 @@ fn mixed_enum_work() {
         {
             "enum": {
                 "dispatchKey": "0x000001c8",
+                "name": "Enum",
                 "variants": {
                     "0": {
                         "fields": [],
+                        "name": "Struct0",
                     },
                     "1": {
                         "fields": [
                             {
                                 "layout": {
-                                    "cell": {
+                                    "leaf": {
                                         "key": "0x000001c8",
                                         "ty": 0,
                                     }
                                 },
-                                "name": null,
+                                "name": "0",
                             },
                             {
                                 "layout": {
-                                    "cell": {
+                                    "leaf": {
                                         "key": "0x000001c8",
                                         "ty": 1,
                                     }
                                 },
-                                "name": null,
+                                "name": "1",
                             }
                         ],
+                        "name": "Struct1",
                     },
                     "2": {
                         "fields": [
                             {
                                 "layout": {
-                                    "cell": {
+                                    "leaf": {
                                         "key": "0x000001c8",
                                         "ty": 0,
                                     }
@@ -238,7 +261,7 @@ fn mixed_enum_work() {
                             },
                             {
                                 "layout": {
-                                    "cell": {
+                                    "leaf": {
                                         "key": "0x000001c8",
                                         "ty": 1,
                                     }
@@ -246,6 +269,7 @@ fn mixed_enum_work() {
                                 "name": "b",
                             }
                         ],
+                        "name": "Struct2",
                     },
                 }
             }
@@ -278,7 +302,7 @@ fn unbounded_layout_works() {
         {
             "hash": {
                 "layout": {
-                    "cell": {
+                    "leaf": {
                         "key": "0x00000237",
                         "ty": 0
                     }
