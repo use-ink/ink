@@ -278,7 +278,7 @@ mod erc721 {
                 ..
             } = self;
 
-            if token_owner.get(&id).is_none() {
+            if !token_owner.contains(&id) {
                 return Err(Error::TokenNotFound)
             }
 
@@ -300,7 +300,7 @@ mod erc721 {
                 ..
             } = self;
 
-            if token_owner.get(&id).is_some() {
+            if token_owner.contains(&id) {
                 return Err(Error::TokenExists)
             }
 
@@ -355,7 +355,7 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            if self.token_approvals.get(&id).is_some() {
+            if self.token_approvals.contains(&id) {
                 return Err(Error::CannotInsert)
             } else {
                 self.token_approvals.insert(&id, to);
@@ -382,7 +382,7 @@ mod erc721 {
 
         /// Gets an operator on other Account's behalf.
         fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.operator_approvals.get((&owner, &operator)).is_some()
+            self.operator_approvals.contains((&owner, &operator))
         }
 
         /// Returns true if the `AccountId` `from` is the owner of token `id`
@@ -400,7 +400,7 @@ mod erc721 {
 
         /// Returns true if token `id` exists or false if it does not.
         fn exists(&self, id: TokenId) -> bool {
-            self.token_owner.get(&id).is_some()
+            self.token_owner.contains(&id)
         }
     }
 

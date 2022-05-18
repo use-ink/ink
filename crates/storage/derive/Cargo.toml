@@ -1,6 +1,6 @@
 [package]
 name = "ink_storage_derive"
-version = "3.0.1"
+version = "3.1.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -26,8 +26,8 @@ ink_storage_codegen = { version = "3.0.1", path = "../codegen" }
 
 [dev-dependencies]
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-ink_env = { version = "3.0.1", path = "../../env" }
-ink_primitives = { version = "3.0.1", path = "../../primitives" }
-ink_metadata = { version = "3.0.1", path = "../../metadata" }
-ink_prelude = { version = "3.0.1", path = "../../prelude" }
-ink_storage = { version = "3.0.1", path = ".." }
+ink_env = { version = "3.1.0", path = "../../env" }
+ink_primitives = { version = "3.1.0", path = "../../primitives" }
+ink_metadata = { version = "3.1.0", path = "../../metadata" }
+ink_prelude = { version = "3.1.0", path = "../../prelude" }
+ink_storage = { version = "3.1.0", path = ".." }
