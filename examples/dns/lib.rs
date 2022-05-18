@@ -96,7 +96,7 @@ mod dns {
         #[ink(message)]
         pub fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
-            if self.name_to_owner.get(&name).is_some() {
+            if self.name_to_owner.contains(&name) {
                 return Err(Error::NameAlreadyExists)
             }
 

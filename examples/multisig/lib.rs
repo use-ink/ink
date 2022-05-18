@@ -504,7 +504,7 @@ mod multisig {
         pub fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
-            if self.confirmations.get(&(trans_id, caller)).is_some() {
+            if self.confirmations.contains(&(trans_id, caller)) {
                 self.confirmations.remove(&(trans_id, caller));
                 let mut confirmation_count = self
                     .confirmation_count
@@ -601,7 +601,7 @@ mod multisig {
         ) -> ConfirmationStatus {
             let mut count = self.confirmation_count.get(&transaction).unwrap_or(0);
             let key = (transaction, confirmer);
-            let new_confirmation = self.confirmations.get(&key).is_none();
+            let new_confirmation = !self.confirmations.contains(&key);
             if new_confirmation {
                 count += 1;
                 self.confirmations.insert(&key, &());
@@ -659,7 +659,7 @@ mod multisig {
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
             for trans_id in &self.transaction_list.transactions {
                 let key = (*trans_id, *owner);
-                if self.confirmations.get(&key).is_some() {
+                if self.confirmations.contains(&key) {
                     self.confirmations.remove(&key);
                     let mut count = self.confirmation_count.get(&trans_id).unwrap_or(0);
                     count -= 1;
@@ -696,12 +696,12 @@ mod multisig {
 
         /// Panic if `owner` is not an owner,
         fn ensure_owner(&self, owner: &AccountId) {
-            assert!(self.is_owner.get(owner).is_some());
+            assert!(self.is_owner.contains(owner));
         }
 
         /// Panic if `owner` is an owner.
         fn ensure_no_owner(&self, owner: &AccountId) {
-            assert!(self.is_owner.get(owner).is_none());
+            assert!(!self.is_owner.contains(owner));
         }
     }
 
@@ -794,12 +794,12 @@ mod multisig {
             assert_eq!(contract.owners.len(), 3);
             assert_eq!(contract.requirement, 2);
             assert!(contract.owners.iter().eq(owners.iter()));
-            assert!(contract.is_owner.get(&accounts.alice).is_some());
-            assert!(contract.is_owner.get(&accounts.bob).is_some());
-            assert!(contract.is_owner.get(&accounts.eve).is_some());
-            assert!(contract.is_owner.get(&accounts.charlie).is_none());
-            assert!(contract.is_owner.get(&accounts.django).is_none());
-            assert!(contract.is_owner.get(&accounts.frank).is_none());
+            assert!(contract.is_owner.contains(&accounts.alice));
+            assert!(contract.is_owner.contains(&accounts.bob));
+            assert!(contract.is_owner.contains(&accounts.eve));
+            assert!(!contract.is_owner.contains(&accounts.charlie));
+            assert!(!contract.is_owner.contains(&accounts.django));
+            assert!(!contract.is_owner.contains(&accounts.frank));
             assert_eq!(contract.transaction_list.transactions.len(), 0);
         }
 
@@ -831,7 +831,7 @@ mod multisig {
             let owners = contract.owners.len();
             contract.add_owner(accounts.frank);
             assert_eq!(contract.owners.len(), owners + 1);
-            assert!(contract.is_owner.get(&accounts.frank).is_some());
+            assert!(contract.is_owner.contains(&accounts.frank));
             assert_eq!(test::recorded_events().count(), 1);
         }
 
@@ -861,7 +861,7 @@ mod multisig {
             let owners = contract.owners.len();
             contract.remove_owner(accounts.alice);
             assert_eq!(contract.owners.len(), owners - 1);
-            assert!(contract.is_owner.get(&accounts.alice).is_none());
+            assert!(!contract.is_owner.contains(&accounts.alice));
             assert_eq!(test::recorded_events().count(), 1);
         }
 
@@ -891,8 +891,8 @@ mod multisig {
             let owners = contract.owners.len();
             contract.replace_owner(accounts.alice, accounts.django);
             assert_eq!(contract.owners.len(), owners);
-            assert!(contract.is_owner.get(&accounts.alice).is_none());
-            assert!(contract.is_owner.get(&accounts.django).is_some());
+            assert!(!contract.is_owner.contains(&accounts.alice));
+            assert!(contract.is_owner.contains(&accounts.django));
             assert_eq!(test::recorded_events().count(), 2);
         }
 
@@ -1053,7 +1053,7 @@ mod multisig {
             set_caller(accounts.alice);
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 3);
-            assert!(contract.confirmations.get(&(0, accounts.alice)).is_none());
+            assert!(!contract.confirmations.contains(&(0, accounts.alice)));
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 0);
         }
 
@@ -1064,7 +1064,7 @@ mod multisig {
             set_caller(accounts.bob);
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 2);
-            assert!(contract.confirmations.get(&(0, accounts.alice)).is_some());
+            assert!(contract.confirmations.contains(&(0, accounts.alice)));
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
