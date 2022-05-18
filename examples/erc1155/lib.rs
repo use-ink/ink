@@ -436,7 +436,7 @@ mod erc1155 {
                 ensure!(self.is_approved_for_all(from, caller), Error::NotApproved);
             }
 
-            ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            ensure!(to != zero_address(), Error::ZeroAddressTransfer);
 
             let balance = self.balance_of(from, token_id);
             ensure!(balance >= value, Error::InsufficientBalance);
@@ -461,7 +461,7 @@ mod erc1155 {
                 ensure!(self.is_approved_for_all(from, caller), Error::NotApproved);
             }
 
-            ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            ensure!(to != zero_address(), Error::ZeroAddressTransfer);
             ensure!(!token_ids.is_empty(), Error::BatchTransferMismatch);
             ensure!(
                 token_ids.len() == values.len(),
@@ -583,6 +583,13 @@ mod erc1155 {
             // and we've decided to not accept them in this implementation.
             unimplemented!("This smart contract does not accept batch token transfers.")
         }
+    }
+
+    /// Helper for referencing the zero address (0x00). Note that in practice this address should
+    /// not be treated in any special way (such as a default placeholder) since it has a known
+    /// private key.
+    fn zero_address() -> AccountId {
+        [0u8; 32].into()
     }
 
     #[cfg(test)]

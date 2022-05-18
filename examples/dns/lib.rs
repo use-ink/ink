@@ -58,7 +58,7 @@ mod dns {
     /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(SpreadAllocate)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: Mapping<Hash, AccountId>,
@@ -88,7 +88,7 @@ mod dns {
             // This call is required in order to correctly initialize the
             // `Mapping`s of our contract.
             ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.default_address = Default::default();
+                contract.default_address = zero_address();
             })
         }
 
@@ -174,6 +174,13 @@ mod dns {
                 .get(&name)
                 .unwrap_or(self.default_address)
         }
+    }
+
+    /// Helper for referencing the zero address (0x00). Note that in practice this address should
+    /// not be treated in any special way (such as a default placeholder) since it has a known
+    /// private key.
+    fn zero_address() -> AccountId {
+        [0u8; 32].into()
     }
 
     #[cfg(test)]
