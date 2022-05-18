@@ -257,6 +257,17 @@ impl Engine {
         }
     }
 
+    /// Returns the size of the value stored in the contract storage at the key if any.
+    pub fn contains_storage(&mut self, key: &[u8; 32]) -> Option<u32> {
+        let callee = self.get_callee();
+        let account_id = AccountId::from_bytes(&callee[..]);
+
+        self.debug_info.inc_reads(account_id);
+        self.database
+            .get_from_contract_storage(&callee, key)
+            .map(|val| val.len() as u32)
+    }
+
     /// Removes the storage entries at the given key.
     pub fn clear_storage(&mut self, key: &[u8; 32]) {
         let callee = self.get_callee();

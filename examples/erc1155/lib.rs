@@ -539,7 +539,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.approvals.get((&owner, &operator)).is_some()
+            self.approvals.contains((&owner, &operator))
         }
     }
 
