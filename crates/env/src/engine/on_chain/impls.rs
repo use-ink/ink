@@ -202,6 +202,7 @@ impl EnvInstance {
     /// # Note
     ///
     /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    #[inline(always)]
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: FromLittleEndian,
@@ -212,6 +213,7 @@ impl EnvInstance {
     }
 
     /// Returns the contract property value.
+    #[inline(always)]
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
         T: scale::Decode,
@@ -228,7 +230,11 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), buffer)
+        if !buffer.is_empty() {
+            ext::set_storage(key.as_ref(), buffer)
+        } else {
+            None
+        }
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
