@@ -218,7 +218,6 @@ mod mother {
         /// Prints the specified string into node's debug log.
         #[ink(message)]
         pub fn debug_log(&mut self, message: String) {
-            let _ = message;
             ink_env::debug_println!("debug_log: {}", message);
         }
     }
