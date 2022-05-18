@@ -1,0 +1,38 @@
+[package]
+name = "mother"
+description = "Mother of all contracts"
+version = "3.0.1"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink_primitives = { path = "../../crates/primitives", default-features = false }
+ink_metadata = { path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { path = "../../crates/env", default-features = false }
+ink_storage = { path = "../../crates/storage", default-features = false }
+ink_lang = { path = "../../crates/lang", default-features = false }
+ink_prelude = { path = "../../crates/prelude", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
+[lib]
+name = "mother"
+path = "lib.rs"
+crate-type = [
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
