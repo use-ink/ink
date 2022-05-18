@@ -18,7 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 name = "ink_lang_ir"
 
 [dependencies]
-ink_storage_codegen = { version = "3.0.1", path = "../../storage/codegen" }
+ink_storage_codegen = { version = "3.1.0", path = "../../storage/codegen" }
 quote = "1"
 syn = { version = "1.0", features = ["parsing", "full", "visit", "extra-traits"] }
 proc-macro2 = "1.0"
