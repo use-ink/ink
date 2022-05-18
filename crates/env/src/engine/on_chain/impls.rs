@@ -230,11 +230,7 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        if !buffer.is_empty() {
-            ext::set_storage(key.as_ref(), buffer)
-        } else {
-            None
-        }
+        ext::set_storage(key.as_ref(), buffer)
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
