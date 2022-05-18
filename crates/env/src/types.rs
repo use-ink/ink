@@ -102,7 +102,7 @@ pub trait Environment {
     /// The value must match the maximum number of supported event topics of the used runtime.
     const MAX_EVENT_TOPICS: usize;
 
-    /// The address type.
+    /// The account id type.
     type AccountId: 'static
         + scale::Codec
         + Clone
