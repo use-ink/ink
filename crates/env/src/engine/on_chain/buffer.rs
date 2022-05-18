@@ -154,6 +154,7 @@ impl<'a> ScopedBuffer<'a> {
 
     /// Encode the given value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
+    #[inline(always)]
     pub fn take_encoded<T>(&mut self, value: &T) -> &'a mut [u8]
     where
         T: scale::Encode,
@@ -172,6 +173,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Does not return the buffer immediately so that other values can be appended
     /// afterwards. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
+    #[inline(always)]
     pub fn append_encoded<T>(&mut self, value: &T)
     where
         T: scale::Encode,

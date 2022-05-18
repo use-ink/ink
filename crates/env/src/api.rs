@@ -237,7 +237,7 @@ pub fn clear_contract_storage(key: &Key) {
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_storage_value<V>(key: &StorageKey, value: &V)
+pub fn set_storage_value<V>(key: &StorageKey, value: &V) -> Option<u32>
 where
     V: scale::Encode,
 {

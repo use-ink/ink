@@ -74,7 +74,7 @@ where
 }
 
 /// Pushes the entity to the contract storage using encode and storage key.
-pub fn push_storage<T>(entity: &T, key: &StorageKey)
+pub fn push_storage<T>(entity: &T, key: &StorageKey) -> Option<u32>
 where
     T: Encode,
 {

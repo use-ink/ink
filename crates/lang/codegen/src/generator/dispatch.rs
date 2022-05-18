@@ -796,7 +796,7 @@ impl Dispatch<'_> {
                         ::ink_storage::traits::push_storage::<#storage_ident>(
                             &contract,
                             &<#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY,
-                        )
+                        );
                     }
                 }
 

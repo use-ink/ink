@@ -157,7 +157,7 @@ where
 {
     /// Sets the given `value` to the contract storage.
     pub fn set(&mut self, value: &V) {
-        push_storage(value, &KeyType::KEY)
+        push_storage(value, &KeyType::KEY);
     }
 }
 

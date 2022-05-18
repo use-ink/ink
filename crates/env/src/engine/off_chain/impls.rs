@@ -218,35 +218,22 @@ impl EnvBackend for EnvInstance {
         self.engine.clear_storage(key.as_ref())
     }
 
-    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V)
+    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V) -> Option<u32>
     where
         V: scale::Encode,
     {
-        let v = scale::Encode::encode(value);
-        self.engine
-            .set_storage(StorageKeyComposer::old_key(key).as_ref(), &v[..]);
+        self.set_contract_storage(&StorageKeyComposer::old_key(key), value)
     }
 
     fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
     where
         R: scale::Decode,
     {
-        let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(
-            StorageKeyComposer::old_key(key).as_ref(),
-            &mut &mut output[..],
-        ) {
-            Ok(_) => (),
-            Err(ext::Error::KeyNotFound) => return Ok(None),
-            Err(_) => panic!("encountered unexpected error"),
-        }
-        let decoded = scale::Decode::decode(&mut &output[..])?;
-        Ok(Some(decoded))
+        self.get_contract_storage(&StorageKeyComposer::old_key(key))
     }
 
     fn clear_storage_value(&mut self, key: &StorageKey) {
-        self.engine
-            .clear_storage(StorageKeyComposer::old_key(key).as_ref())
+        self.clear_contract_storage(&StorageKeyComposer::old_key(key))
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

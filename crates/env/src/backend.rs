@@ -186,7 +186,7 @@ pub trait EnvBackend {
     /// Clears the contract's storage key entry.
     fn clear_contract_storage(&mut self, key: &Key);
 
-    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V)
+    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V) -> Option<u32>
     where
         V: scale::Encode;
 

@@ -99,10 +99,12 @@ impl StorageKeyComposer {
     }
 
     /// Return the 32 bytes representation of the storage key for old version of the storage.
-    pub fn old_key(new_key: &StorageKey) -> Key {
-        let mut old_key = Key::new([0; 32]);
-        old_key += *new_key as u64;
-        old_key
+    pub const fn old_key(new_key: &StorageKey) -> Key {
+        let bytes = new_key.to_le_bytes();
+        Key::new([
+            bytes[0], bytes[1], bytes[2], bytes[3], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ])
     }
 }
 

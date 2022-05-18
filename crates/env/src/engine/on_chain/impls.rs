@@ -253,30 +253,22 @@ impl EnvBackend for EnvInstance {
         ext::clear_storage(key.as_ref())
     }
 
-    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V)
+    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V) -> Option<u32>
     where
         V: scale::Encode,
     {
-        let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(StorageKeyComposer::old_key(key).as_ref(), buffer);
+        self.set_contract_storage(&StorageKeyComposer::old_key(key), value)
     }
 
     fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
     where
         R: scale::Decode,
     {
-        let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(StorageKeyComposer::old_key(key).as_ref(), output) {
-            Ok(_) => (),
-            Err(ExtError::KeyNotFound) => return Ok(None),
-            Err(_) => panic!("encountered unexpected error"),
-        }
-        let decoded = scale::Decode::decode(&mut &output[..])?;
-        Ok(Some(decoded))
+        self.get_contract_storage(&StorageKeyComposer::old_key(key))
     }
 
     fn clear_storage_value(&mut self, key: &StorageKey) {
-        ext::clear_storage(StorageKeyComposer::old_key(key).as_ref())
+        self.clear_contract_storage(&StorageKeyComposer::old_key(key))
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
