@@ -168,6 +168,16 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -301,7 +311,7 @@
         <span class="doccomment">/// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.</span>
         <span class="attribute">#[<span class="ident">macro_export</span>]</span>
         <span class="macro">macro_rules!</span> <span class="ident">debug_print</span> {
-            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>)));
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) =&gt; (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>),<span class="kw-2">*</span>)));
         }
 
         <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but</span>
@@ -314,22 +324,32 @@
         <span class="attribute">#[<span class="ident">macro_export</span>]</span>
         <span class="macro">macro_rules!</span> <span class="ident">debug_println</span> {
             () =&gt; (<span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;\n&quot;</span>));
-            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
-                <span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>));
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) =&gt; (
+                <span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>),<span class="kw-2">*</span>));
             )
         }
     } <span class="kw">else</span> {
         <span class="attribute">#[<span class="ident">macro_export</span>]</span>
         <span class="doccomment">/// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.</span>
         <span class="macro">macro_rules!</span> <span class="ident">debug_print</span> {
-            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ();
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) =&gt;
+            {
+                {
+                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> ($(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>),<span class="kw-2">*</span>);
+                }
+            };
         }
 
         <span class="attribute">#[<span class="ident">macro_export</span>]</span>
         <span class="doccomment">/// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.</span>
         <span class="macro">macro_rules!</span> <span class="ident">debug_println</span> {
-            () =&gt; ();
-            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ();
+            () =&gt; {};
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) =&gt;
+            {
+                {
+                    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> ($(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>),<span class="kw-2">*</span>);
+                }
+            };
         }
     }
 }
