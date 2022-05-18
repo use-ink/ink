@@ -4,7 +4,7 @@
 
 ## Compatibility
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
-later than [7d233c2446b5a60662400a0a4bcfb78bb3b79ff7](https://github.com/paritytech/substrate/tree/7d233c2446b5a60662400a0a4bcfb78bb3b79ff7)
+later than [7d233c2](https://github.com/paritytech/substrate/tree/7d233c2446b5a60662400a0a4bcfb78bb3b79ff7)
 (May 13, 2022) in your node.
 
 This is the case in the latest release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
@@ -18,7 +18,7 @@ There are two breaking changes in this release:
   your contract may change. A change of selectors would affect your client, frontend, Dapp, etc..
 * As part of [#1233](https://github.com/paritytech/ink/pull/1235) we removed the `eth_compatibility`
   crate.<br><br>
-  Its recovery functionality has been moved to `ink_env` now: [`ink_env::ecdsa_to_eth_address`]().
+  Its recovery functionality has been moved to `ink_env` now: [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html).
   The reason for this change is that we moved the gas-expensive crypto operations into `pallet-contracts`.<br><br>
   The crates `to_default_account_id` function has been removed; the reason for this change is that ink!
   doesn't have knowledge about the specific Substrate types on the underlying chain.
@@ -29,7 +29,7 @@ There are two breaking changes in this release:
 ## New API functions
 We added two new `Mapping` API functions:
 [`Mapping::contains`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and
-[`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+[`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224).
 These are more gas-efficient than whatever you were using previously.
 
 Additionaly there are a couple new `ink_env` functions now:
@@ -49,7 +49,7 @@ can be used to implement an upgradeable contract that replaces its own code.
 - Implement `seal_code_hash` and `seal_own_code_hash` ‒ [#1205](https://github.com/paritytech/ink/pull/1205)
 - Add `set_code_hash` function and example ‒ [#1203](https://github.com/paritytech/ink/pull/1203)
 - Implement [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
-- Add [`Mapping::contains(key)`]() and [`Mapping::insert_return_size(key, val)`]() ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+- Add [`Mapping::contains(key)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(key, val)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 
 ## Fixed
 - Fix ordering of message ids if the trait is implemented before the inherent section ‒ [#1235](https://github.com/paritytech/ink/pull/1235)
