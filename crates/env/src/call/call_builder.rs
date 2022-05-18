@@ -71,13 +71,11 @@ where
     E: Environment,
 {
     /// Returns the account ID of the called contract instance.
+    ///
+    /// Returns `None` if no account ID has been set for the call.
     #[inline]
-    pub(crate) fn callee(&self) -> &E::AccountId {
-        &self
-            .call_type
-            .callee
-            .as_ref()
-            .expect("TODO, probably return Option here")
+    pub(crate) fn callee(&self) -> &Option<E::AccountId> {
+        &self.call_type.callee
     }
 
     /// Returns the chosen gas limit for the called contract execution.
