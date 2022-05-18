@@ -24,8 +24,8 @@ pub mod flipper {
     /// not in the constructor.
     impl OnCallInitializer for Flipper {
         fn initialize(&mut self) {
-            // Let's initialize it with `ture` by default
-            self.value = true;
+            // Let's initialize it with `false` by default
+            self.value = false;
         }
     }
 
