@@ -253,6 +253,14 @@ pub trait EnvBackend {
         output: &mut [u8; 33],
     ) -> Result<()>;
 
+    /// Retrieves an Ethereum address from the ECDSA compressed `pubkey`
+    /// and stores the result in `output`.
+    fn ecdsa_to_eth_address(
+        &mut self,
+        pubkey: &[u8; 33],
+        output: &mut [u8; 20],
+    ) -> Result<()>;
+
     /// Low-level interface to call a chain extension method.
     ///
     /// Returns the output of the chain extension of the specified type.

@@ -18,7 +18,7 @@
 //! structures that work along the `ink_storage` data structures by implementing
 //! `SpreadLayout` and `PackedLayout` traits.
 //!
-//! See [Spread vs. Packed](https://paritytech.github.io/ink-docs/datastructures/spread-packed-layout)
+//! See [Spread vs. Packed](https://ink.substrate.io/datastructures/spread-packed-layout)
 //! for more details of these two root strategies.
 //!
 //! # Examples
