@@ -74,8 +74,6 @@ pub enum MetadataVersioned {
     V2(MetadataVersionDeprecated),
     /// Version 3 of the contract metadata.
     V3(InkProject),
-    /// Version 4 of the contract metadata.
-    V4(InkProject),
 }
 
 impl From<InkProject> for MetadataVersioned {
