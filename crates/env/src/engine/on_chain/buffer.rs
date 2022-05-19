@@ -47,7 +47,7 @@ impl core::ops::IndexMut<core::ops::RangeFull> for StaticBuffer {
 /// Utility to allow for non-heap allocating encoding into a static buffer.
 ///
 /// Required by `ScopedBuffer` internals.
-struct EncodeScope<'a> {
+pub struct EncodeScope<'a> {
     buffer: &'a mut [u8],
     len: usize,
 }

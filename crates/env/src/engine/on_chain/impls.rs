@@ -14,6 +14,7 @@
 
 use super::{
     ext,
+    EncodeScope,
     EnvInstance,
     Error as ExtError,
     ScopedBuffer,
@@ -286,9 +287,9 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_return_value = scope.take_encoded(return_value);
-        ext::return_value(flags, enc_return_value);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
+        return_value.encode_to(&mut scope);
+        ext::return_value(flags, scope.into_buffer());
     }
 
     fn debug_message(&mut self, content: &str) {
