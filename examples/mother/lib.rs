@@ -1,17 +1,19 @@
-//! # Mother of All Contracts
+//! # The Mother of All Contracts
 //!
-//! This contracts is intended to make use of all features that are observable
-//! by off chain tooling (for example UIs). It doesn't do anything useful beyond
-//! serving off chain tooling developers with a contract to test their software against.
+//! This contract is intended to make use of all features that are observable
+//! by off-chain tooling (for example user interfaces).
+//! It doesn't do anything useful beyond serving off-chain tooling developers
+//! with a contract to test their software against.
+//!
 //! Currently, this includes the following:
 //!
-//!   1. Use complicated nested input and ouput types.
-//!      This is done through the real use case example of data structure
-//!      needed to store a candle auction data.
+//!   1. Use complex nested input and output types.
+//!      This is done with the use case of a data structure
+//!      needed to store data of a candle auction.
 //!   2. Make contract fail with `ContractTrapped`.
-//!   3. Make contract fail with returning an Error.
-//!   4. Perform debug printing from contract into node's log.
-//!   5. Use complicated types in storage.
+//!   3. Make contract fail with returning an `Error`.
+//!   4. Perform debug printing from contract into the node's log.
+//!   5. Use complex types in storage.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -40,7 +42,7 @@ mod mother {
     use ink_storage::traits::KeyPtr;
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
-    /// Wrapping vector just added for testing UI components.
+    /// Wrapping vector, just added for testing UI components.
     #[derive(
         Default,
         scale::Encode,
@@ -89,9 +91,9 @@ mod mother {
         OpeningPeriod,
         /// We are in the ending period of the auction, where we are taking snapshots of the winning
         /// bids. Snapshots are taken currently on per-block basis, but this logic could be later evolve
-        /// to take snapshots of on arbitrary length (in blocks)
+        /// to take snapshots of on arbitrary length (in blocks).
         EndingPeriod(BlockNumber),
-        /// Candle was blown
+        /// Candle was blown.
         Ended(Outline),
         /// We have completed the bidding process and are waiting for the Random Function to return some acceptable
         /// randomness to select the winner. The number represents how many blocks we have been waiting.
@@ -121,21 +123,21 @@ mod mother {
         derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
     )]
     pub struct Auction {
-        /// Branded name of the auction event
+        /// Branded name of the auction event.
         name: String,
-        /// Some hash identifiyng the auction subject
+        /// Some hash identifying the auction subject.
         subject: Hash,
-        /// Structure storing the bids being made
+        /// Structure storing the bids being made.
         bids: Bids,
         /// Auction terms encoded as:
-        /// [start_block, opening_period, closing_period]
+        /// `[start_block, opening_period, closing_period]`
         terms: [BlockNumber; 3],
-        /// Auction status
+        /// Auction status.
         status: Status,
         /// Candle auction can have no winner.
         /// If auction is finalized, that means that the winner is determined.
         finalized: bool,
-        /// Just a vector for UI tests
+        /// Just a vector for the UI tests.
         vector: Vec<u8>,
     }
 
