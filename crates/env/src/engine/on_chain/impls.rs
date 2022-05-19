@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "ink-debug")]
+use super::Error as ExtError;
+
 use super::{
     ext,
     EnvInstance,
-    Error as ExtError,
     ScopedBuffer,
 };
 use crate::{
@@ -178,6 +180,7 @@ where
 }
 
 impl EnvInstance {
+    #[inline(always)]
     /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
@@ -188,6 +191,7 @@ impl EnvInstance {
     /// # Note
     ///
     /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    #[inline(always)]
     fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: Default + AsMut<[u8]>,
@@ -233,6 +237,23 @@ impl EnvBackend for EnvInstance {
         ext::set_storage(key.as_ref(), buffer)
     }
 
+    #[cfg(not(feature = "ink-debug"))]
+    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    where
+        R: scale::Decode,
+    {
+        let output = &mut self.scoped_buffer().take_rest();
+        match ext::get_storage(key.as_ref(), output) {
+            Ok(_) => (),
+            _ => core::arch::wasm32::unreachable(),
+        }
+        match scale::Decode::decode(&mut &output[..]) {
+            Ok(decoded) => Ok(Some(decoded)),
+            _ => core::arch::wasm32::unreachable(),
+        }
+    }
+
+    #[cfg(feature = "ink-debug")]
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode,

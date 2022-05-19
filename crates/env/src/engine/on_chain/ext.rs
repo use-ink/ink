@@ -598,7 +598,6 @@ macro_rules! impl_seal_wrapper_for {
                         )
                     };
                 }
-                extract_from_slice(output, output_len as usize);
             }
         )*
     }
