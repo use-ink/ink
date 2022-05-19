@@ -598,6 +598,8 @@ macro_rules! impl_seal_wrapper_for {
                         )
                     };
                 }
+                // We don't need `extract_from_slice` here because it is stored in the own array
+                // in `get_property_little_endian` and `get_property_inplace`
             }
         )*
     }
