@@ -256,7 +256,7 @@ mod multisig {
         /// information and is kept in order to prevent iterating through the
         /// confirmation set to check if a transaction is confirmed.
         confirmation_count: Mapping<TransactionId, u32>,
-        /// Map the transaction id to its unexecuted transaction.
+        /// Map the transaction id to its not-executed transaction.
         transactions: Mapping<TransactionId, Transaction>,
         /// We need to hold a list of all transactions so that we can clean up storage
         /// when an owner is removed.
