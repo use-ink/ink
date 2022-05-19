@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-debug")]
-use super::Error as ExtError;
-
 use super::{
     ext,
     EnvInstance,
+    Error as ExtError,
     ScopedBuffer,
 };
 use crate::{
@@ -237,23 +235,6 @@ impl EnvBackend for EnvInstance {
         ext::set_storage(key.as_ref(), buffer)
     }
 
-    #[cfg(not(feature = "ink-debug"))]
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
-    where
-        R: scale::Decode,
-    {
-        let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(key.as_ref(), output) {
-            Ok(_) => (),
-            _ => core::arch::wasm32::unreachable(),
-        }
-        match scale::Decode::decode(&mut &output[..]) {
-            Ok(decoded) => Ok(Some(decoded)),
-            _ => core::arch::wasm32::unreachable(),
-        }
-    }
-
-    #[cfg(feature = "ink-debug")]
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode,

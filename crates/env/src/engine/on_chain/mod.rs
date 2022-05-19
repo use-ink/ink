@@ -16,12 +16,13 @@ mod buffer;
 mod ext;
 mod impls;
 
-use self::buffer::{
-    ScopedBuffer,
-    StaticBuffer,
+use self::{
+    buffer::{
+        ScopedBuffer,
+        StaticBuffer,
+    },
+    ext::Error,
 };
-#[cfg(feature = "ink-debug")]
-use self::ext::Error;
 use super::OnInstance;
 
 /// The on-chain environment.
