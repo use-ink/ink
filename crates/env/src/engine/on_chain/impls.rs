@@ -290,7 +290,7 @@ impl EnvBackend for EnvInstance {
         let mut scope = EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
-        ext::return_value(flags, &mut self.buffer[..][..len]);
+        ext::return_value(flags, &self.buffer[..][..len]);
     }
 
     fn debug_message(&mut self, content: &str) {
