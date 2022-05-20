@@ -15,14 +15,10 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_prelude = { version = "3.1.0", path = "../prelude/", default-features = false }
+ink_prelude = { version = "3.1.0", path = "../prelude", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
-cfg-if = "1"
 sha2-const = { version = "0.1.2", default-features = false }
-
-[dev-dependencies]
-criterion = "0.3.1"
 
 [features]
 default = ["std"]
@@ -31,8 +27,3 @@ std = [
     "scale/std",
     "scale-info/std",
 ]
-
-[[bench]]
-name = "bench"
-path = "benches/bench.rs"
-harness = false
