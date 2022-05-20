@@ -27,10 +27,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::{
-    Key,
-    StorageKey,
-};
+use ink_primitives::StorageKey;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -165,36 +162,53 @@ impl CallFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
-    /// Writes the value to the contract storage under the given key and returns
-    /// the size of the pre-existing value at the specified key if any.
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    /// Writes the value to the contract storage under the combination of a
+    /// given storage key and dynamic key.
+    ///
+    /// Returns the size of the pre-existing value at the specified key if any.
+    fn set_contract_storage<K, V>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+        value: &V,
+    ) -> Option<u32>
     where
+        K: scale::Encode,
         V: scale::Encode;
 
-    /// Returns the value stored under the given key in the contract's storage if any.
+    /// Returns the value stored under the combination of a given storage key and dynamic key
+    /// in the contract's storage if any.
     ///
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> Result<Option<R>>
     where
+        K: scale::Encode,
         R: scale::Decode;
 
-    /// Returns the size of a value stored under the specified key is returned if any.
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32>;
-
-    /// Clears the contract's storage key entry.
-    fn clear_contract_storage(&mut self, key: &Key);
-
-    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V) -> Option<u32>
+    /// Returns the size of a value stored under the combination of a given storage key
+    /// and dynamic key is returned if any.
+    fn contract_storage_contains<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> Option<u32>
     where
-        V: scale::Encode;
+        K: scale::Encode;
 
-    fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
-    where
-        R: scale::Decode;
-
-    fn clear_storage_value(&mut self, key: &StorageKey);
+    /// Clears the contract's storage key entry under the combination of a given storage key
+    /// and dynamic key.
+    fn clear_contract_storage<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) where
+        K: scale::Encode;
 
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///

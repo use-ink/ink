@@ -144,7 +144,7 @@ where
     ///
     /// Returns `Default::default()` if no `value` exists.
     pub fn get_or_default(&self) -> V {
-        ink_env::get_storage_value::<V>(&KeyType::KEY)
+        ink_env::get_contract_storage::<(), V>(&KeyType::KEY, None)
             .unwrap_or_default()
             .unwrap_or_default()
     }

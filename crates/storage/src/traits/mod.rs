@@ -68,7 +68,7 @@ pub fn pull_storage<T>(key: &StorageKey) -> T
 where
     T: Decode,
 {
-    ink_env::get_storage_value(key)
+    ink_env::get_contract_storage::<(), T>(key, None)
         .expect("could not properly decode storage entry")
         .expect("storage entry was empty")
 }
@@ -78,5 +78,5 @@ pub fn push_storage<T>(entity: &T, key: &StorageKey) -> Option<u32>
 where
     T: Encode,
 {
-    ink_env::set_storage_value(key, entity)
+    ink_env::set_contract_storage::<(), T>(key, None, entity)
 }

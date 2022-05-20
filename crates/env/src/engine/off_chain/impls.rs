@@ -45,7 +45,6 @@ use ink_engine::{
     ext::Engine,
 };
 use ink_primitives::{
-    Key,
     StorageKey,
     StorageKeyComposer,
 };
@@ -185,23 +184,53 @@ impl EnvInstance {
         ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
+
+    fn combined_storage_key<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> [u8; 32]
+    where
+        K: scale::Encode,
+    {
+        if let Some(dynamic_key) = dynamic_key {
+            let mut hash = <Blake2x256 as HashOutput>::Type::default();
+            self.hash_encoded::<Blake2x256, _>(&(storage_key, dynamic_key), &mut hash);
+            hash
+        } else {
+            StorageKeyComposer::old_key(storage_key)
+        }
+    }
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+        value: &V,
+    ) -> Option<u32>
     where
+        K: scale::Encode,
         V: scale::Encode,
     {
+        let key = self.combined_storage_key(storage_key, dynamic_key);
         let v = scale::Encode::encode(value);
-        self.engine.set_storage(key.as_ref(), &v[..])
+        self.engine.set_storage(&key, &v[..])
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> Result<Option<R>>
     where
+        K: scale::Encode,
         R: scale::Decode,
     {
+        let key = self.combined_storage_key(storage_key, dynamic_key);
         let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(key.as_ref(), &mut &mut output[..]) {
+        match self.engine.get_storage(&key, &mut &mut output[..]) {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -210,30 +239,27 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
-        self.engine.contains_storage(key.as_ref())
-    }
-
-    fn clear_contract_storage(&mut self, key: &Key) {
-        self.engine.clear_storage(key.as_ref())
-    }
-
-    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V) -> Option<u32>
+    fn contract_storage_contains<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> Option<u32>
     where
-        V: scale::Encode,
+        K: scale::Encode,
     {
-        self.set_contract_storage(&StorageKeyComposer::old_key(key), value)
+        let key = self.combined_storage_key(storage_key, dynamic_key);
+        self.engine.contains_storage(&key)
     }
 
-    fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
-    where
-        R: scale::Decode,
+    fn clear_contract_storage<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) where
+        K: scale::Encode,
     {
-        self.get_contract_storage(&StorageKeyComposer::old_key(key))
-    }
-
-    fn clear_storage_value(&mut self, key: &StorageKey) {
-        self.clear_contract_storage(&StorageKeyComposer::old_key(key))
+        let key = self.combined_storage_key(storage_key, dynamic_key);
+        self.engine.clear_storage(&key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

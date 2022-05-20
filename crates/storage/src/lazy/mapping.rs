@@ -26,14 +26,7 @@ use crate::traits::{
     StorageType,
 };
 use core::marker::PhantomData;
-use ink_env::hash::{
-    Blake2x256,
-    HashOutput,
-};
-use ink_primitives::{
-    Key,
-    StorageKey,
-};
+use ink_primitives::StorageKey;
 use scale::{
     Decode,
     Encode,
@@ -150,7 +143,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V>,
     {
-        ink_env::set_contract_storage(&self.storage_key(&key), value);
+        ink_env::set_contract_storage(&KeyType::KEY, Some(key), value);
     }
 
     /// Insert the given `value` to the contract storage.
@@ -162,7 +155,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V>,
     {
-        ink_env::set_contract_storage(&self.storage_key(&key), value)
+        ink_env::set_contract_storage(&KeyType::KEY, Some(key), value)
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -173,13 +166,8 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        let root_key = self.storage_key(&key);
-        ink_env::get_contract_storage::<V>(&root_key).unwrap_or_else(|error| {
-            panic!(
-                "failed to get packed from root key {}: {:?}",
-                root_key, error
-            )
-        })
+        ink_env::get_contract_storage::<Q, V>(&KeyType::KEY, Some(key))
+            .unwrap_or_else(|error| panic!("failed to get value in mapping: {:?}", error))
     }
 
     /// Get the size of a value stored at `key` in the contract storage.
@@ -190,7 +178,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contract_storage_contains(&self.storage_key(&key))
+        ink_env::contract_storage_contains(&KeyType::KEY, Some(key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -201,7 +189,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contract_storage_contains(&self.storage_key(&key)).is_some()
+        ink_env::contract_storage_contains(&KeyType::KEY, Some(key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
@@ -209,21 +197,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::clear_contract_storage(&self.storage_key(&key));
-    }
-
-    /// Returns a `Key` pointer used internally by the storage API.
-    ///
-    /// This key is a combination of the `Mapping`'s internal `offset_key`
-    /// and the user provided `key`.
-    fn storage_key<Q>(&self, key: &Q) -> Key
-    where
-        Q: scale::EncodeLike<K>,
-    {
-        let encodedable_key = (key, &KeyType::KEY);
-        let mut output = <Blake2x256 as HashOutput>::Type::default();
-        ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
-        output.into()
+        ink_env::clear_contract_storage(&KeyType::KEY, Some(key));
     }
 }
 

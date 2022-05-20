@@ -39,10 +39,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::{
-    Key,
-    StorageKey,
-};
+use ink_primitives::StorageKey;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -186,84 +183,74 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key and returns
-/// the size of pre-existing value at the specified key if any.
+/// Writes the value to the contract storage under the combination of a given
+/// storage key and dynamic key and returns the size of pre-existing value if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage<K, V>(
+    storage_key: &StorageKey,
+    dynamic_key: Option<K>,
+    value: &V,
+) -> Option<u32>
 where
+    K: scale::Encode,
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<K, V>(
+            instance,
+            storage_key,
+            dynamic_key,
+            value,
+        )
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
+/// Returns the value stored under the combination of a given storage key and dynamic
+/// key in the contract's storage if any.
 ///
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
+pub fn get_contract_storage<K, R>(
+    storage_key: &StorageKey,
+    dynamic_key: Option<K>,
+) -> Result<Option<R>>
 where
+    K: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<R>(instance, key)
+        EnvBackend::get_contract_storage::<K, R>(instance, storage_key, dynamic_key)
     })
 }
 
-/// Checks whether there is a value stored under the given key in
-/// the contract's storage.
+/// Checks whether there is a value stored under the combination of a given storage key
+/// and dynamic key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-pub fn contract_storage_contains(key: &Key) -> Option<u32> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::contract_storage_contains(instance, key)
-    })
-}
-
-/// Clears the contract's storage key entry.
-pub fn clear_contract_storage(key: &Key) {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage(instance, key)
-    })
-}
-
-/// Writes the value to the contract storage under the given key.
-///
-/// # Panics
-///
-/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_storage_value<V>(key: &StorageKey, value: &V) -> Option<u32>
+pub fn contract_storage_contains<K>(
+    storage_key: &StorageKey,
+    dynamic_key: Option<K>,
+) -> Option<u32>
 where
-    V: scale::Encode,
+    K: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_storage_value::<V>(instance, key, value)
+        EnvBackend::contract_storage_contains::<K>(instance, storage_key, dynamic_key)
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
-///
-/// # Errors
-///
-/// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_storage_value<R>(key: &StorageKey) -> Result<Option<R>>
+/// Clears the contract's storage entry under the combination of
+/// a given storage key and dynamic key.
+pub fn clear_contract_storage<K>(storage_key: &StorageKey, dynamic_key: Option<K>)
 where
-    R: scale::Decode,
+    K: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_storage_value::<R>(instance, key)
-    })
-}
-
-/// Clears the contract's storage key entry.
-pub fn clear_storage_value(key: &StorageKey) {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_storage_value(instance, key)
+        EnvBackend::clear_contract_storage::<K>(instance, storage_key, dynamic_key)
     })
 }
 

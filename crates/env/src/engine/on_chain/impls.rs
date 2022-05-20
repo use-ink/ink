@@ -48,7 +48,6 @@ use crate::{
     TypedEnvBackend,
 };
 use ink_primitives::{
-    Key,
     StorageKey,
     StorageKeyComposer,
 };
@@ -225,23 +224,68 @@ impl EnvInstance {
         ext_fn(full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
+
+    #[inline(always)]
+    /// Returns storage key.
+    fn storage_key<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> [u8; 32]
+    where
+        K: scale::Encode,
+    {
+        if let Some(dynamic_key) = dynamic_key {
+            self.combined_storage_key(storage_key, dynamic_key)
+        } else {
+            StorageKeyComposer::old_key(storage_key)
+        }
+    }
+
+    #[inline(never)]
+    /// Combines the storage key with dynamic key knows at runtime.
+    fn combined_storage_key<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: K,
+    ) -> [u8; 32]
+    where
+        K: scale::Encode,
+    {
+        let mut hash = <Blake2x256 as HashOutput>::Type::default();
+        self.hash_encoded::<Blake2x256, _>(&(dynamic_key, storage_key), &mut hash);
+        hash
+    }
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+        value: &V,
+    ) -> Option<u32>
     where
+        K: scale::Encode,
         V: scale::Encode,
     {
+        let key = self.storage_key(storage_key, dynamic_key);
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), buffer)
+        ext::set_storage(&key, buffer)
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> Result<Option<R>>
     where
+        K: scale::Encode,
         R: scale::Decode,
     {
+        let key = self.storage_key(storage_key, dynamic_key);
         let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(key.as_ref(), output) {
+        match ext::get_storage(&key, output) {
             Ok(_) => (),
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -250,30 +294,25 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
-        ext::storage_contains(key.as_ref())
-    }
-
-    fn clear_contract_storage(&mut self, key: &Key) {
-        ext::clear_storage(key.as_ref())
-    }
-
-    fn set_storage_value<V>(&mut self, key: &StorageKey, value: &V) -> Option<u32>
+    fn contract_storage_contains<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) -> Option<u32>
     where
-        V: scale::Encode,
+        K: scale::Encode,
     {
-        self.set_contract_storage(&StorageKeyComposer::old_key(key), value)
+        ext::storage_contains(&self.storage_key(storage_key, dynamic_key))
     }
 
-    fn get_storage_value<R>(&mut self, key: &StorageKey) -> Result<Option<R>>
-    where
-        R: scale::Decode,
+    fn clear_contract_storage<K>(
+        &mut self,
+        storage_key: &StorageKey,
+        dynamic_key: Option<K>,
+    ) where
+        K: scale::Encode,
     {
-        self.get_contract_storage(&StorageKeyComposer::old_key(key))
-    }
-
-    fn clear_storage_value(&mut self, key: &StorageKey) {
-        self.clear_contract_storage(&StorageKeyComposer::old_key(key))
+        ext::clear_storage(&self.storage_key(storage_key, dynamic_key))
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

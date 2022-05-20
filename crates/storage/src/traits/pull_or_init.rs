@@ -26,7 +26,7 @@ pub struct PullOrInit<T: Decode> {
 impl<T: OnCallInitializer + Decode + Sized> PullOrInit<T> {
     #[allow(dead_code)]
     pub fn pull_or_init(key: &StorageKey) -> T {
-        let maybe_instance = ink_env::get_storage_value(key);
+        let maybe_instance = ink_env::get_contract_storage::<(), T>(key, None);
         match maybe_instance {
             Ok(None) | Err(_) => {
                 let mut instance = Default::default();

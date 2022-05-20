@@ -25,10 +25,7 @@ use ink_prelude::{
     boxed::Box,
     string::String,
 };
-use ink_primitives::{
-    Key,
-    StorageKey,
-};
+use ink_primitives::StorageKey;
 
 macro_rules! impl_storage_type_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
@@ -43,7 +40,7 @@ impl_storage_type_for_primitive!(
     // We do not include `f32` and `f64` since Wasm contracts currently
     // do not support them since they are non deterministic. We might add them
     // to this list once we add deterministic support for those primitives.
-    Key, Hash, AccountId, (),
+    Hash, AccountId, (),
     String,
     bool,
     u8, u16, u32, u64, u128,
@@ -81,11 +78,9 @@ impl<T: StorageType<Salt>, Salt: StorageKeyHolder> StorageType<Salt> for Box<T> 
 mod tests {
     use crate::storage_type_works_for_primitive;
     use ink_env::AccountId;
-    use ink_primitives::Key;
 
     storage_type_works_for_primitive!(bool);
     storage_type_works_for_primitive!(String);
-    storage_type_works_for_primitive!(Key);
     storage_type_works_for_primitive!(AccountId);
     storage_type_works_for_primitive!(i8);
     storage_type_works_for_primitive!(i16);

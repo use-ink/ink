@@ -40,10 +40,7 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_primitives::{
-    Key,
-    StorageKey,
-};
+use ink_primitives::StorageKey;
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {
@@ -59,7 +56,7 @@ macro_rules! impl_storage_layout_for_primitives {
 }
 #[rustfmt::skip]
 impl_storage_layout_for_primitives!(
-    Key, Hash, AccountId, String,
+    Hash, AccountId, String,
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,
