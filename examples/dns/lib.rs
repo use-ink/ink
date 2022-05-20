@@ -108,7 +108,7 @@ mod dns {
                 return Err(Error::CallerIsNotOwner)
             }
 
-            let old_address = self.name_to_address.get(name);
+            let old_address = self.name_to_address.get(&name);
             self.name_to_address.insert(&name, &new_address);
 
             self.env().emit_event(SetAddress {
