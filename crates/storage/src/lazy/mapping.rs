@@ -298,7 +298,7 @@ mod tests {
     fn can_clear_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
-            use crate::Pack;
+            use crate::pack::Pack;
 
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
@@ -327,7 +327,7 @@ mod tests {
     fn can_clear_unexistent_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
-            use crate::Pack;
+            use crate::pack::Pack;
 
             // Given
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
