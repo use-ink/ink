@@ -46,11 +46,9 @@
 #[macro_use]
 #[doc(hidden)]
 pub mod is_atomic;
-
 pub mod traits;
 
-#[allow(dead_code)]
-pub(crate) mod lazy;
+mod lazy;
 
 #[cfg(test)]
 mod test_utils;
@@ -60,6 +58,5 @@ pub use self::lazy::{
     Mapping,
     StorageValue,
 };
-
 #[doc(inline)]
 pub use self::traits::pull_or_init;
