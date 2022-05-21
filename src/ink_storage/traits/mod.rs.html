@@ -227,12 +227,6 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -272,13 +266,7 @@
     <span class="ident">LayoutCryptoHasher</span>,
     <span class="ident">StorageLayout</span>,
 };
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::optspec</span>::{
-    <span class="ident">clear_spread_root_opt</span>,
-    <span class="ident">pull_packed_root_opt</span>,
-    <span class="ident">pull_spread_root_opt</span>,
-    <span class="ident">push_packed_root_opt</span>,
-    <span class="ident">push_spread_root_opt</span>,
-};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::optspec::pull_packed_root_opt</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">impls</span>::{
         <span class="ident">forward_allocate_packed</span>,

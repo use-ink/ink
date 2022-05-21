@@ -651,7 +651,7 @@
     <span class="kw">fn</span> <span class="ident">can_clear_entries</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="comment">// We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`</span>
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Pack</span>;
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pack::Pack</span>;
 
             <span class="comment">// Given</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">0u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
@@ -680,7 +680,7 @@
     <span class="kw">fn</span> <span class="ident">can_clear_unexistent_entries</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="comment">// We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`</span>
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Pack</span>;
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pack::Pack</span>;
 
             <span class="comment">// Given</span>
             <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">0u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
