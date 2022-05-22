@@ -326,7 +326,6 @@ impl CallBuilder<'_> {
             where
                 E: ::ink_env::Environment,
             {
-                #[doc(hidden)]
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo = #trait_info_ident<E>;
 
