@@ -324,6 +324,19 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
+        pub fn seal_ecdsa_recover(
+            // 65 bytes of ecdsa signature
+            signature_ptr: Ptr32<[u8]>,
+            // 32 bytes hash of the message
+            message_hash_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+        ) -> ReturnCode;
+
+        pub fn seal_ecdsa_to_eth_address(
+            public_key_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+        ) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal1")]
@@ -366,19 +379,6 @@ mod sys {
             key_ptr: Ptr32<[u8]>,
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
-        ) -> ReturnCode;
-
-        pub fn seal_ecdsa_recover(
-            // 65 bytes of ecdsa signature
-            signature_ptr: Ptr32<[u8]>,
-            // 32 bytes hash of the message
-            message_hash_ptr: Ptr32<[u8]>,
-            output_ptr: Ptr32Mut<[u8]>,
-        ) -> ReturnCode;
-
-        pub fn seal_ecdsa_to_eth_address(
-            public_key_ptr: Ptr32<[u8]>,
-            output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
     }
 }
