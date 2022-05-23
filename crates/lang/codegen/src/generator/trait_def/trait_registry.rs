@@ -109,7 +109,6 @@ impl TraitRegistry<'_> {
                 E: ::ink_env::Environment,
             {
                 /// Holds general and global information about the trait.
-                #[doc(hidden)]
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo = #trait_info_ident<E>;
 
@@ -211,7 +210,6 @@ impl TraitRegistry<'_> {
 
             #( #attrs )*
             #[cold]
-            #[doc(hidden)]
             fn #ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
