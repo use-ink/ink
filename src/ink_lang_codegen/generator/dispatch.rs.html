@@ -889,6 +889,11 @@
 <span id="884">884</span>
 <span id="885">885</span>
 <span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1423,6 +1428,8 @@
                 }
             }
         };
+        <span class="kw">let</span> <span class="ident">any_constructor_accept_payment</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">any_constructor_accepts_payment_expr</span>(<span class="ident">constructor_spans</span>);
 
         <span class="kw">let</span> <span class="ident">constructor_execute</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
@@ -1434,9 +1441,8 @@
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
                 }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::CALLABLE</span>
             );
-            <span class="kw">let</span> <span class="ident">accepts_payment</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
-                <span class="bool-val">false</span> <span class="op">|</span><span class="op">|</span>
-                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+            <span class="kw">let</span> <span class="ident">deny_payment</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                <span class="op">!</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
                     <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
                         <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
@@ -1445,10 +1451,12 @@
 
             <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
                 <span class="self">Self</span>::#<span class="ident">constructor_ident</span>(<span class="ident">input</span>) =&gt; {
+                    <span class="kw">if</span> #<span class="ident">any_constructor_accept_payment</span> <span class="op">&amp;&amp;</span> #<span class="ident">deny_payment</span> {
+                        <span class="ident">::ink_lang::codegen::deny_payment</span>::<span class="op">&lt;</span>
+                            <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+                    }
+
                     <span class="ident">::ink_lang::codegen::execute_constructor</span>::<span class="op">&lt;</span>#<span class="ident">storage_ident</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
-                        <span class="ident">::ink_lang::codegen::ExecuteConstructorConfig</span> {
-                            <span class="ident">payable</span>: #<span class="ident">accepts_payment</span>,
-                        },
                         <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { #<span class="ident">constructor_callable</span>(<span class="ident">input</span>) }
                     )
                 }
@@ -1583,6 +1591,8 @@
                 }
             }
         };
+        <span class="kw">let</span> <span class="ident">any_message_accept_payment</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">any_message_accepts_payment_expr</span>(<span class="ident">message_spans</span>);
 
         <span class="kw">let</span> <span class="ident">message_execute</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
@@ -1620,7 +1630,7 @@
                 <span class="self">Self</span>::#<span class="ident">message_ident</span>(<span class="ident">input</span>) =&gt; {
                     <span class="kw">use</span> <span class="ident">::core::default::Default</span>;
 
-                    <span class="kw">if</span> #<span class="ident">deny_payment</span> {
+                    <span class="kw">if</span> #<span class="ident">any_message_accept_payment</span> <span class="op">&amp;&amp;</span> #<span class="ident">deny_payment</span> {
                         <span class="ident">::ink_lang::codegen::deny_payment</span>::<span class="op">&lt;</span>
                             <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                     }
