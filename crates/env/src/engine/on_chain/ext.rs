@@ -367,10 +367,7 @@ mod sys {
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
         ) -> ReturnCode;
-    }
 
-    #[link(wasm_import_module = "__unstable__")]
-    extern "C" {
         pub fn seal_ecdsa_recover(
             // 65 bytes of ecdsa signature
             signature_ptr: Ptr32<[u8]>,
