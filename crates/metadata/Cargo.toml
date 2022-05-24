@@ -1,6 +1,6 @@
 [package]
 name = "ink_metadata"
-version = "3.1.0"
+version = "3.2.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -15,8 +15,8 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_prelude = { version = "3.1.0", path = "../prelude/", default-features = false }
-ink_primitives = { version = "3.1.0", path = "../primitives/", default-features = false }
+ink_prelude = { version = "3.2.0", path = "../prelude/", default-features = false }
+ink_primitives = { version = "3.2.0", path = "../primitives/", default-features = false }
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 impl-serde = "0.3.1"
