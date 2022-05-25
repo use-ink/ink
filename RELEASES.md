@@ -18,7 +18,6 @@ This is the case in the latest release of the [`substrate-contracts-node`](https
 
 ## Fixed
 - Fixed bug with recent Rust and `cargo test` ‒ [#1272](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1272) (thanks [@xgreenx](https://github.com/xgreenx)).
-- Suppress unused variable warning for `debug_print` macros ‒ [#1258](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1258)
 
 # Version 3.1.0
 
