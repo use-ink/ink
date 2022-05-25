@@ -131,7 +131,7 @@ cfg_if::cfg_if! {
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_print {
-            ($($arg:expr),*) => ($crate::debug_message(&$crate::format!($($arg),*)));
+            ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
         }
 
         /// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
@@ -144,32 +144,22 @@ cfg_if::cfg_if! {
         #[macro_export]
         macro_rules! debug_println {
             () => ($crate::debug_print!("\n"));
-            ($($arg:expr),*) => (
-                $crate::debug_print!("{}\n", $crate::format!($($arg),*));
+            ($($arg:tt)*) => (
+                $crate::debug_print!("{}\n", $crate::format!($($arg)*));
             )
         }
     } else {
         #[macro_export]
         /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
         macro_rules! debug_print {
-            ($($arg:expr),*) =>
-            {
-                {
-                    let _ = || ($(&$arg),*);
-                }
-            };
+            ($($arg:tt)*) => ();
         }
 
         #[macro_export]
         /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
         macro_rules! debug_println {
-            () => {};
-            ($($arg:expr),*) =>
-            {
-                {
-                    let _ = || ($(&$arg),*);
-                }
-            };
+            () => ();
+            ($($arg:tt)*) => ();
         }
     }
 }
