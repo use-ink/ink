@@ -1,17 +1,17 @@
 [package]
 name = "delegate_calls"
-version = "3.0.1"
+version = "3.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink_primitives = { version = "3.0.1", path = "../../../crates/primitives", default-features = false }
-ink_prelude = { version = "3.0.1", path = "../../../crates/prelude", default-features = false }
-ink_metadata = { version = "3.0.1", path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.1", path = "../../../crates/env", default-features = false }
-ink_storage = { version = "3.0.1", path = "../../../crates/storage", default-features = false }
-ink_lang = { version = "3.0.1", path = "../../../crates/lang", default-features = false }
+ink_primitives = { path = "../../../crates/primitives", default-features = false }
+ink_prelude = { path = "../../../crates/prelude", default-features = false }
+ink_metadata = { path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { path = "../../../crates/env", default-features = false }
+ink_storage = { path = "../../../crates/storage", default-features = false }
+ink_lang = { path = "../../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }

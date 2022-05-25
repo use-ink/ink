@@ -22,7 +22,6 @@ pub use self::{
         execute_constructor,
         initialize_contract,
         ContractRootKey,
-        ExecuteConstructorConfig,
     },
     info::ContractCallBuilder,
     type_check::{

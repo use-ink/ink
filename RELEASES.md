@@ -1,5 +1,81 @@
 # [Unreleased]
 
+# Version 3.2.0
+
+## Compatibility
+We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [c0ee2ad](https://github.com/paritytech/substrate/tree/c0ee2adaa54b22ee0df5d1592cd0430961afd95c)
+(May 23, 2022) in your node.
+
+This is the case in the latest release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
+[v0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0).
+
+## Added
+- Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
+
+## Changed
+- Two functions have been stabilized: [`ink_env::ecdsa_recover`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_recover.html) and [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1270](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1273)
+
+## Fixed
+- Fixed bug with recent Rust and `cargo test` ‒ [#1272](https://github.com/paritytech/ink/pull/1272) (thanks [@xgreenx](https://github.com/xgreenx)).
+
+# Version 3.1.0
+
+## Compatibility
+We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [7d233c2](https://github.com/paritytech/substrate/tree/7d233c2446b5a60662400a0a4bcfb78bb3b79ff7)
+(May 13, 2022) in your node.
+
+This is the case in the latest release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
+[v0.15.1](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.15.1) and
+the latest Polkadot release [v0.9.22](https://github.com/paritytech/polkadot/releases/tag/v0.9.22).
+
+## Breaking Changes
+There are two breaking changes in this release:
+
+* As part of [#1235](https://github.com/paritytech/ink/pull/1235) the message selectors of
+  your contract may change. A change of selectors would affect your client, frontend, Dapp, etc..
+* As part of [#1233](https://github.com/paritytech/ink/pull/1235) we removed the `eth_compatibility`
+  crate.<br><br>
+  Its recovery functionality has been moved to `ink_env` now: [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html).
+  The reason for this change is that we moved the gas-expensive crypto operations into `pallet-contracts`.<br><br>
+  The crates `to_default_account_id` function has been removed; the reason for this change is that ink!
+  doesn't have knowledge about the specific Substrate types on the underlying chain.
+  If you want to retain the function in your contract and are just using standard Substrate types
+  you should add the prior functionality to your contract ‒ it was a simple
+  `<Blake2x256 as CryptoHash>::hash(&ecdsa_pubkey[u8; 33])`.
+
+## New API functions
+We added two new `Mapping` API functions:
+[`Mapping::contains`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and
+[`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224).
+These are more gas-efficient than whatever you were using previously.
+
+Additionaly there are a couple new `ink_env` functions now:
+* [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
+* [`ink_env::own_code_hash`](https://paritytech.github.io/ink/ink_env/fn.own_code_hash.html)
+* [`ink_env::code_hash`](https://paritytech.github.io/ink/ink_env/fn.code_hash.html)
+* [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html)
+
+## New Upgradeable Contract Example
+
+We've added a new example: [`upgradeable-contracts/set-code-hash`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts#set-code-hash).
+
+It illustrates how the newly added [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
+can be used to implement an upgradeable contract that replaces its own code.
+
+## Added
+- Implement `seal_code_hash` and `seal_own_code_hash` ‒ [#1205](https://github.com/paritytech/ink/pull/1205)
+- Add `set_code_hash` function and example ‒ [#1203](https://github.com/paritytech/ink/pull/1203)
+- Implement [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+- Add [`Mapping::contains(key)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(key, val)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+
+## Fixed
+- Fix ordering of message ids if the trait is implemented before the inherent section ‒ [#1235](https://github.com/paritytech/ink/pull/1235)
+
+## Removed
+- Removed `eth_compatibility` crate and moved its functionality partly into `ink_env` ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+
 # Version 3.0.1
 
 ## Changed
@@ -385,9 +461,9 @@ ink! 3.0-rc4 is compatible with
 - [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) version `0.1.0` or newer.
     - Install the newest version using `cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force`.
 
-The documentation on our [Documentation Portal](https://paritytech.github.io/ink-docs)
+The documentation on our [Documentation Portal](https://ink.substrate.io)
 is up-to-date with this release candidate. Since the last release candidate we notably
-added a number of [Frequently Asked Questions](https://paritytech.github.io/ink-docs/faq)
+added a number of [Frequently Asked Questions](https://ink.substrate.io/faq)
 there.
 
 ## Quality Assurance
@@ -416,7 +492,7 @@ of key improvements to our testing setup:
 - Implemented the (unstable) `seal_rent_status` API ‒ [#798](https://github.com/paritytech/ink/pull/798).
 - Implemented the (unstable) `seal_debug_message` API ‒ [#792](https://github.com/paritytech/ink/pull/792).
     - Printing debug messages can now be achieved via `ink_env::debug_println!(…)`.
-    - See [our documentation](https://paritytech.github.io/ink-docs/faq#how-do-i-print-something-to-the-console-from-the-runtime)
+    - See [our documentation](https://ink.substrate.io/faq#how-do-i-print-something-to-the-console-from-the-runtime)
       for more information.
     - The examples have been updated to reflect this new way of printing debug messages.
 - Added usage comments with code examples to the `ink_env` API ‒ [#797](https://github.com/paritytech/ink/pull/797).
@@ -477,7 +553,7 @@ ink! 3.0-rc3 is compatible with
 ## Added
 
 - Implemented chain extensions feature for ink!.
-- ink!'s official documentation portal: https://paritytech.github.io/ink-docs/
+- ink!'s official documentation portal: https://ink.substrate.io/
 - It is now possible to pass a `salt` argument to contract instantiations.
 - Implemented fuzz testing for the ink! codebase.
 

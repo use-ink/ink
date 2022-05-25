@@ -161,11 +161,22 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
-    pub fn contains<Q>(&self, key: Q) -> Option<u32>
+    pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
     {
         ink_env::contract_storage_contains(&self.storage_key(&key))
+    }
+
+    /// Checks if a value is stored at the given `key` in the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
+    #[inline]
+    pub fn contains<Q>(&self, key: Q) -> bool
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        ink_env::contract_storage_contains(&self.storage_key(&key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
@@ -287,7 +298,7 @@ mod tests {
     fn can_clear_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
-            use crate::Pack;
+            use crate::pack::Pack;
 
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
@@ -316,7 +327,7 @@ mod tests {
     fn can_clear_unexistent_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
-            use crate::Pack;
+            use crate::pack::Pack;
 
             // Given
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());

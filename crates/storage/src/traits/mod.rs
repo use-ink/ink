@@ -37,13 +37,7 @@ pub use self::layout::{
     LayoutCryptoHasher,
     StorageLayout,
 };
-pub(crate) use self::optspec::{
-    clear_spread_root_opt,
-    pull_packed_root_opt,
-    pull_spread_root_opt,
-    push_packed_root_opt,
-    push_spread_root_opt,
-};
+pub(crate) use self::optspec::pull_packed_root_opt;
 pub use self::{
     impls::{
         forward_allocate_packed,
