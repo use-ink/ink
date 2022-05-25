@@ -1,6 +1,6 @@
 [package]
 name = "erc20"
-version = "3.1.0"
+version = "3.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false

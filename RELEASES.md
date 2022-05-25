@@ -1,5 +1,24 @@
 # [Unreleased]
 
+# Version 3.2.0
+
+## Compatibility
+We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [c0ee2ad](https://github.com/paritytech/substrate/tree/c0ee2adaa54b22ee0df5d1592cd0430961afd95c)
+(May 23, 2022) in your node.
+
+This is the case in the latest release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
+[v0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0).
+
+## Added
+- Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
+
+## Changed
+- Two functions have been stabilized: [`ink_env::ecdsa_recover`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_recover.html) and [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1270](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1273)
+
+## Fixed
+- Fixed bug with recent Rust and `cargo test` ‒ [#1272](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1272) (thanks [@xgreenx](https://github.com/xgreenx)).
+
 # Version 3.1.0
 
 ## Compatibility
