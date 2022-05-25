@@ -20,7 +20,6 @@ pub use self::{
     execution::{
         deny_payment,
         execute_constructor,
-        ExecuteConstructorConfig,
     },
     info::ContractCallBuilder,
     type_check::{

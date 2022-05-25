@@ -202,7 +202,6 @@ impl ContractRef<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             impl #trait_path for #forwarder_ident {
-                #[doc(hidden)]
                 type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 

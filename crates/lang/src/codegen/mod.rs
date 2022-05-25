@@ -28,7 +28,6 @@ pub use self::{
         ContractCallBuilder,
         DispatchInput,
         DispatchOutput,
-        ExecuteConstructorConfig,
     },
     env::{
         Env,
