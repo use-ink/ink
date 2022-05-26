@@ -1,7 +1,7 @@
 # Upgradeable Contracts
 
 There are three upgradeable contract examples in this folder, they differ
-in key properties outlined below.
+in KEY properties outlined below.
 
 See [here](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies) for
 more information on proxy patterns.

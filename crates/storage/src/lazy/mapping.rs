@@ -20,15 +20,15 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
-    AtomicGuard,
     AutoKey,
-    StorageKeyHolder,
-    StorageType,
+    Item,
+    KeyHolder,
+    Packed,
+    Storable,
 };
 use core::marker::PhantomData;
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 use scale::{
-    Decode,
     Encode,
     Error,
     Input,
@@ -87,7 +87,7 @@ use scale::{
 ///
 /// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Mapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey> {
+pub struct Mapping<K, V: Packed, KeyType: KeyHolder = AutoKey> {
     #[allow(clippy::type_complexity)]
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
@@ -95,8 +95,8 @@ pub struct Mapping<K, V: AtomicGuard<true>, KeyType: StorageKeyHolder = AutoKey>
 /// We implement this manually because the derived implementation adds trait bounds.
 impl<K, V, KeyType> Default for Mapping<K, V, KeyType>
 where
-    V: AtomicGuard<true>,
-    KeyType: StorageKeyHolder,
+    V: Packed,
+    KeyType: KeyHolder,
 {
     fn default() -> Self {
         Self {
@@ -107,8 +107,8 @@ where
 
 impl<K, V, KeyType> Mapping<K, V, KeyType>
 where
-    V: AtomicGuard<true>,
-    KeyType: StorageKeyHolder,
+    V: Packed,
+    KeyType: KeyHolder,
 {
     /// Creates a new empty `Mapping`.
     pub fn new() -> Self {
@@ -120,12 +120,12 @@ where
 
 impl<K, V, KeyType> ::core::fmt::Debug for Mapping<K, V, KeyType>
 where
-    V: AtomicGuard<true>,
-    KeyType: StorageKeyHolder,
+    V: Packed,
+    KeyType: KeyHolder,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("Mapping")
-            .field("storage_key", &KeyType::KEY)
+            .field("key", &KeyType::KEY)
             .finish()
     }
 }
@@ -133,8 +133,8 @@ where
 impl<K, V, KeyType> Mapping<K, V, KeyType>
 where
     K: Encode,
-    V: AtomicGuard<true> + Encode + Decode,
-    KeyType: StorageKeyHolder,
+    V: Packed,
+    KeyType: KeyHolder,
 {
     /// Insert the given `value` to the contract storage.
     #[inline]
@@ -178,7 +178,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contract_storage_contains(&KeyType::KEY, Some(key))
+        ink_env::contains_contract_storage(&KeyType::KEY, Some(key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -189,10 +189,11 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contract_storage_contains(&KeyType::KEY, Some(key)).is_some()
+        ink_env::contains_contract_storage(&KeyType::KEY, Some(key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
+    #[inline]
     pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
@@ -201,40 +202,36 @@ where
     }
 }
 
-impl<K, V, Salt, InnerSalt> StorageType<Salt> for Mapping<K, V, InnerSalt>
+impl<K, V, KeyType> Storable for Mapping<K, V, KeyType>
 where
-    V: AtomicGuard<true>,
-    Salt: StorageKeyHolder,
-    InnerSalt: StorageKeyHolder,
+    V: Packed,
+    KeyType: KeyHolder,
 {
-    type Type = Mapping<K, V, Salt>;
-    type PreferredKey = InnerSalt;
-}
+    #[inline]
+    fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
 
-impl<K, V, KeyType> Encode for Mapping<K, V, KeyType>
-where
-    V: AtomicGuard<true>,
-    KeyType: StorageKeyHolder,
-{
-    fn encode_to<T: Output + ?Sized>(&self, _dest: &mut T) {}
-}
-
-impl<K, V, KeyType> Decode for Mapping<K, V, KeyType>
-where
-    V: AtomicGuard<true>,
-    KeyType: StorageKeyHolder,
-{
+    #[inline]
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
     }
 }
 
-impl<K, V, KeyType> StorageKeyHolder for Mapping<K, V, KeyType>
+impl<K, V, Salt, InnerSalt> Item<Salt> for Mapping<K, V, InnerSalt>
 where
-    V: AtomicGuard<true>,
-    KeyType: StorageKeyHolder,
+    V: Packed,
+    Salt: KeyHolder,
+    InnerSalt: KeyHolder,
 {
-    const KEY: StorageKey = KeyType::KEY;
+    type Type = Mapping<K, V, Salt>;
+    type PreferredKey = InnerSalt;
+}
+
+impl<K, V, KeyType> KeyHolder for Mapping<K, V, KeyType>
+where
+    V: Packed,
+    KeyType: KeyHolder,
+{
+    const KEY: Key = KeyType::KEY;
 }
 
 #[cfg(feature = "std")]
@@ -249,10 +246,10 @@ const _: () = {
     impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where
         K: scale_info::TypeInfo + 'static,
-        V: AtomicGuard<true> + StorageLayout + scale_info::TypeInfo + 'static,
-        KeyType: StorageKeyHolder + scale_info::TypeInfo + 'static,
+        V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: KeyHolder + scale_info::TypeInfo + 'static,
     {
-        fn layout(_: &StorageKey) -> Layout {
+        fn layout(_: &Key) -> Layout {
             Layout::Root(RootLayout::new(
                 LayoutKey::from(&KeyType::KEY),
                 <V as StorageLayout>::layout(&KeyType::KEY),

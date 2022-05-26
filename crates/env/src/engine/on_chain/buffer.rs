@@ -33,12 +33,14 @@ impl StaticBuffer {
 impl core::ops::Index<core::ops::RangeFull> for StaticBuffer {
     type Output = [u8];
 
+    #[inline(always)]
     fn index(&self, index: core::ops::RangeFull) -> &Self::Output {
         core::ops::Index::index(&self.buffer[..], index)
     }
 }
 
 impl core::ops::IndexMut<core::ops::RangeFull> for StaticBuffer {
+    #[inline(always)]
     fn index_mut(&mut self, index: core::ops::RangeFull) -> &mut Self::Output {
         core::ops::IndexMut::index_mut(&mut self.buffer[..], index)
     }

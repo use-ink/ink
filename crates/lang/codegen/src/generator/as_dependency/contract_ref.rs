@@ -86,13 +86,18 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
-            #[::ink_lang::storage_item]
             #[derive(
                 ::core::fmt::Debug,
                 ::core::hash::Hash,
                 ::core::cmp::PartialEq,
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
+                ::scale::Decode,
+                ::scale::Encode,
+            )]
+            #[cfg_attr(
+                feature = "std",
+                derive(::ink_storage::traits::StorageLayout, ::scale_info::TypeInfo)
             )]
             #( #doc_attrs )*
             pub struct #ref_ident {

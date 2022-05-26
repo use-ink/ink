@@ -26,6 +26,6 @@
 mod key;
 
 pub use self::key::{
-    StorageKey,
-    StorageKeyComposer,
+    Key,
+    KeyComposer,
 };

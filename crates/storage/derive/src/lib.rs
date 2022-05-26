@@ -19,112 +19,110 @@
 
 extern crate proc_macro;
 
-mod atomic_guard;
-mod storage_key_holder;
+mod item;
+mod key_holder;
+mod storable;
 mod storage_layout;
-mod storage_type;
 
 #[cfg(test)]
 mod tests;
 
 use self::{
-    atomic_guard::atomic_guard_derive,
-    storage_key_holder::storage_key_holder_derive,
+    item::item_derive,
+    key_holder::key_holder_derive,
+    storable::storable_derive,
     storage_layout::storage_layout_derive,
-    storage_type::storage_type_derive,
 };
 synstructure::decl_derive!(
-    [AtomicGuard] =>
-    /// Derives `ink_storage`'s `AtomicGuard<true>` trait for the given `struct`, `enum` or `union`.
+    [Storable] =>
+    /// Derives `ink_storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use ink_storage::traits::AtomicGuard;
+    /// use ink_storage::traits::Storable;
     ///
-    /// #[derive(AtomicGuard)]
+    /// #[derive(Storable)]
     /// struct NamedFields {
     ///     a: u32,
-    ///     b: [u32; 32],
+    ///     b: [u32; 1],
     /// }
     ///
-    /// let value: &dyn AtomicGuard<true> = &NamedFields {
-    ///     a: 123,
-    ///     b: [22; 32],
-    /// };
+    /// let value = <NamedFields as Storable>::decode(&mut &[123, 123][..]);
     /// ```
-    atomic_guard_derive
+    storable_derive
 );
 synstructure::decl_derive!(
-    [StorageType] =>
-    /// Derives `ink_storage`'s `StorageType` trait for the given `struct` or `enum`.
+    [Item] =>
+    /// Derives `ink_storage`'s `Item` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
     /// ```
     /// use ink_storage::traits::{
-    ///     StorageType,
-    ///     StorageKeyHolder,
-    ///     AutoStorageType,
+    ///     Item,
+    ///     KeyHolder,
+    ///     AutoItem,
     ///     AutoKey,
     ///     ManualKey,
+    ///     Storable,
     /// };
     ///
-    /// #[derive(Default, StorageType, scale::Encode, scale::Decode)]
+    /// #[derive(Default, Item, Storable)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let _: NamedFields = <NamedFields as StorageType<AutoKey>>::Type::default();
-    /// let _: NamedFields = <NamedFields as StorageType<ManualKey<123>>>::Type::default();
+    /// let _: NamedFields = <NamedFields as Item<AutoKey>>::Type::default();
+    /// let _: NamedFields = <NamedFields as Item<ManualKey<123>>>::Type::default();
     ///
-    /// #[derive(StorageType, StorageKeyHolder, scale::Encode, scale::Decode)]
-    /// struct NamedFieldsStorage<KEY: ink_storage::traits::StorageKeyHolder> {
-    ///     a: <u32 as AutoStorageType<ManualKey<0, KEY>>>::Type,
-    ///     b: <[u32; 32] as AutoStorageType<ManualKey<1, KEY>>>::Type,
+    /// #[derive(Item, KeyHolder, Storable)]
+    /// struct NamedFieldsStorage<KEY: ink_storage::traits::KeyHolder> {
+    ///     a: <u32 as AutoItem<ManualKey<0, KEY>>>::Type,
+    ///     b: <[u32; 32] as AutoItem<ManualKey<1, KEY>>>::Type,
     /// }
     ///
     /// // (AutoKey | ManualKey<123>) -> ManualKey<123>
-    /// assert_eq!(123, <NamedFieldsStorage<AutoKey> as AutoStorageType<ManualKey<123>>>::Type::KEY);
+    /// assert_eq!(123, <NamedFieldsStorage<AutoKey> as AutoItem<ManualKey<123>>>::Type::KEY);
     /// // (ManualKey<321> | ManualKey<123>) -> ManualKey<321>
-    /// assert_eq!(321, <NamedFieldsStorage<ManualKey<321>> as AutoStorageType<ManualKey<123>>>::Type::KEY);
+    /// assert_eq!(321, <NamedFieldsStorage<ManualKey<321>> as AutoItem<ManualKey<123>>>::Type::KEY);
     /// ```
-    storage_type_derive
+    item_derive
 );
 synstructure::decl_derive!(
-    [StorageKeyHolder] =>
-    /// Derives `ink_storage`'s `StorageKeyHolder` trait for the given `struct` or `enum`.
+    [KeyHolder] =>
+    /// Derives `ink_storage`'s `KeyHolder` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
     /// ```
     /// use ink_storage::traits::{
-    ///     AutoStorageType,
-    ///     StorageKeyHolder,
+    ///     AutoItem,
+    ///     KeyHolder,
     ///     ManualKey,
     ///     AutoKey,
     /// };
     ///
-    /// #[derive(StorageKeyHolder)]
+    /// #[derive(KeyHolder)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// assert_eq!(<NamedFields as StorageKeyHolder>::KEY, 0);
+    /// assert_eq!(<NamedFields as KeyHolder>::KEY, 0);
     ///
-    /// #[derive(StorageKeyHolder)]
-    /// struct NamedFieldsManualKey<KEY: StorageKeyHolder> {
-    ///     a: <u32 as AutoStorageType<ManualKey<0, KEY>>>::Type,
-    ///     b: <[u32; 32] as AutoStorageType<ManualKey<1, KEY>>>::Type,
+    /// #[derive(KeyHolder)]
+    /// struct NamedFieldsManualKey<KEY: KeyHolder> {
+    ///     a: <u32 as AutoItem<ManualKey<0, KEY>>>::Type,
+    ///     b: <[u32; 32] as AutoItem<ManualKey<1, KEY>>>::Type,
     /// }
     ///
-    /// assert_eq!(<NamedFieldsManualKey<()> as StorageKeyHolder>::KEY, 0);
-    /// assert_eq!(<NamedFieldsManualKey<AutoKey> as StorageKeyHolder>::KEY, 0);
-    /// assert_eq!(<NamedFieldsManualKey<ManualKey<123>> as StorageKeyHolder>::KEY, 123);
+    /// assert_eq!(<NamedFieldsManualKey<()> as KeyHolder>::KEY, 0);
+    /// assert_eq!(<NamedFieldsManualKey<AutoKey> as KeyHolder>::KEY, 0);
+    /// assert_eq!(<NamedFieldsManualKey<ManualKey<123>> as KeyHolder>::KEY, 123);
     /// ```
-    storage_key_holder_derive
+    key_holder_derive
 );
 synstructure::decl_derive!(
     [StorageLayout] =>

@@ -19,7 +19,7 @@ use quote::{
     ToTokens,
 };
 
-pub fn storage_key_holder_derive(mut s: synstructure::Structure) -> TokenStream2 {
+pub fn key_holder_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.add_bounds(synstructure::AddBounds::None)
         .underscore_const(true);
 
@@ -30,8 +30,8 @@ pub fn storage_key_holder_derive(mut s: synstructure::Structure) -> TokenStream2
     };
 
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::StorageKeyHolder for @Self {
-            const KEY: ::ink_primitives::StorageKey = <#salt as ::ink_storage::traits::StorageKeyHolder>::KEY;
+        gen impl ::ink_storage::traits::KeyHolder for @Self {
+            const KEY: ::ink_primitives::Key = <#salt as ::ink_storage::traits::KeyHolder>::KEY;
         }
     })
 }

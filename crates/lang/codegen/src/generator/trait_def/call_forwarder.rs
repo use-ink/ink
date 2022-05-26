@@ -113,9 +113,6 @@ impl CallForwarder<'_> {
             #[derive(
                 ::scale::Encode,
                 ::scale::Decode,
-                ::ink_storage::traits::AtomicGuard,
-                ::ink_storage::traits::StorageType,
-                ::ink_storage::traits::StorageKeyHolder,
             )]
             #[repr(transparent)]
             pub struct #call_forwarder_ident<E>
@@ -145,7 +142,7 @@ impl CallForwarder<'_> {
                 <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::StorageLayout,
             {
                 fn layout(
-                    __key: &::ink_primitives::StorageKey,
+                    __key: &::ink_primitives::Key,
                 ) -> ::ink_metadata::layout::Layout {
                     <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::StorageLayout>::layout(__key)

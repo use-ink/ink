@@ -12,37 +12,69 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
+
+/// Types that implement `scale::Encode` and `scale::Decode` called - **Packed**. Those types
+/// can be fully serialized and deserialized into/from storage and occupy only one storage cell.
+///
+/// All other types - **Non-Packed**.
+///
+/// # Note
+///
+/// The trait is automatically implemented for types that implement `scale::Encode`
+/// and `scale::Decode` via blank implementation.
+///
+/// Don't try to implement that trait manually.
+pub trait Packed: scale::Decode + scale::Encode {}
+
+/// Every type that wants to be a part of the storage should implement this trait.
+/// The trait is used for serialization/deserialization into/from storage.
+///
+/// # Note
+///
+/// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
+/// via blank implementation.
+pub trait Storable: Sized {
+    /// Convert self to a slice and append it to the destination.
+    fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T);
+
+    /// Attempt to deserialize the value from input.
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error>;
+}
 
 /// Returns storage key for the type
-pub trait StorageKeyHolder {
+///
+/// # Note
+///
+/// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
+/// via blank implementation.
+pub trait KeyHolder {
     /// Storage key of the type
-    const KEY: StorageKey;
+    const KEY: Key;
 
     /// Returns the storage key.
-    fn storage_key(&self) -> StorageKey {
+    fn key(&self) -> Key {
         Self::KEY
     }
 }
 
-/// `AtomicGuard<true>` is automatically implemented for all primitive types and atomic structures.
-/// It can be used to add requirement for the generic to be atomic.
-///
-/// `AtomicGuard<false>` is useless bound because every type can implements it without any restriction.
-pub trait AtomicGuard<const IS_ATOMIC: bool> {}
-
 /// Describes the type that should be used for storing the value and preferred storage key.
-pub trait StorageType<Salt: StorageKeyHolder> {
+///
+/// # Note
+///
+/// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
+/// via blank implementation.
+pub trait Item<Salt: KeyHolder> {
     /// Type with storage key inside
-    type Type: scale::Encode + scale::Decode;
+    type Type: Storable;
     /// Preferred storage key
-    type PreferredKey: StorageKeyHolder;
+    type PreferredKey: KeyHolder;
 }
 
 /// Automatically returns the type that should be used for storing the value.
 ///
 /// Trait is used be codegen to use the right storage type.
-pub trait AutoStorageType<Salt: StorageKeyHolder> {
+pub trait AutoItem<Salt: KeyHolder> {
     /// Type with storage key inside
     type Type;
 }

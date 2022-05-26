@@ -12,32 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::traits::{
-    AtomicGuard,
-    AutoKey,
-    StorageKeyHolder,
-    StorageType,
-};
-
-impl<T: AtomicGuard<true>, const N: usize> AtomicGuard<true> for [T; N] {}
-
-impl<
-        T: AtomicGuard<true> + StorageType<Salt>,
-        const N: usize,
-        Salt: StorageKeyHolder,
-    > StorageType<Salt> for [T; N]
-{
-    type Type = [T::Type; N];
-    type PreferredKey = AutoKey;
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::storage_type_works_for_primitive;
+    use crate::item_works_for_primitive;
 
     type Array = [i32; 4];
-    storage_type_works_for_primitive!(Array);
+    item_works_for_primitive!(Array);
 
     type ArrayTuples = [(i32, i32); 2];
-    storage_type_works_for_primitive!(ArrayTuples);
+    item_works_for_primitive!(ArrayTuples);
 }

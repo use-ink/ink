@@ -38,6 +38,11 @@ impl StorageItem {
         Ok(Self { ast, config })
     }
 
+    /// Returns ast.
+    pub fn ast(&self) -> &syn::DeriveInput {
+        &self.ast
+    }
+
     /// Returns all types that were used in the storage declaration.
     pub fn all_used_types(&self) -> Vec<syn::Type> {
         self.ast.all_types()

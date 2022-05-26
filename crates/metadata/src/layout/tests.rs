@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::*;
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 
 #[test]
 fn layout_key_works() {
@@ -22,7 +22,7 @@ fn layout_key_works() {
     assert_eq!(json, "\"0x00000001\"",);
 }
 
-fn named_fields_struct_layout(key: &StorageKey) -> Layout {
+fn named_fields_struct_layout(key: &Key) -> Layout {
     StructLayout::new(
         "Struct",
         vec![
@@ -69,7 +69,7 @@ fn named_fields_work() {
     assert_eq!(json, expected);
 }
 
-fn tuple_struct_layout(key: &StorageKey) -> Layout {
+fn tuple_struct_layout(key: &Key) -> Layout {
     StructLayout::new(
         "(A, B)",
         vec![
@@ -116,7 +116,7 @@ fn tuple_struct_work() {
     assert_eq!(json, expected);
 }
 
-fn clike_enum_layout(key: &StorageKey) -> Layout {
+fn clike_enum_layout(key: &Key) -> Layout {
     EnumLayout::new(
         "Enum",
         key,
@@ -160,7 +160,7 @@ fn clike_enum_work() {
     assert_eq!(json, expected);
 }
 
-fn mixed_enum_layout(key: &StorageKey) -> Layout {
+fn mixed_enum_layout(key: &Key) -> Layout {
     EnumLayout::new(
         "Enum",
         *key,
@@ -278,7 +278,7 @@ fn mixed_enum_work() {
     assert_eq!(json, expected);
 }
 
-fn unbounded_hashing_layout(key: &StorageKey) -> Layout {
+fn unbounded_hashing_layout(key: &Key) -> Layout {
     let root_key = key;
     HashLayout::new(
         root_key,

@@ -15,36 +15,38 @@
 use crate::traits::{
     pull_storage,
     storage::OnCallInitializer,
+    DecodeWrapper,
+    Storable,
 };
-use ink_primitives::StorageKey;
-use scale::Decode;
+use ink_primitives::Key;
 
-pub struct PullOrInit<T: Decode> {
+pub struct PullOrInit<T: Storable> {
     marker: core::marker::PhantomData<fn() -> T>,
 }
 
-impl<T: OnCallInitializer + Decode + Sized> PullOrInit<T> {
+impl<T: OnCallInitializer + Storable> PullOrInit<T> {
     #[allow(dead_code)]
-    pub fn pull_or_init(key: &StorageKey) -> T {
-        let maybe_instance = ink_env::get_contract_storage::<(), T>(key, None);
+    pub fn pull_or_init(key: &Key) -> T {
+        let maybe_instance =
+            ink_env::get_contract_storage::<(), DecodeWrapper<T>>(key, None);
         match maybe_instance {
             Ok(None) | Err(_) => {
                 let mut instance = Default::default();
                 <T as OnCallInitializer>::initialize(&mut instance);
                 instance
             }
-            Ok(Some(instance)) => instance,
+            Ok(Some(wrapper)) => wrapper.0,
         }
     }
 }
 
-pub trait PullOrInitFallback<T: Decode> {
+pub trait PullOrInitFallback<T: Storable> {
     #[allow(dead_code)]
-    fn pull_or_init(key: &StorageKey) -> T {
+    fn pull_or_init(key: &Key) -> T {
         pull_storage(key)
     }
 }
-impl<T: Decode> PullOrInitFallback<T> for PullOrInit<T> {}
+impl<T: Storable> PullOrInitFallback<T> for PullOrInit<T> {}
 
 /// Pulls the struct from the storage or creates and new one and inits it.
 #[macro_export]
@@ -64,7 +66,7 @@ mod tests {
         push_storage,
         OnCallInitializer,
     };
-    use ink_primitives::StorageKey;
+    use ink_primitives::Key;
 
     #[derive(Default, scale::Encode, scale::Decode)]
     struct U32(u32);
@@ -77,16 +79,16 @@ mod tests {
 
     #[ink_lang::test]
     fn init_works() {
-        const STORAGE_KEY: StorageKey = 111;
-        let instance = pull_or_init!(U32, STORAGE_KEY);
+        const key: Key = 111;
+        let instance = pull_or_init!(U32, key);
         assert_eq!(123, instance.0);
     }
 
     #[ink_lang::test]
     fn pull_or_init_works() {
-        const STORAGE_KEY: StorageKey = 111;
-        push_storage(&U32(456), &STORAGE_KEY);
-        let instance = pull_or_init!(U32, STORAGE_KEY);
+        const KEY: Key = 111;
+        push_storage(&U32(456), &KEY);
+        let instance = pull_or_init!(U32, KEY);
 
         // Instead of init we used a pulled value
         assert_eq!(456, instance.0);
@@ -95,16 +97,16 @@ mod tests {
     #[ink_lang::test]
     #[should_panic(expected = "storage entry was empty")]
     fn pull_or_init_fails() {
-        const STORAGE_KEY: StorageKey = 111;
-        let instance = pull_or_init!(u32, STORAGE_KEY);
+        const key: Key = 111;
+        let instance = pull_or_init!(u32, key);
         assert_eq!(123, instance);
     }
 
     #[ink_lang::test]
     fn pull_works() {
-        const STORAGE_KEY: StorageKey = 111;
-        push_storage(&321, &STORAGE_KEY);
-        let instance = pull_or_init!(u32, STORAGE_KEY);
+        const key: Key = 111;
+        push_storage(&321, &key);
+        let instance = pull_or_init!(u32, key);
         assert_eq!(321, instance);
     }
 }

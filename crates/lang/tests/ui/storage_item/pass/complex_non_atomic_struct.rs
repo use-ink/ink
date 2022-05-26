@@ -1,17 +1,17 @@
 use ink_prelude::vec::Vec;
-use ink_primitives::StorageKeyComposer;
+use ink_primitives::KeyComposer;
 use ink_storage::{
     traits::{
         AutoKey,
-        StorageKeyHolder,
+        KeyHolder,
     },
+    Lazy,
     Mapping,
-    StorageValue,
 };
 
-#[ink_lang::storage_item]
+#[ink_lang::packed]
 #[derive(Default)]
-struct Atomic {
+struct Packed {
     a: u8,
     b: u16,
     c: u32,
@@ -20,85 +20,79 @@ struct Atomic {
     f: String,
 }
 
-#[ink_lang::storage_item]
+#[ink_lang::non_packed]
 #[derive(Default)]
-struct NonAtomic<KEY: StorageKeyHolder = AutoKey> {
-    a: Mapping<u128, Atomic>,
-    b: StorageValue<u128>,
-    c: StorageValue<Atomic>,
-    d: StorageValue<Vec<Atomic>>,
+struct NonPacked<KEY: KeyHolder = AutoKey> {
+    a: Mapping<u128, Packed>,
+    b: Lazy<u128>,
+    c: Lazy<Packed>,
+    d: Lazy<Vec<Packed>>,
 }
 
-#[ink_lang::storage_item]
+#[ink_lang::non_packed]
 #[derive(Default)]
 struct Contract {
-    a: StorageValue<NonAtomic>,
-    b: Mapping<u128, Atomic>,
-    c: (StorageValue<NonAtomic>, StorageValue<Atomic>),
+    a: Lazy<NonPacked>,
+    b: Mapping<u128, Packed>,
+    c: (Packed, Packed),
 }
 
 fn main() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let contract = Contract::default();
-        assert_eq!(contract.storage_key(), 0);
+        assert_eq!(contract.key(), 0);
 
         // contract.b
-        assert_eq!(
-            contract.b.storage_key(),
-            StorageKeyComposer::from_str("Contract::b")
-        );
+        assert_eq!(contract.b.key(), KeyComposer::from_str("Contract::b"));
 
         // contract.c
         assert_eq!(
-            contract.c.0.storage_key(),
-            StorageKeyComposer::concat(
-                StorageKeyComposer::from_str("(A, B)::0"),
-                StorageKeyComposer::from_str("Contract::c")
+            contract.c.0.key(),
+            KeyComposer::concat(
+                KeyComposer::from_str("(A, B)::0"),
+                KeyComposer::from_str("Contract::c")
             )
         );
         assert_eq!(
-            contract.c.1.storage_key(),
-            StorageKeyComposer::concat(
-                StorageKeyComposer::from_str("(A, B)::1"),
-                StorageKeyComposer::from_str("Contract::c")
+            contract.c.1.key(),
+            KeyComposer::concat(
+                KeyComposer::from_str("(A, B)::1"),
+                KeyComposer::from_str("Contract::c")
             )
         );
 
         // contract.a
-        assert_eq!(
-            contract.a.storage_key(),
-            StorageKeyComposer::from_str("Contract::a")
-        );
+        assert_eq!(contract.a.key(), KeyComposer::from_str("Contract::a"));
 
         assert_eq!(
-            contract.a.get_or_default().a.storage_key(),
-            StorageKeyComposer::concat(
-                StorageKeyComposer::from_str("NonAtomic::a"),
-                StorageKeyComposer::from_str("Contract::a")
+            contract.a.get_or_default().a.key(),
+            KeyComposer::concat(
+                KeyComposer::from_str("NonPacked::a"),
+                KeyComposer::from_str("Contract::a")
             ),
         );
 
         assert_eq!(
-            contract.a.get_or_default().b.storage_key(),
-            StorageKeyComposer::concat(
-                StorageKeyComposer::from_str("NonAtomic::b"),
-                StorageKeyComposer::from_str("Contract::a")
+            contract.a.get_or_default().b.key(),
+            KeyComposer::concat(
+                KeyComposer::from_str("NonPacked::b"),
+                KeyComposer::from_str("Contract::a")
             ),
         );
 
         assert_eq!(
-            contract.a.get_or_default().c.storage_key(),
-            StorageKeyComposer::concat(
-                StorageKeyComposer::from_str("NonAtomic::c"),
-                StorageKeyComposer::from_str("Contract::a")
+            contract.a.get_or_default().c.key(),
+            KeyComposer::concat(
+                KeyComposer::from_str("NonPacked::c"),
+                KeyComposer::from_str("Contract::a")
             ),
         );
 
         assert_eq!(
-            contract.a.get_or_default().d.storage_key(),
-            StorageKeyComposer::concat(
-                StorageKeyComposer::from_str("NonAtomic::d"),
-                StorageKeyComposer::from_str("Contract::a")
+            contract.a.get_or_default().d.key(),
+            KeyComposer::concat(
+                KeyComposer::from_str("NonPacked::d"),
+                KeyComposer::from_str("Contract::a")
             ),
         );
         Ok(())

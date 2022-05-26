@@ -23,7 +23,7 @@ use ink_metadata::layout::{
     CryptoHasher,
     Layout,
 };
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 
 /// Implemented by types that have a storage layout.
 pub trait StorageLayout {
@@ -31,7 +31,7 @@ pub trait StorageLayout {
     ///
     /// The given storage key is guiding the allocation of static fields onto
     /// the contract storage regions.
-    fn layout(key: &StorageKey) -> Layout;
+    fn layout(key: &Key) -> Layout;
 }
 
 /// Types implementing this trait are supported layouting crypto hashers.

@@ -20,25 +20,25 @@ use ink_lang as ink;
 pub mod upgradeable_contract {
     use ink_env::call::DelegateCall;
     use ink_primitives::{
-        StorageKey,
-        StorageKeyComposer,
+        Key,
+        KeyComposer,
     };
     use ink_storage::traits::{
+        KeyHolder,
         ManualKey,
-        StorageKeyHolder,
     };
 
-    const PROXY_STORAGE_KEY: StorageKey = StorageKeyComposer::from_str("ProxyFields");
+    const PROXY_key: Key = KeyComposer::from_str("ProxyFields");
 
     /// A simple proxy contract.
     ///
-    /// The proxy contracts is stored in own storage cell under the `PROXY_STORAGE_KEY`
+    /// The proxy contracts is stored in own storage cell under the `PROXY_key`
     /// instead of the default contract storage key = `0`.
     ///
     /// This allows us to store the proxy contract's storage in such a way that it will not
     /// conflict with the the default storage layout of the contract we're proxying calls to.
     #[ink(storage)]
-    pub struct Proxy<KEY: StorageKeyHolder = ManualKey<PROXY_STORAGE_KEY>> {
+    pub struct Proxy<KEY: KeyHolder = ManualKey<PROXY_key>> {
         /// The `Hash` of a contract code where any call that does not match a
         /// selector of this contract is forward to.
         forward_to: Hash,

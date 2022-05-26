@@ -18,13 +18,13 @@ use crate::layout::{
     StructLayout,
 };
 use ink_prelude::collections::HashMap;
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 use scale_info::form::MetaForm;
 
 /// It validates that the storage layout:
 /// - Hasn't conflicting storage keys, otherwise returns an error with a description of the conflict
 pub struct ValidateLayout {
-    first_entry: HashMap<StorageKey, String>,
+    first_entry: HashMap<Key, String>,
     name_stack: Vec<String>,
 }
 
@@ -44,7 +44,7 @@ impl ValidateLayout {
     ) -> Result<(), MetadataError> {
         match layout {
             Layout::Root(root) => {
-                self.check_storage_key(root.root_key.key())?;
+                self.check_key(root.root_key.key())?;
                 self.recursive_validate(root.layout())
             }
             Layout::Hash(hash) => self.recursive_validate(hash.layout()),
@@ -79,10 +79,10 @@ impl ValidateLayout {
         Ok(())
     }
 
-    fn check_storage_key(&mut self, key: &StorageKey) -> Result<(), MetadataError> {
+    fn check_key(&mut self, key: &Key) -> Result<(), MetadataError> {
         let path = self.name_stack.join("");
         if let Some(prev_path) = self.first_entry.get(key) {
-            Err(MetadataError::ConflictStorageKey(prev_path.clone(), path))
+            Err(MetadataError::ConflictKey(prev_path.clone(), path))
         } else {
             self.first_entry.insert(*key, path);
             Ok(())
@@ -102,7 +102,7 @@ mod tests {
         StructLayout,
         ValidateLayout,
     };
-    use ink_primitives::StorageKey;
+    use ink_primitives::Key;
     use std::collections::BTreeSet;
 
     #[test]
@@ -121,11 +121,11 @@ mod tests {
 
     // If any of the root key are equal it should cause an error
     fn valid_big_layout_tree(
-        key_for_root_0: StorageKey,
-        key_for_root_1: StorageKey,
-        key_for_root_2: StorageKey,
-        key_for_root_3: StorageKey,
-        key_for_root_4: StorageKey,
+        key_for_root_0: Key,
+        key_for_root_1: Key,
+        key_for_root_2: Key,
+        key_for_root_3: Key,
+        key_for_root_4: Key,
     ) -> Result<(), MetadataError> {
         let root_0 = key_for_root_0.into();
         let root_1 = key_for_root_1.into();
@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn conflict_0_and_1() {
         assert_eq!(
-            Err(MetadataError::ConflictStorageKey(
+            Err(MetadataError::ConflictKey(
                 "".to_string(),
                 "Contract.c:".to_string()
             )),
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn conflict_0_and_2() {
         assert_eq!(
-            Err(MetadataError::ConflictStorageKey(
+            Err(MetadataError::ConflictKey(
                 "".to_string(),
                 "Contract.a:Struct0.f:".to_string()
             )),
@@ -266,7 +266,7 @@ mod tests {
     #[test]
     fn conflict_0_and_3() {
         assert_eq!(
-            Err(MetadataError::ConflictStorageKey(
+            Err(MetadataError::ConflictKey(
                 "".to_string(),
                 "Contract.a:Struct0.f:Enum::Third.0:".to_string()
             )),
@@ -277,7 +277,7 @@ mod tests {
     #[test]
     fn conflict_0_and_4() {
         assert_eq!(
-            Err(MetadataError::ConflictStorageKey(
+            Err(MetadataError::ConflictKey(
                 "".to_string(),
                 "Contract.a:Struct0.f:Enum::First.0:Struct1.g:".to_string()
             )),
@@ -288,7 +288,7 @@ mod tests {
     #[test]
     fn conflict_3_and_4() {
         assert_eq!(
-            Err(MetadataError::ConflictStorageKey(
+            Err(MetadataError::ConflictKey(
                 "Contract.a:Struct0.f:Enum::First.0:Struct1.g:".to_string(),
                 "Contract.a:Struct0.f:Enum::Third.0:".to_string()
             )),

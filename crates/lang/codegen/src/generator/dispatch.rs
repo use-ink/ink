@@ -800,7 +800,7 @@ impl Dispatch<'_> {
                     if mutates {
                         ::ink_storage::traits::push_storage::<#storage_ident>(
                             &contract,
-                            &<#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY,
+                            &<#storage_ident as ::ink_storage::traits::KeyHolder>::KEY,
                         );
                     }
                 }
@@ -814,7 +814,7 @@ impl Dispatch<'_> {
                             ::core::mem::ManuallyDrop::new(
                                 ::ink_storage::pull_or_init!(
                                     #storage_ident,
-                                    <#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY
+                                    <#storage_ident as ::ink_storage::traits::KeyHolder>::KEY
                                 )
                             );
 

@@ -12,96 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::traits::{
-    AtomicGuard,
-    StorageKeyHolder,
-    StorageType,
-};
-use ink_env::{
-    AccountId,
-    Hash,
-};
-use ink_prelude::{
-    boxed::Box,
-    string::String,
-};
-use ink_primitives::StorageKey;
-
-macro_rules! impl_storage_type_for_primitive {
-    ( $($ty:ty),* $(,)? ) => {
-        $(
-            impl_always_storage_type!($ty);
-        )*
-    };
-}
-
-#[rustfmt::skip]
-impl_storage_type_for_primitive!(
-    // We do not include `f32` and `f64` since Wasm contracts currently
-    // do not support them since they are non deterministic. We might add them
-    // to this list once we add deterministic support for those primitives.
-    Hash, AccountId, (),
-    String,
-    bool,
-    u8, u16, u32, u64, u128,
-    i8, i16, i32, i64, i128,
-);
-
-impl StorageKeyHolder for () {
-    const KEY: StorageKey = 0;
-}
-
-impl<T: AtomicGuard<true>> AtomicGuard<true> for Option<T> {}
-
-impl<T: StorageType<Salt>, Salt: StorageKeyHolder> StorageType<Salt> for Option<T> {
-    type Type = Option<<T as StorageType<Salt>>::Type>;
-    type PreferredKey = T::PreferredKey;
-}
-
-impl<T: AtomicGuard<true>, E: AtomicGuard<true>> AtomicGuard<true> for Result<T, E> {}
-
-impl<T: StorageType<Salt>, E: StorageType<Salt>, Salt: StorageKeyHolder> StorageType<Salt>
-    for Result<T, E>
-{
-    type Type = Result<<T as StorageType<Salt>>::Type, <E as StorageType<Salt>>::Type>;
-    type PreferredKey = T::PreferredKey;
-}
-
-impl<T: AtomicGuard<true>> AtomicGuard<true> for Box<T> {}
-
-impl<T: StorageType<Salt>, Salt: StorageKeyHolder> StorageType<Salt> for Box<T> {
-    type Type = Box<<T as StorageType<Salt>>::Type>;
-    type PreferredKey = T::PreferredKey;
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::storage_type_works_for_primitive;
+    use crate::item_works_for_primitive;
     use ink_env::AccountId;
 
-    storage_type_works_for_primitive!(bool);
-    storage_type_works_for_primitive!(String);
-    storage_type_works_for_primitive!(AccountId);
-    storage_type_works_for_primitive!(i8);
-    storage_type_works_for_primitive!(i16);
-    storage_type_works_for_primitive!(i32);
-    storage_type_works_for_primitive!(i64);
-    storage_type_works_for_primitive!(i128);
-    storage_type_works_for_primitive!(u8);
-    storage_type_works_for_primitive!(u16);
-    storage_type_works_for_primitive!(u32);
-    storage_type_works_for_primitive!(u64);
-    storage_type_works_for_primitive!(u128);
+    item_works_for_primitive!(bool);
+    item_works_for_primitive!(String);
+    item_works_for_primitive!(AccountId);
+    item_works_for_primitive!(i8);
+    item_works_for_primitive!(i16);
+    item_works_for_primitive!(i32);
+    item_works_for_primitive!(i64);
+    item_works_for_primitive!(i128);
+    item_works_for_primitive!(u8);
+    item_works_for_primitive!(u16);
+    item_works_for_primitive!(u32);
+    item_works_for_primitive!(u64);
+    item_works_for_primitive!(u128);
 
     type OptionU8 = Option<u8>;
-    storage_type_works_for_primitive!(OptionU8);
+    item_works_for_primitive!(OptionU8);
 
     type ResultU8 = Result<u8, bool>;
-    storage_type_works_for_primitive!(ResultU8);
+    item_works_for_primitive!(ResultU8);
 
     type BoxU8 = Box<u8>;
-    storage_type_works_for_primitive!(BoxU8);
+    item_works_for_primitive!(BoxU8);
 
     type BoxOptionU8 = Box<Option<u8>>;
-    storage_type_works_for_primitive!(BoxOptionU8);
+    item_works_for_primitive!(BoxOptionU8);
 }

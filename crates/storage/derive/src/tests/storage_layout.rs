@@ -23,7 +23,7 @@ fn unit_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink_storage::traits::StorageLayout for UnitStruct {
-                    fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
+                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(::core::stringify!(UnitStruct), [])
                         )
@@ -43,7 +43,7 @@ fn tuple_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink_storage::traits::StorageLayout for TupleStruct {
-                    fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
+                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(
                                 ::core::stringify!(TupleStruct),
@@ -83,7 +83,7 @@ fn named_fields_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink_storage::traits::StorageLayout for NamedFieldsStruct {
-                    fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
+                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(
                                 ::core::stringify!(NamedFieldsStruct),
@@ -119,7 +119,7 @@ fn clike_enum_works() {
         expands to {
             const _: () = {
                 impl ::ink_storage::traits::StorageLayout for ClikeEnum {
-                    fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
+                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
                                 ::core::stringify!(ClikeEnum),
@@ -176,7 +176,7 @@ fn mixed_enum_works() {
         expands to {
             const _: () = {
                 impl ::ink_storage::traits::StorageLayout for MixedEnum {
-                    fn layout(__key: &::ink_primitives::StorageKey) -> ::ink_metadata::layout::Layout {
+                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
                                 ::core::stringify!(MixedEnum),

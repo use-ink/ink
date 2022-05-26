@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod atomic_guard;
-mod storage_key_holder;
+mod item;
+mod key_holder;
+mod storable;
 mod storage_layout;
-mod storage_type;
 
 #[macro_export]
 macro_rules! test_derive {

@@ -20,7 +20,7 @@ use syn::Data;
 /// Note: It is only for internal usage in the codegen
 pub trait DeriveUtils {
     /// Finds the salt of the structure, enum or union.
-    /// The salt is any generic that has bound `StorageKeyHolder`.
+    /// The salt is any generic that has bound `KeyHolder`.
     fn find_salt(&self) -> Option<syn::TypeParam>;
 
     /// Return all types of the input.
@@ -36,7 +36,7 @@ impl DeriveUtils for syn::DeriveInput {
                     if let syn::TypeParamBound::Trait(trait_bound) = bound {
                         let segments = &trait_bound.path.segments;
                         if !segments.is_empty()
-                            && segments.last().unwrap().ident == "StorageKeyHolder"
+                            && segments.last().unwrap().ident == "KeyHolder"
                         {
                             return Some(type_param.clone())
                         }

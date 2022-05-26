@@ -28,7 +28,7 @@ use crate::{
 };
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 use scale_info::{
     form::{
         Form,
@@ -76,7 +76,7 @@ pub enum Layout<F: Form = MetaForm> {
 /// A pointer into some storage region.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, From)]
 pub struct LayoutKey {
-    key: StorageKey,
+    key: Key,
 }
 
 impl serde::Serialize for LayoutKey {
@@ -95,19 +95,19 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     {
         let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        Ok(StorageKey::from_be_bytes(arr).into())
+        Ok(Key::from_be_bytes(arr).into())
     }
 }
 
-impl<'a> From<&'a StorageKey> for LayoutKey {
-    fn from(key: &'a StorageKey) -> Self {
+impl<'a> From<&'a Key> for LayoutKey {
+    fn from(key: &'a Key) -> Self {
         Self { key: *key }
     }
 }
 
 impl LayoutKey {
     /// Returns the key of the layout key.
-    pub fn key(&self) -> &StorageKey {
+    pub fn key(&self) -> &Key {
         &self.key
     }
 }
@@ -641,7 +641,7 @@ impl IntoPortable for EnumLayout {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MetadataError {
     /// Storage keys of two types intersect
-    ConflictStorageKey(String, String),
+    ConflictKey(String, String),
 }
 
 impl Display for MetadataError {
@@ -655,7 +655,7 @@ impl MetadataError {
     #[inline]
     fn to_human_string(&self) -> String {
         match self {
-            Self::ConflictStorageKey(prev_path, curr_path) => {
+            Self::ConflictKey(prev_path, curr_path) => {
                 format!(
                     "conflict storage key occurred for `{}`. \
                     The same storage key is occupied by the `{}`.",
@@ -674,17 +674,13 @@ impl MetadataError {
 #[test]
 fn valid_error_message() {
     assert_eq!(
-        MetadataError::ConflictStorageKey("".to_string(), "Contract.c:".to_string())
-            .to_string(),
+        MetadataError::ConflictKey("".to_string(), "Contract.c:".to_string()).to_string(),
         "conflict storage key occurred for `Contract.c:`. \
         The same storage key is occupied by the `contract storage`."
     );
     assert_eq!(
-        MetadataError::ConflictStorageKey(
-            "Contract.a:".to_string(),
-            "Contract.c:".to_string()
-        )
-        .to_string(),
+        MetadataError::ConflictKey("Contract.a:".to_string(), "Contract.c:".to_string())
+            .to_string(),
         "conflict storage key occurred for `Contract.c:`. \
         The same storage key is occupied by the `Contract.a:`."
     )

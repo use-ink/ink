@@ -14,8 +14,11 @@ mod delegator {
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
-    #[ink_lang::storage_item]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+    )]
     pub enum Which {
         Adder,
         Subber,

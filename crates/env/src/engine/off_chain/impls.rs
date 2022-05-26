@@ -45,8 +45,8 @@ use ink_engine::{
     ext::Engine,
 };
 use ink_primitives::{
-    StorageKey,
-    StorageKeyComposer,
+    Key,
+    KeyComposer,
 };
 
 /// The capacity of the static buffer.
@@ -185,20 +185,16 @@ impl EnvInstance {
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 
-    fn combined_storage_key<K>(
-        &mut self,
-        storage_key: &StorageKey,
-        dynamic_key: Option<K>,
-    ) -> [u8; 32]
+    fn combined_key<K>(&mut self, key: &Key, offset_key: Option<K>) -> [u8; 32]
     where
         K: scale::Encode,
     {
-        if let Some(dynamic_key) = dynamic_key {
+        if let Some(offset_key) = offset_key {
             let mut hash = <Blake2x256 as HashOutput>::Type::default();
-            self.hash_encoded::<Blake2x256, _>(&(storage_key, dynamic_key), &mut hash);
+            self.hash_encoded::<Blake2x256, _>(&(key, offset_key), &mut hash);
             hash
         } else {
-            StorageKeyComposer::old_key(storage_key)
+            KeyComposer::old_key(key)
         }
     }
 }
@@ -206,29 +202,29 @@ impl EnvInstance {
 impl EnvBackend for EnvInstance {
     fn set_contract_storage<K, V>(
         &mut self,
-        storage_key: &StorageKey,
-        dynamic_key: Option<K>,
+        key: &Key,
+        offset_key: Option<K>,
         value: &V,
     ) -> Option<u32>
     where
         K: scale::Encode,
         V: scale::Encode,
     {
-        let key = self.combined_storage_key(storage_key, dynamic_key);
+        let key = self.combined_key(key, offset_key);
         let v = scale::Encode::encode(value);
         self.engine.set_storage(&key, &v[..])
     }
 
     fn get_contract_storage<K, R>(
         &mut self,
-        storage_key: &StorageKey,
-        dynamic_key: Option<K>,
+        key: &Key,
+        offset_key: Option<K>,
     ) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: scale::Decode,
     {
-        let key = self.combined_storage_key(storage_key, dynamic_key);
+        let key = self.combined_key(key, offset_key);
         let mut output: [u8; 9600] = [0; 9600];
         match self.engine.get_storage(&key, &mut &mut output[..]) {
             Ok(_) => (),
@@ -239,26 +235,23 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains<K>(
+    fn contains_contract_storage<K>(
         &mut self,
-        storage_key: &StorageKey,
-        dynamic_key: Option<K>,
+        key: &Key,
+        offset_key: Option<K>,
     ) -> Option<u32>
     where
         K: scale::Encode,
     {
-        let key = self.combined_storage_key(storage_key, dynamic_key);
+        let key = self.combined_key(key, offset_key);
         self.engine.contains_storage(&key)
     }
 
-    fn clear_contract_storage<K>(
-        &mut self,
-        storage_key: &StorageKey,
-        dynamic_key: Option<K>,
-    ) where
+    fn clear_contract_storage<K>(&mut self, key: &Key, offset_key: Option<K>)
+    where
         K: scale::Encode,
     {
-        let key = self.combined_storage_key(storage_key, dynamic_key);
+        let key = self.combined_key(key, offset_key);
         self.engine.clear_storage(&key)
     }
 

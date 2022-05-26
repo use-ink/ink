@@ -668,16 +668,19 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
-/// All atomic types don't have a storage key, but non-atomic types
-/// (like `Mapping`, `StorageValue` etc.) require calculating the storage key during compilation.
+/// All packed types don't have a storage key, but non-packed types
+/// (like `Mapping`, `Lazy` etc.) require calculating the storage key during compilation.
 ///
 /// All structs and enums that plan to be a part of the storage better to be marked by this macro.
 /// The macro should be called before `derive` macros because it can change the type.
 ///
-/// If the type is atomic then the usage of the macro is optional.
-/// All required traits can be derived manually.
+/// If the type is packed then the usage of the macro is optional.
+/// All required traits can be:
+/// - Derived manually via `#[derive(...)]`
+/// - Derived automatically via deriving of `scale::Decode` and `scale::Encode`.
+/// - Derived via this macro.
 ///
-/// If the type is non-atomic better to have automated storage key calculation,
+/// If the type is non-packed better to have automated storage key calculation,
 /// but you can specify it manually.
 ///
 /// # Example
@@ -687,72 +690,86 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 /// use ink_prelude::vec::Vec;
 /// use ink_storage::{
-///     StorageValue,
+///     Lazy,
 ///     Mapping,
 /// };
 /// use ink_storage::traits::{
-///     AtomicGuard,
-///     StorageKeyHolder,
-///     StorageType,
+///     KeyHolder,
+///     Item,
+///     Storable,
 /// };
 ///
-/// #[ink_lang::storage_item]
-/// struct Atomic {
+/// #[derive(scale::Decode, scale::Encode)]
+/// struct Packed {
 ///     s1: u128,
 ///     s2: Vec<u128>,
-///     // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
-///     // s3: Vec<NonAtomic>,
+///     // Fails because `Item` implemented only for `Vec` where T: Packed
+///     // s3: Vec<NonPacked>,
 /// }
 ///
-/// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
-/// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout))]
-/// struct AtomicManual {
+/// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct PackedManual {
 ///     s1: u32,
 ///     s2: Vec<(u128, String)>,
-///     // Fails because `StorageType` implemented only for `Vec` where T: AtomicGuard<true>
-///     // s3: Vec<NonAtomic>,
+///     // Fails because `Item` implemented only for `Vec` where T: Packed
+///     // s3: Vec<NonPacked>,
 /// }
 ///
-/// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
-/// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout))]
-/// struct AtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
+/// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct PackedGeneric<T: ink_storage::traits::Packed> {
 ///     s1: (u128, bool),
 ///     s2: Vec<T>,
 ///     s3: String,
 /// }
 ///
 /// #[ink_lang::storage_item(derive = false)]
-/// #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
-/// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout))]
-/// struct NonAtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
+/// #[derive(Storable, Item, KeyHolder)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct NonPackedGeneric<T: ink_storage::traits::Packed> {
 ///     s1: u32,
-///     s2: Mapping<u128, T>,
+///     s2: T,
+///     s3: Mapping<u128, T>,
 /// }
 ///
-/// #[ink_lang::storage_item]
-/// struct AtomicComplex {
+/// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct PackedComplex {
 ///     s1: u128,
 ///     s2: Vec<u128>,
-///     s3: Vec<AtomicManual>,
+///     s3: Vec<PackedManual>,
 /// }
 ///
 /// #[ink_lang::storage_item]
-/// struct NonAtomic {
+/// struct NonPacked {
 ///     s1: Mapping<u32, u128>,
-///     s2: StorageValue<u128>,
+///     s2: Lazy<u128>,
 /// }
 ///
 /// #[ink_lang::storage_item]
-/// struct NonAtomicComplex<KEY: StorageKeyHolder> {
-///     s1: (NonAtomic, String, u128, Atomic),
+/// struct NonPackedComplex<KEY: KeyHolder> {
+///     s1: (String, u128, Packed),
 ///     s2: Mapping<u128, u128>,
-///     s3: StorageValue<u128>,
-///     s4: Mapping<u128, Atomic>,
-///     s5: StorageValue<NonAtomic>,
-///     s6: AtomicGeneric<Atomic>,
-///     s7: NonAtomicGeneric<Atomic>,
-///     // Fails because: the trait `AtomicGuard<true>` is not implemented for `NonAtomic`
-///     // s8: Mapping<u128, NonAtomic>,
+///     s3: Lazy<u128>,
+///     s4: Mapping<u128, Packed>,
+///     s5: Lazy<NonPacked>,
+///     s6: PackedGeneric<Packed>,
+///     s7: NonPackedGeneric<Packed>,
+///     // Fails because: the trait `ink_storage::traits::Packed` is not implemented for `NonPacked`
+///     // s8: Mapping<u128, NonPacked>,
 /// }
 /// ```
 ///
@@ -770,12 +787,13 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ```
 ///     use ink_storage::Mapping;
 ///     use ink_storage::traits::{
-///         AtomicGuard,
-///         StorageType,
+///         Item,
+///         KeyHolder,
+///         Storable,
 ///     };
 ///     #[ink_lang::storage_item(derive = false)]
-///     #[derive(AtomicGuard, StorageType, scale::Encode, scale::Decode)]
-///     struct NonAtomicGeneric<T: AtomicGuard<true> + scale::Encode + scale::Decode> {
+///     #[derive(Item, Storable, KeyHolder)]
+///     struct NonPackedGeneric<T: ink_storage::traits::Packed> {
 ///         s1: u32,
 ///         s2: Mapping<u128, T>,
 ///     }

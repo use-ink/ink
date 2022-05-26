@@ -26,7 +26,8 @@ use ink_env::{
 };
 use ink_storage::traits::{
     push_storage,
-    StorageKeyHolder,
+    KeyHolder,
+    Storable,
 };
 use scale::Encode;
 
@@ -56,7 +57,7 @@ where
 #[inline]
 pub fn execute_constructor<Contract, F, R>(f: F) -> Result<(), DispatchError>
 where
-    Contract: Encode + StorageKeyHolder + ContractEnv,
+    Contract: Storable + KeyHolder + ContractEnv,
     F: FnOnce() -> R,
     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,

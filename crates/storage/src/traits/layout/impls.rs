@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::traits::{
-    AtomicGuard,
+    Packed,
     StorageLayout,
 };
 use ink_env::{
@@ -40,14 +40,14 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {
     ( $($name:ty),* $(,)? ) => {
         $(
             impl StorageLayout for $name {
-                fn layout(key: &StorageKey) -> Layout {
+                fn layout(key: &Key) -> Layout {
                     Layout::Leaf(CellLayout::new::<$name>(LayoutKey::from(key)))
                 }
             }
@@ -67,9 +67,9 @@ macro_rules! impl_storage_layout_for_arrays {
         $(
             impl<T> StorageLayout for [T; $len]
             where
-                T: StorageLayout + AtomicGuard<true>,
+                T: StorageLayout + Packed,
             {
-                fn layout(key: &StorageKey) -> Layout {
+                fn layout(key: &Key) -> Layout {
                     let len: u32 = $len;
                     // Generic type is atomic, so it doesn't take any cell
                     Layout::Array(ArrayLayout::new(
@@ -102,7 +102,7 @@ macro_rules! impl_layout_for_tuple {
                     $frag: StorageLayout,
                 )*
             {
-                fn layout(key: &StorageKey) -> Layout {
+                fn layout(key: &Key) -> Layout {
                     Layout::Struct(
                         StructLayout::new(
                             TUPLE_NAME,
@@ -167,7 +167,7 @@ impl<T> StorageLayout for Box<T>
 where
     T: StorageLayout,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         <T as StorageLayout>::layout(key)
     }
 }
@@ -176,7 +176,7 @@ impl<T> StorageLayout for Option<T>
 where
     T: StorageLayout,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         Layout::Enum(EnumLayout::new(
             "Option",
             key,
@@ -199,7 +199,7 @@ where
     T: StorageLayout,
     E: StorageLayout,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         Layout::Enum(EnumLayout::new(
             "Result",
             *key,
@@ -225,37 +225,37 @@ where
 
 impl<T> StorageLayout for Vec<T>
 where
-    T: TypeInfo + 'static + AtomicGuard<true>,
+    T: TypeInfo + 'static + Packed,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
 impl<K, V> StorageLayout for BTreeMap<K, V>
 where
-    K: TypeInfo + 'static + AtomicGuard<true>,
-    V: TypeInfo + 'static + AtomicGuard<true>,
+    K: TypeInfo + 'static + Packed,
+    V: TypeInfo + 'static + Packed,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
 impl<T> StorageLayout for BTreeSet<T>
 where
-    T: TypeInfo + 'static + AtomicGuard<true>,
+    T: TypeInfo + 'static + Packed,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }
 
 impl<T> StorageLayout for VecDeque<T>
 where
-    T: TypeInfo + 'static + AtomicGuard<true>,
+    T: TypeInfo + 'static + Packed,
 {
-    fn layout(key: &StorageKey) -> Layout {
+    fn layout(key: &Key) -> Layout {
         Layout::Leaf(CellLayout::new::<Self>(LayoutKey::from(key)))
     }
 }

@@ -15,15 +15,15 @@
 use ink_prelude::vec;
 use sha2_const::Sha256;
 
-pub type StorageKey = u32;
+pub type Key = u32;
 
 /// Contains all rules related to storage key creation.
-pub struct StorageKeyComposer;
+pub struct KeyComposer;
 
-impl StorageKeyComposer {
-    /// Concatenate two `StorageKey` into one. If one of the keys is zero, then return another
+impl KeyComposer {
+    /// Concatenate two `Key` into one. If one of the keys is zero, then return another
     /// without hashing. If both keys are non-zero, return the hash of both keys.
-    pub const fn concat(left: StorageKey, right: StorageKey) -> StorageKey {
+    pub const fn concat(left: Key, right: Key) -> Key {
         match (left, right) {
             (0, 0) => 0,
             (0, _) => right,
@@ -33,20 +33,20 @@ impl StorageKeyComposer {
                     .update(&left.to_be_bytes())
                     .update(&right.to_be_bytes())
                     .finalize();
-                StorageKey::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+                Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
             }
         }
     }
 
     /// Return storage key from the string
-    pub const fn from_str(str: &str) -> StorageKey {
+    pub const fn from_str(str: &str) -> Key {
         Self::from_bytes(str.as_bytes())
     }
 
     /// Return storage key from the bytes
-    pub const fn from_bytes(bytes: &[u8]) -> StorageKey {
+    pub const fn from_bytes(bytes: &[u8]) -> Key {
         let hash = Sha256::new().update(bytes).finalize();
-        StorageKey::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+        Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
     }
 
     /// # Note
@@ -62,11 +62,7 @@ impl StorageKeyComposer {
     /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
     /// 1. Apply the `SHA2` 256-bit hash `H` of `C`.
     /// 1. The first 4 bytes of `H` make up the storage key.
-    pub fn compute_storage_key(
-        struct_name: &str,
-        variant_name: &str,
-        field_name: &str,
-    ) -> u32 {
+    pub fn compute_key(struct_name: &str, variant_name: &str, field_name: &str) -> u32 {
         let separator = &b"::"[..];
         let composed_key = if !variant_name.is_empty() {
             vec![
@@ -83,7 +79,7 @@ impl StorageKeyComposer {
     }
 
     /// Return the 32 bytes representation of the storage key for old version of the storage.
-    pub const fn old_key(new_key: &StorageKey) -> [u8; 32] {
+    pub const fn old_key(new_key: &Key) -> [u8; 32] {
         let bytes = new_key.to_le_bytes();
         [
             bytes[0], bytes[1], bytes[2], bytes[3], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

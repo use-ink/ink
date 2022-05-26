@@ -63,12 +63,11 @@ impl Metadata<'_> {
     fn generate_layout(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let storage_key =
-            quote! { <#storage_ident as ::ink_storage::traits::StorageKeyHolder>::KEY };
+        let key = quote! { <#storage_ident as ::ink_storage::traits::KeyHolder>::KEY };
 
         let layout_key = quote! {
             <::ink_metadata::layout::LayoutKey
-                as ::core::convert::From<::ink_primitives::StorageKey>>::from(#storage_key)
+                as ::core::convert::From<::ink_primitives::Key>>::from(#key)
         };
         quote_spanned!(storage_span=>
             // Wrap the layout of the contract into the `RootLayout`, because
@@ -76,7 +75,7 @@ impl Metadata<'_> {
             ::ink_metadata::layout::Layout::Root(::ink_metadata::layout::RootLayout::new(
                 #layout_key,
                 <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
-                    &#storage_key,
+                    &#key,
                 ),
             ))
         )

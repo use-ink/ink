@@ -19,9 +19,14 @@ use proc_macro2::{
     TokenStream as TokenStream2,
     TokenStream,
 };
-use quote::quote;
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
 use syn::{
     parse2,
+    spanned::Spanned,
     Data,
     DataEnum,
     DataStruct,
@@ -48,31 +53,28 @@ impl GenerateCode for StorageItem<'_> {
         };
 
         let mut derive = quote! {};
-        let mut impls = quote! {};
         if self.item.config().derive() {
             derive = quote! {
                 #[derive(
-                    ::ink_storage::traits::StorageType,
-                    ::ink_storage::traits::StorageKeyHolder,
-                    ::scale::Encode,
-                    ::scale::Decode,
+                    ::ink_storage::traits::Item,
+                    ::ink_storage::traits::KeyHolder,
+                    ::ink_storage::traits::Storable,
                 )]
                 #[cfg_attr(feature = "std", derive(
                     ::scale_info::TypeInfo,
                     ::ink_storage::traits::StorageLayout,
                 ))]
             };
-            // Derive `AtomicGuard` requires `AtomicGuard<true>` for all types.
-            // For storage item we try to calculate is the struct is atomic or not
-            // via `ink_storage::is_atomic` macro.
-            impls = self.generic_atomic_guard();
         }
 
+        let type_check = self.generate_type_check();
+
         quote! {
+            #type_check
+
             #(#attrs)*
             #derive
             #generated_struct
-            #impls
         }
     }
 }
@@ -180,28 +182,29 @@ impl<'a> StorageItem<'a> {
         }
     }
 
-    fn generic_atomic_guard(&self) -> TokenStream2 {
-        let ident = self.item.ident();
-
-        let (impl_generics, ty_generics, where_clause) =
-            self.item.generics().split_for_impl();
-
-        let mut inner_is_atomic: Vec<_> = self
+    fn generate_type_check(&self) -> TokenStream2 {
+        let fields = self
             .item
             .all_used_types()
-            .iter()
-            .map(|t| {
-                quote! { ::ink_storage::is_atomic!(#t) }
-            })
-            .collect();
-
-        if inner_is_atomic.is_empty() {
-            inner_is_atomic.push(quote! { true })
-        }
+            .into_iter()
+            .enumerate()
+            .map(|(i, ty)| {
+                let field_name = format_ident!("field_{}", i);
+                let span = ty.span();
+                quote_spanned!(span=>
+                    #field_name: #ty
+                )
+            });
+        let generics = self.item.generics();
+        let salt = self.item.salt();
 
         quote! {
-            impl #impl_generics ::ink_storage::traits::AtomicGuard< { #(#inner_is_atomic)&&* } >
-                for #ident #ty_generics #where_clause {}
+            const _: () = {
+                struct Check #generics {
+                    salt: #salt,
+                    #(#fields),*
+                }
+            };
         }
     }
 }
@@ -225,7 +228,7 @@ fn convert_into_storage_field(
         "".to_string()
     };
 
-    let key = ink_primitives::StorageKeyComposer::compute_storage_key(
+    let key = ink_primitives::KeyComposer::compute_key(
         struct_ident.to_string().as_str(),
         variant_name.as_str(),
         field_name.as_str(),
@@ -233,11 +236,12 @@ fn convert_into_storage_field(
 
     let mut new_field = field.clone();
     let ty = field.ty.clone();
-    new_field.ty = parse2(quote! {
-        <#ty as ::ink_storage::traits::AutoStorageType<
+    let span = field.span();
+    new_field.ty = parse2(quote_spanned!(span =>
+        <#ty as ::ink_storage::traits::AutoItem<
             ::ink_storage::traits::ManualKey<#key, #salt>,
         >>::Type
-    })
+    ))
     .unwrap();
     new_field
 }

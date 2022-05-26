@@ -1,6 +1,6 @@
 [package]
 name = "ink_storage_codegen"
-version = "3.1.0"
+version = "3.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
@@ -15,5 +15,5 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_primitives = { version = "3.1.0", path = "../../primitives", default-features = false }
+ink_primitives = { version = "3.2.0", path = "../../primitives", default-features = false }
 syn = { version = "1", features = ["full"] }

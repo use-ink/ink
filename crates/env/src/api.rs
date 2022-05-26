@@ -39,7 +39,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::StorageKey;
+use ink_primitives::Key;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -184,14 +184,14 @@ where
 }
 
 /// Writes the value to the contract storage under the combination of a given
-/// storage key and dynamic key and returns the size of pre-existing value if any.
+/// storage key and offset key and returns the size of pre-existing value if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
 pub fn set_contract_storage<K, V>(
-    storage_key: &StorageKey,
-    dynamic_key: Option<K>,
+    key: &Key,
+    offset_key: Option<K>,
     value: &V,
 ) -> Option<u32>
 where
@@ -199,12 +199,7 @@ where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<K, V>(
-            instance,
-            storage_key,
-            dynamic_key,
-            value,
-        )
+        EnvBackend::set_contract_storage::<K, V>(instance, key, offset_key, value)
     })
 }
 
@@ -214,43 +209,37 @@ where
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<K, R>(
-    storage_key: &StorageKey,
-    dynamic_key: Option<K>,
-) -> Result<Option<R>>
+pub fn get_contract_storage<K, R>(key: &Key, offset_key: Option<K>) -> Result<Option<R>>
 where
     K: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<K, R>(instance, storage_key, dynamic_key)
+        EnvBackend::get_contract_storage::<K, R>(instance, key, offset_key)
     })
 }
 
 /// Checks whether there is a value stored under the combination of a given storage key
-/// and dynamic key in the contract's storage.
+/// and offset key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-pub fn contract_storage_contains<K>(
-    storage_key: &StorageKey,
-    dynamic_key: Option<K>,
-) -> Option<u32>
+pub fn contains_contract_storage<K>(key: &Key, offset_key: Option<K>) -> Option<u32>
 where
     K: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::contract_storage_contains::<K>(instance, storage_key, dynamic_key)
+        EnvBackend::contains_contract_storage::<K>(instance, key, offset_key)
     })
 }
 
 /// Clears the contract's storage entry under the combination of
-/// a given storage key and dynamic key.
-pub fn clear_contract_storage<K>(storage_key: &StorageKey, dynamic_key: Option<K>)
+/// a given storage key and offset key.
+pub fn clear_contract_storage<K>(key: &Key, offset_key: Option<K>)
 where
     K: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage::<K>(instance, storage_key, dynamic_key)
+        EnvBackend::clear_contract_storage::<K>(instance, key, offset_key)
     })
 }
 

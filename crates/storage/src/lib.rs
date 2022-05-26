@@ -43,9 +43,6 @@
     unused_extern_crates
 )]
 
-#[macro_use]
-#[doc(hidden)]
-pub mod is_atomic;
 pub mod traits;
 
 mod lazy;
@@ -55,8 +52,8 @@ mod test_utils;
 
 #[doc(inline)]
 pub use self::lazy::{
+    Lazy,
     Mapping,
-    StorageValue,
 };
 #[doc(inline)]
 pub use self::traits::pull_or_init;

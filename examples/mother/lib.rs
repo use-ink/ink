@@ -34,13 +34,19 @@ mod mother {
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
     /// Wrapping vector, just added for testing UI components.
-    #[ink_lang::storage_item]
-    #[derive(Default, PartialEq, Debug, Clone)]
+    #[derive(Default, PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+    )]
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
     /// Auction outline.
-    #[ink_lang::storage_item]
-    #[derive(PartialEq, Debug, Clone)]
+    #[derive(PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+    )]
     pub enum Outline {
         NoWinner,
         WinnerDetected,
@@ -50,8 +56,11 @@ mod mother {
     /// Auction statuses.
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
-    #[ink_lang::storage_item]
-    #[derive(PartialEq, Debug, Clone)]
+    #[derive(PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+    )]
     pub enum Status {
         /// An auction has not started yet.
         NotStarted,
@@ -69,8 +78,11 @@ mod mother {
     }
 
     /// Struct for storing auction data.
-    #[ink_lang::storage_item]
-    #[derive(Debug, PartialEq, Clone)]
+    #[derive(Debug, PartialEq, Clone, scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+    )]
     pub struct Auction {
         /// Branded name of the auction event.
         name: String,

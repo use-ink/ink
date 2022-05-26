@@ -24,14 +24,14 @@ use syn::{
     GenericParam,
 };
 
-fn storage_type_inner(s: synstructure::Structure) -> TokenStream2 {
+fn item_inner(s: synstructure::Structure) -> TokenStream2 {
     let ident = s.ast().ident.clone();
     let salt_ident = format_ident!("__ink_generic_salt");
 
     let mut generics = s.ast().generics.clone();
-    generics.params.push(
-        parse2(quote! { #salt_ident : ::ink_storage::traits::StorageKeyHolder }).unwrap(),
-    );
+    generics
+        .params
+        .push(parse2(quote! { #salt_ident : ::ink_storage::traits::KeyHolder }).unwrap());
 
     let (impl_generics, _, where_clause) = generics.split_for_impl();
     let (_, ty_generics_original, _) = s.ast().generics.split_for_impl();
@@ -61,14 +61,14 @@ fn storage_type_inner(s: synstructure::Structure) -> TokenStream2 {
             .collect();
 
         quote! {
-            impl #impl_generics ::ink_storage::traits::StorageType<#salt_ident> for #ident #ty_generics_original #where_clause {
+            impl #impl_generics ::ink_storage::traits::Item<#salt_ident> for #ident #ty_generics_original #where_clause {
                 type Type = #ident <#(#ty_generics),*>;
                 type PreferredKey = #inner_salt_ident;
             }
         }
     } else {
         quote! {
-            impl #impl_generics ::ink_storage::traits::StorageType<#salt_ident> for #ident #ty_generics_original #where_clause {
+            impl #impl_generics ::ink_storage::traits::Item<#salt_ident> for #ident #ty_generics_original #where_clause {
                 type Type = #ident #ty_generics_original;
                 type PreferredKey = ::ink_storage::traits::AutoKey;
             }
@@ -76,8 +76,8 @@ fn storage_type_inner(s: synstructure::Structure) -> TokenStream2 {
     }
 }
 
-pub fn storage_type_derive(s: synstructure::Structure) -> TokenStream2 {
-    let derive = storage_type_inner(s);
+pub fn item_derive(s: synstructure::Structure) -> TokenStream2 {
+    let derive = item_inner(s);
 
     quote! {
         const _ : () = {

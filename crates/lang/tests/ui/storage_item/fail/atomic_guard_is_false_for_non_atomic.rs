@@ -1,12 +1,12 @@
 use ink_storage::{
     traits::AtomicGuard,
-    StorageValue,
+    Lazy,
 };
 
 #[ink_lang::storage_item]
 #[derive(Default)]
 struct NonAtomic {
-    a: StorageValue<u128>,
+    a: Lazy<u128>,
 }
 
 fn main() {
