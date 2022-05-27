@@ -15,7 +15,7 @@
 use ink_primitives::Key;
 
 /// Types that implement `scale::Encode` and `scale::Decode` called - **Packed**. Those types
-/// can be fully serialized and deserialized into/from storage and occupy only one storage cell.
+/// support serialization and deserialization into/from storage and occupy only one storage cell.
 ///
 /// All other types - **Non-Packed**.
 ///

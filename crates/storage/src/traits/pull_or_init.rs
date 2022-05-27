@@ -79,8 +79,8 @@ mod tests {
 
     #[ink_lang::test]
     fn init_works() {
-        const key: Key = 111;
-        let instance = pull_or_init!(U32, key);
+        const KEY: Key = 111;
+        let instance = pull_or_init!(U32, KEY);
         assert_eq!(123, instance.0);
     }
 
@@ -97,16 +97,16 @@ mod tests {
     #[ink_lang::test]
     #[should_panic(expected = "storage entry was empty")]
     fn pull_or_init_fails() {
-        const key: Key = 111;
-        let instance = pull_or_init!(u32, key);
+        const KEY: Key = 111;
+        let instance = pull_or_init!(u32, KEY);
         assert_eq!(123, instance);
     }
 
     #[ink_lang::test]
     fn pull_works() {
-        const key: Key = 111;
-        push_storage(&321, &key);
-        let instance = pull_or_init!(u32, key);
+        const KEY: Key = 111;
+        push_storage(&321, &KEY);
+        let instance = pull_or_init!(u32, KEY);
         assert_eq!(321, instance);
     }
 }
