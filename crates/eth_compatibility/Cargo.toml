@@ -1,6 +1,6 @@
 [package]
 name = "ink_eth_compatibility"
-version = "3.0.1"
+version = "3.0.2"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
@@ -15,7 +15,7 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_env = { version = "3.0.1", path = "../env", default-features = false }
+ink_env = { version = "~3.0.1", path = "../env", default-features = false }
 
 [target.'cfg(not(target_os = "windows"))'.dependencies]
 # We do not include `libsecp256k1` on Windows, since it's incompatible.
