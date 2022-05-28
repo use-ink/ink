@@ -1,5 +1,11 @@
 # [Unreleased]
 
+# Version 3.0.2
+
+## Fixed
+
+- Hotfix for dependency crates versions issue - [#1278](https://github.com/paritytech/ink/issues/1278)
+
 # Version 3.0.1
 
 ## Changed
