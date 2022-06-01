@@ -14,6 +14,9 @@ keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
+[build-dependencies]
+ink_build_script_utils = { version = "3.2.0", path = "../build-script-utils/",  default-features = false }
+
 [dependencies]
 ink_metadata = { version = "3.2.0", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
 ink_allocator = { version = "3.2.0", path = "../allocator/", default-features = false }

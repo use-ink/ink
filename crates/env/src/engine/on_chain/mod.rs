@@ -27,7 +27,7 @@ use super::OnInstance;
 
 /// The on-chain environment.
 pub struct EnvInstance {
-    /// Encode & decode buffer with static size of 16 kB.
+    /// Encode & decode buffer with a default static capacity of 16 kB.
     ///
     /// If operations require more than that they will fail.
     /// This limit was found to be a sweet spot after running benchmarks
@@ -36,6 +36,11 @@ pub struct EnvInstance {
     /// Please note that this is still an implementation detail and
     /// might change. Users should generally avoid storing too big values
     /// into single storage entries.
+    ///
+    /// Note: The static capacity of the buffer can be configured at
+    /// build-time via the `ENV_ENGINE_STATIC_BUFFER_CAPACITY` environment
+    /// variable.
+    /// See crates/env/build.rs for more information.
     buffer: StaticBuffer,
 }
 

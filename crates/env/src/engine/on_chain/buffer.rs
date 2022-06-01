@@ -12,15 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A static buffer with 16 kB of capacity.
+// Inlcude the generated configuration file that contains the `CONFIGURED_CAPACITY`
+// constant.
+include!(concat!(
+    env!("OUT_DIR"),
+    "/env_engine_static_buffer_capacity.rs"
+));
+
+/// A static buffer with a configurable capacity at build-time.
+/// If not explicitly configured, a default value of 16384 (16 kB) is used.
 pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16 kB.
+    /// The static buffer.
     buffer: [u8; Self::CAPACITY],
 }
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16 kB
+    const CAPACITY: usize = CONFIGURED_CAPACITY;
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {

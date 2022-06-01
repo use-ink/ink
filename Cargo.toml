@@ -14,6 +14,7 @@ members = [
     "crates/env",
     "crates/storage",
     "crates/storage/derive",
+    "crates/build-script-utils",
 ]
 exclude = [
     "examples/",
