@@ -1,0 +1,118 @@
+error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
+   |
+9  | #[ink_lang::storage_item]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Decode` is not implemented for `Vec<NonPacked>`
+   |
+   = help: the trait `Decode` is implemented for `Vec<T>`
+   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `Storable`
+  --> $WORKSPACE/crates/storage/src/traits/storage.rs
+   |
+   | pub trait Storable: Sized {
+   |                     ^^^^^ required by this bound in `Storable`
+   = note: this error originates in the derive macro `::ink_storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
+   |
+9  | #[ink_lang::storage_item]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `[NonPacked]`
+   |
+   = help: the following other types implement trait `Encode`:
+             [T; N]
+             [T]
+   = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+note: required because it appears within the type `Contract`
+  --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
+   |
+10 | struct Contract {
+   |        ^^^^^^^^
+note: required by a bound in `Storable`
+  --> $WORKSPACE/crates/storage/src/traits/storage.rs
+   |
+   | pub trait Storable: Sized {
+   |                     ^^^^^ required by this bound in `Storable`
+   = note: this error originates in the derive macro `::ink_storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
+   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
+    |
+9   | #[ink_lang::storage_item]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Decode` is not implemented for `Vec<NonPacked>`
+    |
+    = help: the trait `Decode` is implemented for `Vec<T>`
+    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+note: required because it appears within the type `Contract`
+   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
+    |
+10  | struct Contract {
+    |        ^^^^^^^^
+note: required by a bound in `Result`
+   --> $RUST/core/src/result.rs
+    |
+    | pub enum Result<T, E> {
+    |                 ^ required by this bound in `Result`
+    = note: this error originates in the derive macro `::ink_storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
+   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
+    |
+9   | #[ink_lang::storage_item]
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `[NonPacked]`
+    |
+    = help: the following other types implement trait `Encode`:
+              [T; N]
+              [T]
+    = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+note: required because it appears within the type `Contract`
+   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
+    |
+10  | struct Contract {
+    |        ^^^^^^^^
+note: required by a bound in `Result`
+   --> $RUST/core/src/result.rs
+    |
+    | pub enum Result<T, E> {
+    |                 ^ required by this bound in `Result`
+    = note: this error originates in the derive macro `::ink_storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:5
+   |
+11 |     a: Vec<NonPacked>,
+   |     ^^^^^^^^^^^^^^^^^ the trait `Decode` is not implemented for `Vec<NonPacked>`
+   |
+   = help: the trait `Decode` is implemented for `Vec<T>`
+   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+
+error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
+  --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:5
+   |
+11 |     a: Vec<NonPacked>,
+   |     ^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `[NonPacked]`
+   |
+   = help: the following other types implement trait `Encode`:
+             [T; N]
+             [T]
+   = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`

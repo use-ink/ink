@@ -1,7 +1,7 @@
 use ink_storage::traits::{
-    AtomicGuard,
     KeyHolder,
     ManualKey,
+    Storable,
 };
 
 #[ink_lang::storage_item(derive = false)]
@@ -13,8 +13,18 @@ struct Contract<KEY: KeyHolder = ManualKey<123>> {
 }
 
 // Disabling of deriving allow to implement the trait manually
-impl<KEY: KeyHolder> AtomicGuard<true> for Contract<KEY> {}
+impl<KEY: KeyHolder> Storable for Contract<KEY> {
+    fn encode<T: scale::Output + ?Sized>(&self, _dest: &mut T) {}
+
+    fn decode<I: scale::Input>(_input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Self {
+            a: Default::default(),
+            b: Default::default(),
+            c: Default::default(),
+        })
+    }
+}
 
 fn main() {
-    let _: &dyn AtomicGuard<true> = &Contract::<ManualKey<123>>::default();
+    let _: Result<Contract<ManualKey<123>>, _> = Storable::decode(&mut &[][..]);
 }

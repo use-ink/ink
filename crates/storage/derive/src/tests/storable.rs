@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// These tests are partly testing if code is expanded correctly.
+// Hence the syntax contains a number of verbose statements which
+// are not properly cleaned up.
+#![allow(clippy::absurd_extreme_comparisons)]
+#![allow(clippy::identity_op)]
+#![allow(clippy::eq_op)]
+#![allow(clippy::match_single_binding)]
+
 use crate::storable_derive;
 
 #[test]
@@ -31,7 +39,7 @@ fn unit_struct_works() {
 
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
-                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
+                    fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             UnitStruct => { }
                         }
@@ -69,7 +77,7 @@ fn struct_works() {
 
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
-                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
+                    fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
 
                             NamedFields {
@@ -129,7 +137,7 @@ fn one_variant_enum_works() {
 
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
-                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
+                    fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             OneVariantEnum::A => {
                                 {
@@ -182,7 +190,7 @@ fn enum_works() {
 
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
-                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
+                    fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             MixedEnum::A => {
                                 {
@@ -281,7 +289,7 @@ fn generic_struct_works() {
 
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
-                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
+                    fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             GenericStruct {
                                 a: __binding_0,
@@ -345,7 +353,7 @@ fn generic_enum_works() {
 
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
-                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
+                    fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {

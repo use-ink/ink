@@ -1,14 +1,14 @@
-use ink_prelude::vec::Vec;
+use ink_prelude::collections::BTreeMap;
 use ink_storage::Lazy;
 
 #[ink_lang::storage_item]
-struct NonAtomic {
+struct NonPacked {
     a: Lazy<u128>,
 }
 
 #[ink_lang::storage_item]
 struct Contract {
-    a: Vec<NonAtomic>,
+    a: BTreeMap<u128, NonPacked>,
 }
 
 fn main() {}

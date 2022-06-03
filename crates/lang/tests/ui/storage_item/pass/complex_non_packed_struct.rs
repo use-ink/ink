@@ -9,8 +9,11 @@ use ink_storage::{
     Mapping,
 };
 
-#[ink_lang::packed]
-#[derive(Default)]
+#[derive(Default, scale::Encode, scale::Decode)]
+#[cfg_attr(
+    feature = "std",
+    derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+)]
 struct Packed {
     a: u8,
     b: u16,
@@ -20,7 +23,7 @@ struct Packed {
     f: String,
 }
 
-#[ink_lang::non_packed]
+#[ink_lang::storage_item]
 #[derive(Default)]
 struct NonPacked<KEY: KeyHolder = AutoKey> {
     a: Mapping<u128, Packed>,
@@ -29,7 +32,7 @@ struct NonPacked<KEY: KeyHolder = AutoKey> {
     d: Lazy<Vec<Packed>>,
 }
 
-#[ink_lang::non_packed]
+#[ink_lang::storage_item]
 #[derive(Default)]
 struct Contract {
     a: Lazy<NonPacked>,
@@ -44,22 +47,6 @@ fn main() {
 
         // contract.b
         assert_eq!(contract.b.key(), KeyComposer::from_str("Contract::b"));
-
-        // contract.c
-        assert_eq!(
-            contract.c.0.key(),
-            KeyComposer::concat(
-                KeyComposer::from_str("(A, B)::0"),
-                KeyComposer::from_str("Contract::c")
-            )
-        );
-        assert_eq!(
-            contract.c.1.key(),
-            KeyComposer::concat(
-                KeyComposer::from_str("(A, B)::1"),
-                KeyComposer::from_str("Contract::c")
-            )
-        );
 
         // contract.a
         assert_eq!(contract.a.key(), KeyComposer::from_str("Contract::a"));
