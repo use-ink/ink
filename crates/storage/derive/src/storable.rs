@@ -33,10 +33,13 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
     s.gen_impl(quote! {
          gen impl ::ink_storage::traits::Storable for @Self {
             #[inline(always)]
+            #[allow(non_camel_case_types)]
             fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                 ::core::result::Result::Ok(#decode_body)
             }
+
             #[inline(always)]
+            #[allow(non_camel_case_types)]
             fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                 match self { #encode_body }
             }
@@ -90,6 +93,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
     s.gen_impl(quote! {
          gen impl ::ink_storage::traits::Storable for @Self {
             #[inline(always)]
+            #[allow(non_camel_case_types)]
             fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                 ::core::result::Result::Ok(
                     match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)? {
@@ -98,7 +102,9 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
                     }
                 )
             }
+
             #[inline(always)]
+            #[allow(non_camel_case_types)]
             fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                 match self {
                     #(

@@ -12,43 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// // These tests are partly testing if code is expanded correctly.
-// // Hence the syntax contains a number of verbose statements which
-// // are not properly cleaned up.
-// #![allow(clippy::absurd_extreme_comparisons)]
-// #![allow(clippy::identity_op)]
-// #![allow(clippy::eq_op)]
-// #![allow(clippy::match_single_binding)]
-
-use crate::item_derive;
+use crate::storable_derive;
 
 #[test]
 fn unit_struct_works() {
     crate::test_derive! {
-        spread_layout_derive {
+        storable_derive {
             struct UnitStruct;
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::SpreadLayout for UnitStruct {
-                    #[allow(unused_comparisons)]
-                    const FOOTPRINT: ::core::primitive::u64 = [0u64, 0u64][(0u64 < 0u64) as ::core::primitive::usize];
-
-                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (false || false );
-
-                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        UnitStruct
+                impl ::ink_storage::traits::Storable for UnitStruct {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+                        ::core::result::Result::Ok(UnitStruct)
                     }
 
-                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                         match self {
-                            UnitStruct => {}
-                        }
-                    }
-
-                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-                        match self {
-                            UnitStruct => {}
+                            UnitStruct => { }
                         }
                     }
                 }
@@ -60,7 +45,7 @@ fn unit_struct_works() {
 #[test]
 fn struct_works() {
     crate::test_derive! {
-        spread_layout_derive {
+        storable_derive {
             struct NamedFields {
                 a: i32,
                 b: [u8; 32],
@@ -69,93 +54,45 @@ fn struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::SpreadLayout for NamedFields {
-                    #[allow(unused_comparisons)]
-                    const FOOTPRINT: ::core::primitive::u64 = [
-                        (((0u64 + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            + <Box<i32> as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
-                        0u64
-                    ][((((0u64
-                        + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        + <Box<i32> as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        < 0u64) as ::core::primitive::usize
-                    ];
-
-                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
-                        false || (
-                            (
-                                (
-                                    false
-                                    || <i32 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                                )
-                                || <[u8; 32] as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                            )
-                            || <Box<i32> as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                        )
-                    );
-
-                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        NamedFields {
-                            a : <i32 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                            b : <[u8; 32] as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                            d : <Box<i32> as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                        }
-                    }
-
-                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-                        match self {
+                impl ::ink_storage::traits::Storable for NamedFields {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+                        ::core::result::Result::Ok(
                             NamedFields {
-                                a: __binding_0,
-                                b: __binding_1,
-                                d: __binding_2,
-                            } => {
-                                {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
-                                        __binding_0,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
-                                        __binding_1,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
-                                        __binding_2,
-                                        __key_ptr
-                                    );
-                                }
+                                a : <i32 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                b : <[u8; 32] as ::ink_storage::traits::Storable>::decode(__input)?,
+                                d : <Box<i32> as ::ink_storage::traits::Storable>::decode(__input)?,
                             }
-                        }
+                        )
                     }
 
-                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                         match self {
+
                             NamedFields {
                                 a: __binding_0,
                                 b: __binding_1,
                                 d: __binding_2,
                             } => {
                                 {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_0,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_1,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_2,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
@@ -170,43 +107,38 @@ fn struct_works() {
 #[test]
 fn one_variant_enum_works() {
     crate::test_derive! {
-        spread_layout_derive {
+        storable_derive {
             enum OneVariantEnum {
                 A,
             }
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::SpreadLayout for OneVariantEnum {
-                    #[allow(unused_comparisons)]
-                    const FOOTPRINT : ::core::primitive::u64 = 1 + [0u64, 0u64][(0u64 < 0u64) as ::core::primitive::usize];
-
-                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (false || false);
-
-                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
-                        {
-                            0u8 => OneVariantEnum::A,
-                            _ => unreachable!("encountered invalid enum discriminant"),
-                        }
+                impl ::ink_storage::traits::Storable for OneVariantEnum {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+                        ::core::result::Result::Ok(
+                            match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)?
+                            {
+                                0u8 => OneVariantEnum::A,
+                                _ => unreachable!("encountered invalid enum discriminant"),
+                            }
+                        )
                     }
 
-                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             OneVariantEnum::A => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
                                         &0u8,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
-                        }
-                    }
-
-                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-                        match self {
-                            OneVariantEnum::A => {}
                         }
                     }
                 }
@@ -218,7 +150,7 @@ fn one_variant_enum_works() {
 #[test]
 fn enum_works() {
     crate::test_derive! {
-        spread_layout_derive {
+        storable_derive {
             enum MixedEnum {
                 A,
                 B(i32, [u8; 32]),
@@ -227,200 +159,56 @@ fn enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::SpreadLayout for MixedEnum {
-                    #[allow(unused_comparisons)]
-                    const FOOTPRINT : ::core::primitive::u64 = 1 + [
-                        0u64 ,
-                        [
-                            (
-                                (
-                                    0u64
-                                    + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                )
-                                + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            ,
-                            [
-                                (
-                                    (
-                                        0u64
-                                        + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    )
-                                    + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
+                impl ::ink_storage::traits::Storable for MixedEnum {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+                        ::core::result::Result::Ok(
+                            match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)?
+                            {
+                                0u8 => MixedEnum::A,
+                                1u8 => MixedEnum::B(
+                                    <i32 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    <[u8; 32] as ::ink_storage::traits::Storable>::decode(__input)?,
                                 ),
-                                0u64
-                            ]
-                            [
-                                (
-                                    (
-                                        (
-                                            0u64
-                                            + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        )
-                                        + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    )
-                                    < 0u64
-                                ) as ::core::primitive::usize
-                            ]
-                        ][
-                            (
-                                (
-                                    (
-                                        0u64
-                                        + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    )
-                                    + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                )
-                                <[
-                                    (
-                                        (
-                                            0u64
-                                            + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        )
-                                        + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    ),
-                                    0u64
-                                ][
-                                    (
-                                        (
-                                            (
-                                                0u64
-                                                + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                            )
-                                            + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        )
-                                        < 0u64
-                                    ) as ::core::primitive::usize
-                                ]
-                            ) as ::core::primitive::usize
-                        ]
-                    ][
-                        (
-                            0u64 <[
-                                (
-                                    (
-                                        0u64
-                                        + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    )
-                                    + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                ),
-                                [
-                                    (
-                                        (
-                                            0u64
-                                            + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        )
-                                        + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    ),
-                                    0u64
-                                ][
-                                    (
-                                        (
-                                            (
-                                                0u64
-                                                + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                            )
-                                            + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        )
-                                        < 0u64
-                                    ) as ::core::primitive::usize
-                                ]
-                            ][
-                                (
-                                    (
-                                        (
-                                            0u64
-                                            + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        )
-                                        + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                    )
-                                    <[
-                                        (
-                                            (
-                                                0u64
-                                                + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                            )
-                                            + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                        ),
-                                        0u64
-                                    ][
-                                        (
-                                            (
-                                                (
-                                                    0u64
-                                                    + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                                )
-                                                + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
-                                            )
-                                            < 0u64
-                                        ) as ::core::primitive::usize
-                                    ]
-                                ) as ::core::primitive::usize
-                            ]
-                        ) as ::core::primitive::usize
-                    ];
-
-                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
-                        (
-                            (false || false)
-                            || (
-                                (
-                                    false
-                                    || <i32 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                                )
-                                || <[u8; 32] as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                            )
+                                2u8 => MixedEnum::C {
+                                    a: < i32 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    b: <(bool, i32) as ::ink_storage::traits::Storable>::decode(__input)?,
+                                },
+                                _ => unreachable!("encountered invalid enum discriminant"),
+                            }
                         )
-                        || (
-                            (
-                                false
-                                || <i32 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                            )
-                            || <(bool, i32) as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                        )
-                    );
-
-                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
-                        {
-                            0u8 => MixedEnum::A,
-                            1u8 => MixedEnum::B(
-                                <i32 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                                <[u8; 32] as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                            ),
-                            2u8 => MixedEnum::C {
-                                a: < i32 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr ),
-                                b: <(bool, i32) as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                            },
-                            _ => unreachable!("encountered invalid enum discriminant"),
-                        }
                     }
-                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             MixedEnum::A => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
                                         &0u8,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
                                         &1u8,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_0,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_1,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
@@ -429,56 +217,20 @@ fn enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
-                                        &2u8, __key_ptr
+                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
+                                        &2u8, __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_0,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_1,
-                                        __key_ptr
-                                    );
-                                }
-                            }
-                        }
-                    }
-                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-                        match self {
-                            MixedEnum::A => {}
-                            MixedEnum::B(__binding_0, __binding_1,) => {
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_0,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_1,
-                                        __key_ptr
-                                    );
-                                }
-                            }
-                            MixedEnum::C {
-                                a: __binding_0,
-                                b: __binding_1,
-                            } => {
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_0,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_1,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
@@ -493,88 +245,58 @@ fn enum_works() {
 #[test]
 fn generic_struct_works() {
     crate::test_derive! {
-        spread_layout_derive {
-            struct GenericStruct<T1, T2> {
+        storable_derive {
+            struct GenericStruct<T1, T2>
+            where
+                T1: ::ink_storage::traits::Packed,
+                T2: ::ink_storage::traits::Packed,
+            {
                 a: T1,
                 b: (T1, T2),
             }
         }
         expands to {
             const _: () = {
-                impl<T1, T2> ::ink_storage::traits::SpreadLayout for GenericStruct<T1, T2>
+                impl<T1, T2> ::ink_storage::traits::Storable for GenericStruct<T1, T2>
                 where
-                    T1: ::ink_storage::traits::SpreadLayout,
-                    T2: ::ink_storage::traits::SpreadLayout
+                    T1: ::ink_storage::traits::Packed,
+                    T2: ::ink_storage::traits::Packed,
+                    T1: ::ink_storage::traits::Storable,
+                    (T1 , T2): ::ink_storage::traits::Storable
                 {
-                    #[allow(unused_comparisons)]
-                    const FOOTPRINT: ::core::primitive::u64 = [
-                        ((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            + <(T1, T2) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
-                        0u64
-                    ][(((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        + <(T1, T2) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        < 0u64) as ::core::primitive::usize
-                    ];
-
-                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
-                        false || (
-                            (
-                                false
-                                || <T1 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                            )
-                            || < (T1, T2) as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                        )
-                    );
-
-                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        GenericStruct {
-                            a: <T1 as ::ink_storage::traits::SpreadLayout>::pull_spread(
-                                __key_ptr
-                            ),
-                            b: <(T1, T2) as ::ink_storage::traits::SpreadLayout>::pull_spread(
-                                __key_ptr
-                            ),
-                        }
-                    }
-
-                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-                        match self {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+                        ::core::result::Result::Ok(
                             GenericStruct {
-                                a: __binding_0,
-                                b: __binding_1,
-                            } => {
-                                {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
-                                        __binding_0,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
-                                        __binding_1,
-                                        __key_ptr
-                                    );
-                                }
+                                a: <T1 as ::ink_storage::traits::Storable>::decode(
+                                    __input
+                                )?,
+                                b: <(T1, T2) as ::ink_storage::traits::Storable>::decode(
+                                    __input
+                                )?,
                             }
-                        }
+                        )
                     }
 
-                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             GenericStruct {
                                 a: __binding_0,
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_0,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_1,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
@@ -589,7 +311,7 @@ fn generic_struct_works() {
 #[test]
 fn generic_enum_works() {
     crate::test_derive! {
-        spread_layout_derive {
+        storable_derive {
             enum GenericEnum<T1, T2> {
                 Tuple(T1, T2),
                 Named { a: T1, b: T2 },
@@ -597,85 +319,48 @@ fn generic_enum_works() {
         }
         expands to {
             const _: () = {
-                impl<T1, T2> ::ink_storage::traits::SpreadLayout for GenericEnum<T1, T2>
+                impl<T1, T2> ::ink_storage::traits::Storable for GenericEnum<T1, T2>
                 where
-                    T1: ::ink_storage::traits::SpreadLayout,
-                    T2: ::ink_storage::traits::SpreadLayout
+                    T1: ::ink_storage::traits::Storable,
+                    T2: ::ink_storage::traits::Storable
                 {
-                    #[allow(unused_comparisons)]
-                    const FOOTPRINT: ::core::primitive::u64 = 1 + [
-                        ((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
-                        [
-                            ((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                                + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
-                            0u64
-                        ][(((0u64
-                            + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            < 0u64) as ::core::primitive::usize]
-                    ][(((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        < [
-                            ((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                                + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
-                            0u64
-                        ][(((0u64
-                            + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            < 0u64) as ::core::primitive::usize]) as ::core::primitive::usize
-                    ];
-
-                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
-                        (
-                            false || (
-                                (
-                                    false
-                                    || <T1 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                                )
-                                || <T2 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                            )
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
+                        ::core::result::Result::Ok(
+                            match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)?
+                            {
+                                0u8 => GenericEnum::Tuple(
+                                    <T1 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    <T2 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                ),
+                                1u8 => GenericEnum::Named {
+                                    a: <T1 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    b: <T2 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                },
+                                _ => unreachable!("encountered invalid enum discriminant"),
+                            }
                         )
-                        || (
-                            (
-                                false
-                                || <T1 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                            )
-                            || <T2 as ::ink_storage::traits::SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
-                        )
-                    );
-
-                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
-                        {
-                            0u8 => GenericEnum::Tuple(
-                                <T1 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                                <T2 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                            ),
-                            1u8 => GenericEnum::Named {
-                                a: <T1 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                                b: <T2 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
-                            },
-                            _ => unreachable!("encountered invalid enum discriminant"),
-                        }
                     }
 
-                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    fn encode<__ink_O: ::scale::Output + ?Sized>(&self, __dest: &mut __ink_O) {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&0u8, __key_ptr);
+                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(&0u8, __dest);
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_0,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_1,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
@@ -684,54 +369,18 @@ fn generic_enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&1u8, __key_ptr);
+                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(&1u8, __dest);
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_0,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::SpreadLayout::push_spread(
+                                    ::ink_storage::traits::Storable::encode(
                                         __binding_1,
-                                        __key_ptr
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-                        match self {
-                            GenericEnum::Tuple(__binding_0, __binding_1,) => {
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_0,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_1,
-                                        __key_ptr
-                                    );
-                                }
-                            }
-                            GenericEnum::Named {
-                                a: __binding_0,
-                                b: __binding_1,
-                            } => {
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_0,
-                                        __key_ptr
-                                    );
-                                }
-                                {
-                                    ::ink_storage::traits::SpreadLayout::clear_spread(
-                                        __binding_1,
-                                        __key_ptr
+                                        __dest
                                     );
                                 }
                             }
