@@ -38,7 +38,7 @@ impl StorageItem {
         Ok(Self { ast, config })
     }
 
-    /// Returns ast.
+    /// Returns AST.
     pub fn ast(&self) -> &syn::DeriveInput {
         &self.ast
     }

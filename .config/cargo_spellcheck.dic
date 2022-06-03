@@ -38,6 +38,7 @@ defragmentation
 deploy
 dereferencing
 deserialize/S
+deserialization
 dispatchable/S
 encodable
 evaluable
