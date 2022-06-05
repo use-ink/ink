@@ -23,7 +23,7 @@ ink_prelude = { version = "3.2.0", path = "../prelude/", default-features = fals
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { path = "/Users/hcastano/ParityTech/scale-info", version = "2", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
 array-init = { version = "2.0", default-features = false }
 

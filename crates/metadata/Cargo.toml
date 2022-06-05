@@ -21,7 +21,8 @@ ink_primitives = { version = "3.2.0", path = "../primitives/", default-features 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 impl-serde = "0.3.1"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
+scale-info = { path = "/Users/hcastano/ParityTech/scale-info", version = "2", default-features = false, features = ["derive", "serde", "decode"] }
+schemars = "0.8.10"
 
 [dev-dependencies]
 pretty_assertions = "1"

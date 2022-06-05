@@ -47,7 +47,7 @@ secp256k1 = { version = "0.22.0", features = ["recovery", "global-context"], opt
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { path = "/Users/hcastano/ParityTech/scale-info", version = "2", default-features = false, features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
