@@ -63,7 +63,7 @@ use serde::{
 ///
 /// Represents the version of the serialized metadata *format*, which is distinct from the version
 /// of this crate for Rust semantic versioning compatibility.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, schemars::JsonSchema)]
 #[allow(clippy::large_enum_variant)]
 pub enum MetadataVersioned {
     /// Version 0 placeholder. Represents the original non-versioned metadata format.
@@ -83,7 +83,7 @@ impl From<InkProject> for MetadataVersioned {
 }
 
 /// Enum to represent a deprecated metadata version that cannot be instantiated.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, schemars::JsonSchema)]
 pub enum MetadataVersionDeprecated {}
 
 /// An entire ink! project for metadata file generation purposes.
