@@ -87,7 +87,7 @@ impl From<InkProject> for MetadataVersioned {
 pub enum MetadataVersionDeprecated {}
 
 /// An entire ink! project for metadata file generation purposes.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct InkProject {
     #[serde(flatten)]
     registry: PortableRegistry,

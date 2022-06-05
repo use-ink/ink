@@ -43,7 +43,17 @@ use serde::{
 };
 
 /// Represents the static storage layout of an ink! smart contract.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    From,
+    Serialize,
+    Deserialize,
+    schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -72,7 +82,7 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, schemars::JsonSchema)]
 pub struct LayoutKey {
     key: [u8; 32],
 }
@@ -117,7 +127,17 @@ impl LayoutKey {
 }
 
 /// A SCALE encoded cell.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    From,
+    Serialize,
+    Deserialize,
+    schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -195,7 +215,9 @@ where
 /// A hashing layout potentially hitting all cells of the storage.
 ///
 /// Every hashing layout has an offset and a strategy to compute its keys.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -261,7 +283,9 @@ where
 /// The offset key is used as another postfix for the computation.
 /// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
 /// Where `+` in this contexts means append of the byte slices.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 pub struct HashingStrategy {
     /// One of the supported crypto hashers.
     hasher: CryptoHasher,
@@ -306,7 +330,9 @@ impl HashingStrategy {
 }
 
 /// One of the supported crypto hashers.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 pub enum CryptoHasher {
     /// The BLAKE-2 crypto hasher with an output of 256 bits.
     Blake2x256,
@@ -317,7 +343,9 @@ pub enum CryptoHasher {
 }
 
 /// A layout for an array of associated cells with the same encoding.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -394,7 +422,9 @@ impl IntoPortable for ArrayLayout {
 }
 
 /// A struct layout with consecutive fields of different layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -441,7 +471,9 @@ impl IntoPortable for StructLayout {
 }
 
 /// The layout for a particular field of a struct layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -521,7 +553,9 @@ impl Discriminant {
 }
 
 /// An enum storage layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, schemars::JsonSchema,
+)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
