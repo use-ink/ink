@@ -144,6 +144,7 @@ impl LayoutKey {
 ))]
 pub struct CellLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
+    #[schemars(with = "String")]
     key: LayoutKey,
     /// The type of the encoded entity.
     ty: <F as Form>::Type,
