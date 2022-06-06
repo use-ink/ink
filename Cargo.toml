@@ -12,6 +12,7 @@ members = [
     "crates/primitives",
     "crates/engine",
     "crates/env",
+    "crates/eth_compatibility",
     "crates/storage",
     "crates/storage/derive",
 ]
