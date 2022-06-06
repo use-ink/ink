@@ -1,4 +1,26 @@
 # [Unreleased]
+- Backward-incompatible piece of [#1233](https://github.com/paritytech/ink/pull/1233): removal of `eth_compatibility crate`
+- Backward-incompatible piece of [#1224](https://github.com/paritytech/ink/pull/1224): dependency on `[seal1] seal_set_storage`
+- Backward-incompatible "Optimise deny_payment. Use eerywhere semantic of deny. ([#1267](https://github.com/paritytech/ink/pull/1267))"
+  (see @HCastano SE [answer](https://substrate.stackexchange.com/a/3000/472) in this regard)
+
+# Version 3.3.0
+
+This release is to make *ink!* 3.x.x backward compatible with *substrate-contracts-node* version [0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0) again. 
+
+## Compatibility
+This version should work fine with *substrate-contracts-node* versions from [0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0) up to  [0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0)
+
+## Changed
+*Context: user-reported issues on our SE ([first](https://substrate.stackexchange.com/questions/2721/cargo-contract-3-0-1) and [second](https://substrate.stackexchange.com/questions/2870/cargo-contract-throws-error-about-supplied-arguments-in-inkconstructor-f)) unveiled backward incompatibility introduced in 3.1.0 release.*
+
+The following has been done to restore backward compatibility:
+- Reverted backward-incompatible piece of [#1233](https://github.com/paritytech/ink/pull/1233): removal of `eth_compatibility crate`
+- Reverted backward-incompatible piece of [#1224](https://github.com/paritytech/ink/pull/1224): dependency on `[seal1] seal_set_storage`
+- Reverted "Optimise deny_payment. Use eerywhere semantic of deny. ([#1267](https://github.com/paritytech/ink/pull/1267))"  
+  (this one is to restore compatibiliy between minor versions of ink! crates; see @HCastano SE [answer](https://substrate.stackexchange.com/a/3000/472) in this regard)
+
+All these breaking changes are subjects to the upcoming MAJOR *ink!* release 4.0.0.
 
 # Version 3.2.0
 
