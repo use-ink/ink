@@ -134,6 +134,18 @@ where
         push_packed_root(value, &self.storage_key(&key));
     }
 
+    /// Insert the given `value` to the contract storage.
+    ///
+    /// Returns the size of the pre-existing value at the specified key if any.
+    #[inline]
+    pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    where
+        Q: scale::EncodeLike<K>,
+        R: scale::EncodeLike<V> + PackedLayout,
+    {
+        push_packed_root(value, &self.storage_key(&key))
+    }
+
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.

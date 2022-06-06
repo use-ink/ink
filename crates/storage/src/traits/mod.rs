@@ -187,6 +187,18 @@ where
 
 /// Pushes the entity to the contract storage using packed layout.
 ///
+/// This is the silent equivalent to the newer version.
+pub fn push_packed_root_silent<T>(entity: &T, root_key: &Key)
+where
+    T: PackedLayout,
+{
+    <T as PackedLayout>::push_packed(entity, root_key);
+    ink_env::set_contract_storage_silent(root_key, entity);
+}
+
+/// Pushes the entity to the contract storage using packed layout and
+/// returns the size of the pre-existing value if any.
+///
 /// The root key denotes the offset into the contract storage where the
 /// instance of type `T` is being pushed to.
 ///
@@ -196,12 +208,12 @@ where
 ///   packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
-pub fn push_packed_root<T>(entity: &T, root_key: &Key)
+pub fn push_packed_root<T>(entity: &T, root_key: &Key) -> Option<u32>
 where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage(root_key, entity);
+    ink_env::set_contract_storage(root_key, entity)
 }
 
 /// Clears the entity from the contract storage using packed layout.

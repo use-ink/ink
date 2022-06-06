@@ -162,8 +162,13 @@ impl CallFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
+    /// Eqivalent to the newer version but returns nothing.
+    fn set_contract_storage_silent<V>(&mut self, key: &Key, value: &V)
+    where
+        V: scale::Encode;
+
     /// Writes the value to the contract storage under the given key.
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
     where
         V: scale::Encode;
 

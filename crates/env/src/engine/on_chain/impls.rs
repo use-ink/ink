@@ -219,12 +219,20 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage_silent<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), buffer);
+        ext::set_storage_silent(key.as_ref(), buffer);
+    }
+
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    where
+        V: scale::Encode,
+    {
+        let buffer = self.scoped_buffer().take_encoded(value);
+        ext::set_storage(key.as_ref(), buffer)
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -239,6 +247,10 @@ impl EnvBackend for EnvInstance {
         }
         let decoded = scale::Decode::decode(&mut &output[..])?;
         Ok(Some(decoded))
+    }
+
+    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
+        ext::storage_contains(key.as_ref())
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
