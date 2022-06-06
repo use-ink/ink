@@ -183,13 +183,12 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key and returns
-/// the size of pre-existing value at the specified key if any.
+/// Writes the value to the contract storage under the given key.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
 {
