@@ -721,7 +721,7 @@ where
 
 /// The 4 byte selector to identify constructors and messages
 #[derive(Debug, Default, PartialEq, Eq, derive_more::From, schemars::JsonSchema)]
-pub struct Selector([u8; 4]);
+pub struct Selector(#[schemars(with = "String")] [u8; 4]);
 
 impl serde::Serialize for Selector {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
