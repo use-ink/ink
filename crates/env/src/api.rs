@@ -189,12 +189,12 @@ where
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage_silent<V>(key: &Key, value: &V)
+pub fn set_contract_storage_compat<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage_silent::<V>(instance, key, value)
+        EnvBackend::set_contract_storage_compat::<V>(instance, key, value)
     });
 }
 

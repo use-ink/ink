@@ -188,12 +188,12 @@ where
 /// Pushes the entity to the contract storage using packed layout.
 ///
 /// This is the silent equivalent to the newer version.
-pub fn push_packed_root_silent<T>(entity: &T, root_key: &Key)
+pub fn push_packed_root_compat<T>(entity: &T, root_key: &Key)
 where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage_silent(root_key, entity);
+    ink_env::set_contract_storage_compat(root_key, entity);
 }
 
 /// Pushes the entity to the contract storage using packed layout and

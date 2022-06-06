@@ -184,12 +184,12 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage_silent<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage_compat<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
     {
         let v = scale::Encode::encode(value);
-        self.engine.set_storage_silent(key.as_ref(), &v[..]);
+        self.engine.set_storage_compat(key.as_ref(), &v[..]);
     }
 
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>

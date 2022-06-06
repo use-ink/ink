@@ -163,7 +163,7 @@ impl CallFlags {
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
     /// Eqivalent to the newer version but returns nothing.
-    fn set_contract_storage_silent<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage_compat<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode;
 

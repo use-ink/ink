@@ -228,7 +228,7 @@ impl Engine {
     }
 
     /// Silently writes the encoded value into the storage at the given key.
-    pub fn set_storage_silent(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
+    pub fn set_storage_compat(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
