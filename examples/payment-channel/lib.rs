@@ -26,7 +26,7 @@
 //! The creator of the contract, i.e the `sender`, can deposit funds to the payment channel while creating the payment channel.
 //! Any subsequent deposits can be made by transferring funds to the contract's address.
 //!
-//! ### Withdrwals
+//! ### Withdrawals
 //!
 //! The `recipient` can `withdraw` from the payment channel anytime by submitting the last `signature` received from the `sender`.
 //!
