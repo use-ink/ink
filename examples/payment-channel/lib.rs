@@ -85,7 +85,7 @@ mod payment_channel {
     impl PaymentChannel {
         /// The only constructor of the contract.
         ///
-        /// The recipient and the close_duration are required.
+        /// The recipient and the `close_duration` are required.
         ///
         /// `expiration` will be set to a max value so that the contract will never expire.
         /// `sender` can call `start_sender_close` to override this.
@@ -157,7 +157,7 @@ mod payment_channel {
             Ok(())
         }
 
-        /// If the timeout is reached ( current_time > `expiration` ) without the recipient closing the channel, then
+        /// If the timeout is reached ( `current_time > expiration` ) without the recipient closing the channel, then
         /// the remaining balance is released back to the `sender`.
         #[ink(message)]
         pub fn claim_timeout(&mut self) {
