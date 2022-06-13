@@ -35,7 +35,7 @@ jobs:
       RUST_BACKTRACE:           full
     steps:
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
       - run: npm install wasm-opt -g
 
       - name: Checkout sources & submodules
