@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ContractMetadata",
+  "description": "Smart contract metadata.",
+  "type": "object",
+  "required": [
+    "contract",
+    "source"
+  ],
+  "properties": {
+    "contract": {
+      "description": "Metadata about the contract.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Contract"
+        }
+      ]
+    },
+    "source": {
+      "description": "Information about the contract's Wasm code.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Source"
+        }
+      ]
+    },
+    "user": {
+      "description": "Additional user-defined metadata.",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/User"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "Contract": {
+      "description": "Metadata about a smart contract.",
+      "type": "object",
+      "required": [
+        "authors",
+        "name",
+        "version"
+      ],
+      "properties": {
+        "authors": {
+          "description": "The authors of the smart contract.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "description": "The description of the smart contract.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "documentation": {
+          "description": "Link to the documentation of the smart contract.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "homepage": {
+          "description": "Link to the homepage of the smart contract.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "license": {
+          "description": "The license of the smart contract.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "The name of the smart contract.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Link to the code repository of the smart contract.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "version": {
+          "description": "The version of the smart contract.",
+          "type": "string"
+        }
+      }
+    },
+    "Source": {
+      "description": "Information about the contract's Wasm code.",
+      "type": "object",
+      "required": [
+        "compiler",
+        "hash",
+        "language"
+      ],
+      "properties": {
+        "compiler": {
+          "description": "The compiler used to compile the contract.",
+          "type": "string"
+        },
+        "hash": {
+          "description": "The hash of the contract's Wasm code.",
+          "type": "string"
+        },
+        "language": {
+          "description": "The language used to write the contract.",
+          "type": "string"
+        },
+        "wasm": {
+          "description": "The actual Wasm code of the contract, for optionally bundling the code with the metadata.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SourceWasm"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "SourceWasm": {
+      "description": "The bytes of the compiled Wasm smart contract.\n\nTODO: This might need to be a \"string\"",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint8",
+        "minimum": 0.0
+      }
+    },
+    "User": {
+      "description": "Additional user defined metadata, can be any valid json.",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
