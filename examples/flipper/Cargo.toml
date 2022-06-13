@@ -13,7 +13,7 @@ ink_storage = { path = "../../crates/storage", default-features = false }
 ink_lang = { path = "../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { path = "/Users/hcastano/ParityTech/scale-info", version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "flipper"
