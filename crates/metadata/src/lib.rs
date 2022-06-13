@@ -84,7 +84,7 @@ impl From<InkProject> for MetadataVersioned {
 
 /// Enum to represent a deprecated metadata version that cannot be instantiated.
 #[derive(Debug, Serialize, Deserialize, schemars::JsonSchema)]
-pub enum MetadataVersionDeprecated {}
+pub struct MetadataVersionDeprecated {}
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize, schemars::JsonSchema)]
