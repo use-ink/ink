@@ -189,7 +189,7 @@ where
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
 ///
-/// # Developer Note
+/// # Note
 ///
 /// This is equivalent to the new [`set_contract_storage`] method, but in order to maintain old
 /// behavior it returns nothing.

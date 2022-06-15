@@ -227,7 +227,12 @@ impl Engine {
         });
     }
 
-    /// Silently writes the encoded value into the storage at the given key.
+    /// Writes the encoded value into the storage at the given key.
+    ///
+    /// # Note
+    ///
+    /// This is an equivalent to the new [`set_storage`][`Self::set_storage`] method, but in order to maintain old
+    /// behavior it returns nothing.
     pub fn set_storage_compat(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);

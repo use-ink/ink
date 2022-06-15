@@ -187,7 +187,10 @@ where
 
 /// Pushes the entity to the contract storage using packed layout.
 ///
-/// This is the silent equivalent to the newer version.
+/// # Note
+///
+/// This is an equivalent to the new [`push_packed_root`], but in order to maintain old
+/// behavior it returns nothing.
 pub fn push_packed_root_compat<T>(entity: &T, root_key: &Key)
 where
     T: PackedLayout,

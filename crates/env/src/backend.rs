@@ -164,9 +164,9 @@ impl CallFlags {
 pub trait EnvBackend {
     /// Writes the value to the contract storage under the given key.
     ///
-    /// # Developer Note
+    /// # Note
     ///
-    /// This is equivalent to the new [`set_contract_storage`] method, but in order to maintain old
+    /// This is an equivalent to the new [`set_contract_storage`][`Self::set_contract_storage`] method, but in order to maintain old
     /// behavior it returns nothing.
     fn set_contract_storage_compat<V>(&mut self, key: &Key, value: &V)
     where
