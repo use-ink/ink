@@ -2,19 +2,32 @@
 
 # Version 3.3.0
 
-This release is to make ink! 3.x.x backwards compatible with `substrate-contracts-node` version [0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0) again. 
+This release restores SemVer compatibility in the 3.x series of releases, as well as
+compatibility with the [`v0.13.0`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0)
+release of the `substrate-contracts-node`.
 
 ## Compatibility
-This version should work fine with *substrate-contracts-node* versions from [0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0) up to [0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0)
+This version will work fine with *substrate-contracts-node* versions from
+[0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0) up
+to [0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0).
 
 ## Changed
-*Context: user-reported issues on our SE ([first](https://substrate.stackexchange.com/questions/2721/cargo-contract-3-0-1) and [second](https://substrate.stackexchange.com/questions/2870/cargo-contract-throws-error-about-supplied-arguments-in-inkconstructor-f)) unveiled backward incompatibility introduced in 3.1.0 release.*
+*Context: user-reported issues on our SE unveiled backward incompatibility introduced in 3.1.0 release.*
+1. [CodeRejected when using ink! v3.1.0](https://substrate.stackexchange.com/questions/2721/cargo-contract-3-0-1)
+1. [Incompatibility between ink! v3.0.1 and v3.2.0 ](https://substrate.stackexchange.com/questions/2870/cargo-contract-throws-error-about-supplied-arguments-in-inkconstructor-f)
 
 The following has been done to restore backward compatibility:
-- Reverted backward-incompatible piece of [#1233](https://github.com/paritytech/ink/pull/1233). This removed the `eth_compatibility crate`.
-- Reverted backward-incompatible piece of [#1224](https://github.com/paritytech/ink/pull/1224). An old method depended on a new SEAL API (`[seal1] seal_set_storage`).
-- Reverted "Optimise deny_payment. Use eerywhere semantic of deny. ([#1267](https://github.com/paritytech/ink/pull/1267))"  
-  This one is to restore compatibility between minor versions of ink! crates; see @HCastano's SE [answer](https://substrate.stackexchange.com/a/3000/472) in this regard.
+- Reverted backward-incompatible piece of [#1224](https://github.com/paritytech/ink/pull/1224).
+    - Under the hood this changed `Mapping::insert()` to use a new SEAL API
+    (`[seal1] seal_set_storage`), which resulted in `CodeRejected` errors in nodes which
+    did not have this API (e.g `substrate-contracts-node@0.13.0`).
+- Reverted "Optimise deny_payment. Use everywhere semantic of deny ([#1267](https://github.com/paritytech/ink/pull/1267))"
+  - This one is to restore compatibility between minor versions of ink! crates; see
+    @HCastano's SE [answer](https://substrate.stackexchange.com/a/3000/472) in this
+    regard.
+- Reverted backward-incompatible piece of [#1233](https://github.com/paritytech/ink/pull/1233).
+    - The removal of the `eth_compatibility` crate should have been done in a `MAJOR`
+      release.
 
 All these breaking changes are subjects to the upcoming MAJOR *ink!* release 4.0.0.
 
