@@ -22,6 +22,7 @@
 use crate::traits::{
     pull_packed_root_opt,
     push_packed_root,
+    push_packed_root_compat,
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
@@ -131,7 +132,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V> + PackedLayout,
     {
-        push_packed_root(value, &self.storage_key(&key));
+        push_packed_root_compat(value, &self.storage_key(&key));
     }
 
     /// Insert the given `value` to the contract storage.
