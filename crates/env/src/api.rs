@@ -183,12 +183,16 @@ where
     })
 }
 
-/// The elder version of the function which is equivalent to the new one
-/// but returns nothing.
+/// Writes the value to the contract storage under the given key.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+///
+/// # Developer Note
+///
+/// This is equivalent to the new [`set_contract_storage`] method, but in order to maintain old
+/// behavior it returns nothing.
 pub fn set_contract_storage_compat<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
