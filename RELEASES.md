@@ -1,8 +1,4 @@
 # [Unreleased]
-- Backward-incompatible piece of [#1233](https://github.com/paritytech/ink/pull/1233): removal of `eth_compatibility crate`
-- Backward-incompatible piece of [#1224](https://github.com/paritytech/ink/pull/1224): dependency on `[seal1] seal_set_storage`
-- Backward-incompatible "Optimise deny_payment. Use eerywhere semantic of deny. ([#1267](https://github.com/paritytech/ink/pull/1267))"
-  (see @HCastano SE [answer](https://substrate.stackexchange.com/a/3000/472) in this regard)
 
 # Version 3.3.0
 
