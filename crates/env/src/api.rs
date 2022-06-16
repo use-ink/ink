@@ -191,9 +191,9 @@ where
 ///
 /// # Note
 ///
-/// This is equivalent to the new [`set_contract_storage`] method, but in order to maintain old
-/// behavior it returns nothing.
-pub fn set_contract_storage_compat<V>(key: &Key, value: &V)
+/// This is equivalent to the new [`set_contract_storage_return_old_size`] method,
+/// but in order to maintain legacy behavior it returns nothing.
+pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
 {
@@ -202,12 +202,13 @@ where
     });
 }
 
-/// Writes the value to the contract storage under the given key.
+/// Writes the value to the contract storage under the given key and returns
+/// the size of the pre-existing value at the specified key if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage_return_old_size<V>(key: &Key, value: &V) -> Option<u32>
 where
     V: scale::Encode,
 {
