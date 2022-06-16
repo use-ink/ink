@@ -231,8 +231,7 @@ mod sys {
             data_len: u32,
         );
 
-        #[link_name = "seal_set_storage"]
-        pub fn seal_set_storage_compat(
+        pub fn seal_set_storage(
             key_ptr: Ptr32<[u8]>,
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
@@ -382,7 +381,8 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
-        pub fn seal_set_storage(
+        #[link_name = "seal_set_storage"]
+        pub fn seal_set_storage_inform(
             key_ptr: Ptr32<[u8]>,
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
@@ -502,9 +502,9 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
     }
 }
 
-pub fn set_storage_compat(key: &[u8], encoded_value: &[u8]) {
+pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
     unsafe {
-        sys::seal_set_storage_compat(
+        sys::seal_set_storage(
             Ptr32::from_slice(key),
             Ptr32::from_slice(encoded_value),
             encoded_value.len() as u32,
@@ -512,9 +512,9 @@ pub fn set_storage_compat(key: &[u8], encoded_value: &[u8]) {
     }
 }
 
-pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
+pub fn set_storage_inform(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
     let ret_code = unsafe {
-        sys::seal_set_storage(
+        sys::seal_set_storage_inform(
             Ptr32::from_slice(key),
             Ptr32::from_slice(encoded_value),
             encoded_value.len() as u32,

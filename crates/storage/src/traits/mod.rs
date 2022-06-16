@@ -191,7 +191,7 @@ where
 ///
 /// This is an equivalent to the new [`push_packed_root`], but in order to maintain old
 /// behavior it returns nothing.
-pub fn push_packed_root_compat<T>(entity: &T, root_key: &Key)
+pub fn push_packed_root<T>(entity: &T, root_key: &Key)
 where
     T: PackedLayout,
 {
@@ -211,12 +211,12 @@ where
 ///   packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
-pub fn push_packed_root<T>(entity: &T, root_key: &Key) -> Option<u32>
+pub fn push_packed_root_inform<T>(entity: &T, root_key: &Key) -> Option<u32>
 where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage_return_old_size(root_key, entity)
+    ink_env::set_contract_storage_inform(root_key, entity)
 }
 
 /// Clears the entity from the contract storage using packed layout.

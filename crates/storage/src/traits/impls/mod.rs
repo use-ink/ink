@@ -100,7 +100,7 @@ use super::{
     allocate_packed_root,
     clear_packed_root,
     pull_packed_root,
-    push_packed_root_compat,
+    push_packed_root_inform,
     PackedAllocate,
     PackedLayout,
 };
@@ -162,7 +162,7 @@ pub fn forward_push_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
     T: PackedLayout,
 {
-    push_packed_root_compat::<T>(entity, ptr.next_for::<T>());
+    push_packed_root_inform::<T>(entity, ptr.next_for::<T>());
 }
 
 /// Clears an instance of type `T` in packed fashion from the contract storage.

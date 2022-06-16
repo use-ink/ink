@@ -198,7 +198,7 @@ where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage_compat::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<V>(instance, key, value)
     });
 }
 
@@ -208,12 +208,12 @@ where
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage_return_old_size<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage_inform<V>(key: &Key, value: &V) -> Option<u32>
 where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage_inform::<V>(instance, key, value)
     })
 }
 

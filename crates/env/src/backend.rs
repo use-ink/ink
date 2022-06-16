@@ -168,13 +168,13 @@ pub trait EnvBackend {
     ///
     /// This is an equivalent to the new [`set_contract_storage`][`Self::set_contract_storage`] method,
     /// but in order to maintain legacy behavior it returns nothing.
-    fn set_contract_storage_compat<V>(&mut self, key: &Key, value: &V)
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode;
 
     /// Writes the value to the contract storage under the given key and returns
     /// the size of the pre-existing value at the specified key if any.
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage_inform<V>(&mut self, key: &Key, value: &V) -> Option<u32>
     where
         V: scale::Encode;
 
