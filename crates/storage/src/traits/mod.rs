@@ -22,6 +22,7 @@
 //! The `PackedLayout` trait can then be implemented on top of the `SpreadLayout`
 //! for types that further allow to be stored in the contract storage in a more
 //! compressed format to a single storage cell.
+#![allow(deprecated)]
 
 mod impls;
 mod keyptr;

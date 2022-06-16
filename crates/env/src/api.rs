@@ -191,8 +191,12 @@ where
 ///
 /// # Note
 ///
-/// This is equivalent to the new [`set_contract_storage_return_old_size`] method,
+/// This is equivalent to the new [`set_contract_storage_inform`] method,
 /// but in order to maintain legacy behavior it returns nothing.
+#[deprecated(
+    since = "3.3.0",
+    note = "New `set_contract_storage_inform()` is preferrable"
+)]
 pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
@@ -204,6 +208,12 @@ where
 
 /// Writes the value to the contract storage under the given key and returns
 /// the size of the pre-existing value at the specified key if any.
+///
+/// # Compatibility
+///
+/// This function requires minimum `substrate-contracts-node` version `v0.15.1`,
+/// or any node built with `substrate` version later than
+/// [#7d233c2446b5a60662400a0a4bcfb78bb3b79ff7](https://github.com/paritytech/substrate/tree/7d233c2446b5a60662400a0a4bcfb78bb3b79ff7).
 ///
 /// # Panics
 ///
