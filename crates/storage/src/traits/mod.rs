@@ -196,7 +196,7 @@ where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage_compat(root_key, entity);
+    ink_env::set_contract_storage(root_key, entity);
 }
 
 /// Pushes the entity to the contract storage using packed layout and
@@ -216,7 +216,7 @@ where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage(root_key, entity)
+    ink_env::set_contract_storage_return_old_size(root_key, entity)
 }
 
 /// Clears the entity from the contract storage using packed layout.
