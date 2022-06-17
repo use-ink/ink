@@ -11,7 +11,7 @@ error[E0599]: no function or associated item named `constructor_2` found for str
   --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:22:16
    |
 6  |     pub struct Contract {}
-   |     --- function or associated item `constructor_2` not found for this
+   |     ------------------- function or associated item `constructor_2` not found for this
 ...
 22 |         pub fn constructor_2() -> Self {
    |                ^^^^^^^^^^^^^
@@ -23,7 +23,7 @@ error[E0599]: no function or associated item named `message_2` found for struct 
   --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:27:16
    |
 6  |     pub struct Contract {}
-   |     --- function or associated item `message_2` not found for this
+   |     ------------------- function or associated item `message_2` not found for this
 ...
 27 |         pub fn message_2(&self) {}
    |                ^^^^^^^^^

@@ -2,10 +2,10 @@ error: encountered ink! attribute arguments with equal kinds
   --> tests/ui/contract/fail/message-selector-and-wildcard-selector.rs:14:47
    |
 14 |         #[ink(message, selector = 0xCAFEBABA, selector = _)]
-   |                                               ^^^^^^^^
+   |                                               ^^^^^^^^^^^^
 
 error: first equal ink! attribute argument with equal kind here
   --> tests/ui/contract/fail/message-selector-and-wildcard-selector.rs:14:24
    |
 14 |         #[ink(message, selector = 0xCAFEBABA, selector = _)]
-   |                        ^^^^^^^^
+   |                        ^^^^^^^^^^^^^^^^^^^^^
