@@ -22,7 +22,6 @@
 //! The `PackedLayout` trait can then be implemented on top of the `SpreadLayout`
 //! for types that further allow to be stored in the contract storage in a more
 //! compressed format to a single storage cell.
-#![allow(deprecated)]
 
 mod impls;
 mod keyptr;
@@ -190,8 +189,11 @@ where
 ///
 /// # Note
 ///
-/// This is an equivalent to the new [`push_packed_root`], but in order to maintain old
-/// behavior it returns nothing.
+/// - The routine will push the given entity to the contract storage using
+///   packed layout.
+/// - Users should prefer using this function directly instead of using the
+///   trait methods on [`PackedLayout`].
+#[allow(deprecated)]
 pub fn push_packed_root<T>(entity: &T, root_key: &Key)
 where
     T: PackedLayout,
@@ -208,10 +210,8 @@ where
 ///
 /// # Note
 ///
-/// - The routine will push the given entity to the contract storage using
-///   packed layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`PackedLayout`].
+/// This is an equivalent to the new [`push_packed_root`],
+/// but gives the information on the pre-existing value size.
 pub fn push_packed_root_inform<T>(entity: &T, root_key: &Key) -> Option<u32>
 where
     T: PackedLayout,

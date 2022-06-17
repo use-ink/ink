@@ -188,11 +188,6 @@ where
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-///
-/// # Note
-///
-/// This is equivalent to the new [`set_contract_storage_inform`] method,
-/// but in order to maintain legacy behavior it returns nothing.
 #[deprecated(
     since = "3.3.0",
     note = "`set_contract_storage_inform()` is provides more information, and will be made the standard in the future."
@@ -211,13 +206,18 @@ where
 ///
 /// # Compatibility
 ///
-/// This function requires minimum `substrate-contracts-node` version `v0.15.1`,
+/// This function requires minimum `substrate-contracts-node` version [`v0.15.1`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.15.1),
 /// or any node built with Substrate version later than
 /// [#7d233c2](https://github.com/paritytech/substrate/tree/7d233c2446b5a60662400a0a4bcfb78bb3b79ff7).
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+///
+/// # Note
+///
+/// This is equivalent to the [`set_contract_storage`] method,
+/// but gives the information on the pre-existing value size.
 pub fn set_contract_storage_inform<V>(key: &Key, value: &V) -> Option<u32>
 where
     V: scale::Encode,
