@@ -4,16 +4,6 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
 18 |         pub fn message(&self) -> NonCodecType {
    |                                  ^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
    |
-   = help: the following other types implement trait `WrapperTypeEncode`:
-             &T
-             &mut T
-             Arc<T>
-             Box<T>
-             Cow<'a, T>
-             Rc<T>
-             String
-             Vec<T>
-             parity_scale_codec::Ref<'a, T, U>
    = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
 note: required by a bound in `DispatchOutput`
   --> src/codegen/dispatch/type_check.rs
@@ -24,21 +14,9 @@ note: required by a bound in `DispatchOutput`
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
-18  | /         pub fn message(&self) -> NonCodecType {
-19  | |             NonCodecType
-20  | |         }
-    | |_________^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
+18  |         pub fn message(&self) -> NonCodecType {
+    |         ^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
     |
-    = help: the following other types implement trait `WrapperTypeEncode`:
-              &T
-              &mut T
-              Arc<T>
-              Box<T>
-              Cow<'a, T>
-              Rc<T>
-              String
-              Vec<T>
-              parity_scale_codec::Ref<'a, T, U>
     = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
 note: required by a bound in `return_value`
    --> $WORKSPACE/crates/env/src/api.rs
@@ -49,18 +27,16 @@ note: required by a bound in `return_value`
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
-6   |       pub struct NonCodecType;
-    |       ------------------------ doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
+6   |     pub struct NonCodecType;
+    |     ------------------------ doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
 ...
-18  | /         pub fn message(&self) -> NonCodecType {
-19  | |             NonCodecType
-20  | |         }
-    | |_________^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>` due to unsatisfied trait bounds
+18  |         pub fn message(&self) -> NonCodecType {
+    |         ^^^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>` due to unsatisfied trait bounds
     |
     = note: the following trait bounds were not satisfied:
             `NonCodecType: parity_scale_codec::Decode`
 note: the following trait must be implemented
-   --> $CARGO/parity-scale-codec-3.0.0/src/codec.rs
+   --> $CARGO/parity-scale-codec-3.1.5/src/codec.rs
     |
     | / pub trait Decode: Sized {
     | |     // !INTERNAL USE ONLY!
