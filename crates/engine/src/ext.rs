@@ -228,11 +228,6 @@ impl Engine {
     }
 
     /// Writes the encoded value into the storage at the given key.
-    ///
-    /// # Note
-    ///
-    /// This is an equivalent to the new [`set_storage_inform`][`Self::set_storage_inform`] method, but in order to maintain old
-    /// behavior it returns nothing.
     pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
@@ -251,7 +246,12 @@ impl Engine {
 
     /// Writes the encoded value into the storage at the given key.
     /// Returns the size of the previously stored value at the key if any.
-    pub fn set_storage_inform(
+    ///
+    /// # Note
+    ///
+    /// This is an equivalent to the new [`set_storage`][`Self::set_storage`] method,
+    /// but gives the information on the pre-existing value size.
+    pub fn set_storage_return_size(
         &mut self,
         key: &[u8; 32],
         encoded_value: &[u8],

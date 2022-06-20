@@ -22,7 +22,7 @@
 use crate::traits::{
     pull_packed_root_opt,
     push_packed_root,
-    push_packed_root_inform,
+    push_packed_root_return_size,
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
@@ -139,12 +139,12 @@ where
     ///
     /// Returns the size of the pre-existing value at the specified key if any.
     #[inline]
-    pub fn insert_inform<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V> + PackedLayout,
     {
-        push_packed_root_inform(value, &self.storage_key(&key))
+        push_packed_root_return_size(value, &self.storage_key(&key))
     }
 
     /// Get the `value` at `key` from the contract storage.

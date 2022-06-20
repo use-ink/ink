@@ -192,12 +192,12 @@ impl EnvBackend for EnvInstance {
         self.engine.set_storage(key.as_ref(), &v[..]);
     }
 
-    fn set_contract_storage_inform<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage_return_size<V>(&mut self, key: &Key, value: &V) -> Option<u32>
     where
         V: scale::Encode,
     {
         let v = scale::Encode::encode(value);
-        self.engine.set_storage_inform(key.as_ref(), &v[..])
+        self.engine.set_storage_return_size(key.as_ref(), &v[..])
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>

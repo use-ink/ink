@@ -190,7 +190,7 @@ where
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
 #[deprecated(
     since = "3.3.0",
-    note = "`set_contract_storage_inform()` is provides more information, and will be made the standard in the future."
+    note = "`set_contract_storage_return_size()` provides more information, and will be made the standard in the future."
 )]
 pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
@@ -218,12 +218,12 @@ where
 ///
 /// This is equivalent to the [`set_contract_storage`] method,
 /// but gives the information on the pre-existing value size.
-pub fn set_contract_storage_inform<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage_return_size<V>(key: &Key, value: &V) -> Option<u32>
 where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage_inform::<V>(instance, key, value)
+        EnvBackend::set_contract_storage_return_size::<V>(instance, key, value)
     })
 }
 
