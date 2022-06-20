@@ -174,7 +174,11 @@ pub trait EnvBackend {
     ///
     /// This is an equivalent to the [`set_contract_storage`][`Self::set_contract_storage`] method,
     /// but gives the information on the pre-existing value size.
-    fn set_contract_storage_return_size<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage_return_size<V>(
+        &mut self,
+        key: &Key,
+        value: &V,
+    ) -> Option<u32>
     where
         V: scale::Encode;
 
