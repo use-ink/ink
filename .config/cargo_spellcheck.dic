@@ -104,3 +104,5 @@ natively
 payability
 unpayable
 initializer
+
+^#[0-9a-fA-F]{5,}$
