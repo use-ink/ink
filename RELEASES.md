@@ -2,7 +2,7 @@
 
 # Version 3.3.0
 
-This release restores SemVer compatibility in the 3.x series of releases, as well as
+This release restores SemVer compatibility in the `v3.x` series of releases, as well as
 compatibility with the [`v0.13.0`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0)
 release of the `substrate-contracts-node`.
 
@@ -18,7 +18,10 @@ to [0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/
 
 The following has been done to restore backward compatibility:
 - Reverted backward-incompatible piece of [#1224](https://github.com/paritytech/ink/pull/1224).
-    - Under the hood this changed `Mapping::insert()` to use a new SEAL API
+    - The return signature of `ink_env::set_contract_storage()` was changed to return an
+      `Option<u32>`. This could have broken existing code, so this should've been done in
+      a `MAJOR` release.
+    - Under the hood the PR also changed `Mapping::insert()` to use a new SEAL API
     (`[seal1] seal_set_storage`), which resulted in `CodeRejected` errors in nodes which
     did not have this API (e.g `substrate-contracts-node@0.13.0`).
 - Reverted "Optimise deny_payment. Use everywhere semantic of deny ([#1267](https://github.com/paritytech/ink/pull/1267))"

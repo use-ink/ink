@@ -249,7 +249,7 @@ impl Engine {
     ///
     /// # Note
     ///
-    /// This is an equivalent to the new [`set_storage`][`Self::set_storage`] method,
+    /// This is an equivalent to the [`set_storage`][`Self::set_storage`] method,
     /// but gives the information on the pre-existing value size.
     pub fn set_storage_return_size(
         &mut self,
