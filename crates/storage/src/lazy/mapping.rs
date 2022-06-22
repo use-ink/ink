@@ -22,6 +22,7 @@
 use crate::traits::{
     pull_packed_root_opt,
     push_packed_root,
+    push_packed_root_return_size,
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
@@ -143,7 +144,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V> + PackedLayout,
     {
-        push_packed_root(value, &self.storage_key(&key))
+        push_packed_root_return_size(value, &self.storage_key(&key))
     }
 
     /// Get the `value` at `key` from the contract storage.

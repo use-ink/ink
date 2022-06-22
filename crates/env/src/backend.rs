@@ -162,9 +162,23 @@ impl CallFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
+    /// Writes the value to the contract storage under the given key.
+    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
+    where
+        V: scale::Encode;
+
     /// Writes the value to the contract storage under the given key and returns
     /// the size of the pre-existing value at the specified key if any.
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    ///
+    /// # Note
+    ///
+    /// This is an equivalent to the [`set_contract_storage`][`Self::set_contract_storage`] method,
+    /// but gives the information on the pre-existing value size.
+    fn set_contract_storage_return_size<V>(
+        &mut self,
+        key: &Key,
+        value: &V,
+    ) -> Option<u32>
     where
         V: scale::Encode;
 

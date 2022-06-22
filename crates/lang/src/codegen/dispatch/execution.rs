@@ -64,6 +64,13 @@ where
     Ok(())
 }
 
+/// Configuration for execution of ink! constructor.
+#[derive(Debug, Copy, Clone)]
+pub struct ExecuteConstructorConfig {
+    /// Yields `true` if the ink! constructor accepts payment.
+    pub payable: bool,
+}
+
 /// Executes the given ink! constructor.
 ///
 /// # Note
@@ -71,13 +78,19 @@ where
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
 #[inline]
-pub fn execute_constructor<Contract, F, R>(f: F) -> Result<(), DispatchError>
+pub fn execute_constructor<Contract, F, R>(
+    config: ExecuteConstructorConfig,
+    f: F,
+) -> Result<(), DispatchError>
 where
     Contract: SpreadLayout + ContractRootKey + ContractEnv,
     F: FnOnce() -> R,
     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
 {
+    if !config.payable {
+        deny_payment::<<Contract as ContractEnv>::Env>()?;
+    }
     let result = ManuallyDrop::new(private::Seal(f()));
     match result.as_result() {
         Ok(contract) => {

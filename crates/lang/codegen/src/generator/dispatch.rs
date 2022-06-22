@@ -532,8 +532,6 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let any_constructor_accept_payment =
-            self.any_constructor_accepts_payment_expr(constructor_spans);
 
         let constructor_execute = (0..count_constructors).map(|index| {
             let constructor_span = constructor_spans[index];
@@ -545,8 +543,9 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
-            let deny_payment = quote_spanned!(constructor_span=>
-                !<#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+            let accepts_payment = quote_spanned!(constructor_span=>
+                false ||
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
@@ -555,12 +554,10 @@ impl Dispatch<'_> {
 
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
-                    if #any_constructor_accept_payment && #deny_payment {
-                        ::ink_lang::codegen::deny_payment::<
-                            <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()?;
-                    }
-
                     ::ink_lang::codegen::execute_constructor::<#storage_ident, _, _>(
+                        ::ink_lang::codegen::ExecuteConstructorConfig {
+                            payable: #accepts_payment,
+                        },
                         move || { #constructor_callable(input) }
                     )
                 }
@@ -695,8 +692,6 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let any_message_accept_payment =
-            self.any_message_accepts_payment_expr(message_spans);
 
         let message_execute = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
@@ -734,7 +729,7 @@ impl Dispatch<'_> {
                 Self::#message_ident(input) => {
                     use ::core::default::Default;
 
-                    if #any_message_accept_payment && #deny_payment {
+                    if #deny_payment {
                         ::ink_lang::codegen::deny_payment::<
                             <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()?;
                     }
