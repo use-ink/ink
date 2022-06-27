@@ -78,6 +78,7 @@ Then some time later we may decide to add a new `[seal1] function()` version to 
   Please, specify the `since` field with the ink! version since which this function is deprecated in favor of the newest one, and is left there only for the backwards compatibility purposes. Specifing some additional helpful info in the `note` field could also be a good idea.
 2. Name the new function (which depends on the `[seal1] function()`) somehow descriptive like `ink_env::function_whats_special()`.
 3. Always add the `# Compatibility` section to the docs comment of the new function.
+4. Never use the new function with existing language features. Only with newly added ones.
 
 You can have a look at the [PR#1284](https://github.com/paritytech/ink/pull/1284/files#diff-e7cc1cdb3856da1293c785de863703d5961c324aa2018decb0166ea1eb0631e8R191) for a reference of how the described way could be implemented.
 
