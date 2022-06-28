@@ -67,11 +67,11 @@ Following these will ensure that your pull request is going to be accepted.
 
 ### Backwards Compatibility
 
-ink! and pallet_contracts are the projects under active development. As contracts API functions evolve to their newer versions, we need to introduce them in ink! in a way that still keeps current *MAJOR* ink! version compatible with older substrate nodes built with the pallet_contracts version without this new functionality.
+ink! and pallet_contracts are the projects under active development. As Contracts API functions evolve to their newer versions, we need to introduce them in ink! in a way that still keeps current *MAJOR* ink! version compatible with older Substrate nodes built with the pallet_contracts version without this new functionality.
 
 In order to achieve this, please stick to the following workflow.
 
-Imagine there is a `[seal0] function()` in pallet\_contracts API and our `ink_env::function()` uses its import under the hood.
+Imagine there is a `[seal0] function()` in the Contracts pallet API and our `ink_env::function()` uses its import under the hood.
 Then some time later we may decide to add a new `[seal1] function()` version to the pallet. In order to introduce it into ink! and still be able to run contracts (which don't use this particular function) on older nodes, please do the following:
 
 1. Mark the old `ink_env::function()` (which depends on the imported `[seal0]` function) with the `#[deprecated]` attribute.  
