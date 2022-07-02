@@ -9,29 +9,33 @@
 //!
 //! ## Overview
 //!
-//! Each instantiation of this contract creates a payment channel between a `sender` and a `recipient`.
-//! It uses ECDSA signatures to ensure that the `recipient` can only claim the funds if it is signed by the `sender`.
+//! Each instantiation of this contract creates a payment channel between a `sender` and a
+//! `recipient`. It uses ECDSA signatures to ensure that the `recipient` can only claim
+//! the funds if it is signed by the `sender`.
 //!
 //! ## Error Handling
 //!
-//! The only panic in the contract is when the signature is invalid. For rest, it'll return an error.
-//! The possible errors are defined in the `Error` enum.
+//! The only panic in the contract is when the signature is invalid. For rest, it'll
+//! return an error. The possible errors are defined in the `Error` enum.
 //!
 //! ## Interface
 //!
-//! The interface is modelled after the [this blog post](https://programtheblockchain.com/posts/2018/03/02/building-long-lived-payment-channels)
+//! The interface is modelled after [this blog post](https://programtheblockchain.com/posts/2018/03/02/building-long-lived-payment-channels)
 //!
 //! ### Deposits
 //!
-//! The creator of the contract, i.e the `sender`, can deposit funds to the payment channel while creating the payment channel.
-//! Any subsequent deposits can be made by transferring funds to the contract's address.
+//! The creator of the contract, i.e the `sender`, can deposit funds to the payment
+//! channel while creating the payment channel. Any subsequent deposits can be made by
+//! transferring funds to the contract's address.
 //!
 //! ### Withdrawals
 //!
-//! The `recipient` can `withdraw` from the payment channel anytime by submitting the last `signature` received from the `sender`.
+//! The `recipient` can `withdraw` from the payment channel anytime by submitting the last
+//! `signature` received from the `sender`.
 //!
-//! The `sender` can only `withdraw` by terminating the payment channel. He can call `start_sender_close` to set an expiration.
-//! Then he can call `claim_timeout` to claim the funds. This will terminate the payment channel.
+//! The `sender` can only `withdraw` by terminating the payment channel. He can call
+//! `start_sender_close` to set an expiration. Then he can call `claim_timeout` to claim
+//! the funds. This will terminate the payment channel.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -40,18 +44,23 @@ use ink_lang as ink;
 #[ink::contract]
 mod payment_channel {
 
+    /// Struct for storing the payment channel details.
+    /// The creator of the contract, i.e the `sender`, can deposit funds to the payment
+    /// channel while deploying the contract.
     #[ink(storage)]
     pub struct PaymentChannel {
         /// The `AccountId` of the sender of the payment channel.
         sender: AccountId,
         /// The `AccountId` of the recipient of the payment channel.
         recipient: AccountId,
-        /// The `Timestamp` at which the contract expires.
-        expiration: Timestamp,
+        /// The `Timestamp` at which the contract expires. The field is optional.
+        /// If it's not set, the contract never expires.
+        expiration: Option<Timestamp>,
         /// The `Amount` withdrawn by the recipient.
         withdrawn: Balance,
-        /// The `Timestamp` which will be added to the current time when the sender wishes to close the channel.
-        /// This will be set at the time of contract instantiation.
+        /// The `Timestamp` which will be added to the current time when the sender
+        /// wishes to close the channel. This will be set at the time of contract
+        /// instantiation.
         close_duration: Timestamp,
     }
 
@@ -63,13 +72,18 @@ mod payment_channel {
         CallerIsNotSender,
         /// Returned if caller is not the `recipient` while required to.
         CallerIsNotRecipient,
-        /// Returned if the requested withdrawal / close amount is less than the amount that is already already withdrawn.
+        /// Returned if the requested withdrawal / close amount is less than the amount
+        /// that is already already withdrawn.
         AmountIsLessThanWithdrawn,
-        /// Returned if the requested transfer failed. this can be the case if the contract does not have sufficient free
-        /// funds or if the transfer would have brought the contract's balance below minimum balance.
+        /// Returned if the requested transfer failed. this can be the case if the
+        /// contract does not have sufficient free funds or if the transfer would
+        /// have brought the contract's balance below minimum balance.
         TransferFailed,
-        /// Returned if the contract hasn't expired yet and the `sender` wishes to close the channel.
+        /// Returned if the contract hasn't expired yet and the `sender` wishes to close
+        /// the channel.
         NotYetExpired,
+        /// Returned if the signature is invalid.
+        InvalidSignature,
     }
 
     /// Type alias for the contract's result type.
@@ -85,59 +99,52 @@ mod payment_channel {
     impl PaymentChannel {
         /// The only constructor of the contract.
         ///
-        /// The recipient and the `close_duration` are required.
+        /// The `recipient` and the `close_duration` are required.
         ///
-        /// `expiration` will be set to a max value so that the contract will never expire.
-        /// `sender` can call `start_sender_close` to override this.
-        /// `sender` will be able to claim the remaining balance by calling `claim_timeout` after `expiration` has passed.
+        /// `expiration` will be set to a max value so that the contract will never
+        /// expire. `sender` can call `start_sender_close` to override this.
+        /// `sender` will be able to claim the remaining balance by calling
+        /// `claim_timeout` after `expiration` has passed.
         #[ink(constructor)]
         pub fn new(recipient: AccountId, close_duration: Timestamp) -> Self {
             Self {
                 sender: Self::env().caller(),
                 recipient,
-                expiration: u64::pow(2, 63) - 1,
+                expiration: None,
                 withdrawn: 0,
                 close_duration,
             }
         }
 
-        /// `recipient` can close the payment channel anytime. The `recipient` will be sent that amount,
-        /// and the remainder will go back to the `sender`.
+        /// `recipient` can close the payment channel anytime. The `recipient` will be
+        /// sent that amount, and the remainder will go back to the `sender`.
         #[ink(message)]
-        pub fn close(&mut self, amount: Balance, signature: [u8; 65]) {
-            assert!(
-                self.env().caller() == self.recipient,
-                "{:?}: Expected caller {:?}, got {:?} instead",
-                Error::CallerIsNotRecipient,
-                self.recipient,
-                self.env().caller()
-            );
+        pub fn close(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
+            if self.env().caller() != self.recipient {
+                return Err(Error::CallerIsNotRecipient)
+            }
 
-            assert!(
-                amount > self.withdrawn,
-                "{:?}: Expected amount ({:?}) to be greater than withdrawn amount ({:?})",
-                Error::AmountIsLessThanWithdrawn,
-                amount,
-                self.withdrawn
-            );
+            if amount < self.withdrawn {
+                return Err(Error::AmountIsLessThanWithdrawn)
+            }
 
             // Signature validation
-            self.ensure_valid_signature(amount, signature);
-
-            if self
-                .env()
-                .transfer(self.recipient, amount - self.withdrawn)
-                .is_err()
-            {
-                panic!("{:?}: This can be the case if the contract does not have sufficient free funds or if the
-                transfer would have brought the contract's balance below minimum balance.", Error::TransferFailed)
+            if !self.is_signature_valid(amount, signature) {
+                return Err(Error::InvalidSignature)
             }
+
+            self.env()
+                .transfer(self.recipient, amount - self.withdrawn)
+                .map_err(|_| Error::TransferFailed)?;
+
             self.env().terminate_contract(self.sender);
         }
 
-        /// If the `sender` wishes to close the channel and withdraw the funds, they can do so by
-        /// setting the `expiration`. If the `expiration` is reached, the sender will be able to call `claim_timeout` to claim the remaining funds
-        /// and the channel will be terminated. This emits an event that the recipient can listen to in order to withdraw the funds before the `expiration`
+        /// If the `sender` wishes to close the channel and withdraw the funds, they can
+        /// do so by setting the `expiration`. If the `expiration` is reached, the
+        /// sender will be able to call `claim_timeout` to claim the remaining funds
+        /// and the channel will be terminated. This emits an event that the recipient can
+        /// listen to in order to withdraw the funds before the `expiration`
         #[ink(message)]
         pub fn start_sender_close(&mut self) -> Result<()> {
             if self.env().caller() != self.sender {
@@ -152,25 +159,30 @@ mod payment_channel {
                 close_duration: self.close_duration,
             });
 
-            self.expiration = expiration;
+            self.expiration = Some(expiration);
 
             Ok(())
         }
 
-        /// If the timeout is reached ( `current_time > expiration` ) without the recipient closing the channel, then
-        /// the remaining balance is released back to the `sender`.
+        /// If the timeout is reached ( `current_time > expiration` ) without the
+        /// recipient closing the channel, then the remaining balance is released
+        /// back to the `sender`.
         #[ink(message)]
-        pub fn claim_timeout(&mut self) {
-            let now = self.env().block_timestamp();
-            assert!(
-                now > self.expiration,
-                "{:?}: Expected current time ({:?}) to be greater than expiration ({:?})",
-                Error::NotYetExpired,
-                now,
-                self.expiration
-            );
+        pub fn claim_timeout(&mut self) -> Result<()> {
+            match self.expiration {
+                Some(expiration) => {
+                    // expiration is set. Check if it's reached and if so, release the
+                    // funds and terminate the contract.
+                    let now = self.env().block_timestamp();
+                    if now < expiration {
+                        return Err(Error::NotYetExpired)
+                    }
 
-            self.env().terminate_contract(self.sender);
+                    self.env().terminate_contract(self.sender);
+                }
+
+                None => return Err(Error::NotYetExpired),
+            }
         }
 
         /// `recipient` can withdraw the funds from the channel at any time.
@@ -181,7 +193,9 @@ mod payment_channel {
             }
 
             // Signature validation
-            self.ensure_valid_signature(amount, signature);
+            if !self.is_signature_valid(amount, signature) {
+                return Err(Error::InvalidSignature)
+            }
 
             // Make sure there's something to withdraw (guards against underflow)
             if amount < self.withdrawn {
@@ -191,13 +205,9 @@ mod payment_channel {
             let amount_to_withdraw = amount - self.withdrawn;
             self.withdrawn += amount_to_withdraw;
 
-            if self
-                .env()
+            self.env()
                 .transfer(self.recipient, amount_to_withdraw)
-                .is_err()
-            {
-                return Err(Error::TransferFailed)
-            }
+                .map_err(|_| Error::TransferFailed)?;
 
             Ok(())
         }
@@ -216,7 +226,7 @@ mod payment_channel {
 
         /// returns the `expiration` of the contract
         #[ink(message)]
-        pub fn get_expiration(&self) -> Timestamp {
+        pub fn get_expiration(&self) -> Option<Timestamp> {
             self.expiration
         }
 
@@ -241,7 +251,7 @@ mod payment_channel {
 
     #[ink(impl)]
     impl PaymentChannel {
-        fn ensure_valid_signature(&self, amount: Balance, signature: [u8; 65]) {
+        fn is_signature_valid(&self, amount: Balance, signature: [u8; 65]) -> bool {
             let encodable = (self.env().account_id(), amount);
             let mut message =
                 <ink_env::hash::Sha2x256 as ink_env::hash::HashOutput>::Type::default();
@@ -256,10 +266,7 @@ mod payment_channel {
                 &mut signature_account_id,
             );
 
-            assert!(
-                self.recipient == signature_account_id.into(),
-                "invalid signature"
-            );
+            self.recipient == signature_account_id.into()
         }
     }
 
@@ -388,7 +395,7 @@ mod payment_channel {
             let signature = sign(contract_id, 500);
 
             // then
-            let should_close = move || payment_channel.close(500, signature);
+            let should_close = move || payment_channel.close(500, signature).unwrap();
             ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
@@ -398,7 +405,6 @@ mod payment_channel {
         }
 
         #[ink::test]
-        #[should_panic]
         fn close_fails_invalid_signature() {
             // given
             let accounts = default_accounts();
@@ -416,13 +422,13 @@ mod payment_channel {
             let signature = sign(contract_id, 400);
 
             // then
-            let should_close = move || payment_channel.close(500, signature);
-            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
-                should_close,
-                accounts.alice,
-                500,
-            );
-            // should have panicked
+            let res = payment_channel.close(500, signature);
+            match res {
+                Err(e) => {
+                    assert_eq!(e, Error::InvalidSignature);
+                }
+                _ => panic!("should have failed"),
+            }
         }
 
         #[ink::test]
@@ -452,7 +458,6 @@ mod payment_channel {
         }
 
         #[ink::test]
-        #[should_panic(expected = "invalid signature")]
         fn withdraw_fails_invalid_signature() {
             // given
             let accounts = default_accounts();
@@ -469,13 +474,14 @@ mod payment_channel {
 
             set_next_caller(dan);
             let signature = sign(contract_id, 400);
-            payment_channel
-                .withdraw(500, signature)
-                .expect("withdraw should't have thrown an error");
+            let res = payment_channel.withdraw(500, signature);
 
-            // then should have panicked
-            // assert_eq!(payment_channel.get_balance(), 600);
-            // assert_eq!(get_account_balance(dan), 10400);
+            match res {
+                Err(e) => {
+                    assert_eq!(e, Error::InvalidSignature);
+                }
+                _ => panic!("should have failed"),
+            }
         }
 
         #[ink::test]
@@ -499,7 +505,7 @@ mod payment_channel {
 
             // then
             let now = get_current_time();
-            assert!(now > payment_channel.get_expiration());
+            assert!(now > payment_channel.get_expiration().unwrap());
         }
 
         #[ink::test]
@@ -522,7 +528,7 @@ mod payment_channel {
             advance_block();
 
             // then
-            let should_close = move || payment_channel.claim_timeout();
+            let should_close = move || payment_channel.claim_timeout().unwrap();
             ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
