@@ -102,8 +102,8 @@ fmt:
   script:
     - cargo fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
 examples-fmt:
@@ -114,15 +114,15 @@ examples-fmt:
     # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
+        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
       done
-    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
+    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check
   allow_failure:                   true
 
 clippy-std:
