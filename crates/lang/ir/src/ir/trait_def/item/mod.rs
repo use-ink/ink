@@ -287,7 +287,7 @@ impl InkItemTrait {
 
     /// Constructors are generally not allowed in ink! trait definitions.
     fn analyse_trait_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
-        return Err(format_err!(
+        Err(format_err!(
             constructor.span(),
             "ink! trait definitions must not have constructors",
         ))
