@@ -684,7 +684,7 @@
 
     <span class="doccomment">/// Constructors are generally not allowed in ink! trait definitions.</span>
     <span class="kw">fn</span> <span class="ident">analyse_trait_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+        <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
             <span class="ident">constructor</span>.<span class="ident">span</span>(),
             <span class="string">&quot;ink! trait definitions must not have constructors&quot;</span>,
         ))
