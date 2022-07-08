@@ -81,7 +81,7 @@
 <span class="doccomment">/// pub struct RequiresCopy&lt;T: Copy&gt;(PhantomData&lt;T&gt;);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // The following line of code works because `i32: Copy`.</span>
-<span class="doccomment">/// let _: () = consume_type::&lt;RequiresCopy&lt;i32&gt;&gt;();</span>
+<span class="doccomment">/// consume_type::&lt;RequiresCopy&lt;i32&gt;&gt;();</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Usage: Compile Error</span>
@@ -94,7 +94,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// // The following line of code fails to compile because</span>
 <span class="doccomment">/// // `String` does not implement `Copy`.</span>
-<span class="doccomment">/// let _: () = consume_type::&lt;RequiresCopy&lt;String&gt;&gt;();</span>
+<span class="doccomment">/// consume_type::&lt;RequiresCopy&lt;String&gt;&gt;();</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">consume_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {}
 </code></pre></div>

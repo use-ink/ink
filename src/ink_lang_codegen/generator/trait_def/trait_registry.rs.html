@@ -475,7 +475,7 @@
             <span class="kw">let</span> <span class="ident">input_span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
             <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">ty</span>;
             <span class="macro">quote_spanned!</span>(<span class="ident">input_span</span>=&gt;
-                <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
                     <span class="ident">::ink_lang::codegen::DispatchInput</span><span class="op">&lt;</span>#<span class="ident">input_type</span><span class="op">&gt;</span>
                 <span class="op">&gt;</span>();
             )
@@ -483,7 +483,7 @@
         <span class="kw">let</span> <span class="ident">message_output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output_type</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">output_span</span> <span class="op">=</span> <span class="ident">output_type</span>.<span class="ident">span</span>();
             <span class="macro">quote_spanned!</span>(<span class="ident">output_span</span>=&gt;
-                <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
                     <span class="ident">::ink_lang::codegen::DispatchOutput</span><span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span>
                 <span class="op">&gt;</span>();
             )

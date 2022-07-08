@@ -1703,7 +1703,7 @@
                 }
 
                 <span class="kw">impl</span> <span class="ident">::ink_lang::reflect::ExecuteDispatchable</span> <span class="kw">for</span> <span class="ident">__ink_MessageDecoder</span> {
-                    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>)]</span>
+                    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>, <span class="ident">clippy::let_unit_value</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">execute_dispatchable</span>(
                         <span class="self">self</span>
                     ) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">::ink_lang::reflect::DispatchError</span><span class="op">&gt;</span> {
