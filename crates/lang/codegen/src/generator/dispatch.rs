@@ -807,7 +807,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
-                    #[allow(clippy::nonminimal_bool)]
+                    #[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {

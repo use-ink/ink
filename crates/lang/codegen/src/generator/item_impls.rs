@@ -133,7 +133,7 @@ impl ItemImpls<'_> {
                     let span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::utils::consume_type::<
+                        ::ink_lang::codegen::utils::consume_type::<
                             ::ink_lang::codegen::DispatchInput<#input_type>
                         >();
                     )
@@ -153,7 +153,7 @@ impl ItemImpls<'_> {
                     let span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::utils::consume_type::<
+                        ::ink_lang::codegen::utils::consume_type::<
                             ::ink_lang::codegen::DispatchInput<#input_type>
                         >();
                     )
@@ -161,7 +161,7 @@ impl ItemImpls<'_> {
                 let message_output = message.output().map(|output_type| {
                     let span = output_type.span();
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::utils::consume_type::<
+                        ::ink_lang::codegen::utils::consume_type::<
                             ::ink_lang::codegen::DispatchOutput<#output_type>
                         >();
                     )
