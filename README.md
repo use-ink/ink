@@ -44,7 +44,7 @@
 More relevant links:
 * [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes) ‒ Forum for getting your ink! questions answered
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
-* [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
+* [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 * We post announcements on [Matrix][k2] and [Discord][l2] (in the
   [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel).
@@ -78,7 +78,7 @@ parachain which supports ink! smart contracts. For further instructions on using
 testnet, follow the instructions in the
 [our documentation](https://ink.substrate.io/canvas#rococo-deployment).
 
-For both types of chains the [Contracts UI](https://paritytech.github.io/contracts-ui/)
+For both types of chains the [Contracts UI](https://contracts-ui.substrate.io/)
 can be used to instantiate your contract to a chain and interact with it.
 
 ## Usage
