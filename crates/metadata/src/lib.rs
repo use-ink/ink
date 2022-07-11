@@ -57,38 +57,32 @@ use serde::{
     Serialize,
 };
 
-/// Versioned ink! project metadata.
+/// The metadata version of the generated ink! contract.
+///
+/// The serialized metadata format (which this represents) is different from the
+/// version of this crate or the contract for Rust semantic versioning purposes.
 ///
 /// # Note
 ///
-/// Represents the version of the serialized metadata *format*, which is distinct from the version
-/// of this crate for Rust semantic versioning compatibility.
-#[derive(Debug, Serialize, Deserialize)]
-#[allow(clippy::large_enum_variant)]
-pub enum MetadataVersioned {
-    /// Version 0 placeholder. Represents the original non-versioned metadata format.
-    V0(MetadataVersionDeprecated),
-    /// Version 1 of the contract metadata.
-    V1(MetadataVersionDeprecated),
-    /// Version 2 of the contract metadata.
-    V2(MetadataVersionDeprecated),
-    /// Version 3 of the contract metadata.
-    V3(InkProject),
+/// Versions other than the `Default` are considered deprecated.
+#[derive(Default, Debug, Serialize, Deserialize)]
+pub enum MetadataVersion {
+    /// Represents the original non-versioned metadata format.
+    #[serde(rename = "0")]
+    V0,
+    #[serde(rename = "1")]
+    V1,
+    #[serde(rename = "2")]
+    V2,
+    #[default]
+    #[serde(rename = "3")]
+    V3,
 }
-
-impl From<InkProject> for MetadataVersioned {
-    fn from(ink_project: InkProject) -> Self {
-        MetadataVersioned::V3(ink_project)
-    }
-}
-
-/// Enum to represent a deprecated metadata version that cannot be instantiated.
-#[derive(Debug, Serialize, Deserialize)]
-pub enum MetadataVersionDeprecated {}
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
+    version: MetadataVersion,
     #[serde(flatten)]
     registry: PortableRegistry,
     #[serde(rename = "storage")]
@@ -106,6 +100,7 @@ impl InkProject {
         let mut registry = Registry::new();
 
         Self {
+            version: Default::default(),
             layout: layout.into().into_portable(&mut registry),
             spec: spec.into().into_portable(&mut registry),
             registry: registry.into(),
@@ -114,6 +109,11 @@ impl InkProject {
 }
 
 impl InkProject {
+    /// Returns the metadata version used by the contract.
+    pub fn version(&self) -> &MetadataVersion {
+        &self.version
+    }
+
     /// Returns a read-only registry of types in the contract.
     pub fn registry(&self) -> &PortableRegistry {
         &self.registry
