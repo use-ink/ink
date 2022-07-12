@@ -44,10 +44,6 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_primitives::{
-    Key,
-    KeyComposer,
-};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -184,49 +180,25 @@ impl EnvInstance {
         ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
-
-    fn combined_key<K>(&mut self, key: &Key, offset_key: Option<K>) -> [u8; 32]
-    where
-        K: scale::Encode,
-    {
-        if let Some(offset_key) = offset_key {
-            let mut hash = <Blake2x256 as HashOutput>::Type::default();
-            self.hash_encoded::<Blake2x256, _>(&(key, offset_key), &mut hash);
-            hash
-        } else {
-            KeyComposer::old_key(key)
-        }
-    }
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<K, V>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-        value: &V,
-    ) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
         K: scale::Encode,
         V: scale::Encode,
     {
-        let key = self.combined_key(key, offset_key);
         let v = scale::Encode::encode(value);
-        self.engine.set_storage(&key, &v[..])
+        self.engine.set_storage(&key.encode(), &v[..])
     }
 
-    fn get_contract_storage<K, R>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-    ) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: scale::Decode,
     {
-        let key = self.combined_key(key, offset_key);
         let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(&key, &mut &mut output[..]) {
+        match self.engine.get_storage(&key.encode(), &mut &mut output[..]) {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -235,24 +207,18 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contains_contract_storage<K>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-    ) -> Option<u32>
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
-        let key = self.combined_key(key, offset_key);
-        self.engine.contains_storage(&key)
+        self.engine.contains_storage(&key.encode())
     }
 
-    fn clear_contract_storage<K>(&mut self, key: &Key, offset_key: Option<K>)
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
-        let key = self.combined_key(key, offset_key);
-        self.engine.clear_storage(&key)
+        self.engine.clear_storage(&key.encode())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

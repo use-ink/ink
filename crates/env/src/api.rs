@@ -39,7 +39,6 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -183,63 +182,56 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the combination of a given
-/// storage key and offset key and returns the size of pre-existing value if any.
+/// Writes the value to the contract storage under the given storage key and returns the size
+/// of pre-existing value if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<K, V>(
-    key: &Key,
-    offset_key: Option<K>,
-    value: &V,
-) -> Option<u32>
+pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
 where
     K: scale::Encode,
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<K, V>(instance, key, offset_key, value)
+        EnvBackend::set_contract_storage::<K, V>(instance, key, value)
     })
 }
 
-/// Returns the value stored under the combination of a given storage key and dynamic
-/// key in the contract's storage if any.
+/// Returns the value stored under the given storage key in the contract's storage if any.
 ///
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<K, R>(key: &Key, offset_key: Option<K>) -> Result<Option<R>>
+pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<K, R>(instance, key, offset_key)
+        EnvBackend::get_contract_storage::<K, R>(instance, key)
     })
 }
 
-/// Checks whether there is a value stored under the combination of a given storage key
-/// and offset key in the contract's storage.
+/// Checks whether there is a value stored under the given storage key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-pub fn contains_contract_storage<K>(key: &Key, offset_key: Option<K>) -> Option<u32>
+pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::contains_contract_storage::<K>(instance, key, offset_key)
+        EnvBackend::contains_contract_storage::<K>(instance, key)
     })
 }
 
-/// Clears the contract's storage entry under the combination of
-/// a given storage key and offset key.
-pub fn clear_contract_storage<K>(key: &Key, offset_key: Option<K>)
+/// Clears the contract's storage entry under the given storage key.
+pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage::<K>(instance, key, offset_key)
+        EnvBackend::clear_contract_storage::<K>(instance, key)
     })
 }
 

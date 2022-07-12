@@ -231,16 +231,6 @@ mod sys {
             data_len: u32,
         );
 
-        pub fn seal_get_storage(
-            key_ptr: Ptr32<[u8]>,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        ) -> ReturnCode;
-
-        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>) -> ReturnCode;
-
-        pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
-
         pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: Ptr32<[u8]>,
@@ -374,11 +364,66 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+    }
 
+    #[link(wasm_import_module = "__unstable__")]
+    extern "C" {
+        // # Parameters
+        //
+        // - `key_ptr`: pointer into the linear memory where the location to store the value is placed.
+        // - `key_len`: the length of the key in bytes.
+        // - `value_ptr`: pointer into the linear memory where the value to set is placed.
+        // - `value_len`: the length of the value in bytes.
+        //
+        // # Return Value
+        //
+        // Returns the size of the pre-existing value at the specified key if any. Otherwise
+        // `SENTINEL` is returned as a sentinel value.
         pub fn seal_set_storage(
             key_ptr: Ptr32<[u8]>,
+            key_len: u32,
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
+        ) -> ReturnCode;
+
+        // # Parameters
+        //
+        // - `key_ptr`: pointer into the linear memory where the key is placed.
+        // - `key_len`: the length of the key in bytes.
+        //
+        // # Return Value
+        //
+        // Returns the size of the pre-existing value at the specified key if any. Otherwise
+        // `SENTINEL` is returned as a sentinel value.
+        pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
+
+        // # Parameters
+        //
+        // - `key_ptr`: pointer into the linear memory where the key of the requested value is placed.
+        // - `key_len`: the length of the key in bytes.
+        //
+        // # Return Value
+        //
+        // Returns the size of the pre-existing value at the specified key if any. Otherwise
+        // `SENTINEL` is returned as a sentinel value.
+        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
+
+        // # Parameters
+        //
+        // - `key_ptr`: pointer into the linear memory where the key of the requested value is placed.
+        // - `key_len`: the length of the key in bytes.
+        // - `out_ptr`: pointer to the linear memory where the value is written to.
+        // - `out_len_ptr`: in-out pointer into linear memory where the buffer length
+        //   is read from and the value length is written to.
+        //
+        // # Errors
+        //
+        // `ReturnCode::KeyNotFound`
+        pub fn seal_get_storage(
+            key_ptr: Ptr32<[u8]>,
+            key_len: u32,
+            out_ptr: Ptr32Mut<[u8]>,
+            out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
     }
 }
@@ -503,6 +548,7 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
     let ret_code = unsafe {
         sys::seal_set_storage(
             Ptr32::from_slice(key),
+            key.len() as u32,
             Ptr32::from_slice(encoded_value),
             encoded_value.len() as u32,
         )
@@ -510,8 +556,10 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
     ret_code.into()
 }
 
-pub fn clear_storage(key: &[u8]) {
-    unsafe { sys::seal_clear_storage(Ptr32::from_slice(key)) }
+pub fn clear_storage(key: &[u8]) -> Option<u32> {
+    let ret_code =
+        unsafe { sys::seal_clear_storage(Ptr32::from_slice(key), key.len() as u32) };
+    ret_code.into()
 }
 
 #[inline(always)]
@@ -521,6 +569,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
         unsafe {
             sys::seal_get_storage(
                 Ptr32::from_slice(key),
+                key.len() as u32,
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
             )
@@ -531,7 +580,8 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
 }
 
 pub fn storage_contains(key: &[u8]) -> Option<u32> {
-    let ret_code = unsafe { sys::seal_contains_storage(Ptr32::from_slice(key)) };
+    let ret_code =
+        unsafe { sys::seal_contains_storage(Ptr32::from_slice(key), key.len() as u32) };
     ret_code.into()
 }
 

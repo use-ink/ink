@@ -143,7 +143,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V>,
     {
-        ink_env::set_contract_storage(&KeyType::KEY, Some(key), value);
+        ink_env::set_contract_storage(&(&KeyType::KEY, key), value);
     }
 
     /// Insert the given `value` to the contract storage.
@@ -155,7 +155,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V>,
     {
-        ink_env::set_contract_storage(&KeyType::KEY, Some(key), value)
+        ink_env::set_contract_storage(&(&KeyType::KEY, key), value)
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -166,7 +166,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::get_contract_storage::<Q, V>(&KeyType::KEY, Some(key))
+        ink_env::get_contract_storage::<(&Key, Q), V>(&(&KeyType::KEY, key))
             .unwrap_or_else(|error| panic!("failed to get value in mapping: {:?}", error))
     }
 
@@ -178,7 +178,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contains_contract_storage(&KeyType::KEY, Some(key))
+        ink_env::contains_contract_storage(&(&KeyType::KEY, key))
     }
 
     /// Checks if a value is stored at the given `key` in the contract storage.
@@ -189,7 +189,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contains_contract_storage(&KeyType::KEY, Some(key)).is_some()
+        ink_env::contains_contract_storage(&(&KeyType::KEY, key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
@@ -198,7 +198,7 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::clear_contract_storage(&KeyType::KEY, Some(key));
+        ink_env::clear_contract_storage(&(&KeyType::KEY, key));
     }
 }
 

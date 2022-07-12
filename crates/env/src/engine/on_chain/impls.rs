@@ -47,10 +47,6 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_primitives::{
-    Key,
-    KeyComposer,
-};
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -224,59 +220,28 @@ impl EnvInstance {
         ext_fn(full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
-
-    #[inline(always)]
-    /// Returns storage key.
-    fn key<K>(&mut self, key: &Key, offset_key: Option<K>) -> [u8; 32]
-    where
-        K: scale::Encode,
-    {
-        if let Some(offset_key) = offset_key {
-            self.combined_key(key, offset_key)
-        } else {
-            KeyComposer::old_key(key)
-        }
-    }
-
-    #[inline(never)]
-    /// Combines the storage key with offset key knows at runtime.
-    fn combined_key<K>(&mut self, key: &Key, offset_key: K) -> [u8; 32]
-    where
-        K: scale::Encode,
-    {
-        let mut hash = <Blake2x256 as HashOutput>::Type::default();
-        self.hash_encoded::<Blake2x256, _>(&(offset_key, key), &mut hash);
-        hash
-    }
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<K, V>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-        value: &V,
-    ) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
         K: scale::Encode,
         V: scale::Encode,
     {
-        let key = self.key(key, offset_key);
-        let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(&key, buffer)
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let value = buffer.take_encoded(value);
+        ext::set_storage(&key, value)
     }
 
-    fn get_contract_storage<K, R>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-    ) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: scale::Decode,
     {
-        let key = self.key(key, offset_key);
-        let output = &mut self.scoped_buffer().take_rest();
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let output = &mut buffer.take_rest();
         match ext::get_storage(&key, output) {
             Ok(_) => (),
             Err(ExtError::KeyNotFound) => return Ok(None),
@@ -286,22 +251,22 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contains_contract_storage<K>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-    ) -> Option<u32>
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
-        ext::storage_contains(&self.key(key, offset_key))
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        ext::storage_contains(key)
     }
 
-    fn clear_contract_storage<K>(&mut self, key: &Key, offset_key: Option<K>)
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
-        ext::clear_storage(&self.key(key, offset_key))
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        ext::clear_storage(key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

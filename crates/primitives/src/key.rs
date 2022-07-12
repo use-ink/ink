@@ -77,13 +77,4 @@ impl KeyComposer {
 
         Self::from_bytes(composed_key.as_slice())
     }
-
-    /// Return the 32 bytes representation of the storage key for old version of the storage.
-    pub const fn old_key(new_key: &Key) -> [u8; 32] {
-        let bytes = new_key.to_le_bytes();
-        [
-            bytes[0], bytes[1], bytes[2], bytes[3], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ]
-    }
 }

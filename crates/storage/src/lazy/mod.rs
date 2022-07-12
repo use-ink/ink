@@ -153,7 +153,7 @@ where
     ///
     /// Returns `Default::default()` if no `value` exists.
     pub fn get_or_default(&self) -> V {
-        match ink_env::get_contract_storage::<(), DecodeWrapper<V>>(&KeyType::KEY, None) {
+        match ink_env::get_contract_storage::<Key, DecodeWrapper<V>>(&KeyType::KEY) {
             Ok(Some(wrapper)) => wrapper.0,
             _ => Default::default(),
         }

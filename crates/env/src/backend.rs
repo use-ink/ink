@@ -27,7 +27,6 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -162,48 +161,31 @@ impl CallFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
-    /// Writes the value to the contract storage under the combination of a
-    /// given storage key and offset key.
+    /// Writes the value to the contract storage under the given storage key.
     ///
     /// Returns the size of the pre-existing value at the specified key if any.
-    fn set_contract_storage<K, V>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-        value: &V,
-    ) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
         K: scale::Encode,
         V: scale::Encode;
 
-    /// Returns the value stored under the combination of a given storage key and offset key
-    /// in the contract's storage if any.
+    /// Returns the value stored under the given storage key in the contract's storage if any.
     ///
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<K, R>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-    ) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: scale::Decode;
 
-    /// Returns the size of a value stored under the combination of a given storage key
-    /// and offset key is returned if any.
-    fn contains_contract_storage<K>(
-        &mut self,
-        key: &Key,
-        offset_key: Option<K>,
-    ) -> Option<u32>
+    /// Returns the size of a value stored under the given storage key is returned if any.
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
 
-    /// Clears the contract's storage key entry under the combination of a given storage key
-    /// and offset key.
-    fn clear_contract_storage<K>(&mut self, key: &Key, offset_key: Option<K>)
+    /// Clears the contract's storage key entry under the given storage key.
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
 

@@ -79,7 +79,7 @@ pub fn pull_storage<T>(key: &Key) -> T
 where
     T: Storable,
 {
-    match ink_env::get_contract_storage::<(), DecodeWrapper<T>>(key, None) {
+    match ink_env::get_contract_storage::<Key, DecodeWrapper<T>>(key) {
         Ok(Some(wrapper)) => wrapper.0,
         Ok(None) => panic!("storage entry was empty"),
         Err(_) => panic!("could not properly decode storage entry"),
@@ -101,9 +101,5 @@ pub fn push_storage<T>(entity: &T, key: &Key) -> Option<u32>
 where
     T: Storable,
 {
-    ink_env::set_contract_storage::<(), EncodeWrapper<T>>(
-        key,
-        None,
-        &EncodeWrapper(entity),
-    )
+    ink_env::set_contract_storage::<Key, EncodeWrapper<T>>(key, &EncodeWrapper(entity))
 }
