@@ -32,7 +32,7 @@ pub mod upgradeable_contract {
 
     /// A simple proxy contract.
     ///
-    /// The proxy contracts is stored in own storage cell under the `PROXY_key`
+    /// The proxy contracts is stored in own storage cell under the `PROXY_KEY`
     /// instead of the default contract storage key = `0`.
     ///
     /// This allows us to store the proxy contract's storage in such a way that it will not

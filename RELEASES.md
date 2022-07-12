@@ -68,7 +68,7 @@ can be used to implement an upgradeable contract that replaces its own code.
 - Implement `seal_code_hash` and `seal_own_code_hash` ‒ [#1205](https://github.com/paritytech/ink/pull/1205)
 - Add `set_code_hash` function and example ‒ [#1203](https://github.com/paritytech/ink/pull/1203)
 - Implement [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
-- Add [`Mapping::contains(KEY)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(KEY, val)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+- Add [`Mapping::contains(key)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(key, val)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 
 ## Fixed
 - Fix ordering of message ids if the trait is implemented before the inherent section ‒ [#1235](https://github.com/paritytech/ink/pull/1235)
@@ -388,7 +388,7 @@ There are breaking changes to the metadata format in this release.
   - One of the main changes to be aware of is the change to 0 based type lookup ids: https://github.com/paritytech/scale-info/pull/90
 
 ## Added
-- Added an Ethereum-compatibility function to recover a public KEY from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
+- Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
 - Added new utility proc. macros to `ink_lang` crate - [#947](https://github.com/paritytech/ink/pull/947):
     - `blake2!`: Compute the BLAKE2b 256-bit hash of the given input literal string.
     - `selector_bytes!`: Compute the ink! selector of the given input literal string and return it as `[u8; 4]`.
@@ -469,7 +469,7 @@ there.
 ## Quality Assurance
 
 In order to ensure a continuously high quality of our codebase we implemented a number
-of KEY improvements to our testing setup:
+of key improvements to our testing setup:
 
 - We've put an emphasis on automated testing of the usage examples in our crate documentation.
   Those are now tested in the context of a complete ink! contract. In the past this was not
@@ -737,7 +737,7 @@ Note that `offset` remained `i32` since it is always needed and could spare the 
 ### HashMap
 
 In the follow we explore the differences between the high-level `ink_storage::collections::HashMap`
-and the low-level `ink_storage::lazy::LazyHashMap`. Both provide very similar functionality in that they map some generic KEY to some storage entity.
+and the low-level `ink_storage::lazy::LazyHashMap`. Both provide very similar functionality in that they map some generic key to some storage entity.
 
 However, their APIs look very different. Whereas the `HashMap` provides a rich and high-level API that is comparable to that of Rust's very own `HashMap`, the `LazyHashMap` provides only a fraction of the API and also operates on `Option<T>` values types instead of `T` directly. It is more similar Solidity mappings than to Rust's `HashMap`.
 
@@ -750,8 +750,8 @@ The fundamental difference of both data structures is that `HashMap` is aware of
 | `LazyCell<T>` | low-level | yes | yes | `Option<T>` | single element, no container |
 | `Vec<T>` | high-level | yes | yes | `T` | Rust vector-like container |
 | `LazyIndexMap<T>` | low-level | yes | yes | `Option<T>` | similar to Solidity mapping |
-| `HashMap<K, V>` | high-level | yes | yes | `V` (KEY type `K`) | Rust map-like container |
-| `LazyHashMap<K, V>` | low-level | yes | yes | `Option<V>` (KEY type `K`) | similar to Solidity mapping |
+| `HashMap<K, V>` | high-level | yes | yes | `V` (key type `K`) | Rust map-like container |
+| `LazyHashMap<K, V>` | low-level | yes | yes | `Option<V>` (key type `K`) | similar to Solidity mapping |
 
 There are many more! For more information about the specifics please take a look into [the `ink_storage` crate documentation](https://paritytech.github.io/ink/ink_storage/).
 
