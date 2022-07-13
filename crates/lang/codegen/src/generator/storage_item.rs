@@ -242,6 +242,8 @@ fn convert_into_storage_field(
             ::ink_storage::traits::ManualKey<#key, #salt>,
         >>::Type
     ))
-    .unwrap();
+    .unwrap_or_else(|error| {
+        ::core::panic!("converting into storage field failed: {}", error)
+    });
     new_field
 }
