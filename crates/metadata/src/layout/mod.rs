@@ -59,7 +59,7 @@ pub enum Layout<F: Form = MetaForm> {
     /// This is the only leaf node within the layout graph.
     /// All layout nodes have this node type as their leafs.
     Leaf(CellLayout<F>),
-    /// The root cell defines the storage key for all sub-tree.
+    /// The root cell defines the storage key for all sub-trees.
     Root(RootLayout<F>),
     /// A layout that hashes values into the entire storage key space.
     ///

@@ -668,24 +668,27 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
-/// All packed types don't have a storage key, but non-packed types
+/// Packed types don't have a storage key, but non-packed types
 /// (like `Mapping`, `Lazy` etc.) require calculating the storage key during compilation.
 ///
-/// All structs and enums that plan to be a part of the storage better to be marked by this macro.
+/// Consider annotating structs and enums that are intented to be a part of
+/// the storage with this macro. If the type is packed then the usage of the
+/// macro is optional.
+///
+/// If the type is non-packed it is best to rely on automatic storage key
+/// calculation. The storage key can also be specified manually with the
+/// generic `KEY` parameter though.
+///
 /// The macro should be called before `derive` macros because it can change the type.
 ///
-/// If the type is packed then the usage of the macro is optional.
 /// All required traits can be:
-/// - Derived manually via `#[derive(...)]`
+/// - Derived manually via `#[derive(...)]`.
 /// - Derived automatically via deriving of `scale::Decode` and `scale::Encode`.
 /// - Derived via this macro.
 ///
-/// If the type is non-packed better to have automated storage key calculation,
-/// but you can specify it manually.
-///
 /// # Example
 ///
-/// # Trait implementation
+/// ## Trait implementation
 ///
 /// ```
 /// use ink_prelude::vec::Vec;
@@ -703,7 +706,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// struct Packed {
 ///     s1: u128,
 ///     s2: Vec<u128>,
-///     // Fails because `Item` implemented only for `Vec` where T: Packed
+///     // Fails because `Item` is only implemented for `Vec` where `T: Packed`.
 ///     // s3: Vec<NonPacked>,
 /// }
 ///
@@ -715,7 +718,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// struct PackedManual {
 ///     s1: u32,
 ///     s2: Vec<(u128, String)>,
-///     // Fails because `Item` implemented only for `Vec` where T: Packed
+///     // Fails because `Item` is only implemented for `Vec` where `T: Packed`.
 ///     // s3: Vec<NonPacked>,
 /// }
 ///

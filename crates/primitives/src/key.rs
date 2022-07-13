@@ -38,12 +38,12 @@ impl KeyComposer {
         }
     }
 
-    /// Return storage key from the string
+    /// Return the storage key from the supplied `str`.
     pub const fn from_str(str: &str) -> Key {
         Self::from_bytes(str.as_bytes())
     }
 
-    /// Return storage key from the bytes
+    /// Returns the storage key from the supplied `bytes`.
     pub const fn from_bytes(bytes: &[u8]) -> Key {
         let hash = Sha256::new().update(bytes).finalize();
         Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])

@@ -21,15 +21,15 @@ use ink_prelude::collections::HashMap;
 use ink_primitives::Key;
 use scale_info::form::MetaForm;
 
-/// It validates that the storage layout:
-/// - Hasn't conflicting storage keys, otherwise returns an error with a description of the conflict
+/// It validates that the storage layout doesn't have conflicting storage keys.
+/// Otherwise an error with a description of the conflict is returned.
 pub struct ValidateLayout {
     first_entry: HashMap<Key, String>,
     name_stack: Vec<String>,
 }
 
 impl ValidateLayout {
-    /// Validates the storage layout
+    /// Validates the storage layout.
     pub fn validate(layout: &Layout<MetaForm>) -> Result<(), MetadataError> {
         let mut validator = Self {
             first_entry: Default::default(),
