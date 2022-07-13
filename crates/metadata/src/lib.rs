@@ -64,16 +64,11 @@ use serde::{
 ///
 /// # Note
 ///
-/// Versions other than the `Default` are considered deprecated.
+/// Versions other than the `Default` are considered deprecated. If you want to
+/// deserialize legacy metadata versions you will need to use an old version of
+/// this crate.
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub enum MetadataVersion {
-    /// Represents the original non-versioned metadata format.
-    #[serde(rename = "0")]
-    V0,
-    #[serde(rename = "1")]
-    V1,
-    #[serde(rename = "2")]
-    V2,
     #[default]
     #[serde(rename = "3")]
     V3,
