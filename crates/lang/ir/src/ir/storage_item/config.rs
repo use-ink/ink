@@ -21,9 +21,10 @@ use syn::spanned::Spanned;
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct StorageItemConfig {
-    /// `true` means automatically implement all storage related traits. It is default value.
-    /// `false` disables implementing all storage traits. In some cases,
-    /// it can be helpful to override the default implementation of the trait.
+    /// If set to `true`, all storage related traits are implemented automatically,
+    /// this is the default value.
+    /// If set to `false`, implementing all storage traits is disabled. In some cases
+    /// this can be helpful to override the default implementation of the trait.
     derive: bool,
 }
 
