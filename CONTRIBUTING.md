@@ -67,27 +67,27 @@ Following these will ensure that your pull request is going to be accepted.
 
 ### Backwards Compatibility
 
-ink! and pallet_contracts are the projects under active development. As Contracts API
-functions evolve to their newer versions, we need to introduce them in ink! in a way that
-still keeps current *MAJOR* ink! version compatible with older Substrate nodes built with
-the pallet_contracts version without this new functionality.
+ink! and `pallet-contracts` are projects under active development. As the Contracts API
+functions evolve to their newer versions we need to introduce them in ink! in a way that
+keeps the current *MAJOR* ink! versions compatible with older Substrate nodes which
+may not have these new API function.
 
 In order to achieve this, please stick to the following workflow.
 
 Imagine there is a `[seal0] function()` in the Contracts pallet API and our
-`ink_env::function()` uses its import under the hood. Then some time later we may decide
+`ink_env::function()` uses its import under the hood. Then some time later we decide
 to add a new `[seal1] function()` version to the pallet. In order to introduce it into
 ink! and still be able to run contracts (which don't use this particular function) on
 older nodes, please do the following:
 
 1. Mark the old `ink_env::function()` (which depends on the imported `[seal0]` function)
-   with the `#[deprecated]` attribute.  Please, specify the `since` field with the ink!
-   version since which this function is deprecated in favor of the newest one, and is
-   left there only for the backwards compatibility purposes. Specifing some additional
-   helpful info in the `note` field could also be a good idea.
-2. Name the new function (which depends on the `[seal1] function()`) somehow descriptive
-   like `ink_env::function_whats_special()`.
-3. Always add the `# Compatibility` section to the docs comment of the new function.
+   with the `#[deprecated]` attribute. Please, specify the `since` field with the ink!
+   version which will introduce the new API. We will leave this function in for backwards
+   compatibility purposes. Specifing some additional helpful info in the `note` field
+   could also be a good idea.
+2. Name the new function (which depends on the `[seal1] function()`) in a descriptive
+   way, like `ink_env::function_whats_special()`.
+3. Add the `# Compatibility` section to the docs comment of the new function.
 4. Never use the new function with existing language features. Only use it with newly
    added functions.
 
