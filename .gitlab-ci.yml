@@ -339,6 +339,7 @@ examples-contract-build:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - cargo install --git https://github.com/paritytech/cargo-contract.git --branch hc-versioned-metadata --force
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
