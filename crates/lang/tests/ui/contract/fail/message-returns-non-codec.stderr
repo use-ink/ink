@@ -50,7 +50,7 @@ error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<De
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
 6   |       pub struct NonCodecType;
-    |       ----------------------- doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
+    |       ------------------------ doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
 ...
 18  | /         pub fn message(&self) -> NonCodecType {
 19  | |             NonCodecType
@@ -62,5 +62,11 @@ error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<De
 note: the following trait must be implemented
    --> $CARGO/parity-scale-codec-3.1.5/src/codec.rs
     |
-    | pub trait Decode: Sized {
-    | ^^^^^^^^^^^^^^^^^^^^^^^
+    | / pub trait Decode: Sized {
+    | |     // !INTERNAL USE ONLY!
+    | |     // This const helps SCALE to optimize the encoding/decoding by doing fake specialization.
+    | |     #[doc(hidden)]
+...   |
+    | |     }
+    | | }
+    | |_^

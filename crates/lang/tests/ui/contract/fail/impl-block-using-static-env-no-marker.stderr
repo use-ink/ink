@@ -2,7 +2,7 @@ error[E0599]: no function or associated item named `env` found for struct `Contr
   --> tests/ui/contract/fail/impl-block-using-static-env-no-marker.rs:22:27
    |
 6  |     pub struct Contract {}
-   |     ------------------- function or associated item `env` not found for this struct
+   |     ------------------- function or associated item `env` not found for this
 ...
 22 |             let _ = Self::env().caller();
    |                           ^^^ function or associated item not found in `Contract`
