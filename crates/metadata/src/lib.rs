@@ -67,11 +67,16 @@ use serde::{
 /// Versions other than the `Default` are considered deprecated. If you want to
 /// deserialize legacy metadata versions you will need to use an old version of
 /// this crate.
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum MetadataVersion {
-    #[default]
     #[serde(rename = "3")]
     V3,
+}
+
+impl Default for MetadataVersion {
+    fn default() -> Self {
+        Self::V3
+    }
 }
 
 /// An entire ink! project for metadata file generation purposes.
