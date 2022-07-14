@@ -71,11 +71,13 @@ use serde::{
 pub enum MetadataVersion {
     #[serde(rename = "3")]
     V3,
+    #[serde(rename = "4")]
+    V4,
 }
 
 impl Default for MetadataVersion {
     fn default() -> Self {
-        Self::V3
+        Self::V4
     }
 }
 
