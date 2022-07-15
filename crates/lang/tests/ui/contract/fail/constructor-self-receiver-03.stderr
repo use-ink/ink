@@ -1,6 +1,18 @@
 error[E0411]: cannot find type `Self` in this scope
   --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
    |
+6  |     pub struct Contract {}
+   |     ---------------------- `Self` not allowed in a constant item
+...
+10 |         pub fn constructor(this: &Self) -> Self {
+   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+
+error[E0411]: cannot find type `Self` in this scope
+  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
+   |
+3  | #[ink::contract]
+   | ---------------- `Self` not allowed in a function
+...
 10 |         pub fn constructor(this: &Self) -> Self {
    |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
 
