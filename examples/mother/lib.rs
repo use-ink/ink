@@ -48,6 +48,7 @@ mod mother {
         scale::Encode,
         scale::Decode,
         PartialEq,
+        Eq,
         Debug,
         Clone,
         SpreadLayout,
