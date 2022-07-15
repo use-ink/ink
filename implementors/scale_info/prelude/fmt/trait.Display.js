@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["scale_info"] = [{"text":"impl <a class=\"trait\" href=\"scale_info/prelude/fmt/trait.Display.html\" title=\"trait scale_info::prelude::fmt::Display\">Display</a> for <a class=\"struct\" href=\"scale_info/struct.Path.html\" title=\"struct scale_info::Path\">Path</a>&lt;<a class=\"enum\" href=\"scale_info/form/enum.PortableForm.html\" title=\"enum scale_info::form::PortableForm\">PortableForm</a>&gt;","synthetic":false,"types":["scale_info::ty::path::Path"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
