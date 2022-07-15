@@ -22,7 +22,9 @@ jobs:
       matrix:
         platform:
           - macos-latest
-          - windows-latest
+# Windows installation of `cargo-contract` currently fails due to https://github.com/paritytech/cargo-contract/issues/649
+# Once this is resolved we should re-enable building the examples on windows
+#          - windows-latest
         toolchain:
           - nightly
         job:
