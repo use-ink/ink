@@ -62,7 +62,7 @@ mod mother {
 
     /// Auction outline.
     #[derive(
-        scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
+        scale::Encode, scale::Decode, Eq, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
     )]
     #[cfg_attr(
         feature = "std",
@@ -78,7 +78,7 @@ mod mother {
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
     #[derive(
-        scale::Encode, scale::Decode, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
+        scale::Encode, scale::Decode, Eq, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
     )]
     #[cfg_attr(
         feature = "std",
@@ -156,7 +156,7 @@ mod mother {
     }
 
     /// Way to fail a contract execution.
-    #[derive(scale::Encode, scale::Decode, Debug, PartialEq)]
+    #[derive(scale::Encode, scale::Decode, Debug, Eq, PartialEq)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Failure {
         Revert(String),
