@@ -48,6 +48,7 @@ mod mother {
         scale::Encode,
         scale::Decode,
         PartialEq,
+        Eq,
         Debug,
         Clone,
         SpreadLayout,
@@ -62,7 +63,14 @@ mod mother {
 
     /// Auction outline.
     #[derive(
-        scale::Encode, scale::Decode, Eq, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
+        scale::Encode,
+        scale::Decode,
+        Eq,
+        PartialEq,
+        Debug,
+        Clone,
+        SpreadLayout,
+        PackedLayout,
     )]
     #[cfg_attr(
         feature = "std",
@@ -78,7 +86,14 @@ mod mother {
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
     #[derive(
-        scale::Encode, scale::Decode, Eq, PartialEq, Debug, Clone, SpreadLayout, PackedLayout,
+        scale::Encode,
+        scale::Decode,
+        Eq,
+        PartialEq,
+        Debug,
+        Clone,
+        SpreadLayout,
+        PackedLayout,
     )]
     #[cfg_attr(
         feature = "std",
