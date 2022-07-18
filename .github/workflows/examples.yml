@@ -68,7 +68,7 @@ jobs:
           version: 1
 
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v1.4.0
+        uses: Swatinem/rust-cache@v2.0.0
 
       - name: Install `cargo-contract` `master`
         uses: actions-rs/cargo@v1
