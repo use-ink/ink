@@ -51,6 +51,14 @@ pub enum Outcome {
     Canceled(Option<AccountId>),
 }
 
+impl SpreadAllocate for Outcome {
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        ptr.advance_by(<Option<AccountId>>::FOOTPRINT * 2);
+        Self::Winner(None)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Encode, Decode, SpreadLayout, PackedLayout)]
 #[cfg_attr(
     feature = "std",
@@ -73,7 +81,8 @@ impl Default for GameState {
 impl SpreadAllocate for GameState {
     #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        ptr.advance_by(<Option<AccountId>>::FOOTPRINT * 3);
+        ptr.advance_by(BlockNo::FOOTPRINT * 3);
+        ptr.advance_by(Outcome::FOOTPRINT);
         Self::Constructing
     }
 }
