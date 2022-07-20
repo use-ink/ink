@@ -92,9 +92,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
                     ))
                 }
             } else if arg.name.is_ident("keep_attr") {
-                if let Err(err) = whitelisted_attributes.parse_arg_value(&arg) {
-                    return Err(err)
-                }
+                whitelisted_attributes.parse_arg_value(&arg)?;
             } else {
                 return Err(format_err_spanned!(
                     arg,
