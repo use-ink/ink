@@ -124,8 +124,6 @@
 <span id="119">119</span>
 <span id="120">120</span>
 <span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -220,9 +218,7 @@
                     ))
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">name</span>.<span class="ident">is_ident</span>(<span class="string">&quot;keep_attr&quot;</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">whitelisted_attributes</span>.<span class="ident">parse_arg_value</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>)
-                }
+                <span class="ident">whitelisted_attributes</span>.<span class="ident">parse_arg_value</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>)<span class="question-mark">?</span>;
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">arg</span>,
