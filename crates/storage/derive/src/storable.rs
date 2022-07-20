@@ -13,7 +13,11 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
+use quote::{
+    quote,
+    quote_spanned,
+};
+use syn::spanned::Spanned;
 
 /// `Storable` derive implementation for `struct` types.
 fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
@@ -21,15 +25,18 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
     let variant: &synstructure::VariantInfo = &s.variants()[0];
     let decode_body = variant.construct(|field, _index| {
         let ty = &field.ty;
-        quote! {
+        let span = ty.span();
+        quote_spanned!(span =>
             <#ty as ::ink_storage::traits::Storable>::decode(__input)?
-        }
+        )
     });
     let encode_body = variant.each(|binding| {
-        quote! {
+        let span = binding.ast().ty.span();
+        quote_spanned!(span =>
             ::ink_storage::traits::Storable::encode(#binding, __dest);
-        }
+        )
     });
+
     s.gen_impl(quote! {
          gen impl ::ink_storage::traits::Storable for @Self {
             #[inline(always)]
@@ -59,9 +66,10 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         .map(|variant| {
             variant.construct(|field, _index| {
                 let ty = &field.ty;
-                quote! {
+                let span = ty.span();
+                quote_spanned!(span =>
                     <#ty as ::ink_storage::traits::Storable>::decode(__input)?
-                }
+                )
             })
         })
         .enumerate()
@@ -77,9 +85,10 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         let pat = variant.pat();
         let index = index as u8;
         let fields = variant.bindings().iter().map(|field| {
-            quote! {
+            let span = field.ast().ty.span();
+            quote_spanned!(span =>
                 ::ink_storage::traits::Storable::encode(#field, __dest);
-             }
+            )
         });
         quote! {
              #pat => {

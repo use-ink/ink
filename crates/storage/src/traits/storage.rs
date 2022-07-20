@@ -76,7 +76,7 @@ pub trait Item<Salt: KeyHolder> {
 /// Trait is used be codegen to use the right storage type.
 pub trait AutoItem<Salt: KeyHolder> {
     /// Type with storage key inside
-    type Type;
+    type Type: Storable;
 }
 
 /// The contract can implement that trait to support initialization on the runtime

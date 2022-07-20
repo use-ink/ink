@@ -23,9 +23,9 @@ use quote::{
     format_ident,
     quote,
     quote_spanned,
+    ToTokens,
 };
 use syn::{
-    parse2,
     spanned::Spanned,
     Data,
     DataEnum,
@@ -33,6 +33,7 @@ use syn::{
     DataUnion,
     Field,
     Fields,
+    Type,
 };
 
 /// Generates code for the storage item.
@@ -55,15 +56,15 @@ impl GenerateCode for StorageItem<'_> {
         let mut derive = quote! {};
         if self.item.config().derive() {
             derive = quote! {
+                #[cfg_attr(feature = "std", derive(
+                    ::scale_info::TypeInfo,
+                    ::ink_storage::traits::StorageLayout,
+                ))]
                 #[derive(
                     ::ink_storage::traits::Item,
                     ::ink_storage::traits::KeyHolder,
                     ::ink_storage::traits::Storable,
                 )]
-                #[cfg_attr(feature = "std", derive(
-                    ::scale_info::TypeInfo,
-                    ::ink_storage::traits::StorageLayout,
-                ))]
             };
         }
 
@@ -191,7 +192,7 @@ impl<'a> StorageItem<'a> {
             .map(|(i, ty)| {
                 let field_name = format_ident!("field_{}", i);
                 let span = ty.span();
-                quote_spanned!(span=>
+                quote_spanned!(span =>
                     #field_name: #ty
                 )
             });
@@ -235,15 +236,13 @@ fn convert_into_storage_field(
     );
 
     let mut new_field = field.clone();
-    let ty = field.ty.clone();
-    let span = field.span();
-    new_field.ty = parse2(quote_spanned!(span =>
+    let ty = field.ty.clone().to_token_stream();
+    let span = field.ty.span();
+    let new_ty = Type::Verbatim(quote_spanned!(span =>
         <#ty as ::ink_storage::traits::AutoItem<
             ::ink_storage::traits::ManualKey<#key, #salt>,
         >>::Type
-    ))
-    .unwrap_or_else(|error| {
-        ::core::panic!("converting into storage field failed: {}", error)
-    });
+    ));
+    new_field.ty = new_ty;
     new_field
 }
