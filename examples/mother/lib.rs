@@ -117,7 +117,7 @@ mod mother {
     }
 
     /// Way to fail a contract execution.
-    #[derive(scale::Encode, scale::Decode, Debug, PartialEq)]
+    #[derive(scale::Encode, scale::Decode, Debug, Eq, PartialEq)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Failure {
         Revert(String),
