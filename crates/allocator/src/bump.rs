@@ -356,13 +356,15 @@ mod fuzz_tests {
 
         // If `n` is going to overflow we don't want to check it here (we'll check the overflow
         // case in another test)
-        if dbg!(n.checked_add(PAGE_SIZE - 1)).is_none() {
+        let (n, align): (isize, isize) = (9223372036854775297, 2053816183973205299);
+        if dbg!(n.checked_add(PAGE_SIZE as isize - 1)).is_none() {
             return TestResult::discard()
         }
 
         let mut inner = InnerAlloc::new();
 
-        let layout = Layout::from_size_align(n, align).expect(FROM_SIZE_ALIGN_EXPECT);
+        let layout = Layout::from_size_align(n as usize, align as usize)
+            .expect(FROM_SIZE_ALIGN_EXPECT);
         let size = layout.pad_to_align().size();
         assert_eq!(
             inner.alloc(layout),
