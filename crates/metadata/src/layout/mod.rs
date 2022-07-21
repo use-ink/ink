@@ -14,6 +14,10 @@
 
 #[cfg(test)]
 mod tests;
+mod validate;
+
+use core::fmt::Display;
+pub use validate::ValidateLayout;
 
 use crate::{
     serde_hex,
@@ -54,16 +58,14 @@ pub enum Layout<F: Form = MetaForm> {
     ///
     /// This is the only leaf node within the layout graph.
     /// All layout nodes have this node type as their leafs.
-    ///
-    /// This represents the encoding of a single cell mapped to a single key.
-    Cell(CellLayout<F>),
+    Leaf(CellLayout<F>),
+    /// The root cell defines the storage key for all sub-trees.
+    Root(RootLayout<F>),
     /// A layout that hashes values into the entire storage key space.
     ///
     /// This is commonly used by ink! hashmaps and similar data structures.
     Hash(HashLayout<F>),
-    /// An array of associated storage cells encoded with a given type.
-    ///
-    /// This can also represent only a single cell.
+    /// An array of type associated with storage cell.
     Array(ArrayLayout<F>),
     /// A struct layout with fields of different types.
     Struct(StructLayout<F>),
@@ -72,9 +74,9 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, From)]
 pub struct LayoutKey {
-    key: [u8; 32],
+    key: Key,
 }
 
 impl serde::Serialize for LayoutKey {
@@ -82,7 +84,7 @@ impl serde::Serialize for LayoutKey {
     where
         S: serde::Serializer,
     {
-        serde_hex::serialize(&self.key, serializer)
+        serde_hex::serialize(&self.key.to_be_bytes(), serializer)
     }
 }
 
@@ -91,28 +93,74 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
     where
         D: serde::Deserializer<'de>,
     {
-        let mut arr = [0; 32];
+        let mut arr = [0; 4];
         serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
-        Ok(arr.into())
+        Ok(Key::from_be_bytes(arr).into())
     }
 }
 
 impl<'a> From<&'a Key> for LayoutKey {
     fn from(key: &'a Key) -> Self {
-        Self { key: *key.as_ref() }
-    }
-}
-
-impl From<Key> for LayoutKey {
-    fn from(key: Key) -> Self {
-        Self { key: *key.as_ref() }
+        Self { key: *key }
     }
 }
 
 impl LayoutKey {
-    /// Returns the underlying bytes of the layout key.
-    pub fn to_bytes(&self) -> &[u8] {
+    /// Returns the key of the layout key.
+    pub fn key(&self) -> &Key {
         &self.key
+    }
+}
+
+/// Sub-tree root.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
+pub struct RootLayout<F: Form = MetaForm> {
+    /// The root key of the sub-tree.
+    root_key: LayoutKey,
+    /// The storage layout of the unbounded layout elements.
+    layout: Box<Layout<F>>,
+}
+
+impl RootLayout {
+    /// Creates a new root layout.
+    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
+    where
+        L: Into<Layout>,
+    {
+        Self {
+            root_key,
+            layout: Box::new(layout.into()),
+        }
+    }
+}
+
+impl IntoPortable for RootLayout {
+    type Output = RootLayout<PortableForm>;
+
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
+        RootLayout {
+            root_key: self.root_key,
+            layout: Box::new(self.layout.into_portable(registry)),
+        }
+    }
+}
+
+impl<F> RootLayout<F>
+where
+    F: Form,
+{
+    /// Returns the root key of the sub-tree.
+    pub fn root_key(&self) -> &LayoutKey {
+        &self.root_key
+    }
+
+    /// Returns the storage layout of the unbounded layout elements.
+    pub fn layout(&self) -> &Layout<F> {
+        &self.layout
     }
 }
 
@@ -158,8 +206,11 @@ impl IntoPortable for Layout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         match self {
-            Layout::Cell(encoded_cell) => {
-                Layout::Cell(encoded_cell.into_portable(registry))
+            Layout::Leaf(encoded_cell) => {
+                Layout::Leaf(encoded_cell.into_portable(registry))
+            }
+            Layout::Root(encoded_cell) => {
+                Layout::Root(encoded_cell.into_portable(registry))
             }
             Layout::Hash(hash_layout) => {
                 Layout::Hash(hash_layout.into_portable(registry))
@@ -330,15 +381,13 @@ pub struct ArrayLayout<F: Form = MetaForm> {
     offset: LayoutKey,
     /// The number of elements in the array layout.
     len: u32,
-    /// The number of cells each element in the array layout consists of.
-    cells_per_elem: u64,
     /// The layout of the elements stored in the array layout.
     layout: Box<Layout<F>>,
 }
 
 impl ArrayLayout {
     /// Creates an array layout with the given length.
-    pub fn new<K, L>(at: K, len: u32, cells_per_elem: u64, layout: L) -> Self
+    pub fn new<K, L>(at: K, len: u32, layout: L) -> Self
     where
         K: Into<LayoutKey>,
         L: Into<Layout>,
@@ -346,7 +395,6 @@ impl ArrayLayout {
         Self {
             offset: at.into(),
             len,
-            cells_per_elem,
             layout: Box::new(layout.into()),
         }
     }
@@ -369,11 +417,6 @@ where
         self.len
     }
 
-    /// Returns the number of cells each element in the array layout consists of.
-    pub fn cells_per_elem(&self) -> u64 {
-        self.cells_per_elem
-    }
-
     /// Returns the layout of the elements stored in the array layout.
     pub fn layout(&self) -> &Layout<F> {
         &self.layout
@@ -387,7 +430,6 @@ impl IntoPortable for ArrayLayout {
         ArrayLayout {
             offset: self.offset,
             len: self.len,
-            cells_per_elem: self.cells_per_elem,
             layout: Box::new(self.layout.into_portable(registry)),
         }
     }
@@ -400,17 +442,21 @@ impl IntoPortable for ArrayLayout {
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct StructLayout<F: Form = MetaForm> {
+    /// The name of the struct.
+    name: F::String,
     /// The fields of the struct layout.
     fields: Vec<FieldLayout<F>>,
 }
 
 impl StructLayout {
     /// Creates a new struct layout.
-    pub fn new<F>(fields: F) -> Self
+    pub fn new<N, F>(name: N, fields: F) -> Self
     where
+        N: Into<&'static str>,
         F: IntoIterator<Item = FieldLayout>,
     {
         Self {
+            name: name.into(),
             fields: fields.into_iter().collect(),
         }
     }
@@ -420,6 +466,10 @@ impl<F> StructLayout<F>
 where
     F: Form,
 {
+    /// Returns the name of the struct.
+    pub fn name(&self) -> &F::String {
+        &self.name
+    }
     /// Returns the fields of the struct layout.
     pub fn fields(&self) -> &[FieldLayout<F>] {
         &self.fields
@@ -431,6 +481,7 @@ impl IntoPortable for StructLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         StructLayout {
+            name: self.name.into(),
             fields: self
                 .fields
                 .into_iter()
@@ -448,9 +499,7 @@ impl IntoPortable for StructLayout {
 ))]
 pub struct FieldLayout<F: Form = MetaForm> {
     /// The name of the field.
-    ///
-    /// Can be missing, e.g. in case of an enum tuple struct variant.
-    name: Option<F::String>,
+    name: F::String,
     /// The kind of the field.
     ///
     /// This is either a direct layout bound
@@ -462,7 +511,7 @@ impl FieldLayout {
     /// Creates a new field layout.
     pub fn new<N, L>(name: N, layout: L) -> Self
     where
-        N: Into<Option<&'static str>>,
+        N: Into<&'static str>,
         L: Into<Layout>,
     {
         Self {
@@ -477,10 +526,8 @@ where
     F: Form,
 {
     /// Returns the name of the field.
-    ///
-    /// Can be missing, e.g. in case of an enum tuple struct variant.
-    pub fn name(&self) -> Option<&F::String> {
-        self.name.as_ref()
+    pub fn name(&self) -> &F::String {
+        &self.name
     }
 
     /// Returns the kind of the field.
@@ -497,7 +544,7 @@ impl IntoPortable for FieldLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name.map(|name| name.into_portable(registry)),
+            name: self.name.into_portable(registry),
             layout: self.layout.into_portable(registry),
         }
     }
@@ -528,6 +575,8 @@ impl Discriminant {
 ))]
 #[serde(rename_all = "camelCase")]
 pub struct EnumLayout<F: Form = MetaForm> {
+    /// The name of the Enum.
+    name: F::String,
     /// The key where the discriminant is stored to dispatch the variants.
     dispatch_key: LayoutKey,
     /// The variants of the enum.
@@ -536,12 +585,14 @@ pub struct EnumLayout<F: Form = MetaForm> {
 
 impl EnumLayout {
     /// Creates a new enum layout.
-    pub fn new<K, V>(dispatch_key: K, variants: V) -> Self
+    pub fn new<N, K, V>(name: N, dispatch_key: K, variants: V) -> Self
     where
+        N: Into<&'static str>,
         K: Into<LayoutKey>,
         V: IntoIterator<Item = (Discriminant, StructLayout)>,
     {
         Self {
+            name: name.into(),
             dispatch_key: dispatch_key.into(),
             variants: variants.into_iter().collect(),
         }
@@ -552,6 +603,11 @@ impl<F> EnumLayout<F>
 where
     F: Form,
 {
+    /// Returns the name of the field.
+    pub fn name(&self) -> &F::String {
+        &self.name
+    }
+
     /// Returns the key where the discriminant is stored to dispatch the variants.
     pub fn dispatch_key(&self) -> &LayoutKey {
         &self.dispatch_key
@@ -568,6 +624,7 @@ impl IntoPortable for EnumLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EnumLayout {
+            name: self.name.into(),
             dispatch_key: self.dispatch_key,
             variants: self
                 .variants
@@ -578,4 +635,53 @@ impl IntoPortable for EnumLayout {
                 .collect(),
         }
     }
+}
+
+/// An error that can occur during ink! metadata generation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MetadataError {
+    /// Storage keys of two types intersect
+    ConflictKey(String, String),
+}
+
+impl Display for MetadataError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(f, "{}", self.to_human_string())
+    }
+}
+
+impl MetadataError {
+    /// Returns a string representation of the error.
+    #[inline]
+    fn to_human_string(&self) -> String {
+        match self {
+            Self::ConflictKey(prev_path, curr_path) => {
+                format!(
+                    "conflict storage key occurred for `{}`. \
+                    The same storage key is occupied by the `{}`.",
+                    curr_path,
+                    if prev_path.is_empty() {
+                        "contract storage"
+                    } else {
+                        prev_path
+                    }
+                )
+            }
+        }
+    }
+}
+
+#[test]
+fn valid_error_message() {
+    assert_eq!(
+        MetadataError::ConflictKey("".to_string(), "Contract.c:".to_string()).to_string(),
+        "conflict storage key occurred for `Contract.c:`. \
+        The same storage key is occupied by the `contract storage`."
+    );
+    assert_eq!(
+        MetadataError::ConflictKey("Contract.a:".to_string(), "Contract.c:".to_string())
+            .to_string(),
+        "conflict storage key occurred for `Contract.c:`. \
+        The same storage key is occupied by the `Contract.a:`."
+    )
 }
