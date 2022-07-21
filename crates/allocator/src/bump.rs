@@ -349,22 +349,18 @@ mod fuzz_tests {
         n: usize,
         align: usize,
     ) -> TestResult {
-        let (n, align): (usize, usize) = (9223372036854775297, 2053816183973205299);
-
         let aligns = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
         let align = aligns[align % aligns.len()];
 
-        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
-        // case in another test)
-        let (n, align): (isize, isize) = (9223372036854775297, 2053816183973205299);
-        if dbg!(n.checked_add(PAGE_SIZE as isize - 1)).is_none() {
-            return TestResult::discard()
-        }
-
         let mut inner = InnerAlloc::new();
 
-        let layout = Layout::from_size_align(n as usize, align as usize)
-            .expect(FROM_SIZE_ALIGN_EXPECT);
+        // If we're going to end up creating an invalid `Layout` we don't want to use these test
+        // inputs. We'll check the case where `n` overflows in another test.
+        let layout = match Layout::from_size_align(n, align) {
+            Ok(l) => l,
+            Err(_) => return TestResult::discard(),
+        };
+
         let size = layout.pad_to_align().size();
         assert_eq!(
             inner.alloc(layout),
