@@ -33,12 +33,14 @@ impl StaticBuffer {
 impl core::ops::Index<core::ops::RangeFull> for StaticBuffer {
     type Output = [u8];
 
+    #[inline(always)]
     fn index(&self, index: core::ops::RangeFull) -> &Self::Output {
         core::ops::Index::index(&self.buffer[..], index)
     }
 }
 
 impl core::ops::IndexMut<core::ops::RangeFull> for StaticBuffer {
+    #[inline(always)]
     fn index_mut(&mut self, index: core::ops::RangeFull) -> &mut Self::Output {
         core::ops::IndexMut::index_mut(&mut self.buffer[..], index)
     }
@@ -47,7 +49,7 @@ impl core::ops::IndexMut<core::ops::RangeFull> for StaticBuffer {
 /// Utility to allow for non-heap allocating encoding into a static buffer.
 ///
 /// Required by `ScopedBuffer` internals.
-struct EncodeScope<'a> {
+pub struct EncodeScope<'a> {
     buffer: &'a mut [u8],
     len: usize,
 }
@@ -154,6 +156,7 @@ impl<'a> ScopedBuffer<'a> {
 
     /// Encode the given value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
+    #[inline(always)]
     pub fn take_encoded<T>(&mut self, value: &T) -> &'a mut [u8]
     where
         T: scale::Encode,
@@ -172,6 +175,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Does not return the buffer immediately so that other values can be appended
     /// afterwards. The [`take_appended`] method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
+    #[inline(always)]
     pub fn append_encoded<T>(&mut self, value: &T)
     where
         T: scale::Encode,

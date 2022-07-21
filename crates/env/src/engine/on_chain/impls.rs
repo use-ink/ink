@@ -14,6 +14,7 @@
 
 use super::{
     ext,
+    EncodeScope,
     EnvInstance,
     Error as ExtError,
     ScopedBuffer,
@@ -46,7 +47,6 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_primitives::Key;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -174,6 +174,7 @@ where
 }
 
 impl EnvInstance {
+    #[inline(always)]
     /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
@@ -184,6 +185,7 @@ impl EnvInstance {
     /// # Note
     ///
     /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    #[inline(always)]
     fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: Default + AsMut<[u8]>,
@@ -198,6 +200,7 @@ impl EnvInstance {
     /// # Note
     ///
     /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    #[inline(always)]
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: FromLittleEndian,
@@ -208,6 +211,7 @@ impl EnvInstance {
     }
 
     /// Returns the contract property value.
+    #[inline(always)]
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
         T: scale::Decode,
@@ -219,20 +223,26 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
+        K: scale::Encode,
         V: scale::Encode,
     {
-        let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), buffer)
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let value = buffer.take_encoded(value);
+        ext::set_storage(key, value)
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
+        K: scale::Encode,
         R: scale::Decode,
     {
-        let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(key.as_ref(), output) {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let output = &mut buffer.take_rest();
+        match ext::get_storage(key, output) {
             Ok(_) => (),
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -241,12 +251,22 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
-        ext::storage_contains(key.as_ref())
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        ext::storage_contains(key)
     }
 
-    fn clear_contract_storage(&mut self, key: &Key) {
-        ext::clear_storage(key.as_ref())
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        ext::clear_storage(key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -260,9 +280,10 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_return_value = scope.take_encoded(return_value);
-        ext::return_value(flags, enc_return_value);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
+        return_value.encode_to(&mut scope);
+        let len = scope.len();
+        ext::return_value(flags, &self.buffer[..][..len]);
     }
 
     fn debug_message(&mut self, content: &str) {
