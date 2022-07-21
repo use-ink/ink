@@ -21,19 +21,24 @@ pub mod upgradeable_contract {
     use ink_env::call::DelegateCall;
     use ink_primitives::{
         Key,
-        KeyPtr,
+        KeyComposer,
     };
-    use ink_storage::traits::SpreadLayout;
+    use ink_storage::traits::{
+        KeyHolder,
+        ManualKey,
+    };
 
-    /// This struct contains the data related to the Proxy storage.
+    const PROXY_KEY: Key = KeyComposer::from_str("ProxyFields");
+
+    /// A simple proxy contract.
     ///
-    /// The reason this is a separate structure is that we want to keep
-    /// the data for this contract in a separate place (as in the implementation
-    /// of [`SpreadLayout`](ink_storage::traits::SpreadLayout)), so that it does not get
-    /// overwritten by any contract upgrade, which might introduce storage changes.
-    #[derive(Debug)]
-    #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
-    struct ProxyFields {
+    /// The proxy contracts is stored in own storage cell under the `PROXY_KEY`
+    /// instead of the default contract storage key = `0`.
+    ///
+    /// This allows us to store the proxy contract's storage in such a way that it will not
+    /// conflict with the the default storage layout of the contract we're proxying calls to.
+    #[ink(storage)]
+    pub struct Proxy<KEY: KeyHolder = ManualKey<PROXY_KEY>> {
         /// The `Hash` of a contract code where any call that does not match a
         /// selector of this contract is forward to.
         forward_to: Hash,
@@ -41,44 +46,6 @@ pub mod upgradeable_contract {
         /// forwarding address. This address is set to the account that
         /// instantiated this contract.
         admin: AccountId,
-    }
-
-    const PROXY_FIELDS_STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("ProxyFields");
-
-    /// `SpreadLayout` is implemented manually to use its own `PROXY_FIELDS_STORAGE_KEY`
-    /// storage key instead of the default contract storage `ContractRootKey::ROOT_KEY`.
-    ///
-    /// This allows us to store the proxy contract's storage in such a way that it will not
-    /// conflict with the the default storage layout of the contract we're proxying calls to.
-    impl SpreadLayout for ProxyFields {
-        const FOOTPRINT: u64 =
-            <AccountId as SpreadLayout>::FOOTPRINT + <Hash as SpreadLayout>::FOOTPRINT;
-
-        fn pull_spread(_: &mut KeyPtr) -> Self {
-            let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
-            Self {
-                forward_to: SpreadLayout::pull_spread(&mut ptr),
-                admin: SpreadLayout::pull_spread(&mut ptr),
-            }
-        }
-
-        fn push_spread(&self, _: &mut KeyPtr) {
-            let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
-            SpreadLayout::push_spread(&self.forward_to, &mut ptr);
-            SpreadLayout::push_spread(&self.admin, &mut ptr);
-        }
-
-        fn clear_spread(&self, _: &mut KeyPtr) {
-            let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
-            SpreadLayout::clear_spread(&self.forward_to, &mut ptr);
-            SpreadLayout::clear_spread(&self.admin, &mut ptr);
-        }
-    }
-
-    /// A simple proxy contract.
-    #[ink(storage)]
-    pub struct Proxy {
-        proxy: ProxyFields,
     }
 
     impl Proxy {
@@ -89,10 +56,8 @@ pub mod upgradeable_contract {
         #[ink(constructor)]
         pub fn new(forward_to: Hash) -> Self {
             Self {
-                proxy: ProxyFields {
-                    forward_to,
-                    admin: Self::env().caller(),
-                },
+                forward_to,
+                admin: Self::env().caller(),
             }
         }
 
@@ -102,12 +67,12 @@ pub mod upgradeable_contract {
         pub fn change_delegate_code(&mut self, new_code_hash: Hash) {
             assert_eq!(
                 self.env().caller(),
-                self.proxy.admin,
+                self.admin,
                 "caller {:?} does not have sufficient permissions, only {:?} does",
                 self.env().caller(),
-                self.proxy.admin,
+                self.admin,
             );
-            self.proxy.forward_to = new_code_hash;
+            self.forward_to = new_code_hash;
         }
 
         /// Fallback message for a contract call that doesn't match any
@@ -123,7 +88,7 @@ pub mod upgradeable_contract {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                .call_type(DelegateCall::new().code_hash(self.proxy.forward_to))
+                .call_type(DelegateCall::new().code_hash(self.forward_to))
                 .call_flags(
                     ink_env::CallFlags::default()
                         // We don't plan to use the input data after the delegated call, so the 
@@ -137,7 +102,7 @@ pub mod upgradeable_contract {
                 .unwrap_or_else(|err| {
                     panic!(
                         "delegate call to {:?} failed due to {:?}",
-                        self.proxy.forward_to, err
+                        self.forward_to, err
                     )
                 });
             unreachable!(

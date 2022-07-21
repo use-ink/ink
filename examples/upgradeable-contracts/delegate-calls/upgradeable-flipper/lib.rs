@@ -4,52 +4,48 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod upgradeable;
-
 use ink_lang as ink;
 
 #[ink::contract]
 pub mod flipper {
-    use crate::upgradeable::{
-        NotInitialized,
-        Upgradeable,
-    };
+    use ink_storage::traits::OnCallInitializer;
 
+    /// The `Flipper` doesn't use the manual storage key.
+    /// That means that it is stored under the default zero storage key.
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Flipper {
-        /// The field is `Upgradeable`, which means if the field is not initialized, it will be.
-        ///
-        /// By default ink! would throw an error that the field is not initialized.
-        /// With that wrapper, you can initialize the field later during the method execution,
-        /// not in the constructor.
-        value: Upgradeable<bool, NotInitialized>,
+        value: bool,
+    }
+
+    /// By default ink! would throw an error that the field is not initialized.
+    /// But if the contract implements `ink_storage::traits::OnCallInitializer`, then it will
+    /// be initialized later in the `OnCallInitializer::initialize` during the method execution,
+    /// not in the constructor.
+    impl OnCallInitializer for Flipper {
+        fn initialize(&mut self) {
+            // Let's initialize it with `false` by default
+            self.value = false;
+        }
     }
 
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self {
-                value: Upgradeable::new(init_value),
-            }
-        }
-
-        /// Creates a new flipper smart contract initialized to `false`.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
+            Self { value: init_value }
         }
 
         /// Flips the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
-            *self.value = !*self.value;
+            self.value = !self.value;
         }
 
         /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
-            *self.value
+            self.value
         }
     }
 

@@ -70,14 +70,7 @@ mod multisig {
         ExecutionInput,
     };
     use ink_prelude::vec::Vec;
-    use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadAllocate,
-            SpreadLayout,
-        },
-        Mapping,
-    };
+    use ink_storage::Mapping;
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
@@ -99,7 +92,7 @@ mod multisig {
     }
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
-    #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
+    #[derive(Clone, Copy, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
@@ -113,7 +106,7 @@ mod multisig {
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
-    #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+    #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -147,9 +140,7 @@ mod multisig {
 
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
-    #[derive(
-        scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate, Default,
-    )]
+    #[derive(Default, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -247,7 +238,7 @@ mod multisig {
     }
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    #[derive(Default)]
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
@@ -281,19 +272,19 @@ mod multisig {
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
         pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                owners.sort_unstable();
-                owners.dedup();
-                ensure_requirement_is_valid(owners.len() as u32, requirement);
+            let mut contract = Multisig::default();
+            owners.sort_unstable();
+            owners.dedup();
+            ensure_requirement_is_valid(owners.len() as u32, requirement);
 
-                for owner in &owners {
-                    contract.is_owner.insert(owner, &());
-                }
+            for owner in &owners {
+                contract.is_owner.insert(owner, &());
+            }
 
-                contract.owners = owners;
-                contract.transaction_list = Default::default();
-                contract.requirement = requirement;
-            })
+            contract.owners = owners;
+            contract.transaction_list = Default::default();
+            contract.requirement = requirement;
+            contract
         }
 
         /// Add a new owner to the contract.

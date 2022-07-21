@@ -29,52 +29,23 @@ mod mother {
         vec::Vec,
     };
 
-    use ink_lang::utils::initialize_contract;
-    use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadAllocate,
-            SpreadLayout,
-        },
-        Mapping,
-    };
+    use ink_storage::Mapping;
 
-    use ink_storage::traits::KeyPtr;
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
     /// Wrapping vector, just added for testing UI components.
-    #[derive(
-        Default,
-        scale::Encode,
-        scale::Decode,
-        PartialEq,
-        Eq,
-        Debug,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-        SpreadAllocate,
-    )]
+    #[derive(Default, PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
     /// Auction outline.
-    #[derive(
-        scale::Encode,
-        scale::Decode,
-        Eq,
-        PartialEq,
-        Debug,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-    )]
+    #[derive(PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Outline {
         NoWinner,
@@ -85,19 +56,10 @@ mod mother {
     /// Auction statuses.
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
-    #[derive(
-        scale::Encode,
-        scale::Decode,
-        Eq,
-        PartialEq,
-        Debug,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-    )]
+    #[derive(PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Status {
         /// An auction has not started yet.
@@ -115,27 +77,11 @@ mod mother {
         RfDelay(BlockNumber),
     }
 
-    impl SpreadAllocate for Status {
-        #[inline]
-        fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-            ptr.advance_by(<BlockNumber>::FOOTPRINT * 2);
-            Self::NotStarted
-        }
-    }
     /// Struct for storing auction data.
-    #[derive(
-        Debug,
-        PartialEq,
-        scale::Encode,
-        scale::Decode,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-        SpreadAllocate,
-    )]
+    #[derive(Debug, PartialEq, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub struct Auction {
         /// Branded name of the auction event.
@@ -186,7 +132,7 @@ mod mother {
 
     /// Storage of the contract.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct Mother {
         auction: Auction,
         balances: Mapping<AccountId, Balance>,
@@ -195,18 +141,15 @@ mod mother {
     impl Mother {
         #[ink(constructor)]
         pub fn new(auction: Auction) -> Self {
-            initialize_contract(|c: &mut Self| {
-                c.balances = <Mapping<AccountId, Balance>>::default();
-                c.auction = auction;
-            })
+            Self {
+                balances: Default::default(),
+                auction,
+            }
         }
 
         #[ink(constructor)]
         pub fn default() -> Self {
-            initialize_contract(|c: &mut Self| {
-                c.balances = <Mapping<AccountId, Balance>>::default();
-                c.auction = Auction::default();
-            })
+            Default::default()
         }
 
         /// Takes an auction data struct as input and returns it back.

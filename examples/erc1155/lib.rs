@@ -187,10 +187,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink_storage::Mapping;
 
     type Owner = AccountId;
     type Operator = AccountId;
@@ -230,7 +227,7 @@ mod erc1155 {
 
     /// An ERC-1155 contract.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
@@ -245,11 +242,7 @@ mod erc1155 {
         /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            //
-            // Not that `token_id_nonce` will be initialized to its `Default` value.
-            ink_lang::utils::initialize_contract(|_| {})
+            Default::default()
         }
 
         /// Create the initial supply for a token.
