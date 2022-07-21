@@ -272,7 +272,8 @@ mod tests {
     }
 }
 
-#[cfg(all(test, feature = "ink-fuzz-tests"))]
+#[cfg(test)]
+// #[cfg(all(test, feature = "ink-fuzz-tests"))]
 mod fuzz_tests {
     use super::*;
     use quickcheck::{
@@ -348,12 +349,14 @@ mod fuzz_tests {
         n: usize,
         align: usize,
     ) -> TestResult {
+        let (n, align): (usize, usize) = (9223372036854775297, 2053816183973205299);
+
         let aligns = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
         let align = aligns[align % aligns.len()];
 
         // If `n` is going to overflow we don't want to check it here (we'll check the overflow
         // case in another test)
-        if n.checked_add(PAGE_SIZE - 1).is_none() {
+        if dbg!(n.checked_add(PAGE_SIZE - 1)).is_none() {
             return TestResult::discard()
         }
 
