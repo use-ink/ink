@@ -19,6 +19,7 @@ mod chain_extension;
 mod contract;
 mod ink_test;
 mod selector;
+mod storage_item;
 mod trait_def;
 
 use proc_macro::TokenStream;
@@ -665,6 +666,148 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
 }
 
+/// Prepares the type to be fully compatible and usable with the storage.
+/// It implements all necessary traits and calculates the storage key for types.
+/// Packed types don't have a storage key, but non-packed types
+/// (like `Mapping`, `Lazy` etc.) require calculating the storage key during compilation.
+///
+/// Consider annotating structs and enums that are intented to be a part of
+/// the storage with this macro. If the type is packed then the usage of the
+/// macro is optional.
+///
+/// If the type is non-packed it is best to rely on automatic storage key
+/// calculation. The storage key can also be specified manually with the
+/// generic `KEY` parameter though.
+///
+/// The macro should be called before `derive` macros because it can change the type.
+///
+/// All required traits can be:
+/// - Derived manually via `#[derive(...)]`.
+/// - Derived automatically via deriving of `scale::Decode` and `scale::Encode`.
+/// - Derived via this macro.
+///
+/// # Example
+///
+/// ## Trait implementation
+///
+/// ```
+/// use ink_prelude::vec::Vec;
+/// use ink_storage::{
+///     Lazy,
+///     Mapping,
+/// };
+/// use ink_storage::traits::{
+///     KeyHolder,
+///     Item,
+///     Storable,
+/// };
+///
+/// #[derive(scale::Decode, scale::Encode)]
+/// struct Packed {
+///     s1: u128,
+///     s2: Vec<u128>,
+///     // Fails because `Item` is only implemented for `Vec` where `T: Packed`.
+///     // s3: Vec<NonPacked>,
+/// }
+///
+/// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct PackedManual {
+///     s1: u32,
+///     s2: Vec<(u128, String)>,
+///     // Fails because `Item` is only implemented for `Vec` where `T: Packed`.
+///     // s3: Vec<NonPacked>,
+/// }
+///
+/// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct PackedGeneric<T: ink_storage::traits::Packed> {
+///     s1: (u128, bool),
+///     s2: Vec<T>,
+///     s3: String,
+/// }
+///
+/// #[ink_lang::storage_item(derive = false)]
+/// #[derive(Storable, Item, KeyHolder)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct NonPackedGeneric<T: ink_storage::traits::Packed> {
+///     s1: u32,
+///     s2: T,
+///     s3: Mapping<u128, T>,
+/// }
+///
+/// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
+/// struct PackedComplex {
+///     s1: u128,
+///     s2: Vec<u128>,
+///     s3: Vec<PackedManual>,
+/// }
+///
+/// #[ink_lang::storage_item]
+/// struct NonPacked {
+///     s1: Mapping<u32, u128>,
+///     s2: Lazy<u128>,
+/// }
+///
+/// #[ink_lang::storage_item]
+/// struct NonPackedComplex<KEY: KeyHolder> {
+///     s1: (String, u128, Packed),
+///     s2: Mapping<u128, u128>,
+///     s3: Lazy<u128>,
+///     s4: Mapping<u128, Packed>,
+///     s5: Lazy<NonPacked>,
+///     s6: PackedGeneric<Packed>,
+///     s7: NonPackedGeneric<Packed>,
+///     // Fails because: the trait `ink_storage::traits::Packed` is not implemented for `NonPacked`
+///     // s8: Mapping<u128, NonPacked>,
+/// }
+/// ```
+///
+/// ## Header Arguments
+///
+/// The `#[ink::storage_item]` macro can be provided with some additional comma-separated
+/// header arguments:
+///
+/// - `derive: bool`
+///
+///     The `derive` configuration parameter is used to enable/disable auto deriving of
+///     all required storage traits.
+///
+///     **Usage Example:**
+///     ```
+///     use ink_storage::Mapping;
+///     use ink_storage::traits::{
+///         Item,
+///         KeyHolder,
+///         Storable,
+///     };
+///     #[ink_lang::storage_item(derive = false)]
+///     #[derive(Item, Storable, KeyHolder)]
+///     struct NonPackedGeneric<T: ink_storage::traits::Packed> {
+///         s1: u32,
+///         s2: Mapping<u128, T>,
+///     }
+///     ```
+///
+///     **Default value:** true.
+#[proc_macro_attribute]
+pub fn storage_item(attr: TokenStream, item: TokenStream) -> TokenStream {
+    storage_item::generate(attr.into(), item.into()).into()
+}
+
 /// Defines a unit test that makes use of ink!'s off-chain testing capabilities.
 ///
 /// If your unit test does not require the existence of an off-chain environment
@@ -786,7 +929,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// A chain extension method that is flagged with `handle_status = false` assumes that the returned error code
 /// will always indicate success. Therefore it will always load and decode the output buffer and loses
-/// the `E: From<Self::ErrorCode` constraint for the call.
+/// the `E: From<Self::ErrorCode>` constraint for the call.
 ///
 /// ## Details: `returns_result`
 ///

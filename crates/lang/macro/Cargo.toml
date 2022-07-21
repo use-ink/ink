@@ -24,6 +24,7 @@ syn = "1"
 proc-macro2 = "1"
 
 [dev-dependencies]
+ink_prelude = { version = "4.0.0", path = "../../prelude/" }
 ink_metadata = { version = "4.0.0", path = "../../metadata/" }
 ink_env = { version = "4.0.0", path = "../../env/" }
 ink_storage = { version = "4.0.0", path = "../../storage/" }
