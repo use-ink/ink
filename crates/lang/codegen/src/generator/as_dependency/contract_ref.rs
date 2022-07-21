@@ -92,8 +92,6 @@ impl ContractRef<'_> {
             ))]
             #[derive(
                 ::core::fmt::Debug,
-                ::ink_storage::traits::SpreadLayout,
-                ::ink_storage::traits::PackedLayout,
                 ::scale::Encode,
                 ::scale::Decode,
                 ::core::hash::Hash,

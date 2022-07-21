@@ -796,12 +796,11 @@ impl Dispatch<'_> {
                     }
                 }
 
-                static ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
-
                 fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
                     if mutates {
-                        ::ink_storage::traits::push_spread_root::<#storage_ident>(
-                            &contract, &ROOT_KEY
+                        ::ink_storage::traits::push_storage::<#storage_ident>(
+                            &contract,
+                            &<#storage_ident as ::ink_storage::traits::KeyHolder>::KEY,
                         );
                     }
                 }
@@ -813,7 +812,10 @@ impl Dispatch<'_> {
                     ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&ROOT_KEY)
+                                ::ink_storage::pull_or_init!(
+                                    #storage_ident,
+                                    <#storage_ident as ::ink_storage::traits::KeyHolder>::KEY
+                                )
                             );
 
                         match self {

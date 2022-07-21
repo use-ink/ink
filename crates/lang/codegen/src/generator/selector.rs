@@ -46,7 +46,7 @@ pub struct SelectorBytes<'a> {
 }
 
 impl GenerateCode for SelectorBytes<'_> {
-    /// Generates `selector_id!` macro code.
+    /// Generates `selector_bytes!` macro code.
     fn generate_code(&self) -> TokenStream2 {
         let span = self.macro_input.input().span();
         let selector_bytes = self.macro_input.selector().hex_lits();

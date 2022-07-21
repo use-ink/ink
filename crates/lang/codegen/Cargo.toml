@@ -18,6 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 name = "ink_lang_codegen"
 
 [dependencies]
+ink_primitives = { version = "4.0.0", path = "../../primitives" }
 ir = { version = "4.0.0", package = "ink_lang_ir", path = "../ir", default-features = false }
 quote = "1"
 syn = { version = "1.0", features = ["parsing", "full", "extra-traits"] }
