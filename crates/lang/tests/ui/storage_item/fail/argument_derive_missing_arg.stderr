@@ -1,0 +1,5 @@
+error: ink! config options require an argument separated by '='
+ --> tests/ui/storage_item/fail/argument_derive_missing_arg.rs:1:26
+  |
+1 | #[ink_lang::storage_item(derive)]
+  |                          ^^^^^^

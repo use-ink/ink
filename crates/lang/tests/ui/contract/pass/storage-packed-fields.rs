@@ -2,26 +2,15 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod contract {
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-        StorageLayout,
-    };
+    use ink_storage::traits::StorageLayout;
 
     #[ink(storage)]
     pub struct Contract {
         packed: PackedFields,
     }
 
-    #[derive(
-        Debug,
-        Default,
-        SpreadLayout,
-        PackedLayout,
-        StorageLayout,
-        scale::Encode,
-        scale::Decode,
-    )]
+    #[derive(Debug, Default, scale::Decode, scale::Encode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo, StorageLayout))]
     pub struct PackedFields {
         field_1: i8,
         field_2: i16,
