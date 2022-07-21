@@ -289,16 +289,14 @@ mod fuzz_tests {
 
     #[quickcheck]
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
-        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
-        // case in another test)
-        if n.checked_add(PAGE_SIZE - 1).is_none() {
-            return TestResult::discard()
-        }
-
         let mut inner = InnerAlloc::new();
 
-        let layout =
-            Layout::from_size_align(n, size_of::<usize>()).expect(FROM_SIZE_ALIGN_EXPECT);
+        // If we're going to end up creating an invalid `Layout` we don't want to use these test
+        // inputs. We'll check the case where `n` overflows in another test.
+        let layout = match Layout::from_size_align(n, size_of::<usize>()) {
+            Ok(l) => l,
+            Err(_) => return TestResult::discard(),
+        };
 
         let size = layout.pad_to_align().size();
         assert_eq!(
@@ -402,9 +400,11 @@ mod fuzz_tests {
 
         // We want to make sure no single allocation is going to overflow, we'll check this
         // case in a different test
+        //
         if !sequence
             .iter()
-            .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
+            .all(|n| Layout::from_size_align(*n, size_of::<usize>()).is_ok())
+        // .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
         {
             return TestResult::discard()
         }
@@ -429,6 +429,7 @@ mod fuzz_tests {
         for alloc in sequence {
             let layout = Layout::from_size_align(alloc, size_of::<usize>())
                 .expect(FROM_SIZE_ALIGN_EXPECT);
+
             let size = layout.pad_to_align().size();
 
             let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
@@ -486,7 +487,8 @@ mod fuzz_tests {
         // case seperately
         if !sequence
             .iter()
-            .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
+            .all(|n| Layout::from_size_align(*n, size_of::<usize>()).is_ok())
+        // .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
         {
             return TestResult::discard()
         }
@@ -508,6 +510,7 @@ mod fuzz_tests {
         for alloc in sequence {
             let layout = Layout::from_size_align(alloc, size_of::<usize>())
                 .expect(FROM_SIZE_ALIGN_EXPECT);
+
             results.push(inner.alloc(layout));
         }
 
