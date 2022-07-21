@@ -15,210 +15,91 @@
 //! Traits and interfaces to operate with storage entities.
 //!
 //! Generally a type is said to be a storage entity if it implements the
-//! `SpreadLayout` trait. This defines certain constants and routines in order
+//! `Item` trait. This defines certain constants and routines in order
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!
-//! The `PackedLayout` trait can then be implemented on top of the `SpreadLayout`
-//! for types that further allow to be stored in the contract storage in a more
-//! compressed format to a single storage cell.
+//! The `Packed` shows that the type is packed and can be stored
+//! into single storage cell. Some collections works only with packed structures.
 
 mod impls;
-mod keyptr;
-mod optspec;
-mod packed;
-mod spread;
+mod storage;
 
 #[cfg(feature = "std")]
 mod layout;
+
+#[macro_use]
+#[doc(hidden)]
+pub mod pull_or_init;
 
 #[cfg(feature = "std")]
 pub use self::layout::{
     LayoutCryptoHasher,
     StorageLayout,
 };
-pub(crate) use self::optspec::pull_packed_root_opt;
 pub use self::{
-    impls::{
-        forward_allocate_packed,
-        forward_clear_packed,
-        forward_pull_packed,
-        forward_push_packed,
+    impls::storage::{
+        AutoKey,
+        ManualKey,
+        ResolverKey,
     },
-    keyptr::{
-        ExtKeyPtr,
-        KeyPtr,
-    },
-    packed::{
-        PackedAllocate,
-        PackedLayout,
-    },
-    spread::{
-        SpreadAllocate,
-        SpreadLayout,
-        FOOTPRINT_CLEANUP_THRESHOLD,
+    storage::{
+        AutoItem,
+        Item,
+        KeyHolder,
+        OnCallInitializer,
+        Packed,
+        Storable,
     },
 };
 use ink_primitives::Key;
 pub use ink_storage_derive::{
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
+    Item,
+    KeyHolder,
+    Storable,
     StorageLayout,
 };
+use scale::{
+    Decode,
+    Encode,
+};
 
-/// Pulls an instance of type `T` from the contract storage using spread layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being pulled from.
-///
-/// # Note
-///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using spread layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`SpreadLayout`].
-pub fn pull_spread_root<T>(root_key: &Key) -> T
-where
-    T: SpreadLayout,
-{
-    let mut ptr = KeyPtr::from(*root_key);
-    <T as SpreadLayout>::pull_spread(&mut ptr)
+#[repr(transparent)]
+pub(crate) struct DecodeWrapper<S: Storable>(pub S);
+
+impl<S: Storable> Decode for DecodeWrapper<S> {
+    #[inline(always)]
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Self(S::decode(input)?))
+    }
 }
 
-/// Pulls an instance of type `T` from the contract storage using spread layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being pulled from.
-///
-/// # Note
-///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using spread layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait method on [`SpreadAllocate`].
-pub fn allocate_spread_root<T>(root_key: &Key) -> T
+/// Pulls an instance of type `T` from the contract storage using decode and its storage key.
+pub fn pull_storage<T>(key: &Key) -> T
 where
-    T: SpreadAllocate,
+    T: Storable,
 {
-    let mut ptr = KeyPtr::from(*root_key);
-    <T as SpreadAllocate>::allocate_spread(&mut ptr)
+    match ink_env::get_contract_storage::<Key, DecodeWrapper<T>>(key) {
+        Ok(Some(wrapper)) => wrapper.0,
+        Ok(None) => panic!("storage entry was empty"),
+        Err(_) => panic!("could not properly decode storage entry"),
+    }
 }
 
-/// Clears the entity from the contract storage using spread layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being cleared from.
-///
-/// # Note
-///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using spread layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`SpreadLayout`].
-pub fn clear_spread_root<T>(entity: &T, root_key: &Key)
-where
-    T: SpreadLayout,
-{
-    let mut ptr = KeyPtr::from(*root_key);
-    <T as SpreadLayout>::clear_spread(entity, &mut ptr);
+#[repr(transparent)]
+pub(crate) struct EncodeWrapper<'a, S: Storable>(pub &'a S);
+
+impl<'a, S: Storable> Encode for EncodeWrapper<'a, S> {
+    #[inline(always)]
+    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
+        self.0.encode(dest)
+    }
 }
 
-/// Pushes the entity to the contract storage using spread layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being pushed to.
-///
-/// # Note
-///
-/// - The routine will push the given entity to the contract storage using
-///   spread layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`SpreadLayout`].
-pub fn push_spread_root<T>(entity: &T, root_key: &Key)
+/// Pushes the entity to the contract storage using encode and storage key.
+pub fn push_storage<T>(entity: &T, key: &Key) -> Option<u32>
 where
-    T: SpreadLayout,
+    T: Storable,
 {
-    let mut ptr = KeyPtr::from(*root_key);
-    <T as SpreadLayout>::push_spread(entity, &mut ptr);
-}
-
-/// Pulls an instance of type `T` from the contract storage using packed layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being pulled from.
-///
-/// # Note
-///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using packed layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`PackedLayout`].
-pub fn pull_packed_root<T>(root_key: &Key) -> T
-where
-    T: PackedLayout,
-{
-    let mut entity = ink_env::get_contract_storage::<T>(root_key)
-        .expect("could not properly decode storage entry")
-        .expect("storage entry was empty");
-    <T as PackedLayout>::pull_packed(&mut entity, root_key);
-    entity
-}
-
-/// Allocates an instance of type `T` to the contract storage using packed layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being allocated to.
-///
-/// # Note
-///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using packed layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait method on [`PackedAllocate`].
-pub fn allocate_packed_root<T>(root_key: &Key) -> T
-where
-    T: PackedAllocate + Default,
-{
-    let mut entity = <T as Default>::default();
-    <T as PackedAllocate>::allocate_packed(&mut entity, root_key);
-    entity
-}
-
-/// Pushes the entity to the contract storage using packed layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being pushed to.
-///
-/// # Note
-///
-/// - The routine will push the given entity to the contract storage using
-///   packed layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`PackedLayout`].
-pub fn push_packed_root<T>(entity: &T, root_key: &Key) -> Option<u32>
-where
-    T: PackedLayout,
-{
-    <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage(root_key, entity)
-}
-
-/// Clears the entity from the contract storage using packed layout.
-///
-/// The root key denotes the offset into the contract storage where the
-/// instance of type `T` is being cleared from.
-///
-/// # Note
-///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using packed layout.
-/// - Users should prefer using this function directly instead of using the
-///   trait methods on [`PackedLayout`].
-pub fn clear_packed_root<T>(entity: &T, root_key: &Key)
-where
-    T: PackedLayout,
-{
-    <T as PackedLayout>::clear_packed(entity, root_key);
-    ink_env::clear_contract_storage(root_key);
+    ink_env::set_contract_storage::<Key, EncodeWrapper<T>>(key, &EncodeWrapper(entity))
 }

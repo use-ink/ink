@@ -28,49 +28,19 @@ where
     .unwrap()
 }
 
-/// Creates two tests:
-/// (1) Tests if an object which is `push_spread`-ed to storage results in exactly
-///     the same object when it is `pull_spread`-ed again. Subsequently the object
-///     undergoes the same test for `push_packed` and `pull_packed`.
-/// (2) Tests if `clear_spread` removes the object properly from storage.
+/// Creates test to verify that the type for primitives is atomic and the same.
 #[macro_export]
-macro_rules! push_pull_works_for_primitive {
-    ( $name:ty, [$($value:expr),*] ) => {
+macro_rules! item_works_for_primitive {
+    ( $ty:ty ) => {
         paste::item! {
             #[test]
             #[allow(non_snake_case)]
-            fn [<$name _pull_push_works>] () {
+            fn [<$ty _item_works>] () {
                 $crate::test_utils::run_test(|| {
-                    $({
-                        let x: $name = $value;
-                        let key = ink_primitives::Key::from([0x42; 32]);
-                        let key2 = ink_primitives::Key::from([0x77; 32]);
-                        $crate::traits::push_spread_root(&x, &key);
-                        let y: $name = $crate::traits::pull_spread_root(&key);
-                        assert_eq!(x, y);
-                        $crate::traits::push_packed_root(&x, &key2);
-                        let z: $name = $crate::traits::pull_packed_root(&key2);
-                        assert_eq!(x, z);
-                    })*
-                })
-            }
-
-            #[test]
-            #[should_panic(expected = "storage entry was empty")]
-            #[allow(non_snake_case)]
-            fn [<$name _clean_works>]() {
-                $crate::test_utils::run_test(|| {
-                    $({
-                        let x: $name = $value;
-                        let key = ink_primitives::Key::from([0x42; 32]);
-                        $crate::traits::push_spread_root(&x, &key);
-                        // Works since we just populated the storage.
-                        let y: $name = $crate::traits::pull_spread_root(&key);
-                        assert_eq!(x, y);
-                        $crate::traits::clear_spread_root(&x, &key);
-                        // Panics since it loads eagerly from cleared storage.
-                        let _: $name = $crate::traits::pull_spread_root(&key);
-                    })*
+                    assert_eq!(
+                        ::core::any::TypeId::of::<$ty>(),
+                        ::core::any::TypeId::of::<<$ty as $crate::traits::Item<$crate::traits::ManualKey<123>>>::Type>()
+                    );
                 })
             }
         }

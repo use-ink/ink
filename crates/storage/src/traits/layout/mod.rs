@@ -14,10 +14,6 @@
 
 mod impls;
 
-#[cfg(test)]
-mod tests;
-
-use crate::traits::KeyPtr;
 use ink_env::hash::{
     Blake2x256,
     Keccak256,
@@ -27,14 +23,15 @@ use ink_metadata::layout::{
     CryptoHasher,
     Layout,
 };
+use ink_primitives::Key;
 
 /// Implemented by types that have a storage layout.
 pub trait StorageLayout {
     /// Returns the static storage layout of `Self`.
     ///
-    /// The given key pointer is guiding the allocation of static fields onto
+    /// The given storage key is guiding the allocation of static fields onto
     /// the contract storage regions.
-    fn layout(key_ptr: &mut KeyPtr) -> Layout;
+    fn layout(key: &Key) -> Layout;
 }
 
 /// Types implementing this trait are supported layouting crypto hashers.

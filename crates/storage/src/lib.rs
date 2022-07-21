@@ -43,17 +43,19 @@
     unused_extern_crates
 )]
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
-
 pub mod traits;
 
-mod lazy;
-mod pack;
+#[allow(dead_code)]
+pub(crate) mod lazy;
 
 #[cfg(test)]
 mod test_utils;
 
 #[doc(inline)]
-pub use self::lazy::mapping::Mapping;
+pub use self::lazy::{
+    Lazy,
+    Mapping,
+};
+
+#[doc(inline)]
+pub use self::traits::pull_or_init;
