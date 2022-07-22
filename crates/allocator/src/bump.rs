@@ -281,11 +281,6 @@ mod fuzz_tests {
     };
     use std::mem::size_of;
 
-    const FROM_SIZE_ALIGN_EXPECT: &str =
-        "The rounded value of `size` cannot be more than `usize::MAX` since we have
-        checked that it is a PAGE_SIZE less than `usize::MAX`; Alignment is a
-        non-zero, power of two.";
-
     #[quickcheck]
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
         let mut inner = InnerAlloc::new();
