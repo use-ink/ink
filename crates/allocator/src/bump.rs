@@ -292,7 +292,7 @@ mod fuzz_tests {
         let mut inner = InnerAlloc::new();
 
         // If we're going to end up creating an invalid `Layout` we don't want to use these test
-        // inputs. We'll check the case where `n` overflows in another test.
+        // inputs.
         let layout = match Layout::from_size_align(n, size_of::<usize>()) {
             Ok(l) => l,
             Err(_) => return TestResult::discard(),
@@ -453,7 +453,7 @@ mod fuzz_tests {
     // care that eventually an allocation doesn't success.
     #[quickcheck]
     fn should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
-        sequence: Vec<usize>,
+        sequence: Vec<isize>,
     ) -> TestResult {
         let mut inner = InnerAlloc::new();
 
@@ -461,13 +461,9 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        // We want to make sure no single allocation is going to overflow, we'll check that
-        // case seperately
-        if !sequence
-            .iter()
-            .all(|n| Layout::from_size_align(*n, size_of::<usize>()).is_ok())
-        // .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
-        {
+        // We don't want any negative numbers so we can be sure our conversions to `usize` later
+        // are valid
+        if !sequence.iter().all(|n| n.is_positive()) {
             return TestResult::discard()
         }
 
@@ -475,7 +471,7 @@ mod fuzz_tests {
         // underestimating the pages due to the ceil rounding at each step
         let pages_required = sequence
             .iter()
-            .fold(0, |acc, &x| acc + required_pages(x).unwrap());
+            .fold(0, |acc, &x| acc + required_pages(x as usize).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
         // We want to explicitly test for the case where a series of allocations eventually
@@ -486,8 +482,11 @@ mod fuzz_tests {
 
         let mut results = vec![];
         for alloc in sequence {
-            let layout = Layout::from_size_align(alloc, size_of::<usize>())
-                .expect(FROM_SIZE_ALIGN_EXPECT);
+            let layout = Layout::from_size_align(alloc as usize, size_of::<usize>());
+            let layout = match layout {
+                Ok(l) => l,
+                Err(_) => return TestResult::discard(),
+            };
 
             results.push(inner.alloc(layout));
         }
