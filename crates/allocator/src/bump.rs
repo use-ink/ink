@@ -321,28 +321,6 @@ mod fuzz_tests {
     }
 
     #[quickcheck]
-    fn should_not_allocate_arbitrary_bytes_if_they_overflow(n: usize) -> TestResult {
-        // In the previous test we ignored the overflow case, now we ignore the valid cases
-        if n.checked_add(PAGE_SIZE - 1).is_some() {
-            return TestResult::discard()
-        }
-
-        if let Ok(layout) = Layout::from_size_align(n, size_of::<usize>()) {
-            let mut inner = InnerAlloc::new();
-            assert_eq!(
-                inner.alloc(layout),
-                None,
-                "An allocation which overflows the heap was made."
-            );
-
-            TestResult::passed()
-        } else {
-            // We only want to test cases which can create a valid `Layout`
-            TestResult::discard()
-        }
-    }
-
-    #[quickcheck]
     fn should_allocate_regardless_of_alignment_size(
         n: usize,
         align: usize,
