@@ -325,7 +325,7 @@ mod fuzz_tests {
         let mut inner = InnerAlloc::new();
 
         // If we're going to end up creating an invalid `Layout` we don't want to use these test
-        // inputs. We'll check the case where `n` overflows in another test.
+        // inputs.
         let layout = match Layout::from_size_align(n, align) {
             Ok(l) => l,
             Err(_) => return TestResult::discard(),
