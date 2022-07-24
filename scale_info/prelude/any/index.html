@@ -112,7 +112,7 @@ the user, the value will be stored in the <code>Demand</code> object.</li>
 <span class="kw">impl</span> <span class="kw">dyn</span> <span class="ident">MyTrait</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
     <span class="doccomment">/// Get a reference to a field of the implementing struct.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_context_by_ref</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">request_ref</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="self">self</span>)
+        <span class="ident">request_ref</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>)
     }
 }
 
@@ -149,5 +149,5 @@ the <code>get_context_ref</code> call will return a reference to <code>obj.some_
 This is the same as <code>type_name::&lt;T&gt;()</code>, but can be used where the type of a
 variable is not easily available.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.type_name.html" title="scale_info::prelude::any::type_name fn">type_name</a></div><div class="item-right docblock-short"><p>Returns the name of a type as a string slice.</p>
-</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (f8588549c 2022-07-18)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (93ffde6f0 2022-07-23)" ></div>
 </body></html>
