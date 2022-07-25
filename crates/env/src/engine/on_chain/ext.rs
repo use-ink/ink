@@ -191,7 +191,7 @@ pub struct ReturnCode(u32);
 
 impl From<ReturnCode> for Option<u32> {
     fn from(code: ReturnCode) -> Self {
-        (code.0 < SENTINEL).then(|| code.0)
+        (code.0 < SENTINEL).then_some(code.0)
     }
 }
 
