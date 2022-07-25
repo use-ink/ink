@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["initialize_contract","Initializes the ink! contract using the given initialization routine."]]};
+initSidebarItems({"fn":[["initialize_contract","Initializes the ink! contract using the given initialization routine."]]});
