@@ -20,6 +20,7 @@
 //! FFI to interface with FRAME contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
 
+#![feature(bool_to_option)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     missing_docs,
