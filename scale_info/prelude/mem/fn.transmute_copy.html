@@ -9,7 +9,7 @@
 the contained value.</p>
 <p>This function will unsafely assume the pointer <code>src</code> is valid for <a href="fn.size_of.html" title="size_of"><code>size_of::&lt;U&gt;</code></a>
 bytes by transmuting <code>&amp;T</code> to <code>&amp;U</code> and then reading the <code>&amp;U</code> (except that this is done in a way
-that is correct even when <code>&amp;U</code> makes stricter alignment requirements than <code>&amp;T</code>). It will also
+that is correct even when <code>&amp;U</code> has stricter alignment requirements than <code>&amp;T</code>). It will also
 unsafely create a copy of the contained value instead of moving out of <code>src</code>.</p>
 <p>It is not a compile-time error if <code>T</code> and <code>U</code> have different sizes, but it
 is highly encouraged to only invoke this function where <code>T</code> and <code>U</code> have the
@@ -37,5 +37,5 @@ same size. This function triggers <a href="../../reference/behavior-considered-u
 
 <span class="comment">// The contents of &#39;foo_array&#39; should not have changed</span>
 <span class="macro">assert_eq!</span>(<span class="ident">foo_array</span>, [<span class="number">10</span>]);</code></pre></div>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (6dbae3ad1 2022-07-25)" ></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (4d6d601c8 2022-07-26)" ></div>
 </body></html>
