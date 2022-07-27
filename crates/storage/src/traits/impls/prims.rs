@@ -241,11 +241,11 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        <T as SpreadLayout>::push_spread(&*self, ptr)
+        <T as SpreadLayout>::push_spread(self, ptr)
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        <T as SpreadLayout>::clear_spread(&*self, ptr)
+        <T as SpreadLayout>::clear_spread(self, ptr)
     }
 }
 
@@ -264,12 +264,12 @@ where
 {
     #[inline]
     fn push_packed(&self, at: &Key) {
-        <T as PackedLayout>::push_packed(&*self, at)
+        <T as PackedLayout>::push_packed(self, at)
     }
 
     #[inline]
     fn clear_packed(&self, at: &Key) {
-        <T as PackedLayout>::clear_packed(&*self, at)
+        <T as PackedLayout>::clear_packed(self, at)
     }
 
     #[inline]
