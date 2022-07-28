@@ -2,7 +2,7 @@ error[E0308]: mismatched types
   --> tests/ui/contract/fail/trait-message-selector-mismatch.rs:25:9
    |
 25 |         fn message(&self) {}
-   |         ^^^^^^^^^^^^^^^^^^^^ expected `1`, found `2`
+   |         ^^^^^^^^^^^^^^^^^^^^ expected `1_u32`, found `2_u32`
    |
-   = note: expected struct `TraitMessageSelector<1>`
-              found struct `TraitMessageSelector<2>`
+   = note: expected struct `TraitMessageSelector<1_u32>`
+              found struct `TraitMessageSelector<2_u32>`
