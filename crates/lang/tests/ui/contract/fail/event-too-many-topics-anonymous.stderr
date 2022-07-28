@@ -1,4 +1,4 @@
-error[E0277]: the trait bound `EventTopics<4>: RespectTopicLimit<2>` is not satisfied
+error[E0277]: the trait bound `EventTopics<4_usize>: RespectTopicLimit<2_usize>` is not satisfied
   --> tests/ui/contract/fail/event-too-many-topics-anonymous.rs:26:5
    |
 26 | /     pub struct Event {
@@ -8,17 +8,17 @@ error[E0277]: the trait bound `EventTopics<4>: RespectTopicLimit<2>` is not sati
 ...  |
 34 | |         arg_4: i32,
 35 | |     }
-   | |_____^ the trait `RespectTopicLimit<2>` is not implemented for `EventTopics<4>`
+   | |_____^ the trait `RespectTopicLimit<2_usize>` is not implemented for `EventTopics<4_usize>`
    |
    = help: the following other types implement trait `RespectTopicLimit<N>`:
-             <EventTopics<0> as RespectTopicLimit<0>>
-             <EventTopics<0> as RespectTopicLimit<10>>
-             <EventTopics<0> as RespectTopicLimit<11>>
-             <EventTopics<0> as RespectTopicLimit<12>>
-             <EventTopics<0> as RespectTopicLimit<1>>
-             <EventTopics<0> as RespectTopicLimit<2>>
-             <EventTopics<0> as RespectTopicLimit<3>>
-             <EventTopics<0> as RespectTopicLimit<4>>
+             <EventTopics<0_usize> as RespectTopicLimit<0_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<10_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<11_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<12_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<1_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<2_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<3_usize>>
+             <EventTopics<0_usize> as RespectTopicLimit<4_usize>>
            and 83 others
 note: required by a bound in `EventRespectsTopicLimit`
   --> src/codegen/event/topics.rs
