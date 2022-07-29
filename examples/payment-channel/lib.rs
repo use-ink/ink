@@ -181,7 +181,7 @@ mod payment_channel {
                     self.env().terminate_contract(self.sender);
                 }
 
-                None => return Err(Error::NotYetExpired),
+                None => Err(Error::NotYetExpired),
             }
         }
 
@@ -309,13 +309,13 @@ mod payment_channel {
             let since_the_epoch = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .expect("Time went backwards");
-            since_the_epoch.as_secs() * 1000
-                + since_the_epoch.subsec_nanos() as u64 / 1_000_000
+            since_the_epoch.as_secs()
+                + since_the_epoch.subsec_nanos() as u64 / 1_000_000_000
         }
 
         fn get_dan() -> AccountId {
             // Use Dan's seed
-            // subkey inspect //Dan --scheme Ecdsa
+            // subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed
             let seed = hex_literal::hex!(
                 "c31fa562972de437802e0df146b16146349590b444db41f7e3eb9deedeee6f64"
             );
@@ -346,7 +346,7 @@ mod payment_channel {
             ink_env::hash_encoded::<ink_env::hash::Sha2x256, _>(&encodable, &mut hash);
 
             // Use Dan's seed
-            // subkey inspect //Dan --scheme Ecdsa
+            // subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed
             let seed = hex_literal::hex!(
                 "c31fa562972de437802e0df146b16146349590b444db41f7e3eb9deedeee6f64"
             );
@@ -360,21 +360,23 @@ mod payment_channel {
         fn test_deposit() {
             // given
             let accounts = default_accounts();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(accounts.bob, 10000);
-            let mock_deposit_value = 1000;
+            let initial_balance = 10_000;
+            let close_duration = 360_000;
+            let mock_deposit_value = 1_000;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(accounts.bob, initial_balance);
 
             // when
             // Push the new execution context with Alice as the caller and
             // the mock_deposit_value as the value deposited.
             // Note: Currently there is no way to transfer funds to the contract
             set_next_caller(accounts.alice);
-            let payment_channel = PaymentChannel::new(accounts.bob, 360000);
+            let payment_channel = PaymentChannel::new(accounts.bob, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
 
             // then
-            assert_eq!(payment_channel.get_balance(), 1000);
+            assert_eq!(payment_channel.get_balance(), mock_deposit_value);
         }
 
         #[ink::test]
@@ -382,26 +384,29 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(dan, 10000);
-            let mock_deposit_value = 1000;
+            let close_duration = 360_000;
+            let mock_deposit_value = 1_000;
+            let amount = 500;
+            let initial_balance = 10_000;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(dan, initial_balance);
 
             // when
             set_next_caller(accounts.alice);
-            let mut payment_channel = PaymentChannel::new(dan, 360000);
+            let mut payment_channel = PaymentChannel::new(dan, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
             set_next_caller(dan);
-            let signature = sign(contract_id, 500);
+            let signature = sign(contract_id, amount);
 
             // then
-            let should_close = move || payment_channel.close(500, signature).unwrap();
+            let should_close = move || payment_channel.close(amount, signature).unwrap();
             ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
-                500,
+                amount,
             );
-            assert_eq!(get_account_balance(dan), 10500);
+            assert_eq!(get_account_balance(dan), initial_balance + amount);
         }
 
         #[ink::test]
@@ -409,20 +414,23 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(dan, 10000);
-            let mock_deposit_value = 1000;
+            let mock_deposit_value = 1_000;
+            let close_duration = 360_000;
+            let amount = 400;
+            let initial_balance = 10_000;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(dan, initial_balance);
 
             // when
             set_next_caller(accounts.alice);
-            let mut payment_channel = PaymentChannel::new(dan, 360000);
+            let mut payment_channel = PaymentChannel::new(dan, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
             set_next_caller(dan);
-            let signature = sign(contract_id, 400);
+            let signature = sign(contract_id, amount);
 
             // then
-            let res = payment_channel.close(500, signature);
+            let res = payment_channel.close(amount + 100, signature);
             match res {
                 Err(e) => {
                     assert_eq!(e, Error::InvalidSignature);
@@ -436,25 +444,27 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(dan, 10000);
-            let mock_deposit_value = 1000;
-
+            let initial_balance = 10_000;
+            let mock_deposit_value = 1_000;
+            let close_duration = 360_000;
+            let amount = 500;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(dan, initial_balance);
             // when
             set_next_caller(accounts.alice);
-            let mut payment_channel = PaymentChannel::new(dan, 360000);
+            let mut payment_channel = PaymentChannel::new(dan, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
 
             set_next_caller(dan);
-            let signature = sign(contract_id, 500);
+            let signature = sign(contract_id, amount);
             payment_channel
-                .withdraw(500, signature)
+                .withdraw(amount, signature)
                 .expect("withdraw failed");
 
             // then
-            assert_eq!(payment_channel.get_balance(), 500);
-            assert_eq!(get_account_balance(dan), 10500);
+            assert_eq!(payment_channel.get_balance(), amount);
+            assert_eq!(get_account_balance(dan), initial_balance + amount);
         }
 
         #[ink::test]
@@ -462,19 +472,22 @@ mod payment_channel {
             // given
             let accounts = default_accounts();
             let dan = get_dan();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(dan, 10000);
-            let mock_deposit_value = 1000;
+            let initial_balance = 10_000;
+            let close_duration = 360_000;
+            let amount = 400;
+            let mock_deposit_value = 1_000;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(dan, initial_balance);
 
             // when
             set_next_caller(accounts.alice);
-            let mut payment_channel = PaymentChannel::new(dan, 360000);
+            let mut payment_channel = PaymentChannel::new(dan, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
 
             set_next_caller(dan);
-            let signature = sign(contract_id, 400);
-            let res = payment_channel.withdraw(500, signature);
+            let signature = sign(contract_id, amount);
+            let res = payment_channel.withdraw(amount + 100, signature);
 
             match res {
                 Err(e) => {
@@ -488,13 +501,15 @@ mod payment_channel {
         fn test_start_sender_close() {
             // given
             let accounts = default_accounts();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(accounts.bob, 10000);
-            let mock_deposit_value = 1000;
+            let initial_balance = 10_000;
+            let mock_deposit_value = 1_000;
+            let close_duration = 1;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(accounts.bob, initial_balance);
 
             // when
             set_next_caller(accounts.alice);
-            let mut payment_channel = PaymentChannel::new(accounts.bob, 1);
+            let mut payment_channel = PaymentChannel::new(accounts.bob, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
 
@@ -512,14 +527,16 @@ mod payment_channel {
         fn test_claim_timeout() {
             // given
             let accounts = default_accounts();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(accounts.bob, 10000);
-            let mock_deposit_value = 1000;
+            let initial_balance = 10_000;
+            let close_duration = 1;
+            let mock_deposit_value = 1_000;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(accounts.bob, initial_balance);
 
             // when
             set_next_caller(accounts.alice);
             let contract_id = contract_id();
-            let mut payment_channel = PaymentChannel::new(accounts.bob, 1);
+            let mut payment_channel = PaymentChannel::new(accounts.bob, close_duration);
             set_account_balance(contract_id, mock_deposit_value);
 
             payment_channel
@@ -532,19 +549,20 @@ mod payment_channel {
             ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
-                1000,
+                mock_deposit_value,
             );
-            assert_eq!(get_account_balance(accounts.alice), 11000);
+            assert_eq!(get_account_balance(accounts.alice), initial_balance + mock_deposit_value);
         }
 
         #[ink::test]
         fn test_getters() {
             // given
             let accounts = default_accounts();
-            set_account_balance(accounts.alice, 10000);
-            set_account_balance(accounts.bob, 10000);
-            let mock_deposit_value = 1000;
-            let close_duration = 360000;
+            let initial_balance = 10_000;
+            let mock_deposit_value = 1_000;
+            let close_duration = 360_000;
+            set_account_balance(accounts.alice, initial_balance);
+            set_account_balance(accounts.bob, initial_balance);
 
             // when
             set_next_caller(accounts.alice);
