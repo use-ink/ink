@@ -120,6 +120,12 @@ mod payment_channel {
         /// sent that amount, and the remainder will go back to the `sender`.
         #[ink(message)]
         pub fn close(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
+            self.close_inner(amount, signature)?;
+            self.env().terminate_contract(self.sender);
+        }
+
+        /// We split this out in order to make testing `close` simpler
+        fn close_inner(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
             if self.env().caller() != self.recipient {
                 return Err(Error::CallerIsNotRecipient)
             }
@@ -137,7 +143,7 @@ mod payment_channel {
                 .transfer(self.recipient, amount - self.withdrawn)
                 .map_err(|_| Error::TransferFailed)?;
 
-            self.env().terminate_contract(self.sender);
+            Ok(())
         }
 
         /// If the `sender` wishes to close the channel and withdraw the funds, they can
@@ -417,6 +423,7 @@ mod payment_channel {
             let mock_deposit_value = 1_000;
             let close_duration = 360_000;
             let amount = 400;
+            let unexpected_amount = amount + 1;
             let initial_balance = 10_000;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
@@ -430,13 +437,9 @@ mod payment_channel {
             let signature = sign(contract_id, amount);
 
             // then
-            let res = payment_channel.close(amount + 100, signature);
-            match res {
-                Err(e) => {
-                    assert_eq!(e, Error::InvalidSignature);
-                }
-                _ => panic!("should have failed"),
-            }
+            let res = payment_channel.close_inner(unexpected_amount, signature);
+            assert!(res.is_err(), "Expected an error, got {:?} instead.", res);
+            assert_eq!(res.unwrap_err(), Error::InvalidSignature,);
         }
 
         #[ink::test]
@@ -475,6 +478,7 @@ mod payment_channel {
             let initial_balance = 10_000;
             let close_duration = 360_000;
             let amount = 400;
+            let unexpected_amount = amount + 1;
             let mock_deposit_value = 1_000;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
@@ -484,17 +488,13 @@ mod payment_channel {
             let mut payment_channel = PaymentChannel::new(dan, close_duration);
             let contract_id = contract_id();
             set_account_balance(contract_id, mock_deposit_value);
-
             set_next_caller(dan);
             let signature = sign(contract_id, amount);
-            let res = payment_channel.withdraw(amount + 100, signature);
 
-            match res {
-                Err(e) => {
-                    assert_eq!(e, Error::InvalidSignature);
-                }
-                _ => panic!("should have failed"),
-            }
+            // then
+            let res = payment_channel.withdraw(unexpected_amount, signature);
+            assert!(res.is_err(), "Expected an error, got {:?} instead.", res);
+            assert_eq!(res.unwrap_err(), Error::InvalidSignature,);
         }
 
         #[ink::test]
@@ -551,7 +551,10 @@ mod payment_channel {
                 accounts.alice,
                 mock_deposit_value,
             );
-            assert_eq!(get_account_balance(accounts.alice), initial_balance + mock_deposit_value);
+            assert_eq!(
+                get_account_balance(accounts.alice),
+                initial_balance + mock_deposit_value
+            );
         }
 
         #[ink::test]
