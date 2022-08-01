@@ -4,7 +4,7 @@
     Parity's ink! for writing smart contracts
 </h1>
 
-[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![matrix][k1]][k2] [![discord][l1]][l2]
+[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
 
 [a1]: https://gitlab.parity.io/parity/ink/badges/master/pipeline.svg
 [a2]: https://gitlab.parity.io/parity/ink/pipelines?ref=master
@@ -26,13 +26,15 @@
 [k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
 [l2]: https://discord.com/invite/wGUDt2p
+[s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
+[s2]: https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes
 
 > <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
 
 <br/>
 
 [Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1)&nbsp;&nbsp;•&nbsp;&nbsp;
-[ink! Documentation Portal](https://paritytech.github.io/ink-docs)&nbsp;&nbsp;•&nbsp;&nbsp;
+[ink! Documentation Portal](https://ink.substrate.io)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://paritytech.github.io/ink/ink_lang/)
 
 
@@ -40,12 +42,12 @@
 </div>
 
 More relevant links:
-* Talk to us on [Element][k2] or in [Discord][l2]
-  on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
+* [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink?tab=Votes) ‒ Forum for getting your ink! questions answered
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
-* [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
+* [Contracts UI](https://contracts-ui.substrate.io/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
-* [Substrate Stack Exchange](https://substrate.stackexchange.com/questions/tagged/ink/) - Forum for getting your ink! questions answered
+* We post announcements on [Matrix][k2] and [Discord][l2] (in the
+  [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel).
 
 
 ## Table of Contents
@@ -71,12 +73,12 @@ If you want to have a local setup you can use our [`substrate-contracts-node`](h
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-)
-called [Canvas](https://paritytech.github.io/ink-docs/canvas). Canvas is a Substrate based
+called [Canvas](https://ink.substrate.io/canvas). Canvas is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
 testnet, follow the instructions in the
-[our documentation](https://paritytech.github.io/ink-docs/canvas#rococo-deployment).
+[our documentation](https://ink.substrate.io/canvas#rococo-deployment).
 
-For both types of chains the [Contracts UI](https://paritytech.github.io/contracts-ui/)
+For both types of chains the [Contracts UI](https://contracts-ui.substrate.io/)
 can be used to instantiate your contract to a chain and interact with it.
 
 ## Usage
@@ -245,7 +247,7 @@ The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`ex
 
 ## Developer Documentation
 
-We have [a very comprehensive documentation portal](https://paritytech.github.io/ink-docs),
+We have [a very comprehensive documentation portal](https://ink.substrate.io),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 

@@ -1,6 +1,6 @@
 [package]
 name = "ink_engine"
-version = "3.0.1"
+version = "4.0.0"
 authors = ["Parity Technologies <admin@parity.io>", "Michael Müller <michi@parity.io>"]
 edition = "2021"
 

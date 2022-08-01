@@ -109,7 +109,6 @@ impl TraitRegistry<'_> {
                 E: ::ink_env::Environment,
             {
                 /// Holds general and global information about the trait.
-                #[doc(hidden)]
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo = #trait_info_ident<E>;
 
@@ -138,7 +137,7 @@ impl TraitRegistry<'_> {
             let input_span = input.span();
             let input_type = &*input.ty;
             quote_spanned!(input_span=>
-                let _: () = ::ink_lang::codegen::utils::consume_type::<
+                ::ink_lang::codegen::utils::consume_type::<
                     ::ink_lang::codegen::DispatchInput<#input_type>
                 >();
             )
@@ -146,7 +145,7 @@ impl TraitRegistry<'_> {
         let message_output = message.output().map(|output_type| {
             let output_span = output_type.span();
             quote_spanned!(output_span=>
-                let _: () = ::ink_lang::codegen::utils::consume_type::<
+                ::ink_lang::codegen::utils::consume_type::<
                     ::ink_lang::codegen::DispatchOutput<#output_type>
                 >();
             )
@@ -211,7 +210,6 @@ impl TraitRegistry<'_> {
 
             #( #attrs )*
             #[cold]
-            #[doc(hidden)]
             fn #ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*

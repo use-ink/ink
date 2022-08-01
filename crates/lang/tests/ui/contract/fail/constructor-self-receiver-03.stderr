@@ -1,18 +1,37 @@
-error[E0411]: cannot find type `Self` in this scope
-  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
-   |
-10 |         pub fn constructor(this: &Self) -> Self {
-   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
-
-error[E0106]: missing lifetime specifier
+error[E0637]: `&` without an explicit lifetime name cannot be used here
   --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:34
    |
 10 |         pub fn constructor(this: &Self) -> Self {
-   |                                  ^ expected named lifetime parameter
+   |                                  ^ explicit lifetime name needed here
+
+error[E0411]: cannot find type `Self` in this scope
+  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
    |
-help: consider introducing a named lifetime parameter
+6  |     pub struct Contract {}
+   |     ---------------------- `Self` not allowed in a constant item
+...
+10 |         pub fn constructor(this: &Self) -> Self {
+   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+
+error[E0411]: cannot find type `Self` in this scope
+  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
    |
-10 ~         pub fn constructor(this: &'a Self) -> Self {
-11 |             Self {}
-12 ~         }<'a>
+3  | #[ink::contract]
+   | ---------------- `Self` not allowed in a function
+...
+10 |         pub fn constructor(this: &Self) -> Self {
+   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+
+error[E0277]: the trait bound `&'static Contract: WrapperTypeDecode` is not satisfied
+  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:9
    |
+10 | /         pub fn constructor(this: &Self) -> Self {
+11 | |             Self {}
+12 | |         }
+   | |_________^ the trait `WrapperTypeDecode` is not implemented for `&'static Contract`
+   |
+   = help: the following other types implement trait `WrapperTypeDecode`:
+             Arc<T>
+             Box<T>
+             Rc<T>
+   = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `&'static Contract`

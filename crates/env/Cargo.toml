@@ -1,6 +1,6 @@
 [package]
 name = "ink_env"
-version = "3.0.1"
+version = "4.0.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -15,10 +15,10 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "3.0.1", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_allocator = { version = "3.0.1", path = "../allocator/", default-features = false }
-ink_primitives = { version = "3.0.1", path = "../primitives/", default-features = false }
-ink_prelude = { version = "3.0.1", path = "../prelude/", default-features = false }
+ink_metadata = { version = "4.0.0", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
+ink_allocator = { version = "4.0.0", path = "../allocator/", default-features = false }
+ink_primitives = { version = "4.0.0", path = "../primitives/", default-features = false }
+ink_prelude = { version = "4.0.0", path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
@@ -32,7 +32,7 @@ static_assertions = "1.1"
 rlibc = "1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-ink_engine = { version = "3.0.1", path = "../engine/", optional = true }
+ink_engine = { version = "4.0.0", path = "../engine/", optional = true }
 
 # Hashes for the off-chain environment.
 sha2 = { version = "0.10", optional = true }
