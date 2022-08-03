@@ -8,12 +8,12 @@
     <h1 class="fqn"><span class="in-band">Macro <a href="index.html">ink_lang_ir</a>::<wbr><a class="macro" href="#">format_err_spanned</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_lang_ir/error.rs.html#47-54">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules!</span> <span class="ident">format_err_spanned</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tokens</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; { ... };
 }</code></pre></div>
-</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a <a href="https://docs.rs/syn/1.0.98/syn/error/struct.Error.html" title="syn::Error"><code>syn::Error</code></a> with the format message and infers the
-<a href="https://docs.rs/proc-macro2/1.0.42/proc_macro2/struct.Span.html"><code>Span</code></a> using <a href="https://docs.rs/quote/1.0.20/quote/to_tokens/trait.ToTokens.html"><code>ToTokens</code></a>.</p>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a <a href="https://docs.rs/syn/1.0.99/syn/error/struct.Error.html" title="syn::Error"><code>syn::Error</code></a> with the format message and infers the
+<a href="https://docs.rs/proc-macro2/1.0.43/proc_macro2/struct.Span.html"><code>Span</code></a> using <a href="https://docs.rs/quote/1.0.21/quote/to_tokens/trait.ToTokens.html"><code>ToTokens</code></a>.</p>
 <h2 id="parameters"><a href="#parameters">Parameters</a></h2>
 <ul>
-<li>The first argument must implement <a href="https://docs.rs/quote/1.0.20/quote/to_tokens/trait.ToTokens.html" title="quote::ToTokens"><code>quote::ToTokens</code></a> in order to
-infer a <a href="https://docs.rs/proc-macro2/1.0.42/proc_macro2/struct.Span.html"><code>Span</code></a>.</li>
+<li>The first argument must implement <a href="https://docs.rs/quote/1.0.21/quote/to_tokens/trait.ToTokens.html" title="quote::ToTokens"><code>quote::ToTokens</code></a> in order to
+infer a <a href="https://docs.rs/proc-macro2/1.0.43/proc_macro2/struct.Span.html"><code>Span</code></a>.</li>
 <li>The second argument is a format string.</li>
 <li>The rest are format string arguments.</li>
 </ul>
@@ -25,5 +25,5 @@ than <a href="macro.format_err.html"><code>format_err</code></a>.</p>
 <a href="https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned"><code>syn::Error::new_spanned</code></a></li>
 <li>Tracking issue: <a href="https://github.com/rust-lang/rust/issues/54725"><code>#54725</code></a></li>
 </ul>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_lang_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (9067d5277 2022-07-28)" ></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_lang_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2643b1646 2022-07-27)" ></div>
 </body></html>
