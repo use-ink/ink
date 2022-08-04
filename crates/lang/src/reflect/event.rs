@@ -12,45 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Defines a base event type for the contract.
-///
-/// This is usually the event enum that comprises all defined event types.
-///
-/// # Usage
-///
-/// ```
-/// use ink_lang as ink;
-///
-/// #[ink::contract]
-/// pub mod contract {
-///     #[ink(storage)]
-///     pub struct Contract {}
-///
-///     #[ink(event)]
-///     pub struct Event1 {}
-///
-///     #[ink(event)]
-///     pub struct Event2 {}
-///
-///     impl Contract {
-///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
-///
-///         #[ink(message)]
-///         pub fn message(&self) {}
-///     }
-/// }
-///
-/// use contract::Contract;
-/// # use ink_lang::reflect::ContractEventBase;
-///
-/// type BaseEvent = <Contract as ContractEventBase>::Type;
-/// ```
-pub trait ContractEventBase {
-    /// The generated base event enum.
-    type Type;
-}
-
 /// todo: docs
 pub trait EventInfo {
     /// The complete path of the ink! event definition.

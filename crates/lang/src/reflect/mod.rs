@@ -46,10 +46,7 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
     },
-    event::{
-        ContractEventBase,
-        EventInfo,
-    },
+    event::EventInfo,
     trait_def::{
         TraitDefinitionRegistry,
         TraitInfo,
