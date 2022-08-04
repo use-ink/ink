@@ -1,15 +1,12 @@
 use ink_lang as ink;
 
 #[ink::event_definition]
-pub struct Event0 {}
+pub struct SharedEvent;
 
 #[ink::contract]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}
-
-    #[ink(event)]
-    type Event0 = super::Event0;
 
     impl Contract {
         #[ink(constructor)]
@@ -18,7 +15,9 @@ mod contract {
         }
 
         #[ink(message)]
-        pub fn message(&self) {}
+        pub fn message(&self) {
+            self.env().emit_event(super::SharedEvent {});
+        }
     }
 }
 
