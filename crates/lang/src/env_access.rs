@@ -422,6 +422,14 @@ where
         ink_env::minimum_balance::<E>()
     }
 
+    /// todo: [AJ] docs
+    pub fn emit_event<Event>(self, event: Event)
+        where
+            Event: ink_env::Topics + scale::Encode,
+    {
+        ink_env::emit_event::<E, Event>(event)
+    }
+
     /// Instantiates another contract.
     ///
     /// # Example

@@ -41,12 +41,10 @@ impl GenerateCode for Events<'_> {
             // Generate no code in case there are no event definitions.
             return TokenStream2::new()
         }
-        let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         let event_base = self.generate_event_base();
         let topic_guards = self.generate_topic_guards();
         let event_defs = self.generate_event_definitions(); // todo: call into shared event_def code for inline events
         quote! {
-            #emit_event_trait_impl
             #event_base
             #( #topic_guards )*
             #( #event_defs )*
@@ -55,27 +53,6 @@ impl GenerateCode for Events<'_> {
 }
 
 impl<'a> Events<'a> {
-    /// Used to allow emitting user defined events directly instead of converting
-    /// them first into the automatically generated base trait of the contract.
-    fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.module().storage().ident();
-        quote! {
-            const _: () = {
-                impl<'a> ::ink_lang::codegen::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
-                    fn emit_event<E>(self, event: E)
-                    where
-                        E: Into<<#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type>,
-                    {
-                        ::ink_env::emit_event::<
-                            Environment,
-                            <#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type
-                        >(event.into());
-                    }
-                }
-            };
-        }
-    }
-
     /// Generates the base event enum that comprises all user defined events.
     /// All emitted events are converted into a variant of this enum before being
     /// serialized and emitted to apply their unique event discriminant (ID).
