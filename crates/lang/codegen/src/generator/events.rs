@@ -13,10 +13,11 @@
 // limitations under the License.
 
 use crate::{
-    GenerateCode,
     generator::EventDefinition,
+    GenerateCode,
 };
 use derive_more::From;
+use ir::Event;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -26,7 +27,6 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
-use ir::Event;
 
 /// Generates code for the ink! event structs of the contract.
 #[derive(From)]

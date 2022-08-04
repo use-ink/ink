@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{InkEventDefinition, ir};
+use crate::{
+    ir,
+    InkEventDefinition,
+};
 use proc_macro2::{
     Ident,
     Span,
@@ -49,9 +52,7 @@ impl Event {
     /// # Errors
     ///
     /// If the first found ink! attribute is malformed.
-    pub(super) fn is_ink_event(
-        attrs: &[syn::Attribute],
-    ) -> Result<bool, syn::Error> {
+    pub(super) fn is_ink_event(attrs: &[syn::Attribute]) -> Result<bool, syn::Error> {
         if !ir::contains_ink_attributes(attrs) {
             return Ok(false)
         }
@@ -78,9 +79,7 @@ impl TryFrom<syn::ItemType> for Event {
 
     fn try_from(item_type: syn::ItemType) -> Result<Self, Self::Error> {
         // todo: remove ink::event attribute and check no anonymous config
-        Ok(Self::Imported(ImportedEvent {
-            item: item_type
-        }))
+        Ok(Self::Imported(ImportedEvent { item: item_type }))
     }
 }
 
@@ -409,7 +408,7 @@ mod tests {
             match Event::try_from(event) {
                 Ok(Event::Inline(event)) => {
                     assert!(event.anonymous);
-                },
+                }
                 Ok(_) => panic!("Expected an inline event definition"),
                 Err(_) => panic!("encountered unexpected invalid anonymous event"),
             }

@@ -15,9 +15,7 @@
 use crate::GenerateCode;
 
 use derive_more::From;
-use proc_macro2::{
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
@@ -107,8 +105,13 @@ impl<'a> EventDefinition<'a> {
     fn generate_topics_impl(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
-        let len_topics = self.event_def.fields().filter(|field| field.is_topic).count();
-        let topic_impls = self.event_def
+        let len_topics = self
+            .event_def
+            .fields()
+            .filter(|field| field.is_topic)
+            .count();
+        let topic_impls = self
+            .event_def
             .fields()
             .enumerate()
             .filter(|(_, field)| field.is_topic)
@@ -120,20 +123,20 @@ impl<'a> EventDefinition<'a> {
                     .unwrap_or_else(|| quote_spanned!(span => #n));
                 let field_type = topic_field.ty();
                 quote_spanned!(span =>
-                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                            &::ink_env::topics::PrefixedValue {
-                                // todo: deduplicate with EVENT_SIGNATURE
-                                prefix: ::core::concat!(
-                                    ::core::module_path!(),
-                                    "::",
-                                    ::core::stringify!(#event_ident),
-                                    "::",
-                                    ::core::stringify!(#field_ident),
-                                ).as_bytes(),
-                                value: &self.#field_ident,
-                            }
-                        )
+                    .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                        &::ink_env::topics::PrefixedValue {
+                            // todo: deduplicate with EVENT_SIGNATURE
+                            prefix: ::core::concat!(
+                                ::core::module_path!(),
+                                "::",
+                                ::core::stringify!(#event_ident),
+                                "::",
+                                ::core::stringify!(#field_ident),
+                            ).as_bytes(),
+                            value: &self.#field_ident,
+                        }
                     )
+                )
             });
         // Only include topic for event signature in case of non-anonymous event.
         let event_signature_topic = match self.event_def.anonymous {

@@ -16,9 +16,7 @@ use crate::GenerateCode;
 
 use derive_more::From;
 use ir::IsDocAttribute;
-use proc_macro2::{
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::quote_spanned;
 use syn::spanned::Spanned as _;
 
@@ -32,7 +30,11 @@ impl GenerateCode for EventMetadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
-        let docs = self.event_def.attrs().iter().filter_map(|attr| attr.extract_docs());
+        let docs = self
+            .event_def
+            .attrs()
+            .iter()
+            .filter_map(|attr| attr.extract_docs());
         let args = self.event_def.fields().map(|event_field| {
             let span = event_field.span();
             let ident = event_field.ident();

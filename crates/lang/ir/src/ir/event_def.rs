@@ -22,7 +22,10 @@ use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
 };
-use syn::{Result, spanned::Spanned as _};
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
@@ -54,7 +57,6 @@ impl TryFrom<syn::ItemStruct> for InkEventDefinition {
         Self::new(item_struct, ink_attrs.is_anonymous())
     }
 }
-
 
 impl quote::ToTokens for InkEventDefinition {
     /// We mainly implement this trait for this ink! type to have a derived
@@ -100,11 +102,17 @@ impl InkEventDefinition {
                 }
             }
         }
-        Ok(Self { item: item_struct, anonymous })
+        Ok(Self {
+            item: item_struct,
+            anonymous,
+        })
     }
 
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn from_event_def_tokens(config: TokenStream2, input: TokenStream2) -> Result<Self> {
+    pub fn from_event_def_tokens(
+        config: TokenStream2,
+        input: TokenStream2,
+    ) -> Result<Self> {
         let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let anonymous = false; // todo parse this from attr config
         let item = syn::parse2::<syn::ItemStruct>(input)?;

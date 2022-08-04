@@ -61,6 +61,4 @@ pub trait EventInfo {
     ///
     /// todo: rename?
     const PATH: &'static str;
-
-
 }
