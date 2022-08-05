@@ -17,7 +17,6 @@ use crate::{
     GenerateCode,
 };
 use derive_more::From;
-use ir::Event;
 use proc_macro2::{
     TokenStream as TokenStream2,
 };
@@ -83,17 +82,8 @@ impl<'a> Events<'a> {
     /// Generates the `Topics` trait implementations for the user defined events.
     fn generate_event_definitions(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
-            match event {
-                Event::Inline(event_def) => {
-                    let event_def_gen = EventDefinition::from(event_def);
-                    event_def_gen.generate_code()
-                }
-                Event::Imported(imported_event) => {
-                    // todo: hook up to base event and figure out metadata
-                    let item_type = &imported_event.item;
-                    quote! { #item_type }
-                }
-            }
+            let event_def_gen = EventDefinition::from(&event.event_def);
+            event_def_gen.generate_code()
         })
     }
 }

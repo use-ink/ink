@@ -18,30 +18,18 @@ use crate::{
 };
 use proc_macro2::{
     Ident,
-    Span,
 };
-use syn::spanned::Spanned as _;
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum Event {
-    Inline(InkEventDefinition),
-    Imported(ImportedEvent),
-}
-
-/// todo add ImportedEvent docs
-#[derive(Debug, PartialEq, Eq)]
-pub struct ImportedEvent {
-    pub item: syn::ItemType,
+pub struct Event {
+    pub event_def: InkEventDefinition,
 }
 
 impl quote::ToTokens for Event {
     /// We mainly implement this trait for this ink! type to have a derived
     /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        match self {
-            Event::Inline(inline) => inline.item.to_tokens(tokens),
-            Event::Imported(imported) => imported.item.to_tokens(tokens),
-        }
+        self.event_def.to_tokens(tokens)
     }
 }
 
@@ -70,103 +58,19 @@ impl TryFrom<syn::ItemStruct> for Event {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let event_def = InkEventDefinition::try_from(item_struct)?;
-        Ok(Self::Inline(event_def))
-    }
-}
-
-impl TryFrom<syn::ItemType> for Event {
-    type Error = syn::Error;
-
-    fn try_from(item_type: syn::ItemType) -> Result<Self, Self::Error> {
-        // todo: remove ink::event attribute and check no anonymous config
-        Ok(Self::Imported(ImportedEvent { item: item_type }))
+        Ok(Self { event_def })
     }
 }
 
 impl Event {
     /// Returns the identifier of the event.
     pub fn ident(&self) -> &Ident {
-        match self {
-            Event::Inline(inline) => &inline.item.ident,
-            Event::Imported(imported) => &imported.item.ident,
-        }
+        &self.event_def.item.ident
     }
 
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> &[syn::Attribute] {
-        match self {
-            Event::Inline(inline) => &inline.item.attrs,
-            Event::Imported(imported) => &imported.item.attrs,
-        }
-    }
-}
-
-/// An event field with a flag indicating if this field is an event topic.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct EventField<'a> {
-    /// The associated `field` is an event topic if this is `true`.
-    pub is_topic: bool,
-    /// The event field.
-    field: &'a syn::Field,
-}
-
-impl<'a> EventField<'a> {
-    /// Returns the span of the event field.
-    pub fn span(self) -> Span {
-        self.field.span()
-    }
-
-    /// Returns all non-ink! attributes of the event field.
-    pub fn attrs(self) -> Vec<syn::Attribute> {
-        let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
-            .expect("encountered invalid event field attributes");
-        non_ink_attrs
-    }
-
-    /// Returns the visibility of the event field.
-    pub fn vis(self) -> &'a syn::Visibility {
-        &self.field.vis
-    }
-
-    /// Returns the identifier of the event field if any.
-    pub fn ident(self) -> Option<&'a Ident> {
-        self.field.ident.as_ref()
-    }
-
-    /// Returns the type of the event field.
-    pub fn ty(self) -> &'a syn::Type {
-        &self.field.ty
-    }
-}
-
-/// Iterator yielding all `#[ink(topic)]` annotated fields of an event struct.
-pub struct EventFieldsIter<'a> {
-    iter: syn::punctuated::Iter<'a, syn::Field>,
-}
-
-impl<'a> EventFieldsIter<'a> {
-    /// Creates a new topics fields iterator for the given ink! event struct.
-    fn new(event: &'a InkEventDefinition) -> Self {
-        Self {
-            iter: event.item.fields.iter(),
-        }
-    }
-}
-
-impl<'a> Iterator for EventFieldsIter<'a> {
-    type Item = EventField<'a>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.iter.next() {
-            None => None,
-            Some(field) => {
-                let is_topic = ir::first_ink_attribute(&field.attrs)
-                    .unwrap_or_default()
-                    .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
-                    .unwrap_or_default();
-                Some(EventField { is_topic, field })
-            }
-        }
+        &self.event_def.item.attrs
     }
 }
 

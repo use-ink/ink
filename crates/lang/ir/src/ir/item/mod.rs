@@ -95,14 +95,6 @@ impl TryFrom<syn::Item> for Item {
                     .map(Into::into)
                     .map(Self::Ink)
             }
-            syn::Item::Type(item_type) => {
-                if !ir::Event::is_ink_event(&item_type.attrs)? {
-                    return Ok(Self::Rust(item_type.into()))
-                }
-                <ir::Event as TryFrom<_>>::try_from(item_type)
-                    .map(Into::into)
-                    .map(Self::Ink)
-            }
             item => {
                 // This is an error if the item contains any unexpected
                 // ink! attributes. Otherwise it is a normal Rust item.
