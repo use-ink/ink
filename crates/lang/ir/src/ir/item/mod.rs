@@ -12,20 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod event;
 mod storage;
 
 #[cfg(test)]
 mod tests;
 
 pub use self::{
-    event::Event,
     storage::Storage,
 };
 
 use crate::{
     error::ExtError as _,
     ir,
+    ir::event_def::InkEventDefinition,
     ir::attrs::Attrs as _,
 };
 use syn::spanned::Spanned as _;
@@ -73,7 +72,7 @@ impl TryFrom<syn::Item> for Item {
                             .map(Self::Ink)
                     }
                     ir::AttributeArg::Event => {
-                        <ir::Event as TryFrom<_>>::try_from(item_struct)
+                        <InkEventDefinition as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
@@ -154,7 +153,7 @@ pub enum InkItem {
     /// The ink! storage struct definition.
     Storage(ir::Storage),
     /// An ink! event definition.
-    Event(ir::Event),
+    Event(InkEventDefinition),
     /// An ink! implementation block.
     ImplBlock(ir::ItemImpl),
 }
@@ -180,8 +179,8 @@ impl InkItem {
     pub fn is_ink_item(item: &syn::Item) -> Result<bool, syn::Error> {
         match item {
             syn::Item::Struct(item_struct) => {
-                if ir::Storage::is_ink_storage(item_struct)?
-                    || ir::Event::is_ink_event(&item_struct.attrs)?
+                if ir::Storage::is_ink_storage(item_struct)? ||
+                    Self::is_ink_event(&item_struct.attrs)?
                 {
                     return Ok(true)
                 }
@@ -193,6 +192,24 @@ impl InkItem {
         }
         Ok(false)
     }
+
+    /// Returns `true` if the first ink! annotation on the given struct is
+    /// `#[ink(event)]`.
+    ///
+    /// # Errors
+    ///
+    /// If the first found ink! attribute is malformed.
+    fn is_ink_event(attrs: &[syn::Attribute]) -> Result<bool, syn::Error> {
+        if !ir::contains_ink_attributes(attrs) {
+            return Ok(false)
+        }
+        // At this point we know that there must be at least one ink!
+        // attribute. This can be either the ink! storage struct,
+        // an ink! event or an invalid ink! attribute.
+        let attr = ir::first_ink_attribute(attrs)?
+            .expect("missing expected ink! attribute for struct");
+        Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
+    }
 }
 
 impl From<ir::Storage> for InkItem {
@@ -201,8 +218,8 @@ impl From<ir::Storage> for InkItem {
     }
 }
 
-impl From<ir::Event> for InkItem {
-    fn from(event: ir::Event) -> Self {
+impl From<InkEventDefinition> for InkItem {
+    fn from(event: InkEventDefinition) -> Self {
         Self::Event(event)
     }
 }
@@ -232,7 +249,7 @@ impl InkItem {
     /// Returns `Some` if `self` is an ink! event struct definition.
     ///
     /// Otherwise, returns `None`.
-    pub fn filter_map_event_item(&self) -> Option<&ir::Event> {
+    pub fn filter_map_event_item(&self) -> Option<&InkEventDefinition> {
         match self {
             InkItem::Event(event) => Some(event),
             _ => None,
@@ -243,6 +260,24 @@ impl InkItem {
     pub fn is_event_item(&self) -> bool {
         self.filter_map_event_item().is_some()
     }
+
+    /// Returns `true` if the first ink! annotation on the given struct is
+    /// `#[ink(event)]`.
+    ///
+    /// # Errors
+    ///
+    /// If the first found ink! attribute is malformed.
+    // pub(super) fn is_ink_event(attrs: &[syn::Attribute]) -> Result<bool, syn::Error> {
+    //     if !ir::contains_ink_attributes(attrs) {
+    //         return Ok(false)
+    //     }
+    //     // At this point we know that there must be at least one ink!
+    //     // attribute. This can be either the ink! storage struct,
+    //     // an ink! event or an invalid ink! attribute.
+    //     let attr = ir::first_ink_attribute(attrs)?
+    //         .expect("missing expected ink! attribute for struct");
+    //     Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
+    // }
 
     /// Returns `Some` if `self` is an ink! implementation block.
     ///

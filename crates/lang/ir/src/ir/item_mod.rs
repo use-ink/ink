@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ir,
-    ir::idents_lint,
-    Callable,
-};
+use crate::{ir, ir::idents_lint, Callable};
 use proc_macro2::{
     Ident,
     Span,
@@ -535,7 +531,7 @@ impl<'a> IterEvents<'a> {
 }
 
 impl<'a> Iterator for IterEvents<'a> {
-    type Item = &'a ir::Event;
+    type Item = &'a ir::InkEventDefinition;
 
     fn next(&mut self) -> Option<Self::Item> {
         'repeat: loop {

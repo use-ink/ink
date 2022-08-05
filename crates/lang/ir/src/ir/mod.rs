@@ -70,7 +70,6 @@ pub use self::{
     event_def::InkEventDefinition,
     ink_test::InkTest,
     item::{
-        Event,
         InkItem,
         Item,
         Storage,
