@@ -1,7 +1,11 @@
 use ink_lang as ink;
 
 #[ink::event_definition]
-pub struct SharedEvent;
+pub struct SharedEvent {
+    arg_1: u8,
+    #[ink(topic)]
+    arg_2: u16,
+}
 
 #[ink::contract]
 mod contract {
@@ -16,7 +20,7 @@ mod contract {
 
         #[ink(message)]
         pub fn message(&self) {
-            self.env().emit_event(super::SharedEvent {});
+            self.env().emit_event(super::SharedEvent { arg_1: 1, arg_2: 2 });
         }
     }
 }
