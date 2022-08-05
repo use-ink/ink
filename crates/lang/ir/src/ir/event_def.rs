@@ -414,17 +414,19 @@ mod tests {
                 },
             ),
         ];
-        let event_def = <InkEventDefinition as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
-            #[ink(event)]
-            pub struct MyEvent {
-                #[ink(topic)]
-                field_1: i32,
-                field_2: u64,
-                #[ink(topic)]
-                field_3: [u8; 32],
-            }
-        })
-            .unwrap();
+        let event_def = <InkEventDefinition as TryFrom<syn::ItemStruct>>::try_from(
+            syn::parse_quote! {
+                #[ink(event)]
+                pub struct MyEvent {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: u64,
+                    #[ink(topic)]
+                    field_3: [u8; 32],
+                }
+            },
+        )
+        .unwrap();
         let mut fields_iter = event_def.fields();
         for (is_topic, expected_field) in expected_fields {
             let field = fields_iter.next().unwrap();
@@ -463,4 +465,3 @@ mod tests {
         });
     }
 }
-

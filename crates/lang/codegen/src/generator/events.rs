@@ -17,9 +17,7 @@ use crate::{
     GenerateCode,
 };
 use derive_more::From;
-use proc_macro2::{
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,

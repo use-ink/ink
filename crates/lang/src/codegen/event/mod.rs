@@ -14,11 +14,9 @@
 
 mod topics;
 
-pub use self::{
-    topics::{
-        EventLenTopics,
-        EventRespectsTopicLimit,
-        EventTopics,
-        RespectTopicLimit,
-    },
+pub use self::topics::{
+    EventLenTopics,
+    EventRespectsTopicLimit,
+    EventTopics,
+    RespectTopicLimit,
 };

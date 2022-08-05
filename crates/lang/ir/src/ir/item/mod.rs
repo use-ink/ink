@@ -17,15 +17,15 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-pub use self::{
-    storage::Storage,
-};
+pub use self::storage::Storage;
 
 use crate::{
     error::ExtError as _,
     ir,
-    ir::event_def::InkEventDefinition,
-    ir::attrs::Attrs as _,
+    ir::{
+        attrs::Attrs as _,
+        event_def::InkEventDefinition,
+    },
 };
 use syn::spanned::Spanned as _;
 
@@ -179,8 +179,8 @@ impl InkItem {
     pub fn is_ink_item(item: &syn::Item) -> Result<bool, syn::Error> {
         match item {
             syn::Item::Struct(item_struct) => {
-                if ir::Storage::is_ink_storage(item_struct)? ||
-                    Self::is_ink_event(&item_struct.attrs)?
+                if ir::Storage::is_ink_storage(item_struct)?
+                    || Self::is_ink_event(&item_struct.attrs)?
                 {
                     return Ok(true)
                 }
