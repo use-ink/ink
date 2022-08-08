@@ -1,6 +1,6 @@
 [package]
 name = "updated-incrementer"
-version = "3.3.0"
+version = "3.3.1"
 edition = "2021"
 authors = ["Parity Technologies <admin@parity.io>"]
 publish = false
