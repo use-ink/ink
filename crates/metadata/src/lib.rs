@@ -69,8 +69,6 @@ use serde::{
 /// this crate.
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MetadataVersion {
-    #[serde(rename = "3")]
-    V3,
     #[serde(rename = "4")]
     V4,
 }
