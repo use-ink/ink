@@ -1,6 +1,5 @@
 # ink!ternals
 
-
 This document describes the architecture of ink!. The information
 here targets those who want to understand or modify the inner
 workings of this project.
@@ -17,7 +16,7 @@ ink! is composed of a number of crates that are all found in the
 `crates/` folder. On a high-level those can be grouped as:
 
 * `lang`: The ink! language itself.
-* `allocator`: The allocator for dynamic heap space allocation in a contract.
+* `allocator`: The allocator used for dynamic memory allocation in a contract.
 * `engine`: An off-chain testing engine, it simulates a blockchain
    environment and allows mocking specified conditions.
 * `env`: Exposes environmental functions, like information about the caller
