@@ -57,18 +57,6 @@ crates on which `ink_lang` relies heavily:
    parse, analyze and generate code for ink! smart contracts.
 * `ink_lang_codegen`: Generates Rust code from the ink! IR.
 
-## Code Generation
-
-We avoid structuring things via hidden or private modules, this
-was the ink! v1 way of doing code generation and it was bug prone
-and hard to maintain. 
-
-What we do instead to generate code that is hidden from users is to
-pack it into anonymous `const` (so `const _: () = { … };`) and connect
-it to the outside world with private trait implementations. You can
-see how this looks by installing [`cargo-expand`](https://github.com/dtolnay/cargo-expand)
-and executing `cd examples/flipper/ && cargo expand` in this repository.
-
 ## Allocator
 
 ink! smart contracts use a very simple bump allocator for dynamic
