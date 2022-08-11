@@ -38,10 +38,16 @@ ink! is composed of a number of crates that are all found in the
   to put in a smart contracts storage.
 
 An important thing to note is that the crates are primarily run in
-a `no_std` environment, specifically in a Wasm sandbox execution
-environment on the blockchain itself.
+a `no_std` environment.
 Exceptions are `metadata` and `engine`, which cover use-cases that
 are only relevant off-chain.
+
+ink! contracts are compiled for a WebAssembly (Wasm) target architecture,
+i.e. they are executed in a Wasm sandbox execution environment on the
+blockchain itself ‒ hence a `no_std` environment.
+More specifically they are executed by the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
+a module of the Substrate blockchain framework. This module takes ink!
+smart contracts and runs them in a sandbox environment.
 
 ## Overview
 
