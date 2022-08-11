@@ -19,15 +19,20 @@ ink! is composed of a number of crates that are all found in the
 * `allocator`: The allocator used for dynamic memory allocation in a contract.
 * `engine`: An off-chain testing engine, it simulates a blockchain
    environment and allows mocking specified conditions.
-* `env`: Exposes environmental functions, like information about the caller
-   of a contract call, getting random entropy, or e.g. self-terminating the
-	 contract.
-* `metadata`: Describes how to call a contract (it's interface and the
-   types), its storage layout, etc..
+* `env`: Serves two functions
+  * Exposes environmental functions, like information about the caller
+    of a contract call, getting random entropy, or e.g. self-terminating the
+    contract.
+  * Provides the connection to the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
+    so anything that calls into the underlying execution engine of the smart contract.
+    This includes getting and setting a smart contracts storage, as well
+    as the mentioned environmental functions.
+* `metadata`: Describes the contract in a platform agnostic way, i.e.
+  its interface and the types, its storage layout, etc..
 * `prelude`: Provides an interface to typical standard library types and
   functionality (like `vec` or `string`). Since contracts are run in a
-	`no_std` environment we provide this crate as an entrypoint for accessing
-	functionality of the standard library.
+  `no_std` environment we provide this crate as an entrypoint for accessing
+  functionality of the standard library.
 * `primitives`: Utilities that are used internally by multiple ink! crates.
 * `storage`: The collections that are available for contract developers
   to put in a smart contracts storage.
@@ -46,7 +51,7 @@ The above diagram shows the main components of ink! and how they
 interact. This pipeline is run once you execute `cargo build`
 on an ink! smart contract.
 
-The central delegating crate is `ink_lang`. 
+The central delegating crate is `ink_lang`.
 
 In the `crates/lang/` folder you'll find three separate
 crates on which `ink_lang` relies heavily:
@@ -56,6 +61,13 @@ crates on which `ink_lang` relies heavily:
 * `ink_lang_ir`: Defines everything the procedural macro needs in order to
    parse, analyze and generate code for ink! smart contracts.
 * `ink_lang_codegen`: Generates Rust code from the ink! IR.
+
+## Building ink! contracts
+
+While you can build an ink! smart contract with just `cargo build`, we
+recommend using our build tool [`cargo-contract`](https://github.com/paritytech/cargo-contract).
+It automatically compiles for the correct WebAssembly target
+architecture and uses an optimal set of compiler flags.
 
 ## Allocator
 
@@ -70,13 +82,11 @@ gas costs) and a lower transaction throughput. Freeing memory is
 irrelevant for our use-case anyway, as the entire memory instance
 is set up fresh for each individual contract call anyway.
 
-## Nightly features in ink!
+## Nightly Rust features in ink!
 
-We would like to get away from nightly features in ink!, so that users
-can just use stable. At the moment we're still stuck with two nightly
-features though:
-
-* [core_intrinsics](https://doc.rust-lang.org/core/intrinsics/index.html)
-* [alloc_error_handler](https://github.com/rust-lang/rust/issues/51540)
-
-Both are needed for the `ink_allocator` crate.
+We would like to get away from nightly features of Rust in ink!, so
+that users can just use stable Rust for building their contracts.
+At the moment we're still stuck with one nightly feature though:
+[alloc_error_handler](https://github.com/rust-lang/rust/issues/51540).
+It's needed because we use a specialized memory allocation handler,
+the `ink_allocator` crate.
