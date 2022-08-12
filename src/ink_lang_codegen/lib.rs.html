@@ -72,6 +72,23 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -85,6 +102,23 @@
 <span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
+
+<span class="doccomment">//! The ink! code generation.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This module defines everything the ink! procedural macro needs in order to</span>
+<span class="doccomment">//! generate Rust code for ink! smart contracts.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! We avoid structuring things via hidden or private modules, this</span>
+<span class="doccomment">//! was the ink! v1 way of doing code generation and it was bug prone</span>
+<span class="doccomment">//! and hard to maintain.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! What we do instead to generate code that is hidden from users is to</span>
+<span class="doccomment">//! pack it into anonymous `const` (so `const _: () = { … };`) and connect</span>
+<span class="doccomment">//! those to the outside world with private trait implementations.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! You can see how the generated code looks by installing</span>
+<span class="doccomment">//! [`cargo-expand`](https://github.com/dtolnay/cargo-expand)</span>
+<span class="doccomment">//! and executing `cargo expand --manifest-path ./examples/flipper/Cargo.toml` in this repository.</span>
 
 <span class="kw">mod</span> <span class="ident">enforced_error</span>;
 <span class="kw">mod</span> <span class="ident">generator</span>;
