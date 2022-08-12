@@ -19,7 +19,7 @@ ink! is composed of a number of crates that are all found in the
 * `allocator`: The allocator used for dynamic memory allocation in a contract.
 * `engine`: An off-chain testing engine, it simulates a blockchain
    environment and allows mocking specified conditions.
-* `env`: Serves two functions
+* `env`: Serves two roles:
   * Exposes environmental functions, like information about the caller
     of a contract call, getting random entropy, or e.g. self-terminating the
     contract.
@@ -28,7 +28,7 @@ ink! is composed of a number of crates that are all found in the
     This includes getting and setting a smart contracts storage, as well
     as the mentioned environmental functions.
 * `metadata`: Describes the contract in a platform agnostic way, i.e.
-  its interface and the types, its storage layout, etc..
+  its interface and the types, its storage layout, etc.
 * `prelude`: Provides an interface to typical standard library types and
   functionality (like `vec` or `string`). Since contracts are run in a
   `no_std` environment we provide this crate as an entrypoint for accessing
