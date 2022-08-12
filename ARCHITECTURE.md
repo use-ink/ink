@@ -53,11 +53,11 @@ smart contracts and runs them in a sandbox environment.
 
 <img src="./.images/inkternals.png" alt="ink!ternals" width="800" />
 
-The above diagram shows the main components of ink! and how they
-interact. This pipeline is run once you execute `cargo build`
-on an ink! smart contract.
+The above diagram shows the main components of the ink! language
+and how they interact. This pipeline is run once you execute
+`cargo build` on an ink! smart contract.
 
-The central delegating crate is `ink_lang`.
+The central delegating crate for the ink! eDSL is `ink_lang`.
 
 In the `crates/lang/` folder you'll find three separate
 crates on which `ink_lang` relies heavily:
