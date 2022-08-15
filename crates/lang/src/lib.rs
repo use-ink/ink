@@ -46,6 +46,7 @@ pub use ink_lang_macro::{
     blake2x256,
     chain_extension,
     contract,
+    e2e_test,
     selector_bytes,
     selector_id,
     test,

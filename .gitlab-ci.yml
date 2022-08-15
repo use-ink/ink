@@ -81,6 +81,9 @@ workflow:
   tags:
     - kubernetes-parity-build
 
+.start-substrate-contracts-node:                     &start-substrate-contracts-node
+    - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/contracts-node.log 2>&1 &
+
 #### stage:                        lint
 #
 # Note: For all of these lints we `allow_failure` so that the rest of the build can
@@ -322,6 +325,7 @@ examples-test:
     - job:                         clippy-std
       artifacts:                   false
   script:
+    - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo test --verbose --manifest-path ${example}/Cargo.toml;

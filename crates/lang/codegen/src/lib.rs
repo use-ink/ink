@@ -56,6 +56,10 @@ impl<'a> CodeGenerator for &'a ir::InkTraitDefinition {
     type Generator = generator::TraitDefinition<'a>;
 }
 
+impl<'a> CodeGenerator for &'a ir::InkE2ETest {
+    type Generator = generator::InkE2ETest<'a>;
+}
+
 impl<'a> CodeGenerator for &'a ir::InkTest {
     type Generator = generator::InkTest<'a>;
 }
