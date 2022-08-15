@@ -7,7 +7,7 @@ error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
    = help: the trait `Decode` is implemented for `Vec<T>`
    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `Vec<NonPacked>`
 
 error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:8
@@ -21,7 +21,7 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
    = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `Vec<NonPacked>`
 
 error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
@@ -32,7 +32,7 @@ error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
    = help: the trait `Decode` is implemented for `Vec<T>`
    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `Vec<NonPacked>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
    |
@@ -57,7 +57,7 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
    = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `Vec<NonPacked>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
    |
@@ -79,7 +79,7 @@ error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
     = help: the trait `Decode` is implemented for `Vec<T>`
     = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
     = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `Vec<NonPacked>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
     |
@@ -104,7 +104,7 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
     = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
     = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
     = note: required because of the requirements on the impl of `Item<()>` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762_u32>>` for `Vec<NonPacked>`
+    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `Vec<NonPacked>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
     |
