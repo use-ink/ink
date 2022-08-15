@@ -71,7 +71,7 @@ macro_rules! impl_storage_layout_for_arrays {
             {
                 fn layout(key: &Key) -> Layout {
                     let len: u32 = $len;
-                    // Generic type is atomic, so it doesn't take any cell
+                    // Generic type is packed, so it doesn't take any cell
                     Layout::Array(ArrayLayout::new(
                         LayoutKey::from(key),
                         len,

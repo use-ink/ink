@@ -78,7 +78,7 @@ impl StorageItem {
         &self.ast.data
     }
 
-    /// Returns salt for storage key
+    /// Returns salt for storage key.
     pub fn salt(&self) -> TokenStream2 {
         if let Some(param) = self.ast.find_salt() {
             param.ident.to_token_stream()

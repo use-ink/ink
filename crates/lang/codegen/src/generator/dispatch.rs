@@ -799,8 +799,8 @@ impl Dispatch<'_> {
                 fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
                     if mutates {
                         ::ink_storage::traits::push_storage::<#storage_ident>(
+                            &<#storage_ident as ::ink_storage::traits::StorageKey>::KEY,
                             &contract,
-                            &<#storage_ident as ::ink_storage::traits::KeyHolder>::KEY,
                         );
                     }
                 }
@@ -814,7 +814,7 @@ impl Dispatch<'_> {
                             ::core::mem::ManuallyDrop::new(
                                 ::ink_storage::pull_or_init!(
                                     #storage_ident,
-                                    <#storage_ident as ::ink_storage::traits::KeyHolder>::KEY
+                                    <#storage_ident as ::ink_storage::traits::StorageKey>::KEY
                                 )
                             );
 

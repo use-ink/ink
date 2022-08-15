@@ -24,6 +24,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod key;
+pub mod traits;
 
 pub use self::key::{
     Key,

@@ -63,7 +63,7 @@ impl Metadata<'_> {
     fn generate_layout(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let key = quote! { <#storage_ident as ::ink_storage::traits::KeyHolder>::KEY };
+        let key = quote! { <#storage_ident as ::ink_storage::traits::StorageKey>::KEY };
 
         let layout_key = quote! {
             <::ink_metadata::layout::LayoutKey

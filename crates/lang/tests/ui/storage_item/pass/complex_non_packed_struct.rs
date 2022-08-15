@@ -3,7 +3,7 @@ use ink_primitives::KeyComposer;
 use ink_storage::{
     traits::{
         AutoKey,
-        KeyHolder,
+        StorageKey,
     },
     Lazy,
     Mapping,
@@ -25,7 +25,7 @@ struct Packed {
 
 #[ink_lang::storage_item]
 #[derive(Default)]
-struct NonPacked<KEY: KeyHolder = AutoKey> {
+struct NonPacked<KEY: StorageKey = AutoKey> {
     a: Mapping<u128, Packed>,
     b: Lazy<u128>,
     c: Lazy<Packed>,

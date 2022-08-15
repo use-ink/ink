@@ -22,8 +22,8 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::KeyHolder for UnitStruct {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::KeyHolder>::KEY;
+                impl ::ink_storage::traits::StorageKey for UnitStruct {
+                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -39,8 +39,8 @@ fn unit_struct_generic_works() {
         }
         expands to {
             const _: () = {
-                impl<T> ::ink_storage::traits::KeyHolder for UnitStruct<T> {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::KeyHolder>::KEY;
+                impl<T> ::ink_storage::traits::StorageKey for UnitStruct<T> {
+                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -52,12 +52,12 @@ fn unit_struct_generic_works() {
 fn unit_struct_salt_works() {
     crate::test_derive! {
         key_holder_derive {
-            struct UnitStruct<Salt: ::ink_storage::traits::KeyHolder>;
+            struct UnitStruct<Salt: ::ink_storage::traits::StorageKey>;
         }
         expands to {
             const _: () = {
-                impl<Salt: ::ink_storage::traits::KeyHolder> ::ink_storage::traits::KeyHolder for UnitStruct<Salt> {
-                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::KeyHolder>::KEY;
+                impl<Salt: ::ink_storage::traits::StorageKey> ::ink_storage::traits::StorageKey for UnitStruct<Salt> {
+                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -77,8 +77,8 @@ fn struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::KeyHolder for NamedFields {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::KeyHolder>::KEY;
+                impl ::ink_storage::traits::StorageKey for NamedFields {
+                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -98,8 +98,8 @@ fn struct_generic_works() {
         }
         expands to {
             const _: () = {
-                impl<T> ::ink_storage::traits::KeyHolder for NamedFields<T> {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::KeyHolder>::KEY;
+                impl<T> ::ink_storage::traits::StorageKey for NamedFields<T> {
+                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -111,7 +111,7 @@ fn struct_generic_works() {
 fn struct_salt_works() {
     crate::test_derive! {
         key_holder_derive {
-            struct NamedFields<Salt: KeyHolder> {
+            struct NamedFields<Salt: StorageKey> {
                 a: i32,
                 b: [u8; 32],
                 d: Box<i32>,
@@ -119,8 +119,8 @@ fn struct_salt_works() {
         }
         expands to {
             const _: () = {
-                impl<Salt: KeyHolder> ::ink_storage::traits::KeyHolder for NamedFields<Salt> {
-                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::KeyHolder>::KEY;
+                impl<Salt: StorageKey> ::ink_storage::traits::StorageKey for NamedFields<Salt> {
+                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -140,8 +140,8 @@ fn enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::KeyHolder for MixedEnum {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::KeyHolder>::KEY;
+                impl ::ink_storage::traits::StorageKey for MixedEnum {
+                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -161,8 +161,8 @@ fn enum_generic_works() {
         }
         expands to {
             const _: () = {
-                impl<T> ::ink_storage::traits::KeyHolder for MixedEnum<T> {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::KeyHolder>::KEY;
+                impl<T> ::ink_storage::traits::StorageKey for MixedEnum<T> {
+                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -174,7 +174,7 @@ fn enum_generic_works() {
 fn enum_salt_works() {
     crate::test_derive! {
         key_holder_derive {
-            enum MixedEnum<Salt: traits::KeyHolder> {
+            enum MixedEnum<Salt: traits::StorageKey> {
                 A,
                 B(u32, [u8; 32]),
                 C { a: i32, b: (bool, i32) },
@@ -182,8 +182,8 @@ fn enum_salt_works() {
         }
         expands to {
             const _: () = {
-                impl<Salt: traits::KeyHolder> ::ink_storage::traits::KeyHolder for MixedEnum<Salt> {
-                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::KeyHolder>::KEY;
+                impl<Salt: traits::StorageKey> ::ink_storage::traits::StorageKey for MixedEnum<Salt> {
+                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::StorageKey>::KEY;
                 }
             };
         }

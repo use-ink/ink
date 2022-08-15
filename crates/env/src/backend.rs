@@ -27,6 +27,7 @@ use crate::{
     Environment,
     Result,
 };
+use ink_primitives::traits::Storable;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -167,7 +168,7 @@ pub trait EnvBackend {
     fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
         K: scale::Encode,
-        V: scale::Encode;
+        V: Storable;
 
     /// Returns the value stored under the given storage key in the contract's storage if any.
     ///
@@ -177,7 +178,7 @@ pub trait EnvBackend {
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
-        R: scale::Decode;
+        R: Storable;
 
     /// Returns the size of a value stored under the given storage key is returned if any.
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>

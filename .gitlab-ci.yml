@@ -261,7 +261,7 @@ docs:
     - cargo doc --no-deps --all-features
         -p scale-info -p ink_metadata
         -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude
+        -p ink_primitives -p ink_prelude -p ink_primitives_derive
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot

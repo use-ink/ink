@@ -15,12 +15,14 @@
 //! Traits and interfaces to operate with storage entities.
 //!
 //! Generally a type is said to be a storage entity if it implements the
-//! `Item` trait. This defines certain constants and routines in order
+//! `Storable` trait. This defines certain constants and routines in order
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!
 //! The `Packed` shows that the type is packed and can be stored
 //! into single storage cell. Some collections works only with packed structures.
+//! Consequently, non-`Packed` are types that can't be stored in one cell.
+//! It means that at least one of the fields has its storage cell.
 
 mod impls;
 mod storage;
@@ -38,7 +40,7 @@ pub use self::layout::{
     StorageLayout,
 };
 pub use self::{
-    impls::storage::{
+    impls::{
         AutoKey,
         ManualKey,
         ResolverKey,
@@ -46,60 +48,37 @@ pub use self::{
     storage::{
         AutoItem,
         Item,
-        KeyHolder,
         OnCallInitializer,
         Packed,
-        Storable,
+        StorageKey,
     },
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    traits::Storable,
+    Key,
+};
 pub use ink_storage_derive::{
     Item,
-    KeyHolder,
-    Storable,
+    StorageKey,
     StorageLayout,
 };
-use scale::{
-    Decode,
-    Encode,
-};
-
-#[repr(transparent)]
-pub(crate) struct DecodeWrapper<S: Storable>(pub S);
-
-impl<S: Storable> Decode for DecodeWrapper<S> {
-    #[inline(always)]
-    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
-        Ok(Self(S::decode(input)?))
-    }
-}
 
 /// Pulls an instance of type `T` from the contract storage using decode and its storage key.
 pub fn pull_storage<T>(key: &Key) -> T
 where
     T: Storable,
 {
-    match ink_env::get_contract_storage::<Key, DecodeWrapper<T>>(key) {
-        Ok(Some(wrapper)) => wrapper.0,
+    match ink_env::get_contract_storage::<Key, T>(key) {
+        Ok(Some(value)) => value,
         Ok(None) => panic!("storage entry was empty"),
         Err(_) => panic!("could not properly decode storage entry"),
     }
 }
 
-#[repr(transparent)]
-pub(crate) struct EncodeWrapper<'a, S: Storable>(pub &'a S);
-
-impl<'a, S: Storable> Encode for EncodeWrapper<'a, S> {
-    #[inline(always)]
-    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
-        self.0.encode(dest)
-    }
-}
-
 /// Pushes the entity to the contract storage using encode and storage key.
-pub fn push_storage<T>(entity: &T, key: &Key) -> Option<u32>
+pub fn push_storage<T>(key: &Key, entity: &T) -> Option<u32>
 where
     T: Storable,
 {
-    ink_env::set_contract_storage::<Key, EncodeWrapper<T>>(key, &EncodeWrapper(entity))
+    ink_env::set_contract_storage::<Key, T>(key, entity)
 }

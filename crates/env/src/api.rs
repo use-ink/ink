@@ -39,6 +39,7 @@ use crate::{
     Environment,
     Result,
 };
+use ink_primitives::traits::Storable;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -191,7 +192,7 @@ where
 pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
 where
     K: scale::Encode,
-    V: scale::Encode,
+    V: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::set_contract_storage::<K, V>(instance, key, value)
@@ -206,7 +207,7 @@ where
 pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
     K: scale::Encode,
-    R: scale::Decode,
+    R: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::get_contract_storage::<K, R>(instance, key)

@@ -24,10 +24,10 @@ use ink_env::{
     Environment,
     ReturnFlags,
 };
+use ink_primitives::traits::Storable;
 use ink_storage::traits::{
     push_storage,
-    KeyHolder,
-    Storable,
+    StorageKey,
 };
 use scale::Encode;
 
@@ -57,7 +57,7 @@ where
 #[inline]
 pub fn execute_constructor<Contract, F, R>(f: F) -> Result<(), DispatchError>
 where
-    Contract: Storable + KeyHolder + ContractEnv,
+    Contract: Storable + StorageKey + ContractEnv,
     F: FnOnce() -> R,
     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
@@ -68,7 +68,7 @@ where
             // Constructor is infallible or is fallible but succeeded.
             //
             // This requires us to sync back the changes of the contract storage.
-            push_storage::<Contract>(contract, &Contract::KEY);
+            push_storage::<Contract>(&Contract::KEY, contract);
             Ok(())
         }
         Err(_) => {

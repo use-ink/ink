@@ -15,9 +15,6 @@
 //! Low-level collections and data structures to manage storage entities in the
 //! persisted contract storage.
 //!
-//! The low-level collections are mainly used as building blocks for internals
-//! of other higher-level storage collections.
-//!
 //! These low-level collections are not aware of the elements they manage thus
 //! extra care has to be taken when operating directly on them.
 
@@ -27,31 +24,34 @@ mod mapping;
 pub use self::mapping::Mapping;
 
 use crate::traits::{
-    pull_storage,
     push_storage,
     AutoKey,
-    DecodeWrapper,
     Item,
-    KeyHolder,
-    Storable,
+    StorageKey,
 };
 use core::marker::PhantomData;
-use ink_primitives::Key;
+use ink_primitives::{
+    traits::Storable,
+    Key,
+};
 use scale::{
     Error,
     Input,
     Output,
 };
 
-/// A simple wrapper around type to store it in a separate storage cell under own storage key.
-/// If you want to update the value, first you need to `get` it, update, and after `set`.
+/// A simple wrapper around a type to store it in a separate storage cell under its own storage key.
+/// If you want to update the value, first you need to [`get`](crate::Lazy::get) it, update the
+/// value, and then call [`set`](crate::Lazy::set) with the new value.
 ///
 /// # Important
 ///
-/// The wrapper requires its own pre-defined storage key where to store value. By default,
-/// it is [`AutoKey`](crate::traits::AutoKey) and during compilation is calculated based on
-/// the name of the structure and the field. But anyone can specify its storage key
-/// via [`ManualKey`](crate::traits::ManualKey).
+/// The wrapper requires its own pre-defined storage key in order to determine where it stores
+/// value. By default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// during compilation. However, anyone can specify a storage key using
+/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
+/// upgradeable contracts or you want to be resistant to future changes of storage
+/// key calculation strategy.
 ///
 /// This is an example of how you can do this:
 /// ```rust
@@ -77,15 +77,10 @@ use scale::{
 ///     #[ink(constructor)]
 ///     pub fn new() -> Self {
 ///         let mut instance = Self::default();
-///         instance.new_init();
-///         instance
-///     }
-///
-///     /// Default initializes the contract.
-///     fn new_init(&mut self) {
 ///         let caller = Self::env().caller();
-///         self.owner.set(&caller);
-///         self.balance.set(&123456);
+///         instance.owner.set(&caller);
+///         instance.balance.set(&123456);
+///         instance
 ///     }
 ///
 /// #   #[ink(message)]
@@ -94,14 +89,14 @@ use scale::{
 /// # }
 /// ```
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Lazy<V, KeyType: KeyHolder = AutoKey> {
+pub struct Lazy<V, KeyType: StorageKey = AutoKey> {
     _marker: PhantomData<fn() -> (V, KeyType)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
 impl<V, KeyType> Default for Lazy<V, KeyType>
 where
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     fn default() -> Self {
         Self {
@@ -112,7 +107,7 @@ where
 
 impl<V, KeyType> Lazy<V, KeyType>
 where
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     /// Creates a new empty `Lazy`.
     pub fn new() -> Self {
@@ -124,7 +119,7 @@ where
 
 impl<V, KeyType> core::fmt::Debug for Lazy<V, KeyType>
 where
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("Lazy").field("key", &KeyType::KEY).finish()
@@ -134,27 +129,28 @@ where
 impl<V, KeyType> Lazy<V, KeyType>
 where
     V: Storable,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
-    /// Get the `value` from the contract storage.
-    ///
-    /// Panics if no `value` exists.
-    pub fn get(&self) -> V {
-        pull_storage(&KeyType::KEY)
+    /// Reads the `value` from the contract storage.
+    pub fn get(&self) -> Option<V> {
+        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+            Ok(Some(value)) => Some(value),
+            _ => None,
+        }
     }
 }
 
 impl<V, KeyType> Lazy<V, KeyType>
 where
     V: Storable + Default,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
-    /// Get the `value` from the contract storage.
+    /// Reads the `value` from the contract storage.
     ///
     /// Returns `Default::default()` if no `value` exists.
     pub fn get_or_default(&self) -> V {
-        match ink_env::get_contract_storage::<Key, DecodeWrapper<V>>(&KeyType::KEY) {
-            Ok(Some(wrapper)) => wrapper.0,
+        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+            Ok(Some(value)) => value,
             _ => Default::default(),
         }
     }
@@ -163,17 +159,17 @@ where
 impl<V, KeyType> Lazy<V, KeyType>
 where
     V: Storable,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
-    /// Sets the given `value` to the contract storage.
+    /// Writes the given `value` to the contract storage.
     pub fn set(&mut self, value: &V) {
-        push_storage(value, &KeyType::KEY);
+        push_storage(&KeyType::KEY, value);
     }
 }
 
 impl<V, KeyType> Storable for Lazy<V, KeyType>
 where
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     #[inline(always)]
     fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
@@ -184,19 +180,19 @@ where
     }
 }
 
-impl<V, Salt, InnerSalt> Item<Salt> for Lazy<V, InnerSalt>
+impl<V, Key, InnerKey> Item<Key> for Lazy<V, InnerKey>
 where
-    Salt: KeyHolder,
-    InnerSalt: KeyHolder,
-    V: Item<Salt>,
+    Key: StorageKey,
+    InnerKey: StorageKey,
+    V: Item<Key>,
 {
-    type Type = Lazy<V::Type, Salt>;
-    type PreferredKey = InnerSalt;
+    type Type = Lazy<V::Type, Key>;
+    type PreferredKey = InnerKey;
 }
 
-impl<V, KeyType> KeyHolder for Lazy<V, KeyType>
+impl<V, KeyType> StorageKey for Lazy<V, KeyType>
 where
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     const KEY: Key = KeyType::KEY;
 }
@@ -213,7 +209,7 @@ const _: () = {
     impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where
         V: StorageLayout + scale_info::TypeInfo + 'static,
-        KeyType: KeyHolder + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
         fn layout(_: &Key) -> Layout {
             Layout::Root(RootLayout::new(
@@ -234,7 +230,21 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut storage: Lazy<u8, ManualKey<123>> = Lazy::new();
             storage.set(&2);
-            assert_eq!(storage.get(), 2);
+            assert_eq!(storage.get(), Some(2));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn set_and_get_work_for_two_lazy_with_same_manual_key() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<u8, ManualKey<123>> = Lazy::new();
+            storage.set(&2);
+
+            let storage2: Lazy<u8, ManualKey<123>> = Lazy::new();
+            assert_eq!(storage2.get(), Some(2));
 
             Ok(())
         })
@@ -254,7 +264,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "storage entry was empty")]
-    fn gets_failes_if_no_key_set() {
+    fn gets_fails_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let storage: Lazy<u8, ManualKey<123>> = Lazy::new();
             storage.get();

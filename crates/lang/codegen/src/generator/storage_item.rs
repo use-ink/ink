@@ -62,8 +62,8 @@ impl GenerateCode for StorageItem<'_> {
                 ))]
                 #[derive(
                     ::ink_storage::traits::Item,
-                    ::ink_storage::traits::KeyHolder,
-                    ::ink_storage::traits::Storable,
+                    ::ink_storage::traits::StorageKey,
+                    ::ink_primitives::traits::Storable,
                 )]
             };
         }
@@ -233,7 +233,8 @@ fn convert_into_storage_field(
         struct_ident.to_string().as_str(),
         variant_name.as_str(),
         field_name.as_str(),
-    );
+    )
+    .unwrap();
 
     let mut new_field = field.clone();
     let ty = field.ty.clone().to_token_stream();

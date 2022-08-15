@@ -20,6 +20,8 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 sha2-const = { version = "0.1.2", default-features = false }
 
+ink_primitives_derive = { version = "4.0.0", path = "derive", default-features = false }
+
 [features]
 default = ["std"]
 std = [

@@ -5,7 +5,7 @@ use ink_prelude::{
     },
     vec::Vec,
 };
-use ink_storage::traits::Storable;
+use ink_primitives::traits::Storable;
 
 #[derive(Default, PartialEq, Eq, PartialOrd, Ord, scale::Encode, scale::Decode)]
 #[cfg_attr(

@@ -29,9 +29,9 @@ fn item_inner(s: synstructure::Structure) -> TokenStream2 {
     let salt_ident = format_ident!("__ink_generic_salt");
 
     let mut generics = s.ast().generics.clone();
-    generics
-        .params
-        .push(parse2(quote! { #salt_ident : ::ink_storage::traits::KeyHolder }).unwrap());
+    generics.params.push(
+        parse2(quote! { #salt_ident : ::ink_storage::traits::StorageKey }).unwrap(),
+    );
 
     let (impl_generics, _, where_clause) = generics.split_for_impl();
     let (_, ty_generics_original, _) = s.ast().generics.split_for_impl();

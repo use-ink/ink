@@ -1,6 +1,6 @@
 use ink_primitives::KeyComposer;
 use ink_storage::{
-    traits::KeyHolder,
+    traits::StorageKey,
     Lazy,
     Mapping,
 };

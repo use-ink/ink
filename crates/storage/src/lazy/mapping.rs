@@ -22,12 +22,14 @@
 use crate::traits::{
     AutoKey,
     Item,
-    KeyHolder,
     Packed,
-    Storable,
+    StorageKey,
 };
 use core::marker::PhantomData;
-use ink_primitives::Key;
+use ink_primitives::{
+    traits::Storable,
+    Key,
+};
 use scale::{
     Encode,
     Error,
@@ -40,9 +42,10 @@ use scale::{
 /// # Important
 ///
 /// The mapping requires its own pre-defined storage key where to store values. By default,
-/// it is [`AutoKey`](crate::traits::AutoKey) and during compilation is calculated based on
-/// the name of the structure and the field. But anyone can specify its storage key
-/// via [`ManualKey`](crate::traits::ManualKey).
+/// the is automatically calculated using [`AutoKey`](crate::traits::AutoKey) during compilation.
+/// However, anyone can specify a storage key using [`ManualKey`](crate::traits::ManualKey).
+/// Specifying the storage key can be helpful for upgradeable contracts or you want to be resistant
+/// to future changes of storage key calculation strategy.
 ///
 /// This is an example of how you can do this:
 /// ```rust
@@ -60,23 +63,17 @@ use scale::{
 /// #[ink(storage)]
 /// #[derive(Default)]
 /// pub struct MyContract {
-///     balances: Mapping<AccountId, Balance>,
-///     allowance: Mapping<AccountId, Balance, ManualKey<123>>,
+///     balances: Mapping<AccountId, Balance, ManualKey<123>>,
 /// }
 ///
 /// impl MyContract {
 ///     #[ink(constructor)]
 ///     pub fn new() -> Self {
 ///         let mut instance = Self::default();
-///         instance.new_init();
-///         instance
-///     }
-///
-///     /// Default initializes the contract.
-///     fn new_init(&mut self) {
 ///         let caller = Self::env().caller();
 ///         let value: Balance = Default::default();
-///         self.balances.insert(&caller, &value);
+///         instance.balances.insert(&caller, &value);
+///         instance
 ///     }
 ///
 /// #   #[ink(message)]
@@ -87,7 +84,7 @@ use scale::{
 ///
 /// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Mapping<K, V: Packed, KeyType: KeyHolder = AutoKey> {
+pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
     #[allow(clippy::type_complexity)]
     _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
@@ -96,7 +93,7 @@ pub struct Mapping<K, V: Packed, KeyType: KeyHolder = AutoKey> {
 impl<K, V, KeyType> Default for Mapping<K, V, KeyType>
 where
     V: Packed,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     fn default() -> Self {
         Self {
@@ -108,7 +105,7 @@ where
 impl<K, V, KeyType> Mapping<K, V, KeyType>
 where
     V: Packed,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     /// Creates a new empty `Mapping`.
     pub fn new() -> Self {
@@ -121,7 +118,7 @@ where
 impl<K, V, KeyType> ::core::fmt::Debug for Mapping<K, V, KeyType>
 where
     V: Packed,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("Mapping")
@@ -134,14 +131,14 @@ impl<K, V, KeyType> Mapping<K, V, KeyType>
 where
     K: Encode,
     V: Packed,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     /// Insert the given `value` to the contract storage.
     #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R)
     where
         Q: scale::EncodeLike<K>,
-        R: scale::EncodeLike<V>,
+        R: Storable + scale::EncodeLike<V>,
     {
         ink_env::set_contract_storage(&(&KeyType::KEY, key), value);
     }
@@ -153,7 +150,7 @@ where
     pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
-        R: scale::EncodeLike<V>,
+        R: Storable + scale::EncodeLike<V>,
     {
         ink_env::set_contract_storage(&(&KeyType::KEY, key), value)
     }
@@ -166,8 +163,8 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::get_contract_storage::<(&Key, Q), V>(&(&KeyType::KEY, key))
-            .unwrap_or_else(|error| panic!("failed to get value in mapping: {:?}", error))
+        ink_env::get_contract_storage(&(&KeyType::KEY, key))
+            .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {:?}", error))
     }
 
     /// Get the size of a value stored at `key` in the contract storage.
@@ -205,7 +202,7 @@ where
 impl<K, V, KeyType> Storable for Mapping<K, V, KeyType>
 where
     V: Packed,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     #[inline]
     fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
@@ -216,20 +213,20 @@ where
     }
 }
 
-impl<K, V, Salt, InnerSalt> Item<Salt> for Mapping<K, V, InnerSalt>
+impl<K, V, Key, InnerKey> Item<Key> for Mapping<K, V, InnerKey>
 where
     V: Packed,
-    Salt: KeyHolder,
-    InnerSalt: KeyHolder,
+    Key: StorageKey,
+    InnerKey: StorageKey,
 {
-    type Type = Mapping<K, V, Salt>;
-    type PreferredKey = InnerSalt;
+    type Type = Mapping<K, V, Key>;
+    type PreferredKey = InnerKey;
 }
 
-impl<K, V, KeyType> KeyHolder for Mapping<K, V, KeyType>
+impl<K, V, KeyType> StorageKey for Mapping<K, V, KeyType>
 where
     V: Packed,
-    KeyType: KeyHolder,
+    KeyType: StorageKey,
 {
     const KEY: Key = KeyType::KEY;
 }
@@ -247,7 +244,7 @@ const _: () = {
     where
         K: scale_info::TypeInfo + 'static,
         V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
-        KeyType: KeyHolder + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
         fn layout(_: &Key) -> Layout {
             Layout::Root(RootLayout::new(

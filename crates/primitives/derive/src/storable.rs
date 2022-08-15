@@ -27,18 +27,18 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
         let ty = &field.ty;
         let span = ty.span();
         quote_spanned!(span =>
-            <#ty as ::ink_storage::traits::Storable>::decode(__input)?
+            <#ty as ::ink_primitives::traits::Storable>::decode(__input)?
         )
     });
     let encode_body = variant.each(|binding| {
         let span = binding.ast().ty.span();
         quote_spanned!(span =>
-            ::ink_storage::traits::Storable::encode(#binding, __dest);
+            ::ink_primitives::traits::Storable::encode(#binding, __dest);
         )
     });
 
     s.gen_impl(quote! {
-         gen impl ::ink_storage::traits::Storable for @Self {
+         gen impl ::ink_primitives::traits::Storable for @Self {
             #[inline(always)]
             #[allow(non_camel_case_types)]
             fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
@@ -68,7 +68,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
                 let ty = &field.ty;
                 let span = ty.span();
                 quote_spanned!(span =>
-                    <#ty as ::ink_storage::traits::Storable>::decode(__input)?
+                    <#ty as ::ink_primitives::traits::Storable>::decode(__input)?
                 )
             })
         })
@@ -87,12 +87,12 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         let fields = variant.bindings().iter().map(|field| {
             let span = field.ast().ty.span();
             quote_spanned!(span =>
-                ::ink_storage::traits::Storable::encode(#field, __dest);
+                ::ink_primitives::traits::Storable::encode(#field, __dest);
             )
         });
         quote! {
              #pat => {
-                 { <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(&#index, __dest); }
+                 { <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(&#index, __dest); }
                  #(
                      { #fields }
                  )*
@@ -100,12 +100,12 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
          }
     });
     s.gen_impl(quote! {
-         gen impl ::ink_storage::traits::Storable for @Self {
+         gen impl ::ink_primitives::traits::Storable for @Self {
             #[inline(always)]
             #[allow(non_camel_case_types)]
             fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                 ::core::result::Result::Ok(
-                    match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)? {
+                    match <::core::primitive::u8 as ::ink_primitives::traits::Storable>::decode(__input)? {
                         #decode_body
                         _ => unreachable!("encountered invalid enum discriminant"),
                     }

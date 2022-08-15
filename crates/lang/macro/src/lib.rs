@@ -697,10 +697,10 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     Mapping,
 /// };
 /// use ink_storage::traits::{
-///     KeyHolder,
+///     StorageKey,
 ///     Item,
-///     Storable,
 /// };
+/// use ink_primitives::traits::Storable;
 ///
 /// #[derive(scale::Decode, scale::Encode)]
 /// struct Packed {
@@ -734,7 +734,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[ink_lang::storage_item(derive = false)]
-/// #[derive(Storable, Item, KeyHolder)]
+/// #[derive(Storable, Item, StorageKey)]
 /// #[cfg_attr(
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
@@ -763,7 +763,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[ink_lang::storage_item]
-/// struct NonPackedComplex<KEY: KeyHolder> {
+/// struct NonPackedComplex<KEY: StorageKey> {
 ///     s1: (String, u128, Packed),
 ///     s2: Mapping<u128, u128>,
 ///     s3: Lazy<u128>,
@@ -791,11 +791,12 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     use ink_storage::Mapping;
 ///     use ink_storage::traits::{
 ///         Item,
-///         KeyHolder,
-///         Storable,
+///         StorageKey,
 ///     };
+///     use ink_primitives::traits::Storable;
+///
 ///     #[ink_lang::storage_item(derive = false)]
-///     #[derive(Item, Storable, KeyHolder)]
+///     #[derive(Item, Storable, StorageKey)]
 ///     struct NonPackedGeneric<T: ink_storage::traits::Packed> {
 ///         s1: u32,
 ///         s2: Mapping<u128, T>,

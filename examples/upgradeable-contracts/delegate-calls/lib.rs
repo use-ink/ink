@@ -24,8 +24,8 @@ pub mod upgradeable_contract {
         KeyComposer,
     };
     use ink_storage::traits::{
-        KeyHolder,
         ManualKey,
+        StorageKey,
     };
 
     const PROXY_KEY: Key = KeyComposer::from_str("ProxyFields");
@@ -38,7 +38,7 @@ pub mod upgradeable_contract {
     /// This allows us to store the proxy contract's storage in such a way that it will not
     /// conflict with the the default storage layout of the contract we're proxying calls to.
     #[ink(storage)]
-    pub struct Proxy<KEY: KeyHolder = ManualKey<PROXY_KEY>> {
+    pub struct Proxy<KEY: StorageKey = ManualKey<PROXY_KEY>> {
         /// The `Hash` of a contract code where any call that does not match a
         /// selector of this contract is forward to.
         forward_to: Hash,

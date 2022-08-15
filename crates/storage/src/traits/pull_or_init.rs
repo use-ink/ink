@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! The module helps during compilation time decide which pull mechanism to use.
+//! If the type implements the` OnCallInitializer` trait, it will use `pull_storage` +
+//! initialization if the pull failed. Otherwise, it will use only `pull_storage`.
+
 use crate::traits::{
     pull_storage,
     storage::OnCallInitializer,
-    DecodeWrapper,
-    Storable,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    traits::Storable,
+    Key,
+};
 
 pub struct PullOrInit<T: Storable> {
     marker: core::marker::PhantomData<fn() -> T>,
@@ -27,14 +32,14 @@ pub struct PullOrInit<T: Storable> {
 impl<T: OnCallInitializer + Storable> PullOrInit<T> {
     #[allow(dead_code)]
     pub fn pull_or_init(key: &Key) -> T {
-        let maybe_instance = ink_env::get_contract_storage::<Key, DecodeWrapper<T>>(key);
+        let maybe_instance = ink_env::get_contract_storage::<Key, T>(key);
         match maybe_instance {
             Ok(None) | Err(_) => {
                 let mut instance = Default::default();
                 <T as OnCallInitializer>::initialize(&mut instance);
                 instance
             }
-            Ok(Some(wrapper)) => wrapper.0,
+            Ok(Some(value)) => value,
         }
     }
 }
@@ -86,7 +91,7 @@ mod tests {
     #[ink_lang::test]
     fn pull_or_init_works() {
         const KEY: Key = 111;
-        push_storage(&U32(456), &KEY);
+        push_storage(&KEY, &U32(456));
         let instance = pull_or_init!(U32, KEY);
 
         // Instead of init we used a pulled value
@@ -104,7 +109,7 @@ mod tests {
     #[ink_lang::test]
     fn pull_works() {
         const KEY: Key = 111;
-        push_storage(&321, &KEY);
+        push_storage(&KEY, &321);
         let instance = pull_or_init!(u32, KEY);
         assert_eq!(321, instance);
     }

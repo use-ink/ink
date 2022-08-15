@@ -164,7 +164,23 @@ impl<'a> ScopedBuffer<'a> {
         debug_assert_eq!(self.offset, 0);
         let buffer = core::mem::take(&mut self.buffer);
         let mut encode_scope = EncodeScope::from(buffer);
-        scale::Encode::encode_to(&value, &mut encode_scope);
+        scale::Encode::encode_to(value, &mut encode_scope);
+        let encode_len = encode_scope.len();
+        let _ = core::mem::replace(&mut self.buffer, encode_scope.into_buffer());
+        self.take(encode_len)
+    }
+
+    /// Encode the given storable value into the scoped buffer and return the sub slice
+    /// containing all the encoded bytes.
+    #[inline(always)]
+    pub fn take_storable_encoded<T>(&mut self, value: &T) -> &'a mut [u8]
+    where
+        T: ink_primitives::traits::Storable,
+    {
+        debug_assert_eq!(self.offset, 0);
+        let buffer = core::mem::take(&mut self.buffer);
+        let mut encode_scope = EncodeScope::from(buffer);
+        ink_primitives::traits::Storable::encode(value, &mut encode_scope);
         let encode_len = encode_scope.len();
         let _ = core::mem::replace(&mut self.buffer, encode_scope.into_buffer());
         self.take(encode_len)

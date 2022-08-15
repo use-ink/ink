@@ -1,19 +1,14 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+mod arrays {
+    use crate::item_works_for_primitive;
 
-#[cfg(test)]
-mod tests {
+    type Array = [i32; 4];
+    item_works_for_primitive!(Array);
+
+    type ArrayTuples = [(i32, i32); 2];
+    item_works_for_primitive!(ArrayTuples);
+}
+
+mod prims {
     use crate::item_works_for_primitive;
     use ink_env::AccountId;
 
@@ -42,4 +37,11 @@ mod tests {
 
     type BoxOptionU8 = Box<Option<u8>>;
     item_works_for_primitive!(BoxOptionU8);
+}
+
+mod tuples {
+    use crate::item_works_for_primitive;
+
+    type TupleSix = (i32, u32, String, u8, bool, Box<Option<i32>>);
+    item_works_for_primitive!(TupleSix);
 }

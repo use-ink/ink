@@ -3,7 +3,7 @@ use ink_primitives::KeyComposer;
 use ink_storage::{
     traits::{
         AutoKey,
-        KeyHolder,
+        StorageKey,
     },
     Lazy,
     Mapping,
@@ -32,7 +32,7 @@ enum Packed {
 
 #[ink_lang::storage_item]
 #[derive(Default)]
-enum NonPacked<KEY: KeyHolder = AutoKey> {
+enum NonPacked<KEY: StorageKey = AutoKey> {
     #[default]
     None,
     A(Mapping<u128, Packed>),
@@ -64,7 +64,7 @@ fn main() {
         );
 
         contract.a.set(&NonPacked::<_>::A(Default::default()));
-        let variant = if let NonPacked::<_>::A(variant) = contract.a.get() {
+        let variant = if let Some(NonPacked::<_>::A(variant)) = contract.a.get() {
             variant
         } else {
             panic!("Wrong variant")
@@ -78,7 +78,7 @@ fn main() {
         );
 
         contract.a.set(&NonPacked::<_>::B(Default::default()));
-        let variant = if let NonPacked::<_>::B(variant) = contract.a.get() {
+        let variant = if let Some(NonPacked::<_>::B(variant)) = contract.a.get() {
             variant
         } else {
             panic!("Wrong variant")
@@ -92,7 +92,7 @@ fn main() {
         );
 
         contract.a.set(&NonPacked::<_>::C(Default::default()));
-        let variant = if let NonPacked::<_>::C(variant) = contract.a.get() {
+        let variant = if let Some(NonPacked::<_>::C(variant)) = contract.a.get() {
             variant
         } else {
             panic!("Wrong variant")
@@ -106,7 +106,7 @@ fn main() {
         );
 
         contract.a.set(&NonPacked::<_>::D(Default::default()));
-        let variant = if let NonPacked::<_>::D(variant) = contract.a.get() {
+        let variant = if let Some(NonPacked::<_>::D(variant)) = contract.a.get() {
             variant
         } else {
             panic!("Wrong variant")
@@ -120,7 +120,7 @@ fn main() {
         );
 
         contract.a.set(&NonPacked::<_>::E(Default::default()));
-        let variant = if let NonPacked::<_>::E(variant) = contract.a.get() {
+        let variant = if let Some(NonPacked::<_>::E(variant)) = contract.a.get() {
             variant
         } else {
             panic!("Wrong variant")
@@ -136,7 +136,7 @@ fn main() {
         contract.a.set(&NonPacked::<_>::F {
             a: Default::default(),
         });
-        let variant = if let NonPacked::<_>::F { a } = contract.a.get() {
+        let variant = if let Some(NonPacked::<_>::F { a }) = contract.a.get() {
             a
         } else {
             panic!("Wrong variant")

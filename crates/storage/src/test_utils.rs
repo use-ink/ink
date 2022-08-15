@@ -28,7 +28,7 @@ where
     .unwrap()
 }
 
-/// Creates test to verify that the type for primitives is atomic and the same.
+/// Creates test to verify that the primitive types are packed.
 #[macro_export]
 macro_rules! item_works_for_primitive {
     ( $ty:ty ) => {

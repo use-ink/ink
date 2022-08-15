@@ -30,7 +30,7 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::Storable for UnitStruct {
+                impl ::ink_primitives::traits::Storable for UnitStruct {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
@@ -62,15 +62,15 @@ fn struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::Storable for NamedFields {
+                impl ::ink_primitives::traits::Storable for NamedFields {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
                             NamedFields {
-                                a : <i32 as ::ink_storage::traits::Storable>::decode(__input)?,
-                                b : <[u8; 32] as ::ink_storage::traits::Storable>::decode(__input)?,
-                                d : <Box<i32> as ::ink_storage::traits::Storable>::decode(__input)?,
+                                a : <i32 as ::ink_primitives::traits::Storable>::decode(__input)?,
+                                b : <[u8; 32] as ::ink_primitives::traits::Storable>::decode(__input)?,
+                                d : <Box<i32> as ::ink_primitives::traits::Storable>::decode(__input)?,
                             }
                         )
                     }
@@ -86,19 +86,19 @@ fn struct_works() {
                                 d: __binding_2,
                             } => {
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_0,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_1,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_2,
                                         __dest
                                     );
@@ -122,12 +122,12 @@ fn one_variant_enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::Storable for OneVariantEnum {
+                impl ::ink_primitives::traits::Storable for OneVariantEnum {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
-                            match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)?
+                            match <::core::primitive::u8 as ::ink_primitives::traits::Storable>::decode(__input)?
                             {
                                 0u8 => OneVariantEnum::A,
                                 _ => unreachable!("encountered invalid enum discriminant"),
@@ -141,7 +141,7 @@ fn one_variant_enum_works() {
                         match self {
                             OneVariantEnum::A => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
+                                    <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(
                                         &0u8,
                                         __dest
                                     );
@@ -167,21 +167,21 @@ fn enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::Storable for MixedEnum {
+                impl ::ink_primitives::traits::Storable for MixedEnum {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
-                            match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)?
+                            match <::core::primitive::u8 as ::ink_primitives::traits::Storable>::decode(__input)?
                             {
                                 0u8 => MixedEnum::A,
                                 1u8 => MixedEnum::B(
-                                    <i32 as ::ink_storage::traits::Storable>::decode(__input)?,
-                                    <[u8; 32] as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    <i32 as ::ink_primitives::traits::Storable>::decode(__input)?,
+                                    <[u8; 32] as ::ink_primitives::traits::Storable>::decode(__input)?,
                                 ),
                                 2u8 => MixedEnum::C {
-                                    a: < i32 as ::ink_storage::traits::Storable>::decode(__input)?,
-                                    b: <(bool, i32) as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    a: < i32 as ::ink_primitives::traits::Storable>::decode(__input)?,
+                                    b: <(bool, i32) as ::ink_primitives::traits::Storable>::decode(__input)?,
                                 },
                                 _ => unreachable!("encountered invalid enum discriminant"),
                             }
@@ -194,7 +194,7 @@ fn enum_works() {
                         match self {
                             MixedEnum::A => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
+                                    <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(
                                         &0u8,
                                         __dest
                                     );
@@ -202,19 +202,19 @@ fn enum_works() {
                             }
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
+                                    <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(
                                         &1u8,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_0,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_1,
                                         __dest
                                     );
@@ -225,18 +225,18 @@ fn enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(
+                                    <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(
                                         &2u8, __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_0,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_1,
                                         __dest
                                     );
@@ -256,8 +256,8 @@ fn generic_struct_works() {
         storable_derive {
             struct GenericStruct<T1, T2>
             where
-                T1: ::ink_storage::traits::Packed,
-                T2: ::ink_storage::traits::Packed,
+                T1: ::scale::Decode,
+                T2: ::scale::Encode,
             {
                 a: T1,
                 b: (T1, T2),
@@ -265,22 +265,22 @@ fn generic_struct_works() {
         }
         expands to {
             const _: () = {
-                impl<T1, T2> ::ink_storage::traits::Storable for GenericStruct<T1, T2>
+                impl<T1, T2> ::ink_primitives::traits::Storable for GenericStruct<T1, T2>
                 where
-                    T1: ::ink_storage::traits::Packed,
-                    T2: ::ink_storage::traits::Packed,
-                    T1: ::ink_storage::traits::Storable,
-                    (T1 , T2): ::ink_storage::traits::Storable
+                    T1: ::scale::Decode,
+                    T2: ::scale::Encode,
+                    T1: ::ink_primitives::traits::Storable,
+                    (T1 , T2): ::ink_primitives::traits::Storable
                 {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
                             GenericStruct {
-                                a: <T1 as ::ink_storage::traits::Storable>::decode(
+                                a: <T1 as ::ink_primitives::traits::Storable>::decode(
                                     __input
                                 )?,
-                                b: <(T1, T2) as ::ink_storage::traits::Storable>::decode(
+                                b: <(T1, T2) as ::ink_primitives::traits::Storable>::decode(
                                     __input
                                 )?,
                             }
@@ -296,13 +296,13 @@ fn generic_struct_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_0,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_1,
                                         __dest
                                     );
@@ -327,24 +327,24 @@ fn generic_enum_works() {
         }
         expands to {
             const _: () = {
-                impl<T1, T2> ::ink_storage::traits::Storable for GenericEnum<T1, T2>
+                impl<T1, T2> ::ink_primitives::traits::Storable for GenericEnum<T1, T2>
                 where
-                    T1: ::ink_storage::traits::Storable,
-                    T2: ::ink_storage::traits::Storable
+                    T1: ::ink_primitives::traits::Storable,
+                    T2: ::ink_primitives::traits::Storable
                 {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
-                            match <::core::primitive::u8 as ::ink_storage::traits::Storable>::decode(__input)?
+                            match <::core::primitive::u8 as ::ink_primitives::traits::Storable>::decode(__input)?
                             {
                                 0u8 => GenericEnum::Tuple(
-                                    <T1 as ::ink_storage::traits::Storable>::decode(__input)?,
-                                    <T2 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    <T1 as ::ink_primitives::traits::Storable>::decode(__input)?,
+                                    <T2 as ::ink_primitives::traits::Storable>::decode(__input)?,
                                 ),
                                 1u8 => GenericEnum::Named {
-                                    a: <T1 as ::ink_storage::traits::Storable>::decode(__input)?,
-                                    b: <T2 as ::ink_storage::traits::Storable>::decode(__input)?,
+                                    a: <T1 as ::ink_primitives::traits::Storable>::decode(__input)?,
+                                    b: <T2 as ::ink_primitives::traits::Storable>::decode(__input)?,
                                 },
                                 _ => unreachable!("encountered invalid enum discriminant"),
                             }
@@ -357,16 +357,16 @@ fn generic_enum_works() {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(&0u8, __dest);
+                                    <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(&0u8, __dest);
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_0,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_1,
                                         __dest
                                     );
@@ -377,16 +377,16 @@ fn generic_enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    <::core::primitive::u8 as ::ink_storage::traits::Storable>::encode(&1u8, __dest);
+                                    <::core::primitive::u8 as ::ink_primitives::traits::Storable>::encode(&1u8, __dest);
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_0,
                                         __dest
                                     );
                                 }
                                 {
-                                    ::ink_storage::traits::Storable::encode(
+                                    ::ink_primitives::traits::Storable::encode(
                                         __binding_1,
                                         __dest
                                     );

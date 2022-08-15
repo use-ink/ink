@@ -14,7 +14,6 @@
 
 use super::{
     ext,
-    EncodeScope,
     EnvInstance,
     Error as ExtError,
     ScopedBuffer,
@@ -47,6 +46,7 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
+use ink_primitives::traits::Storable;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -226,18 +226,18 @@ impl EnvBackend for EnvInstance {
     fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
         K: scale::Encode,
-        V: scale::Encode,
+        V: Storable,
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
-        let value = buffer.take_encoded(value);
+        let value = buffer.take_storable_encoded(value);
         ext::set_storage(key, value)
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
-        R: scale::Decode,
+        R: Storable,
     {
         let mut buffer = self.scoped_buffer();
         let key = buffer.take_encoded(key);
@@ -247,7 +247,7 @@ impl EnvBackend for EnvInstance {
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = scale::Decode::decode(&mut &output[..])?;
+        let decoded = Storable::decode(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
@@ -280,7 +280,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = EncodeScope::from(&mut self.buffer[..]);
+        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
         return_value.encode_to(&mut scope);
         let len = scope.len();
         ext::return_value(flags, &self.buffer[..][..len]);

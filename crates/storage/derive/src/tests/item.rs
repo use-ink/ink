@@ -22,7 +22,7 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl<__ink_generic_salt: ::ink_storage::traits::KeyHolder>
+                impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
                     ::ink_storage::traits::Item<__ink_generic_salt> for UnitStruct
                 {
                     type Type = UnitStruct;
@@ -38,13 +38,13 @@ fn unit_struct_works() {
 fn unit_struct_salt_works() {
     crate::test_derive! {
         item_derive {
-            struct UnitStruct<Salt: ::ink_storage::traits::KeyHolder>;
+            struct UnitStruct<Salt: ::ink_storage::traits::StorageKey>;
         }
         expands to {
             const _: () = {
                 impl<
-                        Salt: ::ink_storage::traits::KeyHolder,
-                        __ink_generic_salt: ::ink_storage::traits::KeyHolder
+                        Salt: ::ink_storage::traits::StorageKey,
+                        __ink_generic_salt: ::ink_storage::traits::StorageKey
                     >
                     ::ink_storage::traits::Item<__ink_generic_salt> for UnitStruct<Salt>
                 {
@@ -69,7 +69,7 @@ fn struct_works() {
         }
         expands to {
             const _: () = {
-                impl<__ink_generic_salt: ::ink_storage::traits::KeyHolder>
+                impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
                     ::ink_storage::traits::Item<__ink_generic_salt> for NamedFields
                 {
                     type Type = NamedFields;
@@ -85,7 +85,7 @@ fn struct_works() {
 fn struct_salt_works() {
     crate::test_derive! {
         item_derive {
-            struct NamedFields<Salt: KeyHolder> {
+            struct NamedFields<Salt: StorageKey> {
                 a: i32,
                 b: [u8; 32],
                 d: Box<i32>,
@@ -94,8 +94,8 @@ fn struct_salt_works() {
         expands to {
             const _: () = {
                 impl<
-                        Salt: KeyHolder,
-                        __ink_generic_salt: ::ink_storage::traits::KeyHolder
+                        Salt: StorageKey,
+                        __ink_generic_salt: ::ink_storage::traits::StorageKey
                     >
                     ::ink_storage::traits::Item<__ink_generic_salt> for NamedFields<Salt>
                 {
@@ -120,7 +120,7 @@ fn enum_works() {
         }
         expands to {
             const _: () = {
-                impl<__ink_generic_salt: ::ink_storage::traits::KeyHolder>
+                impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
                     ::ink_storage::traits::Item<__ink_generic_salt> for MixedEnum
                 {
                     type Type = MixedEnum;
@@ -136,7 +136,7 @@ fn enum_works() {
 fn enum_salt_works() {
     crate::test_derive! {
         item_derive {
-            enum MixedEnum<Salt: traits::KeyHolder> {
+            enum MixedEnum<Salt: traits::StorageKey> {
                 A,
                 B(u32, [u8; 32]),
                 C { a: i32, b: (bool, i32) },
@@ -145,8 +145,8 @@ fn enum_salt_works() {
         expands to {
             const _: () = {
                 impl<
-                        Salt: traits::KeyHolder,
-                        __ink_generic_salt: ::ink_storage::traits::KeyHolder
+                        Salt: traits::StorageKey,
+                        __ink_generic_salt: ::ink_storage::traits::StorageKey
                     >
                     ::ink_storage::traits::Item<__ink_generic_salt> for MixedEnum<Salt>
                 {
