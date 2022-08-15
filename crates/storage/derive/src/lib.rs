@@ -44,8 +44,8 @@ synstructure::decl_derive!(
     ///     AutoItem,
     ///     AutoKey,
     ///     ManualKey,
-    ///     Storable,
     /// };
+    /// use ink_primitives::traits::Storable;
     ///
     /// #[derive(Default, Item, Storable)]
     /// struct NamedFields {
