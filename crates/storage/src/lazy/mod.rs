@@ -263,11 +263,10 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "storage entry was empty")]
     fn gets_fails_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let storage: Lazy<u8, ManualKey<123>> = Lazy::new();
-            storage.get();
+            assert_eq!(storage.get(), None);
 
             Ok(())
         })

@@ -1,4 +1,4 @@
-error[E0119]: conflicting implementations of trait `ink_lang::reflect::DispatchableMessageInfo<42>` for type `contract::Contract`
+error[E0119]: conflicting implementations of trait `ink_lang::reflect::DispatchableMessageInfo<42_u32>` for type `contract::Contract`
   --> tests/ui/contract/fail/trait-message-selector-overlap-3.rs:47:9
    |
 42 |         fn message1(&self) {}
@@ -7,7 +7,7 @@ error[E0119]: conflicting implementations of trait `ink_lang::reflect::Dispatcha
 47 |         fn message2(&self) {}
    |         ^^^^^^^^^^^^^^^^^^^^^ conflicting implementation for `contract::Contract`
 
-error[E0119]: conflicting implementations of trait `ink_lang::codegen::TraitCallForwarderFor<42>` for type `contract::_::CallBuilder`
+error[E0119]: conflicting implementations of trait `ink_lang::codegen::TraitCallForwarderFor<42_u32>` for type `contract::_::CallBuilder`
   --> tests/ui/contract/fail/trait-message-selector-overlap-3.rs:45:5
    |
 40 | /     impl TraitDefinition1 for Contract {
