@@ -13,8 +13,8 @@
 // limitations under the License.
 
 //! The module helps during compilation time decide which pull mechanism to use.
-//! If the type implements the` OnCallInitializer` trait, it will use `pull_storage` +
-//! initialization if the pull failed. Otherwise, it will use only `pull_storage`.
+//! If the type implements `OnCallInitializer` trait, it will use `pull_storage` and
+//! initialization(if the pull failed). Otherwise, it will use only `pull_storage`.
 
 use crate::traits::{
     pull_storage,

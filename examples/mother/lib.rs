@@ -34,7 +34,7 @@ mod mother {
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
     /// Wrapping vector, just added for testing UI components.
-    #[derive(Default, PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
+    #[derive(Default, PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
@@ -42,7 +42,7 @@ mod mother {
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
     /// Auction outline.
-    #[derive(PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
+    #[derive(PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
@@ -56,7 +56,7 @@ mod mother {
     /// Auction statuses.
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
-    #[derive(PartialEq, Debug, Clone, scale::Decode, scale::Encode)]
+    #[derive(PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
@@ -78,7 +78,7 @@ mod mother {
     }
 
     /// Struct for storing auction data.
-    #[derive(Debug, PartialEq, Clone, scale::Decode, scale::Encode)]
+    #[derive(Debug, PartialEq, Eq, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
