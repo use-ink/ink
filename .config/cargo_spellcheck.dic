@@ -63,6 +63,8 @@ stdout
 tuple
 unordered
 untyped
+v1
+v2
 v3
 validator
 variadic
