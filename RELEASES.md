@@ -1,10 +1,30 @@
 # [Unreleased]
 
 There are a number of backwards incompatible changes which are on the `master` branch
-waiting to be released. These include:
-- Add Mapping::contains(key) and Mapping::insert_return_size(key, val) - [#1224](https://github.com/paritytech/ink/pull/1224)
-- Optimise deny_payment. Use everywhere semantic of deny. [#1267](https://github.com/paritytech/ink/pull/1267)
-- Implement ecdsa_to_eth_address() and remove eth_compatibility crate [#1233](https://github.com/paritytech/ink/pull/1233)
+waiting to be released. These are:
+
+- Add Mapping::contains(key) and Mapping::insert_return_size(key, val) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+- Optimise deny_payment. Use everywhere semantic of deny ‒ [#1267](https://github.com/paritytech/ink/pull/1267)
+- Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+- The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
+
+## Compatibility
+
+We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [6b85535](https://github.com/paritytech/substrate/tree/6b8553511112afd5ae7e8e6877dc2f467850f155)
+(Aug 12, 2022) in your node.
+
+The compatibility issues will be with `ChainExtension`'s and the functions mentioned above.
+
+# Version 3.3.1
+
+At the moment teams which use both Substrate and ink! in the same codebase are
+[experiencing some issues](https://github.com/paritytech/ink/pull/1348#issuecomment-1207477615)
+with updating to Substrate's [`polkadot-0.9.27` branch](https://github.com/paritytech/substrate/tree/polkadot-v0.9.27).
+This is because that branch uses the `secp256k1@0.24`, which is incompatible with
+`secp256k1@0.22`
+
+This release bumps the `secp256k1` version from `v0.22` to `v0.24`.
 
 # Version 3.3.0
 
