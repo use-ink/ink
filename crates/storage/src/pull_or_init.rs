@@ -29,6 +29,8 @@ use ink_primitives::{
     Key,
 };
 
+/// Part of Autoref-Based Specialization. It is a wrapper around the type to support autoref
+/// specialization.
 pub struct PullOrInit<T: Storable> {
     marker: core::marker::PhantomData<fn() -> T>,
 }
@@ -48,6 +50,8 @@ impl<T: OnCallInitializer + Storable> PullOrInit<T> {
     }
 }
 
+/// Part of Autoref-Based Specialization. If the type doesn't implement `OnCallInitializer` trait
+/// then the compiler will use this default implementation.
 pub trait PullOrInitFallback<T: Storable> {
     #[allow(dead_code)]
     fn pull_or_init(key: &Key) -> T {
