@@ -15,8 +15,8 @@
 //!
 //! ## Error Handling
 //!
-//! The only panic in the contract is when the signature is invalid. For rest, it'll
-//! return an error. The possible errors are defined in the `Error` enum.
+//! The only panic in the contract is when the signature is invalid. For all other
+//! error cases an error is returned. Possible errors are defined in the `Error` enum.
 //!
 //! ## Interface
 //!
@@ -33,9 +33,9 @@
 //! The `recipient` can `withdraw` from the payment channel anytime by submitting the last
 //! `signature` received from the `sender`.
 //!
-//! The `sender` can only `withdraw` by terminating the payment channel. He can call
-//! `start_sender_close` to set an expiration. Then he can call `claim_timeout` to claim
-//! the funds. This will terminate the payment channel.
+//! The `sender` can only `withdraw` by terminating the payment channel. This is
+//! done by calling `start_sender_close` to set an expiration with a subsequent call
+//! of `claim_timeout` to claim the funds. This will terminate the payment channel.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -54,7 +54,7 @@ mod payment_channel {
         /// The `AccountId` of the recipient of the payment channel.
         recipient: AccountId,
         /// The `Timestamp` at which the contract expires. The field is optional.
-        /// If it's not set, the contract never expires.
+        /// The contract never expires if set to `None`.
         expiration: Option<Timestamp>,
         /// The `Amount` withdrawn by the recipient.
         withdrawn: Balance,
@@ -72,24 +72,24 @@ mod payment_channel {
         CallerIsNotSender,
         /// Returned if caller is not the `recipient` while required to.
         CallerIsNotRecipient,
-        /// Returned if the requested withdrawal / close amount is less than the amount
+        /// Returned if the requested withdrawal amount is less than the amount
         /// that is already already withdrawn.
         AmountIsLessThanWithdrawn,
-        /// Returned if the requested transfer failed. this can be the case if the
+        /// Returned if the requested transfer failed. This can be the case if the
         /// contract does not have sufficient free funds or if the transfer would
         /// have brought the contract's balance below minimum balance.
         TransferFailed,
-        /// Returned if the contract hasn't expired yet and the `sender` wishes to close
-        /// the channel.
+        /// Returned if the contract hasn't expired yet and the `sender` wishes to
+        /// close the channel.
         NotYetExpired,
         /// Returned if the signature is invalid.
         InvalidSignature,
     }
 
-    /// Type alias for the contract's result type.
+    /// Type alias for the contract's `Result` type.
     pub type Result<T> = core::result::Result<T, Error>;
 
-    /// Emitted when the sender wishes to close the channel.
+    /// Emitted when the sender starts closing the channel.
     #[ink(event)]
     pub struct SenderCloseStarted {
         expiration: Timestamp,
@@ -99,11 +99,11 @@ mod payment_channel {
     impl PaymentChannel {
         /// The only constructor of the contract.
         ///
-        /// The `recipient` and the `close_duration` are required.
+        /// The arguments `recipient` and `close_duration` are required.
         ///
-        /// `expiration` will be set to a max value so that the contract will never
-        /// expire. `sender` can call `start_sender_close` to override this.
-        /// `sender` will be able to claim the remaining balance by calling
+        /// `expiration` will be set to `None`, so that the contract will
+        /// never expire. `sender` can call `start_sender_close` to override
+        /// this. `sender` will be able to claim the remaining balance by calling
         /// `claim_timeout` after `expiration` has passed.
         #[ink(constructor)]
         pub fn new(recipient: AccountId, close_duration: Timestamp) -> Self {
@@ -116,15 +116,16 @@ mod payment_channel {
             }
         }
 
-        /// `recipient` can close the payment channel anytime. The `recipient` will be
-        /// sent that amount, and the remainder will go back to the `sender`.
+        /// The `recipient` can close the payment channel anytime. The specified
+        /// `amount` will be sent to the `recipient` and the remainder will go
+        /// back to the `sender`.
         #[ink(message)]
         pub fn close(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
             self.close_inner(amount, signature)?;
             self.env().terminate_contract(self.sender);
         }
 
-        /// We split this out in order to make testing `close` simpler
+        /// We split this out in order to make testing `close` simpler.
         fn close_inner(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
             if self.env().caller() != self.recipient {
                 return Err(Error::CallerIsNotRecipient)
@@ -146,11 +147,11 @@ mod payment_channel {
             Ok(())
         }
 
-        /// If the `sender` wishes to close the channel and withdraw the funds, they can
+        /// If the `sender` wishes to close the channel and withdraw the funds they can
         /// do so by setting the `expiration`. If the `expiration` is reached, the
         /// sender will be able to call `claim_timeout` to claim the remaining funds
         /// and the channel will be terminated. This emits an event that the recipient can
-        /// listen to in order to withdraw the funds before the `expiration`
+        /// listen to in order to withdraw the funds before the `expiration`.
         #[ink(message)]
         pub fn start_sender_close(&mut self) -> Result<()> {
             if self.env().caller() != self.sender {
@@ -170,7 +171,7 @@ mod payment_channel {
             Ok(())
         }
 
-        /// If the timeout is reached ( `current_time > expiration` ) without the
+        /// If the timeout is reached (`current_time >= expiration`) without the
         /// recipient closing the channel, then the remaining balance is released
         /// back to the `sender`.
         #[ink(message)]
@@ -191,7 +192,7 @@ mod payment_channel {
             }
         }
 
-        /// `recipient` can withdraw the funds from the channel at any time.
+        /// The `recipient` can withdraw the funds from the channel at any time.
         #[ink(message)]
         pub fn withdraw(&mut self, amount: Balance, signature: [u8; 65]) -> Result<()> {
             if self.env().caller() != self.recipient {
@@ -218,37 +219,37 @@ mod payment_channel {
             Ok(())
         }
 
-        /// returns the `sender` of the contract
+        /// Returns the `sender` of the contract.
         #[ink(message)]
         pub fn get_sender(&self) -> AccountId {
             self.sender
         }
 
-        /// returns the `recipient` of the contract
+        /// Returns the `recipient` of the contract.
         #[ink(message)]
         pub fn get_recipient(&self) -> AccountId {
             self.recipient
         }
 
-        /// returns the `expiration` of the contract
+        /// Returns the `expiration` of the contract.
         #[ink(message)]
         pub fn get_expiration(&self) -> Option<Timestamp> {
             self.expiration
         }
 
-        /// returns the `withdrawn` amount of the contract
+        /// Returns the `withdrawn` amount of the contract.
         #[ink(message)]
         pub fn get_withdrawn(&self) -> Balance {
             self.withdrawn
         }
 
-        /// returns the `close_duration` of the contract
+        /// Returns the `close_duration` of the contract.
         #[ink(message)]
         pub fn get_close_duration(&self) -> Timestamp {
             self.close_duration
         }
 
-        /// returns the `balance` of the contract
+        /// Returns the `balance` of the contract.
         #[ink(message)]
         pub fn get_balance(&self) -> Balance {
             self.env().balance()
@@ -321,7 +322,7 @@ mod payment_channel {
 
         fn get_dan() -> AccountId {
             // Use Dan's seed
-            // subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed
+            // `subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed`
             let seed = hex_literal::hex!(
                 "c31fa562972de437802e0df146b16146349590b444db41f7e3eb9deedeee6f64"
             );
@@ -352,7 +353,7 @@ mod payment_channel {
             ink_env::hash_encoded::<ink_env::hash::Sha2x256, _>(&encodable, &mut hash);
 
             // Use Dan's seed
-            // subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed
+            // `subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed`
             let seed = hex_literal::hex!(
                 "c31fa562972de437802e0df146b16146349590b444db41f7e3eb9deedeee6f64"
             );
@@ -374,8 +375,8 @@ mod payment_channel {
 
             // when
             // Push the new execution context with Alice as the caller and
-            // the mock_deposit_value as the value deposited.
-            // Note: Currently there is no way to transfer funds to the contract
+            // the `mock_deposit_value` as the value deposited.
+            // Note: Currently there is no way to transfer funds to the contract.
             set_next_caller(accounts.alice);
             let payment_channel = PaymentChannel::new(accounts.bob, close_duration);
             let contract_id = contract_id();
@@ -453,6 +454,7 @@ mod payment_channel {
             let amount = 500;
             set_account_balance(accounts.alice, initial_balance);
             set_account_balance(dan, initial_balance);
+
             // when
             set_next_caller(accounts.alice);
             let mut payment_channel = PaymentChannel::new(dan, close_duration);
