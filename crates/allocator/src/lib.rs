@@ -19,7 +19,7 @@
 //! full-featured `wee_alloc` allocator by activating the `wee-alloc` crate feature.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), feature(alloc_error_handler, core_intrinsics))]
+#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
 
 // We use `wee_alloc` as the global allocator since it is optimized for binary file size
 // so that contracts compiled with it as allocator do not grow too much in size.
