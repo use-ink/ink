@@ -19,20 +19,17 @@
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!
-//! The `Packed` shows that the type is packed and can be stored
-//! into single storage cell. Some collections works only with packed structures.
-//! Consequently, non-`Packed` are types that can't be stored in one cell.
-//! It means that at least one of the fields has its storage cell.
+//! The `Packed` shows that the type can be stored into single storage cell.
+//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed structures.
+//!
+//! If at least one of the type's fields occupies its own separate storage cell, it is a
+//! non-`Packed` type because it occupies more than one storage cell.
 
 mod impls;
 mod storage;
 
 #[cfg(feature = "std")]
 mod layout;
-
-#[macro_use]
-#[doc(hidden)]
-pub mod pull_or_init;
 
 #[cfg(feature = "std")]
 pub use self::layout::{
@@ -63,7 +60,12 @@ pub use ink_storage_derive::{
     StorageLayout,
 };
 
-/// Pulls an instance of type `T` from the contract storage using decode and its storage key.
+/// Pulls an instance of type `T` from the contract storage given its storage key.
+///
+/// # Panics
+///
+/// - If the storage entry is empty.
+/// - If could not properly decode storage entry.
 pub fn pull_storage<T>(key: &Key) -> T
 where
     T: Storable,
@@ -75,7 +77,8 @@ where
     }
 }
 
-/// Pushes the entity to the contract storage using encode and storage key.
+/// Pushes the entity to the contract storage at the provided storage key and returns the size
+/// of pre-existing value if any.
 pub fn push_storage<T>(key: &Key, entity: &T) -> Option<u32>
 where
     T: Storable,

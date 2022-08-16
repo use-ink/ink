@@ -13,12 +13,16 @@
 // limitations under the License.
 
 //! The module helps during compilation time decide which pull mechanism to use.
-//! If the type implements `OnCallInitializer` trait, it will use `pull_storage` and
-//! initialization(if the pull failed). Otherwise, it will use only `pull_storage`.
+//! If the type implements [`OnCallInitializer`](crate::traits::storage::OnCallInitializer) trait,
+//! it will use `pull_storage` with combination `OnCallInitializer::initialize`(if the pull failed).
+//! Otherwise, it will use only `pull_storage` as a default behavior.
+//!
+//! [`OnCallInitializer`](crate::traits::storage::OnCallInitializer) allows initialize the
+//! type on demand. For more information, check the documentation of the trait.
 
 use crate::traits::{
     pull_storage,
-    storage::OnCallInitializer,
+    OnCallInitializer,
 };
 use ink_primitives::{
     traits::Storable,
@@ -58,9 +62,9 @@ impl<T: Storable> PullOrInitFallback<T> for PullOrInit<T> {}
 macro_rules! pull_or_init {
     ( $T:ty, $key:expr $(,)? ) => {{
         #[allow(unused_imports)]
-        use $crate::traits::pull_or_init::PullOrInitFallback as _;
+        use $crate::pull_or_init::PullOrInitFallback as _;
 
-        $crate::traits::pull_or_init::PullOrInit::<$T>::pull_or_init(&$key)
+        $crate::pull_or_init::PullOrInit::<$T>::pull_or_init(&$key)
     }};
 }
 

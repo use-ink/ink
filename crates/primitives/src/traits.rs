@@ -15,6 +15,10 @@
 pub use ink_primitives_derive::Storable;
 
 /// Trait for representing types which can be read and written to storage.
+///
+/// This trait is not the same as the `scale::Encode + scale::Decode`. Each type that implements
+/// `scale::Encode + scale::Decode` are storable by default and transferable between contracts.
+/// But not each storable type is transferable.
 pub trait Storable: Sized {
     /// Convert self to a slice and append it to the destination.
     fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T);
@@ -23,6 +27,8 @@ pub trait Storable: Sized {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error>;
 }
 
+/// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default because
+/// they can be written directly into the storage cell.
 impl<P> Storable for P
 where
     P: scale::Encode + scale::Decode,

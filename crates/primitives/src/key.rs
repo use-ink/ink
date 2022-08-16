@@ -104,6 +104,7 @@ impl KeyComposer {
     }
 }
 
+/// Possible errors during the computation of the storage key.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     StructNameIsEmpty,

@@ -53,6 +53,11 @@ use scale::{
 /// upgradeable contracts or you want to be resistant to future changes of storage
 /// key calculation strategy.
 ///
+/// # Note
+///
+/// If the contract has two or more `Lazy` with the same storage key, modifying the value of one
+/// of them will modify others.
+///
 /// This is an example of how you can do this:
 /// ```rust
 /// # use ink_lang as ink;
@@ -131,12 +136,17 @@ where
     V: Storable,
     KeyType: StorageKey,
 {
-    /// Reads the `value` from the contract storage.
+    /// Reads the `value` from the contract storage, if it exists.
     pub fn get(&self) -> Option<V> {
         match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
             Ok(Some(value)) => Some(value),
             _ => None,
         }
+    }
+
+    /// Writes the given `value` to the contract storage.
+    pub fn set(&mut self, value: &V) {
+        push_storage(&KeyType::KEY, value);
     }
 }
 
@@ -147,23 +157,12 @@ where
 {
     /// Reads the `value` from the contract storage.
     ///
-    /// Returns `Default::default()` if no `value` exists.
+    /// Returns the default value for the storage type if no `value` exists.
     pub fn get_or_default(&self) -> V {
         match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
             Ok(Some(value)) => value,
             _ => Default::default(),
         }
-    }
-}
-
-impl<V, KeyType> Lazy<V, KeyType>
-where
-    V: Storable,
-    KeyType: StorageKey,
-{
-    /// Writes the given `value` to the contract storage.
-    pub fn set(&mut self, value: &V) {
-        push_storage(&KeyType::KEY, value);
     }
 }
 
@@ -228,7 +227,7 @@ mod tests {
     #[test]
     fn set_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut storage: Lazy<u8, ManualKey<123>> = Lazy::new();
+            let mut storage: Lazy<u8> = Lazy::new();
             storage.set(&2);
             assert_eq!(storage.get(), Some(2));
 
@@ -254,7 +253,7 @@ mod tests {
     #[test]
     fn gets_or_default_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let storage: Lazy<u8, ManualKey<123>> = Lazy::new();
+            let storage: Lazy<u8> = Lazy::new();
             assert_eq!(storage.get_or_default(), 0);
 
             Ok(())
@@ -263,9 +262,9 @@ mod tests {
     }
 
     #[test]
-    fn gets_fails_if_no_key_set() {
+    fn gets_returns_none_if_no_value_was_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let storage: Lazy<u8, ManualKey<123>> = Lazy::new();
+            let storage: Lazy<u8> = Lazy::new();
             assert_eq!(storage.get(), None);
 
             Ok(())

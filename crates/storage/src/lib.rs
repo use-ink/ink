@@ -57,5 +57,6 @@ pub use self::lazy::{
     Mapping,
 };
 
-#[doc(inline)]
-pub use self::traits::pull_or_init;
+#[macro_use]
+#[doc(hidden)]
+pub mod pull_or_init;
