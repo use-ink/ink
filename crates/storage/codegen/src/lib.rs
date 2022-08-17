@@ -34,14 +34,13 @@ impl DeriveUtils for syn::DeriveInput {
     fn find_salt(&self) -> Option<syn::TypeParam> {
         self.generics.params.iter().find_map(|param| {
             if let syn::GenericParam::Type(type_param) = param {
-                if type_param.bounds.len() == 1 {
-                    let bound = type_param.bounds.first().unwrap();
+                if let Some(bound) = type_param.bounds.first() {
                     if let syn::TypeParamBound::Trait(trait_bound) = bound {
                         let segments = &trait_bound.path.segments;
-                        if !segments.is_empty()
-                            && segments.last().unwrap().ident == "StorageKey"
-                        {
-                            return Some(type_param.clone())
+                        if let Some(last) = segments.last() {
+                            if last.ident == "StorageKey" {
+                                return Some(type_param.clone())
+                            }
                         }
                     }
                 }
