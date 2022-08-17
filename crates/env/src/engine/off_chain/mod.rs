@@ -61,26 +61,6 @@ impl EnvInstance {
         ctx
     }
 
-    pub fn deploy(&mut self, account: &crate::AccountId, input: Vec<u8>) -> crate::Result<()> {
-        self.push_frame(account, input.clone());
-        let (deploy, _call) = self.contracts.entrypoints(account)
-            .ok_or(Error::NotCallable)?;
-        deploy();
-        self.pop_frame();
-        // Read OUTPUT
-        // what if revert?
-        // scale::Decode::decode(&mut &input[..])
-        //     .map_err(|err| Error::Decode(err))
-        Ok(())
-    }
-
-    pub fn caller_is_origin(&self) -> bool {
-        let origin = self.stack.origin();
-        let ctx = self.stack.peek();
-        assert!(ctx.level > 0, "should never reach when there's no running contract");
-        ctx.caller.expect("contract has caller; qed.") == origin
-    }
-
 }
 
 impl OnInstance for EnvInstance {

@@ -569,7 +569,10 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        EnvInstance::caller_is_origin(self)
+        let origin = self.stack.origin();
+        let ctx = self.stack.peek();
+        assert!(ctx.level > 0, "should never reach when there's no running contract");
+        ctx.caller.expect("contract has caller; qed.") == origin
     }
 
     fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
