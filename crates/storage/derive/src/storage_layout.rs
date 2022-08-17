@@ -14,6 +14,7 @@
 
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use syn::spanned::Spanned;
 
 fn field_layout<'a>(
     variant: &'a synstructure::VariantInfo,
@@ -117,9 +118,19 @@ pub fn storage_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Fields)
         .underscore_const(true);
-    match s.ast().data {
+    match &s.ast().data {
         syn::Data::Struct(_) => storage_layout_struct(&s),
-        syn::Data::Enum(_) => storage_layout_enum(&s),
+        syn::Data::Enum(data) => {
+            if s.variants().len() > 256 {
+                return syn::Error::new(
+                    data.variants.span(),
+                    "Currently only enums with at most 256 variants are supported.",
+                )
+                .to_compile_error()
+            }
+
+            storage_layout_enum(&s)
+        }
         _ => panic!("cannot derive `StorageLayout` for Rust `union` items"),
     }
 }
