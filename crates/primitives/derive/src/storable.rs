@@ -74,7 +74,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         })
         .enumerate()
         .fold(quote! {}, |acc, (index, variant)| {
-            let index = index as u8;
+            let index = index as usize;
             quote! {
                 #acc
                 #index => #variant,
@@ -83,7 +83,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
 
     let encode_body = s.variants().iter().enumerate().map(|(index, variant)| {
         let pat = variant.pat();
-        let index = index as u8;
+        let index = index as usize;
         let fields = variant.bindings().iter().map(|field| {
             let span = field.ast().ty.span();
             quote_spanned!(span =>

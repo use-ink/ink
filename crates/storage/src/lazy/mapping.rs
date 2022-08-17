@@ -258,6 +258,7 @@ const _: () = {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::traits::ManualKey;
 
     #[test]
     fn insert_and_get_work() {
@@ -265,6 +266,20 @@ mod tests {
             let mut mapping: Mapping<u8, _> = Mapping::new();
             mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
+            mapping.insert(&1, &2);
+
+            let mapping2: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
+            assert_eq!(mapping2.get(&1), Some(2));
 
             Ok(())
         })

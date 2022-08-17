@@ -17,7 +17,9 @@ use syn::Data;
 
 /// Provides common methods for `DeriveInput`.
 ///
-/// **Note:** This is only for internal usage in the `codegen` module.
+/// # Developer Note
+///
+/// This is only for internal usage in the `codegen` module.
 pub trait DeriveUtils {
     /// Finds the salt of the structure, enum or union.
     /// The salt is any generic that has bound `StorageKey`.

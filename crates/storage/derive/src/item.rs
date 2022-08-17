@@ -36,8 +36,8 @@ fn item_inner(s: synstructure::Structure) -> TokenStream2 {
     let (impl_generics, _, where_clause) = generics.split_for_impl();
     let (_, ty_generics_original, _) = s.ast().generics.split_for_impl();
 
-    if s.ast().find_salt().is_some() {
-        let inner_salt_ident = s.ast().find_salt().unwrap().ident.to_token_stream();
+    if let Some(inner_salt_ident) = s.ast().find_salt() {
+        let inner_salt_ident = inner_salt_ident.ident.to_token_stream();
         let ty_generics: Vec<_> = s
             .ast()
             .generics

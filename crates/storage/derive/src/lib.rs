@@ -33,7 +33,11 @@ use self::{
 };
 synstructure::decl_derive!(
     [Item] =>
-    /// Derives `ink_storage`'s `Item` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s [`Item`](ink_storage::traits::Item) trait for the given `struct`
+    /// or `enum`.
+    ///
+    /// If the type declaration contains generic [`StorageKey`](ink_storage::traits::StorageKey),
+    /// it will use it as salt to generate a combined storage key.
     ///
     /// # Examples
     ///
@@ -55,23 +59,13 @@ synstructure::decl_derive!(
     ///
     /// let _: NamedFields = <NamedFields as Item<AutoKey>>::Type::default();
     /// let _: NamedFields = <NamedFields as Item<ManualKey<123>>>::Type::default();
-    ///
-    /// #[derive(Item, StorageKey, Storable)]
-    /// struct NamedFieldsStorage<KEY: ink_storage::traits::StorageKey> {
-    ///     a: <u32 as AutoItem<ManualKey<0, KEY>>>::Type,
-    ///     b: <[u32; 32] as AutoItem<ManualKey<1, KEY>>>::Type,
-    /// }
-    ///
-    /// // (AutoKey | ManualKey<123>) -> ManualKey<123>
-    /// assert_eq!(123, <NamedFieldsStorage<AutoKey> as AutoItem<ManualKey<123>>>::Type::KEY);
-    /// // (ManualKey<321> | ManualKey<123>) -> ManualKey<321>
-    /// assert_eq!(321, <NamedFieldsStorage<ManualKey<321>> as AutoItem<ManualKey<123>>>::Type::KEY);
     /// ```
     item_derive
 );
 synstructure::decl_derive!(
     [StorageKey] =>
-    /// Derives `ink_storage`'s `StorageKey` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s [`StorageKey`](ink_storage::traits::StorageKey) trait for the given
+    /// `struct` or `enum`.
     ///
     /// # Examples
     ///
@@ -105,7 +99,8 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageLayout] =>
-    /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.
+    /// Derives `ink_storage`'s [`StorageKey`](ink_storage::traits::StorageLayout) trait for the
+    /// given `struct` or `enum`.
     ///
     /// # Examples
     ///
