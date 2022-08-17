@@ -50,7 +50,7 @@ impl GenerateCode for Contract<'_> {
             .items()
             .iter()
             .filter_map(ir::Item::map_rust_item);
-        let r = quote! {
+        quote! {
             #( #attrs )*
             #vis mod #ident {
                 #env
@@ -62,9 +62,6 @@ impl GenerateCode for Contract<'_> {
                 #metadata
                 #( #non_ink_items )*
             }
-        };
-
-        println!("CONTRACT\n{}\nCONTRACT", r);
-        r
+        }
     }
 }

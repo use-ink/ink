@@ -49,7 +49,6 @@ impl EnvInstance {
     }
 
     fn push_frame(&mut self, callee: &crate::AccountId, input: Vec<u8>) {
-        println!("PUSH {:?} ({:?})", callee, input);
         self.stack.push(callee, input);
         self.sync_stack();
     }
@@ -57,7 +56,6 @@ impl EnvInstance {
     fn pop_frame(&mut self) -> Option<Frame> {
         let ctx = self.stack.pop();
         if ctx.is_some() {
-            println!("POP {:?}", ctx.as_ref().unwrap().callee);
             self.sync_stack();
         }
         ctx

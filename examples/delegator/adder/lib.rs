@@ -28,8 +28,6 @@ mod adder {
         /// Increases the `accumulator` value by some amount.
         #[ink(message)]
         pub fn inc(&mut self, by: i32) {
-            println!("adder::inc invoked with {} by {:?} myself {:?}",
-                by, self.env().caller(), self.env().account_id());
             self.accumulator.inc(by)
         }
     }
@@ -59,23 +57,14 @@ mod test {
             .instantiate()
             .expect("failed at instantiating the `AccumulatorRef` contract");
         let mut adder = AdderRef::new(acc.clone())
-            .code_hash(hash1.clone())
+            .code_hash(hash2.clone())
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
             .expect("failed at instantiating the `AdderRef` contract");
 
-        print_env("1");
         assert_eq!(acc.get(), 0);
-        print_env("2");
         adder.inc(1);
         assert_eq!(acc.get(), 1);
-    }
-
-    fn print_env(prefix: &str) {
-        use ink_lang::codegen::StaticEnv;
-        use super::*;
-        println!("[{}] outer env caller = {:?} callee = {:?}",
-            prefix, Adder::env().caller(), Adder::env().account_id());
     }
 }
