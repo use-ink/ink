@@ -418,10 +418,10 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract_begin<E, Args, R>(
         &mut self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<fn()>
     where
         E: Environment,
         Args: scale::Encode,
@@ -435,10 +435,37 @@ impl TypedEnvBackend for EnvInstance {
             unimplemented!("off-chain environment does not support value trnsfer when calling contracts")
         }
         let input = params.exec_input();
-        let input_data = scale::Encode::encode(&input);
-        let norm_callee = from_env::account_id::<E>(callee);
-        self.call(&norm_callee, input_data)
+        let input = scale::Encode::encode(&input);
+        let callee = from_env::account_id::<E>(callee);
+
+        self.push_frame(&callee, input.clone());
+        let (_deploy, call) = self.contracts.entrypoints(&callee)
+            .ok_or(Error::NotCallable)?;
+        // TODO: snapshot the db
+        // TODO: unwind panic?
+        Ok(call)
     }
+
+    fn invoke_contract_end<E, R>(&mut self) -> Result<R>
+    where
+        E: Environment,
+        R: scale::Decode,
+    {
+        // Read return value & process revert
+        let frame = self.pop_frame().expect("frame exists; qed.");
+        let data = if let Some((flags, data)) = frame.return_value {
+            if flags.reverted() {
+                // TODO: revert the db snapshot
+                return Err(Error::CalleeReverted)
+            }
+            data
+        } else {
+            Default::default()
+        };
+        scale::Decode::decode(&mut &data[..])
+            .map_err(|err| Error::Decode(err))
+    }
+
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
@@ -455,10 +482,10 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract_begin<E, Args, Salt, C>(
         &mut self,
         params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+    ) -> Result<fn()>
     where
         E: Environment,
         Args: scale::Encode,
@@ -475,13 +502,24 @@ impl TypedEnvBackend for EnvInstance {
         }
 
         let hash = from_env::hash::<E>(code_hash);
-        let input_data = scale::Encode::encode(&input);
+        let input = scale::Encode::encode(&input);
 
         // gen address (hash [n])
         let account = self.contracts.next_address_of(&hash);
         self.contracts.register_contract(hash, account.clone());
-        self.deploy(&account, input_data)?;
-        Ok(to_env::account_id::<E>(&account))
+
+        self.push_frame(&account, input.clone());
+        let (deploy, _call) = self.contracts.entrypoints(&account)
+            .ok_or(Error::NotCallable)?;
+        Ok(deploy)
+    }
+
+    fn instantiate_contract_end<E>(&mut self) -> Result<E::AccountId>
+    where
+        E: Environment,
+    {
+        let frame = self.pop_frame().expect("frame must exist; qed.");
+        Ok(to_env::account_id::<E>(&frame.callee))
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !

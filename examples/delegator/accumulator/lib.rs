@@ -25,7 +25,10 @@ pub mod accumulator {
         /// Mutates the internal value.
         #[ink(message)]
         pub fn inc(&mut self, by: i32) {
+            println!("acc::inc invoked with {} by {:?} myself {:?}",
+                by, self.env().caller(), self.env().account_id());
             self.value += by;
+            panic!("stack tract");
         }
 
         /// Returns the current state.

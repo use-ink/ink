@@ -391,13 +391,25 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<E, Args, R>(
+    fn invoke_contract_begin<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<fn()>
     where
         E: Environment,
         Args: scale::Encode,
+        R: scale::Decode;
+
+    /// Invokes a contract message and returns its result.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
+    fn invoke_contract_end<E, R>(
+        &mut self,
+    ) -> Result<R>
+    where
+        E: Environment,
         R: scale::Decode;
 
     /// Invokes a contract message via delegate call and returns its result.
@@ -419,14 +431,25 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract_begin<E, Args, Salt, C>(
         &mut self,
         params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+    ) -> Result<fn()>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>;
+
+    /// Instantiates another contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
+    fn instantiate_contract_end<E>(
+        &mut self,
+    ) -> Result<E::AccountId>
+    where
+        E: Environment;
 
     /// Terminates a smart contract.
     ///

@@ -250,8 +250,12 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
+    let call = <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_begin::<E, Args, R>(instance, params)
+    })?;
+    call();
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract_end::<E, R>(instance)
     })
 }
 
@@ -303,8 +307,12 @@ where
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
 {
+    let deploy = <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract_begin::<E, Args, Salt, C>(instance, params)
+    })?;
+    deploy();
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, Args, Salt, C>(instance, params)
+        TypedEnvBackend::instantiate_contract_end::<E>(instance)
     })
 }
 

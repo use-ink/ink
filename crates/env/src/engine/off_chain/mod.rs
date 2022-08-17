@@ -49,6 +49,7 @@ impl EnvInstance {
     }
 
     fn push_frame(&mut self, callee: &crate::AccountId, input: Vec<u8>) {
+        println!("PUSH {:?} ({:?})", callee, input);
         self.stack.push(callee, input);
         self.sync_stack();
     }
@@ -56,31 +57,10 @@ impl EnvInstance {
     fn pop_frame(&mut self) -> Option<Frame> {
         let ctx = self.stack.pop();
         if ctx.is_some() {
+            println!("POP {:?}", ctx.as_ref().unwrap().callee);
             self.sync_stack();
         }
         ctx
-    }
-
-    pub fn call<R: scale::Decode>(&mut self, callee: &crate::AccountId, input: Vec<u8>) -> crate::Result<R> {
-        self.push_frame(callee, input.clone());
-        let (_deploy, call) = self.contracts.entrypoints(callee)
-            .ok_or(Error::NotCallable)?;
-        // TODO: snapshot the db
-        // TODO: unwind panic?
-        call();
-        // Read return value & process revert
-        let frame = self.pop_frame().expect("frame exists; qed.");
-        let data = if let Some((flags, data)) = frame.return_value {
-            if flags.reverted() {
-                // TODO: revert the db snapshot
-                return Err(Error::CalleeReverted)
-            }
-            data
-        } else {
-            Default::default()
-        };
-        scale::Decode::decode(&mut &data[..])
-            .map_err(|err| Error::Decode(err))
     }
 
     pub fn deploy(&mut self, account: &crate::AccountId, input: Vec<u8>) -> crate::Result<()> {
