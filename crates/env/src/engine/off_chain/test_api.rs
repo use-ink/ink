@@ -355,3 +355,18 @@ pub fn assert_contract_termination<T, F>(
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
 }
+
+/// TODO
+pub fn register_contract<T, C>(code_hash: crate::Hash)
+where
+    T: Environment,
+    C: crate::reflect::ContractEntrypoints + 'static,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let deploy = <C as crate::reflect::ContractEntrypoints>::deploy;
+        let call = <C as crate::reflect::ContractEntrypoints>::call;
+        instance
+            .contracts
+            .register_entrypoints(code_hash, deploy, call);
+    })
+}

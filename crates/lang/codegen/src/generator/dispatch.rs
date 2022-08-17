@@ -79,8 +79,8 @@ impl GenerateCode for Dispatch<'_> {
             #constructor_decoder_type
             #message_decoder_type
 
-            #[cfg(not(test))]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            //#[cfg(not(test))]
+            //#[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #entry_points
             };
@@ -401,8 +401,7 @@ impl Dispatch<'_> {
         let any_message_accept_payment =
             self.any_message_accepts_payment_expr(message_spans);
         quote_spanned!(span=>
-            #[cfg(not(test))]
-            #[no_mangle]
+            #[cfg_attr(all(not(feature = "ink-as-dependency"), not(test)), no_mangle)]
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
                 if !#any_constructor_accept_payment {
@@ -422,8 +421,7 @@ impl Dispatch<'_> {
                     })
             }
 
-            #[cfg(not(test))]
-            #[no_mangle]
+            #[cfg_attr(all(not(feature = "ink-as-dependency"), not(test)), no_mangle)]
             #[allow(clippy::nonminimal_bool)]
             fn call() {
                 if !#any_message_accept_payment {
@@ -441,6 +439,15 @@ impl Dispatch<'_> {
                     .unwrap_or_else(|error| {
                         ::core::panic!("dispatching ink! message failed: {}", error)
                     })
+            }
+
+            impl ::ink_lang::reflect::ContractEntrypoints for #storage_ident {
+                fn deploy() {
+                    deploy();
+                }
+                fn call() {
+                    call();
+                }
             }
         )
     }

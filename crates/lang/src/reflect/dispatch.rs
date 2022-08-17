@@ -653,3 +653,5 @@ impl From<DispatchError> for scale::Error {
 pub trait DecodeDispatch: scale::Decode {
     fn decode_dispatch<I: scale::Input>(input: &mut I) -> Result<Self, DispatchError>;
 }
+
+pub use ink_env::reflect::ContractEntrypoints;

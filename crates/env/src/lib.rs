@@ -110,6 +110,17 @@ pub use self::{
     },
 };
 
+/// TODO
+pub mod reflect {
+    /// TODO
+    pub trait ContractEntrypoints {
+        /// TODO
+        fn call();
+        /// TODO
+        fn deploy();
+    }
+}
+
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {
         /// Required by the `debug_print*` macros below, because there is no guarantee that

@@ -45,6 +45,7 @@ pub use self::{
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         ExecuteDispatchable,
+        ContractEntrypoints,
     },
     event::ContractEventBase,
     trait_def::{

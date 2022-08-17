@@ -218,14 +218,18 @@ impl EnvBackend for EnvInstance {
     where
         T: scale::Decode,
     {
-        unimplemented!("the off-chain env does not implement `seal_input`")
+        scale::Decode::decode(&mut &self.stack.peek().input[..])
+            .map_err(|err| Error::Decode(err))
     }
 
-    fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,
     {
-        unimplemented!("the off-chain env does not implement `seal_return_value`")
+        if flags.reverted() {
+            panic!("reverted.");
+        }
+        self.stack.set_return_value(flags, return_value.encode());
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -337,8 +341,12 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
-    fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
-        unimplemented!("off-chain environment does not support `set_code_hash`")
+    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
+        let me = self.stack.peek().callee;
+        let hash: crate::Hash = scale::Decode::decode(&mut &code_hash[..])
+            .map_err(|err| Error::Decode(err))?;
+        self.contracts.update_code(me, hash);
+        Ok(())
     }
 }
 
@@ -420,11 +428,16 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let _gas_limit = params.gas_limit();
-        let _callee = params.callee();
+        let callee = params.callee();
         let _call_flags = params.call_flags().into_u32();
-        let _transferred_value = params.transferred_value();
-        let _input = params.exec_input();
-        unimplemented!("off-chain environment does not support contract invocation")
+        let transferred_value = params.transferred_value();
+        if *transferred_value != num_traits::Zero::zero() {
+            unimplemented!("off-chain environment does not support value trnsfer when calling contracts")
+        }
+        let input = params.exec_input();
+        let input_data = scale::Encode::encode(&input);
+        let norm_callee = from_env::account_id::<E>(callee);
+        self.call(&norm_callee, input_data)
     }
 
     fn invoke_contract_delegate<E, Args, R>(
@@ -451,12 +464,24 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
     {
-        let _code_hash = params.code_hash();
+        let code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();
-        let _endowment = params.endowment();
-        let _input = params.exec_input();
-        let _salt_bytes = params.salt_bytes();
-        unimplemented!("off-chain environment does not support contract instantiation")
+        let endowment = params.endowment();  // TODO: not considered yet
+        let input = params.exec_input();
+        let _salt_bytes = params.salt_bytes();  // TODO: not considered yet
+
+        if *endowment != num_traits::Zero::zero() {
+            unimplemented!("off-chain environment does not support value trnsfer when instantiating contracts")
+        }
+
+        let hash = from_env::hash::<E>(code_hash);
+        let input_data = scale::Encode::encode(&input);
+
+        // gen address (hash [n])
+        let account = self.contracts.next_address_of(&hash);
+        self.contracts.register_contract(hash, account.clone());
+        self.deploy(&account, input_data)?;
+        Ok(to_env::account_id::<E>(&account))
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
@@ -495,31 +520,59 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
-    fn is_contract<E>(&mut self, _account: &E::AccountId) -> bool
+    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support contract instantiation")
+        self.contracts.is_contract(&from_env::account_id::<E>(account))
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support cross-contract calls")
+        EnvInstance::caller_is_origin(self)
     }
 
-    fn code_hash<E>(&mut self, _account: &E::AccountId) -> Result<E::Hash>
+    fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `code_hash`")
+        self
+            .contracts
+            .code_hash(&from_env::account_id::<E>(account))
+            .map(|h| to_env::hash::<E>(&h))
+            .ok_or(Error::CodeNotFound)
     }
 
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `own_code_hash`")
+        let me = self.stack.peek().callee;
+        let hash = self.contracts.code_hash(&me)
+            .expect("contract must has code hash");
+        Ok(to_env::hash::<E>(&hash))
+    }
+}
+
+mod from_env {
+    pub fn account_id<E: crate::Environment>(account: &E::AccountId) -> crate::AccountId {
+        crate::AccountId::try_from(account.as_ref()).unwrap()
+    }
+    pub fn hash<E: crate::Environment>(hash: &E::Hash) -> crate::Hash {
+        crate::Hash::try_from(hash.as_ref()).unwrap()
+    }
+}
+
+mod to_env {
+    use scale::{Encode, Decode};
+    pub fn account_id<E: crate::Environment>(account: &crate::AccountId) -> E::AccountId {
+        let raw = account.encode();
+        Decode::decode(&mut &raw[..]).unwrap()
+    }
+    pub fn hash<E: crate::Environment>(hash: &crate::Hash) -> E::Hash {
+        let raw = hash.encode();
+        Decode::decode(&mut &raw[..]).unwrap()
     }
 }

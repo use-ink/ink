@@ -16,6 +16,7 @@ mod call_data;
 mod impls;
 pub mod test_api;
 mod types;
+mod stack;
 
 #[cfg(test)]
 mod tests;
@@ -24,6 +25,7 @@ pub use call_data::CallData;
 
 use super::OnInstance;
 use crate::Error;
+use stack::{Stack, Frame, ContractStore};
 
 use derive_more::From;
 use ink_engine::ext::Engine;
@@ -31,6 +33,76 @@ use ink_engine::ext::Engine;
 /// The off-chain environment.
 pub struct EnvInstance {
     engine: Engine,
+    stack: Stack,
+    pub contracts: ContractStore,
+}
+
+impl EnvInstance {
+    fn sync_stack(&mut self) {
+        use scale::Encode;
+
+        let ctx = self.stack.peek();
+        if let Some(caller) = ctx.caller {
+            self.engine.set_caller(caller.encode());
+        }
+        self.engine.set_callee(ctx.callee.encode());
+    }
+
+    fn push_frame(&mut self, callee: &crate::AccountId, input: Vec<u8>) {
+        self.stack.push(callee, input);
+        self.sync_stack();
+    }
+
+    fn pop_frame(&mut self) -> Option<Frame> {
+        let ctx = self.stack.pop();
+        if ctx.is_some() {
+            self.sync_stack();
+        }
+        ctx
+    }
+
+    pub fn call<R: scale::Decode>(&mut self, callee: &crate::AccountId, input: Vec<u8>) -> crate::Result<R> {
+        self.push_frame(callee, input.clone());
+        let (_deploy, call) = self.contracts.entrypoints(callee)
+            .ok_or(Error::NotCallable)?;
+        // TODO: snapshot the db
+        // TODO: unwind panic?
+        call();
+        // Read return value & process revert
+        let frame = self.pop_frame().expect("frame exists; qed.");
+        let data = if let Some((flags, data)) = frame.return_value {
+            if flags.reverted() {
+                // TODO: revert the db snapshot
+                return Err(Error::CalleeReverted)
+            }
+            data
+        } else {
+            Default::default()
+        };
+        scale::Decode::decode(&mut &data[..])
+            .map_err(|err| Error::Decode(err))
+    }
+
+    pub fn deploy(&mut self, account: &crate::AccountId, input: Vec<u8>) -> crate::Result<()> {
+        self.push_frame(account, input.clone());
+        let (deploy, _call) = self.contracts.entrypoints(account)
+            .ok_or(Error::NotCallable)?;
+        deploy();
+        self.pop_frame();
+        // Read OUTPUT
+        // what if revert?
+        // scale::Decode::decode(&mut &input[..])
+        //     .map_err(|err| Error::Decode(err))
+        Ok(())
+    }
+
+    pub fn caller_is_origin(&self) -> bool {
+        let origin = self.stack.origin();
+        let ctx = self.stack.peek();
+        assert!(ctx.level > 0, "should never reach when there's no running contract");
+        ctx.caller.expect("contract has caller; qed.") == origin
+    }
+
 }
 
 impl OnInstance for EnvInstance {
@@ -42,7 +114,9 @@ impl OnInstance for EnvInstance {
         thread_local!(
             static INSTANCE: RefCell<EnvInstance> = RefCell::new(
                 EnvInstance {
-                    engine: Engine::new()
+                    engine: Engine::new(),
+                    stack: Stack::new(crate::AccountId::from([1u8; 32])),
+                    contracts: Default::default(),
                 }
             )
         );

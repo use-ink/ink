@@ -97,7 +97,8 @@ where
             >(
                 ReturnFlags::default().set_reverted(true),
                 result.return_value(),
-            )
+            );
+            panic!("execute_constructor reverted");
         }
     }
 }
