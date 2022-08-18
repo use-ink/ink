@@ -227,6 +227,8 @@ where
 }
 
 /// Clears the contract's storage entry under the given storage key.
+///
+/// If a value was stored under the specified storage key, the size of the value is returned.
 pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,

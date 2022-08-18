@@ -99,7 +99,7 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageLayout] =>
-    /// Derives `ink_storage`'s [`StorageKey`](ink_storage::traits::StorageLayout) trait for the
+    /// Derives `ink_storage`'s [`StorageLayout`](ink_storage::traits::StorageLayout) trait for the
     /// given `struct` or `enum`.
     ///
     /// # Examples

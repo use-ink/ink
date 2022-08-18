@@ -269,6 +269,7 @@ impl Engine {
     }
 
     /// Removes the storage entries at the given key.
+    /// Returns the size of the previously stored value at the key if any.
     pub fn clear_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);

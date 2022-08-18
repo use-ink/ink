@@ -186,6 +186,8 @@ pub trait EnvBackend {
         K: scale::Encode;
 
     /// Clears the contract's storage key entry under the given storage key.
+    ///
+    /// Returns the size of the previously stored value at the specified key if any.
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode;
