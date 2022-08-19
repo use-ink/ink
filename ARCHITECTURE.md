@@ -96,3 +96,12 @@ At the moment we're still stuck with one nightly feature though:
 [alloc_error_handler](https://github.com/rust-lang/rust/issues/51540).
 It's needed because we use a specialized memory allocation handler,
 the `ink_allocator` crate.
+
+## Interaction with `pallet-contracts`
+
+ink! uses a static buffer for interacting with `pallet-contracts`, i.e.
+to move data between the pallet and a smart contract.
+
+## Off-chain testing
+
+In `engine`

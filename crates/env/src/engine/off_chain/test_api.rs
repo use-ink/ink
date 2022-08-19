@@ -54,7 +54,7 @@ pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .set_balance(scale::Encode::encode(&account_id), new_balance);
@@ -77,7 +77,7 @@ pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .get_balance(scale::Encode::encode(&account_id))
@@ -90,7 +90,7 @@ pub fn register_chain_extension<E>(extension: E)
 where
     E: ink_engine::ChainExtension + 'static,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .chain_extension_handler
@@ -112,7 +112,7 @@ where
 
 /// Returns the contents of the past performed environmental debug messages in order.
 pub fn recorded_debug_messages() -> RecordedDebugMessages {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance.engine.get_emitted_debug_messages()
     })
 }
@@ -134,7 +134,7 @@ pub fn advance_block<T>()
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance.engine.advance_block();
     })
 }
@@ -145,7 +145,7 @@ where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance.engine.set_caller(scale::Encode::encode(&caller));
     })
 }
@@ -156,7 +156,7 @@ where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance.engine.set_callee(scale::Encode::encode(&callee));
     })
 }
@@ -168,7 +168,7 @@ pub fn callee<T>() -> T::AccountId
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         let callee = instance.engine.get_callee();
         scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
     })
@@ -179,7 +179,7 @@ pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> (usize, usize)
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .get_contract_storage_rw(scale::Encode::encode(&account_id))
@@ -192,7 +192,7 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .set_balance(scale::Encode::encode(&account_id), new_balance);
@@ -204,7 +204,7 @@ pub fn set_value_transferred<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance.engine.set_value_transferred(value);
     })
 }
@@ -216,7 +216,7 @@ pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .count_used_storage_cells(&scale::Encode::encode(&account_id))
@@ -226,14 +226,14 @@ where
 
 /// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
-pub fn run_test<T, F>(f: F) -> Result<()>
+pub fn run_test<E, F>(f: F) -> Result<()>
 where
-    T: Environment,
-    F: FnOnce(DefaultAccounts<T>) -> Result<()>,
-    <T as Environment>::AccountId: From<[u8; 32]>,
+    E: Environment,
+    F: FnOnce(DefaultAccounts<E>) -> Result<()>,
+    <E as Environment>::AccountId: From<[u8; 32]>,
 {
-    let default_accounts = default_accounts::<T>();
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    let default_accounts = default_accounts::<E>();
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance.engine.initialize_or_reset();
 
         let encoded_alice = scale::Encode::encode(&default_accounts.alice);
@@ -301,7 +301,7 @@ where
 
 /// Returns the recorded emitted events in order.
 pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
+    <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
         instance
             .engine
             .get_emitted_events()

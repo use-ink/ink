@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::Environment;
 use crate::backend::{
     EnvBackend,
     TypedEnvBackend,
@@ -19,9 +20,10 @@ use crate::backend::{
 use cfg_if::cfg_if;
 
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
-    fn on_instance<F, R>(f: F) -> R
+    fn on_instance<E, F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self) -> R;
+        F: FnOnce(&mut Self) -> R,
+        E: Environment;
 }
 
 cfg_if! {

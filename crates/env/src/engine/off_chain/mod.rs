@@ -23,7 +23,7 @@ mod tests;
 pub use call_data::CallData;
 
 use super::OnInstance;
-use crate::Error;
+use crate::{Environment, Error};
 
 use derive_more::From;
 use ink_engine::ext::Engine;
@@ -34,9 +34,10 @@ pub struct EnvInstance {
 }
 
 impl OnInstance for EnvInstance {
-    fn on_instance<F, R>(f: F) -> R
+    fn on_instance<E, F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R,
+        E: Environment,
     {
         use core::cell::RefCell;
         thread_local!(

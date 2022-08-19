@@ -263,7 +263,7 @@ where
     /// ```
     #[inline]
     pub fn call(self, input: &I) -> Result<T, E> {
-        <EnvInstance as OnInstance>::on_instance(|instance| {
+        <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
             EnvBackend::call_chain_extension::<I, T, E, ErrorCode, _, _>(
                 instance,
                 self.func_id,
@@ -317,7 +317,7 @@ where
     /// ```
     #[inline]
     pub fn call(self, input: &I) -> Result<T, E> {
-        <EnvInstance as OnInstance>::on_instance(|instance| {
+        <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
             EnvBackend::call_chain_extension::<I, T, E, E, _, _>(
                 instance,
                 self.func_id,
@@ -374,7 +374,7 @@ where
     /// ```
     #[inline]
     pub fn call(self, input: &I) -> Result<O, ErrorCode> {
-        <EnvInstance as OnInstance>::on_instance(|instance| {
+        <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
             EnvBackend::call_chain_extension::<I, O, ErrorCode, ErrorCode, _, _>(
                 instance,
                 self.func_id,
@@ -423,7 +423,7 @@ where
     /// ```
     #[inline]
     pub fn call(self, input: &I) -> O {
-        <EnvInstance as OnInstance>::on_instance(|instance| {
+        <EnvInstance as OnInstance>::on_instance::<E, _, _>(|instance| {
             EnvBackend::call_chain_extension::<I, O, (), (), _, _>(
                 instance,
                 self.func_id,

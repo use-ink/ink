@@ -13,7 +13,8 @@
 // limitations under the License.
 
 /// A static buffer with 16 kB of capacity.
-pub struct StaticBuffer {
+/// und dann `const CAPACITY` in `type Environment`
+pub struct StaticBuffer<E: Environment> {
     /// The static buffer with a total capacity of 16 kB.
     buffer: [u8; Self::CAPACITY],
 }

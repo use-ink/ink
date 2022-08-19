@@ -16,6 +16,7 @@ mod buffer;
 mod ext;
 mod impls;
 
+use crate::Environment;
 use self::{
     buffer::{
         ScopedBuffer,
@@ -26,7 +27,7 @@ use self::{
 use super::OnInstance;
 
 /// The on-chain environment.
-pub struct EnvInstance {
+pub struct EnvInstance<E: Environment> {
     /// Encode & decode buffer with static size of 16 kB.
     ///
     /// If operations require more than that they will fail.
@@ -40,9 +41,10 @@ pub struct EnvInstance {
 }
 
 impl OnInstance for EnvInstance {
-    fn on_instance<F, R>(f: F) -> R
+    fn on_instance<E, F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R,
+        E: Environment,
     {
         static mut INSTANCE: EnvInstance = EnvInstance {
             buffer: StaticBuffer::new(),

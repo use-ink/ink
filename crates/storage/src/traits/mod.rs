@@ -32,6 +32,7 @@ mod spread;
 #[cfg(feature = "std")]
 mod layout;
 
+use ink_env::Environment;
 #[cfg(feature = "std")]
 pub use self::layout::{
     LayoutCryptoHasher,
@@ -196,9 +197,10 @@ where
 ///   packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
-pub fn push_packed_root<T>(entity: &T, root_key: &Key) -> Option<u32>
+pub fn push_packed_root<T, E>(entity: &T, root_key: &Key) -> Option<u32>
 where
     T: PackedLayout,
+    E: Environment,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
     ink_env::set_contract_storage(root_key, entity)
