@@ -7,7 +7,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Decode` is not satisfi
    = help: the trait `Decode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `BTreeMap<u128, NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
@@ -18,7 +18,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `BTreeMap<u128, NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
@@ -29,7 +29,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Decode` is not satisfi
    = help: the trait `Decode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `BTreeMap<u128, NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
@@ -51,7 +51,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `Item<()>` for `BTreeMap<u128, NonPacked>`
-   = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
@@ -73,7 +73,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Decode` is not satisfi
     = help: the trait `Decode` is implemented for `BTreeMap<K, V>`
     = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
     = note: required because of the requirements on the impl of `Item<()>` for `BTreeMap<u128, NonPacked>`
-    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
+    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
     |
@@ -95,7 +95,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
     = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
     = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
     = note: required because of the requirements on the impl of `Item<()>` for `BTreeMap<u128, NonPacked>`
-    = note: required because of the requirements on the impl of `AutoItem<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
+    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
     |

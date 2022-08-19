@@ -30,16 +30,16 @@ where
 
 /// Creates test to verify that the primitive types are packed.
 #[macro_export]
-macro_rules! item_works_for_primitive {
+macro_rules! storage_hint_works_for_primitive {
     ( $ty:ty ) => {
         paste::item! {
             #[test]
             #[allow(non_snake_case)]
-            fn [<$ty _item_works>] () {
+            fn [<$ty _storage_hint_works>] () {
                 $crate::test_utils::run_test(|| {
                     assert_eq!(
                         ::core::any::TypeId::of::<$ty>(),
-                        ::core::any::TypeId::of::<<$ty as $crate::traits::Item<$crate::traits::ManualKey<123>>>::Type>()
+                        ::core::any::TypeId::of::<<$ty as $crate::traits::StorableHint<$crate::traits::ManualKey<123>>>::Type>()
                     );
                 })
             }

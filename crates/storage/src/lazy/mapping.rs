@@ -21,8 +21,8 @@
 
 use crate::traits::{
     AutoKey,
-    Item,
     Packed,
+    StorableHint,
     StorageKey,
 };
 use core::marker::PhantomData;
@@ -213,7 +213,7 @@ where
     }
 }
 
-impl<K, V, Key, InnerKey> Item<Key> for Mapping<K, V, InnerKey>
+impl<K, V, Key, InnerKey> StorableHint<Key> for Mapping<K, V, InnerKey>
 where
     V: Packed,
     Key: StorageKey,

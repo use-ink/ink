@@ -43,10 +43,10 @@ pub use self::{
         ResolverKey,
     },
     storage::{
-        AutoItem,
-        Item,
+        AutoStorableHint,
         OnCallInitializer,
         Packed,
+        StorableHint,
         StorageKey,
     },
 };
@@ -55,7 +55,7 @@ use ink_primitives::{
     Key,
 };
 pub use ink_storage_derive::{
-    Item,
+    StorableHint,
     StorageKey,
     StorageLayout,
 };

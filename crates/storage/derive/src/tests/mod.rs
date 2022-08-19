@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod item;
 mod key_holder;
+mod storable_hint;
 mod storage_layout;
 
 #[macro_export]

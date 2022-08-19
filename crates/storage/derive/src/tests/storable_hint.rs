@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::item_derive;
+use crate::storable_hint_derive;
 
 #[test]
 fn unit_struct_works() {
     crate::test_derive! {
-        item_derive {
+        storable_hint_derive {
             struct UnitStruct;
         }
         expands to {
             const _: () = {
                 impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
-                    ::ink_storage::traits::Item<__ink_generic_salt> for UnitStruct
+                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for UnitStruct
                 {
                     type Type = UnitStruct;
                     type PreferredKey = ::ink_storage::traits::AutoKey;
@@ -37,7 +37,7 @@ fn unit_struct_works() {
 #[test]
 fn unit_struct_salt_works() {
     crate::test_derive! {
-        item_derive {
+        storable_hint_derive {
             struct UnitStruct<Salt: ::ink_storage::traits::StorageKey>;
         }
         expands to {
@@ -46,7 +46,7 @@ fn unit_struct_salt_works() {
                         Salt: ::ink_storage::traits::StorageKey,
                         __ink_generic_salt: ::ink_storage::traits::StorageKey
                     >
-                    ::ink_storage::traits::Item<__ink_generic_salt> for UnitStruct<Salt>
+                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for UnitStruct<Salt>
                 {
                     type Type = UnitStruct<__ink_generic_salt>;
                     type PreferredKey = Salt;
@@ -60,7 +60,7 @@ fn unit_struct_salt_works() {
 #[test]
 fn struct_works() {
     crate::test_derive! {
-        item_derive {
+        storable_hint_derive {
             struct NamedFields {
                 a: i32,
                 b: [u8; 32],
@@ -70,7 +70,7 @@ fn struct_works() {
         expands to {
             const _: () = {
                 impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
-                    ::ink_storage::traits::Item<__ink_generic_salt> for NamedFields
+                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for NamedFields
                 {
                     type Type = NamedFields;
                     type PreferredKey = ::ink_storage::traits::AutoKey;
@@ -84,7 +84,7 @@ fn struct_works() {
 #[test]
 fn struct_salt_works() {
     crate::test_derive! {
-        item_derive {
+        storable_hint_derive {
             struct NamedFields<Salt: StorageKey> {
                 a: i32,
                 b: [u8; 32],
@@ -97,7 +97,7 @@ fn struct_salt_works() {
                         Salt: StorageKey,
                         __ink_generic_salt: ::ink_storage::traits::StorageKey
                     >
-                    ::ink_storage::traits::Item<__ink_generic_salt> for NamedFields<Salt>
+                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for NamedFields<Salt>
                 {
                     type Type = NamedFields<__ink_generic_salt>;
                     type PreferredKey = Salt;
@@ -111,7 +111,7 @@ fn struct_salt_works() {
 #[test]
 fn enum_works() {
     crate::test_derive! {
-        item_derive {
+        storable_hint_derive {
             enum MixedEnum {
                 A,
                 B(i32, [u8; 32]),
@@ -121,7 +121,7 @@ fn enum_works() {
         expands to {
             const _: () = {
                 impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
-                    ::ink_storage::traits::Item<__ink_generic_salt> for MixedEnum
+                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for MixedEnum
                 {
                     type Type = MixedEnum;
                     type PreferredKey = ::ink_storage::traits::AutoKey;
@@ -135,7 +135,7 @@ fn enum_works() {
 #[test]
 fn enum_salt_works() {
     crate::test_derive! {
-        item_derive {
+        storable_hint_derive {
             enum MixedEnum<Salt: traits::StorageKey> {
                 A,
                 B(u32, [u8; 32]),
@@ -148,7 +148,7 @@ fn enum_salt_works() {
                         Salt: traits::StorageKey,
                         __ink_generic_salt: ::ink_storage::traits::StorageKey
                     >
-                    ::ink_storage::traits::Item<__ink_generic_salt> for MixedEnum<Salt>
+                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for MixedEnum<Salt>
                 {
                     type Type = MixedEnum<__ink_generic_salt>;
                     type PreferredKey = Salt;

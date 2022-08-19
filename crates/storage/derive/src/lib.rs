@@ -19,21 +19,21 @@
 
 extern crate proc_macro;
 
-mod item;
 mod key_holder;
+mod storable_hint;
 mod storage_layout;
 
 #[cfg(test)]
 mod tests;
 
 use self::{
-    item::item_derive,
     key_holder::key_holder_derive,
+    storable_hint::storable_hint_derive,
     storage_layout::storage_layout_derive,
 };
 synstructure::decl_derive!(
-    [Item] =>
-    /// Derives `ink_storage`'s [`Item`](ink_storage::traits::Item) trait for the given `struct`
+    [StorableHint] =>
+    /// Derives `ink_storage`'s [`StorableHint`](ink_storage::traits::StorableHint) trait for the given `struct`
     /// or `enum`.
     ///
     /// If the type declaration contains generic [`StorageKey`](ink_storage::traits::StorageKey),
@@ -43,24 +43,24 @@ synstructure::decl_derive!(
     ///
     /// ```
     /// use ink_storage::traits::{
-    ///     Item,
+    ///     StorableHint,
     ///     StorageKey,
-    ///     AutoItem,
+    ///     AutoStorableHint,
     ///     AutoKey,
     ///     ManualKey,
     /// };
     /// use ink_primitives::traits::Storable;
     ///
-    /// #[derive(Default, Item, Storable)]
+    /// #[derive(Default, StorableHint, Storable)]
     /// struct NamedFields {
     ///     a: u32,
     ///     b: [u32; 32],
     /// }
     ///
-    /// let _: NamedFields = <NamedFields as Item<AutoKey>>::Type::default();
-    /// let _: NamedFields = <NamedFields as Item<ManualKey<123>>>::Type::default();
+    /// let _: NamedFields = <NamedFields as StorableHint<AutoKey>>::Type::default();
+    /// let _: NamedFields = <NamedFields as StorableHint<ManualKey<123>>>::Type::default();
     /// ```
-    item_derive
+    storable_hint_derive
 );
 synstructure::decl_derive!(
     [StorageKey] =>
@@ -71,7 +71,7 @@ synstructure::decl_derive!(
     ///
     /// ```
     /// use ink_storage::traits::{
-    ///     AutoItem,
+    ///     AutoStorableHint,
     ///     StorageKey,
     ///     ManualKey,
     ///     AutoKey,
@@ -87,8 +87,8 @@ synstructure::decl_derive!(
     ///
     /// #[derive(StorageKey)]
     /// struct NamedFieldsManualKey<KEY: StorageKey> {
-    ///     a: <u32 as AutoItem<ManualKey<0, KEY>>>::Type,
-    ///     b: <[u32; 32] as AutoItem<ManualKey<1, KEY>>>::Type,
+    ///     a: <u32 as AutoStorableHint<ManualKey<0, KEY>>>::Type,
+    ///     b: <[u32; 32] as AutoStorableHint<ManualKey<1, KEY>>>::Type,
     /// }
     ///
     /// assert_eq!(<NamedFieldsManualKey<()> as StorageKey>::KEY, 0);

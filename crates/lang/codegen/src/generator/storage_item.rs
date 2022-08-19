@@ -61,7 +61,7 @@ impl GenerateCode for StorageItem<'_> {
                     ::ink_storage::traits::StorageLayout,
                 ))]
                 #[derive(
-                    ::ink_storage::traits::Item,
+                    ::ink_storage::traits::StorableHint,
                     ::ink_storage::traits::StorageKey,
                     ::ink_primitives::traits::Storable,
                 )]
@@ -240,7 +240,7 @@ fn convert_into_storage_field(
     let ty = field.ty.clone().to_token_stream();
     let span = field.ty.span();
     let new_ty = Type::Verbatim(quote_spanned!(span =>
-        <#ty as ::ink_storage::traits::AutoItem<
+        <#ty as ::ink_storage::traits::AutoStorableHint<
             ::ink_storage::traits::ManualKey<#key, #salt>,
         >>::Type
     ));

@@ -53,7 +53,7 @@ pub trait StorageKey {
 ///
 /// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
 /// via blank implementation.
-pub trait Item<Key: StorageKey> {
+pub trait StorableHint<Key: StorageKey> {
     /// Storable type with storage key inside.
     type Type: Storable;
     /// The storage key that the type prefers. It can be overwritten by an auto-generated storage key.
@@ -63,7 +63,7 @@ pub trait Item<Key: StorageKey> {
 /// Automatically returns the type that should be used for storing the value.
 ///
 /// The trait is used by codegen to determine which storage key the type should have.
-pub trait AutoItem<Key: StorageKey> {
+pub trait AutoStorableHint<Key: StorageKey> {
     /// Storable type with storage key inside.
     type Type: Storable;
 }

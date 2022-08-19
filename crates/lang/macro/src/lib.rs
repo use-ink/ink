@@ -698,7 +698,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// };
 /// use ink_storage::traits::{
 ///     StorageKey,
-///     Item,
+///     StorableHint,
 /// };
 /// use ink_primitives::traits::Storable;
 ///
@@ -706,7 +706,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// struct Packed {
 ///     s1: u128,
 ///     s2: Vec<u128>,
-///     // Fails because `Item` is only implemented for `Vec` where `T: Packed`.
+///     // Fails because `StorableHint` is only implemented for `Vec` where `T: Packed`.
 ///     // s3: Vec<NonPacked>,
 /// }
 ///
@@ -718,7 +718,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// struct PackedManual {
 ///     s1: u32,
 ///     s2: Vec<(u128, String)>,
-///     // Fails because `Item` is only implemented for `Vec` where `T: Packed`.
+///     // Fails because `StorableHint` is only implemented for `Vec` where `T: Packed`.
 ///     // s3: Vec<NonPacked>,
 /// }
 ///
@@ -734,7 +734,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[ink_lang::storage_item(derive = false)]
-/// #[derive(Storable, Item, StorageKey)]
+/// #[derive(Storable, StorableHint, StorageKey)]
 /// #[cfg_attr(
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
@@ -790,13 +790,13 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ```
 ///     use ink_storage::Mapping;
 ///     use ink_storage::traits::{
-///         Item,
+///         StorableHint,
 ///         StorageKey,
 ///     };
 ///     use ink_primitives::traits::Storable;
 ///
 ///     #[ink_lang::storage_item(derive = false)]
-///     #[derive(Item, Storable, StorageKey)]
+///     #[derive(StorableHint, Storable, StorageKey)]
 ///     struct NonPackedGeneric<T: ink_storage::traits::Packed> {
 ///         s1: u32,
 ///         s2: Mapping<u128, T>,

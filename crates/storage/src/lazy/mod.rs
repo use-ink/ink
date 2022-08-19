@@ -26,7 +26,7 @@ pub use self::mapping::Mapping;
 use crate::traits::{
     push_storage,
     AutoKey,
-    Item,
+    StorableHint,
     StorageKey,
 };
 use core::marker::PhantomData;
@@ -179,11 +179,11 @@ where
     }
 }
 
-impl<V, Key, InnerKey> Item<Key> for Lazy<V, InnerKey>
+impl<V, Key, InnerKey> StorableHint<Key> for Lazy<V, InnerKey>
 where
     Key: StorageKey,
     InnerKey: StorageKey,
-    V: Item<Key>,
+    V: StorableHint<Key>,
 {
     type Type = Lazy<V::Type, Key>;
     type PreferredKey = InnerKey;

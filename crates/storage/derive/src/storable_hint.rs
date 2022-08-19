@@ -24,7 +24,7 @@ use syn::{
     GenericParam,
 };
 
-fn item_inner(s: synstructure::Structure) -> TokenStream2 {
+fn storable_hint_inner(s: synstructure::Structure) -> TokenStream2 {
     let ident = s.ast().ident.clone();
     let salt_ident = format_ident!("__ink_generic_salt");
 
@@ -61,14 +61,14 @@ fn item_inner(s: synstructure::Structure) -> TokenStream2 {
             .collect();
 
         quote! {
-            impl #impl_generics ::ink_storage::traits::Item<#salt_ident> for #ident #ty_generics_original #where_clause {
+            impl #impl_generics ::ink_storage::traits::StorableHint<#salt_ident> for #ident #ty_generics_original #where_clause {
                 type Type = #ident <#(#ty_generics),*>;
                 type PreferredKey = #inner_salt_ident;
             }
         }
     } else {
         quote! {
-            impl #impl_generics ::ink_storage::traits::Item<#salt_ident> for #ident #ty_generics_original #where_clause {
+            impl #impl_generics ::ink_storage::traits::StorableHint<#salt_ident> for #ident #ty_generics_original #where_clause {
                 type Type = #ident #ty_generics_original;
                 type PreferredKey = ::ink_storage::traits::AutoKey;
             }
@@ -76,8 +76,8 @@ fn item_inner(s: synstructure::Structure) -> TokenStream2 {
     }
 }
 
-pub fn item_derive(s: synstructure::Structure) -> TokenStream2 {
-    let derive = item_inner(s);
+pub fn storable_hint_derive(s: synstructure::Structure) -> TokenStream2 {
+    let derive = storable_hint_inner(s);
 
     quote! {
         const _ : () = {

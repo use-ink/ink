@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use crate::traits::{
-    AutoItem,
-    Item,
+    AutoStorableHint,
     Packed,
+    StorableHint,
     StorageKey,
 };
 use core::{
@@ -75,19 +75,19 @@ impl<L: StorageKey, R: StorageKey> StorageKey for ResolverKey<L, R> {
 }
 
 type FinalKey<T, const KEY: Key, ParentKey> =
-    ResolverKey<<T as Item<ParentKey>>::PreferredKey, ManualKey<KEY, ParentKey>>;
+    ResolverKey<<T as StorableHint<ParentKey>>::PreferredKey, ManualKey<KEY, ParentKey>>;
 
-// `AutoItem` trait figures out that storage key it should use.
+// `AutoStorableHint` trait figures out that storage key it should use.
 // - If the `PreferredKey` is `AutoKey` it will use an auto-generated key passed as generic
-// into `AutoItem`.
+// into `AutoStorableHint`.
 // - If `PreferredKey` is `ManualKey`, then it will use it.
-impl<T, const KEY: Key, ParentKey> AutoItem<ManualKey<KEY, ParentKey>> for T
+impl<T, const KEY: Key, ParentKey> AutoStorableHint<ManualKey<KEY, ParentKey>> for T
 where
-    T: Item<ParentKey>,
-    T: Item<FinalKey<T, KEY, ParentKey>>,
+    T: StorableHint<ParentKey>,
+    T: StorableHint<FinalKey<T, KEY, ParentKey>>,
     ParentKey: StorageKey,
 {
-    type Type = <T as Item<FinalKey<T, KEY, ParentKey>>>::Type;
+    type Type = <T as StorableHint<FinalKey<T, KEY, ParentKey>>>::Type;
 }
 
 impl<P> Packed for P where P: scale::Decode + scale::Encode {}
@@ -99,7 +99,7 @@ where
     const KEY: Key = 0;
 }
 
-impl<P, Key> Item<Key> for P
+impl<P, Key> StorableHint<Key> for P
 where
     P: Packed,
     Key: StorageKey,
@@ -111,50 +111,50 @@ where
 #[cfg(test)]
 mod tests {
     mod arrays {
-        use crate::item_works_for_primitive;
+        use crate::storage_hint_works_for_primitive;
 
         type Array = [i32; 4];
-        item_works_for_primitive!(Array);
+        storage_hint_works_for_primitive!(Array);
 
         type ArrayTuples = [(i32, i32); 2];
-        item_works_for_primitive!(ArrayTuples);
+        storage_hint_works_for_primitive!(ArrayTuples);
     }
 
     mod prims {
-        use crate::item_works_for_primitive;
+        use crate::storage_hint_works_for_primitive;
         use ink_env::AccountId;
 
-        item_works_for_primitive!(bool);
-        item_works_for_primitive!(String);
-        item_works_for_primitive!(AccountId);
-        item_works_for_primitive!(i8);
-        item_works_for_primitive!(i16);
-        item_works_for_primitive!(i32);
-        item_works_for_primitive!(i64);
-        item_works_for_primitive!(i128);
-        item_works_for_primitive!(u8);
-        item_works_for_primitive!(u16);
-        item_works_for_primitive!(u32);
-        item_works_for_primitive!(u64);
-        item_works_for_primitive!(u128);
+        storage_hint_works_for_primitive!(bool);
+        storage_hint_works_for_primitive!(String);
+        storage_hint_works_for_primitive!(AccountId);
+        storage_hint_works_for_primitive!(i8);
+        storage_hint_works_for_primitive!(i16);
+        storage_hint_works_for_primitive!(i32);
+        storage_hint_works_for_primitive!(i64);
+        storage_hint_works_for_primitive!(i128);
+        storage_hint_works_for_primitive!(u8);
+        storage_hint_works_for_primitive!(u16);
+        storage_hint_works_for_primitive!(u32);
+        storage_hint_works_for_primitive!(u64);
+        storage_hint_works_for_primitive!(u128);
 
         type OptionU8 = Option<u8>;
-        item_works_for_primitive!(OptionU8);
+        storage_hint_works_for_primitive!(OptionU8);
 
         type ResultU8 = Result<u8, bool>;
-        item_works_for_primitive!(ResultU8);
+        storage_hint_works_for_primitive!(ResultU8);
 
         type BoxU8 = Box<u8>;
-        item_works_for_primitive!(BoxU8);
+        storage_hint_works_for_primitive!(BoxU8);
 
         type BoxOptionU8 = Box<Option<u8>>;
-        item_works_for_primitive!(BoxOptionU8);
+        storage_hint_works_for_primitive!(BoxOptionU8);
     }
 
     mod tuples {
-        use crate::item_works_for_primitive;
+        use crate::storage_hint_works_for_primitive;
 
         type TupleSix = (i32, u32, String, u8, bool, Box<Option<i32>>);
-        item_works_for_primitive!(TupleSix);
+        storage_hint_works_for_primitive!(TupleSix);
     }
 }
