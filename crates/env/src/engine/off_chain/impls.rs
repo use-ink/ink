@@ -206,10 +206,8 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains(&mut self, _key: &Key) -> Option<u32> {
-        unimplemented!(
-            "the off-chain env does not implement `seal_contains_storage`, yet"
-        )
+    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
+        self.engine.contains_storage(key.as_ref())
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
@@ -291,6 +289,20 @@ impl EnvBackend for EnvInstance {
             }
             Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
+    }
+
+    fn ecdsa_to_eth_address(
+        &mut self,
+        pubkey: &[u8; 33],
+        output: &mut [u8; 20],
+    ) -> Result<()> {
+        let pk = secp256k1::PublicKey::from_slice(pubkey)
+            .map_err(|_| Error::EcdsaRecoveryFailed)?;
+        let uncompressed = pk.serialize_uncompressed();
+        let mut hash = <Keccak256 as HashOutput>::Type::default();
+        <Keccak256>::hash(&uncompressed[1..], &mut hash);
+        output.as_mut().copy_from_slice(&hash[12..]);
+        Ok(())
     }
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(

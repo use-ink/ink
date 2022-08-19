@@ -27,7 +27,7 @@ pub type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 
 // The ERC-1155 error types.
-#[derive(Debug, PartialEq, scale::Encode, scale::Decode)]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     /// This token ID has not yet been created by the contract.
@@ -539,7 +539,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.approvals.get((&owner, &operator)).is_some()
+            self.approvals.contains((&owner, &operator))
         }
     }
 

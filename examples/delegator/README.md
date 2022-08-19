@@ -12,8 +12,8 @@ It consists in total of 4 different smart contract:
 In order to test this bundle of smart contracts you need to execute the
 following steps.
 
-You can upload the contracts using our [Contracts UI](https://paritytech.github.io/contracts-ui/).
-If you want to test it locally, our [`substrate-contracts-node`](https://paritytech.github.io/ink-docs/getting-started/setup/#installing-the-substrate-smart-contracts-node)
+You can upload the contracts using our [Contracts UI](https://contracts-ui.substrate.io/).
+If you want to test it locally, our [`substrate-contracts-node`](https://ink.substrate.io/getting-started/setup/#installing-the-substrate-smart-contracts-node)
 is an easy way to get a local smart contract chain running.
 
 1. Compile all contracts using the `./build-all.sh` script.
@@ -24,8 +24,8 @@ is an easy way to get a local smart contract chain running.
    * `target/ink/accumulator/accumulator.contract`
 1. Upload the `.contract` bundle of Accumulator, Adder and Subber to the chain.
 1. Note down the respective code hashes of the uploaded contracts. You can
-   copy the contract hashes [from the page of uploaded contracts](https://paritytech.github.io/contracts-ui/):<br/>
-   [<img src="./.images/code-hashes.png" width="600" alt="Code Hashes Overview" />](https://paritytech.github.io/contracts-ui/)
+   copy the contract hashes [from the page of uploaded contracts](https://contracts-ui.substrate.io/):<br/>
+   [<img src="./.images/code-hashes.png" width="600" alt="Code Hashes Overview" />](https://contracts-ui.substrate.io/)
 1. Instantiate the Delegator smart contract given all of the code hashes and a starting value.
    Make sure the endowment is big enough (if you're using our `substrate-contracts-node` it's `1000000`).
    The Delegator smart contract will take over the work of instantiating the other smart contracts for you.

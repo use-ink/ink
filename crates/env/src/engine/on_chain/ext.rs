@@ -191,7 +191,7 @@ pub struct ReturnCode(u32);
 
 impl From<ReturnCode> for Option<u32> {
     fn from(code: ReturnCode) -> Self {
-        (code.0 < SENTINEL).then(|| code.0)
+        (code.0 < SENTINEL).then_some(code.0)
     }
 }
 
@@ -236,6 +236,8 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
+        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>) -> ReturnCode;
 
         pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
 
@@ -298,6 +300,19 @@ mod sys {
 
         pub fn seal_caller_is_origin() -> ReturnCode;
 
+        pub fn seal_set_code_hash(code_hash_ptr: Ptr32<[u8]>) -> ReturnCode;
+
+        pub fn seal_code_hash(
+            account_id_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
+
+        pub fn seal_own_code_hash(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+
         #[cfg(feature = "ink-debug")]
         pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
 
@@ -308,6 +323,19 @@ mod sys {
             input_data_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
+
+        pub fn seal_ecdsa_recover(
+            // 65 bytes of ecdsa signature
+            signature_ptr: Ptr32<[u8]>,
+            // 32 bytes hash of the message
+            message_hash_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+        ) -> ReturnCode;
+
+        pub fn seal_ecdsa_to_eth_address(
+            public_key_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
     }
 
@@ -346,32 +374,6 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
-    }
-
-    #[link(wasm_import_module = "__unstable__")]
-    extern "C" {
-        pub fn seal_ecdsa_recover(
-            // 65 bytes of ecdsa signature
-            signature_ptr: Ptr32<[u8]>,
-            // 32 bytes hash of the message
-            message_hash_ptr: Ptr32<[u8]>,
-            output_ptr: Ptr32Mut<[u8]>,
-        ) -> ReturnCode;
-
-        pub fn seal_set_code_hash(code_hash_ptr: Ptr32<[u8]>) -> ReturnCode;
-
-        pub fn seal_code_hash(
-            account_id_ptr: Ptr32<[u8]>,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        ) -> ReturnCode;
-
-        pub fn seal_own_code_hash(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-
-        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>) -> ReturnCode;
 
         pub fn seal_set_storage(
             key_ptr: Ptr32<[u8]>,
@@ -698,6 +700,16 @@ pub fn ecdsa_recover(
         sys::seal_ecdsa_recover(
             Ptr32::from_slice(signature),
             Ptr32::from_slice(message_hash),
+            Ptr32Mut::from_slice(output),
+        )
+    };
+    ret_code.into()
+}
+
+pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result {
+    let ret_code = unsafe {
+        sys::seal_ecdsa_to_eth_address(
+            Ptr32::from_slice(pubkey),
             Ptr32Mut::from_slice(output),
         )
     };

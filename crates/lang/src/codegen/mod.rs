@@ -30,7 +30,6 @@ pub use self::{
         ContractRootKey,
         DispatchInput,
         DispatchOutput,
-        ExecuteConstructorConfig,
     },
     env::{
         Env,
