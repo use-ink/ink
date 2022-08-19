@@ -29,11 +29,11 @@ use derive_more::From;
 use ink_engine::ext::Engine;
 
 /// The off-chain environment.
-pub struct EnvInstance {
+pub struct EnvInstance<E: Environment> {
     engine: Engine,
 }
 
-impl OnInstance for EnvInstance {
+impl OnInstance for EnvInstance<E> {
     fn on_instance<E, F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R,
