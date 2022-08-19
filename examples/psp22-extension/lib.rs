@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![allow(clippy::new_without_default)]
 
 use ink_env::Environment;
 use ink_lang as ink;
@@ -31,7 +32,11 @@ pub trait Psp22Extension {
     fn balance_of(asset_id: u32, owner: DefaultAccountId) -> Result<DefaultBalance>;
 
     #[ink(extension = 0x4d47d921)]
-    fn allowance(asset_id: u32, owner: DefaultAccountId, spender: DefaultAccountId) -> Result<DefaultBalance>;
+    fn allowance(
+        asset_id: u32,
+        owner: DefaultAccountId,
+        spender: DefaultAccountId,
+    ) -> Result<DefaultBalance>;
 
     // PSP22 transfer
     #[ink(extension = 0xdb20f9f5)]
@@ -127,7 +132,10 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env = crate::CustomEnvironment)]
 mod psp22_ext_test {
-    use super::{Result, Vec};
+    use super::{
+        Result,
+        Vec,
+    };
 
     #[ink(storage)]
     pub struct Psp22Extension {}
@@ -174,7 +182,12 @@ mod psp22_ext_test {
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner` for the specified asset.
         #[ink(message, selector = 0x4d47d921)]
-        pub fn allowance(&self, asset_id: u32, owner: AccountId, spender: AccountId) -> Result<Balance> {
+        pub fn allowance(
+            &self,
+            asset_id: u32,
+            owner: AccountId,
+            spender: AccountId,
+        ) -> Result<Balance> {
             self.env().extension().allowance(asset_id, owner, spender)
         }
 
