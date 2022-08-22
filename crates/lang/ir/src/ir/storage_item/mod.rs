@@ -35,6 +35,20 @@ impl StorageItem {
         let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let config = StorageItemConfig::try_from(parsed_config)?;
 
+        for attr in &ast.attrs {
+            if attr
+                .path
+                .to_token_stream()
+                .to_string()
+                .contains("storage_item")
+            {
+                return Err(format_err_spanned!(
+                    attr,
+                    "only one `ink::storage_item` is allowed",
+                ))
+            }
+        }
+
         Ok(Self { ast, config })
     }
 

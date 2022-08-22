@@ -19,16 +19,15 @@
 
 extern crate proc_macro;
 
-mod key_holder;
 mod storable_hint;
+mod storage_key;
 mod storage_layout;
 
 #[cfg(test)]
 mod tests;
 
 use self::{
-    key_holder::key_holder_derive,
-    storable_hint::storable_hint_derive,
+    storable_hint::storable_hint_derive, storage_key::storage_key_derive,
     storage_layout::storage_layout_derive,
 };
 synstructure::decl_derive!(
@@ -95,7 +94,7 @@ synstructure::decl_derive!(
     /// assert_eq!(<NamedFieldsManualKey<AutoKey> as StorageKey>::KEY, 0);
     /// assert_eq!(<NamedFieldsManualKey<ManualKey<123>> as StorageKey>::KEY, 123);
     /// ```
-    key_holder_derive
+    storage_key_derive
 );
 synstructure::decl_derive!(
     [StorageLayout] =>

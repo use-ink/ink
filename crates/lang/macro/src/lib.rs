@@ -668,16 +668,20 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
-/// Packed types don't have a storage key, but non-packed types
+/// [`Packed`](ink_storage::traits::Packed) types don't have a storage key, but non-packed types
 /// (like `Mapping`, `Lazy` etc.) require calculating the storage key during compilation.
 ///
-/// Consider annotating structs and enums that are intented to be a part of
+/// Consider annotating structs and enums that are intended to be a part of
 /// the storage with this macro. If the type is packed then the usage of the
 /// macro is optional.
 ///
 /// If the type is non-packed it is best to rely on automatic storage key
-/// calculation. The storage key can also be specified manually with the
-/// generic `KEY` parameter though.
+/// calculation via `ink::storage_item`.
+///
+/// The usage of `KEY: StorageKey` generic allows to propagate the parent's storage key to the type
+/// and offset the storage key of the type. It is helpful for non-packed types that can be used
+/// several times in the contract. Each field should have a unique storage key, so propagation of
+/// the parent's storage key allows one to achieve it.
 ///
 /// The macro should be called before `derive` macros because it can change the type.
 ///
@@ -702,6 +706,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// };
 /// use ink_primitives::traits::Storable;
 ///
+/// // Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all
+/// // required traits to be storable.
 /// #[derive(scale::Decode, scale::Encode)]
 /// struct Packed {
 ///     s1: u128,
@@ -710,18 +716,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     // s3: Vec<NonPacked>,
 /// }
 ///
-/// #[derive(scale::Decode, scale::Encode)]
-/// #[cfg_attr(
-///     feature = "std",
-///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
-/// )]
-/// struct PackedManual {
-///     s1: u32,
-///     s2: Vec<(u128, String)>,
-///     // Fails because `StorableHint` is only implemented for `Vec` where `T: Packed`.
-///     // s3: Vec<NonPacked>,
-/// }
-///
+/// // Example of how to define the packed type with generic.
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
 ///     feature = "std",
@@ -733,6 +728,14 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     s3: String,
 /// }
 ///
+/// // Example of how to define the non-packed type.
+/// #[ink_lang::storage_item]
+/// struct NonPacked {
+///     s1: Mapping<u32, u128>,
+///     s2: Lazy<u128>,
+/// }
+///
+/// // Example of how to define the non-packed generic type.
 /// #[ink_lang::storage_item(derive = false)]
 /// #[derive(Storable, StorableHint, StorageKey)]
 /// #[cfg_attr(
@@ -745,6 +748,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     s3: Mapping<u128, T>,
 /// }
 ///
+/// // Example of how to define a complex packed type.
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
 ///     feature = "std",
@@ -753,15 +757,10 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// struct PackedComplex {
 ///     s1: u128,
 ///     s2: Vec<u128>,
-///     s3: Vec<PackedManual>,
+///     s3: Vec<Packed>,
 /// }
 ///
-/// #[ink_lang::storage_item]
-/// struct NonPacked {
-///     s1: Mapping<u32, u128>,
-///     s2: Lazy<u128>,
-/// }
-///
+/// // Example of how to define a complex non-packed type.
 /// #[ink_lang::storage_item]
 /// struct NonPackedComplex<KEY: StorageKey> {
 ///     s1: (String, u128, Packed),
@@ -778,8 +777,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## Header Arguments
 ///
-/// The `#[ink::storage_item]` macro can be provided with some additional comma-separated
-/// header arguments:
+/// The `#[ink::storage_item]` macro can be provided with an additional comma-separated
+/// header argument:
 ///
 /// - `derive: bool`
 ///

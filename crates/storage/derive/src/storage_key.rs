@@ -14,12 +14,9 @@
 
 use ink_storage_codegen::DeriveUtils;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    ToTokens,
-};
+use quote::{quote, ToTokens};
 
-pub fn key_holder_derive(mut s: synstructure::Structure) -> TokenStream2 {
+pub fn storage_key_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.add_bounds(synstructure::AddBounds::None)
         .underscore_const(true);
 

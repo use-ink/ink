@@ -73,6 +73,15 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
         matches!(s.ast().data, syn::Data::Enum(_)),
         "s must be an enum item"
     );
+
+    if s.variants().len() > 256 {
+        return syn::Error::new(
+            s.ast().span(),
+            "Currently only enums with at most 256 variants are supported.",
+        )
+        .to_compile_error()
+    }
+
     let variant_layouts = s.variants().iter().enumerate().map(|(n, variant)| {
         let variant_ident = variant.ast().ident;
         let discriminant = variant
@@ -120,17 +129,7 @@ pub fn storage_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
         .underscore_const(true);
     match &s.ast().data {
         syn::Data::Struct(_) => storage_layout_struct(&s),
-        syn::Data::Enum(data) => {
-            if s.variants().len() > 256 {
-                return syn::Error::new(
-                    data.variants.span(),
-                    "Currently only enums with at most 256 variants are supported.",
-                )
-                .to_compile_error()
-            }
-
-            storage_layout_enum(&s)
-        }
+        syn::Data::Enum(_) => storage_layout_enum(&s),
         _ => panic!("cannot derive `StorageLayout` for Rust `union` items"),
     }
 }

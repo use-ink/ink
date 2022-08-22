@@ -60,6 +60,15 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
         !s.variants().is_empty(),
         "encountered invalid empty enum type deriving Storable trait"
     );
+
+    if s.variants().len() > 256 {
+        return syn::Error::new(
+            s.ast().span(),
+            "Currently only enums with at most 256 variants are supported.",
+        )
+        .to_compile_error()
+    }
+
     let decode_body = s
         .variants()
         .iter()
@@ -132,17 +141,7 @@ pub fn storable_derive(mut s: synstructure::Structure) -> TokenStream2 {
         .underscore_const(true);
     match &s.ast().data {
         syn::Data::Struct(_) => storable_struct_derive(&s),
-        syn::Data::Enum(data) => {
-            if s.variants().len() > 256 {
-                return syn::Error::new(
-                    data.variants.span(),
-                    "Currently only enums with at most 256 variants are supported.",
-                )
-                .to_compile_error()
-            }
-
-            storable_enum_derive(&s)
-        }
+        syn::Data::Enum(_) => storable_enum_derive(&s),
         _ => {
             panic!("cannot derive `Storable` for Rust `union` items")
         }

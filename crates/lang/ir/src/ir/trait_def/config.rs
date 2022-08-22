@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ast,
-    error::ExtError as _,
-    ir::config::WhitelistedAttributes,
-};
+use crate::{ast, error::ExtError as _, ir::config::WhitelistedAttributes};
 use syn::spanned::Spanned;
 
 /// The ink! configuration.
@@ -49,18 +45,18 @@ impl TraitDefinitionConfig {
 }
 
 /// Return an error to notify about duplicate ink! trait definition configuration arguments.
-fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
+fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
 where
     F: Spanned,
     S: Spanned,
 {
     format_err!(
-        snd.span(),
+        second.span(),
         "encountered duplicate ink! trait definition `{}` configuration argument",
         name,
     )
     .into_combine(format_err!(
-        fst.span(),
+        first.span(),
         "first `{}` configuration argument here",
         name
     ))
@@ -75,21 +71,21 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("namespace") {
                 if let Some((_, meta_name_value)) = namespace {
-                    return Err(duplicate_config_err(meta_name_value, arg, "namespace"))
+                    return Err(duplicate_config_err(meta_name_value, arg, "namespace"));
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {
                         return Err(format_err_spanned!(
                             lit_str,
                             "encountered invalid Rust identifier for the ink! namespace configuration parameter"
-                        ))
+                        ));
                     }
                     namespace = Some((lit_str.clone(), arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a string literal for `namespace` ink! trait definition configuration argument",
-                    ))
+                    ));
                 }
             } else if arg.name.is_ident("keep_attr") {
                 whitelisted_attributes.parse_arg_value(&arg)?;
@@ -97,7 +93,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! trait definition configuration argument",
-                ))
+                ));
             }
         }
         Ok(TraitDefinitionConfig {
