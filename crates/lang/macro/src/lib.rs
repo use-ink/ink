@@ -709,6 +709,10 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// // Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all
 /// // required traits to be storable.
 /// #[derive(scale::Decode, scale::Encode)]
+/// #[cfg_attr(
+///     feature = "std",
+///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+/// )]
 /// struct Packed {
 ///     s1: u128,
 ///     s2: Vec<u128>,
