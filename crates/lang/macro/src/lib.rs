@@ -668,8 +668,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
-/// [`Packed`](ink_storage::traits::Packed) types don't have a storage key, but non-packed types
-/// (like `Mapping`, `Lazy` etc.) require calculating the storage key during compilation.
+/// `Packed` types don't have a storage key, but non-packed types (like `Mapping`, `Lazy` etc.)
+/// require calculating the storage key during compilation.
 ///
 /// Consider annotating structs and enums that are intended to be a part of
 /// the storage with this macro. If the type is packed then the usage of the
