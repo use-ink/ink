@@ -27,7 +27,8 @@ mod storage_layout;
 mod tests;
 
 use self::{
-    storable_hint::storable_hint_derive, storage_key::storage_key_derive,
+    storable_hint::storable_hint_derive,
+    storage_key::storage_key_derive,
     storage_layout::storage_layout_derive,
 };
 synstructure::decl_derive!(

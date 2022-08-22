@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, error::ExtError as _};
+use crate::{
+    ast,
+    error::ExtError as _,
+};
 use syn::spanned::Spanned;
 
 /// The ink! configuration.
@@ -51,7 +54,7 @@ impl TryFrom<ast::AttributeArgs> for StorageItemConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("derive") {
                 if let Some(lit_bool) = derive {
-                    return Err(duplicate_config_err(lit_bool, arg, "derive"));
+                    return Err(duplicate_config_err(lit_bool, arg, "derive"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     derive = Some(lit_bool.clone())

@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, ast::MetaNameValue, error::ExtError as _};
+use crate::{
+    ast,
+    ast::MetaNameValue,
+    error::ExtError as _,
+};
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
@@ -69,7 +73,7 @@ impl WhitelistedAttributes {
                 arg,
                 "expected a string with attributes separated by `,`",
             ))
-        };
+        }
     }
 
     /// Returns the filtered input vector of whitelisted attributes.
@@ -116,7 +120,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
         for arg in args.into_iter() {
             if arg.name.is_ident("env") {
                 if let Some((_, ast)) = env {
-                    return Err(duplicate_config_err(ast, arg, "env"));
+                    return Err(duplicate_config_err(ast, arg, "env"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
                     env = Some((Environment { path: path.clone() }, arg))
@@ -124,7 +128,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a path for `env` ink! configuration argument",
-                    ));
+                    ))
                 }
             } else if arg.name.is_ident("keep_attr") {
                 whitelisted_attributes.parse_arg_value(&arg)?;
@@ -132,7 +136,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! configuration argument",
-                ));
+                ))
             }
         }
         Ok(Config {

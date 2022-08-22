@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, error::ExtError as _, ir::config::WhitelistedAttributes};
+use crate::{
+    ast,
+    error::ExtError as _,
+    ir::config::WhitelistedAttributes,
+};
 use syn::spanned::Spanned;
 
 /// The ink! configuration.
@@ -71,7 +75,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("namespace") {
                 if let Some((_, meta_name_value)) = namespace {
-                    return Err(duplicate_config_err(meta_name_value, arg, "namespace"));
+                    return Err(duplicate_config_err(meta_name_value, arg, "namespace"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {
