@@ -123,6 +123,8 @@ examples-fmt:
         cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
       done
     - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check
+    # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+    - rustfmt --verbose --check ./examples/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
 
 clippy-std:

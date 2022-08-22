@@ -24,10 +24,10 @@ To integrate this example into Substrate you need to do two things:
 * In your runtime, use the code in
   [`psp22-extension-example.rs`](runtime/psp22-extension-example.rs)
   as an implementation for the trait `ChainExtension` in Substrate.
-  You can just copy/paste the content of that file into e.g. your `runtime/src/lib.rs`.
+  You can just copy/paste that file as a new module, e.g. `runtime/src/chain_extension.rs`.
 
-* Use the implementation as the associated type `ChainExtension` of the trait
-  `pallet_contracts::Config`:
+* In your runtime, use the implementation as the associated type `ChainExtension` of the
+  trait `pallet_contracts::Config`:
   ```rust
   impl pallet_contracts::Config for Runtime {
     …
@@ -42,6 +42,9 @@ See the example contract in [`lib.rs`](lib.rs).
 
 ## Disclaimer
 
-This is not a feature-complete or production-ready PSP22 implementation. This example
-currently lacks proper error management, precise weight accounting, tests (these all
-might be added at a later point).
+:warning: This is not a feature-complete or production-ready PSP22 implementation. This
+example currently lacks proper error management, precise weight accounting, tests (these
+all  might be added at a later point).
+
+:warning: `decrease_allowance` function is currently not implemented due to limitations
+of the `assets` pallet.

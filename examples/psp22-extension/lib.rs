@@ -113,6 +113,7 @@ impl ink_env::chain_extension::FromStatusCode for Psp22ErrorCode {
     }
 }
 
+/// An environment using default ink environment types, with PSP-22 extension included
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum CustomEnvironment {}

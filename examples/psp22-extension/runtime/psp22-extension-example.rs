@@ -163,6 +163,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
+    // debug_message weight is a good approximation of the additional overhead of going from
+    // contract layer to substrate layer.
     let overhead = <T as pallet_contracts::Config>::Schedule::get()
         .host_fn_weights
         .debug_message;
@@ -197,9 +199,6 @@ where
         DispatchError::Other("ChainExtension failed to call transfer")
     })?;
     Ok(())
-
-    // TODO: adjust weight
-    // env.adjust_weight(charged, actual_weight)
 }
 
 fn transfer_from<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -210,6 +209,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
+    // debug_message weight is a good approximation of the additional overhead of going from
+    // contract layer to substrate layer.
     let overhead = <T as pallet_contracts::Config>::Schedule::get()
         .host_fn_weights
         .debug_message;
@@ -244,9 +245,6 @@ where
         );
         DispatchError::Other("ChainExtension failed to call transfer_from")
     })
-
-    // TODO: adjust weight
-    // env.adjust_weight(charged, actual_weight)
 }
 
 fn approve<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -257,6 +255,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::approve_transfer();
+    // debug_message weight is a good approximation of the additional overhead of going from
+    // contract layer to substrate layer.
     let overhead = <T as pallet_contracts::Config>::Schedule::get()
         .host_fn_weights
         .debug_message;
@@ -288,9 +288,6 @@ where
         );
         DispatchError::Other("ChainExtension failed to call approve")
     })
-
-    // TODO: adjust weight
-    // env.adjust_weight(charged, actual_weight)
 }
 
 fn decrease_allowance<T, E>(_env: Environment<E, InitState>) -> Result<(), DispatchError>
