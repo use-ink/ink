@@ -138,6 +138,8 @@ mod multisig {
         pub transferred_value: Balance,
         /// Gas limit for the execution of the call.
         pub gas_limit: u64,
+        /// The call flag allowing reentry
+        pub allow_reentry: bool,
     }
 
     /// Errors that can occur upon calling this contract.
@@ -549,7 +551,7 @@ mod multisig {
                         .gas_limit(t.gas_limit)
                         .transferred_value(t.transferred_value),
                 )
-                .call_flags(CallFlags::default().set_allow_reentry(true))
+                .call_flags(CallFlags::default().set_allow_reentry(t.allow_reentry))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
@@ -582,7 +584,7 @@ mod multisig {
                         .gas_limit(t.gas_limit)
                         .transferred_value(t.transferred_value),
                 )
-                .call_flags(CallFlags::default().set_allow_reentry(true))
+                .call_flags(CallFlags::default().set_allow_reentry(t.allow_reentry))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
