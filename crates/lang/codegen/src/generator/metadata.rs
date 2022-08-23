@@ -45,10 +45,8 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata() -> ::ink_metadata::MetadataVersioned  {
-                    <::ink_metadata::InkProject as ::core::convert::Into<::ink_metadata::MetadataVersioned>>::into(
-                        ::ink_metadata::InkProject::new(#layout, #contract)
-                    )
+                pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
+                    ::ink_metadata::InkProject::new(#layout, #contract)
                 }
             };
         }
