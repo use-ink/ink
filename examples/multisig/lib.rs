@@ -64,10 +64,13 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod multisig {
-    use ink_env::call::{
-        build_call,
-        Call,
-        ExecutionInput,
+    use ink_env::{
+        call::{
+            build_call,
+            Call,
+            ExecutionInput,
+        },
+        CallFlags,
     };
     use ink_prelude::vec::Vec;
     use ink_storage::{
@@ -546,6 +549,7 @@ mod multisig {
                         .gas_limit(t.gas_limit)
                         .transferred_value(t.transferred_value),
                 )
+                .call_flags(CallFlags::default().set_allow_reentry(true))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
@@ -578,6 +582,7 @@ mod multisig {
                         .gas_limit(t.gas_limit)
                         .transferred_value(t.transferred_value),
                 )
+                .call_flags(CallFlags::default().set_allow_reentry(true))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
