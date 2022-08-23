@@ -7,7 +7,7 @@ publish = false
 
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/paritytech/cargo-contract"
+repository = "https://github.com/paritytech/ink"
 documentation = "https://docs.rs/ink_linting"
 homepage = "https://github.com/paritytech/cargo-contract"
 description = "Linting tool for ink! smart contracts."
