@@ -207,6 +207,9 @@ dylint:
     <<:                              *test-refs
     script:
     - cd linting/
+    # we are using a toolchain file in this directory
+    # add required components for CI
+    - rustup component add rustfmt clippy
     - cargo check --verbose
     - cargo fmt --verbose --all -- --check
     - cargo clippy --verbose -- -D warnings;
