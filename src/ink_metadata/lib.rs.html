@@ -194,38 +194,32 @@
     <span class="ident">Serialize</span>,
 };
 
-<span class="doccomment">/// Versioned ink! project metadata.</span>
+<span class="doccomment">/// The metadata version of the generated ink! contract.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The serialized metadata format (which this represents) is different from the</span>
+<span class="doccomment">/// version of this crate or the contract for Rust semantic versioning purposes.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Represents the version of the serialized metadata *format*, which is distinct from the version</span>
-<span class="doccomment">/// of this crate for Rust semantic versioning compatibility.</span>
+<span class="doccomment">/// Versions other than the `Default` are considered deprecated. If you want to</span>
+<span class="doccomment">/// deserialize legacy metadata versions you will need to use an old version of</span>
+<span class="doccomment">/// this crate.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::large_enum_variant</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MetadataVersioned</span> {
-    <span class="doccomment">/// Version 0 placeholder. Represents the original non-versioned metadata format.</span>
-    <span class="ident">V0</span>(<span class="ident">MetadataVersionDeprecated</span>),
-    <span class="doccomment">/// Version 1 of the contract metadata.</span>
-    <span class="ident">V1</span>(<span class="ident">MetadataVersionDeprecated</span>),
-    <span class="doccomment">/// Version 2 of the contract metadata.</span>
-    <span class="ident">V2</span>(<span class="ident">MetadataVersionDeprecated</span>),
-    <span class="doccomment">/// Version 3 of the contract metadata.</span>
-    <span class="ident">V3</span>(<span class="ident">InkProject</span>),
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MetadataVersion</span> {
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;4&quot;</span>)]</span>
+    <span class="ident">V4</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InkProject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MetadataVersioned</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_project</span>: <span class="ident">InkProject</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MetadataVersioned::V3</span>(<span class="ident">ink_project</span>)
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MetadataVersion</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::V4</span>
     }
 }
-
-<span class="doccomment">/// Enum to represent a deprecated metadata version that cannot be instantiated.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MetadataVersionDeprecated</span> {}
 
 <span class="doccomment">/// An entire ink! project for metadata file generation purposes.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InkProject</span> {
+    <span class="ident">version</span>: <span class="ident">MetadataVersion</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
     <span class="ident">registry</span>: <span class="ident">PortableRegistry</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;storage&quot;</span>)]</span>
@@ -243,6 +237,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry::new</span>();
 
         <span class="self">Self</span> {
+            <span class="ident">version</span>: <span class="ident">Default::default</span>(),
             <span class="ident">layout</span>: <span class="ident">layout</span>.<span class="ident">into</span>().<span class="ident">into_portable</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registry</span>),
             <span class="ident">spec</span>: <span class="ident">spec</span>.<span class="ident">into</span>().<span class="ident">into_portable</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registry</span>),
             <span class="ident">registry</span>: <span class="ident">registry</span>.<span class="ident">into</span>(),
@@ -251,6 +246,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InkProject</span> {
+    <span class="doccomment">/// Returns the metadata version used by the contract.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">MetadataVersion</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">version</span>
+    }
+
     <span class="doccomment">/// Returns a read-only registry of types in the contract.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">registry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PortableRegistry</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">registry</span>
