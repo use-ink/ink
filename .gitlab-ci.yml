@@ -216,7 +216,6 @@ dylint:
 
     # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
     - unset RUSTC_WRAPPER
-
     - cargo test --verbose --all-features
 
 #### stage:                        workspace
