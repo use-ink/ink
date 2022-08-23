@@ -1,0 +1,26 @@
+error: `#[ink(storage)]` on `MyContract` contains `ink_storage::Mapping` without initializing it in the contract constructor.
+  --> $DIR/mapping-one-constructor.rs:29:5
+   |
+LL | /     #[derive(SpreadAllocate)]
+LL | |     pub struct MyContract {
+LL | |         balances: Mapping<AccountId, Balance>,
+LL | |     }
+   | |_____^
+   |
+   = note: `#[deny(mapping_initialized)]` on by default
+help: this field uses `ink_storage::Mapping`
+  --> $DIR/mapping-one-constructor.rs:31:9
+   |
+LL |         balances: Mapping<AccountId, Balance>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: add an `ink_lang::utils::initialize_contract(…)` function in this constructor
+   |
+LL ~         pub fn new() -> Self {
+LL +             Self {
+LL +                 balances: Default::default(),
+LL +             }
+LL +         }
+   |
+
+error: aborting due to previous error
+

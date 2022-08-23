@@ -201,6 +201,20 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
+dylint:
+    stage:                           check
+    <<:                              *docker-env
+    <<:                              *test-refs
+    script:
+    - cd linting/
+    - cargo check --verbose
+    - cargo fmt --verbose --all -- --check
+    - cargo clippy --verbose -- -D warnings;
+
+    # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+    - unset RUSTC_WRAPPER
+
+    - cargo test --verbose --all-features
 
 #### stage:                        workspace
 
