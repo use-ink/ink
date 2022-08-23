@@ -4,6 +4,7 @@ use codec::{
     MaxEncodedLen,
 };
 use frame_support::{
+    dispatch::RawOrigin,
     log::{
         error,
         trace,
@@ -32,7 +33,14 @@ use pallet_contracts::chain_extension::{
     SysConfig,
     UncheckedFrom,
 };
-use sp_runtime::DispatchError;
+use sp_runtime::{
+    traits::{
+        Saturating,
+        StaticLookup,
+        Zero,
+    },
+    DispatchError,
+};
 
 #[derive(Debug, PartialEq, Encode, Decode, MaxEncodedLen)]
 struct Psp22BalanceOfInput<AssetId, AccountId> {
@@ -71,6 +79,17 @@ struct Psp22ApproveInput<AssetId, AccountId, Balance> {
 
 pub struct Psp22Extension;
 
+fn map_err(err_msg: &'static str) -> impl FnOnce(DispatchError) -> DispatchError {
+    move |err| {
+        trace!(
+            target: "runtime",
+            "PSP22 Transfer failed:{:?}",
+            err
+        );
+        DispatchError::Other(err_msg)
+    }
+}
+
 fn metadata<T, E>(
     func_id: u32,
     env: Environment<E, InitState>,
@@ -108,7 +127,7 @@ where
         func_id
     );
     env.write(&result, false, None)
-        .map_err(|_| DispatchError::Other("ChainExtension failed to call PSP22Metadata"))
+        .map_err(map_err("ChainExtension failed to call PSP22Metadata"))
 }
 
 fn query<T, E>(func_id: u32, env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -152,7 +171,7 @@ where
         func_id
     );
     env.write(&result, false, None)
-        .map_err(|_| DispatchError::Other("ChainExtension failed to call PSP22 query"))
+        .map_err(map_err("ChainExtension failed to call PSP22 query"))
 }
 
 fn transfer<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -179,25 +198,18 @@ where
         env.read_as()?;
     let sender = env.ext().caller();
 
-    let result = <pallet_assets::Pallet<T> as Transfer<T::AccountId>>::transfer(
+    <pallet_assets::Pallet<T> as Transfer<T::AccountId>>::transfer(
         input.asset_id,
         sender,
         &input.to,
         input.value,
         true,
-    );
+    )
+    .map_err(map_err("ChainExtension failed to call transfer"))?;
     trace!(
         target: "runtime",
         "[ChainExtension]|call|transfer"
     );
-    result.map_err(|err| {
-        trace!(
-            target: "runtime",
-            "PSP22 Transfer failed:{:?}",
-            err
-        );
-        DispatchError::Other("ChainExtension failed to call transfer")
-    })?;
     Ok(())
 }
 
@@ -229,7 +241,7 @@ where
         <pallet_assets::Pallet<T> as AllowanceMutate<T::AccountId>>::transfer_from(
             input.asset_id,
             &input.from,
-            &spender,
+            spender,
             &input.to,
             input.value,
         );
@@ -237,14 +249,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|transfer_from"
     );
-    result.map_err(|err| {
-        trace!(
-            target: "runtime",
-            "PSP22 transfer_from failed:{:?}",
-            err
-        );
-        DispatchError::Other("ChainExtension failed to call transfer_from")
-    })
+    result.map_err(map_err("ChainExtension failed to call transfer_from"))
 }
 
 fn approve<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -272,7 +277,7 @@ where
 
     let result = <pallet_assets::Pallet<T> as AllowanceMutate<T::AccountId>>::approve(
         input.asset_id,
-        &owner,
+        owner,
         &input.spender,
         input.value,
     );
@@ -280,27 +285,71 @@ where
         target: "runtime",
         "[ChainExtension]|call|approve"
     );
-    result.map_err(|err| {
-        trace!(
-            target: "runtime",
-            "PSP22 Approve failed:{:?}",
-            err
-        );
-        DispatchError::Other("ChainExtension failed to call approve")
-    })
+    result.map_err(map_err("ChainExtension failed to call approve"))
 }
 
-fn decrease_allowance<T, E>(_env: Environment<E, InitState>) -> Result<(), DispatchError>
+fn decrease_allowance<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
 where
     T: pallet_assets::Config + pallet_contracts::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
     E: Ext<T = T>,
 {
+    let mut env = env.buf_in_buf_out();
+    let input: Psp22ApproveInput<T::AssetId, T::AccountId, T::Balance> = env.read_as()?;
+    if input.value.is_zero() {
+        return Ok(())
+    }
+
+    let base_weight = <T as pallet_assets::Config>::WeightInfo::cancel_approval()
+        .saturating_add(<T as pallet_assets::Config>::WeightInfo::approve_transfer());
+    // debug_message weight is a good approximation of the additional overhead of going from
+    // contract layer to substrate layer.
+    let overhead = <T as pallet_contracts::Config>::Schedule::get()
+        .host_fn_weights
+        .debug_message;
+    let charged_weight = env.charge_weight(base_weight.saturating_add(overhead))?;
+    trace!(
+        target: "runtime",
+        "[ChainExtension]|call|decrease_allowance / charge_weight:{:?}",
+        charged_weight
+    );
+
+    let owner = env.ext().caller();
+    let mut allowance =
+        <pallet_assets::Pallet<T> as AllowanceInspect<T::AccountId>>::allowance(
+            input.asset_id,
+            owner,
+            &input.spender,
+        );
+    <pallet_assets::Pallet<T>>::cancel_approval(
+        RawOrigin::Signed(owner.clone()).into(),
+        input.asset_id,
+        T::Lookup::unlookup(input.spender.clone()),
+    )
+    .map_err(map_err("ChainExtension failed to call decrease_allowance"))?;
+    allowance.saturating_reduce(input.value);
+    if allowance.is_zero() {
+        // If reduce value was less or equal than existing allowance, it should stay none.
+        env.adjust_weight(
+            charged_weight,
+            <T as pallet_assets::Config>::WeightInfo::cancel_approval()
+                .saturating_add(overhead),
+        );
+        return Ok(())
+    }
+    <pallet_assets::Pallet<T> as AllowanceMutate<T::AccountId>>::approve(
+        input.asset_id,
+        owner,
+        &input.spender,
+        allowance,
+    )
+    .map_err(map_err("ChainExtension failed to call decrease_allowance"))?;
+
     trace!(
         target: "runtime",
         "[ChainExtension]|call|decrease_allowance"
     );
-    return Err(DispatchError::Other("Unimplemented func_id")) // TODO: implement
+    Ok(())
 }
 
 impl<T> ChainExtension<T> for Psp22Extension
