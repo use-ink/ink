@@ -213,7 +213,6 @@ dylint:
     - cargo check --verbose
     - cargo fmt --verbose --all -- --check
     - cargo clippy --verbose -- -D warnings;
-
     # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
     - unset RUSTC_WRAPPER
     - cargo test --verbose --all-features
