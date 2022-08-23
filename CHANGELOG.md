@@ -1,4 +1,10 @@
-# [Unreleased]
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
 
 There are a number of backwards incompatible changes which are on the `master` branch
 waiting to be released. These are:
@@ -8,7 +14,7 @@ waiting to be released. These are:
 - Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 - The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
 
-## Compatibility
+### Compatibility
 
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [6b85535](https://github.com/paritytech/substrate/tree/6b8553511112afd5ae7e8e6877dc2f467850f155)
@@ -16,7 +22,7 @@ later than [6b85535](https://github.com/paritytech/substrate/tree/6b8553511112af
 
 The compatibility issues will be with `ChainExtension`'s and the functions mentioned above.
 
-# Version 3.3.1
+## Version 3.3.1
 
 At the moment teams which use both Substrate and ink! in the same codebase are
 [experiencing some issues](https://github.com/paritytech/ink/pull/1348#issuecomment-1207477615)
@@ -26,18 +32,18 @@ This is because that branch uses the `secp256k1@0.24`, which is incompatible wit
 
 This release bumps the `secp256k1` version from `v0.22` to `v0.24`.
 
-# Version 3.3.0
+## Version 3.3.0
 
 This release restores SemVer compatibility in the `v3.x` series of releases, as well as
 compatibility with the [`v0.13.0`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0)
 release of the `substrate-contracts-node`.
 
-## Compatibility
+### Compatibility
 This version will work fine with *substrate-contracts-node* versions from
 [0.13.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.13.0) up
 to [0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0).
 
-## Changed
+### Changed
 *Context: user-reported issues on our SE unveiled backward incompatibility introduced in 3.1.0 release.*
 1. [CodeRejected when using ink! v3.1.0](https://substrate.stackexchange.com/questions/2721/cargo-contract-3-0-1)
 1. [Incompatibility between ink! v3.0.1 and v3.2.0 ](https://substrate.stackexchange.com/questions/2870/cargo-contract-throws-error-about-supplied-arguments-in-inkconstructor-f)
@@ -60,9 +66,9 @@ The following has been done to restore backward compatibility:
 
 All these breaking changes are subjects to the upcoming MAJOR *ink!* release 4.0.0.
 
-# Version 3.2.0
+## Version 3.2.0
 
-## Compatibility
+### Compatibility
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [c0ee2ad](https://github.com/paritytech/substrate/tree/c0ee2adaa54b22ee0df5d1592cd0430961afd95c)
 (May 23, 2022) in your node.
@@ -70,18 +76,18 @@ later than [c0ee2ad](https://github.com/paritytech/substrate/tree/c0ee2adaa54b22
 This is the case in the latest release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
 [v0.16.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.16.0).
 
-## Added
+### Added
 - Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
 
-## Changed
+### Changed
 - Two functions have been stabilized: [`ink_env::ecdsa_recover`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_recover.html) and [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1270](https://github.com/paritytech/ink/pull/1270) [#1273](https://github.com/paritytech/ink/pull/1273)
 
-## Fixed
+### Fixed
 - Fixed bug with recent Rust and `cargo test` ‒ [#1272](https://github.com/paritytech/ink/pull/1272) (thanks [@xgreenx](https://github.com/xgreenx)).
 
-# Version 3.1.0
+## Version 3.1.0
 
-## Compatibility
+### Compatibility
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [7d233c2](https://github.com/paritytech/substrate/tree/7d233c2446b5a60662400a0a4bcfb78bb3b79ff7)
 (May 13, 2022) in your node.
@@ -90,7 +96,7 @@ This is the case in the latest release of the [`substrate-contracts-node`](https
 [v0.15.1](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.15.1) and
 the latest Polkadot release [v0.9.22](https://github.com/paritytech/polkadot/releases/tag/v0.9.22).
 
-## Breaking Changes
+### Breaking Changes
 There are two breaking changes in this release:
 
 * As part of [#1235](https://github.com/paritytech/ink/pull/1235) the message selectors of
@@ -105,7 +111,7 @@ There are two breaking changes in this release:
   you should add the prior functionality to your contract ‒ it was a simple
   `<Blake2x256 as CryptoHash>::hash(&ecdsa_pubkey[u8; 33])`.
 
-## New API functions
+### New API functions
 We added two new `Mapping` API functions:
 [`Mapping::contains`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and
 [`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224).
@@ -117,35 +123,35 @@ Additionaly there are a couple new `ink_env` functions now:
 * [`ink_env::code_hash`](https://paritytech.github.io/ink/ink_env/fn.code_hash.html)
 * [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html)
 
-## New Upgradeable Contract Example
+### New Upgradeable Contract Example
 
 We've added a new example: [`upgradeable-contracts/set-code-hash`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts#set-code-hash).
 
 It illustrates how the newly added [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
 can be used to implement an upgradeable contract that replaces its own code.
 
-## Added
+### Added
 - Implement `seal_code_hash` and `seal_own_code_hash` ‒ [#1205](https://github.com/paritytech/ink/pull/1205)
 - Add `set_code_hash` function and example ‒ [#1203](https://github.com/paritytech/ink/pull/1203)
 - Implement [`ink_env::ecdsa_to_eth_address`](https://paritytech.github.io/ink/ink_env/fn.ecdsa_to_eth_address.html) ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 - Add [`Mapping::contains(key)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.contains) and [`Mapping::insert_return_size(key, val)`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 
-## Fixed
+### Fixed
 - Fix ordering of message ids if the trait is implemented before the inherent section ‒ [#1235](https://github.com/paritytech/ink/pull/1235)
 
-## Removed
+### Removed
 - Removed `eth_compatibility` crate and moved its functionality partly into `ink_env` ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 
-# Version 3.0.1
+## Version 3.0.1
 
-## Changed
+### Changed
 - Improve upgradeable examples folder structure, explain differences ‒ [#1188](https://github.com/paritytech/ink/pull/1188)
 
-## Fixed
+### Fixed
 - Update codegen after SCALE v3.1.2 release ‒ [#1189](https://github.com/paritytech/ink/pull/1189)
 - Stop using `CallData` in `multisig` example doc test ‒ [#1202](https://github.com/paritytech/ink/pull/1202)
 
-# Version 3.0.0
+## Version 3.0.0
 
 This is the stable release for ink! 3.0.
 
@@ -154,7 +160,7 @@ smaller releases more often.
 
 *Please note that ink! has not been audited.*
 
-## Compatibility
+### Compatibility
 We recommend using a version of the `contracts` pallet later than
 [cc282f84ba53ed2a08374d2a655dc8f08cbc5e86](https://github.com/paritytech/substrate/tree/cc282f84ba53ed2a08374d2a655dc8f08cbc5e86)
 (March 15, 2022) in your node.
@@ -162,8 +168,8 @@ We recommend using a version of the `contracts` pallet later than
 This is the case in the latest release of the `substrate-contracts-node`:
 [v0.10.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.10.0).
 
-## Breaking Changes
-### We replaced the default off-chain testing environment
+### Breaking Changes
+#### We replaced the default off-chain testing environment
 The off-chain testing environment can be used to write unit tests
 for your smart contract with a simulated chain.
 We've now replaced the existing off-chain environment with a new
@@ -178,10 +184,10 @@ We've also switched all our examples to this new environment, you
 can find more "template use-cases" there (e.g. for
 [chain extension testing](https://github.com/paritytech/ink/tree/master/examples/rand-extension))
 
-### We removed the dynamic storage allocator
+#### We removed the dynamic storage allocator
 More details on the reasoning behind this can be found in [#1148](https://github.com/paritytech/ink/pull/1148).
 
-### `CallBuilder` API changed to support `delegate` calls
+#### `CallBuilder` API changed to support `delegate` calls
 The `CallBuilder` API changed to now support two types of calls:
 
 * `Call`: a cross-contract call.<br/>
@@ -197,12 +203,12 @@ _If you want to keep existing behavior you just need to specify the type `Call` 
 
 More details on this change can be found in [#1133](https://github.com/paritytech/ink/pull/1133).
 
-### Unify `ink_env::{eval_contract, invoke_contract}`
+#### Unify `ink_env::{eval_contract, invoke_contract}`
 
 The API for `eval_contract` and `invoke_contract` changed. You can read more
 about the change in [#1165](https://github.com/paritytech/ink/pull/1165).
 
-## Added
+### Added
 - Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145) (thanks [@xgreenx](https://github.com/xgreenx))..
 - Implemented the `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129) [#1166](https://github.com/paritytech/ink/pull/1166).
 - Add tests in experimental off-chain env for `trait-erc20` ‒ [#1158](https://github.com/paritytech/ink/pull/1158).
@@ -211,21 +217,21 @@ about the change in [#1165](https://github.com/paritytech/ink/pull/1165).
 - Add tests in experimental off-chain env for `dns` ‒ [#1156](https://github.com/paritytech/ink/pull/1156).
 - Implemented chain extension testing in experimental off-chain env ‒ [#1152](https://github.com/paritytech/ink/pull/1152).
 
-## Changed
+### Changed
 - Replaced default off-chain testing engine with experimental one ‒ [#1144](https://github.com/paritytech/ink/pull/1144).
 - Changed `CallBuilder` API to now support delegate calls ‒ [#1133](https://github.com/paritytech/ink/pull/1133) (thanks [@VargSupercolony](https://github.com/VargSupercolony) and [@xgreenx](https://github.com/xgreenx)).
 - Unify `ink_env::{eval_contract, invoke_contract}` ‒ [#1165](https://github.com/paritytech/ink/pull/1165).
 
-## Removed
+### Removed
 - Removed the dynamic storage allocator ‒ [#1148](https://github.com/paritytech/ink/pull/1148).
 - Removed `compile_as_dependency` config option ‒ [#1168](https://github.com/paritytech/ink/pull/1168).
 
-# Version 3.0-rc9
+## Version 3.0-rc9
 
 This is the 9th release candidate for ink! 3.0.
 
-## Breaking Changes
-### We removed all data structures other than `Mapping` from the public ink! API
+### Breaking Changes
+#### We removed all data structures other than `Mapping` from the public ink! API
 
 This is a drastic breaking change; it was no easy decision for us.
 It affects `Lazy` and `Memory` as well. The rationale behind this change,
@@ -243,7 +249,7 @@ in your contract, you need to initialize the data structure using the helper fun
 For more code examples you can take a look at our examples, e.g.
 [`erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs).
 
-### Please upgrade `scale-info` and `parity-scale-codec` in your contract's dependencies
+#### Please upgrade `scale-info` and `parity-scale-codec` in your contract's dependencies
 
 In this release candidate we upgraded `scale-info` and `parity-scale-codec`. You have to use a compatible
 version in your contract's `Cargo.toml` as well; `cargo-contract` will throw an error otherwise.
@@ -254,28 +260,28 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 ```
 
-## Added
+### Added
 - Export `ink_lang::utils::initialize_contract(…)` - [#1077](https://github.com/paritytech/ink/pull/1077).
 - Add `get_owner()` function to `dns` example contract - [#1118](https://github.com/paritytech/ink/pull/1118) (thanks [@agryaznov](https://github.com/agryaznov)).
 - Improved usage documentation of `ink_storage::Mapping` - [#1138](https://github.com/paritytech/ink/pull/1138).
 
-## Changed
+### Changed
 - Updated to `parity-scale-codec = "3"` and `scale-info = "2"` - [#1132](https://github.com/paritytech/ink/pull/1132).
 
-## Removed
+### Removed
 - Remove `collection` and `lazy` modules from public ink! API - [#1111](https://github.com/paritytech/ink/pull/1111).
 - Remove `Memory` from public ink! API - [#1137](https://github.com/paritytech/ink/pull/1137).
 
-## Fixed
+### Fixed
 - Fix bug with referencing two external trait definitions - [#1141](https://github.com/paritytech/ink/pull/1141).
 - Explicitly specify trait in dispatching - [#1131](https://github.com/paritytech/ink/pull/1131) (thanks [@xgreenx](https://github.com/xgreenx)).
 - Make `rust-analyzer` expand ink! macros without warning - [#1107](https://github.com/paritytech/ink/pull/1107).
 
-# Version 3.0-rc8
+## Version 3.0-rc8
 
 This is the 8th release candidate for ink! 3.0.
 
-## Compatibility
+### Compatibility
 
 You need to upgrade to a new version of the `contracts` pallet in order to use this
 ink! release. Specifically we recommend you upgrade to at least the pallet version
@@ -289,10 +295,10 @@ Also, the metadata changed with this release, so you need to have a recent versi
 the user interface you are using. For `polkadot-js/api` and `polkadot-js/apps` the metadata
 changes are supported since Jan 19, 2022.
 
-## Metadata Changes
+### Metadata Changes
 There are two metadata changes in this release candidate:
 
-### For messages and constructors: `name: Array` ➔ `label: String`
+#### For messages and constructors: `name: Array` ➔ `label: String`
 
 The messages and constructors exposed by a contract were previously denoted with
 ```json
@@ -308,7 +314,7 @@ the method name with `::` as the separator. So e.g. `trait_name::get_owner`.
 The ink! PR which implemented this is [#923](https://github.com/paritytech/ink/pull/923),
 for the `polkadot-js/api` it was [polkadot-js/api#4255](https://github.com/polkadot-js/api/pull/4255).
 
-### Constructors got a new field: `payable: bool`
+#### Constructors got a new field: `payable: bool`
 Constructors now have to be specified `payable` if it's intended for them to receive value
 (i.e. tokens). This is a breaking change, beforehand they were by default payable,
 now they are by default non-payable.
@@ -316,7 +322,7 @@ now they are by default non-payable.
 The ink! PR which implemented this is [#1065](https://github.com/paritytech/ink/pull/1065), the PR that updated the ink!
 metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for the `polkadot-js/api` it was [polkadot-js/api#4432](https://github.com/polkadot-js/api/pull/4432).
 
-## Changed
+### Changed
 - Update metadata to support payable constructors - [#1100](https://github.com/paritytech/ink/pull/1100).
 - Make constructors non-payable by default, require specifying `payable` explicitly - [#1065](https://github.com/paritytech/ink/pull/1065).
 - Renamed the error code `EcdsaRecoverFailed` to `EcdsaRecoveryFailed` ‒ [#1064](https://github.com/paritytech/ink/pull/1064).
@@ -326,10 +332,10 @@ metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for 
 - Explicitly link against `rlibc` to get non-buggy version of `memcpy` ‒ [#1049](https://github.com/paritytech/ink/pull/1049).
 - Changed the metadata field `name` to `label` for messages and constructors ‒ [#923](https://github.com/paritytech/ink/pull/923) (thanks [@xgreenx](https://github.com/xgreenx)).
 
-## Added
+### Added
 - Added a `remove` method to the `Mapping` data structure ‒ [#1023](https://github.com/paritytech/ink/pull/1023).
 
-# Version 3.0-rc7
+## Version 3.0-rc7
 
 This is the 7th release candidate for ink! 3.0.
 
@@ -346,7 +352,7 @@ significant since it has been migrated to use a new [`Mapping`](https://parityte
 data structure, which we introduce with this release candidate.
 The other examples will be migrated to this new data structure as a next step.
 
-## Compatibility
+### Compatibility
 
 You need to upgrade to a new version of the `contracts` pallet in order to use
 this ink! release. This is because we upgraded to a newer `seal_call` API.
@@ -354,10 +360,10 @@ Specifically you need to upgrade to at least the pallet version
 [e9fca0f](https://github.com/paritytech/substrate/commit/e9fca0f4d7a65998206f29baf0133a7931452104)
 (or newer than Nov 24).
 
-## Removed
+### Removed
 - Removed the state rent API ‒ [#1036](https://github.com/paritytech/ink/pull/1036).
 
-## Added
+### Added
 - Added support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
     - This enables writing upgradeable smart contracts using the proxy/forward pattern.
       We added a new example to illustrate this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
@@ -367,7 +373,7 @@ Specifically you need to upgrade to at least the pallet version
       smart contracts. Those types and traits reside in the new `ink_lang::reflect` module and is
       publicly usable by ink! smart contract authors.
 
-## Changed
+### Changed
 - Upgraded to the `seal_call` v1 API ‒ [#960](https://github.com/paritytech/ink/pull/960).
   - This API now enables control over the behavior of cross-contract calls, e.g. to forward/clone input,
     enable tail calls and control reentrancy.
@@ -399,7 +405,7 @@ Specifically you need to upgrade to at least the pallet version
 - We switched to Rust edition 2021 ‒ [#977](https://github.com/paritytech/ink/pull/977).
 - Update chain extension example to show argument passing ‒ [#1029](https://github.com/paritytech/ink/pull/1029).
 
-## Fixed
+### Fixed
 - Contracts now revert the transaction if an ink! message returns `Result::Err` ‒ [#975](https://github.com/paritytech/ink/pull/975), [#998](https://github.com/paritytech/ink/pull/998).
     - It is still possible to match against a `Result` return type for a called dependency contract
       ‒ i.e. a sub-contract specified in the contract's `Cargo.toml`.
@@ -409,13 +415,13 @@ Specifically you need to upgrade to at least the pallet version
     - Add a way to allocate a storage facility using spread (and packed) layouts ‒ [#978](https://github.com/paritytech/ink/pull/978).
     - Extract non-generic part of `push_topic` to reduce code size ‒ [#1026](https://github.com/paritytech/ink/pull/1026).
 
-# Version 3.0-rc6
+## Version 3.0-rc6
 
 This is the 6th release candidate for ink! 3.0.
 
-## Compatibility
+### Compatibility
 
-### Please upgrade `cargo-contract`
+#### Please upgrade `cargo-contract`
 
 You need to update to the latest `cargo-contract` in order to use this release:
 ```
@@ -425,7 +431,7 @@ cargo install cargo-contract --vers ^0.15 --force --locked
 If you build contracts from this release candidate with an older `cargo-contract`,
 the UI's won't display all contract-relevant fields.
 
-### Please upgrade `scale-info` in your contract's dependencies
+#### Please upgrade `scale-info` in your contract's dependencies
 
 In this release candidate we upgraded `scale-info`. You have to use a compatible
 version in your contract's `Cargo.toml` as well; `cargo-contract` will throw
@@ -437,7 +443,7 @@ scale-info = { version = "1.0", default-features = false, features = ["derive"],
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 ```
 
-### New metadata format
+#### New metadata format
 
 There are breaking changes to the metadata format in this release.
 
@@ -447,14 +453,14 @@ There are breaking changes to the metadata format in this release.
   - The previous supported version was `0.6`, so check release notes for all changes since then: https://github.com/paritytech/ink/pull/845
   - One of the main changes to be aware of is the change to 0 based type lookup ids: https://github.com/paritytech/scale-info/pull/90
 
-## Added
+### Added
 - Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
 - Added new utility proc. macros to `ink_lang` crate - [#947](https://github.com/paritytech/ink/pull/947):
     - `blake2!`: Compute the BLAKE2b 256-bit hash of the given input literal string.
     - `selector_bytes!`: Compute the ink! selector of the given input literal string and return it as `[u8; 4]`.
     - `selector_id!`: Compute the ink! selector of the given input literal string and return it as `u32`.
 
-## Changed
+### Changed
 - Update to `scale-info` 1.0 - [#845](https://github.com/paritytech/ink/pull/845).
 - Message and constructor selectors no longer take their inputs as string, but as `u32` decodable integer - [#928](https://github.com/paritytech/ink/pull/928).<br/>
   For example:
@@ -464,16 +470,16 @@ There are breaking changes to the metadata format in this release.
 - Improved the `multisig` example - [#962](https://github.com/paritytech/ink/pull/962).
 - Changed the link to our beginner's workshop to the migrated workshop on `substrate.io` - [#957](https://github.com/paritytech/ink/pull/957).
 
-## Fixed
+### Fixed
 - Fixed a mistake in the `ink_env::block_timestamp()` documentation - [#937](https://github.com/paritytech/ink/pull/937).
 
-# Version 3.0-rc5 (2021-09-08)
+## Version 3.0-rc5 (2021-09-08)
 
 This is the 5th release candidate for ink! 3.0.
 
 The list below shows the additions, changes and fixes that are visible to users of ink!.
 
-## Compatibility
+### Compatibility
 
 Make sure to use a recent Rust nightly and `cargo-contract` with the current release:
 ```
@@ -496,21 +502,21 @@ cargo install contracts-node --git https://github.com/paritytech/substrate-contr
 ```
 After you've installed the node it can be run via `substrate-contracts-node --tmp --dev`.
 
-## Added
+### Added
 - Added example for mocking chain extensions in off-chain tests ‒ [#882](https://github.com/paritytech/ink/pull/882).
 - Panic messages are now printed to debug buffer ‒ [#894](https://github.com/paritytech/ink/pull/894).
 
-## Changed
+### Changed
 - Unlicensed smart contract examples ‒ [#888](https://github.com/paritytech/ink/pull/888).
 - Stabilized `seal_debug_message` ‒ [#902](https://github.com/paritytech/ink/pull/902).
 
-# Version 3.0-rc4 (2021-07-19)
+## Version 3.0-rc4 (2021-07-19)
 
 This is the 4th release candidate for ink! 3.0.
 
 The list below shows the additions, changes and fixes that are visible to users of ink!.
 
-## Compatibility
+### Compatibility
 
 ink! 3.0-rc4 is compatible with
 
@@ -526,7 +532,7 @@ is up-to-date with this release candidate. Since the last release candidate we n
 added a number of [Frequently Asked Questions](https://ink.substrate.io/faq)
 there.
 
-## Quality Assurance
+### Quality Assurance
 
 In order to ensure a continuously high quality of our codebase we implemented a number
 of key improvements to our testing setup:
@@ -545,7 +551,7 @@ of key improvements to our testing setup:
 - To improve the readability of our documentation we introduced automated grammar and spell
   checking into our Continuous Integration environment.
 
-## Added
+### Added
 - Added support for the new `seal_random` API ‒ [#734](https://github.com/paritytech/ink/pull/734).
 - Added missing documentation for the `ink_storage_derive` procedural macros ‒ [#711](https://github.com/paritytech/ink/pull/711).
 - Implemented the (unstable) `seal_rent_params` API ‒ [#755](https://github.com/paritytech/ink/pull/755).
@@ -569,7 +575,7 @@ of key improvements to our testing setup:
     - For the moment, the new engine is unstable and only available behind a feature flag.
       A number of examples have already been converted to support the new testing engine.
 
-## Changed
+### Changed
 - To reduce a contract's space footprint we switched the default allocator to a bump allocator implementation ‒ [#831](https://github.com/paritytech/ink/pull/831).
 - A couple of readme's have been reworked:
     - Our main ink! readme ‒ [#774](https://github.com/paritytech/ink/pull/774).
@@ -589,20 +595,20 @@ of key improvements to our testing setup:
 - The `contract-transfer` example has been improved for better UI support ‒ [#789](https://github.com/paritytech/ink/pull/789).
 - The `contract-transfer` example has been improved for better error handling ‒ [#790](https://github.com/paritytech/ink/pull/790).
 
-## Fixed
+### Fixed
 - Catch illegal `struct` destructuring pattern in ink! message arguments ‒ [#846](https://github.com/paritytech/ink/pull/846).
 - Removed an erroneous `Salt` type in code generation for cross-contract calls ‒ [#842](https://github.com/paritytech/ink/pull/842).
 - Do not generate metadata if compiled as dependency ‒ [#811](https://github.com/paritytech/ink/pull/811).
 - Fix execution context parameters in DNS example tests ‒ [#723](https://github.com/paritytech/ink/pull/723).
 - Fixed the `Greeter` contract example from our doc comments ‒ [#773](https://github.com/paritytech/ink/pull/773).
 
-# Version 3.0-rc3 (2021-03-02)
+## Version 3.0-rc3 (2021-03-02)
 
 This is the 3rd release candidate for ink! 3.0.
 
 The list below shows the additions, changes and fixes that are visible to users of ink!.
 
-## Compatibility
+### Compatibility
 
 ink! 3.0-rc3 is compatible with
 
@@ -610,14 +616,14 @@ ink! 3.0-rc3 is compatible with
     - Install newest version using `cargo install --force cargo-contract`.
 - Substrate version `3.0` including the `contracts-pallet` version `3.0`.
 
-## Added
+### Added
 
 - Implemented chain extensions feature for ink!.
 - ink!'s official documentation portal: https://ink.substrate.io/
 - It is now possible to pass a `salt` argument to contract instantiations.
 - Implemented fuzz testing for the ink! codebase.
 
-## Changed
+### Changed
 
 - Migrate `ink_storage::SmallVec` and `ink_storage::lazy::SmallLazyArray` to use `min_const_generics`.
     - The `min_const_generics` feature is going to be stabilized in Rust 1.51. For now it was put behind
@@ -629,7 +635,7 @@ ink! 3.0-rc3 is compatible with
 - Add contract example which uses `ext_transfer` and `ext_terminate`: https://github.com/paritytech/ink/pull/554
 - Improve documentation of `transfer` and `minimum_balance` APIs: https://github.com/paritytech/ink/pull/540
 
-## Fixed
+### Fixed
 
 - The Delegator example contract now compiles properly using the `build-all.sh` bash script.
 - Update crate dependencies:
@@ -646,7 +652,7 @@ ink! 3.0-rc3 is compatible with
     - Nested `Lazy` now properly clears storage data. (https://github.com/paritytech/ink/pull/583)
     - `Option` fields now properly clean up nested storage data. (https://github.com/paritytech/ink/pull/570)
 
-# Version 3.0-rc2 (2020-10-22)
+## Version 3.0-rc2 (2020-10-22)
 
 This is the 2nd release candidate for ink! 3.0.
 
@@ -673,14 +679,14 @@ the following improvements, new features and bug fixes:
 - Add new ERC-20 example contract based on a trait implementation. Also modernized
   the old non-trait based ERC-20 example token contract.
 
-# Version 3.0-rc1 (2020-10-09)
+## Version 3.0-rc1 (2020-10-09)
 
 Be prepared for the ink! 3.0 release notes because the whole version was basically a rewrite of
 all the major components that make up ink!. With our experience gained from previous releases
 of ink! we were able to detect weak spots of the design and provided ink! with more tools,
 more features and more efficiency as ever. Read more below …
 
-## Just. Be. Rust. 3.0
+### Just. Be. Rust. 3.0
 
 In the 3.0 update we further explored the space for ink! to just feel like it was plain Rust.
 With this in mind we changed the syntax slightly in order to better map from ink! to the generated
@@ -720,7 +726,7 @@ Also ink! 3.0 no longer requires a mandatory `version` field in the header of th
 
 Syntactically this is all it takes to port your current ink! smart contracts over to ink! 3.0 syntax.
 
-## Split of ink_core
+### Split of ink_core
 
 The `ink_core` crate no longer exists. It has been split into the new `ink_env` and `ink_storage` crates.
 
@@ -728,7 +734,7 @@ Everything that was previously accessed through `ink_core::env` now lives in `in
 that was previously accessed through `ink_core::storage` now lives in `ink_storage`. Both crates keep
 the responsibilities of their former originating `ink_core` modules.
 
-## New Storage Module
+### New Storage Module
 
 The storage module has been reworked entirely.
 Also it no longer lives in the `ink_core` crate but instead is defined as its own `ink_storage` crate.
@@ -736,7 +742,7 @@ Also it no longer lives in the `ink_core` crate but instead is defined as its ow
 In a sense it acts as the standard storage library for ink! smart contracts in that it provides all the
 necessary tools and data structures to organize and operate the contract's storage intuitively and efficiently.
 
-### Lazy
+#### Lazy
 
 The most fundamental change in how you should think about data structures provided by the new `ink_storage`
 crate is that they are inherently lazy. We will explain what this means below!
@@ -794,7 +800,7 @@ impl TwoValues {
 Now `a` and `b` are only loaded when the contract really needs their values.
 Note that `offset` remained `i32` since it is always needed and could spare the minor overhead of the `ink_storage::Lazy` wrapper.
 
-### HashMap
+#### HashMap
 
 In the follow we explore the differences between the high-level `ink_storage::collections::HashMap`
 and the low-level `ink_storage::lazy::LazyHashMap`. Both provide very similar functionality in that they map some generic key to some storage entity.
@@ -815,7 +821,7 @@ The fundamental difference of both data structures is that `HashMap` is aware of
 
 There are many more! For more information about the specifics please take a look into [the `ink_storage` crate documentation](https://paritytech.github.io/ink/ink_storage/).
 
-### Spread & Packed Modes
+#### Spread & Packed Modes
 
 Storing or loading complex data structures to and from contract storage can be done in many different ways. You could store all information into a single storage cell or you could try to store all information into as many different cells as possible. Both strategies have pros and cons under different conditions.
 
@@ -826,7 +832,7 @@ An example for this use case is if you have a vector of user accounts where each
 
 The `ink_storage` crate provides the user full control over the strategy or a mix of these two root strategies through some fundamental abstractions that we are briefly presenting to you.
 
-### Default: Spreading Mode
+#### Default: Spreading Mode
 
 By default ink! spreads information to as many cells as possible. For example if you have the following `#[ink(storage)]` struct every field will live in its own single storage cell. Note that for `c` all 32 bytes will share the same cell!
 
@@ -839,7 +845,7 @@ pub struct Spreaded {
 }
 ```
 
-### Packing Storage
+#### Packing Storage
 
 We can alter this behavior by using the `ink_storage::Pack` abstraction:
 
@@ -873,7 +879,7 @@ pub struct Packed {
 }
 ```
 
-### Spreading Array Cells
+#### Spreading Array Cells
 
 If we prefer to store all bytes of `c` into their own storage cell we can make use of the `SmallVec` data structure. The `SmallVec` is a high-level data structure that allows to efficiently organize a fixed number of elements similar to a Rust array. However, unlike a Rust array it acts lazily upon the storage and spreads its elements into different cells.
 
@@ -892,7 +898,7 @@ pub struct Packed {
 }
 ```
 
-### Opting-out of Storage
+#### Opting-out of Storage
 
 If you are in need of storing some temporary information across method and message boundaries ink! will have your back with the `ink_storage::Memory` abstraction. It allows you to simply opt-out of using the storage for the wrapped entity at all and thus is very similar to Solidity's very own `memory` annotation.
 
@@ -910,7 +916,7 @@ pub struct OptedOut {
 The the above example `a` and `b` are normal storage entities, however, `c` on the other hand side will never load from or store to contract storage and will always be reset to the default value of its `i32` type for every contract call.
 It can be accessed from all ink! messages or methods via `self.c` but will never manipulate the contract storage and thus acts wonderfully as some shared local information.
 
-### Dynamic Storage Allocator
+#### Dynamic Storage Allocator
 
 In the previous section we have seen how the default mode of operation is to spread information and how we can opt-in to packing information into single cells via `ink_storage::Packed`.
 
@@ -956,13 +962,13 @@ pub struct Matrix {
 
 With `ink_storage::Box<T>` we can use a `T: SpreadLayout` as if it was `T: PackedLayout` since the `ink_storage::Box<T>` itself suffices the requirements and can be put into a single contract storage cell. The whole concept works quite similar to how Rust's `Box` works: by an indirection - contract authors are therefore advised to make use of dynamic storage allocator capabilities only if other ways of dealing with ones problems are not applicable.
 
-### Custom Data Sturctures
+#### Custom Data Structures
 
 While the `ink_storage` crate provides tons of useful utilities and data structures to organize and manipulate the contract's storage contract authors are not limited by its capabilities. By implementing the core `SpreadLayout` and `PackedLayout` traits users are able to define their very own custom storage data structures with their own set of requirement and features that work along the `ink_storage` data structures as long as they fulfill the mere requirements stated by those two traits.
 
 In the future we plan on providing some more ink! workshops and tutorials guiding the approach to design and implement a custom storage data structure.
 
-### In Summary
+#### In Summary
 
 The new `ink_storage` crate provides everything you need to operate on your contract's storage.
 There are low-level and high-level data structures depending on your need of control.
@@ -970,7 +976,7 @@ All provided data structures operate lazily on the contract's storage and cache 
 Users should prefer high-level data structures found in the `collections` module over the low-level data structures found in the `lazy` module.
 For a list of all the new storage data structure visit [`ink_storage`'s documentation](https://paritytech.github.io/ink/ink_storage/).
 
-## ink! Attributes
+### ink! Attributes
 
 For ink! 3.0 we have added some more useful ink! specific attributes to the table.
 All of these ink! attributes are available to specify inside an ink! module.
@@ -1010,7 +1016,7 @@ We won't be going into the details for any of those but will briefly present the
 | `#[ink(namespace = "..")]` **new** | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
 | `#[ink(impl)]` **new** | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
 
-## Merging of ink! Attributes
+### Merging of ink! Attributes
 
 It is possible to merge attributes that share a common flagged entity.
 The example below demonstrates this for a payable message with a custom selector.
@@ -1031,7 +1037,7 @@ pub fn transfer(&mut self, from: AccountId, to: AccountId, value: Balance) -> Re
 }
 ```
 
-## Trait Support
+### Trait Support
 
 One of the most anticipated features of ink! 3.0 is its Rust trait support.
 Through the new `#[ink::trait_definition]` procedural macro it is now possible to define your very own trait definitions that are then implementable by ink! smart contracts.
@@ -1039,7 +1045,7 @@ Through the new `#[ink::trait_definition]` procedural macro it is now possible t
 This allows to define shared smart contract interfaces to different concrete implementations.
 Note that this ink! trait definition can be defined anywhere, even in another crate!
 
-### Example
+#### Example
 
 Defined in the `base_erc20.rs` module.
 
@@ -1118,7 +1124,7 @@ There are still many limitations to ink! trait definitions and trait implementat
 For example it is not possible to define associated constants or types or have default implemented methods.
 These limitations exist because of technical intricacies, however, please expect that many of those will be tackled in future ink! releases.
 
-# Version 2.1 (2020-03-25)
+## Version 2.1 (2020-03-25)
 
 - Add built-in support for cryptographic hashes:
     - Blake2 with 128-bit and 256-bit
@@ -1127,7 +1133,7 @@ These limitations exist because of technical intricacies, however, please expect
 - Add `ink_core::hash` module for high-level API to the new built-in hashes.
 - Update `runtime-storage` example ink! smart contract to demonstrate the new built-in hashes.
 
-# Version 2.0 (2019-12-03)
+## Version 2.0 (2019-12-03)
 
 The ink! version 2.0 syntax has one major philosophy:
 
@@ -1146,7 +1152,7 @@ used in and out of your contract just like standard Rust could be used!
 Follow the instructions below to understand how to migrate your ink! 1.0 contracts to this new ink!
 2.0 syntax.
 
-## Update the ink! CLI
+### Update the ink! CLI
 
 Install the latest ink! CLI using the following command:
 
@@ -1163,7 +1169,7 @@ cargo contract generate-metadata
 This will generate a file `metadata.json` you should upload when deploying or interacting with a
 contract.
 
-## Declaring a Contract
+### Declaring a Contract
 
 The fundamental change with the new ink! syntax is how we declare a new contract.
 
@@ -1209,12 +1215,12 @@ mod erc20 {
 
 See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
-## ink! Contract Tag
+### ink! Contract Tag
 
 The ink! contract tag can be extended to provide other configuration information about your
 contract.
 
-### Defining Custom Types
+#### Defining Custom Types
 
 We used to define types using a special `#![env = DefaultSrmlTypes]` tag.
 
@@ -1227,7 +1233,7 @@ Now we simply include the type definition in the `#[ink::contract(...)]` tag:
 By default, we use `DefaultSrmlTypes`, so you don't need to define anything unless you plan to use
 custom types.
 
-### Dynamic Allocation
+#### Dynamic Allocation
 
 It is possible to enable the dynamic environment that allows for dynamic allocations by specifying
 `dynamic_allocations = true` in the parameters of the ink! header. This is disabled by default.
@@ -1238,7 +1244,7 @@ It is possible to enable the dynamic environment that allows for dynamic allocat
 
 > Note: The dynamic environment is still under research and not yet stable.
 
-## Declaring Storage
+### Declaring Storage
 
 We define storage items just the same as before, but now we need to add the `#[ink(storage)]`
 attribute tag.
@@ -1277,7 +1283,7 @@ struct Erc20 {
 
 See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
-## Declaring Events
+### Declaring Events
 
 To update your events, you need to:
 
@@ -1324,7 +1330,7 @@ struct Transfer {
 
 See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
-## Environment Handler
+### Environment Handler
 
 `EnvHandler` is no longer exposed to the user and instead the environment is now always accessed via
 `self.env()`.
@@ -1370,7 +1376,7 @@ self.env().emit_event(...)
 
 > Note: The name of the function used to emit an event was updated to `emit_event`.
 
-## Message Functions
+### Message Functions
 
 We used to use `pub(external)` to tag functions that could be called by the outside world.
 
@@ -1406,7 +1412,7 @@ fn total_supply(&self) -> Balance {
 
 See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
-## Defining a Constructor
+### Defining a Constructor
 
 We used to define our constructor by implementing the `Deploy` trait and defining the `deploy`
 function.
@@ -1466,7 +1472,7 @@ impl Erc20 {
 
 See the [ERC20 example](https://github.com/paritytech/ink/blob/master/examples/erc20/src/lib.rs).
 
-## Cross Contract Calls
+### Cross Contract Calls
 
 It is now possible to call ink! messages and ink! constructors. So ink! constructors allow
 delegation and ink! messages can easily call other ink! messages.
@@ -1486,7 +1492,7 @@ let result = self.adder.inc(by);
 
 See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/delegator/lib.rs).
 
-## Factory Contracts
+### Factory Contracts
 
 Creation of other contracts from a factory contract works pretty much the same way it did in the old
 ink! language.
@@ -1537,7 +1543,7 @@ let accumulator = Accumulator::new(init_value)
 
 See the [delegator example](https://github.com/paritytech/ink/blob/master/examples/delegator/lib.rs).
 
-## Contract Tests
+### Contract Tests
 
 Testing contracts off-chain is done by `cargo test` and users can simply use the standard routines
 of creating unit test modules within the ink! project:
@@ -1568,7 +1574,7 @@ See the [flipper example](https://github.com/paritytech/ink/blob/master/examples
 It is not currently possible to query and set special test data about the environment (such as the
 caller of a function or amount of value sent), but these will be added back in the near future.
 
-## ink!-less Implementations
+### ink!-less Implementations
 
 It is also possible to annotate an entire `impl` blocks with:
 
