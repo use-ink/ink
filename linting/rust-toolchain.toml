@@ -1,0 +1,6 @@
+# This file corresponds to the `rust-toolchain` file used for the `dylint` examples here:
+# https://github.com/trailofbits/dylint/tree/master/examples.
+
+[toolchain]
+channel = "nightly-2022-06-30"
+components = ["llvm-tools-preview", "rustc-dev"] 
