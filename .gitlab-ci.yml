@@ -359,14 +359,14 @@ examples-contract-build:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         pushd $example &&
-        cargo contract build &&
+        cargo +stable contract build &&
         popd;
       done
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+        cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
+    - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
 
 examples-docs:
   stage:                           examples
