@@ -1,0 +1,95 @@
+[package]
+name = "ink_linting"
+version = "4.0.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://docs.rs/ink_linting"
+homepage = "https://github.com/paritytech/ink"
+description = "Linting tool for ink! smart contracts."
+keywords = ["parity", "blockchain", "ink", "smart contracts", "substrate"]
+include = ["Cargo.toml", "*.rs", "LICENSE"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "0cb0f7636851f9fcc57085cf80197a2ef6db098f" }
+dylint_linting = "2.0.0"
+if_chain = "1.0.2"
+log = "0.4.14"
+regex = "1.5.4"
+
+[dev-dependencies]
+dylint_testing = "2.0.0"
+
+# The following are ink! dependencies, they are only required for the `ui` tests.
+ink_env = { version = "4.0.0", path = "../crates/env", default-features = false }
+ink_storage = { version = "4.0.0", path = "../crates/storage", default-features = false }
+ink_primitives = { version = "4.0.0", path = "../crates/primitives", default-features = false }
+ink_lang = { version = "4.0.0", path = "../crates/lang", default-features = false }
+ink_metadata = { version = "4.0.0", path = "../crates/metadata", default-features = false }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"] }
+
+# For the moment we have to include the tests as examples and
+# then use `dylint_testing::ui_test_examples`.
+#
+# The reason is that the `dylint_testing` API currently does not
+# provide any other option to run the tests on those files
+# *while giving us the option to specify the dependencies*.
+#
+# Those files require the ink! dependencies though, by having
+# them as examples here, they inherit the `dev-dependencies`.
+[[example]]
+name = "fail_mapping_one_constructor"
+path = "ui/fail/mapping-one-constructor.rs"
+
+[[example]]
+name = "fail_mapping_two_constructors_01"
+path = "ui/fail/mapping-two-constructors-01.rs"
+
+[[example]]
+name = "fail_mapping_two_constructors_02"
+path = "ui/fail/mapping-two-constructors-02.rs"
+
+[[example]]
+name = "fail_mapping_nested_initialize_call"
+path = "ui/fail/mapping-nested-initialize-call.rs"
+
+[[example]]
+name = "pass_mapping_one_constructor"
+path = "ui/pass/mapping-one-constructor.rs"
+
+[[example]]
+name = "pass_mapping_two_constructors"
+path = "ui/pass/mapping-two-constructors.rs"
+
+[[example]]
+name = "pass_mapping_additional_logic_constructor"
+path = "ui/pass/mapping-additional-logic-constructor.rs"
+
+[[example]]
+name = "pass_dont_use_fully_qualified_path"
+path = "ui/pass/mapping-dont-use-fully-qualified-path.rs"
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+[workspace]
+
+[features]
+default = ["std"]
+std = [
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []

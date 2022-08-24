@@ -1,0 +1,27 @@
+error: `#[ink(storage)]` on `MyContract` contains `ink_storage::Mapping` without initializing it in the contract constructor.
+  --> $DIR/mapping-nested-initialize-call.rs:29:5
+   |
+LL | /     #[derive(SpreadAllocate)]
+LL | |     pub struct MyContract {
+LL | |         balances: Mapping<AccountId, Balance>,
+LL | |     }
+   | |_____^
+   |
+   = note: `#[deny(mapping_initialized)]` on by default
+help: this field uses `ink_storage::Mapping`
+  --> $DIR/mapping-nested-initialize-call.rs:31:9
+   |
+LL |         balances: Mapping<AccountId, Balance>,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: add an `ink_lang::utils::initialize_contract(…)` function in this constructor
+   |
+LL ~         /// The linter currently does not detect if `initialize_contract` is
+LL +         /// called in a nested function.
+LL +         #[ink(constructor)]
+LL +         pub fn new1() -> Self {
+LL +             Self::foo()
+LL +         }
+   |
+
+error: aborting due to previous error
+

@@ -1,0 +1,38 @@
+# This file corresponds to the `.cargo/config.toml` file used for the `dylint` examples here:
+# https://github.com/trailofbits/dylint/tree/master/examples.
+
+[target.aarch64-apple-darwin]
+linker = "dylint-link"
+
+[target.x86_64-apple-darwin]
+linker = "dylint-link"
+
+[target.aarch64-unknown-linux-gnu]
+linker = "dylint-link"
+
+[target.aarch64-unknown-linux-musl]
+linker = "dylint-link"
+
+[target.x86_64-unknown-linux-gnu]
+linker = "dylint-link"
+
+[target.x86_64-unknown-linux-musl]
+linker = "dylint-link"
+
+[target.x86_64-unknown-linux-gnux32]
+linker = "dylint-link"
+
+[target.aarch64-pc-windows-msvc]
+linker = "dylint-link"
+
+[target.i586-pc-windows-msvc]
+linker = "dylint-link"
+
+[target.i586-pc-windows-gnu]
+linker = "dylint-link"
+
+[target.x86_64-pc-windows-msvc]
+linker = "dylint-link"
+
+[target.x86_64-pc-windows-gnu]
+linker = "dylint-link"
