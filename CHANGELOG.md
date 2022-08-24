@@ -6,26 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-# Version 4.0.0-alpha.1
+## Version 4.0.0-alpha.1
 
-## Breaking Changes
+### Breaking Changes
 This release contains a few breaking changes. These are indicated with the :x: emoji.
 Most of these were intitially introduced in `v3.1.0` and `v3.2.0` releases but
 compatibility was restored in `v3.3.0`.
 
-## Added
+### Added
 - :x: Add Mapping::contains(key) and Mapping::insert_return_size(key, val) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 - Add payment-channel example - [#1248](https://github.com/paritytech/ink/pull/1248)
 - :x: Add `version` field to ink! metadata - [#1313](https://github.com/paritytech/ink/pull/1313)
 - The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
 
-## Changed
+### Changed
 - :x: Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
 
-## Removed
+### Removed
 - :x: Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 
-## Compatibility
+### Compatibility
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [6b85535](https://github.com/paritytech/substrate/tree/6b8553511112afd5ae7e8e6877dc2f467850f155)
 (Aug 12, 2022) in your node.
