@@ -2,7 +2,7 @@
 
 set -eu
 
-cargo contract build --manifest-path accumulator/Cargo.toml
-cargo contract build --manifest-path adder/Cargo.toml
-cargo contract build --manifest-path subber/Cargo.toml
-cargo contract build
+cargo +stable contract build --manifest-path accumulator/Cargo.toml
+cargo +stable contract build --manifest-path adder/Cargo.toml
+cargo +stable contract build --manifest-path subber/Cargo.toml
+cargo +stable contract build
