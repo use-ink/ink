@@ -13,6 +13,15 @@ This release contains a few breaking changes. These are indicated with the :x: e
 Most of these were intitially introduced in `v3.1.0` and `v3.2.0` releases but
 compatibility was restored in `v3.3.0`.
 
+- As part of [#1224] the return type of `ink_env::set_contract_storage()` was changed to
+return an `Option<u32>` instead of `()`.
+- As part of [#1233] the `eth_compatibility` crate was removed. The
+  `ecdsa_to_eth_address()` function from it can now be found in the `ink_env` crate.
+- As part of [#1267] an argument to `ink_lang::codegen::execute_constructor()` (which is
+  used internally by the ink! macros) was removed.
+- As part of [#1313] the ink! ABI was changed so that the version was specified using a
+  dedicated `version` key instead of an implicit key which wrapped the entire ABI.
+
 ### Added
 - :x: Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 - Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example - [#1248](https://github.com/paritytech/ink/pull/1248)
