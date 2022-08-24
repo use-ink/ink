@@ -24,8 +24,8 @@ return an `Option<u32>` instead of `()`.
 
 ### Added
 - :x: Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
-- Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example - [#1248](https://github.com/paritytech/ink/pull/1248)
-- :x: Add `version` field to ink! metadata - [#1313](https://github.com/paritytech/ink/pull/1313)
+- Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248)
+- :x: Add `version` field to ink! metadata ‒ [#1313](https://github.com/paritytech/ink/pull/1313)
 - The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
 
 ### Changed
