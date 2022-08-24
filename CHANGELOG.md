@@ -30,7 +30,7 @@ return an `Option<u32>` instead of `()`.
 
 ### Changed
 - :x: Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
-- Move linting into ink repo - [#1361](https://github.com/paritytech/ink/pull/1267)
+- Move ink! linter into `ink` repository ‒ [#1361](https://github.com/paritytech/ink/pull/1267)
 
 ### Removed
 - :x: Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
