@@ -1,6 +1,6 @@
 [package]
 name = "ink_linting"
-version = "4.0.0"
+version = "4.0.0-alpha.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -28,11 +28,11 @@ regex = "1.5.4"
 dylint_testing = "2.0.0"
 
 # The following are ink! dependencies, they are only required for the `ui` tests.
-ink_env = { version = "4.0.0", path = "../crates/env", default-features = false }
-ink_storage = { version = "4.0.0", path = "../crates/storage", default-features = false }
-ink_primitives = { version = "4.0.0", path = "../crates/primitives", default-features = false }
-ink_lang = { version = "4.0.0", path = "../crates/lang", default-features = false }
-ink_metadata = { version = "4.0.0", path = "../crates/metadata", default-features = false }
+ink_env = { version = "4.0.0-alpha.1", path = "../crates/env", default-features = false }
+ink_storage = { version = "4.0.0-alpha.1", path = "../crates/storage", default-features = false }
+ink_primitives = { version = "4.0.0-alpha.1", path = "../crates/primitives", default-features = false }
+ink_lang = { version = "4.0.0-alpha.1", path = "../crates/lang", default-features = false }
+ink_metadata = { version = "4.0.0-alpha.1", path = "../crates/metadata", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 

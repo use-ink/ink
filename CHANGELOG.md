@@ -6,21 +6,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-There are a number of backwards incompatible changes which are on the `master` branch
-waiting to be released. These are:
-
-- Add Mapping::contains(key) and Mapping::insert_return_size(key, val) ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
-- Optimise deny_payment. Use everywhere semantic of deny ‒ [#1267](https://github.com/paritytech/ink/pull/1267)
-- Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
-- The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
+## Version 4.0.0-alpha.1
 
 ### Compatibility
-
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [6b85535](https://github.com/paritytech/substrate/tree/6b8553511112afd5ae7e8e6877dc2f467850f155)
 (Aug 12, 2022) in your node.
 
 The compatibility issues will be with `ChainExtension`'s and the functions mentioned above.
+
+### Breaking Changes
+This release contains a few breaking changes. These are indicated with the :x: emoji.
+Most of these were intitially introduced in `v3.1.0` and `v3.2.0` releases but
+compatibility was restored in `v3.3.0`.
+
+- As part of [#1224](https://github.com/paritytech/ink/pull/1224) the return type of `ink_env::set_contract_storage()` was changed to
+return an `Option<u32>` instead of `()`.
+- As part of [#1233](https://github.com/paritytech/ink/pull/1233) the `eth_compatibility` crate was removed. The
+  `ecdsa_to_eth_address()` function from it can now be found in the `ink_env` crate.
+- As part of [#1267](https://github.com/paritytech/ink/pull/1267) an argument to `ink_lang::codegen::execute_constructor()` (which is
+  used internally by the ink! macros) was removed.
+- As part of [#1313](https://github.com/paritytech/ink/pull/1313) the ink! ABI was changed so that the version was specified using a
+  dedicated `version` key instead of an implicit key which wrapped the entire ABI.
+
+### Added
+- :x: Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+- Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248)
+- :x: Add `version` field to ink! metadata ‒ [#1313](https://github.com/paritytech/ink/pull/1313)
+- The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
+
+### Changed
+- :x: Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
+- Move ink! linter into `ink` repository ‒ [#1361](https://github.com/paritytech/ink/pull/1267)
+
+### Removed
+- :x: Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 
 ## Version 3.3.1
 
