@@ -138,7 +138,7 @@ mod multisig {
         pub transferred_value: Balance,
         /// Gas limit for the execution of the call.
         pub gas_limit: u64,
-        /// The call flag allowing reentry
+        /// If set to true the transaction will be allowed to re-enter the multisig contract.
         pub allow_reentry: bool,
     }
 
