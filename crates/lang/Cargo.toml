@@ -26,8 +26,8 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 
 [dev-dependencies]
-ink_lang_ir = { version = "4.0.0-alpha.1", path = "ir" }
-ink_metadata = { version = "4.0.0-alpha.1", default-features = false, path = "../metadata" }
+ink_lang_ir = { path = "ir" }
+ink_metadata = { default-features = false, path = "../metadata" }
 
 trybuild = { version = "1.0.60", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
