@@ -31,14 +31,8 @@ crates.io.
 
 ## Checklist
 
-We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) and
-[`cargo-unleash`](https://github.com/paritytech/cargo-unleash) to release ink!. We hope to make this
-a bit more streamlined in the future though.
-
-Note that `cargo-release` doesn't yet support the `--allow-dirty` flag, so use Hernando's
-fork for now.
-
-`cargo install --git https://github.com/HCastano/cargo-release --branch hc-add-allow-dirty-flag`
+We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) to release ink!. There are still a few manual
+steps though, and we hope to make this more streamlined in the future.
 
 1. Create a new feature branch off `master`.
 1. Bump the version in all TOML files to the new version.
@@ -55,16 +49,12 @@ fork for now.
 1. Open a release PR
     - Wait for approvals from Core team members
     - Ensure the entire CI pipeline is green
-1. Execute `cargo unleash de-dev-deps` in the ink! repository.
-    - We cannot release with `dev-dependencies` due to some cyclic dependencies that
-      exist.
-1. Do a dry run with `cargo release [level] -v --no-tag --no-push --allow-dirty`
+1. Do a dry run with `cargo release [level] -v --no-tag --no-push`
     - `[level]` will depend on what you're releasing
     - We don't want `cargo-release` to create any releases or push any code, we'll do
        that manually once we've actually published to `crates.io`.
-    - We `--allow-dirty` since we removed `dev-dependencies` with `cargo unleash`.
 1. If there are no errors, merge the release PR into `master`.
-1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [level] -v --no-tag --no-push --allow-dirty --execute`
+1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [level] -v --no-tag --no-push --execute`
     - We add the grace period since crates depend on one another.
     - We add the `--execute` flag to _actually_ publish things to crates.io.
 1. Replace `vX.X.X` with the new version in the following command and then execute it:
