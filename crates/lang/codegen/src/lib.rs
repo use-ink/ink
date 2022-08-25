@@ -12,6 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! The ink! code generation.
+//!
+//! This module defines everything the ink! procedural macro needs in order to
+//! generate Rust code for ink! smart contracts.
+//!
+//! We avoid structuring things via hidden or private modules, this
+//! was the ink! v1 way of doing code generation and it was bug prone
+//! and hard to maintain.
+//!
+//! What we do instead to generate code that is hidden from users is to
+//! pack it into anonymous `const` (so `const _: () = { … };`) and connect
+//! those to the outside world with private trait implementations.
+//!
+//! You can see how the generated code looks by installing
+//! [`cargo-expand`](https://github.com/dtolnay/cargo-expand)
+//! and executing `cargo expand --manifest-path ./examples/flipper/Cargo.toml` in this repository.
+
 mod enforced_error;
 mod generator;
 mod traits;

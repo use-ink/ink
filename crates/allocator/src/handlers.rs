@@ -14,5 +14,5 @@
 
 #[alloc_error_handler]
 fn oom(_: core::alloc::Layout) -> ! {
-    core::intrinsics::abort()
+    core::arch::wasm32::unreachable()
 }
