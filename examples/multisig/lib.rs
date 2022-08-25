@@ -139,7 +139,7 @@ mod multisig {
         /// Gas limit for the execution of the call.
         pub gas_limit: u64,
         /// If set to true the transaction will be allowed to re-enter the multisig contract.
-	/// Re-entrancy can lead to vulnerabilities. Use at your own risk.
+        /// Re-entrancy can lead to vulnerabilities. Use at your own risk.
         pub allow_reentry: bool,
     }
 
@@ -742,6 +742,7 @@ mod multisig {
                     input: call_args.encode(),
                     transferred_value: 0,
                     gas_limit: 1000000,
+                    allow_reentry: false,
                 }
             }
         }
