@@ -33,7 +33,7 @@ quickcheck_macros = "1.0"
 itertools = "0.10"
 paste = "1.0"
 
-ink_lang = { path = "../lang/", default-features = false }
+ink_lang = { path = "../lang", default-features = false }
 
 [features]
 default = ["std"]

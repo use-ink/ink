@@ -24,9 +24,9 @@ proc-macro2 = "1"
 synstructure = "0.12.4"
 
 [dev-dependencies]
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 ink_env = { path = "../../env" }
-ink_primitives = { path = "../../primitives" }
 ink_metadata = { path = "../../metadata" }
-ink_prelude = { path = "../../prelude/" }
+ink_prelude = { path = "../../prelude" }
+ink_primitives = { path = "../../primitives" }
 ink_storage = { path = ".." }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }

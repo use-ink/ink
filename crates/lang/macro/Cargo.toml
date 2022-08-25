@@ -24,10 +24,10 @@ syn = "1"
 proc-macro2 = "1"
 
 [dev-dependencies]
-ink_metadata = { path = "../../metadata/" }
-ink_env = { path = "../../env/" }
-ink_storage = { path = "../../storage/" }
+ink_env = { path = "../../env" }
 ink_lang = { path = ".." }
+ink_metadata = { path = "../../metadata" }
+ink_storage = { path = "../../storage" }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 
 [lib]
