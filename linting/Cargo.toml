@@ -45,37 +45,6 @@ scale-info = { version = "2", default-features = false, features = ["derive"] }
 #
 # Those files require the ink! dependencies though, by having
 # them as examples here, they inherit the `dev-dependencies`.
-[[example]]
-name = "fail_mapping_one_constructor"
-path = "ui/fail/mapping-one-constructor.rs"
-
-[[example]]
-name = "fail_mapping_two_constructors_01"
-path = "ui/fail/mapping-two-constructors-01.rs"
-
-[[example]]
-name = "fail_mapping_two_constructors_02"
-path = "ui/fail/mapping-two-constructors-02.rs"
-
-[[example]]
-name = "fail_mapping_nested_initialize_call"
-path = "ui/fail/mapping-nested-initialize-call.rs"
-
-[[example]]
-name = "pass_mapping_one_constructor"
-path = "ui/pass/mapping-one-constructor.rs"
-
-[[example]]
-name = "pass_mapping_two_constructors"
-path = "ui/pass/mapping-two-constructors.rs"
-
-[[example]]
-name = "pass_mapping_additional_logic_constructor"
-path = "ui/pass/mapping-additional-logic-constructor.rs"
-
-[[example]]
-name = "pass_dont_use_fully_qualified_path"
-path = "ui/pass/mapping-dont-use-fully-qualified-path.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true
