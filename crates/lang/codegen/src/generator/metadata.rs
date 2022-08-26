@@ -45,14 +45,12 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata() -> ::ink_metadata::MetadataVersioned  {
+                pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
                     let layout = #layout;
                     ::ink_metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
                         ::core::panic!("metadata ink! generation failed: {}", error)
                     });
-                    <::ink_metadata::InkProject as ::core::convert::Into<::ink_metadata::MetadataVersioned>>::into(
-                        ::ink_metadata::InkProject::new(layout, #contract)
-                    )
+                    ::ink_metadata::InkProject::new(layout, #contract)
                 }
             };
         }
