@@ -96,7 +96,7 @@ mod erc20 {
         pub fn new(total_supply: Balance) -> Self {
             let mut balances: Mapping<AccountId, Balance, _> = Default::default();
             let caller = Self::env().caller();
-            balances.insert(&caller, &initial_supply);
+            balances.insert(&caller, &total_supply);
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
