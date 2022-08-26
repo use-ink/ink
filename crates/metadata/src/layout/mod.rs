@@ -58,7 +58,7 @@ pub enum Layout<F: Form = MetaForm> {
     ///
     /// This is the only leaf node within the layout graph.
     /// All layout nodes have this node type as their leafs.
-    Leaf(CellLayout<F>),
+    Leaf(LeafLayout<F>),
     /// The root cell defines the storage key for all sub-trees.
     Root(RootLayout<F>),
     /// A layout that hashes values into the entire storage key space.
@@ -170,14 +170,14 @@ where
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
-pub struct CellLayout<F: Form = MetaForm> {
+pub struct LeafLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
     key: LayoutKey,
     /// The type of the encoded entity.
     ty: <F as Form>::Type,
 }
 
-impl CellLayout {
+impl LeafLayout {
     /// Creates a new cell layout.
     pub fn new<T>(key: LayoutKey) -> Self
     where
@@ -190,11 +190,11 @@ impl CellLayout {
     }
 }
 
-impl IntoPortable for CellLayout {
-    type Output = CellLayout<PortableForm>;
+impl IntoPortable for LeafLayout {
+    type Output = LeafLayout<PortableForm>;
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
-        CellLayout {
+        LeafLayout {
             key: self.key,
             ty: registry.register_type(&self.ty),
         }
@@ -228,7 +228,7 @@ impl IntoPortable for Layout {
     }
 }
 
-impl<F> CellLayout<F>
+impl<F> LeafLayout<F>
 where
     F: Form,
 {
@@ -641,23 +641,16 @@ impl IntoPortable for EnumLayout {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MetadataError {
     /// Storage keys of two types intersect
-    ConflictKey(String, String),
+    Collision(String, String),
 }
 
 impl Display for MetadataError {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(f, "{}", self.to_human_string())
-    }
-}
-
-impl MetadataError {
-    /// Returns a string representation of the error.
-    #[inline]
-    fn to_human_string(&self) -> String {
         match self {
-            Self::ConflictKey(prev_path, curr_path) => {
-                format!(
-                    "conflict storage key occurred for `{}`. \
+            Self::Collision(prev_path, curr_path) => {
+                write!(
+                    f,
+                    "storage key collision occurred for `{}`. \
                     The same storage key is occupied by the `{}`.",
                     curr_path,
                     if prev_path.is_empty() {
@@ -674,14 +667,14 @@ impl MetadataError {
 #[test]
 fn valid_error_message() {
     assert_eq!(
-        MetadataError::ConflictKey("".to_string(), "Contract.c:".to_string()).to_string(),
-        "conflict storage key occurred for `Contract.c:`. \
+        MetadataError::Collision("".to_string(), "Contract.c:".to_string()).to_string(),
+        "storage key collision occurred for `Contract.c:`. \
         The same storage key is occupied by the `contract storage`."
     );
     assert_eq!(
-        MetadataError::ConflictKey("Contract.a:".to_string(), "Contract.c:".to_string())
+        MetadataError::Collision("Contract.a:".to_string(), "Contract.c:".to_string())
             .to_string(),
-        "conflict storage key occurred for `Contract.c:`. \
+        "storage key collision occurred for `Contract.c:`. \
         The same storage key is occupied by the `Contract.a:`."
     )
 }

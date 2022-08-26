@@ -33,10 +33,9 @@ use self::{
 };
 synstructure::decl_derive!(
     [StorableHint] =>
-    /// Derives `ink_storage`'s [`StorableHint`](ink_storage::traits::StorableHint) trait for the given `struct`
-    /// or `enum`.
+    /// Derives `ink_storage`'s `StorableHint` trait for the given `struct` or `enum`.
     ///
-    /// If the type declaration contains generic [`StorageKey`](ink_storage::traits::StorageKey),
+    /// If the type declaration contains generic `StorageKey`,
     /// it will use it as salt to generate a combined storage key.
     ///
     /// # Examples
@@ -64,8 +63,7 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageKey] =>
-    /// Derives `ink_storage`'s [`StorageKey`](ink_storage::traits::StorageKey) trait for the given
-    /// `struct` or `enum`.
+    /// Derives `ink_storage`'s `StorageKey` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
@@ -99,8 +97,7 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageLayout] =>
-    /// Derives `ink_storage`'s [`StorageLayout`](ink_storage::traits::StorageLayout) trait for the
-    /// given `struct` or `enum`.
+    /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///

@@ -17,26 +17,29 @@ use ink_primitives::{
     Key,
 };
 
+pub(crate) mod private {
+    /// Seals the implementation of `Packed`.
+    pub trait Sealed {}
+}
+
 /// Trait for describing types that can be read and written to storage while all fields occupy
 /// only a single storage cell.
 ///
-/// If at least one of the fields in the type occupies its storage cell, this type
+/// If at least one of the fields in the type occupies its own storage cell, this type
 /// is considered non-packed.
 ///
 /// # Note
 ///
 /// The trait is automatically implemented for types that implement `scale::Encode`
-/// and `scale::Decode` via blank implementation.
-///
-/// Don't try to implement that trait manually.
-pub trait Packed: Storable + scale::Decode + scale::Encode {}
+/// and `scale::Decode` via blanket implementation.
+pub trait Packed: Storable + scale::Decode + scale::Encode + private::Sealed {}
 
 /// Holds storage key for the type.
 ///
 /// # Note
 ///
 /// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
-/// via blank implementation.
+/// via blanket implementation.
 pub trait StorageKey {
     /// Storage key of the type.
     const KEY: Key;
@@ -52,7 +55,7 @@ pub trait StorageKey {
 /// # Note
 ///
 /// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
-/// via blank implementation.
+/// via blanket implementation.
 pub trait StorableHint<Key: StorageKey> {
     /// Storable type with storage key inside.
     type Type: Storable;

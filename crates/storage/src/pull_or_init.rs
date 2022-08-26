@@ -13,17 +13,13 @@
 // limitations under the License.
 
 //! The module helps during compilation time decide which pull mechanism to use.
-//! If the type implements [`OnCallInitializer`](crate::traits::OnCallInitializer) trait,
-//! it will use `pull_storage` with combination `OnCallInitializer::initialize`(if the pull failed).
-//! Otherwise, it will use only `pull_storage` as a default behavior.
+//! If the type implements [`OnCallInitializer`](crate::traits::OnCallInitializer) trait, we will
+//! try to pull storage first, on the failure will use `OnCallInitializer::initialize`.
 //!
 //! [`OnCallInitializer`](crate::traits::OnCallInitializer) allows initialize the
 //! type on demand. For more information, check the documentation of the trait.
 
-use crate::traits::{
-    pull_storage,
-    OnCallInitializer,
-};
+use crate::traits::OnCallInitializer;
 use ink_primitives::{
     traits::Storable,
     Key,
@@ -55,7 +51,11 @@ impl<T: OnCallInitializer + Storable> PullOrInit<T> {
 pub trait PullOrInitFallback<T: Storable> {
     #[allow(dead_code)]
     fn pull_or_init(key: &Key) -> T {
-        pull_storage(key)
+        match ink_env::get_contract_storage::<Key, T>(key) {
+            Ok(Some(value)) => value,
+            Ok(None) => panic!("storage entry was empty"),
+            Err(_) => panic!("could not properly decode storage entry"),
+        }
     }
 }
 impl<T: Storable> PullOrInitFallback<T> for PullOrInit<T> {}
@@ -74,10 +74,7 @@ macro_rules! pull_or_init {
 
 #[cfg(test)]
 mod tests {
-    use crate::traits::{
-        push_storage,
-        OnCallInitializer,
-    };
+    use crate::traits::OnCallInitializer;
     use ink_primitives::Key;
 
     #[derive(Default, scale::Encode, scale::Decode)]
@@ -99,7 +96,7 @@ mod tests {
     #[ink_lang::test]
     fn pull_or_init_works() {
         const KEY: Key = 111;
-        push_storage(&KEY, &U32(456));
+        ink_env::set_contract_storage(&KEY, &U32(456));
         let instance = pull_or_init!(U32, KEY);
 
         // Instead of init we used a pulled value
@@ -117,7 +114,7 @@ mod tests {
     #[ink_lang::test]
     fn pull_works() {
         const KEY: Key = 111;
-        push_storage(&KEY, &321);
+        ink_env::set_contract_storage(&KEY, &321);
         let instance = pull_or_init!(u32, KEY);
         assert_eq!(321, instance);
     }

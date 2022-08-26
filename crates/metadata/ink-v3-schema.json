@@ -97,7 +97,7 @@
         }
       }
     },
-    "CellLayout_for_PortableForm": {
+    "LeafLayout_for_PortableForm": {
       "description": "A SCALE encoded cell.",
       "type": "object",
       "required": [
@@ -488,7 +488,7 @@
           ],
           "properties": {
             "cell": {
-              "$ref": "#/definitions/CellLayout_for_PortableForm"
+              "$ref": "#/definitions/LeafLayout_for_PortableForm"
             }
           },
           "additionalProperties": false

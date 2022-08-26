@@ -17,12 +17,10 @@ In order to test it out you need to do the following:
    You will receive the respective `upgradeable_flipper.contract` bundle in the
    `./upgradeable-flipper/target/ink/` folder.
 
-   In order to perform migrations and have proxy working for contracts with different
-   [storage layouts](https://ink.substrate.io/datastructures/spread-storage-layout),
-   we use the [`Upgradeable`](upgradeable-flipper/upgradeable.rs) type
-   wrapper, which ensures that we write different fields of desired struct to different
-   storage locations, while also tracking the initialization status (e.g., we uploaded
-   the code on chain, but haven't called the constructor).
+   In order to perform migrations and have proxy working for contracts with different 
+   storage layouts, we implement the `OnCallInitializer` trait that acts as a 
+   constructor during the execution of the contract. It initializes the contract if it was 
+   not initialized.
 
 1. Build the proxy contract:
    ```

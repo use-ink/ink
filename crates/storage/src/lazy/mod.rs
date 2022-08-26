@@ -24,7 +24,6 @@ mod mapping;
 pub use self::mapping::Mapping;
 
 use crate::traits::{
-    push_storage,
     AutoKey,
     StorableHint,
     StorageKey,
@@ -146,7 +145,7 @@ where
 
     /// Writes the given `value` to the contract storage.
     pub fn set(&mut self, value: &V) {
-        push_storage(&KeyType::KEY, value);
+        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
     }
 }
 

@@ -56,7 +56,7 @@ impl ValidateLayout {
                 for variant in en.variants().values() {
                     self.check_struct_layout(variant)?;
                 }
-                self.name_stack.pop().unwrap();
+                self.name_stack.pop().expect("stack is not empty; qed");
                 Ok(())
             }
             _ => Ok(()),
@@ -82,7 +82,7 @@ impl ValidateLayout {
     fn check_key(&mut self, key: &Key) -> Result<(), MetadataError> {
         let path = self.name_stack.join("");
         if let Some(prev_path) = self.first_entry.get(key) {
-            Err(MetadataError::ConflictKey(prev_path.clone(), path))
+            Err(MetadataError::Collision(prev_path.clone(), path))
         } else {
             self.first_entry.insert(*key, path);
             Ok(())
@@ -93,10 +93,10 @@ impl ValidateLayout {
 #[cfg(test)]
 mod tests {
     use crate::layout::{
-        CellLayout,
         EnumLayout,
         FieldLayout,
         Layout,
+        LeafLayout,
         MetadataError,
         RootLayout,
         StructLayout,
@@ -112,7 +112,7 @@ mod tests {
             0.into(),
             RootLayout::new(
                 1.into(),
-                RootLayout::new(2.into(), CellLayout::new::<u32>(2.into())),
+                RootLayout::new(2.into(), LeafLayout::new::<u32>(2.into())),
             ),
         );
 
@@ -159,7 +159,7 @@ mod tests {
                         StructLayout::new(
                             "Struct0",
                             vec![
-                                FieldLayout::new("d", CellLayout::new::<u128>(root_0)),
+                                FieldLayout::new("d", LeafLayout::new::<u128>(root_0)),
                                 FieldLayout::new(
                                     "f",
                                     RootLayout::new(
@@ -180,7 +180,7 @@ mod tests {
                                                                     "g",
                                                                     RootLayout::new(
                                                                         root_4,
-                                                                        CellLayout::new::<
+                                                                        LeafLayout::new::<
                                                                             BTreeSet<u64>,
                                                                         >(
                                                                             root_4
@@ -197,7 +197,7 @@ mod tests {
                                                         "Second",
                                                         vec![FieldLayout::new(
                                                             "0",
-                                                            CellLayout::new::<u8>(root_2),
+                                                            LeafLayout::new::<u8>(root_2),
                                                         )],
                                                     ),
                                                 ),
@@ -209,7 +209,7 @@ mod tests {
                                                             "0",
                                                             RootLayout::new(
                                                                 root_3,
-                                                                CellLayout::new::<String>(
+                                                                LeafLayout::new::<String>(
                                                                     root_3,
                                                                 ),
                                                             ),
@@ -223,10 +223,10 @@ mod tests {
                             ],
                         ),
                     ),
-                    FieldLayout::new("b", CellLayout::new::<u32>(root_0)),
+                    FieldLayout::new("b", LeafLayout::new::<u32>(root_0)),
                     FieldLayout::new(
                         "c",
-                        RootLayout::new(root_1, CellLayout::new::<Vec<u8>>(root_1)),
+                        RootLayout::new(root_1, LeafLayout::new::<Vec<u8>>(root_1)),
                     ),
                 ],
             ),
@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn conflict_0_and_1() {
         assert_eq!(
-            Err(MetadataError::ConflictKey(
+            Err(MetadataError::Collision(
                 "".to_string(),
                 "Contract.c:".to_string()
             )),
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn conflict_0_and_2() {
         assert_eq!(
-            Err(MetadataError::ConflictKey(
+            Err(MetadataError::Collision(
                 "".to_string(),
                 "Contract.a:Struct0.f:".to_string()
             )),
@@ -266,7 +266,7 @@ mod tests {
     #[test]
     fn conflict_0_and_3() {
         assert_eq!(
-            Err(MetadataError::ConflictKey(
+            Err(MetadataError::Collision(
                 "".to_string(),
                 "Contract.a:Struct0.f:Enum::Third.0:".to_string()
             )),
@@ -277,7 +277,7 @@ mod tests {
     #[test]
     fn conflict_0_and_4() {
         assert_eq!(
-            Err(MetadataError::ConflictKey(
+            Err(MetadataError::Collision(
                 "".to_string(),
                 "Contract.a:Struct0.f:Enum::First.0:Struct1.g:".to_string()
             )),
@@ -288,7 +288,7 @@ mod tests {
     #[test]
     fn conflict_3_and_4() {
         assert_eq!(
-            Err(MetadataError::ConflictKey(
+            Err(MetadataError::Collision(
                 "Contract.a:Struct0.f:Enum::First.0:Struct1.g:".to_string(),
                 "Contract.a:Struct0.f:Enum::Third.0:".to_string()
             )),

@@ -54,22 +54,20 @@ mod erc20 {
     impl Erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
-        pub fn new(initial_supply: Balance) -> Self {
-            let mut instance = Self::default();
-            instance.new_init(initial_supply);
-            instance
-        }
-
-        /// Default initializes the ERC-20 contract with the specified initial supply.
-        fn new_init(&mut self, initial_supply: Balance) {
+        pub fn new(total_supply: Balance) -> Self {
             let caller = Self::env().caller();
-            self.balances.insert(&caller, &initial_supply);
-            self.total_supply = initial_supply;
+            let balances = Default::default();
+            balances.insert(&caller, &initial_supply);
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
                 value: initial_supply,
             });
+            Self {
+                total_supply,
+                balances,
+                allowances: Default::default(),
+            }
         }
 
         /// Returns the total token supply.

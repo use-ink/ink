@@ -25,10 +25,7 @@ use ink_env::{
     ReturnFlags,
 };
 use ink_primitives::traits::Storable;
-use ink_storage::traits::{
-    push_storage,
-    StorageKey,
-};
+use ink_storage::traits::StorageKey;
 use scale::Encode;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
@@ -68,7 +65,10 @@ where
             // Constructor is infallible or is fallible but succeeded.
             //
             // This requires us to sync back the changes of the contract storage.
-            push_storage::<Contract>(&Contract::KEY, contract);
+            ink_env::set_contract_storage::<ink_primitives::Key, Contract>(
+                &Contract::KEY,
+                contract,
+            );
             Ok(())
         }
         Err(_) => {

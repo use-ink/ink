@@ -90,6 +90,7 @@ where
     type Type = <T as StorableHint<FinalKey<T, KEY, ParentKey>>>::Type;
 }
 
+impl<P> super::storage::private::Sealed for P where P: scale::Decode + scale::Encode {}
 impl<P> Packed for P where P: scale::Decode + scale::Encode {}
 
 impl<P> StorageKey for P
