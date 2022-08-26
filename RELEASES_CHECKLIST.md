@@ -47,10 +47,10 @@ steps though, and we hope to make this more streamlined in the future.
      like a change to our CI pipeline is likely not notable and should not be included.
 1. Make sure you've merged the latest `master` into your branch.
 1. Open a release PR
-    - Wait for approvals from Core team members
-    - Ensure the entire CI pipeline is green
+    - Wait for approvals from Core team members.
+    - Ensure the entire CI pipeline is green.
 1. Do a dry run with `cargo release [level] -v --no-tag --no-push`
-    - `[level]` will depend on what you're releasing
+    - `[level]` will depend on what you're releasing.
     - We don't want `cargo-release` to create any releases or push any code, we'll do
        that manually once we've actually published to `crates.io`.
 1. If there are no errors, merge the release PR into `master`.
