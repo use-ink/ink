@@ -1,6 +1,6 @@
 [package]
 name = "ink_primitives_derive"
-version = "4.0.0"
+version = "4.0.0-alpha.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
@@ -25,7 +25,7 @@ synstructure = "0.12.4"
 
 [dev-dependencies]
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-ink_env = { version = "4.0.0", path = "../../env" }
-ink_primitives = { version = "4.0.0", path = ".." }
-ink_metadata = { version = "4.0.0", path = "../../metadata" }
-ink_prelude = { version = "4.0.0", path = "../../prelude/" }
+ink_env = { version = "4.0.0-alpha.1", path = "../../env" }
+ink_primitives = { version = "4.0.0-alpha.1", path = ".." }
+ink_metadata = { version = "4.0.0-alpha.1", path = "../../metadata" }
+ink_prelude = { version = "4.0.0-alpha.1", path = "../../prelude/" }

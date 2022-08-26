@@ -50,10 +50,6 @@ pub use self::{
         StorageKey,
     },
 };
-use ink_primitives::{
-    traits::Storable,
-    Key,
-};
 pub use ink_storage_derive::{
     StorableHint,
     StorageKey,
