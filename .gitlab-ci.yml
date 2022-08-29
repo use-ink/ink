@@ -84,6 +84,12 @@ workflow:
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
     - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/contracts-node.log 2>&1 &
 
+# TODO(#xxx) Unfortunately we currently have to do this. Otherwise e.g. the
+# `clippy` runs will fail due to the artifact missing here:
+# `ink_env::e2e::smart_bench_macro::contract!("./target/ink/metadata.json")`.
+.build-e2e-contracts:               &build-e2e-contracts
+    - cd examples/contract-transfer/ && cargo contract build --skip-linting
+
 #### stage:                        lint
 #
 # Note: For all of these lints we `allow_failure` so that the rest of the build can
@@ -133,6 +139,7 @@ clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - *build-e2e-contracts
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
       done
@@ -142,6 +149,7 @@ clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - *build-e2e-contracts
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
@@ -152,6 +160,7 @@ examples-clippy-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - *build-e2e-contracts
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
@@ -170,6 +179,7 @@ examples-clippy-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - *build-e2e-contracts
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
@@ -191,6 +201,7 @@ check-std:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - *build-e2e-contracts
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
       done
@@ -200,6 +211,7 @@ check-wasm:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - *build-e2e-contracts
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
@@ -215,6 +227,7 @@ build-std:
     - job:                         check-std
       artifacts:                   false
   script:
+    - *build-e2e-contracts
     - for crate in ${ALL_CRATES}; do
         cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
       done
@@ -227,6 +240,7 @@ build-wasm:
     - job:                         check-wasm
       artifacts:                   false
   script:
+    - *build-e2e-contracts
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
