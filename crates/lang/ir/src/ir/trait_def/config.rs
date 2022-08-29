@@ -15,7 +15,7 @@
 use crate::{
     ast,
     error::ExtError as _,
-    ir::config::WhitelistedAttributes,
+    utils::WhitelistedAttributes,
 };
 use syn::spanned::Spanned;
 
