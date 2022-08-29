@@ -120,7 +120,7 @@ where
 ///
 /// We only convey errors here that are caused by the contract's
 /// testing logic. For anything concerning the node (like inability
-/// to communicate with it, fetch nonces, account info, etc.) we
+/// to communicate with it, fetch the nonce, account info, etc.) we
 /// panic.
 pub enum Error<C, E>
 where
@@ -161,7 +161,7 @@ where
 struct ContractInstantiatedEvent<C: subxt::Config> {
     /// Account id of the deployer.
     pub deployer: C::AccountId,
-    /// Acocunt id where the contract was instantiated to.
+    /// Account id where the contract was instantiated to.
     pub contract: C::AccountId,
 }
 

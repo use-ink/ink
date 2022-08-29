@@ -95,7 +95,7 @@ pub static INIT: Once = Once::new();
 // of prefixing log entries to make it easier pinning them to tests.
 thread_local! {
     /// This prefix will be used for log output. It is set by each
-    /// `#[ink::e2e_test]` with the stringified function name.
+    /// `#[ink::e2e_test]` with the function name as String.
     /// This way it is possible to distinguish the lines in stdout
     /// and stderr, to still know which line belongs to which test.
     pub static LOG_PREFIX: RefCell<String> = RefCell::new(String::from("no prefix set"));

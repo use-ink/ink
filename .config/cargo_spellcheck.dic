@@ -39,6 +39,7 @@ deploy
 dereferencing
 deserialize/S
 dispatchable/S
+E2E
 encodable
 evaluable
 fuzzer
@@ -106,3 +107,4 @@ natively
 payability
 unpayable
 initializer
+WebSocket/S

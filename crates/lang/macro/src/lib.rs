@@ -747,7 +747,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     }
 ///     ```
 ///
-///     **Default value:** "ws://localhost:9944".
+///     **Default value:** `"ws://localhost:9944"`.
 ///
 /// - `node_log: String`
 ///
@@ -766,7 +766,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     }
 ///     ```
 ///
-///     **Default value:** "/tmp/contracts-node.log".
+///     **Default value:** `"/tmp/contracts-node.log"`.
 ///
 /// - `skip_build: true`
 ///
