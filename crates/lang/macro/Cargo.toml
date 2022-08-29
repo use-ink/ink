@@ -24,11 +24,11 @@ syn = "1"
 proc-macro2 = "1"
 
 [dev-dependencies]
-ink_prelude = { version = "4.0.0-alpha.1", path = "../../prelude/" }
-ink_metadata = { version = "4.0.0-alpha.1", path = "../../metadata/" }
-ink_env = { version = "4.0.0-alpha.1", path = "../../env/" }
-ink_storage = { version = "4.0.0-alpha.1", path = "../../storage/" }
-ink_lang = { version = "4.0.0-alpha.1", path = ".." }
+ink_env = { path = "../../env" }
+ink_lang = { path = ".." }
+ink_metadata = { path = "../../metadata" }
+ink_prelude = { path = "../../prelude" }
+ink_storage = { path = "../../storage" }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 
 [lib]
