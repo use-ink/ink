@@ -42,7 +42,7 @@ impl GenerateCode for InkE2ETest<'_> {
         let node_log = &self.test.config.node_log();
         let skip_build = &self.test.config.skip_build();
 
-        let res = quote! {
+        quote! {
             #( #attrs )*
             #[ink_env::e2e::tokio::test]
             async #vis fn #fn_name () #ret {
@@ -104,8 +104,7 @@ impl GenerateCode for InkE2ETest<'_> {
                 };
                 __ret
             }
-        };
-        res.into()
+        }
     }
 }
 
