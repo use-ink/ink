@@ -320,7 +320,7 @@ where
                 code.clone(),
                 data.clone(),
                 salt.clone(),
-                &signer,
+                signer,
             )
             .await;
         log_info(&format!(
@@ -341,7 +341,7 @@ where
                 code,
                 data.clone(),
                 salt,
-                &signer,
+                signer,
             )
             .await;
         signer.increment_nonce();
@@ -384,7 +384,7 @@ where
             }
         }
 
-        return Ok(InstantiationResult {
+        Ok(InstantiationResult {
             dry_run,
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
@@ -427,7 +427,7 @@ where
                 dry_run.gas_required,
                 storage_deposit_limit,
                 contract_call.0.clone(),
-                &signer,
+                signer,
             )
             .await;
         signer.increment_nonce();
@@ -454,7 +454,7 @@ where
             }
         }
 
-        return Ok(CallResult {
+        Ok(CallResult {
             dry_run,
             events: tx_events,
         })
@@ -494,12 +494,7 @@ where
             "balance of contract {:?} is {:?}",
             account_id, alice_pre
         ));
-        Ok(alice_pre
-            .data
-            .free
-            .try_into()
-            .ok()
-            .expect("unable to convert balance"))
+        Ok(alice_pre.data.free)
     }
 
     /// Returns true if the `substrate-contracts-node` log under
@@ -508,7 +503,7 @@ where
         let output = std::process::Command::new("grep")
             .arg("-q")
             .arg(msg)
-            .arg(self.node_log.to_string())
+            .arg(&self.node_log)
             .spawn()
             .map_err(|err| {
                 format!("ERROR while executing `grep` with {:?}: {:?}", msg, err)

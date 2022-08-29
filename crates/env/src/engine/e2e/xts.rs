@@ -175,7 +175,6 @@ where
             gas_limit: NumberOrHex::Number(DRY_RUN_GAS_LIMIT),
             storage_deposit_limit: storage_deposit_limit.map(|l| {
                 l.try_into()
-                    .ok()
                     .expect("unable to convert `storage_deposit_limit`")
             }),
             code,
@@ -196,6 +195,7 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
+    #[allow(clippy::too_many_arguments)]
     pub async fn instantiate_with_code(
         &self,
         value: E::Balance,
@@ -266,7 +266,7 @@ where
         let call_request = RpcCallRequest::<C> {
             origin: contract.clone(),
             dest: contract,
-            value: value.try_into().ok().expect("unable to convert `value`"),
+            value: value.try_into().expect("unable to convert `value`"),
             gas_limit: DRY_RUN_GAS_LIMIT.into(),
             storage_deposit_limit: storage_deposit_limit.map(|l| {
                 l.try_into()
