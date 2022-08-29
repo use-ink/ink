@@ -88,7 +88,7 @@ workflow:
 # `clippy` runs will fail due to the artifact missing here:
 # `ink_env::e2e::smart_bench_macro::contract!("./target/ink/metadata.json")`.
 .build-e2e-contracts:               &build-e2e-contracts
-    - cd examples/contract-transfer/ && cargo contract build --skip-linting
+    - cargo contract build --skip-linting --manifest-path=examples/contract-transfer/Cargo.toml
 
 #### stage:                        lint
 #
