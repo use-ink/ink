@@ -14,8 +14,13 @@
 
 use crate::GenerateCode;
 use derive_more::From;
+use env_logger;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use std::sync::Once;
+
+/// We use this to only build the contract once for all tests.
+static BUILD_ONCE: Once = Once::new();
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
@@ -42,6 +47,49 @@ impl GenerateCode for InkE2ETest<'_> {
         let node_log = &self.test.config.node_log();
         let skip_build = &self.test.config.skip_build();
 
+        let mut path = std::env::var("CARGO_TARGET_DIR")
+            .unwrap_or("./target/ink/metadata.json".to_string());
+        if !skip_build.value {
+            BUILD_ONCE.call_once(|| {
+                env_logger::init();
+                use std::process::{
+                    Command,
+                    Stdio,
+                };
+                let output = Command::new("cargo")
+                    // TODO(#xxx) Add possibility of configuring `skip_linting` in attributes.
+                    .args(["contract", "build", "--skip-linting", "--output-json"])
+                    .env("RUST_LOG", "")
+                    .stderr(Stdio::inherit())
+                    .output()
+                    .expect("failed to execute `cargo-contract` build process");
+
+                log::info!("`cargo-contract` returned status: {}", output.status);
+                log::info!(
+                    "`cargo-contract` stdout: {}",
+                    String::from_utf8_lossy(&output.stdout)
+                );
+                if !output.status.success() {
+                    log::info!(
+                        "`cargo-contract` stderr: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                }
+
+                assert!(output.status.success());
+
+                let json = String::from_utf8_lossy(&output.stdout);
+                let metadata: serde_json::Value =
+                    serde_json::from_str(&json).expect("cannot convert json to utf8");
+                let dest_metadata =
+                    metadata["metadata_result"]["dest_metadata"].to_string();
+                path = dest_metadata.trim_matches('"').to_string();
+                log::info!("extracted metadata path: {}", path);
+            });
+        }
+
+        log::info!("using metadata path: {}", path);
+
         quote! {
             #( #attrs )*
             #[ink_env::e2e::tokio::test]
@@ -55,41 +103,11 @@ impl GenerateCode for InkE2ETest<'_> {
 
                 ink_env::e2e::INIT.call_once(|| {
                     ink_env::e2e::env_logger::init();
-                    log_info("building contract");
-
-                    if ! #skip_build {
-                        use std::process::{Command, Stdio};
-                        let output = Command::new("cargo")
-                            // TODO(#xxx) Add possibility of configuring `skip_linting` in attributes.
-                            .args(["contract", "build", "--skip-linting", "--output-json"])
-                            .stderr(Stdio::inherit())
-                            .output()
-                            .expect("failed to execute `cargo-contract` build process");
-
-                        log_info(&format!("`cargo-contract` returned status: {}", output.status));
-                        log_info(&format!("`cargo-contract` stdout: {}", String::from_utf8_lossy(&output.stdout)));
-                        if !output.status.success() {
-                            log_info(&format!("`cargo-contract` stderr: {}", String::from_utf8_lossy(&output.stderr)));
-                        }
-
-                        assert!(output.status.success());
-                    }
-
-                    // TODO(#xxx)
-                    // The E2E testing currently requires fixed paths for the build artifacts.
-                    // In the future it would be nice to extract the path automatically. This
-                    // is currently not possible because the `smart_bench_macro` requires the
-                    // path to be given at compile-time.
-                    //
-                    // let metadata: ink_env::e2e::serde_json::Value = ink_env::e2e::serde_json::from_str(&String::from_utf8_lossy(&output.stdout)).expect("huh");
-                    // let path = metadata["metadata_result"]["dest_metadata"].to_string();
-                    // log::info!("path to metadata: {:?}", path);
                 });
 
                 log_info("extracting metadata");
-
                 // TODO(#xxx) `smart-bench_macro` needs to be forked.
-                ink_env::e2e::smart_bench_macro::contract!("./target/ink/metadata.json");
+                ink_env::e2e::smart_bench_macro::contract!(#path);
 
                 let url = #ws_url;
                 let node_log = #node_log;
