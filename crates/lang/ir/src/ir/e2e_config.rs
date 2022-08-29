@@ -162,7 +162,7 @@ mod tests {
 
     #[test]
     fn empty_config_works() {
-        assert_try_from(syn::parse_quote! {}, Ok(Config::default()))
+        assert_try_from(syn::parse_quote! {}, Ok(E2EConfig::default()))
     }
 
     #[test]
