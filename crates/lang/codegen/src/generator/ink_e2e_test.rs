@@ -106,6 +106,11 @@ impl GenerateCode for InkE2ETest<'_> {
         log::info!("using metadata path: {}", path);
         eprintln!("using metadata path: {}", path);
 
+        if !std::path::Path::new(&path).exists() {
+            eprintln!("path does not exist");
+            return quote! {}
+        }
+
         quote! {
             #( #attrs )*
             #[ink_env::e2e::tokio::test]
