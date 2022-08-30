@@ -70,12 +70,21 @@ impl GenerateCode for InkE2ETest<'_> {
                     .expect("failed to execute `cargo-contract` build process");
 
                 log::info!("`cargo-contract` returned status: {}", output.status);
+                eprintln!("`cargo-contract` returned status: {}", output.status);
                 log::info!(
+                    "`cargo-contract` stdout: {}",
+                    String::from_utf8_lossy(&output.stdout)
+                );
+                eprintln!(
                     "`cargo-contract` stdout: {}",
                     String::from_utf8_lossy(&output.stdout)
                 );
                 if !output.status.success() {
                     log::info!(
+                        "`cargo-contract` stderr: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                    eprintln!(
                         "`cargo-contract` stderr: {}",
                         String::from_utf8_lossy(&output.stderr)
                     );
@@ -90,10 +99,12 @@ impl GenerateCode for InkE2ETest<'_> {
                     metadata["metadata_result"]["dest_metadata"].to_string();
                 path = dest_metadata.trim_matches('"').to_string();
                 log::info!("extracted metadata path: {}", path);
+                eprintln!("extracted metadata path: {}", path);
             });
         }
 
         log::info!("using metadata path: {}", path);
+        eprintln!("using metadata path: {}", path);
 
         quote! {
             #( #attrs )*

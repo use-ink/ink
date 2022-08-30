@@ -163,7 +163,7 @@ examples-clippy-std:
     - *build-e2e-contracts
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
+        RUST_LOG=info cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
