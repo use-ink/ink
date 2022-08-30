@@ -31,38 +31,40 @@ crates.io.
 
 ## Checklist
 
-1. Create a new feature branch of `master`.
+We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) to release ink!. There are still a few manual
+steps though, and we hope to make this more streamlined in the future.
+
+1. Create a new feature branch off `master`.
 1. Bump the version in all TOML files to the new version.
     ```
     find . -type f -name *.toml -exec sed -i -e 's/$OLD_VERSION/$NEW_VERSION/g' {} \;
     ```
-1. Make sure you've moved the changes in the `RELEASES.md` from `[Unreleased]` into a new
+1. Make sure you've moved the changes in the `CHANGELOG.md` from `[Unreleased]` into a new
    section for the release.
 1. Check that all notable PRs since the last release are now in the new release section,
    in case the `[Unreleased]` section was incomplete.<br>
-   Notable changes are changes that affect users in some way. This means that something
-   like a change to our CI pipeline is likely not notable and should not be included.
+   - Notable changes are changes that affect users in some way. This means that something
+     like a change to our CI pipeline is likely not notable and should not be included.
 1. Make sure you've merged the latest `master` into your branch.
 1. Open a release PR
-    1. Wait for approvals from Core team members
-    1. Ensure the entire CI pipeline is green
-1. Execute `cargo unleash em-dragons --dry-run` in the ink! repository.
-1. If successful, execute `cargo unleash em-dragons`.<br>
-   In some versions of `cargo-unleash` there is a bug during publishing.
-   If this is the case you need to do it manually, by executing `cargo publish --allow-dirty`
-   for the individual crates. The `--allow-dirty` is necessary because `cargo-unleash`
-   will have removed all `[dev-dependencies]`.
-1. Merge the PR into `master` if everything went fine.
-   We do this _after_ publishing since the publishing step can fail and we want to ensure
-   that what gets merged into `master` is what actually got published.
+    - Wait for approvals from Core team members.
+    - Ensure the entire CI pipeline is green.
+1. Do a dry run with `cargo release [level] -v --no-tag --no-push`
+    - `[level]` will depend on what you're releasing.
+    - We don't want `cargo-release` to create any releases or push any code, we'll do
+       that manually once we've actually published to `crates.io`.
+1. If there are no errors, merge the release PR into `master`.
+1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [level] -v --no-tag --no-push --execute`
+    - We add the grace period since crates depend on one another.
+    - We add the `--execute` flag to _actually_ publish things to crates.io.
 1. Replace `vX.X.X` with the new version in the following command and then execute it:
     ```
-    git checkout master && git pull && git tag vX.X.X && git push origin vX.X.X
+    git tag -s vX.X.X && git push origin vX.X.X
     ```
+    - Ensure your tag is signed with an offline GPG key!
 1. Create a GitHub release for this tag. In the [tag overview](https://github.com/paritytech/ink/tags)
    you'll see your new tag appear. Click the `…` on the right of the tag and then `Create release`.
-1. Paste the release notes that appear in the [`RELEASES.md`](https://github.com/paritytech/ink/blob/master/RELEASES.md)
+1. Paste the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
    there. The title of the release should be `vX.X.X`.
 1. Post an announcement to those Element channels:
     * [Smart Contracts & Parity ink!](https://matrix.to/#/#ink:matrix.parity.io)
-    * [ink! Announcements](https://matrix.to/#/#ink-announcements:matrix.parity.io)
