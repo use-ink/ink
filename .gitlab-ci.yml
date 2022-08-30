@@ -217,7 +217,7 @@ dylint:
     - rustup component add rustfmt clippy
     - cargo check --verbose
     - cargo +nightly fmt --verbose --all -- --check
-    - cargo +nightly clippy --verbose -- -D warnings;
+    - cargo clippy --verbose -- -D warnings;
     # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
     - unset RUSTC_WRAPPER
     - cargo test --verbose --all-features
