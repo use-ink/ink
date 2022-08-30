@@ -34,7 +34,7 @@ variables:
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
-  # We need to enable `RUSTC_BOOTSTRAP` so that the nighly ink!
+  # We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
   # features still work on stable. This is done automatically by
   # `cargo-contract`, but in our CI here we also use e.g.
   # `cargo check` directly.
@@ -105,7 +105,7 @@ fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - cargo +nighly fmt --verbose --all -- --check
+    - cargo +nightly fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
     - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
     - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
