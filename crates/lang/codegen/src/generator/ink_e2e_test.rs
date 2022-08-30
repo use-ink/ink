@@ -14,7 +14,6 @@
 
 use crate::GenerateCode;
 use derive_more::From;
-use env_logger;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::sync::Once;
@@ -48,7 +47,7 @@ impl GenerateCode for InkE2ETest<'_> {
         let skip_build = &self.test.config.skip_build();
 
         let mut path = std::env::var("CARGO_TARGET_DIR")
-            .unwrap_or("./target/ink/metadata.json".to_string());
+            .unwrap_or_else(|_| "./target/ink/metadata.json".to_string());
         if !skip_build.value {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
