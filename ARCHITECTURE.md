@@ -15,11 +15,15 @@ You can find the crate documentation on docs.rs or for our
 ink! is composed of a number of crates that are all found in the
 `crates/` folder. On a high-level those can be grouped as:
 
-* `lang`: The ink! language itself.
-* `allocator`: The allocator used for dynamic memory allocation in a contract.
-* `engine`: An off-chain testing engine, it simulates a blockchain
-   environment and allows mocking specified conditions.
-* `env`: Serves two roles:
+* [`lang`](https://github.com/paritytech/ink/tree/master/crates/lang):
+  The ink! language itself.
+* [`allocator`](https://github.com/paritytech/ink/tree/master/crates/allocator):
+  The allocator used for dynamic memory allocation in a contract.
+* [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):
+  An off-chain testing engine, it simulates a blockchain environment and allows
+  mocking specified conditions.
+* [`env`](https://github.com/paritytech/ink/tree/master/crates/env):
+  Serves two roles:
   * Exposes environmental functions, like information about the caller
     of a contract call, getting random entropy, or e.g. self-terminating the
     contract.
@@ -27,15 +31,19 @@ ink! is composed of a number of crates that are all found in the
     so anything that calls into the underlying execution engine of the smart contract.
     This includes getting and setting a smart contracts storage, as well
     as the mentioned environmental functions.
-* `metadata`: Describes the contract in a platform agnostic way, i.e.
-  its interface and the types, its storage layout, etc.
-* `prelude`: Provides an interface to typical standard library types and
+* [`metadata`](https://github.com/paritytech/ink/tree/master/crates/metadata):
+  Describes the contract in a platform agnostic way, i.e. its interface
+  and the types, its storage layout, etc.
+* [`prelude`](https://github.com/paritytech/ink/tree/master/crates/prelude):
+  Provides an interface to typical standard library types and
   functionality (like `vec` or `string`). Since contracts are run in a
   `no_std` environment we provide this crate as an entrypoint for accessing
   functionality of the standard library.
-* `primitives`: Utilities that are used internally by multiple ink! crates.
-* `storage`: The collections that are available for contract developers
-  to put in a smart contracts storage.
+* [`primitives`](https://github.com/paritytech/ink/tree/master/crates/primitives):
+  Utilities that are used internally by multiple ink! crates.
+* [`storage`](https://github.com/paritytech/ink/tree/master/crates/prelude):
+  The collections that are available for contract developers to put in
+  a smart contracts storage.
 
 An important thing to note is that the crates are primarily run in
 a `no_std` environment.
@@ -96,3 +104,69 @@ At the moment we're still stuck with one nightly feature though:
 [alloc_error_handler](https://github.com/rust-lang/rust/issues/51540).
 It's needed because we use a specialized memory allocation handler,
 the `ink_allocator` crate.
+
+## Interaction with `pallet-contracts`
+
+The Wasm blob to which an ink! contract is compiled is executed in
+an execution environment named [`pallet-contracts`](https://github.com/paritytech/substrate/commits/master/frame/contracts)
+on-chain.
+This `pallet-contracts` is teh smart contracts module of
+[the Substrate blockchain framework](http://substrate.io/).
+
+The relationship is as depicted in this diagram:
+
+<img src="./.images/pallet-contracts.png" alt="pallet-contracts Interaction" width="800" />
+
+### Communication with the pallet
+ink! uses a static buffer for interacting with `pallet-contracts`, i.e.
+to move data between the pallet and a smart contract.
+The advantage of a static buffer is that no gas-expensive heap allocations
+are necessary, all allocations are done using simple pointer arithmetic.
+The implementation of this static buffer is found in
+[`ink_env/src/engine/on_chain/buffer.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/buffer.rs).
+
+The methods for communicating with the pallet are found in [`ink_env/src/engine/on_chain/impls.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/impls.rs).
+If you look at the implementations you'll see a common pattern of
+
+* SCALE-encoding values on the ink! side in order to pass them as a slice
+  of bytes to the `pallet-contracts`.
+* SCALE-decoding values that come from the `pallet-contracts` side in order
+  to convert them into the proper types on the ink! side, making them available
+  for contract developers.
+
+### The pallet API
+The function signature of the `pallet-contracts` API functions is defined in
+[`ink_env/src/engine/on_chain/ext.rs`](https://github.com/paritytech/ink/blob/master/crates/env/src/engine/on_chain/ext.rs).
+You'll see that we import different versions of API functions, something
+like the following excerpt:
+
+```rust
+#[link(wasm_import_module = "seal0")]
+extern "C" {
+    pub fn seal_get_storage(
+        key_ptr: Ptr32<[u8]>,
+        output_ptr: Ptr32Mut<[u8]>,
+        output_len_ptr: Ptr32Mut<u32>,
+    ) -> ReturnCode;
+}
+
+#[link(wasm_import_module = "seal1")]
+extern "C" {
+    pub fn seal_set_storage(
+        key_ptr: Ptr32<[u8]>,
+        value_ptr: Ptr32<[u8]>,
+        value_len: u32,
+    ) -> ReturnCode;
+}
+```
+
+Smart contracts are immutable, thus the `pallet-contracts` can never change or remove
+old API functions ‒ otherwise smart contracts that are deployed on-chain would break.
+
+Hence there is this version mechanism. Functions start out at version `seal0` and for
+each new released iteration of the function there is a new version of it introduced.
+In the example above you can see that we changed the function `seal_set_storage` at
+one point.
+
+The prefix `seal` here is for historic reasons. There is some analogy to sealing a
+contract. And we found seals to be a cute animal as well ‒ like squids!
