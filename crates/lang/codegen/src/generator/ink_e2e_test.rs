@@ -46,8 +46,14 @@ impl GenerateCode for InkE2ETest<'_> {
         let node_log = &self.test.config.node_log();
         let skip_build = &self.test.config.skip_build();
 
-        let mut path = std::env::var("CARGO_TARGET_DIR")
-            .unwrap_or_else(|_| "./target/ink/metadata.json".to_string());
+        let cargo_target_dir = std::env::var("CARGO_TARGET_DIR");
+        let mut path = match cargo_target_dir {
+            Ok(mut p) => {
+                p.push_str("metadata.json");
+                p
+            }
+            Err(_) => "./target/ink/metadata.json".to_string(),
+        };
         if !skip_build.value {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
