@@ -110,7 +110,7 @@ the `ink_allocator` crate.
 The Wasm blob to which an ink! contract is compiled is executed in
 an execution environment named [`pallet-contracts`](https://github.com/paritytech/substrate/commits/master/frame/contracts)
 on-chain.
-This `pallet-contracts` is teh smart contracts module of
+This `pallet-contracts` is the smart contracts module of
 [the Substrate blockchain framework](http://substrate.io/).
 
 The relationship is as depicted in this diagram:
