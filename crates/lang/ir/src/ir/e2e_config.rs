@@ -111,7 +111,7 @@ impl E2EConfig {
     /// `ws://localhost:9944`.
     pub fn ws_url(&self) -> syn::LitStr {
         let default_ws_url =
-            syn::LitStr::new("ws://localhost:9944", proc_macro2::Span::call_site());
+            syn::LitStr::new("ws://0.0.0.0:9944", proc_macro2::Span::call_site());
         self.ws_url.clone().unwrap_or(default_ws_url)
     }
 

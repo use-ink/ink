@@ -82,7 +82,7 @@ workflow:
     - kubernetes-parity-build
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
-    - substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/contracts-node.log 2>&1 &
+    - substrate-contracts-node --dev -linfo,runtime::contracts=debug # > /tmp/contracts-node.log 2>&1 &
 
 # TODO(#xxx) Unfortunately we currently have to do this. Otherwise e.g. the
 # `clippy` runs will fail due to the artifact missing here:
