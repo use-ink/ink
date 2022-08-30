@@ -49,7 +49,7 @@ impl GenerateCode for InkE2ETest<'_> {
         let cargo_target_dir = std::env::var("CARGO_TARGET_DIR");
         let mut path = match cargo_target_dir {
             Ok(mut p) => {
-                p.push_str("metadata.json");
+                p.push_str("/metadata.json");
                 p
             }
             Err(_) => "./target/ink/metadata.json".to_string(),
