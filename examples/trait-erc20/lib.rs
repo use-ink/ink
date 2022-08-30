@@ -94,7 +94,7 @@ mod erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(total_supply: Balance) -> Self {
-            let mut balances: Mapping<AccountId, Balance, _> = Default::default();
+            let mut balances = Mapping::default();
             let caller = Self::env().caller();
             balances.insert(&caller, &total_supply);
             Self::env().emit_event(Transfer {
