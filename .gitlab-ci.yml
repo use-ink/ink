@@ -34,6 +34,11 @@ variables:
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
+  # We need to enable `RUSTC_BOOTSTRAP` so that the nighly ink!
+  # features still work on stable. This is done automatically by
+  # `cargo-contract`, but in our CI here we also use e.g.
+  # `cargo check` directly.
+  RUSTC_BOOTSTRAP:                 "1"
 
 workflow:
   rules:
