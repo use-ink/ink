@@ -210,7 +210,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|transfer"
     );
-    
+
     Ok(())
 }
 
@@ -350,7 +350,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|decrease_allowance"
     );
-    
+
     Ok(())
 }
 

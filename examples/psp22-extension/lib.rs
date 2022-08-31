@@ -10,7 +10,7 @@ type DefaultBalance = <ink_env::DefaultEnvironment as Environment>::Balance;
 
 #[ink::chain_extension]
 pub trait Psp22Extension {
-    type ErrorCode = Psp22ErrorCode;
+    type ErrorCode = Psp22Error;
 
     // PSP22 Metadata interfaces
 
@@ -79,23 +79,11 @@ pub trait Psp22Extension {
 
 #[derive(scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum Psp22ErrorCode {
+pub enum Psp22Error {
     TotalSupplyFailed,
 }
 
-#[derive(scale::Encode, scale::Decode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum Psp22Error {
-    ErrorCode(Psp22ErrorCode),
-}
-
 pub type Result<T> = core::result::Result<T, Psp22Error>;
-
-impl From<Psp22ErrorCode> for Psp22Error {
-    fn from(error_code: Psp22ErrorCode) -> Self {
-        Self::ErrorCode(error_code)
-    }
-}
 
 impl From<scale::Error> for Psp22Error {
     fn from(_: scale::Error) -> Self {
@@ -103,7 +91,7 @@ impl From<scale::Error> for Psp22Error {
     }
 }
 
-impl ink_env::chain_extension::FromStatusCode for Psp22ErrorCode {
+impl ink_env::chain_extension::FromStatusCode for Psp22Error {
     fn from_status_code(status_code: u32) -> core::result::Result<(), Self> {
         match status_code {
             0 => Ok(()),
@@ -138,10 +126,13 @@ mod psp22_ext {
         Vec,
     };
 
+    /// A chain extension which implements the PSP-22 fungible token standard.
+    /// For more details see <https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md>
     #[ink(storage)]
     pub struct Psp22Extension {}
 
     impl Psp22Extension {
+        /// Creates a new instance of this contract.
         #[ink(constructor)]
         pub fn new() -> Self {
             Psp22Extension {}
