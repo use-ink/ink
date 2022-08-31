@@ -45,6 +45,3 @@ See the example contract in [`lib.rs`](lib.rs).
 :warning: This is not a feature-complete or production-ready PSP22 implementation. This
 example currently lacks proper error management, precise weight accounting, tests (these
 all  might be added at a later point).
-
-:warning: `decrease_allowance` function is currently not implemented due to limitations
-of the `assets` pallet.

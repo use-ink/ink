@@ -210,6 +210,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|transfer"
     );
+    
     Ok(())
 }
 
@@ -349,6 +350,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|decrease_allowance"
     );
+    
     Ok(())
 }
 
@@ -368,7 +370,7 @@ where
     {
         match func_id {
             // Note: We use the PSP22 interface selectors as function IDs,
-            // there is no need but it makes sense from a convention perspective.
+            // While we can use anything here, it makes sense from a convention perspective.
 
             // PSP22 Metadata interfaces
             0x3d261bd4 | 0x34205be5 | 0x7271b782 => metadata::<T, E>(func_id, env)?,
@@ -393,6 +395,7 @@ where
                 return Err(DispatchError::Other("Unimplemented func_id"))
             }
         }
+
         Ok(RetVal::Converging(0))
     }
 }

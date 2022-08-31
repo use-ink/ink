@@ -132,7 +132,7 @@ impl Environment for CustomEnvironment {
 }
 
 #[ink::contract(env = crate::CustomEnvironment)]
-mod psp22_ext_test {
+mod psp22_ext {
     use super::{
         Result,
         Vec,
