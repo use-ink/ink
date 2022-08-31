@@ -13,6 +13,12 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+// TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+// fails on `stable`, but succeeds on `nightly`. I can't find the unused lifetime
+// and assume it's a bug in `stable` (there are some recently closed issues for
+// `clippy` that match). Remove the following line again as soon as `clippy` on
+// stable would succeed again
+#![allow(clippy::extra_unused_lifetimes)]
 
 use ink_lang as ink;
 
