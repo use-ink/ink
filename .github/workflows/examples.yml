@@ -32,7 +32,7 @@ jobs:
           - test
     runs-on: ${{ matrix.platform }}
     env:
-      UPGRADEABLE_CONTRACTS:    "forward-calls delegate-calls"
+      UPGRADEABLE_CONTRACTS:    "forward-calls set-code-hash"
       DELEGATOR_SUBCONTRACTS:   "accumulator adder subber"
       RUST_BACKTRACE:           full
     steps:
@@ -90,12 +90,12 @@ jobs:
                echo "Processing delegator contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
            }
-           $upgradeable_contracts = "forward-calls","delegate-calls"
+           $upgradeable_contracts = "forward-calls","set-code-hash"
            foreach ($contract in $upgradeable_contracts) {
                echo "Processing upgradeable contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/${contract}/Cargo.toml;
            }
-           cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+           cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            foreach ($example in Get-ChildItem  -Directory "examples\*") {
                if ($example -Match 'upgradeable-contracts') { continue }
                echo "Processing example: $example";
@@ -114,7 +114,7 @@ jobs:
                 echo "Processing upgradeable contract: $contract";
                 cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/$contract/Cargo.toml;
            done
-           cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+           cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            for example in examples/*/; do
                if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
                echo "Processing example: $example";
