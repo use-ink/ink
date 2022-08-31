@@ -14,11 +14,11 @@
 
 use crate::{
     ast,
-    ast::MetaNameValue,
-    error::ExtError as _,
+    utils::{
+        duplicate_config_err,
+        WhitelistedAttributes,
+    },
 };
-use std::collections::HashMap;
-use syn::spanned::Spanned;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -31,83 +31,6 @@ pub struct Config {
     env: Option<Environment>,
     /// The set of attributes that can be passed to call builder in the codegen.
     whitelisted_attributes: WhitelistedAttributes,
-}
-
-/// The set of attributes that can be passed to call builder or call forwarder in the codegen.
-#[derive(Debug, PartialEq, Eq)]
-pub struct WhitelistedAttributes(pub HashMap<String, ()>);
-
-impl Default for WhitelistedAttributes {
-    fn default() -> Self {
-        Self(HashMap::from([
-            // Conditional compilation
-            ("cfg".to_string(), ()),
-            ("cfg_attr".to_string(), ()),
-            // Diagnostics
-            ("allow".to_string(), ()),
-            ("warn".to_string(), ()),
-            ("deny".to_string(), ()),
-            ("forbid".to_string(), ()),
-            ("deprecated".to_string(), ()),
-            ("must_use".to_string(), ()),
-            // Documentation
-            ("doc".to_string(), ()),
-            // Formatting
-            ("rustfmt".to_string(), ()),
-        ]))
-    }
-}
-
-impl WhitelistedAttributes {
-    /// Parses the `MetaNameValue` argument of `keep_attr` attribute. If the argument has
-    /// a correct format `"foo, bar"` then `foo`, `bar` will be included in
-    /// the whitelist of attributes. Else error about parsing will be returned.
-    pub fn parse_arg_value(&mut self, arg: &MetaNameValue) -> Result<(), syn::Error> {
-        return if let ast::PathOrLit::Lit(syn::Lit::Str(attributes)) = &arg.value {
-            attributes.value().split(',').for_each(|attribute| {
-                self.0.insert(attribute.trim().to_string(), ());
-            });
-            Ok(())
-        } else {
-            Err(format_err_spanned!(
-                arg,
-                "expected a string with attributes separated by `,`",
-            ))
-        }
-    }
-
-    /// Returns the filtered input vector of whitelisted attributes.
-    /// All not whitelisted attributes are removed.
-    pub fn filter_attr(&self, attrs: Vec<syn::Attribute>) -> Vec<syn::Attribute> {
-        attrs
-            .into_iter()
-            .filter(|attr| {
-                if let Some(ident) = attr.path.get_ident() {
-                    self.0.contains_key(&ident.to_string())
-                } else {
-                    false
-                }
-            })
-            .collect()
-    }
-}
-
-/// Return an error to notify about duplicate ink! configuration arguments.
-fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
-where
-    F: Spanned,
-    S: Spanned,
-{
-    format_err!(
-        snd.span(),
-        "encountered duplicate ink! `{}` configuration argument",
-        name,
-    )
-    .into_combine(format_err!(
-        fst.span(),
-        "first `{}` configuration argument here",
-        name
-    ))
 }
 
 impl TryFrom<ast::AttributeArgs> for Config {
