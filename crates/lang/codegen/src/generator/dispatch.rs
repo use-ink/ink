@@ -814,11 +814,13 @@ impl Dispatch<'_> {
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
                                 match ::ink_env::get_contract_storage(&key) {
-                                    ::core::result::Result::Ok(Some(value)) => value,
-                                    ::core::result::Result::Ok(None) => ::core::panic!("storage entry was empty"),
-                                    ::core::result::Result::Err(_) => ::core::panic!(
-                                        "could not properly decode storage entry"
-                                    ),
+                                    ::core::result::Result::Ok(::core::option::Option::Some(value)) => value,
+                                    ::core::result::Result::Ok(::core::option::Option::None) => {
+                                        ::core::panic!("storage entry was empty")
+                                    },
+                                    ::core::result::Result::Err(_) => {
+                                        ::core::panic!("could not properly decode storage entry")
+                                    },
                                 }
                             );
 
