@@ -810,12 +810,14 @@ impl Dispatch<'_> {
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        let key = <#storage_ident as ::ink_storage::traits::StorageKey>::KEY;
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                ::ink_storage::pull_or_init!(
-                                    #storage_ident,
-                                    <#storage_ident as ::ink_storage::traits::StorageKey>::KEY
-                                )
+                                match ::ink_env::get_contract_storage(&key) {
+                                    Ok(Some(value)) => value,
+                                    Ok(None) => panic!("storage entry was empty"),
+                                    Err(_) => panic!("could not properly decode storage entry"),
+                                }
                             );
 
                         match self {

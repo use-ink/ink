@@ -234,7 +234,7 @@ fn convert_into_storage_field(
         variant_name.as_str(),
         field_name.as_str(),
     )
-    .unwrap();
+    .expect("unable to compute the storage key for the field");
 
     let mut new_field = field.clone();
     let ty = field.ty.clone().to_token_stream();

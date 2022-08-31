@@ -69,7 +69,7 @@ impl Metadata<'_> {
         };
         quote_spanned!(storage_span=>
             // Wrap the layout of the contract into the `RootLayout`, because
-            // contract storage key is reserved for all atomic fields
+            // contract storage key is reserved for all packed fields
             ::ink_metadata::layout::Layout::Root(::ink_metadata::layout::RootLayout::new(
                 #layout_key,
                 <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(

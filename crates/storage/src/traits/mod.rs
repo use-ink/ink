@@ -44,7 +44,6 @@ pub use self::{
     },
     storage::{
         AutoStorableHint,
-        OnCallInitializer,
         Packed,
         StorableHint,
         StorageKey,

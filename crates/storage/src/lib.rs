@@ -56,7 +56,3 @@ pub use self::lazy::{
     Lazy,
     Mapping,
 };
-
-#[macro_use]
-#[doc(hidden)]
-pub mod pull_or_init;

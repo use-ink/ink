@@ -70,19 +70,3 @@ pub trait AutoStorableHint<Key: StorageKey> {
     /// Storable type with storage key inside.
     type Type: Storable;
 }
-
-/// A trait to support initialization on the runtime if it cannot pull from the storage.
-///
-/// It can be in several cases:
-/// - The contract doesn't have constructor. That initializer can be alternative for the constructor.
-/// - The constructor was not called due to upgrade ability, `Proxy` or `Diamond` pattern.
-/// - The storage was moved or corrupted.
-///
-/// If the trait is not implemented the behavior of the storage is default.
-/// It should be first initialized by the constructor.
-pub trait OnCallInitializer: Default {
-    /// A default instance of the contract is first created. The initialize method
-    /// is then called on that instance. There are no restrictions to what a developer
-    /// may do during the initialization phase, including doing nothing.
-    fn initialize(&mut self);
-}
