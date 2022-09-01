@@ -108,8 +108,8 @@ impl GenerateCode for InkE2ETest<'_> {
             });
         }
 
-        log::info!("using metadata path: {}", path);
-        eprintln!("using metadata path: {}", path);
+        log::info!("using metadata path: {:?}", path);
+        eprintln!("using metadata path: {:?}", path);
 
         std::path::Path::new(&path)
             .try_exists()
