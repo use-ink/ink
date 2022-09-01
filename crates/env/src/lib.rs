@@ -165,15 +165,14 @@ cfg_if::cfg_if! {
 }
 
 cfg_if::cfg_if! {
-if #[cfg(feature = "std")] {
-    #[macro_export]
-    /// Some docs
-    macro_rules! pay_with_call {
-        ($con:ident . $msg:ident ( $($params:ty)? ) , $amt:expr) => { {
-            $con.env().transfer_in($amt);
-            $con.$msg($($params:ty)?)
-        }}
+    if #[cfg(feature = "std")] {
+        #[macro_export]
+        /// Prepend contract message call with value transfer. Used for tests in off-chain environment.
+        macro_rules! pay_with_call {
+            ($con:ident . $msg:ident ( $($params:ty)? ) , $amt:expr) => {{
+                transfer_in::<Environment>($amt);
+                $con.$msg($($params:ty)?)
+            }}
         }
-
-}
+    }
 }
