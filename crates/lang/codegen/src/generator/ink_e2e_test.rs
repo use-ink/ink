@@ -114,8 +114,7 @@ impl GenerateCode for InkE2ETest<'_> {
         std::path::Path::new(&path)
             .try_exists()
             .unwrap_or_else(|err| {
-                eprintln!("path {:?} does not exist: {:?}", path, err);
-                return quote! {}
+                panic!("path {:?} does not exist: {:?}", path, err);
             });
 
         quote! {
