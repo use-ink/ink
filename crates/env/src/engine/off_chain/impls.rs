@@ -478,6 +478,14 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
+    fn transfer_in<E>(&mut self, value: E::Balance) -> Result<()>
+    where
+        E: Environment,
+    {
+        let enc_value = &scale::Encode::encode(&value)[..];
+        self.engine.transfer_in(enc_value).map_err(Into::into)
+    }
+
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         self.engine.weight_to_fee(gas, &mut &mut output[..]);

@@ -200,6 +200,37 @@ impl Engine {
         Ok(())
     }
 
+    /// Transfers value from the caller account to the contract.
+    pub fn transfer_in(&mut self, mut value: &[u8]) -> Result {
+        // Note that a transfer of `0` is allowed here
+        let increment = <u128 as scale::Decode>::decode(&mut value)
+            .map_err(|_| Error::TransferFailed)?;
+
+        let caller = self
+            .exec_context
+            .caller
+            .as_ref()
+            .expect("no caller has been set")
+            .as_bytes();
+
+        // Note that the destination account does not have to exist
+        let caller_old_balance = self.get_balance(caller.to_vec()).unwrap_or_default();
+
+        let contract = self.get_callee();
+        let contract_old_balance = self
+            .get_balance(contract.clone())
+            .map_err(|_| Error::TransferFailed)?;
+
+        self.database
+            .set_balance(caller, caller_old_balance - increment);
+        self.database
+            .set_balance(&contract, contract_old_balance + increment);
+
+        self.set_value_transferred(increment);
+
+        Ok(())
+    }
+
     /// Deposits an event identified by the supplied topics and data.
     pub fn deposit_event(&mut self, topics: &[u8], data: &[u8]) {
         // The first byte contains the number of topics in the slice
