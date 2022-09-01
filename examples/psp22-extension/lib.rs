@@ -14,24 +14,24 @@ pub trait Psp22Extension {
 
     // PSP22 Metadata interfaces
 
-    #[ink(extension = 0x3d261bd4)]
+    #[ink(extension = 0x3d26)]
     fn token_name(asset_id: u32) -> Result<Vec<u8>>;
 
-    #[ink(extension = 0x34205be5)]
+    #[ink(extension = 0x3420)]
     fn token_symbol(asset_id: u32) -> Result<Vec<u8>>;
 
-    #[ink(extension = 0x7271b782)]
+    #[ink(extension = 0x7271)]
     fn token_decimals(asset_id: u32) -> Result<u8>;
 
     // PSP22 interface queries
 
-    #[ink(extension = 0x162df8c2)]
+    #[ink(extension = 0x162d)]
     fn total_supply(asset_id: u32) -> Result<DefaultBalance>;
 
-    #[ink(extension = 0x6568382f)]
+    #[ink(extension = 0x6568)]
     fn balance_of(asset_id: u32, owner: DefaultAccountId) -> Result<DefaultBalance>;
 
-    #[ink(extension = 0x4d47d921)]
+    #[ink(extension = 0x4d47)]
     fn allowance(
         asset_id: u32,
         owner: DefaultAccountId,
@@ -39,12 +39,12 @@ pub trait Psp22Extension {
     ) -> Result<DefaultBalance>;
 
     // PSP22 transfer
-    #[ink(extension = 0xdb20f9f5)]
+    #[ink(extension = 0xdb20)]
     fn transfer(asset_id: u32, to: DefaultAccountId, value: DefaultBalance)
         -> Result<()>;
 
     // PSP22 transfer_from
-    #[ink(extension = 0x54b3c76e)]
+    #[ink(extension = 0x54b3)]
     fn transfer_from(
         asset_id: u32,
         from: DefaultAccountId,
@@ -53,7 +53,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 
     // PSP22 approve
-    #[ink(extension = 0xb20f1bbd)]
+    #[ink(extension = 0xb20f)]
     fn approve(
         asset_id: u32,
         spender: DefaultAccountId,
@@ -61,7 +61,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 
     // PSP22 increase_allowance
-    #[ink(extension = 0x96d6b57a)]
+    #[ink(extension = 0x96d6)]
     fn increase_allowance(
         asset_id: u32,
         spender: DefaultAccountId,
@@ -69,7 +69,7 @@ pub trait Psp22Extension {
     ) -> Result<()>;
 
     // PSP22 decrease_allowance
-    #[ink(extension = 0xfecb57d5)]
+    #[ink(extension = 0xfecb)]
     fn decrease_allowance(
         asset_id: u32,
         spender: DefaultAccountId,
