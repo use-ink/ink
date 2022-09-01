@@ -65,7 +65,6 @@ pub mod give_me {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_env::test::transfer_in;
         use ink_lang as ink;
         use ink_lang::codegen::Env;
 
