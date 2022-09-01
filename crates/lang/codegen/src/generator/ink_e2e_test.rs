@@ -63,7 +63,7 @@ impl GenerateCode for InkE2ETest<'_> {
                 };
                 let output = Command::new("cargo")
                     // TODO(#xxx) Add possibility of configuring `skip_linting` in attributes.
-                    .args(["contract", "build", "--skip-linting", "--output-json"])
+                    .args(["+stable", "contract", "build", "--skip-linting", "--output-json"])
                     .env("RUST_LOG", "")
                     .stderr(Stdio::inherit())
                     .output()
