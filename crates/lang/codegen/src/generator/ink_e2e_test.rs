@@ -111,10 +111,12 @@ impl GenerateCode for InkE2ETest<'_> {
         log::info!("using metadata path: {}", path);
         eprintln!("using metadata path: {}", path);
 
-        if !std::path::Path::new(&path).exists() {
-            eprintln!("path does not exist");
-            return quote! {}
-        }
+        std::path::Path::new(&path)
+            .try_exists()
+            .unwrap_or_else(|err| {
+                eprintln!("path {:?} does not exist: {:?}", path, err);
+                return quote! {}
+            });
 
         quote! {
             #( #attrs )*
