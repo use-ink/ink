@@ -209,27 +209,41 @@ where
     })
 }
 
-/// TODO: write docs
-/// the trick here is that we can't write this fn in abstract way,
-/// i.e. for all possible return values of the msg
-/// it does not send amount back if extrinsic fails
-/// which is (I suppose) the case in on-chain engine
-/// If this ^^^ is correct, then no point for impl this helper at all
-/// just leave it as transfer_in and require contact test writeer to do this manually
-///
-/// IDEA: make this decl macro which expands to { transfer_in(); msg() } block
-/// don't forget to write warning: it does not check if called msg was marked payable
-/// defined as MBE in env.lib.rs
-// pub fn call_payable<T>(msg: F, amount: T::Balance) -> Result<()>
-// where
-//     F: FnOnce() -> Result<()>,
-//     T: Environment<Balance = u128>,
-// {
-//     <EnvInstance as OnInstance>::on_instance(|instance| {
-//         instance.engine.transfer_in(amount);
-//     });
-//     msg
-// }
+/// Transfers value from the caller account to the contract.
+pub fn transfer_in<T>(value: T::Balance)
+where
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let caller = instance
+            .engine
+            .exec_context
+            .caller
+            .as_ref()
+            .expect("no caller has been set")
+            .as_bytes()
+            .to_vec();
+
+        let caller_old_balance = instance
+            .engine
+            .get_balance(caller.clone())
+            .unwrap_or_default();
+
+        let callee = instance.engine.get_callee();
+        let contract_old_balance = instance
+            .engine
+            .get_balance(callee.clone())
+            .unwrap_or_default();
+
+        instance
+            .engine
+            .set_balance(caller, caller_old_balance - value);
+        instance
+            .engine
+            .set_balance(callee, contract_old_balance + value);
+        instance.engine.set_value_transferred(value);
+    });
+}
 
 /// Returns the amount of storage cells used by the account `account_id`.
 ///

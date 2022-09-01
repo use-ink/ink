@@ -169,11 +169,11 @@ if #[cfg(feature = "std")] {
     #[macro_export]
     /// Some docs
     macro_rules! pay_with_call {
-		($con:ident . $msg:ident ( $($params:ty)? ) , $amt:expr) => { {
-		    $con.env().transfer_in($amt);
-		    $con.$msg($($params:ty)?)
-		}}
-	    }
+        ($con:ident . $msg:ident ( $($params:ty)? ) , $amt:expr) => { {
+            $con.env().transfer_in($amt);
+            $con.$msg($($params:ty)?)
+        }}
+        }
 
 }
 }

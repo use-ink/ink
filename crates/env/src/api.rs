@@ -350,16 +350,6 @@ where
     })
 }
 
-/// TODO: add docs
-pub fn transfer_in<E>(value: E::Balance) -> Result<()>
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::transfer_in::<E>(instance, value)
-    })
-}
-
 /// Returns the execution input to the executed contract and decodes it as `T`.
 ///
 /// # Note

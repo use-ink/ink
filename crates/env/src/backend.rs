@@ -441,11 +441,6 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    /// TODO: add docs
-    fn transfer_in<E>(&mut self, value: E::Balance) -> Result<()>
-    where
-        E: Environment;
-
     /// Returns a random hash seed.
     ///
     /// # Note

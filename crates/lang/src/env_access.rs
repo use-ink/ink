@@ -684,11 +684,6 @@ where
         ink_env::transfer::<E>(destination, value)
     }
 
-    /// TODO: add docs
-    pub fn transfer_in(self, value: E::Balance) -> Result<()> {
-        ink_env::transfer_in::<E>(value)
-    }
-
     /// Returns a random hash seed.
     ///
     /// # Example
