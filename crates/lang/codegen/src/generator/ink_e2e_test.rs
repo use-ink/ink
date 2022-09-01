@@ -116,6 +116,8 @@ impl GenerateCode for InkE2ETest<'_> {
             .unwrap_or_else(|err| {
                 panic!("path {:?} does not exist: {:?}", path, err);
             });
+        let path =
+            syn::LitStr::new(path.as_str(), proc_macro2::Span::call_site());
 
         quote! {
             #( #attrs )*
