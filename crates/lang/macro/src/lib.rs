@@ -715,11 +715,11 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// The system requirements are:
 ///
-///     * A Substrate node with `pallet-contracts` running in the background.
-///       You can e.g. use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
-///       and launch it with
-///       `substrate-contracts-node -lerror,runtime::contracts=debug > /tmp/contracts-node.log 2>&1`.
-///     * A `cargo-contract` installation that can build the contract.
+/// - A Substrate node with `pallet-contracts` running in the background.
+///   You can e.g. use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
+///   and launch it with
+///   `substrate-contracts-node -lerror,runtime::contracts=debug > /tmp/contracts-node.log 2>&1`.
+/// - A `cargo-contract` installation that can build the contract.
 ///
 /// Before the test function is invoked the contract will have been build. Any errors
 /// that occur during the contract build will prevent the test function from being
