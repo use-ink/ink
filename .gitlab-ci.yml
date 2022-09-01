@@ -54,6 +54,7 @@ workflow:
       - artifacts/
 
 .rust-info-script:                 &rust-info-script
+  - cargo clean
   - rustup show
   - cargo --version
   - rustup +nightly show
