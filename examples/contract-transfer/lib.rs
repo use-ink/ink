@@ -109,7 +109,7 @@ pub mod give_me {
             let contract_account = give_me.env().account_id();
 
             // when
-            // Push the new execution context which sets initial balnaces and
+            // Push the new execution context which sets initial balances and
             // sets Eve as the caller
             set_balance(accounts.eve, 100);
             set_balance(contract_account, 0);
