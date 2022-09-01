@@ -32,7 +32,7 @@ impl GenerateCode for InkE2ETest<'_> {
     /// Generates the code for `#[ink:e2e_test]`.
     fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
-        return quote! {};
+        return quote! {}
 
         let item_fn = &self.test.item_fn.item_fn;
         let fn_name = &item_fn.sig.ident;
