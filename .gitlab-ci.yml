@@ -400,7 +400,9 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+# Temporarily disabled until https://github.com/polkadot-js/api/issues/5193
+# is fixed.
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
@@ -472,7 +474,9 @@ publish-docs:
 
 #### stage:                        fuzz
 
-fuzz-tests:
+# Temporarily disabled until https://github.com/paritytech/ink/issues/1374
+# is fixed.
+.fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
   variables:
