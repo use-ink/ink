@@ -282,10 +282,17 @@ docs:
       - ./crate-docs/
   script:
     - cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata
+        -p scale-info
         -p ink_env -p ink_storage -p ink_storage_derive
         -p ink_primitives -p ink_prelude
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
+
+    # `ink_metadata` needs to be built separately, because a transitive
+    # dep of `ink_lang` uses it as well, but in its published form.
+    # If the `-p ink_metadata` is added to the above command this results
+    # in an "multiple packages with same spec, ambiguous" error.
+    - cargo doc --no-deps --all-features -p ink_metadata
+
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
