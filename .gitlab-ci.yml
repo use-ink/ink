@@ -87,7 +87,7 @@ workflow:
     - kubernetes-parity-build
 
 .start-substrate-contracts-node:                     &start-substrate-contracts-node
-    - ./substrate-contracts-node --dev -lruntime::contracts=debug > /tmp/contracts-node.log 2>&1 &
+    - ./substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
 #### stage:                        lint
 #
