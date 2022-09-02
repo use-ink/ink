@@ -292,7 +292,6 @@ docs:
     # its published form. If the `-p ink_metadata` is added to the
     # `ink_lang` command this results in an "multiple packages with
     # same spec, ambiguous" error.
-    - cargo doc --no-deps --all-features -p scale-info
     - cargo doc --no-deps --all-features -p ink_env
     - cargo doc --no-deps --all-features -p ink_storage
     - cargo doc --no-deps --all-features -p ink_storage_derive
