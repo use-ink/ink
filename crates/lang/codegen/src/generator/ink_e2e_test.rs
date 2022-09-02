@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::GenerateCode;
+use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
@@ -20,6 +21,16 @@ use std::sync::Once;
 
 /// We use this to only build the contract once for all tests.
 static BUILD_ONCE: Once = Once::new();
+
+// We save the name of the currently executing test here.
+thread_local! {
+    pub static METADATA_PATH: RefCell<Option<String>> = RefCell::new(None);
+}
+
+/// Returns the name of the test which is currently executed. TODO
+pub fn metadata_path() -> Option<String> {
+    METADATA_PATH.with(|metadata_path| metadata_path.borrow().clone())
+}
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
@@ -51,15 +62,12 @@ impl GenerateCode for InkE2ETest<'_> {
         let node_log = &self.test.config.node_log();
         let skip_build = &self.test.config.skip_build();
 
-        let cargo_target_dir = std::env::var("CARGO_TARGET_DIR");
-        let mut path = match cargo_target_dir {
-            Ok(mut p) => {
-                p.push_str("/metadata.json");
-                p
-            }
-            Err(_) => "./target/ink/metadata.json".to_string(),
-        };
-        if !skip_build.value {
+        let mut path = "./target/ink/metadata.json".to_string();
+        if let Some(metadata_path) = metadata_path() {
+            path = metadata_path;
+        }
+
+        if !skip_build.value && !metadata_path().is_some() {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
                 use std::process::{
