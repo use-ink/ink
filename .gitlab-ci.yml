@@ -286,16 +286,22 @@ docs:
     paths:
       - ./crate-docs/
   script:
-    - cargo doc --no-deps --all-features
-        -p scale-info
-        -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude
-        -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
-
-    # `ink_metadata` needs to be built separately, because a transitive
-    # dep of `ink_lang` uses it as well, but in its published form.
-    # If the `-p ink_metadata` is added to the above command this results
-    # in an "multiple packages with same spec, ambiguous" error.
+    # All crate docs need to be built separately, because there are
+    # some transitive deps. E.g. `ink_metadata` needs to be built
+    # separately because a dep of `ink_lang` uses it as well, but in
+    # its published form. If the `-p ink_metadata` is added to the
+    # `ink_lang` command this results in an "multiple packages with
+    # same spec, ambiguous" error.
+    - cargo doc --no-deps --all-features -p scale-info
+    - cargo doc --no-deps --all-features -p ink_env
+    - cargo doc --no-deps --all-features -p ink_storage
+    - cargo doc --no-deps --all-features -p ink_storage_derive
+    - cargo doc --no-deps --all-features -p ink_primitives
+    - cargo doc --no-deps --all-features -p ink_prelude
+    - cargo doc --no-deps --all-features -p ink_lang
+    - cargo doc --no-deps --all-features -p ink_lang_macro
+    - cargo doc --no-deps --all-features -p ink_lang_ir
+    - cargo doc --no-deps --all-features -p ink_lang_codegen
     - cargo doc --no-deps --all-features -p ink_metadata
 
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
