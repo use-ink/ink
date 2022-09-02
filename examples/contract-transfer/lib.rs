@@ -3,11 +3,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::new_without_default)]
-// TODO `cargo clippy --verbose --all-targets --all-features` for this crate
-// currently fails on `stable`, but succeeds on `nightly`. This is due to
-// this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
-// Remove the following line again as soon as `clippy` on stable succeeds again.
-#![allow(clippy::extra_unused_lifetimes)]
 
 use ink_lang as ink;
 

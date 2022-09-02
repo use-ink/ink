@@ -39,6 +39,11 @@ variables:
   # `cargo-contract`, but in our CI here we also use e.g.
   # `cargo check` directly.
   RUSTC_BOOTSTRAP:                 "1"
+  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # currently fails on `stable`, but succeeds on `nightly`. This is due to
+  # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
+  # Remove the following line again as soon as `clippy` on stable succeeds again.
+  CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes""
 
 workflow:
   rules:
@@ -139,7 +144,7 @@ clippy-std:
   <<:                              *test-refs
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
 
 clippy-wasm:
@@ -148,7 +153,7 @@ clippy-wasm:
   <<:                              *test-refs
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
   allow_failure:                   true
 
@@ -159,15 +164,15 @@ examples-clippy-std:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- -D warnings;
+    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -177,15 +182,15 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
