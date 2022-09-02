@@ -114,8 +114,9 @@ impl GenerateCode for InkE2ETest<'_> {
                 log::info!("extracted metadata path: {}", path);
                 eprintln!("extracted metadata path: {}", path);
 
+                let p = path.clone();
                 METADATA_PATH.with(|metadata_path| {
-                    *metadata_path.borrow_mut() = Some(path);
+                    *metadata_path.borrow_mut() = Some(p);
                 });
             });
         }
