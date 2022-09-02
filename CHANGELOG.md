@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version 4.0.0-alpha.1
 
 ### Compatibility
+In order to build contracts which use ink! `v4.0.0-alpha.1` you need to use
+`cargo-contract`
+[`v2.0.0-alpha.1`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0-alpha.1).
+You can install it as follows:
+
+`cargo install cargo-contract --version 2.0.0-alpha.1`
+
 We recommend using a version of the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [6b85535](https://github.com/paritytech/substrate/tree/6b8553511112afd5ae7e8e6877dc2f467850f155)
 (Aug 12, 2022) in your node.
