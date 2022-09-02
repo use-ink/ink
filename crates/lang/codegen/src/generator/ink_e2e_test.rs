@@ -113,6 +113,10 @@ impl GenerateCode for InkE2ETest<'_> {
                 path = dest_metadata.trim_matches('"').to_string();
                 log::info!("extracted metadata path: {}", path);
                 eprintln!("extracted metadata path: {}", path);
+
+                METADATA_PATH.with(|metadata_path| {
+                    *metadata_path.borrow_mut() = Some(path);
+                });
             });
         }
 
