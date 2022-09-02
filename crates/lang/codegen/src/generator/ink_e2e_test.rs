@@ -67,7 +67,7 @@ impl GenerateCode for InkE2ETest<'_> {
             path = metadata_path;
         }
 
-        if !skip_build.value && !metadata_path().is_some() {
+        if !skip_build.value && metadata_path().is_none() {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
                 use std::process::{
