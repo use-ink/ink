@@ -1130,6 +1130,15 @@
 <span id="1124">1124</span>
 <span id="1125">1125</span>
 <span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1146,7 +1155,10 @@
 
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>)]</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::serde_hex</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">serde_hex</span>,
+    <span class="ident">utils::trim_extra_whitespace</span>,
+};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident">alloc</span>::{
     <span class="ident">format</span>,
@@ -1499,7 +1511,10 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">str::trim</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="ident">trim_extra_whitespace</span>)
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">this</span>
     }
 }
@@ -1718,7 +1733,10 @@
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
         <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="ident">trim_extra_whitespace</span>)
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">this</span>
     }
 }
