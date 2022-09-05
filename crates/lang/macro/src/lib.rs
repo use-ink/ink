@@ -832,7 +832,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// You can also use build the `Signer` type yourself, without going through
 /// the pre-defined functions:
 ///
-/// ```rust
+/// ```no_compile
 /// let mut bob = ink_env::e2e::PairSigner::new(
 ///     ink_env::e2e::AccountKeyring::Bob.pair()
 /// );
