@@ -630,6 +630,15 @@
 <span id="624">624</span>
 <span id="625">625</span>
 <span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -671,7 +680,7 @@
     <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::traits::Storable</span>;
 
 <span class="doccomment">/// Returns the address of the caller of the executed contract.</span>
 <span class="doccomment">///</span>
@@ -815,49 +824,58 @@
     })
 }
 
-<span class="doccomment">/// Writes the value to the contract storage under the given key and returns</span>
-<span class="doccomment">/// the size of pre-existing value at the specified key if any.</span>
+<span class="doccomment">/// Writes the value to the contract storage under the given storage key and returns the size</span>
+<span class="doccomment">/// of pre-existing value if any.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If the encode length of value exceeds the configured maximum value length of a storage entry.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">V</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">V</span>: <span class="ident">Storable</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::set_contract_storage</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>, <span class="ident">value</span>)
+        <span class="ident">EnvBackend::set_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>, <span class="ident">value</span>)
     })
 }
 
-<span class="doccomment">/// Returns the value stored under the given key in the contract&#39;s storage if any.</span>
+<span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if any.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If the decoding of the typed value failed (`KeyNotFound`)</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">R</span>: <span class="ident">Storable</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+        <span class="ident">EnvBackend::get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
     })
 }
 
-<span class="doccomment">/// Checks whether there is a value stored under the given key in</span>
-<span class="doccomment">/// the contract&#39;s storage.</span>
+<span class="doccomment">/// Checks whether there is a value stored under the given storage key in the contract&#39;s storage.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// If a value is stored under the specified key, the size of the value is returned.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contract_storage_contains</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+{
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::contract_storage_contains</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+        <span class="ident">EnvBackend::contains_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
     })
 }
 
-<span class="doccomment">/// Clears the contract&#39;s storage key entry.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+<span class="doccomment">/// Clears the contract&#39;s storage entry under the given storage key.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If a value was stored under the specified storage key, the size of the value is returned.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+{
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::clear_contract_storage</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+        <span class="ident">EnvBackend::clear_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
     })
 }
 

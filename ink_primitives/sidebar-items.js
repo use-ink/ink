@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Key","A key into the smart contract storage."],["KeyPtr","A key pointer."]]};
+window.SIDEBAR_ITEMS = {"mod":[["traits",""]],"struct":[["KeyComposer","Contains all rules related to storage key creation."]],"type":[["Key","A key into the smart contract storage."]]};

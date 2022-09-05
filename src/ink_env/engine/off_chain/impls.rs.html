@@ -529,6 +529,15 @@
 <span id="523">523</span>
 <span id="524">524</span>
 <span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -575,7 +584,7 @@
     <span class="ident">ext</span>,
     <span class="ident">ext::Engine</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::traits::Storable</span>;
 
 <span class="doccomment">/// The capacity of the static buffer.</span>
 <span class="doccomment">/// This is the same size as the ink! on-chain environment. We chose to use the same size</span>
@@ -715,34 +724,43 @@
 }
 
 <span class="kw">impl</span> <span class="ident">EnvBackend</span> <span class="kw">for</span> <span class="ident">EnvInstance</span> {
-    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">V</span>: <span class="ident">Storable</span>,
     {
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="ident">value</span>);
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">set_storage</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;</span><span class="ident">v</span>[..])
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+        <span class="ident">Storable::encode</span>(<span class="ident">value</span>, <span class="kw-2">&amp;mut</span> <span class="ident">v</span>);
+        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">set_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>(), <span class="kw-2">&amp;</span><span class="ident">v</span>[..])
     }
 
-    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">R</span>: <span class="ident">Storable</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="number">9600</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">9600</span>];
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">get_storage</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>(), <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">get_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>(), <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
             <span class="prelude-val">Err</span>(<span class="ident">ext::Error::KeyNotFound</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Storable::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">decoded</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">contract_storage_contains</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">contains_storage</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>())
+    <span class="kw">fn</span> <span class="ident">contains_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+    {
+        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">contains_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">clear_storage</span>(<span class="ident">key</span>.<span class="ident">as_ref</span>())
+    <span class="kw">fn</span> <span class="ident">clear_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+    {
+        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">clear_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">decode_input</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>

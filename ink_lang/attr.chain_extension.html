@@ -5,7 +5,7 @@
         </a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In ink_lang</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ink_lang/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
                                 <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#1144">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[chain_extension]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
+    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#1291">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[chain_extension]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
 <h2 id="structure"><a href="#structure">Structure</a></h2>
 <p>The interface consists of an error code that indicates lightweight errors
 as well as the definition of some chain extension methods.</p>
@@ -54,7 +54,7 @@ error code to return errors and only use the output buffer for information that 
 a single <code>u32</code> value.</p>
 <p>A chain extension method that is flagged with <code>handle_status = false</code> assumes that the returned error code
 will always indicate success. Therefore it will always load and decode the output buffer and loses
-the <code>E: From&lt;Self::ErrorCode</code> constraint for the call.</p>
+the <code>E: From&lt;Self::ErrorCode&gt;</code> constraint for the call.</p>
 <h3 id="details-returns_result"><a href="#details-returns_result">Details: <code>returns_result</code></a></h3>
 <p>Default value: <code>true</code></p>
 <p>By default chain extension methods are assumed to return a value of type <code>Result&lt;T, E&gt;</code> through the

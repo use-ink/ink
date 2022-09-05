@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":[["Storable","Derives `ink_storage`’s `Storable` trait for the given `struct`, `enum` or `union`."]]};

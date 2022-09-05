@@ -62,7 +62,6 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
-<span id="59">59</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -108,20 +107,19 @@
     <span class="ident">unused_extern_crates</span>
 )]</span>
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-fuzz-tests&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">macro_use</span>(<span class="ident">quickcheck</span>)]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">quickcheck_macros</span>;
-
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traits</span>;
 
-<span class="kw">mod</span> <span class="ident">lazy</span>;
-<span class="kw">mod</span> <span class="ident">pack</span>;
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">lazy</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">test_utils</span>;
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lazy::mapping::Mapping</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::lazy</span>::{
+    <span class="ident">Lazy</span>,
+    <span class="ident">Mapping</span>,
+};
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_storage" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
 </body></html>

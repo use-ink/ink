@@ -368,18 +368,18 @@
 }
 
 <span class="doccomment">/// Return an error to notify about duplicate ink! configuration arguments.</span>
-<span class="kw">fn</span> <span class="ident">duplicate_config_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">fst</span>: <span class="ident">F</span>, <span class="ident">snd</span>: <span class="ident">S</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">syn::Error</span>
+<span class="kw">fn</span> <span class="ident">duplicate_config_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">first</span>: <span class="ident">F</span>, <span class="ident">second</span>: <span class="ident">S</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">syn::Error</span>
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">Spanned</span>,
     <span class="ident">S</span>: <span class="ident">Spanned</span>,
 {
     <span class="macro">format_err!</span>(
-        <span class="ident">snd</span>.<span class="ident">span</span>(),
+        <span class="ident">second</span>.<span class="ident">span</span>(),
         <span class="string">&quot;encountered duplicate ink! `{}` configuration argument&quot;</span>,
         <span class="ident">name</span>,
     )
     .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
-        <span class="ident">fst</span>.<span class="ident">span</span>(),
+        <span class="ident">first</span>.<span class="ident">span</span>(),
         <span class="string">&quot;first `{}` configuration argument here&quot;</span>,
         <span class="ident">name</span>
     ))

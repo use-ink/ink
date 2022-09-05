@@ -436,6 +436,19 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -484,7 +497,11 @@
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__ink_generate_metadata</span>() -&gt; <span class="ident">::ink_metadata::InkProject</span>  {
-                    <span class="ident">::ink_metadata::InkProject::new</span>(#<span class="ident">layout</span>, #<span class="ident">contract</span>)
+                    <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> #<span class="ident">layout</span>;
+                    <span class="ident">::ink_metadata::layout::ValidateLayout::validate</span>(<span class="kw-2">&amp;</span><span class="ident">layout</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                        <span class="macro">::core::panic!</span>(<span class="string">&quot;metadata ink! generation failed: {}&quot;</span>, <span class="ident">error</span>)
+                    });
+                    <span class="ident">::ink_metadata::InkProject::new</span>(<span class="ident">layout</span>, #<span class="ident">contract</span>)
                 }
             };
         }
@@ -495,12 +512,21 @@
     <span class="kw">fn</span> <span class="ident">generate_layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="macro">quote!</span> { <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span> };
+
+        <span class="kw">let</span> <span class="ident">layout_key</span> <span class="op">=</span> <span class="macro">quote!</span> {
+            <span class="op">&lt;</span><span class="ident">::ink_metadata::layout::LayoutKey</span>
+                <span class="kw">as</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span><span class="ident">::ink_primitives::Key</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(#<span class="ident">key</span>)
+        };
         <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span>=&gt;
-            <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(
-                <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">::ink_primitives::KeyPtr</span> <span class="kw">as</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span><span class="ident">::ink_primitives::Key</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(
-                    <span class="op">&lt;</span><span class="ident">::ink_primitives::Key</span> <span class="kw">as</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span>[<span class="ident">::core::primitive::u8</span>; <span class="number">32usize</span>]<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>([<span class="number">0x00_u8</span>; <span class="number">32usize</span>])
-                )
-            )
+            <span class="comment">// Wrap the layout of the contract into the `RootLayout`, because</span>
+            <span class="comment">// contract storage key is reserved for all packed fields</span>
+            <span class="ident">::ink_metadata::layout::Layout::Root</span>(<span class="ident">::ink_metadata::layout::RootLayout::new</span>(
+                #<span class="ident">layout_key</span>,
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(
+                    <span class="kw-2">&amp;</span>#<span class="ident">key</span>,
+                ),
+            ))
         )
     }
 

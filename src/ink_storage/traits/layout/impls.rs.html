@@ -208,6 +208,63 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -222,11 +279,9 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::StorageLayout</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
-    <span class="ident">ExtKeyPtr</span> <span class="kw">as</span> <span class="kw">_</span>,
-    <span class="ident">KeyPtr</span>,
-    <span class="ident">SpreadLayout</span>,
+    <span class="ident">Packed</span>,
+    <span class="ident">StorageLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_env</span>::{
     <span class="ident">AccountId</span>,
@@ -234,17 +289,21 @@
 };
 <span class="kw">use</span> <span class="ident">ink_metadata::layout</span>::{
     <span class="ident">ArrayLayout</span>,
-    <span class="ident">CellLayout</span>,
     <span class="ident">Discriminant</span>,
     <span class="ident">EnumLayout</span>,
     <span class="ident">FieldLayout</span>,
     <span class="ident">Layout</span>,
     <span class="ident">LayoutKey</span>,
+    <span class="ident">LeafLayout</span>,
     <span class="ident">StructLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_prelude</span>::{
     <span class="ident">boxed::Box</span>,
-    <span class="ident">collections::BTreeMap</span>,
+    <span class="ident">collections</span>::{
+        <span class="ident">BTreeMap</span>,
+        <span class="ident">BTreeSet</span>,
+        <span class="ident">VecDeque</span>,
+    },
     <span class="ident">string::String</span>,
     <span class="ident">vec::Vec</span>,
 };
@@ -255,8 +314,8 @@
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
         $(
             <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-                    <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>))))
+                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+                    <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
                 }
             }
         )<span class="op">*</span>
@@ -264,7 +323,7 @@
 }
 <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
 <span class="macro">impl_storage_layout_for_primitives!</span>(
-    <span class="ident">Key</span>, <span class="ident">Hash</span>, <span class="ident">AccountId</span>, <span class="ident">String</span>,
+    <span class="ident">Hash</span>, <span class="ident">AccountId</span>, <span class="ident">String</span>,
     <span class="ident">bool</span>, <span class="ident">char</span>, (),
     <span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>, <span class="ident">u64</span>, <span class="ident">u128</span>,
     <span class="ident">i8</span>, <span class="ident">i16</span>, <span class="ident">i32</span>, <span class="ident">i64</span>, <span class="ident">i128</span>,
@@ -275,16 +334,15 @@
         $(
             <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]
             <span class="kw">where</span>
-                <span class="ident">T</span>: <span class="ident">StorageLayout</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
+                <span class="ident">T</span>: <span class="ident">StorageLayout</span> <span class="op">+</span> <span class="ident">Packed</span>,
             {
-                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
                     <span class="kw">let</span> <span class="ident">len</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>;
-                    <span class="kw">let</span> <span class="ident">elem_footprint</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
+                    <span class="comment">// Generic type is packed, so it doesn&#39;t take any cell</span>
                     <span class="ident">Layout::Array</span>(<span class="ident">ArrayLayout::new</span>(
-                        <span class="ident">LayoutKey::from</span>(<span class="ident">key_ptr</span>.<span class="ident">next_for</span>::<span class="op">&lt;</span>[<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]<span class="op">&gt;</span>()),
+                        <span class="ident">LayoutKey::from</span>(<span class="ident">key</span>),
                         <span class="ident">len</span>,
-                        <span class="ident">elem_footprint</span>,
-                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
+                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>),
                     ))
                 }
             }
@@ -300,42 +358,84 @@
 );
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_layout_for_tuple</span> {
-    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>:<span class="ident">ident</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
-        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>),<span class="op">*</span> ,)
-        <span class="kw">where</span>
-            $(
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>: <span class="ident">StorageLayout</span>,
-            )<span class="op">*</span>
-        {
-            <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-                <span class="ident">Layout::Struct</span>(
-                    <span class="ident">StructLayout::new</span>([
-                        $(
-                            <span class="ident">FieldLayout::new</span>(<span class="prelude-val">None</span>, <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>)),
-                        )<span class="op">*</span>
-                    ])
-                )
+    ( $((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">id</span>:<span class="ident">literal</span>)),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
+        <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+            <span class="comment">// The name of the tuple looks like `(A)`, `(A, B)` ... `(A, B, ..., J)`</span>
+            <span class="kw">const</span> <span class="ident">TUPLE_NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="macro">stringify!</span>(($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>),<span class="kw-2">*</span>));
+
+            <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>),<span class="op">*</span> ,)
+            <span class="kw">where</span>
+                $(
+                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>: <span class="ident">StorageLayout</span>,
+                )<span class="op">*</span>
+            {
+                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+                    <span class="ident">Layout::Struct</span>(
+                        <span class="ident">StructLayout::new</span>(
+                            <span class="ident">TUPLE_NAME</span>,
+                            [
+                                $(
+                                    <span class="ident">FieldLayout::new</span>(
+                                        <span class="macro">::core::stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">id</span>),
+                                        <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key</span>)
+                                    ),
+                                )<span class="op">*</span>
+                            ]
+                        )
+                    )
+                }
             }
-        }
+        };
     }
 }
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>);
-<span class="macro">impl_layout_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>);
+
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>));
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>), (<span class="ident">B</span>, <span class="number">1</span>));
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>), (<span class="ident">B</span>, <span class="number">1</span>), (<span class="ident">C</span>, <span class="number">2</span>));
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>), (<span class="ident">B</span>, <span class="number">1</span>), (<span class="ident">C</span>, <span class="number">2</span>), (<span class="ident">D</span>, <span class="number">3</span>));
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>), (<span class="ident">B</span>, <span class="number">1</span>), (<span class="ident">C</span>, <span class="number">2</span>), (<span class="ident">D</span>, <span class="number">3</span>), (<span class="ident">E</span>, <span class="number">4</span>));
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>), (<span class="ident">B</span>, <span class="number">1</span>), (<span class="ident">C</span>, <span class="number">2</span>), (<span class="ident">D</span>, <span class="number">3</span>), (<span class="ident">E</span>, <span class="number">4</span>), (<span class="ident">F</span>, <span class="number">5</span>));
+<span class="macro">impl_layout_for_tuple!</span>((<span class="ident">A</span>, <span class="number">0</span>), (<span class="ident">B</span>, <span class="number">1</span>), (<span class="ident">C</span>, <span class="number">2</span>), (<span class="ident">D</span>, <span class="number">3</span>), (<span class="ident">E</span>, <span class="number">4</span>), (<span class="ident">F</span>, <span class="number">5</span>), (<span class="ident">G</span>, <span class="number">6</span>));
+<span class="macro">impl_layout_for_tuple!</span>(
+    (<span class="ident">A</span>, <span class="number">0</span>),
+    (<span class="ident">B</span>, <span class="number">1</span>),
+    (<span class="ident">C</span>, <span class="number">2</span>),
+    (<span class="ident">D</span>, <span class="number">3</span>),
+    (<span class="ident">E</span>, <span class="number">4</span>),
+    (<span class="ident">F</span>, <span class="number">5</span>),
+    (<span class="ident">G</span>, <span class="number">6</span>),
+    (<span class="ident">H</span>, <span class="number">7</span>)
+);
+<span class="macro">impl_layout_for_tuple!</span>(
+    (<span class="ident">A</span>, <span class="number">0</span>),
+    (<span class="ident">B</span>, <span class="number">1</span>),
+    (<span class="ident">C</span>, <span class="number">2</span>),
+    (<span class="ident">D</span>, <span class="number">3</span>),
+    (<span class="ident">E</span>, <span class="number">4</span>),
+    (<span class="ident">F</span>, <span class="number">5</span>),
+    (<span class="ident">G</span>, <span class="number">6</span>),
+    (<span class="ident">H</span>, <span class="number">7</span>),
+    (<span class="ident">I</span>, <span class="number">8</span>)
+);
+<span class="macro">impl_layout_for_tuple!</span>(
+    (<span class="ident">A</span>, <span class="number">0</span>),
+    (<span class="ident">B</span>, <span class="number">1</span>),
+    (<span class="ident">C</span>, <span class="number">2</span>),
+    (<span class="ident">D</span>, <span class="number">3</span>),
+    (<span class="ident">E</span>, <span class="number">4</span>),
+    (<span class="ident">F</span>, <span class="number">5</span>),
+    (<span class="ident">G</span>, <span class="number">6</span>),
+    (<span class="ident">H</span>, <span class="number">7</span>),
+    (<span class="ident">I</span>, <span class="number">8</span>),
+    (<span class="ident">J</span>, <span class="number">9</span>)
+);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">StorageLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>)
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key</span>)
     }
 }
 
@@ -343,19 +443,19 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">StorageLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="kw">let</span> <span class="ident">dispatch_key</span> <span class="op">=</span> <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>);
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
         <span class="ident">Layout::Enum</span>(<span class="ident">EnumLayout::new</span>(
-            <span class="kw-2">*</span><span class="ident">dispatch_key</span>,
+            <span class="string">&quot;Option&quot;</span>,
+            <span class="ident">key</span>,
             [
+                (<span class="ident">Discriminant::from</span>(<span class="number">0</span>), <span class="ident">StructLayout::new</span>(<span class="string">&quot;None&quot;</span>, <span class="ident">Vec::new</span>())),
                 (
-                    <span class="ident">Discriminant::from</span>(<span class="number">0</span>),
-                    <span class="ident">StructLayout::new</span>([<span class="ident">FieldLayout::new</span>(
-                        <span class="prelude-val">None</span>,
-                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
-                    )]),
+                    <span class="ident">Discriminant::from</span>(<span class="number">1</span>),
+                    <span class="ident">StructLayout::new</span>(
+                        <span class="string">&quot;Some&quot;</span>,
+                        [<span class="ident">FieldLayout::new</span>(<span class="string">&quot;0&quot;</span>, <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key</span>))],
+                    ),
                 ),
-                (<span class="ident">Discriminant::from</span>(<span class="number">1</span>), <span class="ident">StructLayout::new</span>(<span class="ident">Vec::new</span>())),
             ],
         ))
     }
@@ -366,24 +466,24 @@
     <span class="ident">T</span>: <span class="ident">StorageLayout</span>,
     <span class="ident">E</span>: <span class="ident">StorageLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="kw">let</span> <span class="ident">dispatch_key</span> <span class="op">=</span> <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>);
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
         <span class="ident">Layout::Enum</span>(<span class="ident">EnumLayout::new</span>(
-            <span class="kw-2">*</span><span class="ident">dispatch_key</span>,
+            <span class="string">&quot;Result&quot;</span>,
+            <span class="kw-2">*</span><span class="ident">key</span>,
             [
                 (
                     <span class="ident">Discriminant::from</span>(<span class="number">0</span>),
-                    <span class="ident">StructLayout::new</span>([<span class="ident">FieldLayout::new</span>(
-                        <span class="prelude-val">None</span>,
-                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
-                    )]),
+                    <span class="ident">StructLayout::new</span>(
+                        <span class="string">&quot;Ok&quot;</span>,
+                        [<span class="ident">FieldLayout::new</span>(<span class="string">&quot;0&quot;</span>, <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key</span>))],
+                    ),
                 ),
                 (
                     <span class="ident">Discriminant::from</span>(<span class="number">1</span>),
-                    <span class="ident">StructLayout::new</span>([<span class="ident">FieldLayout::new</span>(
-                        <span class="prelude-val">None</span>,
-                        <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
-                    )]),
+                    <span class="ident">StructLayout::new</span>(
+                        <span class="string">&quot;Err&quot;</span>,
+                        [<span class="ident">FieldLayout::new</span>(<span class="string">&quot;1&quot;</span>, <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key</span>))],
+                    ),
                 ),
             ],
         ))
@@ -392,24 +492,38 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
-            <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
-        )))
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">K</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
+    <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
-            <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
-        )))
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
+{
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
+{
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
     }
 }
 </code></pre></div>

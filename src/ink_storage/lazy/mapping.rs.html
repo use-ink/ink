@@ -340,18 +340,6 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -374,32 +362,32 @@
 <span class="doccomment">//! Instead it is just a simple wrapper around the contract storage facilities.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
-    <span class="ident">pull_packed_root_opt</span>,
-    <span class="ident">push_packed_root</span>,
-    <span class="ident">ExtKeyPtr</span>,
-    <span class="ident">KeyPtr</span>,
-    <span class="ident">PackedLayout</span>,
-    <span class="ident">SpreadAllocate</span>,
-    <span class="ident">SpreadLayout</span>,
+    <span class="ident">AutoKey</span>,
+    <span class="ident">Packed</span>,
+    <span class="ident">StorableHint</span>,
+    <span class="ident">StorageKey</span>,
 };
 <span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-
-<span class="kw">use</span> <span class="ident">ink_env::hash</span>::{
-    <span class="ident">Blake2x256</span>,
-    <span class="ident">HashOutput</span>,
+<span class="kw">use</span> <span class="ident">ink_primitives</span>::{
+    <span class="ident">traits::Storable</span>,
+    <span class="ident">Key</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
+<span class="kw">use</span> <span class="ident">scale</span>::{
+    <span class="ident">Encode</span>,
+    <span class="ident">Error</span>,
+    <span class="ident">Input</span>,
+    <span class="ident">Output</span>,
+};
 
 <span class="doccomment">/// A mapping of key-value pairs directly into contract storage.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Important</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If you use this data structure you must use the function</span>
-<span class="doccomment">/// [`ink_lang::utils::initialize_contract`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html)</span>
-<span class="doccomment">/// in your contract&#39;s constructors!</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that in order to use this function your contract&#39;s storage struct must implement the</span>
-<span class="doccomment">/// [`SpreadAllocate`](crate::traits::SpreadAllocate) trait.</span>
+<span class="doccomment">/// The mapping requires its own pre-defined storage key where to store values. By default,</span>
+<span class="doccomment">/// the is automatically calculated using [`AutoKey`](crate::traits::AutoKey) during compilation.</span>
+<span class="doccomment">/// However, anyone can specify a storage key using [`ManualKey`](crate::traits::ManualKey).</span>
+<span class="doccomment">/// Specifying the storage key can be helpful for upgradeable contracts or you want to be resistant</span>
+<span class="doccomment">/// to future changes of storage key calculation strategy.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is an example of how you can do this:</span>
 <span class="doccomment">/// ```rust</span>
@@ -412,26 +400,24 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # #[ink::contract]</span>
 <span class="doccomment">/// # mod my_module {</span>
-<span class="doccomment">/// use ink_storage::{traits::SpreadAllocate, Mapping};</span>
+<span class="doccomment">/// use ink_storage::{traits::ManualKey, Mapping};</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// #[ink(storage)]</span>
-<span class="doccomment">/// #[derive(SpreadAllocate)]</span>
+<span class="doccomment">/// #[derive(Default)]</span>
 <span class="doccomment">/// pub struct MyContract {</span>
-<span class="doccomment">///     balances: Mapping&lt;AccountId, Balance&gt;,</span>
+<span class="doccomment">///     balances: Mapping&lt;AccountId, Balance, ManualKey&lt;123&gt;&gt;,</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// impl MyContract {</span>
 <span class="doccomment">///     #[ink(constructor)]</span>
 <span class="doccomment">///     pub fn new() -&gt; Self {</span>
-<span class="doccomment">///         ink_lang::utils::initialize_contract(Self::new_init)</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     /// Default initializes the contract.</span>
-<span class="doccomment">///     fn new_init(&amp;mut self) {</span>
+<span class="doccomment">///         let mut instance = Self::default();</span>
 <span class="doccomment">///         let caller = Self::env().caller();</span>
 <span class="doccomment">///         let value: Balance = Default::default();</span>
-<span class="doccomment">///         self.balances.insert(&amp;caller, &amp;value);</span>
+<span class="doccomment">///         instance.balances.insert(&amp;caller, &amp;value);</span>
+<span class="doccomment">///         instance</span>
 <span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// #   #[ink(message)]</span>
 <span class="doccomment">/// #   pub fn my_message(&amp;self) { }</span>
 <span class="doccomment">/// }</span>
@@ -440,52 +426,63 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="ident">offset_key</span>: <span class="ident">Key</span>,
-    <span class="ident">_marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>: <span class="ident">Packed</span>, <span class="ident">KeyType</span>: <span class="ident">StorageKey</span> <span class="op">=</span> <span class="ident">AutoKey</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+    <span class="ident">_marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span>)<span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// We implement this manually because the derived implementation adds trait bounds.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">KeyType</span>: <span class="ident">StorageKey</span>,
+{
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">offset_key</span>: <span class="ident">Default::default</span>(),
             <span class="ident">_marker</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">KeyType</span>: <span class="ident">StorageKey</span>,
+{
+    <span class="doccomment">/// Creates a new empty `Mapping`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">_marker</span>: <span class="ident">Default::default</span>(),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">::core::fmt::Debug</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">KeyType</span>: <span class="ident">StorageKey</span>,
+{
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Mapping&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;offset_key&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">offset_key</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>)
             .<span class="ident">finish</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new empty `Mapping`.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">offset_key</span>: <span class="ident">Key</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">offset_key</span>,
-            <span class="ident">_marker</span>: <span class="ident">Default::default</span>(),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
+    <span class="ident">K</span>: <span class="ident">Encode</span>,
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">KeyType</span>: <span class="ident">StorageKey</span>,
 {
     <span class="doccomment">/// Insert the given `value` to the contract storage.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span><span class="op">&lt;</span><span class="ident">Q</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Q</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>)
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
-        <span class="ident">R</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
+        <span class="ident">R</span>: <span class="ident">Storable</span> <span class="op">+</span> <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
     {
-        <span class="ident">push_packed_root</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>));
+        <span class="ident">ink_env::set_contract_storage</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>, <span class="ident">key</span>), <span class="ident">value</span>);
     }
 
     <span class="doccomment">/// Insert the given `value` to the contract storage.</span>
@@ -495,9 +492,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_return_size</span><span class="op">&lt;</span><span class="ident">Q</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Q</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
-        <span class="ident">R</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
+        <span class="ident">R</span>: <span class="ident">Storable</span> <span class="op">+</span> <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
     {
-        <span class="ident">push_packed_root</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>))
+        <span class="ident">ink_env::set_contract_storage</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>, <span class="ident">key</span>), <span class="ident">value</span>)
     }
 
     <span class="doccomment">/// Get the `value` at `key` from the contract storage.</span>
@@ -508,7 +505,8 @@
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
     {
-        <span class="ident">pull_packed_root_opt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>))
+        <span class="ident">ink_env::get_contract_storage</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>, <span class="ident">key</span>))
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Failed to get value in Mapping: {:?}&quot;</span>, <span class="ident">error</span>))
     }
 
     <span class="doccomment">/// Get the size of a value stored at `key` in the contract storage.</span>
@@ -519,7 +517,7 @@
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
     {
-        <span class="ident">ink_env::contract_storage_contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>))
+        <span class="ident">ink_env::contains_contract_storage</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>, <span class="ident">key</span>))
     }
 
     <span class="doccomment">/// Checks if a value is stored at the given `key` in the contract storage.</span>
@@ -530,93 +528,71 @@
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
     {
-        <span class="ident">ink_env::contract_storage_contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">storage_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)).<span class="ident">is_some</span>()
+        <span class="ident">ink_env::contains_contract_storage</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>, <span class="ident">key</span>)).<span class="ident">is_some</span>()
     }
 
     <span class="doccomment">/// Clears the value at `key` from storage.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Q</span>)
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">storage_key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">storage_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>);
-        <span class="kw">if</span> <span class="op">&lt;</span><span class="ident">V</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span> {
-            <span class="comment">// There are types which need to perform some action before being cleared. Here we</span>
-            <span class="comment">// indicate to those types that they should start tidying up.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-                <span class="op">&lt;</span><span class="ident">V</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::clear_packed</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">storage_key</span>);
-            }
-        }
-        <span class="ident">ink_env::clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="ident">storage_key</span>);
-    }
-
-    <span class="doccomment">/// Returns a `Key` pointer used internally by the storage API.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This key is a combination of the `Mapping`&#39;s internal `offset_key`</span>
-    <span class="doccomment">/// and the user provided `key`.</span>
-    <span class="kw">fn</span> <span class="ident">storage_key</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Q</span>) -&gt; <span class="ident">Key</span>
-    <span class="kw">where</span>
-        <span class="ident">Q</span>: <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">let</span> <span class="ident">encodedable_key</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">offset_key</span>, <span class="ident">key</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type::default</span>();
-        <span class="ident">ink_env::hash_encoded</span>::<span class="op">&lt;</span><span class="ident">Blake2x256</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">encodedable_key</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
-        <span class="ident">output</span>.<span class="ident">into</span>()
+        <span class="ident">ink_env::clear_contract_storage</span>(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>, <span class="ident">key</span>));
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">Storable</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">KeyType</span>: <span class="ident">StorageKey</span>,
+{
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_dest</span>: <span class="kw-2">&amp;mut</span> <span class="ident">T</span>) {}
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Note: There is no need to pull anything from the storage for the</span>
-        <span class="comment">//       mapping type since it initializes itself entirely by the</span>
-        <span class="comment">//       given key pointer.</span>
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="comment">// Note: The mapping type does not store any state in its associated</span>
-        <span class="comment">//       storage region, therefore only the pointer has to be incremented.</span>
-        <span class="ident">ptr</span>.<span class="ident">advance_by</span>(<span class="ident"><span class="self">Self</span>::FOOTPRINT</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="comment">// Note: The mapping type is not aware of its elements, therefore</span>
-        <span class="comment">//       it is not possible to clean up after itself.</span>
-        <span class="ident">ptr</span>.<span class="ident">advance_by</span>(<span class="ident"><span class="self">Self</span>::FOOTPRINT</span>);
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Input</span><span class="op">&gt;</span>(<span class="ident">_input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">Default::default</span>())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Note: The mapping type initializes itself entirely by the key pointer.</span>
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
-    }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">Key</span>, <span class="ident">InnerKey</span><span class="op">&gt;</span> <span class="ident">StorableHint</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">InnerKey</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">Key</span>: <span class="ident">StorageKey</span>,
+    <span class="ident">InnerKey</span>: <span class="ident">StorageKey</span>,
+{
+    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">Key</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">PreferredKey</span> <span class="op">=</span> <span class="ident">InnerKey</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">StorageKey</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">V</span>: <span class="ident">Packed</span>,
+    <span class="ident">KeyType</span>: <span class="ident">StorageKey</span>,
+{
+    <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span> <span class="op">=</span> <span class="ident">KeyType::KEY</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits::StorageLayout</span>;
     <span class="kw">use</span> <span class="ident">ink_metadata::layout</span>::{
-        <span class="ident">CellLayout</span>,
         <span class="ident">Layout</span>,
         <span class="ident">LayoutKey</span>,
+        <span class="ident">RootLayout</span>,
     };
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">KeyType</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">scale_info::TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">V</span>: <span class="ident">scale_info::TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">V</span>: <span class="ident">Packed</span> <span class="op">+</span> <span class="ident">StorageLayout</span> <span class="op">+</span> <span class="ident">scale_info::TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">KeyType</span>: <span class="ident">StorageKey</span> <span class="op">+</span> <span class="ident">scale_info::TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
-            <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
-                <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
-            )))
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
+            <span class="ident">Layout::Root</span>(<span class="ident">RootLayout::new</span>(
+                <span class="ident">LayoutKey::from</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>),
+                <span class="op">&lt;</span><span class="ident">V</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;</span><span class="ident">KeyType::KEY</span>),
+            ))
         }
     }
 };
@@ -624,11 +600,12 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits::ManualKey</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">insert_and_get_work</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">0u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
             <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
             <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
 
@@ -638,9 +615,23 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">insert_and_get_work_for_two_mapping_with_same_manual_key</span>() {
+        <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="number">123</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
+            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
+
+            <span class="kw">let</span> <span class="ident">mapping2</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="number">123</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping2</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+
+            <span class="prelude-val">Ok</span>(())
+        })
+        .<span class="ident">unwrap</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">gets_default_if_no_key_set</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">0u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
+            <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
 
             <span class="prelude-val">Ok</span>(())
@@ -651,26 +642,17 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">can_clear_entries</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="comment">// We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`</span>
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pack::Pack</span>;
-
             <span class="comment">// Given</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">0u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deep_mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">1u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
 
             <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
             <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
 
-            <span class="ident">deep_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1u8</span>, <span class="kw-2">&amp;</span><span class="ident">Pack::new</span>(<span class="ident">Pack::new</span>(<span class="number">2u8</span>)));
-            <span class="macro">assert_eq!</span>(<span class="ident">deep_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">Pack::new</span>(<span class="number">2u8</span>)));
-
             <span class="comment">// When</span>
             <span class="ident">mapping</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="number">1</span>);
-            <span class="ident">deep_mapping</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="number">1</span>);
 
             <span class="comment">// Then</span>
             <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">deep_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
 
             <span class="prelude-val">Ok</span>(())
         })
@@ -680,20 +662,14 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">can_clear_unexistent_entries</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="comment">// We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`</span>
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pack::Pack</span>;
-
             <span class="comment">// Given</span>
-            <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">0u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
-            <span class="kw">let</span> <span class="ident">deep_mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>([<span class="number">1u8</span>; <span class="number">32</span>].<span class="ident">into</span>());
+            <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
 
             <span class="comment">// When</span>
             <span class="ident">mapping</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="number">1</span>);
-            <span class="ident">deep_mapping</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="number">1</span>);
 
             <span class="comment">// Then</span>
             <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">deep_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
 
             <span class="prelude-val">Ok</span>(())
         })

@@ -111,6 +111,8 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -138,6 +140,7 @@
 <span class="kw">mod</span> <span class="ident">item_impl</span>;
 <span class="kw">mod</span> <span class="ident">item_mod</span>;
 <span class="kw">mod</span> <span class="ident">selector</span>;
+<span class="kw">mod</span> <span class="ident">storage_item</span>;
 <span class="kw">mod</span> <span class="ident">trait_def</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
 
@@ -210,6 +213,7 @@
         <span class="ident">SelectorMacro</span>,
         <span class="ident">TraitPrefix</span>,
     },
+    <span class="ident">storage_item::StorageItem</span>,
     <span class="ident">trait_def</span>::{
         <span class="ident">InkItemTrait</span>,
         <span class="ident">InkTraitDefinition</span>,
