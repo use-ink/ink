@@ -176,6 +176,7 @@ fn spec_contract_json() {
     )
 }
 
+/// Tests correct trimming of a simple comment with extra spaces
 #[test]
 fn trim_docs() {
     // given
@@ -207,6 +208,7 @@ fn trim_docs() {
     assert_eq!(deserialized.docs, compact_spec.docs);
 }
 
+/// Tests correct trimming of a complex comment with a code snippet
 #[test]
 fn trim_docs_with_code() {
     // given
