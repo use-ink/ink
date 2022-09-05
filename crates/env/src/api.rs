@@ -621,6 +621,57 @@ where
 /// # Errors
 ///
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+///
+/// # Storage Compatibility
+/// When the smart contract code is modified, it is important to observe an additional restriction
+/// that is imposed on this procedure: you cannot change the order in which the contract state variables
+/// are declared, nor their type.
+///
+/// If the storage of your contract looks like this:
+/// ```rust
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+/// The procedures listed below will make it invalid:
+///
+/// Changing the order of variables:
+/// ```rust
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     y: bool,
+///     x: u32,
+/// }
+/// ```
+/// Removing existing variable:
+/// ```rust
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+/// }
+/// ```
+/// Changing type of a variable:
+/// ```rust
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u64,
+///     y: bool,
+/// }
+/// ```
+/// Introducing a new variable before any of the existing ones
+/// ```rust
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     z: Balance,
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// Please refer to the [OpenZeppelin](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
