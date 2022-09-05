@@ -629,7 +629,7 @@ where
 ///
 /// Violating the restriction will not prevent a successful compilation,
 /// but will result in the mix-up of values or failure to read the storage correctly.
-/// This can result in severe errors in the application utilising the contract.
+/// This can result in severe errors in the application utilizing the contract.
 ///
 /// If the storage of your contract looks like this:
 /// ```rust
@@ -674,7 +674,7 @@ where
 /// }
 /// ```
 ///
-/// Please refer to the [OpenZeppelin](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// Please refer to the [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
