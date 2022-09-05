@@ -48,7 +48,7 @@ use subxt::{
 /// The gas limit for contract instantiate and call dry runs.
 const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
-// TODO(https://github.com/paritytech/subxt/issues/640) Should be fetched automatically.
+// TODO(#xxx) Should be fetched automatically.
 #[subxt::subxt(runtime_metadata_path = "metadata/contracts-node.scale")]
 pub(super) mod api {}
 
