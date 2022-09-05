@@ -796,12 +796,11 @@ impl Dispatch<'_> {
                     }
                 }
 
-                static ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
-
                 fn push_contract(contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool) {
                     if mutates {
-                        ::ink_storage::traits::push_spread_root::<#storage_ident>(
-                            &contract, &ROOT_KEY
+                        ::ink_env::set_contract_storage::<::ink_primitives::Key, #storage_ident>(
+                            &<#storage_ident as ::ink_storage::traits::StorageKey>::KEY,
+                            &contract,
                         );
                     }
                 }
@@ -811,9 +810,18 @@ impl Dispatch<'_> {
                     fn execute_dispatchable(
                         self
                     ) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        let key = <#storage_ident as ::ink_storage::traits::StorageKey>::KEY;
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
-                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&ROOT_KEY)
+                                match ::ink_env::get_contract_storage(&key) {
+                                    ::core::result::Result::Ok(::core::option::Option::Some(value)) => value,
+                                    ::core::result::Result::Ok(::core::option::Option::None) => {
+                                        ::core::panic!("storage entry was empty")
+                                    },
+                                    ::core::result::Result::Err(_) => {
+                                        ::core::panic!("could not properly decode storage entry")
+                                    },
+                                }
                             );
 
                         match self {

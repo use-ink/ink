@@ -10,7 +10,7 @@ publish = false
 [dependencies]
 ink_primitives = { path = "../../../../crates/primitives", default-features = false }
 ink_metadata = { path = "../../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { path = "../../../../crates/env", default-features = false, features = ["ink-debug"] }
+ink_env = { path = "../../../../crates/env", default-features = false }
 ink_storage = { path = "../../../../crates/storage", default-features = false }
 ink_lang = { path = "../../../../crates/lang", default-features = false }
 

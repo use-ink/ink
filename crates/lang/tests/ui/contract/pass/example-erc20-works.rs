@@ -2,14 +2,11 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink_storage::Mapping;
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    #[derive(Default)]
     pub struct Erc20 {
         /// Total token supply.
         total_supply: Balance,
@@ -57,22 +54,20 @@ mod erc20 {
     impl Erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
-        pub fn new(initial_supply: Balance) -> Self {
-            ink_lang::utils::initialize_contract(|contract| {
-                Self::new_init(contract, initial_supply)
-            })
-        }
-
-        /// Default initializes the ERC-20 contract with the specified initial supply.
-        fn new_init(&mut self, initial_supply: Balance) {
+        pub fn new(total_supply: Balance) -> Self {
+            let mut balances = Mapping::default();
             let caller = Self::env().caller();
-            self.balances.insert(&caller, &initial_supply);
-            self.total_supply = initial_supply;
+            balances.insert(&caller, &total_supply);
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
-                value: initial_supply,
+                value: total_supply,
             });
+            Self {
+                total_supply,
+                balances,
+                allowances: Default::default(),
+            }
         }
 
         /// Returns the total token supply.
