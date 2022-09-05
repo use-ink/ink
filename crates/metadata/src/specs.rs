@@ -14,7 +14,7 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::serde_hex;
+use crate::{serde_hex, utils::trim_extra_whitespace};
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -367,7 +367,7 @@ impl<S, P> ConstructorSpecBuilder<S, P> {
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().map(str::trim).collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().map(trim_extra_whitespace).collect::<Vec<_>>();
         this
     }
 }
@@ -586,7 +586,7 @@ impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().map(trim_extra_whitespace).collect::<Vec<_>>();
         this
     }
 }

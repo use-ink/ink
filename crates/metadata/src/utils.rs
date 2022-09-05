@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::str;
 use crate::serde_hex;
 
 /// Serializes the given bytes as byte string.
@@ -55,4 +56,12 @@ where
     }
 
     deserializer.deserialize_str(Visitor)
+}
+
+pub fn trim_extra_whitespace(item: &'static str) -> &'static str {
+    if let Some(stripped) = item.strip_prefix(' ') {
+        stripped.trim_end()
+    } else {
+        item.trim_end()
+    }
 }
