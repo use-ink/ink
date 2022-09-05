@@ -139,7 +139,7 @@ impl GenerateCode for InkE2ETest<'_> {
             .as_os_str()
             .to_str()
             .expect("converting path to str failed");
-        let path = syn::LitStr::new(&os_path, proc_macro2::Span::call_site());
+        let path = syn::LitStr::new(os_path, proc_macro2::Span::call_site());
 
         quote! {
             #( #attrs )*
