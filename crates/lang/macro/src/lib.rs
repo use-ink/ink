@@ -736,7 +736,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     endpoint of the node.
 ///
 ///     **Usage Example:**
-///     ```
+///     ```no_compile
+///     # // TODO(#xxx) Remove the `no_compile`.
 ///     # use ink_lang as ink;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
@@ -754,7 +755,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     The `node_log` denotes the path under which to find the node's log.
 ///
 ///     **Usage Example:**
-///     ```
+///     ```no_compile
+///     # // TODO(#xxx) Remove the `no_compile`.
 ///     # use ink_lang as ink;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
@@ -774,7 +776,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     test logic, when one wants to avoid the overhead of building the contract.
 ///
 ///     **Usage Example:**
-///     ```
+///     ```no_compile
+///     # // TODO(#xxx) Remove the `no_compile`.
 ///     # use ink_lang as ink;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(skip_build = true)]
@@ -789,7 +792,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Example
 ///
-/// ```
+/// ```no_compile
+/// # // TODO(#xxx) Remove the `no_compile`.
 /// use ink_lang as ink;
 ///
 /// #[cfg(test)]
