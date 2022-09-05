@@ -30,7 +30,7 @@ use syn::{
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkEventDefinition {
-    pub item: syn::ItemStruct,
+    pub item: syn::ItemEnum,
     pub anonymous: bool,
 }
 
