@@ -1,3 +1,17 @@
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 use super::{
     client::api::runtime_types::{
         frame_system::AccountInfo,
@@ -20,6 +34,7 @@ use super::{
     Signer,
 };
 use crate::Environment;
+use std::path::PathBuf;
 
 use sp_runtime::traits::{
     IdentifyAccount,
@@ -182,8 +197,9 @@ where
     C: subxt::Config,
     E: Environment,
 {
-    node_log: String,
     api: ContractsApi<C, E>,
+    node_log: String,
+    contract_path: PathBuf,
 }
 
 impl<C, E> Client<C, E>
@@ -209,7 +225,7 @@ where
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
-    pub async fn new(url: &str, node_log: &str) -> Self {
+    pub async fn new(contract_path: &str, url: &str, node_log: &str) -> Self {
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
@@ -221,6 +237,7 @@ where
 
         Self {
             api: ContractsApi::new(client, url).await,
+            contract_path: PathBuf::from(contract_path),
             node_log: node_log.to_string(),
         }
     }
@@ -236,7 +253,10 @@ where
     pub async fn instantiate<CO>(
         &mut self,
         signer: &mut Signer<C>,
-        name: &str,
+        // TODO(#xxx) It has to be possible to supply a contact bundle path directly here.
+        // Otherwise cross-contract testing is not possible. Currently we instantiate just
+        // by default the contract for which the test is executed.
+        // contract_path: Option<PathBuf>,
         constructor: CO,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -244,12 +264,8 @@ where
     where
         CO: InkConstructor,
     {
-        let root = std::env::var("CARGO_MANIFEST_DIR")
-            .expect("`CARGO_MANIFEST_DIR` is not set in env");
-        let contract_path = format!("target/ink/{}.contract", name);
-        let contract_path: std::path::PathBuf = [&root, &contract_path].iter().collect();
-        let reader = std::fs::File::open(&contract_path).unwrap_or_else(|err| {
-            panic!("metadata path cannot be opened: {:?}", err);
+        let reader = std::fs::File::open(&self.contract_path).unwrap_or_else(|err| {
+            panic!("contract path cannot be opened: {:?}", err);
         });
         let contract: contract_metadata::ContractMetadata =
             serde_json::from_reader(reader).map_err(|err| {
@@ -262,7 +278,7 @@ where
 
         log_info(&format!(
             "{:?} has {} KiB",
-            contract_path,
+            self.contract_path,
             code.0.len() / 1024
         ));
 

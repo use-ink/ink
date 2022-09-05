@@ -185,13 +185,7 @@ pub mod give_me {
             // given
             let constructor = contract_transfer::constructors::new();
             let contract_acc_id = client
-                .instantiate(
-                    &mut ink_env::e2e::alice(),
-                    "contract_transfer",
-                    constructor,
-                    1000,
-                    None,
-                )
+                .instantiate(&mut ink_env::e2e::alice(), constructor, 1000, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -228,13 +222,7 @@ pub mod give_me {
             // given
             let constructor = contract_transfer::constructors::new();
             let contract_acc_id = client
-                .instantiate(
-                    &mut ink_env::e2e::bob(),
-                    "contract_transfer",
-                    constructor,
-                    1337,
-                    None,
-                )
+                .instantiate(&mut ink_env::e2e::bob(), constructor, 1337, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;

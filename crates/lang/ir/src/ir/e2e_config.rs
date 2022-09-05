@@ -180,7 +180,7 @@ mod tests {
                 skip_build = true,
                 skip_build = true,
             },
-            Err("encountered duplicate ink! `env` configuration argument"),
+            Err("encountered duplicate ink! `skip_build` configuration argument"),
         );
     }
 

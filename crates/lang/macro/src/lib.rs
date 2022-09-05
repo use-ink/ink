@@ -803,8 +803,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         let constructor = contract_transfer::constructors::new();
 ///         let contract_acc_id = client.instantiate(
 ///             &mut ink_env::e2e::alice(),
-///             "contract_transfer",
-///              constructor,
+///             constructor,
 ///             1337,
 ///             None,
 ///         )

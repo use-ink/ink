@@ -17,19 +17,23 @@ use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::sync::Once;
+use std::{
+    path::PathBuf,
+    sync::Once,
+};
 
 /// We use this to only build the contract once for all tests.
 static BUILD_ONCE: Once = Once::new();
 
 // We save the name of the currently executing test here.
 thread_local! {
-    pub static METADATA_PATH: RefCell<Option<String>> = RefCell::new(None);
+    pub static CONTRACT_PATH: RefCell<Option<PathBuf>> = RefCell::new(None);
 }
 
-/// Returns the name of the test which is currently executed. TODO
-pub fn metadata_path() -> Option<String> {
-    METADATA_PATH.with(|metadata_path| metadata_path.borrow().clone())
+/// Returns the path to the contract bundle of the contract for which a test
+/// is currently executed.
+pub fn contract_path() -> Option<PathBuf> {
+    CONTRACT_PATH.with(|metadata_path| metadata_path.borrow().clone())
 }
 
 /// Generates code for the `[ink::e2e_test]` macro.
@@ -62,12 +66,18 @@ impl GenerateCode for InkE2ETest<'_> {
         let node_log = &self.test.config.node_log();
         let skip_build = &self.test.config.skip_build();
 
-        let mut path = "./target/ink/metadata.json".to_string();
-        if let Some(metadata_path) = metadata_path() {
+        // This path will only be used in case `skip_build` is activated
+        // and no path was specified for it.
+        // TODO(#xxx) we should require specifying a path for `skip_build`.
+        let mut path = PathBuf::from("./target/ink/metadata.json".to_string());
+
+        // If a prior test did already build the contract and set the path
+        // to the metadata file.
+        if let Some(metadata_path) = contract_path() {
             path = metadata_path;
         }
 
-        if !skip_build.value && metadata_path().is_none() {
+        if !skip_build.value && contract_path().is_none() {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
                 use std::process::{
@@ -108,28 +118,28 @@ impl GenerateCode for InkE2ETest<'_> {
                 let json = String::from_utf8_lossy(&output.stdout);
                 let metadata: serde_json::Value =
                     serde_json::from_str(&json).expect("cannot convert json to utf8");
-                let dest_metadata =
-                    metadata["metadata_result"]["dest_metadata"].to_string();
-                path = dest_metadata.trim_matches('"').to_string();
-                log::info!("extracted metadata path: {}", path);
-                eprintln!("extracted metadata path: {}", path);
+                let mut dest_metadata =
+                    metadata["metadata_result"]["dest_bundle"].to_string();
+                dest_metadata = dest_metadata.trim_matches('"').to_string();
+                path = PathBuf::from(dest_metadata);
+                log::info!("extracted metadata path: {}", path.display());
 
-                let p = path.clone();
-                METADATA_PATH.with(|metadata_path| {
-                    *metadata_path.borrow_mut() = Some(p);
+                CONTRACT_PATH.with(|metadata_path| {
+                    *metadata_path.borrow_mut() = Some(path.clone());
                 });
             });
         }
 
         log::info!("using metadata path: {:?}", path);
-        eprintln!("using metadata path: {:?}", path);
 
-        std::path::Path::new(&path)
-            .try_exists()
-            .unwrap_or_else(|err| {
-                panic!("path {:?} does not exist: {:?}", path, err);
-            });
-        let path = syn::LitStr::new(path.as_str(), proc_macro2::Span::call_site());
+        path.try_exists().unwrap_or_else(|err| {
+            panic!("path {:?} does not exist: {:?}", path, err);
+        });
+        let os_path = path
+            .as_os_str()
+            .to_str()
+            .expect("converting path to str failed");
+        let path = syn::LitStr::new(&os_path, proc_macro2::Span::call_site());
 
         quote! {
             #( #attrs )*
@@ -150,13 +160,13 @@ impl GenerateCode for InkE2ETest<'_> {
                 // TODO(#xxx) `smart-bench_macro` needs to be forked.
                 ink_env::e2e::smart_bench_macro::contract!(#path);
 
-                let url = #ws_url;
-                let node_log = #node_log;
-
                 log_info("creating new client");
 
                 // TODO(#xxx) Make those two generic environments customizable.
-                let mut client = ink_env::e2e::Client::<ink_env::e2e::PolkadotConfig, ink_env::DefaultEnvironment>::new(&url, &node_log).await;
+                let mut client = ink_env::e2e::Client::<
+                    ink_env::e2e::PolkadotConfig,
+                    ink_env::DefaultEnvironment
+                >::new(&#path, &#ws_url, &#node_log).await;
 
                 let __ret = {
                     #block
