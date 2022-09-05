@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::str;
 use crate::serde_hex;
+use std::str;
 
 /// Serializes the given bytes as byte string.
 pub fn serialize_as_byte_str<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
