@@ -1,44 +1,19 @@
-use codec::{
-    Decode,
-    Encode,
-    MaxEncodedLen,
-};
+use codec::{Decode, Encode, MaxEncodedLen};
 use frame_support::{
     dispatch::RawOrigin,
-    log::{
-        error,
-        trace,
-    },
+    log::{error, trace},
     pallet_prelude::*,
     traits::fungibles::{
-        approvals::{
-            Inspect as AllowanceInspect,
-            Mutate as AllowanceMutate,
-        },
-        Inspect,
-        InspectMetadata,
-        Transfer,
+        approvals::{Inspect as AllowanceInspect, Mutate as AllowanceMutate},
+        Inspect, InspectMetadata, Transfer,
     },
 };
-use pallet_assets::{
-    self,
-    WeightInfo,
-};
+use pallet_assets::{self, WeightInfo};
 use pallet_contracts::chain_extension::{
-    ChainExtension,
-    Environment,
-    Ext,
-    InitState,
-    RetVal,
-    SysConfig,
-    UncheckedFrom,
+    ChainExtension, Environment, Ext, InitState, RetVal, SysConfig, UncheckedFrom,
 };
 use sp_runtime::{
-    traits::{
-        Saturating,
-        StaticLookup,
-        Zero,
-    },
+    traits::{Saturating, StaticLookup, Zero},
     DispatchError,
 };
 
@@ -114,12 +89,10 @@ where
                 .encode()
         }
         // PSP22Metadata::token_decimals
-        0x7271 => {
-            <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::decimals(
-                &asset_id,
-            )
-            .encode()
-        }
+        0x7271 => <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::decimals(
+            &asset_id,
+        )
+        .encode(),
         _ => unreachable!(),
     };
     trace!(
@@ -305,7 +278,7 @@ where
     let mut env = env.buf_in_buf_out();
     let input: Psp22ApproveInput<T::AssetId, T::AccountId, T::Balance> = env.read_as()?;
     if input.value.is_zero() {
-        return Ok(())
+        return Ok(());
     }
 
     let base_weight = <T as pallet_assets::Config>::WeightInfo::cancel_approval()
@@ -345,7 +318,7 @@ where
             <T as pallet_assets::Config>::WeightInfo::cancel_approval()
                 .saturating_add(overhead),
         );
-        return Ok(())
+        return Ok(());
     }
     <pallet_assets::Pallet<T> as AllowanceMutate<T::AccountId>>::approve(
         input.asset_id,
@@ -402,7 +375,7 @@ where
 
             _ => {
                 error!("Called an unregistered `func_id`: {:}", func_id);
-                return Err(DispatchError::Other("Unimplemented func_id"))
+                return Err(DispatchError::Other("Unimplemented func_id"));
             }
         }
 
