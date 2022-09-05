@@ -58,6 +58,7 @@ where
     deserializer.deserialize_str(Visitor)
 }
 
+/// Strips a single whitespace at the start and removes trailing spaces
 pub fn trim_extra_whitespace(item: &str) -> &str {
     if let Some(stripped) = item.strip_prefix(' ') {
         stripped.trim_end()
