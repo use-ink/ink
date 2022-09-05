@@ -58,7 +58,7 @@ where
     deserializer.deserialize_str(Visitor)
 }
 
-pub fn trim_extra_whitespace(item: &'static str) -> &'static str {
+pub fn trim_extra_whitespace(item: &str) -> &str {
     if let Some(stripped) = item.strip_prefix(' ') {
         stripped.trim_end()
     } else {
