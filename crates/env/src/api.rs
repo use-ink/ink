@@ -623,9 +623,13 @@ where
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
 ///
 /// # Storage Compatibility
-/// When the smart contract code is modified, it is important to observe an additional restriction
-/// that is imposed on this procedure: you cannot change the order in which the contract state variables
+/// When the smart contract code is modified, it is important to observe an additional virtual restriction
+/// that is imposed on this procedure: you should not change the order in which the contract state variables
 /// are declared, nor their type.
+///
+/// Violating the restriction will not prevent a successful compilation,
+/// but will result in the mix-up of values or failure to read the storage correctly.
+/// This can result in severe errors in the application utilising the contract.
 ///
 /// If the storage of your contract looks like this:
 /// ```rust
