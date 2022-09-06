@@ -28,16 +28,18 @@ mod my_contract {
     pub struct MyContract {}
 
     /// Exemplary event
-    #[ink(event)]
-    pub struct MyEvent {
-        #[ink(topic)]
-        v0: Option<AccountId>,
-        #[ink(topic)]
-        v1: Balance,
-        #[ink(topic)]
-        v2: bool,
-        #[ink(topic)]
-        v3: bool,
+    #[ink::event_definition]
+    pub enum Event {
+        MyEvent {
+            #[ink(topic)]
+            v0: Option<AccountId>,
+            #[ink(topic)]
+            v1: Balance,
+            #[ink(topic)]
+            v2: bool,
+            #[ink(topic)]
+            v3: bool
+        }
     }
 
     impl MyContract {
@@ -50,7 +52,7 @@ mod my_contract {
         /// Emits a `MyEvent`.
         #[ink(message)]
         pub fn emit_my_event(&self) {
-            self.env().emit_event(MyEvent {
+            self.env().emit_event(Event::MyEvent {
                 v0: None,
                 v1: 0,
                 v2: false,

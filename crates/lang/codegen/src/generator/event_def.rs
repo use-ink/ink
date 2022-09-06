@@ -25,7 +25,7 @@ use syn::spanned::Spanned as _;
 /// Generates code for an event definition.
 #[derive(From)]
 pub struct EventDefinition<'a> {
-    event_def: &'a ir::InkEventDefinition<'a>,
+    event_def: &'a ir::InkEventDefinition,
 }
 
 impl GenerateCode for EventDefinition<'_> {
@@ -49,8 +49,8 @@ impl GenerateCode for EventDefinition<'_> {
 
 impl<'a> EventDefinition<'a> {
     fn generate_event_enum(&'a self) -> TokenStream2 {
-        let span = self.event_def.structure.span();
-        let event_enum = &self.event_def.structure.ast();
+        let span = self.event_def.item.span();
+        let event_enum = &self.event_def.item;
         quote_spanned!(span =>
             #[derive(::scale::Encode, ::scale::Decode)]
             #event_enum
@@ -72,8 +72,9 @@ impl<'a> EventDefinition<'a> {
         let event_ident = self.event_def.ident();
 
         let impls =
-            self.event_def.structure.variants().iter().enumerate().map(|(index, ev)| {
-                let event_variant_ident = ev.ast().ident;
+            self.event_def.variants().map(|ev| {
+                let event_variant_ident = ev.ident();
+                let index = ev.index();
                 quote_spanned!(span=>
                     impl ::ink_lang::reflect::EventVariantInfo<#index> for #event_ident {
                         const SIGNATURE: [u8: 32] = ::ink_lang::blake2x256!(::core::concat!(
@@ -114,7 +115,9 @@ impl<'a> EventDefinition<'a> {
     }
 
     fn generate_topics_impl2(&self) -> TokenStream2 {
-
+        let span = self.event_def.span();
+        quote_spanned!(span =>
+        )
     }
 
     // /// Generates the `Topics` trait implementations for the user defined events.

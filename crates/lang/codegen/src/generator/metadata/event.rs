@@ -35,25 +35,27 @@ impl GenerateCode for EventMetadata<'_> {
             .attrs()
             .iter()
             .filter_map(|attr| attr.extract_docs());
-        let args = self.event_def.fields().map(|event_field| {
-            let span = event_field.span();
-            let ident = event_field.ident();
-            let is_topic = event_field.is_topic;
-            let docs = event_field
-                .attrs()
-                .into_iter()
-                .filter_map(|attr| attr.extract_docs());
-            let ty = super::generate_type_spec(event_field.ty());
-            quote_spanned!(span =>
-                ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
-                    .of_type(#ty)
-                    .indexed(#is_topic)
-                    .docs([
-                        #( #docs ),*
-                    ])
-                    .done()
-            )
-        });
+        // let args = self.event_def.fields().map(|event_field| {
+        //     let span = event_field.span();
+        //     let ident = event_field.ident();
+        //     let is_topic = event_field.is_topic;
+        //     let docs = event_field
+        //         .attrs()
+        //         .into_iter()
+        //         .filter_map(|attr| attr.extract_docs());
+        //     let ty = super::generate_type_spec(event_field.ty());
+        //     quote_spanned!(span =>
+        //         ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
+        //             .of_type(#ty)
+        //             .indexed(#is_topic)
+        //             .docs([
+        //                 #( #docs ),*
+        //             ])
+        //             .done()
+        //     )
+        // });
+        // todo generate event metadata
+        let args = Vec::<TokenStream2>::new();
         quote_spanned!(span=>
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]

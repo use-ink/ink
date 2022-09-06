@@ -16,8 +16,8 @@ use ink_lang_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
-pub fn generate(attr: TokenStream2, structure: synstructure::Structure) -> TokenStream2 {
-    match generate_or_err(attr, structure) {
+pub fn generate(attr: TokenStream2, item: TokenStream2) -> TokenStream2 {
+    match generate_or_err(attr, item) {
         Ok(tokens) => tokens,
         Err(err) => err.to_compile_error(),
     }
@@ -25,7 +25,7 @@ pub fn generate(attr: TokenStream2, structure: synstructure::Structure) -> Token
 
 pub fn generate_or_err(
     config: TokenStream2,
-    structure: synstructure::Structure,
+    input: TokenStream2,
 ) -> Result<TokenStream2> {
     let trait_definition =
         ink_lang_ir::InkEventDefinition::from_event_def_tokens(config, input)?;

@@ -668,7 +668,10 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 /// todo derive Event docs
-synstructure::decl_attribute!([event_definition] => event_def::generate);
+#[proc_macro_attribute]
+pub fn event_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
+    event_def::generate(attr.into(), item.into()).into()
+}
 
 /// Prepares the type to be fully compatible and usable with the storage.
 /// It implements all necessary traits and calculates the storage key for types.
