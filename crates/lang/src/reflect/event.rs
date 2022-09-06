@@ -23,3 +23,13 @@ pub trait EventInfo {
     /// todo: rename?
     const PATH: &'static str;
 }
+
+/// todo: docs
+/// The ID is the index of the event variant in the enum
+pub trait EventVariantInfo<const ID: u32> {
+    const NAME: &'static str;
+    /// todo: docs
+    /// Will be hashed unique path of Event -> Variant, used for topic of Event variant
+    /// Should be able to compute up front
+    const SIGNATURE: [u8; 32];
+}

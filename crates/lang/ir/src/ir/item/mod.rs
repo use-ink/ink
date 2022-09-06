@@ -71,11 +71,6 @@ impl TryFrom<syn::Item> for Item {
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    ir::AttributeArg::Event => {
-                        <InkEventDefinition as TryFrom<_>>::try_from(item_struct)
-                            .map(Into::into)
-                            .map(Self::Ink)
-                    }
                     _invalid => {
                         Err(format_err!(
                             attr.span(),
@@ -83,6 +78,14 @@ impl TryFrom<syn::Item> for Item {
                         ))
                     }
                 }
+            }
+            syn::Item::Enum(item_enum) => {
+                todo!("recognise ink::event_definition or simply ink(event) still")
+                // ir::AttributeArg::Event => {
+                //     <InkEventDefinition as TryFrom<_>>::try_from(item_struct)
+                //         .map(Into::into)
+                //         .map(Self::Ink)
+                // }
             }
             syn::Item::Impl(item_impl) => {
                 if !ir::ItemImpl::is_ink_impl_block(&item_impl)? {

@@ -48,25 +48,10 @@ impl GenerateCode for EventDefinition<'_> {
 impl<'a> EventDefinition<'a> {
     fn generate_event_struct(&'a self) -> TokenStream2 {
         let span = self.event_def.span();
-        let ident = self.event_def.ident();
-        let attrs = self.event_def.attrs();
-        let fields = self.event_def.fields().map(|event_field| {
-            let span = event_field.span();
-            let attrs = event_field.attrs();
-            let vis = event_field.vis();
-            let ident = event_field.ident();
-            let ty = event_field.ty();
-            quote_spanned!(span=>
-                #( #attrs )*
-                #vis #ident : #ty
-            )
-        });
+        let event_enum = &self.event_def.item;
         quote_spanned!(span =>
-            #( #attrs )*
             #[derive(scale::Encode, scale::Decode)]
-            pub struct #ident {
-                #( #fields ),*
-            }
+            #event_enum
         )
     }
 
@@ -77,6 +62,25 @@ impl<'a> EventDefinition<'a> {
             impl ::ink_lang::reflect::EventInfo for #event_ident {
                 const PATH: &'static str = module_path!();
             }
+        )
+    }
+
+    fn generate_event_variant_info_impls(&self) -> TokenStream2 {
+        let span = self.event_def.span();
+        let event_ident = self.event_def.ident();
+        let impls =
+            self.event_def.variants().map(|ev| {
+                let index = ev.index();
+                quote_spanned!(span=>
+                    impl ::ink_lang::reflect::EventVariantInfo<#index> for #event_ident {
+                        const SIGNATURE: [u8: 32] = todo!();
+                    }
+                )
+            });
+        quote_spanned!(span=>
+            #(
+                #impls
+            )*
         )
     }
 
@@ -91,9 +95,8 @@ impl<'a> EventDefinition<'a> {
         let event_ident = self.event_def.ident();
         let len_topics = self
             .event_def
-            .fields()
-            .filter(|event| event.is_topic)
-            .count();
+            .max_len_topics();
+
         quote_spanned!(span=>
             impl ::ink_lang::codegen::EventLenTopics for #event_ident {
                 type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
@@ -107,9 +110,7 @@ impl<'a> EventDefinition<'a> {
         let event_ident = self.event_def.ident();
         let len_topics = self
             .event_def
-            .fields()
-            .filter(|field| field.is_topic)
-            .count();
+            .max_len_topics();
         let topic_impls = self
             .event_def
             .fields()
