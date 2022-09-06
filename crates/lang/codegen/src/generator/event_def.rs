@@ -37,7 +37,6 @@ impl GenerateCode for EventDefinition<'_> {
         let topics_impl = self.generate_topics_impl2();
         // let topics_guard = self.generate_topics_guard();
         quote! {
-            #[derive(::scale::Encode, ::scale::Decode)]
             #event_enum
             // #event_info_impl
             // #event_metadata_impl
@@ -49,7 +48,7 @@ impl GenerateCode for EventDefinition<'_> {
 
 impl<'a> EventDefinition<'a> {
     fn generate_event_enum(&'a self) -> TokenStream2 {
-        let span = self.event_def.item.span();
+        let span = self.event_def.span();
         let event_enum = &self.event_def.item;
         quote_spanned!(span =>
             #[derive(::scale::Encode, ::scale::Decode)]

@@ -31,6 +31,7 @@ use syn::{
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkEventDefinition {
     pub item: syn::ItemEnum,
+    variants: Vec<EventVariant>,
     pub anonymous: bool,
 }
 
@@ -68,36 +69,40 @@ impl quote::ToTokens for InkEventDefinition {
 
 impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn new(item: syn::ItemEnum, anonymous: bool) -> Result<Self> {
-        for variant in item.variants.iter() {
-            'repeat: for field in variant.fields.iter() {
-                let field_span = field.span();
-                let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
-                if ink_attrs.is_empty() {
-                    continue 'repeat
-                }
-                let normalized =
-                    ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                        err.into_combine(format_err!(field_span, "at this invocation",))
-                    })?;
-                if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
-                    return Err(format_err!(
-                        field_span,
-                        "first optional ink! attribute of an event field must be #[ink(topic)]",
-                    ))
-                }
-                for arg in normalized.args() {
-                    if !matches!(arg.kind(), ir::AttributeArg::Topic) {
-                        return Err(format_err!(
-                            arg.span(),
-                            "encountered conflicting ink! attribute for event field",
-                        ))
-                    }
-                }
+    pub fn new(mut item: syn::ItemEnum, anonymous: bool) -> Result<Self> {
+        let mut variants = Vec::new();
+        for (index, variant) in item.variants.iter_mut().enumerate() {
+            let mut fields = Vec::new();
+            for field in variant.fields.iter_mut() {
+                let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
+                    field.span(),
+                    field.attrs.clone(),
+                    |arg| {
+                        match arg.kind() {
+                            ir::AttributeArg::Topic => Ok(()),
+                            _ => Err(None),
+                        }
+                    },
+                )?;
+                // strip out the `#[ink(topic)] attributes, since the item will be used to
+                // regenerate the event enum
+                field.attrs = other_attrs;
+                fields.push(EventField {
+                    is_topic: topic_attr.is_some(),
+                    field: field.clone(),
+                })
             }
+            let named_fields = matches!(variant.fields, syn::Fields::Named(_));
+            variants.push(EventVariant {
+                index,
+                ident: variant.ident.clone(),
+                named_fields,
+                fields
+            })
         }
         Ok(Self {
             item,
+            variants,
             anonymous,
         })
     }
@@ -111,12 +116,16 @@ impl InkEventDefinition {
         let anonymous = false; // todo parse this from attr config
         let item = syn::parse2::<syn::ItemEnum>(input)?;
         // let item = InkItemTrait::new(&config, parsed_item)?;
-        Ok(Self { anonymous, item })
+        Self::new(item, anonymous)
     }
 
     /// Returns the identifier of the event struct.
     pub fn ident(&self) -> &Ident {
         &self.item.ident
+    }
+
+    pub fn span(&self) -> Span {
+        self.item.span()
     }
 
     /// Returns all non-ink! attributes.
@@ -125,8 +134,8 @@ impl InkEventDefinition {
     }
 
     /// Returns all event variants.
-    pub fn variants(&self) -> impl Iterator<Item = EventVariant<'_>> {
-        self.item.variants.iter().enumerate().map(|(i, v) | EventVariant { index: i, item: v})
+    pub fn variants(&self) -> impl Iterator<Item = &EventVariant> {
+        self.variants.iter()
     }
 
     /// Returns the maximum number of topics of any event variant.
@@ -142,15 +151,18 @@ impl InkEventDefinition {
 }
 
 /// A variant of an event.
-pub struct EventVariant<'a> {
+#[derive(Debug, PartialEq, Eq)]
+pub struct EventVariant {
     index: usize,
-    item: &'a syn::Variant,
+    ident: Ident,
+    named_fields: bool,
+    fields: Vec<EventField>,
 }
 
-impl<'a> EventVariant<'a> {
+impl EventVariant {
     /// The identifier of the event variant.
     pub fn ident(&self) -> &Ident {
-        &self.item.ident
+        &self.ident
     }
 
     /// The index of the the event variant in the enum definition.
@@ -160,53 +172,45 @@ impl<'a> EventVariant<'a> {
 
     /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
     /// of the event variant struct.
-    pub fn fields(&self) -> impl Iterator<Item = EventField<'_>> {
-        self.item.fields
-            .iter()
-            .map(|field| {
-                let is_topic = ir::first_ink_attribute(&field.attrs)
-                    .unwrap_or_default()
-                    .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
-                    .unwrap_or_default();
-                EventField { is_topic, field }
-            })
+    pub fn fields(&self) -> impl Iterator<Item = &EventField> {
+        self.fields.iter()
     }
 }
 
 /// An event field with a flag indicating if this field is an event topic.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct EventField<'a> {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EventField {
     /// The associated `field` is an event topic if this is `true`.
     pub is_topic: bool,
     /// The event field.
-    field: &'a syn::Field,
+    field: syn::Field,
 }
 
-impl<'a> EventField<'a> {
+impl EventField {
     /// Returns the span of the event field.
-    pub fn span(self) -> Span {
+    pub fn span(&self) -> Span {
         self.field.span()
     }
 
     /// Returns all non-ink! attributes of the event field.
-    pub fn attrs(self) -> Vec<syn::Attribute> {
+    pub fn attrs(&self) -> Vec<syn::Attribute> {
         let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
             .expect("encountered invalid event field attributes");
         non_ink_attrs
     }
 
     /// Returns the visibility of the event field.
-    pub fn vis(self) -> &'a syn::Visibility {
+    pub fn vis(&self) -> &syn::Visibility {
         &self.field.vis
     }
 
     /// Returns the identifier of the event field if any.
-    pub fn ident(self) -> Option<&'a Ident> {
+    pub fn ident(&self) -> Option<&Ident> {
         self.field.ident.as_ref()
     }
 
     /// Returns the type of the event field.
-    pub fn ty(self) -> &'a syn::Type {
+    pub fn ty(&self) -> &syn::Type {
         &self.field.ty
     }
 }
