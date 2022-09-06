@@ -93,28 +93,21 @@ impl Storage<'_> {
         let storage = self.contract.module().storage();
         let span = storage.span();
         let ident = storage.ident();
+        let generics = storage.generics();
         let attrs = storage.attrs();
         let fields = storage.fields();
         quote_spanned!( span =>
             #(#attrs)*
-            #[cfg_attr(
-                feature = "std",
-                derive(::ink_storage::traits::StorageLayout)
-            )]
-            #[derive(::ink_storage::traits::SpreadLayout)]
+            #[::ink_lang::storage_item]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
             #[cfg(not(feature = "__ink_dylint_Storage"))]
-            pub struct #ident {
+            pub struct #ident #generics {
                 #( #fields ),*
             }
 
             const _: () = {
                 impl ::ink_lang::reflect::ContractName for #ident {
                     const NAME: &'static str = ::core::stringify!(#ident);
-                }
-
-                impl ::ink_lang::codegen::ContractRootKey for #ident {
-                    const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
                 }
             };
         )

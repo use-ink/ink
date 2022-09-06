@@ -29,4 +29,4 @@ error[E0599]: no function or associated item named `message_2` found for struct 
    |                ^^^^^^^^^
    |                |
    |                function or associated item not found in `Contract`
-   |                help: there is a method with a similar name: `message_1`
+   |                help: there is an associated function with a similar name: `message_1`

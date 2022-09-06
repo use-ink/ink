@@ -39,6 +39,7 @@ mod item_impls;
 mod metadata;
 mod selector;
 mod storage;
+mod storage_item;
 mod trait_def;
 
 pub use self::{
@@ -66,5 +67,6 @@ pub use self::{
         SelectorId,
     },
     storage::Storage,
+    storage_item::StorageItem,
     trait_def::TraitDefinition,
 };

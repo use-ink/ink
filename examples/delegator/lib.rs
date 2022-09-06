@@ -6,10 +6,6 @@ use ink_lang as ink;
 mod delegator {
     use accumulator::AccumulatorRef;
     use adder::AdderRef;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-    };
     use subber::SubberRef;
 
     /// Specifies the state of the `delegator` contract.
@@ -18,20 +14,10 @@ mod delegator {
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
-    #[derive(
-        Debug,
-        Copy,
-        Clone,
-        PartialEq,
-        Eq,
-        scale::Encode,
-        scale::Decode,
-        SpreadLayout,
-        PackedLayout,
-    )]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(::scale_info::TypeInfo, ::ink_storage::traits::StorageLayout)
+        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Which {
         Adder,

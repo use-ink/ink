@@ -22,6 +22,7 @@ quote = "1"
 syn = { version = "1", features = ["full"] }
 proc-macro2 = "1"
 synstructure = "0.12.4"
+ink_storage_codegen = { version = "4.0.0-alpha.1", path = "../codegen" }
 
 [dev-dependencies]
 ink_env = { path = "../../env" }

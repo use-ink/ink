@@ -1,0 +1,5 @@
+error: only one `ink::storage_item` is allowed
+ --> tests/ui/storage_item/fail/double_storage_item.rs:2:1
+  |
+2 | #[ink_lang::storage_item(derive = true)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
