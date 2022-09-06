@@ -46,7 +46,11 @@ impl GenerateCode for Metadata<'_> {
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
-                    ::ink_metadata::InkProject::new(#layout, #contract)
+                    let layout = #layout;
+                    ::ink_metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
+                        ::core::panic!("metadata ink! generation failed: {}", error)
+                    });
+                    ::ink_metadata::InkProject::new(layout, #contract)
                 }
             };
         }
@@ -57,12 +61,21 @@ impl Metadata<'_> {
     fn generate_layout(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
+        let key = quote! { <#storage_ident as ::ink_storage::traits::StorageKey>::KEY };
+
+        let layout_key = quote! {
+            <::ink_metadata::layout::LayoutKey
+                as ::core::convert::From<::ink_primitives::Key>>::from(#key)
+        };
         quote_spanned!(storage_span=>
-            <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
-                &mut <::ink_primitives::KeyPtr as ::core::convert::From<::ink_primitives::Key>>::from(
-                    <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from([0x00_u8; 32usize])
-                )
-            )
+            // Wrap the layout of the contract into the `RootLayout`, because
+            // contract storage key is reserved for all packed fields
+            ::ink_metadata::layout::Layout::Root(::ink_metadata::layout::RootLayout::new(
+                #layout_key,
+                <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
+                    &#key,
+                ),
+            ))
         )
     }
 

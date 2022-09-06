@@ -91,12 +91,6 @@ impl TryFrom<syn::ItemStruct> for Storage {
                 }
             },
         )?;
-        if !item_struct.generics.params.is_empty() {
-            return Err(format_err_spanned!(
-                item_struct.generics.params,
-                "generic ink! storage structs are not supported",
-            ))
-        }
         utils::ensure_pub_visibility("storage structs", struct_span, &item_struct.vis)?;
         Ok(Self {
             ast: syn::ItemStruct {
@@ -116,6 +110,11 @@ impl Storage {
     /// Returns the identifier of the storage struct.
     pub fn ident(&self) -> &Ident {
         &self.ast.ident
+    }
+
+    /// Returns the generics of the storage struct.
+    pub fn generics(&self) -> &syn::Generics {
+        &self.ast.generics
     }
 
     /// Returns an iterator yielding all fields of the storage struct.
@@ -202,19 +201,6 @@ mod tests {
                 }
             },
             "encountered unexpected empty expanded ink! attribute arguments",
-        )
-    }
-
-    #[test]
-    fn generic_storage_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(storage)]
-                pub struct GenericStorage<T> {
-                    field_1: T,
-                }
-            },
-            "generic ink! storage structs are not supported",
         )
     }
 

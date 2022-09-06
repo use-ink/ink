@@ -24,12 +24,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod key;
-mod key_ptr;
+pub mod traits;
 
-#[cfg(test)]
-mod tests;
-
-pub use self::{
-    key::Key,
-    key_ptr::KeyPtr,
+pub use self::key::{
+    Key,
+    KeyComposer,
 };

@@ -1,0 +1,41 @@
+error[E0277]: the trait bound `NonPacked: WrapperTypeDecode` is not satisfied
+  --> tests/ui/storage_item/fail/packed_is_not_derived_automatically.rs:15:30
+   |
+15 |     let _ = consume_packed::<NonPacked>();
+   |                              ^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonPacked`
+   |
+   = help: the following other types implement trait `WrapperTypeDecode`:
+             Arc<T>
+             Box<T>
+             Rc<T>
+   = note: required because of the requirements on the impl of `Decode` for `NonPacked`
+   = note: required because of the requirements on the impl of `Packed` for `NonPacked`
+note: required by a bound in `consume_packed`
+  --> tests/ui/storage_item/fail/packed_is_not_derived_automatically.rs:12:22
+   |
+12 | fn consume_packed<T: Packed>() {}
+   |                      ^^^^^^ required by this bound in `consume_packed`
+
+error[E0277]: the trait bound `NonPacked: WrapperTypeEncode` is not satisfied
+  --> tests/ui/storage_item/fail/packed_is_not_derived_automatically.rs:15:30
+   |
+15 |     let _ = consume_packed::<NonPacked>();
+   |                              ^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonPacked`
+   |
+   = help: the following other types implement trait `WrapperTypeEncode`:
+             &T
+             &mut T
+             Arc<T>
+             Box<T>
+             Cow<'a, T>
+             Rc<T>
+             String
+             Vec<T>
+             parity_scale_codec::Ref<'a, T, U>
+   = note: required because of the requirements on the impl of `Encode` for `NonPacked`
+   = note: required because of the requirements on the impl of `Packed` for `NonPacked`
+note: required by a bound in `consume_packed`
+  --> tests/ui/storage_item/fail/packed_is_not_derived_automatically.rs:12:22
+   |
+12 | fn consume_packed<T: Packed>() {}
+   |                      ^^^^^^ required by this bound in `consume_packed`
