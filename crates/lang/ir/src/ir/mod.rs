@@ -27,6 +27,7 @@ mod item;
 mod item_impl;
 mod item_mod;
 mod selector;
+mod storage_item;
 mod trait_def;
 pub mod utils;
 
@@ -101,6 +102,7 @@ pub use self::{
         SelectorMacro,
         TraitPrefix,
     },
+    storage_item::StorageItem,
     trait_def::{
         InkItemTrait,
         InkTraitDefinition,

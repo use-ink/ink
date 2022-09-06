@@ -176,6 +176,7 @@ fn spec_contract_json() {
     )
 }
 
+/// Tests correct trimming of a simple comment with extra spaces
 #[test]
 fn trim_docs() {
     // given
@@ -202,6 +203,52 @@ fn trim_docs() {
             "selector": "0x075bcd15",
             "args": [],
             "docs": ["foobar"]
+        })
+    );
+    assert_eq!(deserialized.docs, compact_spec.docs);
+}
+
+/// Tests correct trimming of a complex comment with a code snippet
+#[test]
+fn trim_docs_with_code() {
+    // given
+    let label = "foo";
+    let cs = ConstructorSpec::from_label(label)
+        .selector(123_456_789u32.to_be_bytes())
+        .docs(vec![
+            " Example      ",
+            " ```",
+            " fn test() {",
+            "     \"Hello, World\"",
+            " }",
+            " ```",
+        ])
+        .payable(Default::default())
+        .done();
+    let mut registry = Registry::new();
+    let compact_spec = cs.into_portable(&mut registry);
+
+    // when
+    let json = serde_json::to_value(&compact_spec).unwrap();
+    let deserialized: ConstructorSpec<PortableForm> =
+        serde_json::from_value(json.clone()).unwrap();
+
+    // then
+    assert_eq!(
+        json,
+        json!({
+            "label": "foo",
+            "payable": false,
+            "selector": "0x075bcd15",
+            "args": [],
+            "docs": [
+                "Example",
+                "```",
+                "fn test() {",
+                "    \"Hello, World\"",
+                "}",
+                "```"
+            ]
         })
     );
     assert_eq!(deserialized.docs, compact_spec.docs);

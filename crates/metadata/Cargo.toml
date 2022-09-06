@@ -19,7 +19,7 @@ ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude/", default-feature
 ink_primitives = { version = "4.0.0-alpha.1", path = "../primitives/", default-features = false }
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
-impl-serde = "0.3.1"
+impl-serde = "0.4.0"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
 

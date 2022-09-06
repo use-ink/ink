@@ -38,6 +38,7 @@ defragmentation
 deploy
 dereferencing
 deserialize/S
+deserialization
 dispatchable/S
 E2E
 encodable
@@ -97,6 +98,7 @@ layout/JG
 namespace/S
 parameterize/SD
 runtime/S
+storable
 struct/S
 vec/S
 vector/S

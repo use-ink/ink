@@ -138,3 +138,21 @@ impl WhitelistedAttributes {
             .collect()
     }
 }
+
+/// Return an error to notify about duplicate ink! configuration arguments.
+fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
+    where
+        F: Spanned,
+        S: Spanned,
+{
+    format_err!(
+        second.span(),
+        "encountered duplicate ink! `{}` configuration argument",
+        name,
+    )
+        .into_combine(format_err!(
+        first.span(),
+        "first `{}` configuration argument here",
+        name
+    ))
+}

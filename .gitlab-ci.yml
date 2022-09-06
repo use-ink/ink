@@ -33,7 +33,7 @@ variables:
   ALSO_WASM_CRATES:                "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
+  UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
   # We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
   # features still work on stable. This is done automatically by
   # `cargo-contract`, but in our CI here we also use e.g.
@@ -135,7 +135,7 @@ examples-fmt:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
       done
-    - cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check
+    - cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- --check
   allow_failure:                   true
 
 clippy-std:
@@ -172,7 +172,7 @@ examples-clippy-std:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -190,7 +190,7 @@ examples-clippy-wasm:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo +nightly clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
@@ -296,13 +296,13 @@ docs:
     - cargo doc --no-deps --all-features -p ink_storage
     - cargo doc --no-deps --all-features -p ink_storage_derive
     - cargo doc --no-deps --all-features -p ink_primitives
+    - cargo doc --no-deps --all-features -p ink_primitives_derive
     - cargo doc --no-deps --all-features -p ink_prelude
     - cargo doc --no-deps --all-features -p ink_lang
     - cargo doc --no-deps --all-features -p ink_lang_macro
     - cargo doc --no-deps --all-features -p ink_lang_ir
     - cargo doc --no-deps --all-features -p ink_lang_codegen
     - cargo doc --no-deps --all-features -p ink_metadata
-
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
@@ -373,7 +373,7 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -393,7 +393,7 @@ examples-contract-build:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
+    - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
@@ -416,7 +416,7 @@ examples-docs:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
+    - cargo doc --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
