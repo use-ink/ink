@@ -66,7 +66,6 @@ pub mod give_me {
     mod tests {
         use super::*;
         use ink_lang as ink;
-        use ink_lang::codegen::Env;
 
         #[ink::test]
         fn transfer_works() {
@@ -102,6 +101,7 @@ pub mod give_me {
 
         #[ink::test]
         fn test_transferred_value() {
+            use ink_lang::codegen::Env;
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);

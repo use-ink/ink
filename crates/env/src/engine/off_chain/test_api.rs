@@ -200,6 +200,7 @@ where
 }
 
 /// Sets the value transferred from the caller to the callee as part of the call.
+/// Please note that the actioning accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
 pub fn set_value_transferred<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
@@ -210,6 +211,7 @@ where
 }
 
 /// Transfers value from the caller account to the contract.
+/// Please note that the actioning accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
 pub fn transfer_in<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
