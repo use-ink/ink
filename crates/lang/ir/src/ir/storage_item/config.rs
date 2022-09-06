@@ -14,10 +14,8 @@
 
 use crate::{
     ast,
-    error::ExtError as _,
     utils::duplicate_config_err,
 };
-use syn::spanned::Spanned;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]

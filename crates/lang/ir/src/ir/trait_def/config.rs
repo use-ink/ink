@@ -14,13 +14,11 @@
 
 use crate::{
     ast,
-    error::ExtError as _,
     utils::{
         duplicate_config_err,
         WhitelistedAttributes,
     },
 };
-use syn::spanned::Spanned;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
