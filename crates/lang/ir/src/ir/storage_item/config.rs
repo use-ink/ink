@@ -15,6 +15,7 @@
 use crate::{
     ast,
     error::ExtError as _,
+    utils::duplicate_config_err,
 };
 use syn::spanned::Spanned;
 
@@ -26,24 +27,6 @@ pub struct StorageItemConfig {
     /// If set to `false`, implementing all storage traits is disabled. In some cases
     /// this can be helpful to override the default implementation of the trait.
     derive: bool,
-}
-
-/// Return an error to notify about duplicate ink! ink storage configuration arguments.
-fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
-where
-    F: Spanned,
-    S: Spanned,
-{
-    format_err!(
-        second.span(),
-        "encountered duplicate ink! storage item `{}` configuration argument",
-        name,
-    )
-    .into_combine(format_err!(
-        first.span(),
-        "first `{}` configuration argument here",
-        name
-    ))
 }
 
 impl TryFrom<ast::AttributeArgs> for StorageItemConfig {

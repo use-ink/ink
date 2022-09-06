@@ -15,7 +15,10 @@
 use crate::{
     ast,
     error::ExtError as _,
-    utils::WhitelistedAttributes,
+    utils::{
+        duplicate_config_err,
+        WhitelistedAttributes,
+    },
 };
 use syn::spanned::Spanned;
 
@@ -46,24 +49,6 @@ impl TraitDefinitionConfig {
             Some(syn::LitStr::new(namespace, proc_macro2::Span::call_site()));
         self
     }
-}
-
-/// Return an error to notify about duplicate ink! trait definition configuration arguments.
-fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
-where
-    F: Spanned,
-    S: Spanned,
-{
-    format_err!(
-        second.span(),
-        "encountered duplicate ink! trait definition `{}` configuration argument",
-        name,
-    )
-    .into_combine(format_err!(
-        first.span(),
-        "first `{}` configuration argument here",
-        name
-    ))
 }
 
 impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {

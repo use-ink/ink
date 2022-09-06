@@ -62,24 +62,6 @@ pub fn local_message_id(ident: &syn::Ident) -> u32 {
     selector.into_be_u32()
 }
 
-/// Return an error to notify about duplicate ink! configuration arguments.
-pub fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
-where
-    F: Spanned,
-    S: Spanned,
-{
-    format_err!(
-        snd.span(),
-        "encountered duplicate ink! `{}` configuration argument",
-        name,
-    )
-    .into_combine(format_err!(
-        fst.span(),
-        "first `{}` configuration argument here",
-        name
-    ))
-}
-
 /// The set of attributes that can be passed to call builder or call forwarder in the codegen.
 #[derive(Debug, PartialEq, Eq)]
 pub struct WhitelistedAttributes(pub HashMap<String, ()>);
@@ -140,7 +122,7 @@ impl WhitelistedAttributes {
 }
 
 /// Return an error to notify about duplicate ink! configuration arguments.
-fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
+pub(crate) fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
 where
     F: Spanned,
     S: Spanned,
