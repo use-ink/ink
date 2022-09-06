@@ -80,12 +80,25 @@ impl TryFrom<syn::Item> for Item {
                 }
             }
             syn::Item::Enum(item_enum) => {
-                todo!("recognise ink::event_definition or simply ink(event) still")
-                // ir::AttributeArg::Event => {
-                //     <InkEventDefinition as TryFrom<_>>::try_from(item_struct)
-                //         .map(Into::into)
-                //         .map(Self::Ink)
-                // }
+                // todo: dedup this with similar struct code above
+                if !ir::contains_ink_attributes(&item_enum.attrs) {
+                    return Ok(Self::Rust(item_enum.into()))
+                }
+                let attr = ir::first_ink_attribute(&item_enum.attrs)?
+                    .expect("missing expected ink! attribute for struct");
+                match attr.first().kind() {
+                    ir::AttributeArg::Event => {
+                        <InkEventDefinition as TryFrom<_>>::try_from(item_enum)
+                            .map(Into::into)
+                            .map(Self::Ink)
+                    }
+                    _invalid => {
+                        Err(format_err!(
+                            attr.span(),
+                            "encountered unsupported ink! attribute argument an enum",
+                        ))
+                    }
+                }
             }
             syn::Item::Impl(item_impl) => {
                 if !ir::ItemImpl::is_ink_impl_block(&item_impl)? {
@@ -154,7 +167,7 @@ impl Item {
 #[derive(Debug, PartialEq, Eq)]
 pub enum InkItem {
     /// The ink! storage struct definition.
-    Storage(ir::Storage),
+    Storage(Storage),
     /// An ink! event definition.
     Event(InkEventDefinition),
     /// An ink! implementation block.
@@ -221,15 +234,15 @@ impl From<ir::Storage> for InkItem {
     }
 }
 
-impl From<InkEventDefinition> for InkItem {
-    fn from(event: InkEventDefinition) -> Self {
-        Self::Event(event)
-    }
-}
-
 impl From<ir::ItemImpl> for InkItem {
     fn from(impl_block: ir::ItemImpl) -> Self {
         Self::ImplBlock(impl_block)
+    }
+}
+
+impl From<InkEventDefinition> for InkItem {
+    fn from(event_def: InkEventDefinition) -> Self {
+        Self::Event(event_def)
     }
 }
 
