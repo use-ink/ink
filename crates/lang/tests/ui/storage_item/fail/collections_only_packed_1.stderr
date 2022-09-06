@@ -5,9 +5,9 @@ error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
    |        ^^^^^^^^^^^^^^ the trait `Decode` is not implemented for `Vec<NonPacked>`
    |
    = help: the trait `Decode` is implemented for `Vec<T>`
-   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `StorableHint<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `Vec<NonPacked>`
+   = note: required for `Vec<NonPacked>` to implement `Packed`
+   = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
+   = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
 
 error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:8
@@ -18,10 +18,10 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
    = help: the following other types implement trait `Encode`:
              [T; N]
              [T]
-   = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `StorableHint<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `Vec<NonPacked>`
+   = note: required for `Vec<NonPacked>` to implement `Encode`
+   = note: required for `Vec<NonPacked>` to implement `Packed`
+   = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
+   = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
 
 error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:9:1
@@ -30,9 +30,9 @@ error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
    | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Decode` is not implemented for `Vec<NonPacked>`
    |
    = help: the trait `Decode` is implemented for `Vec<T>`
-   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `StorableHint<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `Vec<NonPacked>`
+   = note: required for `Vec<NonPacked>` to implement `Packed`
+   = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
+   = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
    |
@@ -54,10 +54,10 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
    = help: the following other types implement trait `Encode`:
              [T; N]
              [T]
-   = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `StorableHint<()>` for `Vec<NonPacked>`
-   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `Vec<NonPacked>`
+   = note: required for `Vec<NonPacked>` to implement `Encode`
+   = note: required for `Vec<NonPacked>` to implement `Packed`
+   = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
+   = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
    |
@@ -77,9 +77,9 @@ error[E0277]: the trait bound `Vec<NonPacked>: Decode` is not satisfied
     | ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Decode` is not implemented for `Vec<NonPacked>`
     |
     = help: the trait `Decode` is implemented for `Vec<T>`
-    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `StorableHint<()>` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `Vec<NonPacked>`
+    = note: required for `Vec<NonPacked>` to implement `Packed`
+    = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
+    = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
     |
@@ -101,10 +101,10 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
     = help: the following other types implement trait `Encode`:
               [T; N]
               [T]
-    = note: required because of the requirements on the impl of `Encode` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `Packed` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `StorableHint<()>` for `Vec<NonPacked>`
-    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762>>` for `Vec<NonPacked>`
+    = note: required for `Vec<NonPacked>` to implement `Encode`
+    = note: required for `Vec<NonPacked>` to implement `Packed`
+    = note: required for `Vec<NonPacked>` to implement `StorableHint<()>`
+    = note: required for `Vec<NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_1.rs:10:8
     |
