@@ -22,6 +22,23 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+/// todo: docs
+pub fn generate(attr: TokenStream2, structure: synstructure::Structure) -> TokenStream2 {
+    let body = s.each(|bi| quote!{
+        walk(#bi)
+    });
+
+    s.gen_impl(quote! {
+        extern crate synstructure_test_traits;
+
+        gen impl synstructure_test_traits::WalkFields for @Self {
+            fn walk_fields(&self, walk: &mut FnMut(&synstructure_test_traits::WalkFields)) {
+                match *self { #body }
+            }
+        }
+    })
+}
+
 /// Generates code for an event definition.
 #[derive(From)]
 pub struct EventDefinition<'a> {

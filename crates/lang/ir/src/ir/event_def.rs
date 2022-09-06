@@ -29,97 +29,86 @@ use syn::{
 
 /// A checked ink! event definition.
 #[derive(Debug, PartialEq, Eq)]
-pub struct InkEventDefinition {
-    pub item: syn::ItemEnum,
+pub struct InkEventDefinition<'a> {
+    pub structure: synstructure::Structure<'a>,
     pub anonymous: bool,
 }
 
-impl TryFrom<syn::ItemEnum> for InkEventDefinition {
-    type Error = syn::Error;
-
-    fn try_from(item_enum: syn::ItemEnum) -> Result<Self> {
-        let enum_span = item_enum.span();
-        let (ink_attrs, other_attrs) = ir::sanitize_attributes(
-            enum_span,
-            item_enum.attrs,
-            &ir::AttributeArgKind::Event,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
-                    _ => Err(None),
-                }
-            },
-        )?;
-        let item_enum = syn::ItemEnum {
-            attrs: other_attrs,
-            ..item_enum
-        };
-        Self::new(item_enum, ink_attrs.is_anonymous())
-    }
-}
+// impl TryFrom<syn::ItemEnum> for InkEventDefinition {
+//     type Error = syn::Error;
+//
+//     fn try_from(item_enum: syn::ItemEnum) -> Result<Self> {
+//         let enum_span = item_enum.span();
+//         let (ink_attrs, other_attrs) = ir::sanitize_attributes(
+//             enum_span,
+//             item_enum.attrs,
+//             &ir::AttributeArgKind::Event,
+//             |arg| {
+//                 match arg.kind() {
+//                     ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
+//                     _ => Err(None),
+//                 }
+//             },
+//         )?;
+//         let item_enum = syn::ItemEnum {
+//             attrs: other_attrs,
+//             ..item_enum
+//         };
+//         Self::new(item_enum, ink_attrs.is_anonymous())
+//     }
+// }
 
 impl quote::ToTokens for InkEventDefinition {
     /// We mainly implement this trait for this ink! type to have a derived
     /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        self.item.to_tokens(tokens)
+        self.structure.ast().to_tokens(tokens)
     }
 }
 
 impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn new(item_enum: syn::ItemEnum, anonymous: bool) -> Result<Self> {
-        if !item_enum.generics.params.is_empty() {
-            return Err(format_err_spanned!(
-                item_enum.generics.params,
-                "generic ink! event enums are not supported",
-            ))
-        }
-        let struct_span = item_enum.span();
-        utils::ensure_pub_visibility("event enums", struct_span, &item_enum.vis)?;
-        for variant in item_enum.variants.iter() {
-            'repeat: for field in variant.fields.iter() {
-                let field_span = field.span();
-                let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
-                if ink_attrs.is_empty() {
-                    continue 'repeat
-                }
-                let normalized =
-                    ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                        err.into_combine(format_err!(field_span, "at this invocation",))
-                    })?;
-                if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
-                    return Err(format_err!(
-                        field_span,
-                        "first optional ink! attribute of an event field must be #[ink(topic)]",
-                    ))
-                }
-                for arg in normalized.args() {
-                    if !matches!(arg.kind(), ir::AttributeArg::Topic) {
-                        return Err(format_err!(
-                            arg.span(),
-                            "encountered conflicting ink! attribute for event field",
-                        ))
-                    }
-                }
-            }
-        }
+    pub fn new(structure: synstructure::Structure, anonymous: bool) -> Result<Self> {
+        // for variant in structure.variants() {
+        //     'repeat: for field in variant.ast().fields {
+        //         let field_span = field.span();
+        //         let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
+        //         if ink_attrs.is_empty() {
+        //             continue 'repeat
+        //         }
+        //         let normalized =
+        //             ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+        //                 err.into_combine(format_err!(field_span, "at this invocation",))
+        //             })?;
+        //         if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
+        //             return Err(format_err!(
+        //                 field_span,
+        //                 "first optional ink! attribute of an event field must be #[ink(topic)]",
+        //             ))
+        //         }
+        //         for arg in normalized.args() {
+        //             if !matches!(arg.kind(), ir::AttributeArg::Topic) {
+        //                 return Err(format_err!(
+        //                     arg.span(),
+        //                     "encountered conflicting ink! attribute for event field",
+        //                 ))
+        //             }
+        //         }
+        //     }
+        // }
         Ok(Self {
-            item: item_enum,
+            structure,
             anonymous,
         })
     }
 
-    /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn from_event_def_tokens(
-        config: TokenStream2,
-        input: TokenStream2,
+    pub fn from_structure(
+        attr: TokenStream2,
+        structure: synstructure::Structure,
     ) -> Result<Self> {
         let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let anonymous = false; // todo parse this from attr config
-        let item = syn::parse2::<syn::ItemEnum>(input)?;
-        // let item = InkItemTrait::new(&config, parsed_item)?;
-        Ok(Self { anonymous, item })
+        Self::new(structure, anonymous)
     }
 
     /// Returns the identifier of the event struct.
@@ -140,7 +129,9 @@ impl InkEventDefinition {
     /// Returns the maximum number of topics of any event variant.
     pub fn max_len_topics(&self) -> usize {
         self
+            .structure
             .variants()
+            .iter()
             .map(|v| v.fields()
                 .filter(|event| event.is_topic)
                 .count())
