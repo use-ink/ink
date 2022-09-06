@@ -163,17 +163,3 @@ cfg_if::cfg_if! {
         }
     }
 }
-
-cfg_if::cfg_if! {
-    if #[cfg(feature = "std")] {
-        #[macro_export]
-        /// Prepend contract message call with value transfer. Used for tests in off-chain environment.
-        macro_rules! pay_with_call {
-            ($con:ident . $msg:ident ( $($params:ty)? ) , $amt:expr) => {{
-                use ink_env::test::transfer_in;
-                transfer_in::<Environment>($amt);
-                $con.$msg($($params:ty)?)
-            }}
-        }
-    }
-}

@@ -393,3 +393,12 @@ pub fn assert_contract_termination<T, F>(
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
 }
+
+#[macro_export]
+/// Prepend contract message call with value transfer. Used for tests in off-chain environment.
+macro_rules! pay_with_call {
+            ($contract:ident . $message:ident ( $($params:ty)? ) , $amount:expr) => {{
+                ::ink_env::test::transfer_in::<Environment>($amount);
+                $contract.$message($($params:ty)?)
+            }}
+}
