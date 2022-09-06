@@ -113,7 +113,7 @@ impl InkEventDefinition {
 
     /// Returns the identifier of the event struct.
     pub fn ident(&self) -> &Ident {
-        &self.item.ident
+        &self.structure.ast().ident
     }
 
     /// Returns all non-ink! attributes.

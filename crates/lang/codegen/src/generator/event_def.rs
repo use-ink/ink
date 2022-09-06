@@ -22,52 +22,37 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
-/// todo: docs
-pub fn generate(attr: TokenStream2, structure: synstructure::Structure) -> TokenStream2 {
-    let body = s.each(|bi| quote!{
-        walk(#bi)
-    });
-
-    s.gen_impl(quote! {
-        extern crate synstructure_test_traits;
-
-        gen impl synstructure_test_traits::WalkFields for @Self {
-            fn walk_fields(&self, walk: &mut FnMut(&synstructure_test_traits::WalkFields)) {
-                match *self { #body }
-            }
-        }
-    })
-}
-
 /// Generates code for an event definition.
 #[derive(From)]
 pub struct EventDefinition<'a> {
-    event_def: &'a ir::InkEventDefinition,
+    event_def: &'a ir::InkEventDefinition<'a>,
 }
 
 impl GenerateCode for EventDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let event_struct = self.generate_event_struct();
-        let event_info_impl = self.generate_event_info_impl();
-        let event_metadata_impl = self.generate_event_metadata_impl();
-        let topics_impl = self.generate_topics_impl();
-        let topics_guard = self.generate_topics_guard();
+        let event_enum = self.generate_event_enum();
+        // let event_info_impl = self.generate_event_info_impl();
+        // let event_metadata_impl = self.generate_event_metadata_impl();
+        let event_variants_impls = self.generate_event_variant_info_impls();
+        let topics_impl = self.generate_topics_impl2();
+        // let topics_guard = self.generate_topics_guard();
         quote! {
-            #event_struct
-            #event_info_impl
-            #event_metadata_impl
-            #topics_impl
-            #topics_guard
+            #[derive(::scale::Encode, ::scale::Decode)]
+            #event_enum
+            // #event_info_impl
+            // #event_metadata_impl
+            // #topics_impl
+            // #topics_guard
         }
     }
 }
 
 impl<'a> EventDefinition<'a> {
-    fn generate_event_struct(&'a self) -> TokenStream2 {
-        let span = self.event_def.span();
-        let event_enum = &self.event_def.item;
+    fn generate_event_enum(&'a self) -> TokenStream2 {
+        let span = self.event_def.structure.span();
+        let event_enum = &self.event_def.structure.ast();
         quote_spanned!(span =>
-            #[derive(scale::Encode, scale::Decode)]
+            #[derive(::scale::Encode, ::scale::Decode)]
             #event_enum
         )
     }
@@ -85,12 +70,19 @@ impl<'a> EventDefinition<'a> {
     fn generate_event_variant_info_impls(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
+
         let impls =
-            self.event_def.variants().map(|ev| {
-                let index = ev.index();
+            self.event_def.structure.variants().iter().enumerate().map(|(index, ev)| {
+                let event_variant_ident = ev.ast().ident;
                 quote_spanned!(span=>
                     impl ::ink_lang::reflect::EventVariantInfo<#index> for #event_ident {
-                        const SIGNATURE: [u8: 32] = todo!();
+                        const SIGNATURE: [u8: 32] = ::ink_lang::blake2x256!(::core::concat!(
+                            ::core::module_path!(),
+                            "::",
+                            ::core::stringify!(#event_ident),
+                            "::",
+                            ::core::stringify!(#event_variant_ident)
+                        ));
                     }
                 )
             });
@@ -121,87 +113,91 @@ impl<'a> EventDefinition<'a> {
         )
     }
 
-    /// Generates the `Topics` trait implementations for the user defined events.
-    fn generate_topics_impl(&self) -> TokenStream2 {
-        let span = self.event_def.span();
-        let event_ident = self.event_def.ident();
-        let len_topics = self
-            .event_def
-            .max_len_topics();
-        let topic_impls = self
-            .event_def
-            .fields()
-            .enumerate()
-            .filter(|(_, field)| field.is_topic)
-            .map(|(n, topic_field)| {
-                let span = topic_field.span();
-                let field_ident = topic_field
-                    .ident()
-                    .map(quote::ToTokens::into_token_stream)
-                    .unwrap_or_else(|| quote_spanned!(span => #n));
-                let field_type = topic_field.ty();
-                quote_spanned!(span =>
-                    .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                        &::ink_env::topics::PrefixedValue {
-                            // todo: deduplicate with EVENT_SIGNATURE
-                            prefix: ::core::concat!(
-                                ::core::module_path!(),
-                                "::",
-                                ::core::stringify!(#event_ident),
-                                "::",
-                                ::core::stringify!(#field_ident),
-                            ).as_bytes(),
-                            value: &self.#field_ident,
-                        }
-                    )
-                )
-            });
-        // Only include topic for event signature in case of non-anonymous event.
-        let event_signature_topic = match self.event_def.anonymous {
-            true => None,
-            false => {
-                Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<()>>(
-                        &::ink_env::topics::PrefixedValue {
-                            prefix: EVENT_SIGNATURE, value: &(),
-                        }
-                    )
-                ))
-            }
-        };
-        // Anonymous events require 1 fewer topics since they do not include their signature.
-        let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
-        let remaining_topics_ty = match len_topics + anonymous_topics_offset {
-            0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
-            n => {
-                quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n])
-            }
-        };
-        quote_spanned!(span =>
-            const _: () = {
-                impl ::ink_env::Topics for #event_ident {
-                    type RemainingTopics = #remaining_topics_ty;
+    fn generate_topics_impl2(&self) -> TokenStream2 {
 
-                    fn topics<E, B>(
-                        &self,
-                        builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-                    where
-                        E: ::ink_env::Environment,
-                        B: ::ink_env::topics::TopicsBuilderBackend<E>,
-                    {
-                        const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink_lang::reflect::EventInfo>::PATH.as_bytes();
-
-                        builder
-                            .build::<Self>()
-                            #event_signature_topic
-                            #(
-                                #topic_impls
-                            )*
-                            .finish()
-                    }
-                }
-            };
-        )
     }
+
+    // /// Generates the `Topics` trait implementations for the user defined events.
+    // fn generate_topics_impl(&self) -> TokenStream2 {
+    //     let span = self.event_def.span();
+    //     let event_ident = self.event_def.ident();
+    //     let len_topics = self
+    //         .event_def
+    //         .max_len_topics();
+    //     let topic_impls = self
+    //         .event_def
+    //         .fields()
+    //         .enumerate()
+    //         .filter(|(_, field)| field.is_topic)
+    //         .map(|(n, topic_field)| {
+    //             let span = topic_field.span();
+    //             let field_ident = topic_field
+    //                 .ident()
+    //                 .map(quote::ToTokens::into_token_stream)
+    //                 .unwrap_or_else(|| quote_spanned!(span => #n));
+    //             let field_type = topic_field.ty();
+    //             quote_spanned!(span =>
+    //                 .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+    //                     &::ink_env::topics::PrefixedValue {
+    //                         // todo: deduplicate with EVENT_SIGNATURE
+    //                         prefix: ::core::concat!(
+    //                             ::core::module_path!(),
+    //                             "::",
+    //                             ::core::stringify!(#event_ident),
+    //                             "::",
+    //                             ::core::stringify!(#field_ident),
+    //                         ).as_bytes(),
+    //                         value: &self.#field_ident,
+    //                     }
+    //                 )
+    //             )
+    //         });
+    //     // Only include topic for event signature in case of non-anonymous event.
+    //     let event_signature_topic = match self.event_def.anonymous {
+    //         true => None,
+    //         false => {
+    //             Some(quote_spanned!(span=>
+    //                 .push_topic::<::ink_env::topics::PrefixedValue<()>>(
+    //                     &::ink_env::topics::PrefixedValue {
+    //                         prefix: EVENT_SIGNATURE, value: &(),
+    //                     }
+    //                 )
+    //             ))
+    //         }
+    //     };
+    //     // Anonymous events require 1 fewer topics since they do not include their signature.
+    //     let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
+    //     let remaining_topics_ty = match len_topics + anonymous_topics_offset {
+    //         0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
+    //         n => {
+    //             quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n])
+    //         }
+    //     };
+    //     quote_spanned!(span =>
+    //         const _: () = {
+    //             impl ::ink_env::Topics for #event_ident {
+    //                 type RemainingTopics = #remaining_topics_ty;
+    //
+    //                 fn topics<E, B>(
+    //                     &self,
+    //                     builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
+    //                 ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+    //                 where
+    //                     E: ::ink_env::Environment,
+    //                     B: ::ink_env::topics::TopicsBuilderBackend<E>,
+    //                 {
+    //                     const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink_lang::reflect::EventInfo>::PATH.as_bytes();
+    //
+    //                     builder
+    //                         .build::<Self>()
+    //                         #event_signature_topic
+    //                         #(
+    //                             #topic_impls
+    //                         )*
+    //                         .finish()
+    //                 }
+    //             }
+    //         };
+    //     )
+    // }
 }
