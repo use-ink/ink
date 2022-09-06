@@ -73,6 +73,7 @@ pub use self::{
         Selector,
         SelectorMacro,
         Storage,
+        StorageItem,
         Visibility,
     },
     literal::HexLiteral,

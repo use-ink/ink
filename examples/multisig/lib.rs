@@ -64,20 +64,16 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod multisig {
-    use ink_env::call::{
-        build_call,
-        Call,
-        ExecutionInput,
+    use ink_env::{
+        call::{
+            build_call,
+            Call,
+            ExecutionInput,
+        },
+        CallFlags,
     };
     use ink_prelude::vec::Vec;
-    use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadAllocate,
-            SpreadLayout,
-        },
-        Mapping,
-    };
+    use ink_storage::Mapping;
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
@@ -99,7 +95,7 @@ mod multisig {
     }
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
-    #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
+    #[derive(Clone, Copy, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
@@ -113,7 +109,7 @@ mod multisig {
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
-    #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+    #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -135,6 +131,9 @@ mod multisig {
         pub transferred_value: Balance,
         /// Gas limit for the execution of the call.
         pub gas_limit: u64,
+        /// If set to true the transaction will be allowed to re-enter the multisig contract.
+        /// Re-entrancy can lead to vulnerabilities. Use at your own risk.
+        pub allow_reentry: bool,
     }
 
     /// Errors that can occur upon calling this contract.
@@ -147,9 +146,7 @@ mod multisig {
 
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
-    #[derive(
-        scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate, Default,
-    )]
+    #[derive(Default, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -247,7 +244,7 @@ mod multisig {
     }
 
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    #[derive(Default)]
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
@@ -281,19 +278,19 @@ mod multisig {
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
         pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                owners.sort_unstable();
-                owners.dedup();
-                ensure_requirement_is_valid(owners.len() as u32, requirement);
+            let mut contract = Multisig::default();
+            owners.sort_unstable();
+            owners.dedup();
+            ensure_requirement_is_valid(owners.len() as u32, requirement);
 
-                for owner in &owners {
-                    contract.is_owner.insert(owner, &());
-                }
+            for owner in &owners {
+                contract.is_owner.insert(owner, &());
+            }
 
-                contract.owners = owners;
-                contract.transaction_list = Default::default();
-                contract.requirement = requirement;
-            })
+            contract.owners = owners;
+            contract.transaction_list = Default::default();
+            contract.requirement = requirement;
+            contract
         }
 
         /// Add a new owner to the contract.
@@ -546,6 +543,7 @@ mod multisig {
                         .gas_limit(t.gas_limit)
                         .transferred_value(t.transferred_value),
                 )
+                .call_flags(CallFlags::default().set_allow_reentry(t.allow_reentry))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
@@ -578,6 +576,7 @@ mod multisig {
                         .gas_limit(t.gas_limit)
                         .transferred_value(t.transferred_value),
                 )
+                .call_flags(CallFlags::default().set_allow_reentry(t.allow_reentry))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
@@ -734,6 +733,7 @@ mod multisig {
                     input: call_args.encode(),
                     transferred_value: 0,
                     gas_limit: 1000000,
+                    allow_reentry: false,
                 }
             }
         }
