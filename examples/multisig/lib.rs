@@ -317,7 +317,7 @@ mod multisig {
         ///     AccountId,
         ///     DefaultEnvironment as Env,
         /// };
-        /// use ink_lang::selector_bytes;
+        /// use ink::selector_bytes;
         /// use scale::Encode;
         /// use multisig::{Transaction, ConfirmationStatus};
         ///
@@ -536,7 +536,7 @@ mod multisig {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             assert!(self.env().transferred_value() == t.transferred_value);
-            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
                         .callee(t.callee)
@@ -569,7 +569,7 @@ mod multisig {
         ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
                         .callee(t.callee)

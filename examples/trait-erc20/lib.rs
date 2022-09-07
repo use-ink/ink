@@ -272,7 +272,7 @@ mod erc20 {
         };
         use ink_lang as ink;
 
-        type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
+        type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
 
         fn assert_transfer_event(
             event: &ink_env::test::EmittedEvent,

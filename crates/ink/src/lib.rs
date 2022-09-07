@@ -12,18 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub use ink_env as env;
-pub use ink_lang as lang;
-#[cfg(feature = "std")]
-pub use ink_metadata as metadata;
-pub use ink_prelude as prelude;
-pub use ink_primitives as primitives;
-pub use ink_storage as storage;
+#![cfg_attr(not(feature = "std"), no_std)]
 
-// The top level macros:
-//  - `#[ink::contract]`
-//  - `#[ink::trait_definition]`
-pub use self::lang::{
+#[macro_use]
+#[doc(hidden)]
+pub mod result_info;
+
+#[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
+pub mod codegen;
+
+pub mod reflect;
+
+mod chain_extension;
+mod contract_ref;
+mod env_access;
+
+pub use self::{
+    chain_extension::{
+        ChainExtensionInstance,
+        IsResultType,
+    },
+    contract_ref::ToAccountId,
+    env_access::EnvAccess,
+};
+pub use ink_lang_macro::{
+    blake2x256,
+    chain_extension,
     contract,
+    selector_bytes,
+    selector_id,
+    storage_item,
+    test,
     trait_definition,
 };
