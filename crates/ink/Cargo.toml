@@ -22,9 +22,6 @@ ink_metadata = { version = "4.0.0-alpha.1", path = "../metadata", default-featur
 ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude", default-features = false }
 ink_lang = { version = "4.0.0-alpha.1", path = "../lang", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
-
 [features]
 default = ["std"]
 std = [
@@ -34,7 +31,5 @@ std = [
     "ink_env/std",
     "ink_storage/std",
     "ink_lang/std",
-    "scale/std",
-    "scale-info/std",
 ]
 show-codegen-docs = []

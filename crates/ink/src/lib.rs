@@ -20,10 +20,6 @@ pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
 pub use ink_storage as storage;
 
-pub use scale;
-#[cfg(feature = "std")]
-pub use scale_info;
-
 // The top level macros:
 //  - `#[ink::contract]`
 //  - `#[ink::trait_definition]`
