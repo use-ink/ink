@@ -19,43 +19,43 @@ use sp_runtime::{
 
 #[derive(Debug, PartialEq, Encode, Decode, MaxEncodedLen)]
 struct Psp22BalanceOfInput<AssetId, AccountId> {
-    pub asset_id: AssetId,
-    pub owner: AccountId,
+    asset_id: AssetId,
+    owner: AccountId,
 }
 
 #[derive(Debug, PartialEq, Encode, Decode, MaxEncodedLen)]
 struct Psp22AllowanceInput<AssetId, AccountId> {
-    pub asset_id: AssetId,
-    pub owner: AccountId,
-    pub spender: AccountId,
+    asset_id: AssetId,
+    owner: AccountId,
+    spender: AccountId,
 }
 
 #[derive(Debug, PartialEq, Encode, Decode, MaxEncodedLen)]
 struct Psp22TransferInput<AssetId, AccountId, Balance> {
-    pub asset_id: AssetId,
-    pub to: AccountId,
-    pub value: Balance,
+    asset_id: AssetId,
+    to: AccountId,
+    value: Balance,
 }
 
 #[derive(Debug, PartialEq, Encode, Decode, MaxEncodedLen)]
 struct Psp22TransferFromInput<AssetId, AccountId, Balance> {
-    pub asset_id: AssetId,
-    pub from: AccountId,
-    pub to: AccountId,
-    pub value: Balance,
+    asset_id: AssetId,
+    from: AccountId,
+    to: AccountId,
+    value: Balance,
 }
 
 #[derive(Debug, PartialEq, Encode, Decode, MaxEncodedLen)]
 struct Psp22ApproveInput<AssetId, AccountId, Balance> {
-    pub asset_id: AssetId,
-    pub spender: AccountId,
-    pub value: Balance,
+    asset_id: AssetId,
+    spender: AccountId,
+    value: Balance,
 }
 
 #[derive(Default)]
 pub struct Psp22Extension;
 
-fn map_err(err_msg: &'static str) -> impl FnOnce(DispatchError) -> DispatchError {
+fn convert_err(err_msg: &'static str) -> impl FnOnce(DispatchError) -> DispatchError {
     move |err| {
         trace!(
             target: "runtime",
@@ -66,8 +66,58 @@ fn map_err(err_msg: &'static str) -> impl FnOnce(DispatchError) -> DispatchError
     }
 }
 
+enum FuncId {
+    Metadata(Metadata),
+    Query(Query),
+    Transfer,
+    TransferFrom,
+    Approve,
+    IncreaseAllowance,
+    DecreaseAllowance,
+}
+
+impl TryFrom<u16> for FuncId {
+    type Error = DispatchError;
+
+    fn try_from(func_id: u16) -> Result<Self, Self::Error> {
+        match func_id {
+            // Note: We use the first two bytes of PSP22 interface selectors as function IDs,
+            // While we can use anything here, it makes sense from a convention perspective.
+            0x3d26 => Ok(Self::Metadata(Metadata::Name)),
+            0x3420 => Ok(Self::Metadata(Metadata::Symbol)),
+            0x7271 => Ok(Self::Metadata(Metadata::Decimals)),
+            0x162d => Ok(Self::Query(Query::TotalSupply)),
+            0x6568 => Ok(Self::Query(Query::BalanceOf)),
+            0x4d47 => Ok(Self::Query(Query::Allowance)),
+            0xdb20 => Ok(Self::Transfer),
+            0x54b3 => Ok(Self::TransferFrom),
+            0xb20f => Ok(Self::Approve),
+            0x96d6 => Ok(Self::IncreaseAllowance),
+            0xfecb => Ok(Self::DecreaseAllowance),
+            _ => {
+                error!("Called an unregistered `func_id`: {:}", func_id);
+                return Err(DispatchError::Other("Unimplemented func_id"));
+            }
+        }
+    }
+}
+
+#[derive(Debug)]
+enum Metadata {
+    Name,
+    Symbol,
+    Decimals,
+}
+
+#[derive(Debug)]
+enum Query {
+    TotalSupply,
+    BalanceOf,
+    Allowance,
+}
+
 fn metadata<T, E>(
-    func_id: u16,
+    func_id: Metadata,
     env: Environment<E, InitState>,
 ) -> Result<(), DispatchError>
 where
@@ -78,22 +128,18 @@ where
     let mut env = env.buf_in_buf_out();
     let asset_id = env.read_as()?;
     let result = match func_id {
-        // PSP22Metadata::token_name
-        0x3d26 => {
+        Metadata::Name => {
             <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::name(&asset_id)
                 .encode()
         }
-        // PSP22Metadata::token_symbol
-        0x3420 => {
+        Metadata::Symbol => {
             <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::symbol(&asset_id)
                 .encode()
         }
-        // PSP22Metadata::token_decimals
-        0x7271 => <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::decimals(
-            &asset_id,
-        )
+        Metadata::Decimals => <pallet_assets::Pallet<T> as InspectMetadata<
+            T::AccountId,
+        >>::decimals(&asset_id)
         .encode(),
-        _ => unreachable!(),
     };
     trace!(
         target: "runtime",
@@ -101,10 +147,13 @@ where
         func_id
     );
     env.write(&result, false, None)
-        .map_err(map_err("ChainExtension failed to call PSP22Metadata"))
+        .map_err(convert_err("ChainExtension failed to call PSP22Metadata"))
 }
 
-fn query<T, E>(func_id: u16, env: Environment<E, InitState>) -> Result<(), DispatchError>
+fn query<T, E>(
+    func_id: Query,
+    env: Environment<E, InitState>,
+) -> Result<(), DispatchError>
 where
     T: pallet_assets::Config + pallet_contracts::Config,
     <T as SysConfig>::AccountId: UncheckedFrom<<T as SysConfig>::Hash> + AsRef<[u8]>,
@@ -112,40 +161,34 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let result = match func_id {
-        // PSP22::total_supply
-        0x162d => {
+        Query::TotalSupply => {
             let asset_id = env.read_as()?;
             <pallet_assets::Pallet<T> as Inspect<T::AccountId>>::total_issuance(asset_id)
-                .encode()
         }
-        // PSP22::balance_of
-        0x6568 => {
+        Query::BalanceOf => {
             let input: Psp22BalanceOfInput<T::AssetId, T::AccountId> = env.read_as()?;
             <pallet_assets::Pallet<T> as Inspect<T::AccountId>>::balance(
                 input.asset_id,
                 &input.owner,
             )
-            .encode()
         }
-        // PSP22::allowance
-        0x4d47 => {
+        Query::Allowance => {
             let input: Psp22AllowanceInput<T::AssetId, T::AccountId> = env.read_as()?;
             <pallet_assets::Pallet<T> as AllowanceInspect<T::AccountId>>::allowance(
                 input.asset_id,
                 &input.owner,
                 &input.spender,
             )
-            .encode()
         }
-        _ => unreachable!(),
-    };
+    }
+    .encode();
     trace!(
         target: "runtime",
         "[ChainExtension] PSP22::{:?}",
         func_id
     );
     env.write(&result, false, None)
-        .map_err(map_err("ChainExtension failed to call PSP22 query"))
+        .map_err(convert_err("ChainExtension failed to call PSP22 query"))
 }
 
 fn transfer<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -181,7 +224,7 @@ where
         input.value,
         true,
     )
-    .map_err(map_err("ChainExtension failed to call transfer"))?;
+    .map_err(convert_err("ChainExtension failed to call transfer"))?;
     trace!(
         target: "runtime",
         "[ChainExtension]|call|transfer"
@@ -228,7 +271,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|transfer_from"
     );
-    result.map_err(map_err("ChainExtension failed to call transfer_from"))
+    result.map_err(convert_err("ChainExtension failed to call transfer_from"))
 }
 
 fn approve<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -266,7 +309,7 @@ where
         target: "runtime",
         "[ChainExtension]|call|approve"
     );
-    result.map_err(map_err("ChainExtension failed to call approve"))
+    result.map_err(convert_err("ChainExtension failed to call approve"))
 }
 
 fn decrease_allowance<T, E>(env: Environment<E, InitState>) -> Result<(), DispatchError>
@@ -309,7 +352,9 @@ where
         input.asset_id,
         T::Lookup::unlookup(input.spender.clone()),
     )
-    .map_err(map_err("ChainExtension failed to call decrease_allowance"))?;
+    .map_err(convert_err(
+        "ChainExtension failed to call decrease_allowance",
+    ))?;
     allowance.saturating_reduce(input.value);
     if allowance.is_zero() {
         // If reduce value was less or equal than existing allowance, it should stay none.
@@ -326,7 +371,9 @@ where
         &input.spender,
         allowance,
     )
-    .map_err(map_err("ChainExtension failed to call decrease_allowance"))?;
+    .map_err(convert_err(
+        "ChainExtension failed to call decrease_allowance",
+    ))?;
 
     trace!(
         target: "runtime",
@@ -350,33 +397,16 @@ where
         <E::T as SysConfig>::AccountId:
             UncheckedFrom<<E::T as SysConfig>::Hash> + AsRef<[u8]>,
     {
-        let func_id = env.func_id();
+        let func_id = FuncId::try_from(env.func_id())?;
         match func_id {
-            // Note: We use the first two bytes of PSP22 interface selectors as function IDs,
-            // While we can use anything here, it makes sense from a convention perspective.
-
-            // PSP22 Metadata interfaces
-            0x3d26 | 0x3420 | 0x7271 => metadata::<T, E>(func_id, env)?,
-
-            // PSP22 interface queries
-            0x162d | 0x6568 | 0x4d47 => query::<T, E>(func_id, env)?,
-
-            // P2P22:transfer
-            0xdb20 => transfer::<T, E>(env)?,
-
-            // P2P22:transfer_from
-            0x54b3 => transfer_from::<T, E>(env)?,
-
-            // PSP22::approve + PSP22::increase_allowance
-            0xb20f | 0x96d6 => approve::<T, E>(env)?,
-
-            // PSP22::decrease_allowance
-            0xfecb => decrease_allowance(env)?,
-
-            _ => {
-                error!("Called an unregistered `func_id`: {:}", func_id);
-                return Err(DispatchError::Other("Unimplemented func_id"));
-            }
+            FuncId::Metadata(func_id) => metadata::<T, E>(func_id, env)?,
+            FuncId::Query(func_id) => query::<T, E>(func_id, env)?,
+            FuncId::Transfer => transfer::<T, E>(env)?,
+            FuncId::TransferFrom => transfer_from::<T, E>(env)?,
+            // FIXME: This is a bit of a shortcut. It was made because the documentation
+            //        for Mutate::approve does not specify the result of subsequent calls.
+            FuncId::Approve | FuncId::IncreaseAllowance => approve::<T, E>(env)?,
+            FuncId::DecreaseAllowance => decrease_allowance(env)?,
         }
 
         Ok(RetVal::Converging(0))

@@ -1,5 +1,4 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(clippy::new_without_default)]
 
 use ink_env::Environment;
 use ink_lang as ink;
@@ -129,13 +128,14 @@ mod psp22_ext {
     /// A chain extension which implements the PSP-22 fungible token standard.
     /// For more details see <https://github.com/w3f/PSPs/blob/master/PSPs/psp-22.md>
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Psp22Extension {}
 
     impl Psp22Extension {
         /// Creates a new instance of this contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Psp22Extension {}
+            Default::default()
         }
 
         // PSP22 Metadata interfaces
@@ -172,7 +172,8 @@ mod psp22_ext {
             self.env().extension().balance_of(asset_id, owner)
         }
 
-        /// Returns the amount which `spender` is still allowed to withdraw from `owner` for the specified asset.
+        /// Returns the amount which `spender` is still allowed to withdraw from `owner`
+        /// for the specified asset.
         #[ink(message, selector = 0x4d47d921)]
         pub fn allowance(
             &self,
@@ -185,7 +186,8 @@ mod psp22_ext {
 
         // PSP22 transfer
 
-        /// Transfers `value` amount of specified asset from the caller's account to account `to`.
+        /// Transfers `value` amount of specified asset from the caller's account to the
+        /// account `to`.
         #[ink(message, selector = 0xdb20f9f5)]
         pub fn transfer(
             &mut self,
@@ -198,7 +200,8 @@ mod psp22_ext {
 
         // PSP22 transfer_from
 
-        /// Transfers `value` amount of specified asset on the behalf of `from` to the account `to`.
+        /// Transfers `value` amount of specified asset on the behalf of `from` to the
+        /// account `to`.
         #[ink(message, selector = 0x54b3c76e)]
         pub fn transfer_from(
             &mut self,
@@ -214,7 +217,8 @@ mod psp22_ext {
 
         // PSP22 approve
 
-        /// Allows `spender` to withdraw from the caller's account multiple times, up to the `value` amount of the specified asset.
+        /// Allows `spender` to withdraw from the caller's account multiple times, up to
+        /// the `value` amount of the specified asset.
         #[ink(message, selector = 0xb20f1bbd)]
         pub fn approve(
             &mut self,
@@ -227,7 +231,8 @@ mod psp22_ext {
 
         // PSP22 increase_allowance
 
-        /// Atomically increases the allowance for the specified asset granted to `spender` by the caller.
+        /// Atomically increases the allowance for the specified asset granted to `spender`
+        /// by the caller.
         #[ink(message, selector = 0x96d6b57a)]
         pub fn increase_allowance(
             &mut self,
@@ -242,7 +247,8 @@ mod psp22_ext {
 
         // PSP22 decrease_allowance
 
-        /// Atomically decreases the allowance for the specified asset granted to `spender` by the caller.
+        /// Atomically decreases the allowance for the specified asset granted to `spender`
+        /// by the caller.
         #[ink(message, selector = 0xfecb57d5)]
         pub fn decrease_allowance(
             &mut self,
