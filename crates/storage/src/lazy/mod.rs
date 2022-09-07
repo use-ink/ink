@@ -15,309 +15,259 @@
 //! Low-level collections and data structures to manage storage entities in the
 //! persisted contract storage.
 //!
-//! Users should generally avoid using these collections directly in their
-//! contracts and should instead adhere to the high-level collections found
-//! in [`collections`][`crate::collections`].
-//! The low-level collections are mainly used as building blocks for internals
-//! of other higher-level storage collections.
-//!
 //! These low-level collections are not aware of the elements they manage thus
 //! extra care has to be taken when operating directly on them.
 
-pub mod lazy_hmap;
-pub mod mapping;
-
-mod cache_cell;
-mod entry;
-mod lazy_array;
-mod lazy_cell;
-mod lazy_imap;
+mod mapping;
 
 #[doc(inline)]
-pub use self::lazy_array::LazyArray;
-use self::{
-    cache_cell::CacheCell,
-    entry::{
-        EntryState,
-        StorageEntry,
-    },
-};
-#[doc(inline)]
-pub use self::{
-    lazy_cell::LazyCell,
-    lazy_hmap::LazyHashMap,
-    lazy_imap::LazyIndexMap,
-    mapping::Mapping,
-};
+pub use self::mapping::Mapping;
+
 use crate::traits::{
-    KeyPtr,
-    SpreadAllocate,
-    SpreadLayout,
+    AutoKey,
+    StorableHint,
+    StorageKey,
 };
-use ink_primitives::Key;
+use core::marker::PhantomData;
+use ink_primitives::{
+    traits::Storable,
+    Key,
+};
+use scale::{
+    Error,
+    Input,
+    Output,
+};
 
-/// A lazy storage entity.
+/// A simple wrapper around a type to store it in a separate storage cell under its own storage key.
+/// If you want to update the value, first you need to [`get`](crate::Lazy::get) it, update the
+/// value, and then call [`set`](crate::Lazy::set) with the new value.
 ///
-/// This loads its value from storage upon first use.
+/// # Important
+///
+/// The wrapper requires its own pre-defined storage key in order to determine where it stores
+/// value. By default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// during compilation. However, anyone can specify a storage key using
+/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
+/// upgradeable contracts or you want to be resistant to future changes of storage
+/// key calculation strategy.
 ///
 /// # Note
 ///
-/// Use this if the storage field does not need to be loaded in some or most cases.
-#[derive(Debug)]
-pub struct Lazy<T>
+/// If the contract has two or more `Lazy` with the same storage key, modifying the value of one
+/// of them will modify others.
+///
+/// This is an example of how you can do this:
+/// ```rust
+/// # use ink_lang as ink;
+/// # use ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// # };
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+///
+/// # #[ink::contract]
+/// # mod my_module {
+/// use ink_storage::{traits::ManualKey, Lazy};
+///
+/// #[ink(storage)]
+/// #[derive(Default)]
+/// pub struct MyContract {
+///     owner: Lazy<AccountId>,
+///     balance: Lazy<Balance, ManualKey<123>>,
+/// }
+///
+/// impl MyContract {
+///     #[ink(constructor)]
+///     pub fn new() -> Self {
+///         let mut instance = Self::default();
+///         let caller = Self::env().caller();
+///         instance.owner.set(&caller);
+///         instance.balance.set(&123456);
+///         instance
+///     }
+///
+/// #   #[ink(message)]
+/// #   pub fn my_message(&self) { }
+/// }
+/// # }
+/// ```
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct Lazy<V, KeyType: StorageKey = AutoKey> {
+    _marker: PhantomData<fn() -> (V, KeyType)>,
+}
+
+/// We implement this manually because the derived implementation adds trait bounds.
+impl<V, KeyType> Default for Lazy<V, KeyType>
 where
-    T: SpreadLayout,
+    KeyType: StorageKey,
 {
-    cell: LazyCell<T>,
+    fn default() -> Self {
+        Self {
+            _marker: Default::default(),
+        }
+    }
+}
+
+impl<V, KeyType> Lazy<V, KeyType>
+where
+    KeyType: StorageKey,
+{
+    /// Creates a new empty `Lazy`.
+    pub fn new() -> Self {
+        Self {
+            _marker: Default::default(),
+        }
+    }
+}
+
+impl<V, KeyType> core::fmt::Debug for Lazy<V, KeyType>
+where
+    KeyType: StorageKey,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Lazy").field("key", &KeyType::KEY).finish()
+    }
+}
+
+impl<V, KeyType> Lazy<V, KeyType>
+where
+    V: Storable,
+    KeyType: StorageKey,
+{
+    /// Reads the `value` from the contract storage, if it exists.
+    pub fn get(&self) -> Option<V> {
+        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+            Ok(Some(value)) => Some(value),
+            _ => None,
+        }
+    }
+
+    /// Writes the given `value` to the contract storage.
+    pub fn set(&mut self, value: &V) {
+        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+    }
+}
+
+impl<V, KeyType> Lazy<V, KeyType>
+where
+    V: Storable + Default,
+    KeyType: StorageKey,
+{
+    /// Reads the `value` from the contract storage.
+    ///
+    /// Returns the default value for the storage type if no `value` exists.
+    pub fn get_or_default(&self) -> V {
+        match ink_env::get_contract_storage::<Key, V>(&KeyType::KEY) {
+            Ok(Some(value)) => value,
+            _ => Default::default(),
+        }
+    }
+}
+
+impl<V, KeyType> Storable for Lazy<V, KeyType>
+where
+    KeyType: StorageKey,
+{
+    #[inline(always)]
+    fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
+
+    #[inline(always)]
+    fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
+        Ok(Default::default())
+    }
+}
+
+impl<V, Key, InnerKey> StorableHint<Key> for Lazy<V, InnerKey>
+where
+    Key: StorageKey,
+    InnerKey: StorageKey,
+    V: StorableHint<Key>,
+{
+    type Type = Lazy<V::Type, Key>;
+    type PreferredKey = InnerKey;
+}
+
+impl<V, KeyType> StorageKey for Lazy<V, KeyType>
+where
+    KeyType: StorageKey,
+{
+    const KEY: Key = KeyType::KEY;
 }
 
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
-    use ink_metadata::layout::Layout;
+    use ink_metadata::layout::{
+        Layout,
+        LayoutKey,
+        RootLayout,
+    };
 
-    impl<T> StorageLayout for Lazy<T>
+    impl<V, KeyType> StorageLayout for Lazy<V, KeyType>
     where
-        T: StorageLayout + SpreadLayout,
+        V: StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            <T as StorageLayout>::layout(key_ptr)
+        fn layout(_: &Key) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };
 
-impl<T> SpreadLayout for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::traits::ManualKey;
 
-    fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self {
-            cell: <LazyCell<T> as SpreadLayout>::pull_spread(ptr),
-        }
-    }
+    #[test]
+    fn set_and_get_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<u8> = Lazy::new();
+            storage.set(&2);
+            assert_eq!(storage.get(), Some(2));
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.cell, ptr)
-    }
-
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.cell, ptr)
-    }
-}
-
-impl<T> SpreadAllocate for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        Self {
-            cell: <LazyCell<T> as SpreadAllocate>::allocate_spread(ptr),
-        }
-    }
-}
-
-impl<T> Lazy<T>
-where
-    T: SpreadLayout,
-{
-    /// Creates an eagerly populated lazy storage value.
-    #[must_use]
-    pub fn new(value: T) -> Self {
-        Self {
-            cell: LazyCell::new(Some(value)),
-        }
+            Ok(())
+        })
+        .unwrap()
     }
 
-    /// Creates a true lazy storage value for the given key.
-    #[must_use]
-    pub(crate) fn from_key(key: Key) -> Self {
-        Self {
-            cell: LazyCell::lazy(key),
-        }
-    }
-}
+    #[test]
+    fn set_and_get_work_for_two_lazy_with_same_manual_key() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut storage: Lazy<u8, ManualKey<123>> = Lazy::new();
+            storage.set(&2);
 
-impl<T> Lazy<T>
-where
-    T: SpreadLayout,
-{
-    /// Returns a shared reference to the lazily loaded value.
-    ///
-    /// # Note
-    ///
-    /// This loads the value from the contract storage if this did not happen before.
-    ///
-    /// # Panics
-    ///
-    /// If loading from contract storage failed.
-    #[must_use]
-    pub fn get(lazy: &Self) -> &T {
-        lazy.cell.get().expect("encountered empty storage cell")
+            let storage2: Lazy<u8, ManualKey<123>> = Lazy::new();
+            assert_eq!(storage2.get(), Some(2));
+
+            Ok(())
+        })
+        .unwrap()
     }
 
-    /// Returns an exclusive reference to the lazily loaded value.
-    ///
-    /// # Note
-    ///
-    /// This loads the value from the contract storage if this did not happen before.
-    ///
-    /// # Panics
-    ///
-    /// If loading from contract storage failed.
-    #[must_use]
-    pub fn get_mut(lazy: &mut Self) -> &mut T {
-        lazy.cell.get_mut().expect("encountered empty storage cell")
+    #[test]
+    fn gets_or_default_if_no_key_set() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let storage: Lazy<u8> = Lazy::new();
+            assert_eq!(storage.get_or_default(), 0);
+
+            Ok(())
+        })
+        .unwrap()
     }
 
-    /// Sets the value to `value`, without executing any reads.
-    ///
-    /// # Note
-    ///
-    /// No reads from contract storage will be executed.
-    ///
-    /// This method should be preferred over dereferencing or `get_mut`
-    /// in case the returned value is of no interest to the caller.
-    ///
-    /// # Panics
-    ///
-    /// If accessing the inner value fails.
-    #[inline]
-    pub fn set(lazy: &mut Self, new_value: T) {
-        lazy.cell.set(new_value);
-    }
-}
+    #[test]
+    fn gets_returns_none_if_no_value_was_set() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let storage: Lazy<u8> = Lazy::new();
+            assert_eq!(storage.get(), None);
 
-impl<T> From<T> for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn from(value: T) -> Self {
-        Self::new(value)
-    }
-}
-
-impl<T> Default for Lazy<T>
-where
-    T: Default + SpreadLayout,
-{
-    fn default() -> Self {
-        Self::new(Default::default())
-    }
-}
-
-impl<T> core::cmp::PartialEq for Lazy<T>
-where
-    T: PartialEq + SpreadLayout,
-{
-    fn eq(&self, other: &Self) -> bool {
-        PartialEq::eq(Lazy::get(self), Lazy::get(other))
-    }
-}
-
-impl<T> core::cmp::Eq for Lazy<T> where T: Eq + SpreadLayout {}
-
-impl<T> core::cmp::PartialOrd for Lazy<T>
-where
-    T: PartialOrd + SpreadLayout,
-{
-    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
-        PartialOrd::partial_cmp(Lazy::get(self), Lazy::get(other))
-    }
-    fn lt(&self, other: &Self) -> bool {
-        PartialOrd::lt(Lazy::get(self), Lazy::get(other))
-    }
-    fn le(&self, other: &Self) -> bool {
-        PartialOrd::le(Lazy::get(self), Lazy::get(other))
-    }
-    fn ge(&self, other: &Self) -> bool {
-        PartialOrd::ge(Lazy::get(self), Lazy::get(other))
-    }
-    fn gt(&self, other: &Self) -> bool {
-        PartialOrd::gt(Lazy::get(self), Lazy::get(other))
-    }
-}
-
-impl<T> core::cmp::Ord for Lazy<T>
-where
-    T: core::cmp::Ord + SpreadLayout,
-{
-    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        Ord::cmp(Lazy::get(self), Lazy::get(other))
-    }
-}
-
-impl<T> core::fmt::Display for Lazy<T>
-where
-    T: core::fmt::Display + SpreadLayout,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        core::fmt::Display::fmt(Lazy::get(self), f)
-    }
-}
-
-impl<T> core::hash::Hash for Lazy<T>
-where
-    T: core::hash::Hash + SpreadLayout,
-{
-    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        Lazy::get(self).hash(state);
-    }
-}
-
-impl<T> core::convert::AsRef<T> for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn as_ref(&self) -> &T {
-        Lazy::get(self)
-    }
-}
-
-impl<T> core::convert::AsMut<T> for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn as_mut(&mut self) -> &mut T {
-        Lazy::get_mut(self)
-    }
-}
-
-impl<T> ink_prelude::borrow::Borrow<T> for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn borrow(&self) -> &T {
-        Lazy::get(self)
-    }
-}
-
-impl<T> ink_prelude::borrow::BorrowMut<T> for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn borrow_mut(&mut self) -> &mut T {
-        Lazy::get_mut(self)
-    }
-}
-
-impl<T> core::ops::Deref for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        Lazy::get(self)
-    }
-}
-
-impl<T> core::ops::DerefMut for Lazy<T>
-where
-    T: SpreadLayout,
-{
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        Lazy::get_mut(self)
+            Ok(())
+        })
+        .unwrap()
     }
 }

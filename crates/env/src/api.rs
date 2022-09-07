@@ -39,7 +39,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_primitives::traits::Storable;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -183,38 +183,58 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key.
+/// Writes the value to the contract storage under the given storage key and returns the size
+/// of pre-existing value if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V)
+pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
 where
-    V: scale::Encode,
+    K: scale::Encode,
+    V: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<K, V>(instance, key, value)
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
+/// Returns the value stored under the given storage key in the contract's storage if any.
 ///
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
+pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
-    R: scale::Decode,
+    K: scale::Encode,
+    R: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<R>(instance, key)
+        EnvBackend::get_contract_storage::<K, R>(instance, key)
     })
 }
 
-/// Clears the contract's storage key entry.
-pub fn clear_contract_storage(key: &Key) {
+/// Checks whether there is a value stored under the given storage key in the contract's storage.
+///
+/// If a value is stored under the specified key, the size of the value is returned.
+pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
+where
+    K: scale::Encode,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage(instance, key)
+        EnvBackend::contains_contract_storage::<K>(instance, key)
+    })
+}
+
+/// Clears the contract's storage entry under the given storage key.
+///
+/// If a value was stored under the specified storage key, the size of the value is returned.
+pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
+where
+    K: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::clear_contract_storage::<K>(instance, key)
     })
 }
 
@@ -471,20 +491,18 @@ where
 ///
 /// ```
 /// const signature: [u8; 65] = [
-///     161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,
-///     162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
-///      33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
-///     211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
-///      28,
+///     195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18, 94,
+///     131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119, 235,
+///     137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102, 166, 176,
+///     140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
 /// ];
 /// const message_hash: [u8; 32] = [
-///     162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
-///     239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
+///     167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108, 213,
+///     78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
 /// ];
 /// const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
-///       2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
-///       7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
-///     152,
+///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
+///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
 /// ];
 /// let mut output = [0; 33];
 /// ink_env::ecdsa_recover(&signature, &message_hash, &mut output);
@@ -497,6 +515,33 @@ pub fn ecdsa_recover(
 ) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_recover(signature, message_hash, output)
+    })
+}
+
+/// Returns an Ethereum address from the ECDSA compressed public key.
+///
+/// # Example
+///
+/// ```
+/// let pub_key = [
+///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
+///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+/// ];
+///  let EXPECTED_ETH_ADDRESS = [
+///     253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
+///     37, 21, 191,
+/// ];
+/// let mut output = [0; 20];
+/// ink_env::ecdsa_to_eth_address(&pub_key, &mut output);
+/// assert_eq!(output, EXPECTED_ETH_ADDRESS);
+/// ```
+///
+/// # Errors
+///
+/// - If the ECDSA public key cannot be recovered from the provided public key.
+pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.ecdsa_to_eth_address(pubkey, output)
     })
 }
 
@@ -562,4 +607,29 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::caller_is_origin::<E>(instance)
     })
+}
+
+/// Replace the contract code at the specified address with new code.
+///
+/// # Note
+///
+/// There are a couple of important considerations which must be taken into account when
+/// using this API:
+///
+/// 1. The storage at the code hash will remain untouched. This means that contract developers
+/// must ensure that the storage layout of the new code is compatible with that of the old code.
+///
+/// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
+/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+///
+/// 3. If a contract calls into itself after changing its code the new call would use
+/// the new code. However, if the original caller panics after returning from the sub call it
+/// would revert the changes made by `seal_set_code_hash` and the next caller would use
+/// the old code.
+///
+/// # Errors
+///
+/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }

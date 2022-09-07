@@ -47,7 +47,7 @@ impl GenerateCode for InkTest<'_> {
                     #vis fn #fn_name( #fn_args ) {
                         ::ink::env::test::run_test::<::ink::env::DefaultEnvironment, _>(|_| {
                             {
-                                let _: () = {
+                                {
                                     #fn_block
                                 };
                                 ::core::result::Result::Ok(())

@@ -29,7 +29,7 @@
 /// pub struct RequiresCopy<T: Copy>(PhantomData<T>);
 ///
 /// // The following line of code works because `i32: Copy`.
-/// let _: () = consume_type::<RequiresCopy<i32>>();
+/// consume_type::<RequiresCopy<i32>>();
 /// ```
 ///
 /// # Usage: Compile Error
@@ -42,6 +42,6 @@
 ///
 /// // The following line of code fails to compile because
 /// // `String` does not implement `Copy`.
-/// let _: () = consume_type::<RequiresCopy<String>>();
+/// consume_type::<RequiresCopy<String>>();
 /// ```
 pub const fn consume_type<T>() {}

@@ -176,14 +176,10 @@ impl<'a> InkTraitMessage<'a> {
                         true
                     }
                     syn::FnArg::Typed(pat_type) => {
-                        match &*pat_type.ty {
-                            syn::Type::Reference(reference)
-                                if reference.mutability.is_some() =>
-                            {
-                                true
-                            }
-                            _ => false,
-                        }
+                        matches!(
+                            &*pat_type.ty,
+                            syn::Type::Reference(reference) if reference.mutability.is_some()
+                        )
                     }
                     _ => false,
                 }

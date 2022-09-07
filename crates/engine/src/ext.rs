@@ -228,7 +228,8 @@ impl Engine {
     }
 
     /// Writes the encoded value into the storage at the given key.
-    pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
+    /// Returns the size of the previously stored value at the key if any.
+    pub fn set_storage(&mut self, key: &[u8], encoded_value: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
@@ -236,16 +237,13 @@ impl Engine {
         self.debug_info
             .record_cell_for_account(account_id, key.to_vec());
 
-        // We ignore if storage is already set for this key
-        let _ = self.database.insert_into_contract_storage(
-            &callee,
-            key,
-            encoded_value.to_vec(),
-        );
+        self.database
+            .insert_into_contract_storage(&callee, key, encoded_value.to_vec())
+            .map(|v| <u32>::try_from(v.len()).expect("usize to u32 conversion failed"))
     }
 
     /// Returns the decoded contract storage at the key if any.
-    pub fn get_storage(&mut self, key: &[u8; 32], output: &mut &mut [u8]) -> Result {
+    pub fn get_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
@@ -259,15 +257,29 @@ impl Engine {
         }
     }
 
+    /// Returns the size of the value stored in the contract storage at the key if any.
+    pub fn contains_storage(&mut self, key: &[u8]) -> Option<u32> {
+        let callee = self.get_callee();
+        let account_id = AccountId::from_bytes(&callee[..]);
+
+        self.debug_info.inc_reads(account_id);
+        self.database
+            .get_from_contract_storage(&callee, key)
+            .map(|val| val.len() as u32)
+    }
+
     /// Removes the storage entries at the given key.
-    pub fn clear_storage(&mut self, key: &[u8; 32]) {
+    /// Returns the size of the previously stored value at the key if any.
+    pub fn clear_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
         self.debug_info.inc_writes(account_id.clone());
         let _ = self
             .debug_info
             .remove_cell_for_account(account_id, key.to_vec());
-        let _ = self.database.remove_contract_storage(&callee, key);
+        self.database
+            .remove_contract_storage(&callee, key)
+            .map(|val| val.len() as u32)
     }
 
     /// Remove the calling account and transfer remaining balance.

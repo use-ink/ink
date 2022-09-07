@@ -59,8 +59,6 @@ impl GenerateCode for CallForwarder<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let struct_definition = self.generate_struct_definition();
         let storage_layout_impl = self.generate_storage_layout_impl();
-        let spread_layout_impl = self.generate_spread_layout_impl();
-        let packed_layout_impl = self.generate_packed_layout_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         let to_from_account_id_impls = self.generate_to_from_account_id_impls();
         let call_builder_impl = self.generate_call_builder_trait_impl();
@@ -68,8 +66,6 @@ impl GenerateCode for CallForwarder<'_> {
         quote! {
             #struct_definition
             #storage_layout_impl
-            #spread_layout_impl
-            #packed_layout_impl
             #auxiliary_trait_impls
             #to_from_account_id_impls
             #call_builder_impl
@@ -114,13 +110,16 @@ impl CallForwarder<'_> {
             /// will be handled by this type.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
-            #[derive(::scale::Encode, ::scale::Decode)]
+            #[derive(
+                ::scale::Encode,
+                ::scale::Decode,
+            )]
             #[repr(transparent)]
             pub struct #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
+                E: ::ink_env::Environment,
             {
-                builder: <Self as ::ink::lang::codegen::TraitCallBuilder>::Builder,
+                builder: <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder,
             }
         )
     }
@@ -136,86 +135,18 @@ impl CallForwarder<'_> {
         let call_forwarder_ident = self.ident();
         quote_spanned!(span=>
             #[cfg(feature = "std")]
-            impl<E> ::ink::storage::traits::StorageLayout
+            impl<E> ::ink_storage::traits::StorageLayout
                 for #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::StorageLayout,
+                E: ::ink_env::Environment,
+                <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::StorageLayout,
             {
                 fn layout(
-                    __key_ptr: &mut ::ink::storage::traits::KeyPtr,
-                ) -> ::ink::metadata::layout::Layout {
-                    <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink::storage::traits::StorageLayout>::layout(__key_ptr)
+                    __key: &::ink_primitives::Key,
+                ) -> ::ink_metadata::layout::Layout {
+                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
+                        as ::ink_storage::traits::StorageLayout>::layout(__key)
                 }
-            }
-        )
-    }
-
-    /// Generates the `SpreadLayout` trait implementation for the account wrapper.
-    ///
-    /// # Note
-    ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `SpreadLayout` trait implementation.
-    fn generate_spread_layout_impl(&self) -> TokenStream2 {
-        let span = self.span();
-        let call_forwarder_ident = self.ident();
-        quote_spanned!(span=>
-            impl<E> ::ink::storage::traits::SpreadLayout
-                for #call_forwarder_ident<E>
-            where
-                E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::SpreadLayout,
-            {
-                const FOOTPRINT: ::core::primitive::u64 = 1;
-                const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = false;
-
-                #[inline]
-                fn pull_spread(ptr: &mut ::ink::primitives::KeyPtr) -> Self {
-                    Self {
-                        builder: <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
-                            as ::ink::storage::traits::SpreadLayout>::pull_spread(ptr)
-                    }
-                }
-
-                #[inline]
-                fn push_spread(&self, ptr: &mut ::ink::primitives::KeyPtr) {
-                    <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink::storage::traits::SpreadLayout>::push_spread(&self.builder, ptr)
-                }
-
-                #[inline]
-                fn clear_spread(&self, ptr: &mut ::ink::primitives::KeyPtr) {
-                    <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink::storage::traits::SpreadLayout>::clear_spread(&self.builder, ptr)
-                }
-            }
-        )
-    }
-
-    /// Generates the `PackedLayout` trait implementation for the account wrapper.
-    ///
-    /// # Note
-    ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `PackedLayout` trait implementation.
-    fn generate_packed_layout_impl(&self) -> TokenStream2 {
-        let span = self.span();
-        let call_forwarder_ident = self.ident();
-        quote_spanned!(span=>
-            impl<E> ::ink::storage::traits::PackedLayout
-                for #call_forwarder_ident<E>
-            where
-                E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::PackedLayout,
-            {
-                #[inline]
-                fn pull_packed(&mut self, _at: &::ink::primitives::Key) {}
-                #[inline]
-                fn push_packed(&self, _at: &::ink::primitives::Key) {}
-                #[inline]
-                fn clear_packed(&self, _at: &::ink::primitives::Key) {}
             }
         )
     }
@@ -234,13 +165,13 @@ impl CallForwarder<'_> {
         quote_spanned!(span=>
             impl<E> ::core::clone::Clone for #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::core::clone::Clone,
+                E: ::ink_env::Environment,
+                <E as ::ink_env::Environment>::AccountId: ::core::clone::Clone,
             {
                 #[inline]
                 fn clone(&self) -> Self {
                     Self {
-                        builder: <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
+                        builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                             as ::core::clone::Clone>::clone(&self.builder),
                     }
                 }
@@ -248,8 +179,8 @@ impl CallForwarder<'_> {
 
             impl<E> ::core::fmt::Debug for #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
-                <E as ::ink::env::Environment>::AccountId: ::core::fmt::Debug,
+                E: ::ink_env::Environment,
+                <E as ::ink_env::Environment>::AccountId: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_forwarder_ident))
@@ -270,26 +201,26 @@ impl CallForwarder<'_> {
         let span = self.span();
         let call_forwarder_ident = self.ident();
         quote_spanned!(span=>
-            impl<E> ::ink::env::call::FromAccountId<E>
+            impl<E> ::ink_env::call::FromAccountId<E>
                 for #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
+                E: ::ink_env::Environment,
             {
                 #[inline]
-                fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
-                    Self { builder: <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink::env::call::FromAccountId<E>>::from_account_id(account_id) }
+                fn from_account_id(account_id: <E as ::ink_env::Environment>::AccountId) -> Self {
+                    Self { builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
+                        as ::ink_env::call::FromAccountId<E>>::from_account_id(account_id) }
                 }
             }
 
-            impl<E> ::ink::lang::ToAccountId<E> for #call_forwarder_ident<E>
+            impl<E> ::ink_lang::ToAccountId<E> for #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
+                E: ::ink_env::Environment,
             {
                 #[inline]
-                fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
-                    <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder
-                        as ::ink::lang::ToAccountId<E>>::to_account_id(&self.builder)
+                fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
+                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
+                        as ::ink_lang::ToAccountId<E>>::to_account_id(&self.builder)
                 }
             }
         )
@@ -311,19 +242,19 @@ impl CallForwarder<'_> {
             /// Also this explains why we designed the generated code so that we have
             /// both types and why the forwarder is a thin-wrapper around the builder
             /// as this allows to perform this operation safely.
-            impl<E> ::ink::lang::codegen::TraitCallBuilder for #call_forwarder_ident<E>
+            impl<E> ::ink_lang::codegen::TraitCallBuilder for #call_forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
+                E: ::ink_env::Environment,
             {
                 type Builder = #call_builder_ident<E>;
 
                 #[inline]
-                fn call(&self) -> &<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder {
+                fn call(&self) -> &<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     &self.builder
                 }
 
                 #[inline]
-                fn call_mut(&mut self) -> &mut <Self as ::ink::lang::codegen::TraitCallBuilder>::Builder {
+                fn call_mut(&mut self) -> &mut <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     &mut self.builder
                 }
             }
@@ -343,18 +274,17 @@ impl CallForwarder<'_> {
         let forwarder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
-            impl<E> ::ink::lang::reflect::ContractEnv for #forwarder_ident<E>
+            impl<E> ::ink_lang::reflect::ContractEnv for #forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
+                E: ::ink_env::Environment,
             {
                 type Env = E;
             }
 
             impl<E> #trait_ident for #forwarder_ident<E>
             where
-                E: ::ink::env::Environment,
+                E: ::ink_env::Environment,
             {
-                #[doc(hidden)]
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo = #trait_info_ident<E>;
 
@@ -419,8 +349,8 @@ impl CallForwarder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                <<Self as ::ink::lang::codegen::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
-                    <Self as ::ink::lang::codegen::TraitCallBuilder>::#call_op(self)
+                <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
+                    <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_op(self)
                     #(
                         , #input_bindings
                     )*

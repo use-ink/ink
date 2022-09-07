@@ -15,17 +15,19 @@ use pallet_contracts::chain_extension::{
 use sp_runtime::DispatchError;
 
 /// Contract extension for `FetchRandom`
+#[derive(Default)]
 pub struct FetchRandomExtension;
 
 impl ChainExtension<Runtime> for FetchRandomExtension {
     fn call<E: Ext>(
-        func_id: u32,
+        &mut self,
         env: Environment<E, InitState>,
     ) -> Result<RetVal, DispatchError>
     where
         <E::T as SysConfig>::AccountId:
             UncheckedFrom<<E::T as SysConfig>::Hash> + AsRef<[u8]>,
     {
+        let func_id = env.func_id();
         match func_id {
             1101 => {
                 let mut env = env.buf_in_buf_out();

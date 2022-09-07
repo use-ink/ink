@@ -38,6 +38,7 @@ defragmentation
 deploy
 dereferencing
 deserialize/S
+deserialization
 dispatchable/S
 encodable
 evaluable
@@ -62,6 +63,8 @@ stdout
 tuple
 unordered
 untyped
+v1
+v2
 v3
 validator
 variadic
@@ -104,3 +107,4 @@ natively
 payability
 unpayable
 initializer
+storable

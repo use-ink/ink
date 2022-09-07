@@ -281,23 +281,16 @@ mod fuzz_tests {
     };
     use std::mem::size_of;
 
-    const FROM_SIZE_ALIGN_EXPECT: &str =
-        "The rounded value of `size` cannot be more than `usize::MAX` since we have
-        checked that it is a PAGE_SIZE less than `usize::MAX`; Alignment is a
-        non-zero, power of two.";
-
     #[quickcheck]
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
-        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
-        // case in another test)
-        if n.checked_add(PAGE_SIZE - 1).is_none() {
-            return TestResult::discard()
-        }
-
         let mut inner = InnerAlloc::new();
 
-        let layout =
-            Layout::from_size_align(n, size_of::<usize>()).expect(FROM_SIZE_ALIGN_EXPECT);
+        // If we're going to end up creating an invalid `Layout` we don't want to use these test
+        // inputs.
+        let layout = match Layout::from_size_align(n, size_of::<usize>()) {
+            Ok(l) => l,
+            Err(_) => return TestResult::discard(),
+        };
 
         let size = layout.pad_to_align().size();
         assert_eq!(
@@ -322,28 +315,6 @@ mod fuzz_tests {
     }
 
     #[quickcheck]
-    fn should_not_allocate_arbitrary_bytes_if_they_overflow(n: usize) -> TestResult {
-        // In the previous test we ignored the overflow case, now we ignore the valid cases
-        if n.checked_add(PAGE_SIZE - 1).is_some() {
-            return TestResult::discard()
-        }
-
-        if let Ok(layout) = Layout::from_size_align(n, size_of::<usize>()) {
-            let mut inner = InnerAlloc::new();
-            assert_eq!(
-                inner.alloc(layout),
-                None,
-                "An allocation which overflows the heap was made."
-            );
-
-            TestResult::passed()
-        } else {
-            // We only want to test cases which can create a valid `Layout`
-            TestResult::discard()
-        }
-    }
-
-    #[quickcheck]
     fn should_allocate_regardless_of_alignment_size(
         n: usize,
         align: usize,
@@ -351,15 +322,15 @@ mod fuzz_tests {
         let aligns = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
         let align = aligns[align % aligns.len()];
 
-        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
-        // case in another test)
-        if n.checked_add(PAGE_SIZE - 1).is_none() {
-            return TestResult::discard()
-        }
-
         let mut inner = InnerAlloc::new();
 
-        let layout = Layout::from_size_align(n, align).expect(FROM_SIZE_ALIGN_EXPECT);
+        // If we're going to end up creating an invalid `Layout` we don't want to use these test
+        // inputs.
+        let layout = match Layout::from_size_align(n, align) {
+            Ok(l) => l,
+            Err(_) => return TestResult::discard(),
+        };
+
         let size = layout.pad_to_align().size();
         assert_eq!(
             inner.alloc(layout),
@@ -392,19 +363,16 @@ mod fuzz_tests {
     /// Each of the vectors represents one sequence of allocations. Within each sequence the
     /// individual size of allocations will be randomly selected by `quickcheck`.
     #[quickcheck]
-    fn should_allocate_arbitrary_byte_sequences(sequence: Vec<usize>) -> TestResult {
+    fn should_allocate_arbitrary_byte_sequences(sequence: Vec<isize>) -> TestResult {
         let mut inner = InnerAlloc::new();
 
         if sequence.is_empty() {
             return TestResult::discard()
         }
 
-        // We want to make sure no single allocation is going to overflow, we'll check this
-        // case in a different test
-        if !sequence
-            .iter()
-            .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
-        {
+        // We don't want any negative numbers so we can be sure our conversions to `usize` later
+        // are valid
+        if !sequence.iter().all(|n| n.is_positive()) {
             return TestResult::discard()
         }
 
@@ -412,7 +380,7 @@ mod fuzz_tests {
         // underestimating the pages due to the ceil rounding at each step
         let pages_required = sequence
             .iter()
-            .fold(0, |acc, &x| acc + required_pages(x).unwrap());
+            .fold(0, |acc, &x| acc + required_pages(x as usize).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
         // We know this is going to end up overflowing, we'll check this case in a different
@@ -426,8 +394,12 @@ mod fuzz_tests {
         let mut total_bytes_fragmented = 0;
 
         for alloc in sequence {
-            let layout = Layout::from_size_align(alloc, size_of::<usize>())
-                .expect(FROM_SIZE_ALIGN_EXPECT);
+            let layout = Layout::from_size_align(alloc as usize, size_of::<usize>());
+            let layout = match layout {
+                Ok(l) => l,
+                Err(_) => return TestResult::discard(),
+            };
+
             let size = layout.pad_to_align().size();
 
             let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
@@ -473,7 +445,7 @@ mod fuzz_tests {
     // care that eventually an allocation doesn't success.
     #[quickcheck]
     fn should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
-        sequence: Vec<usize>,
+        sequence: Vec<isize>,
     ) -> TestResult {
         let mut inner = InnerAlloc::new();
 
@@ -481,12 +453,9 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        // We want to make sure no single allocation is going to overflow, we'll check that
-        // case seperately
-        if !sequence
-            .iter()
-            .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
-        {
+        // We don't want any negative numbers so we can be sure our conversions to `usize` later
+        // are valid
+        if !sequence.iter().all(|n| n.is_positive()) {
             return TestResult::discard()
         }
 
@@ -494,7 +463,7 @@ mod fuzz_tests {
         // underestimating the pages due to the ceil rounding at each step
         let pages_required = sequence
             .iter()
-            .fold(0, |acc, &x| acc + required_pages(x).unwrap());
+            .fold(0, |acc, &x| acc + required_pages(x as usize).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
         // We want to explicitly test for the case where a series of allocations eventually
@@ -505,8 +474,12 @@ mod fuzz_tests {
 
         let mut results = vec![];
         for alloc in sequence {
-            let layout = Layout::from_size_align(alloc, size_of::<usize>())
-                .expect(FROM_SIZE_ALIGN_EXPECT);
+            let layout = Layout::from_size_align(alloc as usize, size_of::<usize>());
+            let layout = match layout {
+                Ok(l) => l,
+                Err(_) => return TestResult::discard(),
+            };
+
             results.push(inner.alloc(layout));
         }
 

@@ -1,12 +1,17 @@
 [package]
 name = "erc20"
-version = "3.0.1"
+version = "4.0.0-alpha.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { version = "3.0.1", path = "../../crates/ink", default-features = false }
+ink_primitives = { path = "../../crates/primitives", default-features = false }
+ink_metadata = { path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { path = "../../crates/env", default-features = false }
+ink_storage = { path = "../../crates/storage", default-features = false }
+ink_lang = { path = "../../crates/lang", default-features = false }
+
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
@@ -18,7 +23,11 @@ crate-type = ["cdylib"]
 [features]
 default = ["std"]
 std = [
-    "ink/std",
+    "ink_primitives/std",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_lang/std",
     "scale/std",
     "scale-info/std",
 ]

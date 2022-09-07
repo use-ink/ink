@@ -27,7 +27,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_primitives::traits::Storable;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -162,22 +162,35 @@ impl CallFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
-    /// Writes the value to the contract storage under the given key.
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
+    /// Writes the value to the contract storage under the given storage key.
+    ///
+    /// Returns the size of the pre-existing value at the specified key if any.
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
-        V: scale::Encode;
+        K: scale::Encode,
+        V: Storable;
 
-    /// Returns the value stored under the given key in the contract's storage if any.
+    /// Returns the value stored under the given storage key in the contract's storage if any.
     ///
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
-        R: scale::Decode;
+        K: scale::Encode,
+        R: Storable;
 
-    /// Clears the contract's storage key entry.
-    fn clear_contract_storage(&mut self, key: &Key);
+    /// Returns the size of a value stored under the given storage key is returned if any.
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode;
+
+    /// Clears the contract's storage key entry under the given storage key.
+    ///
+    /// Returns the size of the previously stored value at the specified key if any.
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode;
 
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///
@@ -249,6 +262,14 @@ pub trait EnvBackend {
         output: &mut [u8; 33],
     ) -> Result<()>;
 
+    /// Retrieves an Ethereum address from the ECDSA compressed `pubkey`
+    /// and stores the result in `output`.
+    fn ecdsa_to_eth_address(
+        &mut self,
+        pubkey: &[u8; 33],
+        output: &mut [u8; 20],
+    ) -> Result<()>;
+
     /// Low-level interface to call a chain extension method.
     ///
     /// Returns the output of the chain extension of the specified type.
@@ -282,6 +303,15 @@ pub trait EnvBackend {
         E: From<ErrorCode>,
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>;
+
+    /// Sets a new code hash for the current contract.
+    ///
+    /// This effectively replaces the code which is executed for this contract address.
+    ///
+    /// # Errors
+    ///
+    /// - If the supplied `code_hash` cannot be found on-chain.
+    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
 }
 
 /// Environmental contract functionality.

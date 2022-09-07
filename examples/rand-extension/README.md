@@ -4,7 +4,7 @@
 
 It demonstrates how to call a custom Substrate function from ink!.
 
-See [this chapter](https://paritytech.github.io/ink-docs/macros-attributes/chain-extension)
+See [this chapter](https://ink.substrate.io/macros-attributes/chain-extension)
 in our ink! documentation for more details.
 
 There are two parts to this example:

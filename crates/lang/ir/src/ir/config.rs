@@ -93,18 +93,18 @@ impl WhitelistedAttributes {
 }
 
 /// Return an error to notify about duplicate ink! configuration arguments.
-fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
+fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
 where
     F: Spanned,
     S: Spanned,
 {
     format_err!(
-        snd.span(),
+        second.span(),
         "encountered duplicate ink! `{}` configuration argument",
         name,
     )
     .into_combine(format_err!(
-        fst.span(),
+        first.span(),
         "first `{}` configuration argument here",
         name
     ))
@@ -131,9 +131,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     ))
                 }
             } else if arg.name.is_ident("keep_attr") {
-                if let Err(err) = whitelisted_attributes.parse_arg_value(&arg) {
-                    return Err(err)
-                }
+                whitelisted_attributes.parse_arg_value(&arg)?;
             } else {
                 return Err(format_err_spanned!(
                     arg,

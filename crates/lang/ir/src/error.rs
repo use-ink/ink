@@ -39,7 +39,7 @@ impl ExtError for syn::Error {
 /// # Note
 ///
 /// On stable Rust this might yield higher quality error span information to the user
-/// than [`format_err`].
+/// than [`format_err`](`crate::format_err`).
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 /// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)

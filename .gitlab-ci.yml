@@ -26,17 +26,19 @@ variables:
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
+  # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
+  # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
   PURELY_STD_CRATES:               "lang/codegen metadata engine"
   ALSO_WASM_CRATES:                "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
-  # this var is changed to "-:staging" when the CI image gets rebuilt
-  # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
-  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
-  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
-  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
+  UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
+  # We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
+  # features still work on stable. This is done automatically by
+  # `cargo-contract`, but in our CI here we also use e.g.
+  # `cargo check` directly.
+  RUSTC_BOOTSTRAP:                 "1"
 
 workflow:
   rules:
@@ -84,31 +86,6 @@ workflow:
   tags:
     - kubernetes-parity-build
 
-#### Vault secrets
-.vault-secrets:                    &vault-secrets
-  secrets:
-    CODECOV_P_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/CODECOV_P_TOKEN@kv
-      file:                        false
-    CODECOV_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/CODECOV_TOKEN@kv
-      file:                        false
-    GITHUB_EMAIL:
-      vault:                       cicd/gitlab/parity/GITHUB_EMAIL@kv
-      file:                        false
-    GITHUB_USER:
-      vault:                       cicd/gitlab/parity/GITHUB_USER@kv
-      file:                        false
-    GITHUB_PR_TOKEN:
-      vault:                       cicd/gitlab/parity/GITHUB_PR_TOKEN@kv
-      file:                        false
-    PIPELINE_TOKEN:
-      vault:                       cicd/gitlab/parity/ink/PIPELINE_TOKEN@kv
-      file:                        false
-    GITHUB_SSH_PRIV_KEY:
-      vault:                       cicd/gitlab/parity/ink/GITHUB_SSH_PRIV_KEY@kv
-      file:                        false
-
 #### stage:                        lint
 #
 # Note: For all of these lints we `allow_failure` so that the rest of the build can
@@ -119,8 +96,8 @@ spellcheck:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/
+    - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+    - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/*
   allow_failure:                   true
 
 fmt:
@@ -128,10 +105,10 @@ fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - cargo fmt --verbose --all -- --check
+    - cargo +nightly fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
 examples-fmt:
@@ -142,15 +119,15 @@ examples-fmt:
     # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
+        cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo +nightly fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
       done
-    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
+    - cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- --check
   allow_failure:                   true
 
 clippy-std:
@@ -159,7 +136,7 @@ clippy-std:
   <<:                              *test-refs
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
+        cargo +nightly clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -168,7 +145,7 @@ clippy-wasm:
   <<:                              *test-refs
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo +nightly clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
   allow_failure:                   true
 
@@ -179,15 +156,15 @@ examples-clippy-std:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo +nightly clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo +nightly clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
+        cargo +nightly clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- -D warnings;
+    - cargo +nightly clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -197,15 +174,15 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo +nightly clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo +nightly clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo +nightly clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
-    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+    - cargo +nightly clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
   allow_failure:                   true
 
 
@@ -229,6 +206,21 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
+dylint:
+    stage:                           check
+    <<:                              *docker-env
+    <<:                              *test-refs
+    script:
+    - cd linting/
+    # we are using a toolchain file in this directory
+    # add required components for CI
+    - rustup component add rustfmt clippy
+    - cargo check --verbose
+    - cargo +nightly fmt --verbose --all -- --check
+    - cargo clippy --verbose -- -D warnings;
+    # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+    - unset RUSTC_WRAPPER
+    - cargo test --verbose --all-features
 
 #### stage:                        workspace
 
@@ -270,8 +262,8 @@ test:
       # at the same time, hence we use this workaround.
       QUICKCHECK_TESTS:            0
   script:
-    - cargo test --verbose --all-features --no-fail-fast --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace --doc
+    - cargo +nightly test --verbose --all-features --no-fail-fast --workspace
+    - cargo +nightly test --verbose --all-features --no-fail-fast --workspace --doc
 
 docs:
   stage:                           workspace
@@ -289,7 +281,7 @@ docs:
     - cargo doc --no-deps --all-features
         -p scale-info -p ink_metadata
         -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude
+        -p ink_primitives -p ink_prelude -p ink_primitives_derive
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
@@ -327,7 +319,7 @@ codecov:
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo +nightly test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch
         --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -360,25 +352,27 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - rustup component add rust-src --toolchain stable
+    - cargo install cargo-contract --version 2.0.0-alpha.1 --force
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         pushd $example &&
-        cargo contract build &&
+        cargo +stable contract build &&
         popd;
       done
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+        cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
+    - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
@@ -401,12 +395,14 @@ examples-docs:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
+    - cargo doc --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+# Temporarily disabled until https://github.com/polkadot-js/api/issues/5193
+# is fixed.
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
@@ -427,7 +423,6 @@ publish-docs:
   stage:                           publish
   <<:                              *kubernetes-env
   image:                           paritytech/tools:latest
-  <<:                              *vault-secrets
   needs:
     - job:                         docs
       artifacts:                   true
@@ -436,6 +431,7 @@ publish-docs:
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
   before_script:
@@ -478,10 +474,11 @@ publish-docs:
 
 #### stage:                        fuzz
 
-fuzz-tests:
+# Temporarily disabled until https://github.com/paritytech/ink/issues/1374
+# is fixed.
+.fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
-  <<:                              *vault-secrets
   variables:
     # The QUICKCHECK_TESTS default is 100
     QUICKCHECK_TESTS:              5000

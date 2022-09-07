@@ -12,172 +12,150 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-macro_rules! impl_always_packed_layout {
-    ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
-        impl<$($frag),+> $crate::traits::SpreadLayout for $name < $($frag),+ >
-        where
-            $(
-                $frag: $crate::traits::PackedLayout,
-            )+
-        {
-            const FOOTPRINT: ::core::primitive::u64 = 1_u64;
-            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
-
-            #[inline]
-            fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_pull_packed::<Self>(ptr)
-            }
-
-            #[inline]
-            fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
-            }
-
-            #[inline]
-            fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
-            }
-        }
-
-        impl<$($frag),+> $crate::traits::SpreadAllocate for $name < $($frag),+ >
-        where
-            Self: ::core::default::Default,
-            $(
-                $frag: $crate::traits::PackedAllocate,
-            )+
-        {
-            #[inline]
-            fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
-            }
-        }
-    };
-    ( $name:ty, deep: $deep:expr ) => {
-        impl $crate::traits::SpreadLayout for $name
-        where
-            Self: $crate::traits::PackedLayout,
-        {
-            const FOOTPRINT: ::core::primitive::u64 = 1_u64;
-            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
-
-            #[inline]
-            fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_pull_packed::<Self>(ptr)
-            }
-
-            #[inline]
-            fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
-            }
-
-            #[inline]
-            fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
-                $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
-            }
-        }
-
-        impl $crate::traits::SpreadAllocate for $name
-        where
-            Self: $crate::traits::PackedLayout + ::core::default::Default,
-        {
-            #[inline]
-            fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
-                $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
-            }
-        }
-    };
-}
-
-mod arrays;
-mod collections;
-mod prims;
-mod tuples;
-
-#[cfg(all(test, feature = "ink-fuzz-tests"))]
-mod fuzz_tests;
-
-use super::{
-    allocate_packed_root,
-    clear_packed_root,
-    pull_packed_root,
-    push_packed_root,
-    PackedAllocate,
-    PackedLayout,
-};
 use crate::traits::{
-    ExtKeyPtr as _,
-    KeyPtr,
+    AutoStorableHint,
+    Packed,
+    StorableHint,
+    StorageKey,
+};
+use core::{
+    fmt::Debug,
+    marker::PhantomData,
+};
+use ink_primitives::{
+    Key,
+    KeyComposer,
 };
 
-/// Returns the greater of both values.
-const fn max(a: u64, b: u64) -> u64 {
-    [a, b][(a > b) as usize]
+/// Auto key type means that the storage key should be calculated automatically.
+#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct AutoKey;
+
+impl StorageKey for AutoKey {
+    const KEY: Key = 0;
 }
 
-/// Pulls an instance of type `T` in packed fashion from the contract storage.
-///
-/// Loads the instance from the storage location identified by `ptr`.
-/// The storage entity is expected to be decodable in its packed form.
-///
-/// # Note
-///
-/// Use this utility function to use a packed pull operation for the type
-/// instead of a spread storage layout pull operation.
-#[inline]
-pub fn forward_pull_packed<T>(ptr: &mut KeyPtr) -> T
-where
-    T: PackedLayout,
-{
-    pull_packed_root::<T>(ptr.next_for::<T>())
+impl Debug for AutoKey {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("AutoKey")
+            .field("key", &<Self as StorageKey>::KEY)
+            .finish()
+    }
 }
 
-/// Allocates an instance of type `T` in packed fashion to the contract storage.
-///
-/// This default initializes the entity at the storage location identified
-/// by `ptr`. The storage entity is expected to be decodable in its packed form.
-///
-/// # Note
-///
-/// Use this utility function to use a packed allocate operation for the type
-/// instead of a spread storage layout allocation operation.
-#[inline]
-pub fn forward_allocate_packed<T>(ptr: &mut KeyPtr) -> T
-where
-    T: PackedAllocate + Default,
-{
-    allocate_packed_root::<T>(ptr.next_for::<T>())
+/// Manual key type specifies the storage key.
+#[derive(Default, Copy, Clone, Eq, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct ManualKey<const KEY: Key, ParentKey: StorageKey = ()>(
+    PhantomData<fn() -> ParentKey>,
+);
+
+impl<const KEY: Key, ParentKey: StorageKey> StorageKey for ManualKey<KEY, ParentKey> {
+    const KEY: Key = KeyComposer::concat(KEY, ParentKey::KEY);
 }
 
-/// Pushes an instance of type `T` in packed fashion to the contract storage.
-///
-/// Stores the instance to the storage location identified by `ptr`.
-/// The storage entity is expected to be encodable in its packed form.
-///
-/// # Note
-///
-/// Use this utility function to use a packed push operation for the type
-/// instead of a spread storage layout push operation.
-#[inline]
-pub fn forward_push_packed<T>(entity: &T, ptr: &mut KeyPtr)
-where
-    T: PackedLayout,
-{
-    push_packed_root::<T>(entity, ptr.next_for::<T>())
+impl<const KEY: Key, ParentKey: StorageKey> Debug for ManualKey<KEY, ParentKey> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("ManualKey")
+            .field("key", &<Self as StorageKey>::KEY)
+            .finish()
+    }
 }
 
-/// Clears an instance of type `T` in packed fashion from the contract storage.
-///
-/// Clears the instance from the storage location identified by `ptr`.
-/// The cleared storage entity is expected to be encoded in its packed form.
-///
-/// # Note
-///
-/// Use this utility function to use a packed clear operation for the type
-/// instead of a spread storage layout clear operation.
-#[inline]
-pub fn forward_clear_packed<T>(entity: &T, ptr: &mut KeyPtr)
+/// Resolver key type selects between preferred key and autogenerated key.
+/// If the `L` type is `AutoKey` it returns auto-generated `R` else `L`.
+#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Debug)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct ResolverKey<L: StorageKey, R: StorageKey>(PhantomData<fn() -> (L, R)>);
+
+impl<L: StorageKey, R: StorageKey> StorageKey for ResolverKey<L, R> {
+    /// `KEY` of the `AutoKey` is zero. If left key is zero, then use right manual key.
+    const KEY: Key = if L::KEY == 0 { R::KEY } else { L::KEY };
+}
+
+type FinalKey<T, const KEY: Key, ParentKey> =
+    ResolverKey<<T as StorableHint<ParentKey>>::PreferredKey, ManualKey<KEY, ParentKey>>;
+
+// `AutoStorableHint` trait figures out that storage key it should use.
+// - If the `PreferredKey` is `AutoKey` it will use an auto-generated key passed as generic
+// into `AutoStorableHint`.
+// - If `PreferredKey` is `ManualKey`, then it will use it.
+impl<T, const KEY: Key, ParentKey> AutoStorableHint<ManualKey<KEY, ParentKey>> for T
 where
-    T: PackedLayout,
+    T: StorableHint<ParentKey>,
+    T: StorableHint<FinalKey<T, KEY, ParentKey>>,
+    ParentKey: StorageKey,
 {
-    clear_packed_root::<T>(entity, ptr.next_for::<T>())
+    type Type = <T as StorableHint<FinalKey<T, KEY, ParentKey>>>::Type;
+}
+
+impl<P> super::storage::private::Sealed for P where P: scale::Decode + scale::Encode {}
+impl<P> Packed for P where P: scale::Decode + scale::Encode {}
+
+impl<P> StorageKey for P
+where
+    P: Packed,
+{
+    const KEY: Key = 0;
+}
+
+impl<P, Key> StorableHint<Key> for P
+where
+    P: Packed,
+    Key: StorageKey,
+{
+    type Type = P;
+    type PreferredKey = AutoKey;
+}
+
+#[cfg(test)]
+mod tests {
+    mod arrays {
+        use crate::storage_hint_works_for_primitive;
+
+        type Array = [i32; 4];
+        storage_hint_works_for_primitive!(Array);
+
+        type ArrayTuples = [(i32, i32); 2];
+        storage_hint_works_for_primitive!(ArrayTuples);
+    }
+
+    mod prims {
+        use crate::storage_hint_works_for_primitive;
+        use ink_env::AccountId;
+
+        storage_hint_works_for_primitive!(bool);
+        storage_hint_works_for_primitive!(String);
+        storage_hint_works_for_primitive!(AccountId);
+        storage_hint_works_for_primitive!(i8);
+        storage_hint_works_for_primitive!(i16);
+        storage_hint_works_for_primitive!(i32);
+        storage_hint_works_for_primitive!(i64);
+        storage_hint_works_for_primitive!(i128);
+        storage_hint_works_for_primitive!(u8);
+        storage_hint_works_for_primitive!(u16);
+        storage_hint_works_for_primitive!(u32);
+        storage_hint_works_for_primitive!(u64);
+        storage_hint_works_for_primitive!(u128);
+
+        type OptionU8 = Option<u8>;
+        storage_hint_works_for_primitive!(OptionU8);
+
+        type ResultU8 = Result<u8, bool>;
+        storage_hint_works_for_primitive!(ResultU8);
+
+        type BoxU8 = Box<u8>;
+        storage_hint_works_for_primitive!(BoxU8);
+
+        type BoxOptionU8 = Box<Option<u8>>;
+        storage_hint_works_for_primitive!(BoxOptionU8);
+    }
+
+    mod tuples {
+        use crate::storage_hint_works_for_primitive;
+
+        type TupleSix = (i32, u32, String, u8, bool, Box<Option<i32>>);
+        storage_hint_works_for_primitive!(TupleSix);
+    }
 }
