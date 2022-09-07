@@ -4,8 +4,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::new_without_default)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod just_terminates {
     /// No storage is needed for this simple contract.
