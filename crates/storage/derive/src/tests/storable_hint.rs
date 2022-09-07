@@ -22,11 +22,11 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
-                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for UnitStruct
+                impl<__ink_generic_salt: ::ink::storage::traits::StorageKey>
+                    ::ink::storage::traits::StorableHint<__ink_generic_salt> for UnitStruct
                 {
                     type Type = UnitStruct;
-                    type PreferredKey = ::ink_storage::traits::AutoKey;
+                    type PreferredKey = ::ink::storage::traits::AutoKey;
                 }
             };
         }
@@ -38,15 +38,15 @@ fn unit_struct_works() {
 fn unit_struct_salt_works() {
     crate::test_derive! {
         storable_hint_derive {
-            struct UnitStruct<Salt: ::ink_storage::traits::StorageKey>;
+            struct UnitStruct<Salt: ::ink::storage::traits::StorageKey>;
         }
         expands to {
             const _: () = {
                 impl<
-                        Salt: ::ink_storage::traits::StorageKey,
-                        __ink_generic_salt: ::ink_storage::traits::StorageKey
+                        Salt: ::ink::storage::traits::StorageKey,
+                        __ink_generic_salt: ::ink::storage::traits::StorageKey
                     >
-                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for UnitStruct<Salt>
+                    ::ink::storage::traits::StorableHint<__ink_generic_salt> for UnitStruct<Salt>
                 {
                     type Type = UnitStruct<__ink_generic_salt>;
                     type PreferredKey = Salt;
@@ -69,11 +69,11 @@ fn struct_works() {
         }
         expands to {
             const _: () = {
-                impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
-                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for NamedFields
+                impl<__ink_generic_salt: ::ink::storage::traits::StorageKey>
+                    ::ink::storage::traits::StorableHint<__ink_generic_salt> for NamedFields
                 {
                     type Type = NamedFields;
-                    type PreferredKey = ::ink_storage::traits::AutoKey;
+                    type PreferredKey = ::ink::storage::traits::AutoKey;
                 }
             };
         }
@@ -95,9 +95,9 @@ fn struct_salt_works() {
             const _: () = {
                 impl<
                         Salt: StorageKey,
-                        __ink_generic_salt: ::ink_storage::traits::StorageKey
+                        __ink_generic_salt: ::ink::storage::traits::StorageKey
                     >
-                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for NamedFields<Salt>
+                    ::ink::storage::traits::StorableHint<__ink_generic_salt> for NamedFields<Salt>
                 {
                     type Type = NamedFields<__ink_generic_salt>;
                     type PreferredKey = Salt;
@@ -120,11 +120,11 @@ fn enum_works() {
         }
         expands to {
             const _: () = {
-                impl<__ink_generic_salt: ::ink_storage::traits::StorageKey>
-                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for MixedEnum
+                impl<__ink_generic_salt: ::ink::storage::traits::StorageKey>
+                    ::ink::storage::traits::StorableHint<__ink_generic_salt> for MixedEnum
                 {
                     type Type = MixedEnum;
-                    type PreferredKey = ::ink_storage::traits::AutoKey;
+                    type PreferredKey = ::ink::storage::traits::AutoKey;
                 }
             };
         }
@@ -146,9 +146,9 @@ fn enum_salt_works() {
             const _: () = {
                 impl<
                         Salt: traits::StorageKey,
-                        __ink_generic_salt: ::ink_storage::traits::StorageKey
+                        __ink_generic_salt: ::ink::storage::traits::StorageKey
                     >
-                    ::ink_storage::traits::StorableHint<__ink_generic_salt> for MixedEnum<Salt>
+                    ::ink::storage::traits::StorableHint<__ink_generic_salt> for MixedEnum<Salt>
                 {
                     type Type = MixedEnum<__ink_generic_salt>;
                     type PreferredKey = Salt;
