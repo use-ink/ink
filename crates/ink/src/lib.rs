@@ -30,6 +30,7 @@ mod env_access;
 pub use ink_env as env;
 pub use ink_storage as storage;
 pub use ink_primitives as primitives;
+#[cfg(feature = "std")]
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 
