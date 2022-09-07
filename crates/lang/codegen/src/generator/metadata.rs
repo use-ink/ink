@@ -45,12 +45,12 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
+                pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
                     let layout = #layout;
-                    ::ink_metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
+                    ::ink::metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
                         ::core::panic!("metadata ink! generation failed: {}", error)
                     });
-                    ::ink_metadata::InkProject::new(layout, #contract)
+                    ::ink::metadata::InkProject::new(layout, #contract)
                 }
             };
         }
@@ -61,18 +61,18 @@ impl Metadata<'_> {
     fn generate_layout(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let key = quote! { <#storage_ident as ::ink_storage::traits::StorageKey>::KEY };
+        let key = quote! { <#storage_ident as ::ink::storage::traits::StorageKey>::KEY };
 
         let layout_key = quote! {
-            <::ink_metadata::layout::LayoutKey
-                as ::core::convert::From<::ink_primitives::Key>>::from(#key)
+            <::ink::metadata::layout::LayoutKey
+                as ::core::convert::From<::ink::primitives::Key>>::from(#key)
         };
         quote_spanned!(storage_span=>
             // Wrap the layout of the contract into the `RootLayout`, because
             // contract storage key is reserved for all packed fields
-            ::ink_metadata::layout::Layout::Root(::ink_metadata::layout::RootLayout::new(
+            ::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new(
                 #layout_key,
-                <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
+                <#storage_ident as ::ink::storage::traits::StorageLayout>::layout(
                     &#key,
                 ),
             ))
@@ -90,7 +90,7 @@ impl Metadata<'_> {
             .iter()
             .filter_map(|attr| attr.extract_docs());
         quote! {
-            ::ink_metadata::ContractSpec::new()
+            ::ink::metadata::ContractSpec::new()
                 .constructors([
                     #( #constructors ),*
                 ])
@@ -132,7 +132,7 @@ impl Metadata<'_> {
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         quote_spanned!(span=>
-            ::ink_metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
+            ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
                     #( #selector_bytes ),*
                 ])
@@ -155,7 +155,7 @@ impl Metadata<'_> {
         };
         let type_spec = Self::generate_type_spec(&pat_type.ty);
         quote! {
-            ::ink_metadata::MessageParamSpec::new(::core::stringify!(#ident))
+            ::ink::metadata::MessageParamSpec::new(::core::stringify!(#ident))
                 .of_type(#type_spec)
                 .done()
         }
@@ -164,7 +164,7 @@ impl Metadata<'_> {
     /// Generates the ink! metadata for the given type.
     fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
         fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ::ink_metadata::TypeSpec::new::<#ty>() }
+            quote! { ::ink::metadata::TypeSpec::new::<#ty>() }
         }
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
@@ -180,7 +180,7 @@ impl Metadata<'_> {
                 .map(|seg| &seg.ident)
                 .collect::<Vec<_>>();
             quote! {
-                ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
+                ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
                     ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
                         .map(::core::convert::AsRef::as_ref)
                 )
@@ -221,7 +221,7 @@ impl Metadata<'_> {
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let ret_ty = Self::generate_return_type(message.output());
                 quote_spanned!(span =>
-                    ::ink_metadata::MessageSpec::from_label(::core::stringify!(#ident))
+                    ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([
                             #( #selector_bytes ),*
                         ])
@@ -270,19 +270,19 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{
-                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                    <<::ink::lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::lang::reflect::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
+                        as ::ink::lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
-                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                    <<::ink::lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::lang::reflect::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                        as ::ink::lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let ret_ty = Self::generate_return_type(message.output());
                 let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
-                    ::ink_metadata::MessageSpec::from_label(#label)
+                    ::ink::metadata::MessageSpec::from_label(#label)
                         .selector(#selector)
                         .args([
                             #( #message_args ),*
@@ -304,13 +304,13 @@ impl Metadata<'_> {
         match ret_ty {
             None => {
                 quote! {
-                    ::ink_metadata::ReturnTypeSpec::new(::core::option::Option::None)
+                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
                 }
             }
             Some(ty) => {
                 let type_spec = Self::generate_type_spec(ty);
                 quote! {
-                    ::ink_metadata::ReturnTypeSpec::new(#type_spec)
+                    ::ink::metadata::ReturnTypeSpec::new(#type_spec)
                 }
             }
         }
@@ -324,7 +324,7 @@ impl Metadata<'_> {
             let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
             let args = Self::generate_event_args(event);
             quote_spanned!(span =>
-                ::ink_metadata::EventSpec::new(::core::stringify!(#ident))
+                ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
                     .args([
                         #( #args ),*
                     ])
@@ -348,7 +348,7 @@ impl Metadata<'_> {
                 .filter_map(|attr| attr.extract_docs());
             let ty = Self::generate_type_spec(event_field.ty());
             quote_spanned!(span =>
-                ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
+                ::ink::metadata::EventParamSpec::new(::core::stringify!(#ident))
                     .of_type(#ty)
                     .indexed(#is_topic)
                     .docs([

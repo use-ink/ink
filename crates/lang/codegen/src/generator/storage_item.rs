@@ -58,12 +58,12 @@ impl GenerateCode for StorageItem<'_> {
             derive = quote! {
                 #[cfg_attr(feature = "std", derive(
                     ::scale_info::TypeInfo,
-                    ::ink_storage::traits::StorageLayout,
+                    ::ink::storage::traits::StorageLayout,
                 ))]
                 #[derive(
-                    ::ink_storage::traits::StorableHint,
-                    ::ink_storage::traits::StorageKey,
-                    ::ink_primitives::traits::Storable,
+                    ::ink::storage::traits::StorableHint,
+                    ::ink::storage::traits::StorageKey,
+                    ::ink::primitives::traits::Storable,
                 )]
             };
         }
@@ -240,8 +240,8 @@ fn convert_into_storage_field(
     let ty = field.ty.clone().to_token_stream();
     let span = field.ty.span();
     let new_ty = Type::Verbatim(quote_spanned!(span =>
-        <#ty as ::ink_storage::traits::AutoStorableHint<
-            ::ink_storage::traits::ManualKey<#key, #salt>,
+        <#ty as ::ink::storage::traits::AutoStorableHint<
+            ::ink::storage::traits::ManualKey<#key, #salt>,
         >>::Type
     ));
     new_field.ty = new_ty;

@@ -113,9 +113,9 @@ impl CallBuilder<'_> {
             #[repr(transparent)]
             pub struct #call_builder_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
-                account_id: <E as ::ink_env::Environment>::AccountId,
+                account_id: <E as ::ink::env::Environment>::AccountId,
             }
         )
     }
@@ -131,23 +131,23 @@ impl CallBuilder<'_> {
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
             #[cfg(feature = "std")]
-            impl<E> ::ink_storage::traits::StorageLayout
+            impl<E> ::ink::storage::traits::StorageLayout
                 for #call_builder_ident<E>
             where
-                E: ::ink_env::Environment,
-                <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::StorageLayout,
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::ink::storage::traits::StorageLayout,
             {
                 fn layout(
-                    __key: &::ink_primitives::Key,
-                ) -> ::ink_metadata::layout::Layout {
-                    ::ink_metadata::layout::Layout::Struct(
-                        ::ink_metadata::layout::StructLayout::new(
+                    __key: &::ink::primitives::Key,
+                ) -> ::ink::metadata::layout::Layout {
+                    ::ink::metadata::layout::Layout::Struct(
+                        ::ink::metadata::layout::StructLayout::new(
                             ::core::stringify!(#call_builder_ident),
                             [
-                                ::ink_metadata::layout::FieldLayout::new(
+                                ::ink::metadata::layout::FieldLayout::new(
                                     "account_id",
-                                    <<E as ::ink_env::Environment>::AccountId
-                                        as ::ink_storage::traits::StorageLayout>::layout(__key)
+                                    <<E as ::ink::env::Environment>::AccountId
+                                        as ::ink::storage::traits::StorageLayout>::layout(__key)
                                 )
                             ]
                         )
@@ -172,8 +172,8 @@ impl CallBuilder<'_> {
             /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::core::clone::Clone for #call_builder_ident<E>
             where
-                E: ::ink_env::Environment,
-                <E as ::ink_env::Environment>::AccountId: ::core::clone::Clone,
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::core::clone::Clone,
             {
                 #[inline]
                 fn clone(&self) -> Self {
@@ -186,8 +186,8 @@ impl CallBuilder<'_> {
             /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::core::fmt::Debug for #call_builder_ident<E>
             where
-                E: ::ink_env::Environment,
-                <E as ::ink_env::Environment>::AccountId: ::core::fmt::Debug,
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                     f.debug_struct(::core::stringify!(#call_builder_ident))
@@ -208,24 +208,24 @@ impl CallBuilder<'_> {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            impl<E> ::ink_env::call::FromAccountId<E>
+            impl<E> ::ink::env::call::FromAccountId<E>
                 for #call_builder_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 #[inline]
-                fn from_account_id(account_id: <E as ::ink_env::Environment>::AccountId) -> Self {
+                fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
                     Self { account_id }
                 }
             }
 
-            impl<E> ::ink_lang::ToAccountId<E> for #call_builder_ident<E>
+            impl<E> ::ink::lang::ToAccountId<E> for #call_builder_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 #[inline]
-                fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
-                    <<E as ::ink_env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
+                fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
+                    <<E as ::ink::env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
             }
         )
@@ -247,16 +247,16 @@ impl CallBuilder<'_> {
         let builder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
-            impl<E> ::ink_lang::reflect::ContractEnv for #builder_ident<E>
+            impl<E> ::ink::lang::reflect::ContractEnv for #builder_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 type Env = E;
             }
 
             impl<E> #trait_ident for #builder_ident<E>
             where
-                E: ::ink_env::Environment,
+                E: ::ink::env::Environment,
             {
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo = #trait_info_ident<E>;
@@ -305,11 +305,11 @@ impl CallBuilder<'_> {
         let mut_tok = message.mutates().then(|| quote! { mut });
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
-            type #output_ident = ::ink_env::call::CallBuilder<
+            type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
-                ::ink_env::call::utils::Set< ::ink_env::call::Call< Self::Env > >,
-                ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                ::ink_env::call::utils::Set< ::ink_env::call::utils::ReturnType<#output_type> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,
+                ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
+                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#output_type> >,
             >;
 
             #( #attrs )*
@@ -318,11 +318,11 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_call::<Self::Env>()
-                    .call_type(::ink_env::call::Call::new().callee(::ink_lang::ToAccountId::to_account_id(self)))
+                ::ink::env::call::build_call::<Self::Env>()
+                    .call_type(::ink::env::call::Call::new().callee(::ink::lang::ToAccountId::to_account_id(self)))
                     .exec_input(
-                        ::ink_env::call::ExecutionInput::new(
-                            ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)
