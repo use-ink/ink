@@ -1,10 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod erc20 {
-    use ink_storage::Mapping;
+    use ink::storage::Mapping;
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
