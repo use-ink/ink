@@ -27,6 +27,12 @@ mod chain_extension;
 mod contract_ref;
 mod env_access;
 
+pub use ink_env as env;
+pub use ink_storage as storage;
+pub use ink_primitives as primitives;
+pub use ink_metadata as metadata;
+pub use ink_prelude as prelude;
+
 pub use self::{
     chain_extension::{
         ChainExtensionInstance,
