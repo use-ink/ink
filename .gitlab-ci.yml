@@ -190,7 +190,7 @@ examples-clippy-wasm:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo +nightly clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
