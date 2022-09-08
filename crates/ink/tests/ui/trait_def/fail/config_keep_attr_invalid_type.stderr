@@ -1,5 +1,5 @@
 error: expected a string with attributes separated by `,`
- --> tests/ui/trait_def/fail/config_keep_attr_invalid_type.rs:3:25
+ --> tests/ui/trait_def/fail/config_keep_attr_invalid_type.rs:1:25
   |
-3 | #[ink::trait_definition(keep_attr = true)]
+1 | #[ink::trait_definition(keep_attr = true)]
   |                         ^^^^^^^^^^^^^^^^

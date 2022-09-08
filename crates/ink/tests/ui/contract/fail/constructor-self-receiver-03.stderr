@@ -1,33 +1,33 @@
 error[E0637]: `&` without an explicit lifetime name cannot be used here
-  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:34
-   |
-10 |         pub fn constructor(this: &Self) -> Self {
-   |                                  ^ explicit lifetime name needed here
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:34
+  |
+8 |         pub fn constructor(this: &Self) -> Self {
+  |                                  ^ explicit lifetime name needed here
 
 error[E0411]: cannot find type `Self` in this scope
-  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
-   |
-6  |     pub struct Contract {}
-   |     ---------------------- `Self` not allowed in a constant item
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:35
+  |
+4 |     pub struct Contract {}
+  |     ---------------------- `Self` not allowed in a constant item
 ...
-10 |         pub fn constructor(this: &Self) -> Self {
-   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+8 |         pub fn constructor(this: &Self) -> Self {
+  |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
 
 error[E0411]: cannot find type `Self` in this scope
-  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:35
-   |
-3  | #[ink::contract]
-   | ---------------- `Self` not allowed in a function
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:35
+  |
+1 | #[ink::contract]
+  | ---------------- `Self` not allowed in a function
 ...
-10 |         pub fn constructor(this: &Self) -> Self {
-   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+8 |         pub fn constructor(this: &Self) -> Self {
+  |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
 
 error[E0277]: the trait bound `&'static Contract: WrapperTypeDecode` is not satisfied
-  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:10:9
+  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:9
    |
-10 | /         pub fn constructor(this: &Self) -> Self {
-11 | |             Self {}
-12 | |         }
+8  | /         pub fn constructor(this: &Self) -> Self {
+9  | |             Self {}
+10 | |         }
    | |_________^ the trait `WrapperTypeDecode` is not implemented for `&'static Contract`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:

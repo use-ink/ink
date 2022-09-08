@@ -1,7 +1,7 @@
 error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
-  --> tests/ui/contract/fail/constructor-input-non-codec.rs:13:28
+  --> tests/ui/contract/fail/constructor-input-non-codec.rs:11:28
    |
-13 |         pub fn constructor(_input: NonCodecType) -> Self {
+11 |         pub fn constructor(_input: NonCodecType) -> Self {
    |                            ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
@@ -16,11 +16,11 @@ note: required by a bound in `DispatchInput`
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
-  --> tests/ui/contract/fail/constructor-input-non-codec.rs:13:9
+  --> tests/ui/contract/fail/constructor-input-non-codec.rs:11:9
    |
-13 | /         pub fn constructor(_input: NonCodecType) -> Self {
-14 | |             Self {}
-15 | |         }
+11 | /         pub fn constructor(_input: NonCodecType) -> Self {
+12 | |             Self {}
+13 | |         }
    | |_________^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = help: the following other types implement trait `WrapperTypeDecode`:
@@ -30,14 +30,14 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
    = note: required for `NonCodecType` to implement `parity_scale_codec::Decode`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
-  --> tests/ui/contract/fail/constructor-input-non-codec.rs:3:1
+  --> tests/ui/contract/fail/constructor-input-non-codec.rs:1:1
    |
-3  |   #[ink::contract]
+1  |   #[ink::contract]
    |   ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
 ...
-13 | /         pub fn constructor(_input: NonCodecType) -> Self {
-14 | |             Self {}
-15 | |         }
+11 | /         pub fn constructor(_input: NonCodecType) -> Self {
+12 | |             Self {}
+13 | |         }
    | |_________- required by a bound introduced by this call
    |
    = help: the following other types implement trait `WrapperTypeEncode`:

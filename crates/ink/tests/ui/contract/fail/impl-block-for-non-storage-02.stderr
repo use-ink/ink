@@ -1,7 +1,7 @@
 error[E0308]: mismatched types
-  --> tests/ui/contract/fail/impl-block-for-non-storage-02.rs:21:10
+  --> tests/ui/contract/fail/impl-block-for-non-storage-02.rs:19:10
    |
-21 |     impl NonContract {}
+19 |     impl NonContract {}
    |          ^^^^^^^^^^^ expected struct `Contract`, found struct `NonContract`
    |
    = note: expected struct `IsSameType<Contract>`

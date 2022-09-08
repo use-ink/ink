@@ -1,13 +1,13 @@
 error[E0277]: the trait bound `EventTopics<3>: RespectTopicLimit<2>` is not satisfied
-  --> tests/ui/contract/fail/event-too-many-topics.rs:26:5
+  --> tests/ui/contract/fail/event-too-many-topics.rs:25:5
    |
-26 | /     pub struct Event {
-27 | |         #[ink(topic)]
-28 | |         arg_1: i8,
-29 | |         #[ink(topic)]
+25 | /     pub struct Event {
+26 | |         #[ink(topic)]
+27 | |         arg_1: i8,
+28 | |         #[ink(topic)]
 ...  |
-32 | |         arg_3: i32,
-33 | |     }
+31 | |         arg_3: i32,
+32 | |     }
    | |_____^ the trait `RespectTopicLimit<2>` is not implemented for `EventTopics<3>`
    |
    = help: the following other types implement trait `RespectTopicLimit<N>`:
