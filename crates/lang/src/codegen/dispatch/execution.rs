@@ -24,8 +24,10 @@ use ink_env::{
     Environment,
     ReturnFlags,
 };
-use ink_primitives::traits::Storable;
-use ink_storage::traits::StorageKey;
+use ink_storage::traits::{
+    Storable,
+    StorageKey
+};
 use scale::Encode;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.

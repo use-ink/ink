@@ -19,6 +19,7 @@
 
 extern crate proc_macro;
 
+mod storable;
 mod storable_hint;
 mod storage_key;
 mod storage_layout;
@@ -27,10 +28,30 @@ mod storage_layout;
 mod tests;
 
 use self::{
+    storable::storable_derive,
     storable_hint::storable_hint_derive,
     storage_key::storage_key_derive,
     storage_layout::storage_layout_derive,
 };
+synstructure::decl_derive!(
+    [Storable] =>
+    /// Derives `ink_storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ink_primitives::traits::Storable;
+    ///
+    /// #[derive(Storable)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 1],
+    /// }
+    ///
+    /// let value = <NamedFields as Storable>::decode(&mut &[123, 123][..]);
+    /// ```
+    storable_derive
+);
 synstructure::decl_derive!(
     [StorableHint] =>
     /// Derives `ink_storage`'s `StorableHint` trait for the given `struct` or `enum`.

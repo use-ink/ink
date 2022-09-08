@@ -42,11 +42,13 @@ pub use self::{
     storage::{
         AutoStorableHint,
         Packed,
+        Storable,
         StorableHint,
         StorageKey,
     },
 };
 pub use ink_storage_derive::{
+    Storable,
     StorableHint,
     StorageKey,
     StorageLayout,

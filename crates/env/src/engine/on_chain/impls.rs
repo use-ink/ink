@@ -46,7 +46,7 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_primitives::traits::Storable;
+use ink_storage_traits::Storable;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {

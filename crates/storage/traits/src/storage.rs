@@ -12,10 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_primitives::{
-    traits::Storable,
-    Key,
-};
+use ink_primitives::Key;
+
+/// Trait for representing types which can be read and written to storage.
+///
+/// This trait is not the same as the `scale::Encode + scale::Decode`. Each type that implements
+/// `scale::Encode + scale::Decode` are storable by default and transferable between contracts.
+/// But not each storable type is transferable.
+pub trait Storable: Sized {
+    /// Convert self to a slice and append it to the destination.
+    fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T);
+
+    /// Attempt to deserialize the value from input.
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error>;
+}
+
+/// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default because
+/// they can be written directly into the storage cell.
+impl<P> Storable for P
+    where
+        P: scale::Encode + scale::Decode,
+{
+    #[inline]
+    fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T) {
+        scale::Encode::encode_to(self, dest)
+    }
+
+    #[inline]
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        scale::Decode::decode(input)
+    }
+}
 
 pub(crate) mod private {
     /// Seals the implementation of `Packed`.

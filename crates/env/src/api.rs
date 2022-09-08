@@ -39,7 +39,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::traits::Storable;
+use ink_storage_traits::Storable;
 
 /// Returns the address of the caller of the executed contract.
 ///

@@ -25,7 +25,6 @@
 
 mod types;
 mod key;
-pub mod traits;
 
 pub use self::{
     types::{

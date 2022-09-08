@@ -15,6 +15,7 @@
 mod storable_hint;
 mod storage_key;
 mod storage_layout;
+mod storable;
 
 #[macro_export]
 macro_rules! test_derive {
