@@ -91,9 +91,8 @@ fn convert_err(err_msg: &'static str) -> impl FnOnce(DispatchError) -> DispatchE
     }
 }
 
-// We're using enums for function IDs because contrary to raw u16 it enables
-// exhaustive matching, which results in cleaner code.
-
+/// We're using enums for function IDs because contrary to raw u16 it enables
+/// exhaustive matching, which results in cleaner code.
 enum FuncId {
     Metadata(Metadata),
     Query(Query),
