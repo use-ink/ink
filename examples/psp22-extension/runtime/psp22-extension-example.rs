@@ -1,19 +1,44 @@
-use codec::{Decode, Encode, MaxEncodedLen};
+use codec::{
+    Decode,
+    Encode,
+    MaxEncodedLen,
+};
 use frame_support::{
     dispatch::RawOrigin,
-    log::{error, trace},
+    log::{
+        error,
+        trace,
+    },
     pallet_prelude::*,
     traits::fungibles::{
-        approvals::{Inspect as AllowanceInspect, Mutate as AllowanceMutate},
-        Inspect, InspectMetadata, Transfer,
+        approvals::{
+            Inspect as AllowanceInspect,
+            Mutate as AllowanceMutate,
+        },
+        Inspect,
+        InspectMetadata,
+        Transfer,
     },
 };
-use pallet_assets::{self, WeightInfo};
+use pallet_assets::{
+    self,
+    WeightInfo,
+};
 use pallet_contracts::chain_extension::{
-    ChainExtension, Environment, Ext, InitState, RetVal, SysConfig, UncheckedFrom,
+    ChainExtension,
+    Environment,
+    Ext,
+    InitState,
+    RetVal,
+    SysConfig,
+    UncheckedFrom,
 };
 use sp_runtime::{
-    traits::{Saturating, StaticLookup, Zero},
+    traits::{
+        Saturating,
+        StaticLookup,
+        Zero,
+    },
     DispatchError,
 };
 
@@ -66,6 +91,9 @@ fn convert_err(err_msg: &'static str) -> impl FnOnce(DispatchError) -> DispatchE
     }
 }
 
+// We're using enums for function IDs because contrary to raw u16 it enables
+// exhaustive matching, which results in cleaner code.
+
 enum FuncId {
     Metadata(Metadata),
     Query(Query),
@@ -74,6 +102,20 @@ enum FuncId {
     Approve,
     IncreaseAllowance,
     DecreaseAllowance,
+}
+
+#[derive(Debug)]
+enum Metadata {
+    Name,
+    Symbol,
+    Decimals,
+}
+
+#[derive(Debug)]
+enum Query {
+    TotalSupply,
+    BalanceOf,
+    Allowance,
 }
 
 impl TryFrom<u16> for FuncId {
@@ -96,26 +138,12 @@ impl TryFrom<u16> for FuncId {
             0xfecb => Self::DecreaseAllowance,
             _ => {
                 error!("Called an unregistered `func_id`: {:}", func_id);
-                return Err(DispatchError::Other("Unimplemented func_id"));
+                return Err(DispatchError::Other("Unimplemented func_id"))
             }
         };
 
         Ok(id)
     }
-}
-
-#[derive(Debug)]
-enum Metadata {
-    Name,
-    Symbol,
-    Decimals,
-}
-
-#[derive(Debug)]
-enum Query {
-    TotalSupply,
-    BalanceOf,
-    Allowance,
 }
 
 fn metadata<T, E>(
@@ -138,10 +166,12 @@ where
             <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::symbol(&asset_id)
                 .encode()
         }
-        Metadata::Decimals => <pallet_assets::Pallet<T> as InspectMetadata<
-            T::AccountId,
-        >>::decimals(&asset_id)
-        .encode(),
+        Metadata::Decimals => {
+            <pallet_assets::Pallet<T> as InspectMetadata<T::AccountId>>::decimals(
+                &asset_id,
+            )
+            .encode()
+        }
     };
     trace!(
         target: "runtime",
@@ -323,7 +353,7 @@ where
     let mut env = env.buf_in_buf_out();
     let input: Psp22ApproveInput<T::AssetId, T::AccountId, T::Balance> = env.read_as()?;
     if input.value.is_zero() {
-        return Ok(());
+        return Ok(())
     }
 
     let base_weight = <T as pallet_assets::Config>::WeightInfo::cancel_approval()
@@ -365,7 +395,7 @@ where
             <T as pallet_assets::Config>::WeightInfo::cancel_approval()
                 .saturating_add(overhead),
         );
-        return Ok(());
+        return Ok(())
     }
     <pallet_assets::Pallet<T> as AllowanceMutate<T::AccountId>>::approve(
         input.asset_id,
@@ -405,8 +435,8 @@ where
             FuncId::Query(func_id) => query::<T, E>(func_id, env)?,
             FuncId::Transfer => transfer::<T, E>(env)?,
             FuncId::TransferFrom => transfer_from::<T, E>(env)?,
-            // FIXME: This is a bit of a shortcut. It was made because the documentation
-            //        for Mutate::approve does not specify the result of subsequent calls.
+            // This is a bit of a shortcut. It was made because the documentation
+            // for Mutate::approve does not specify the result of subsequent calls.
             FuncId::Approve | FuncId::IncreaseAllowance => approve::<T, E>(env)?,
             FuncId::DecreaseAllowance => decrease_allowance(env)?,
         }
