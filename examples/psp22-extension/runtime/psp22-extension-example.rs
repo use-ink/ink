@@ -80,25 +80,27 @@ impl TryFrom<u16> for FuncId {
     type Error = DispatchError;
 
     fn try_from(func_id: u16) -> Result<Self, Self::Error> {
-        match func_id {
+        let id = match func_id {
             // Note: We use the first two bytes of PSP22 interface selectors as function IDs,
             // While we can use anything here, it makes sense from a convention perspective.
-            0x3d26 => Ok(Self::Metadata(Metadata::Name)),
-            0x3420 => Ok(Self::Metadata(Metadata::Symbol)),
-            0x7271 => Ok(Self::Metadata(Metadata::Decimals)),
-            0x162d => Ok(Self::Query(Query::TotalSupply)),
-            0x6568 => Ok(Self::Query(Query::BalanceOf)),
-            0x4d47 => Ok(Self::Query(Query::Allowance)),
-            0xdb20 => Ok(Self::Transfer),
-            0x54b3 => Ok(Self::TransferFrom),
-            0xb20f => Ok(Self::Approve),
-            0x96d6 => Ok(Self::IncreaseAllowance),
-            0xfecb => Ok(Self::DecreaseAllowance),
+            0x3d26 => Self::Metadata(Metadata::Name),
+            0x3420 => Self::Metadata(Metadata::Symbol),
+            0x7271 => Self::Metadata(Metadata::Decimals),
+            0x162d => Self::Query(Query::TotalSupply),
+            0x6568 => Self::Query(Query::BalanceOf),
+            0x4d47 => Self::Query(Query::Allowance),
+            0xdb20 => Self::Transfer,
+            0x54b3 => Self::TransferFrom,
+            0xb20f => Self::Approve,
+            0x96d6 => Self::IncreaseAllowance,
+            0xfecb => Self::DecreaseAllowance,
             _ => {
                 error!("Called an unregistered `func_id`: {:}", func_id);
                 return Err(DispatchError::Other("Unimplemented func_id"));
             }
-        }
+        };
+
+        Ok(id)
     }
 }
 
