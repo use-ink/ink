@@ -531,28 +531,6 @@ impl FieldLayout {
     }
 }
 
-pub trait OptStr {
-    fn opt_str(&self) -> Option<String>;
-}
-
-impl OptStr for &'static str {
-    fn opt_str(&self) -> Option<String> {
-        self.to_string().into()
-    }
-}
-
-impl OptStr for String {
-    fn opt_str(&self) -> Option<String> {
-        self.to_owned().into()
-    }
-}
-
-impl OptStr for Option<&'static str> {
-    fn opt_str(&self) -> Option<String> {
-        self.map(|s| s.to_string())
-    }
-}
-
 impl<F> FieldLayout<F>
 where
     F: Form,
