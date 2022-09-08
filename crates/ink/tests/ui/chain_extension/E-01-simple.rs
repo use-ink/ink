@@ -1,5 +1,4 @@
 use ink_env::Environment;
-use ink_lang as ink;
 
 /// Custom chain extension to read to and write from the runtime.
 #[ink::chain_extension]

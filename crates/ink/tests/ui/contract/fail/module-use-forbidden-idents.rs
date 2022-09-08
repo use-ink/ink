@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 #[ink::contract]
 mod __ink_contract {
     #[ink(storage)]

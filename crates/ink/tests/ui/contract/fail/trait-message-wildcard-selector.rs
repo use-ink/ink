@@ -8,8 +8,6 @@ mod foo {
     }
 }
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod contract {
     use super::foo::TraitDefinition;

@@ -1,6 +1,4 @@
 use contract::Contract;
-use ink_lang as ink;
-
 #[ink::contract]
 mod contract {
     #[ink(storage)]

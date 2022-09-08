@@ -1,6 +1,4 @@
 use flipper::Flipper;
-use ink_lang as ink;
-
 #[ink::contract]
 mod flipper {
     #[ink(storage)]

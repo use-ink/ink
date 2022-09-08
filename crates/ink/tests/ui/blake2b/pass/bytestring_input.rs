@@ -1,5 +1,4 @@
-use ink_lang as ink;
-use ink_lang_ir as ir;
+use ink::ir;
 
 macro_rules! assert_macro_eq {
     ( $input:literal ) => {{

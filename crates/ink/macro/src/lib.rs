@@ -128,8 +128,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     **Usage Example:**
 ///     ```
-///     # use ink_lang as ink;
-///     #[ink::contract(keep_attr = "foo, bar")]
+///     # ///     #[ink::contract(keep_attr = "foo, bar")]
 ///     mod my_contract {
 ///         # #[ink(storage)]
 ///         # pub struct MyStorage;

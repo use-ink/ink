@@ -18,8 +18,6 @@ mod foo2 {
     }
 }
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod contract {
     use super::{

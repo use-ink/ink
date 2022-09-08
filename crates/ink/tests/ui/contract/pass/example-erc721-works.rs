@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 #[ink::contract]
 mod erc721 {
     use ink_storage::Mapping;

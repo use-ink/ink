@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 #[ink::contract]
 mod contract {
     use ink_storage::traits::StorageLayout;
