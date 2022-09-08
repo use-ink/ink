@@ -91,7 +91,7 @@ where
     /// #[ink(message)]
     /// pub fn call_me(&self) {
     ///     let caller = self.env().caller();
-    ///     ink_env::debug_println!("got a call from {:?}", &caller);
+    ///     ink::env::debug_println!("got a call from {:?}", &caller);
     /// }
     /// #
     /// #     }
@@ -110,8 +110,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
-    /// #
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -128,7 +126,7 @@ where
     /// pub fn fund(&self) {
     ///     let caller = self.env().caller();
     ///     let value = self.env().transferred_value();
-    ///     ink_env::debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
+    ///     ink::env::debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
     /// }
     /// #
     /// #     }
@@ -147,8 +145,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
-    /// #
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -190,7 +186,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -315,7 +310,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -389,7 +383,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -422,7 +415,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// # // In order for this to actually work with another contract we'd need a way
@@ -434,7 +426,7 @@ where
     /// # pub mod other_contract {
     /// #     pub use super::MyContractRef as OtherContractRef;
     /// # }
-    /// use ink_env::{
+    /// use ink::env::{
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput}
     /// };
@@ -494,10 +486,9 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// use ink_env::{
+    /// use ink::env::{
     ///     DefaultEnvironment,
     ///     call::{build_call, Call, Selector, ExecutionInput}
     /// };
@@ -555,10 +546,9 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// use ink_env::{
+    /// use ink::env::{
     ///     DefaultEnvironment,
     ///     Clear,
     ///     call::{build_call, DelegateCall, Selector, ExecutionInput, utils::ReturnType}
@@ -580,7 +570,7 @@ where
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .call_type(
     ///                 DelegateCall::new()
-    ///                  .code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
+    ///                  .code_hash(<DefaultEnvironment as ink::env::Environment>::Hash::clear()))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
@@ -615,7 +605,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -649,7 +638,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -684,7 +672,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -775,7 +762,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -812,7 +798,7 @@ where
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
     ///     assert!(failed_result.is_err());
     ///     if let Err(e) = failed_result {
-    ///         assert_eq!(e, ink_env::Error::EcdsaRecoveryFailed);
+    ///         assert_eq!(e, ink::env::Error::EcdsaRecoveryFailed);
     ///     }
     /// }
     /// #
@@ -835,7 +821,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -883,7 +868,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -915,7 +899,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -947,7 +930,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -979,7 +961,6 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
