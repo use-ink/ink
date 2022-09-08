@@ -95,10 +95,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// If you are a beginner trying to learn ink! we recommend you to check out
 /// our extensive [ink! workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
 ///
-/// **Note:** In all below examples we will be using `ink_lang` crate aliased as just `ink`.
-///           You can do this yourself by adding the following line to your code:
-///           `use ink_lang as ink;`
-///
 /// # Description
 ///
 /// The macro does analysis on the provided smart contract code and generates
@@ -176,7 +172,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     A user might implement their ink! smart contract using the above custom `Environment`
 ///     implementation as demonstrated below:
 ///     ```
-///     # use ink_lang as ink;
 ///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
 ///         # pub struct MyEnvironment;
@@ -223,7 +218,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     **Example:**
 ///
 ///     ```
-///     # use ink_lang as ink;
 ///     #[ink::contract]
 ///     mod flipper {
 ///         #[ink(storage)]
@@ -251,7 +245,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     as follows:
 ///
 ///     ```
-///     # use ink_lang as ink;
 ///     # #[ink::contract]
 ///     # mod flipper {
 ///         # #[ink(storage)]
@@ -288,7 +281,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     as follows:
 ///
 ///     ```
-///     # use ink_lang as ink;
 ///     # #[ink::contract]
 ///     # mod flipper {
 ///         # #[ink(storage)]
@@ -325,7 +317,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     as such.
 ///
 ///     ```
-///     # use ink_lang as ink;
 ///     # #[ink::contract]
 ///     # mod flipper {
 ///         # #[ink(storage)]
@@ -363,7 +354,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     constructor using the `selector` flag. An example is shown below:
 ///
 ///     ```
-///     # use ink_lang as ink;
 ///     # #[ink::contract]
 ///     # mod flipper {
 ///         # #[ink(storage)]
@@ -411,8 +401,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// via its environment accessor. An example below:
 ///
 /// ```
-/// # use ink_lang as ink;
-/// #
 /// #[ink::contract]
 /// mod greeter {
 ///     use ink_env::debug_println;
@@ -448,8 +436,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// emitted in the `#[ink(constructor)]`.
 ///
 /// ```
-/// # use ink_lang as ink;
-/// #
 /// #[ink::contract]
 /// mod erc20 {
 ///     /// Defines an event that is emitted every time value is transferred.
@@ -566,8 +552,6 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Given the above trait definition you can implement it as shown below:
 ///
 /// ```
-/// # use ink_lang as ink;
-/// #
 /// #[ink::contract]
 /// mod base_erc20 {
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
@@ -622,7 +606,6 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///     **Usage Example:**
 ///     ```
-///     # use ink_lang as ink;
 ///     #[ink::trait_definition(namespace = "foo")]
 ///     pub trait TraitDefinition {
 ///         #[ink(message)]
@@ -643,7 +626,6 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///     **Usage Example:**
 ///     ```
-///     # use ink_lang as ink;
 ///     #[ink::trait_definition(keep_attr = "foo, bar")]
 ///     pub trait Storage {
 ///         #[ink(message)]
@@ -891,7 +873,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// As with all ink! attributes multiple of them can either appear in a contiguous list:
 /// ```
 /// # type Access = i32;
-/// # use ink_lang as ink;
 /// # #[ink::chain_extension]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
@@ -902,7 +883,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// …or as multiple stand alone ink! attributes applied to the same item:
 /// ```
 /// # type Access = i32;
-/// # use ink_lang as ink;
 /// # #[ink::chain_extension]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
@@ -1143,12 +1123,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// `self.extension().read(...)`.
 ///
 /// ```
-/// # use ink_lang as ink;
-/// #
 /// #[ink::contract(env = CustomEnvironment)]
 /// mod read_writer {
-///     # use ink_lang as ink;
-///     #
 ///     #[ink(storage)]
 ///     pub struct ReadWriter {}
 ///

@@ -37,7 +37,6 @@ use core::marker::PhantomData;
 /// # Usage
 ///
 /// ```
-/// # use ink_lang as ink;
 /// # use ink::reflect::TraitDefinitionRegistry;
 /// use ink_env::DefaultEnvironment;
 ///
