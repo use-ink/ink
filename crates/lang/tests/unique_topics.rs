@@ -20,8 +20,6 @@
 // stable would succeed again
 #![allow(clippy::extra_unused_lifetimes)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod my_contract {
     #[ink(storage)]
