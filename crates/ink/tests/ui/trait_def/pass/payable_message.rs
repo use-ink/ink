@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 #[ink::trait_definition]
 pub trait PayableDefinition {
     #[ink(message, payable)]

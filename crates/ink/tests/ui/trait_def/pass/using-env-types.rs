@@ -1,8 +1,6 @@
 use ink_env::Environment;
 use ink::reflect::ContractEnv;
 
-use ink_lang as ink;
-
 #[ink::trait_definition]
 pub trait TraitDefinition {
     #[ink(message)]

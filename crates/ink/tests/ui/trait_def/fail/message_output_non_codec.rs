@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 pub struct NonCodec;
 
 #[ink::trait_definition]

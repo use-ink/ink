@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 pub trait SuperTraitDefinition {}
 
 #[ink::trait_definition]

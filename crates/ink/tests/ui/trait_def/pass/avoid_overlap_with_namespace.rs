@@ -1,7 +1,5 @@
 mod foo {
-    use ink_lang as ink;
-
-    #[ink::trait_definition(namespace = "foo")]
+        #[ink::trait_definition(namespace = "foo")]
     pub trait TraitDefinition {
         #[ink(message)]
         fn message(&self);
@@ -9,9 +7,7 @@ mod foo {
 }
 
 mod bar {
-    use ink_lang as ink;
-
-    #[ink::trait_definition(namespace = "bar")]
+        #[ink::trait_definition(namespace = "bar")]
     pub trait TraitDefinition {
         #[ink(message)]
         fn message(&self);
