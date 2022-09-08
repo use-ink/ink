@@ -1,10 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod dns {
-    use ink_storage::Mapping;
+    use ink::storage::Mapping;
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
@@ -172,15 +170,14 @@ mod dns {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<Environment>()
+        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<Environment>()
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink_env::test::set_caller::<Environment>(caller);
+            ink::env::test::set_caller::<Environment>(caller);
         }
 
         #[ink::test]
