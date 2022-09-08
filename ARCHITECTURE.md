@@ -15,7 +15,7 @@ You can find the crate documentation on docs.rs or for our
 ink! is composed of a number of crates that are all found in the
 `crates/` folder. On a high-level those can be grouped as:
 
-* [`lang`](https://github.com/paritytech/ink/tree/master/crates/lang):
+* [`ink`](https://github.com/paritytech/ink/tree/master/crates/ink):
   The ink! language itself.
 * [`allocator`](https://github.com/paritytech/ink/tree/master/crates/allocator):
   The allocator used for dynamic memory allocation in a contract.
