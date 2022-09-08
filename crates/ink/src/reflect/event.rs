@@ -19,7 +19,6 @@
 /// # Usage
 ///
 /// ```
-///
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]

@@ -484,7 +484,6 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// or retrieve the current value using `Flipper::get`.
 ///
 /// ```
-///
 /// #[ink::contract]
 /// pub mod flipper {
 ///     #[ink(storage)]
@@ -813,7 +812,7 @@ pub fn storage_item(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```
-///
+/// 
 /// #[cfg(test)]
 /// mod tests {
 ///     // Conventional unit test that works with assertions.
@@ -944,7 +943,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Every chain extension defines exactly one `ErrorCode` using the following syntax:
 ///
 /// ```
-///
+/// 
 /// #[ink::chain_extension]
 /// pub trait MyChainExtension {
 ///     type ErrorCode = MyErrorCode;
@@ -966,7 +965,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// from and to the runtime storage using access privileges:
 ///
 /// ```
-///
+/// 
 /// /// Custom chain extension to read to and write from the runtime.
 /// #[ink::chain_extension]
 /// pub trait RuntimeReadWrite {
