@@ -27,7 +27,6 @@ pub mod just_terminates {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn terminating_works() {
