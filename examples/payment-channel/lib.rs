@@ -39,8 +39,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod payment_channel {
 
@@ -261,14 +259,14 @@ mod payment_channel {
         fn is_signature_valid(&self, amount: Balance, signature: [u8; 65]) -> bool {
             let encodable = (self.env().account_id(), amount);
             let mut message =
-                <ink_env::hash::Sha2x256 as ink_env::hash::HashOutput>::Type::default();
-            ink_env::hash_encoded::<ink_env::hash::Sha2x256, _>(&encodable, &mut message);
+                <ink::env::hash::Sha2x256 as ink::env::hash::HashOutput>::Type::default();
+            ink::env::hash_encoded::<ink::env::hash::Sha2x256, _>(&encodable, &mut message);
 
             let mut pub_key = [0; 33];
-            ink_env::ecdsa_recover(&signature, &message, &mut pub_key)
+            ink::env::ecdsa_recover(&signature, &message, &mut pub_key)
                 .expect("recover failed");
             let mut signature_account_id = [0; 32];
-            <ink_env::hash::Blake2x256 as ink_env::hash::CryptoHash>::hash(
+            <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &pub_key,
                 &mut signature_account_id,
             );
@@ -282,34 +280,33 @@ mod payment_channel {
         use super::*;
 
         use hex_literal;
-        use ink_lang as ink;
         use sp_core::{
             Encode,
             Pair,
         };
 
         fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(caller);
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(caller);
         }
 
         fn set_account_balance(account: AccountId, balance: Balance) {
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 account, balance,
             );
         }
 
         fn get_account_balance(account: AccountId) -> Balance {
-            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account)
+            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(account)
                 .expect("Cannot get account balance")
         }
 
         fn advance_block() {
-            ink_env::test::advance_block::<ink_env::DefaultEnvironment>();
+            ink::env::test::advance_block::<ink::env::DefaultEnvironment>();
         }
 
         fn get_current_time() -> Timestamp {
@@ -332,7 +329,7 @@ mod payment_channel {
                 .try_into()
                 .expect("slice with incorrect length");
             let mut account_id = [0; 32];
-            <ink_env::hash::Blake2x256 as ink_env::hash::CryptoHash>::hash(
+            <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &compressed_pub_key,
                 &mut account_id,
             );
@@ -342,15 +339,15 @@ mod payment_channel {
         fn contract_id() -> AccountId {
             let accounts = default_accounts();
             let contract_id = accounts.charlie;
-            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract_id);
+            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(contract_id);
             contract_id
         }
 
         fn sign(contract_id: AccountId, amount: Balance) -> [u8; 65] {
             let encodable = (contract_id, amount);
             let mut hash =
-                <ink_env::hash::Sha2x256 as ink_env::hash::HashOutput>::Type::default(); // 256-bit buffer
-            ink_env::hash_encoded::<ink_env::hash::Sha2x256, _>(&encodable, &mut hash);
+                <ink::env::hash::Sha2x256 as ink::env::hash::HashOutput>::Type::default(); // 256-bit buffer
+            ink::env::hash_encoded::<ink::env::hash::Sha2x256, _>(&encodable, &mut hash);
 
             // Use Dan's seed
             // `subkey inspect //Dan --scheme Ecdsa --output-type json | jq .secretSeed`
@@ -408,7 +405,7 @@ mod payment_channel {
 
             // then
             let should_close = move || payment_channel.close(amount, signature).unwrap();
-            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+            ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
                 amount,
@@ -548,7 +545,7 @@ mod payment_channel {
 
             // then
             let should_close = move || payment_channel.claim_timeout().unwrap();
-            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+            ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_close,
                 accounts.alice,
                 mock_deposit_value,

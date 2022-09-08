@@ -1,7 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_env::Environment;
-use ink_lang as ink;
+use ink::env::Environment;
 
 /// This is an example of how an ink! contract may call the Substrate
 /// runtime function `RandomnessCollectiveFlip::random_seed`. See the
@@ -24,7 +23,7 @@ pub enum RandomReadErr {
     FailGetRandomSource,
 }
 
-impl ink_env::chain_extension::FromStatusCode for RandomReadErr {
+impl ink::env::chain_extension::FromStatusCode for RandomReadErr {
     fn from_status_code(status_code: u32) -> Result<(), Self> {
         match status_code {
             0 => Ok(()),
@@ -40,13 +39,13 @@ pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {
     const MAX_EVENT_TOPICS: usize =
-        <ink_env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+        <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
 
-    type AccountId = <ink_env::DefaultEnvironment as Environment>::AccountId;
-    type Balance = <ink_env::DefaultEnvironment as Environment>::Balance;
-    type Hash = <ink_env::DefaultEnvironment as Environment>::Hash;
-    type BlockNumber = <ink_env::DefaultEnvironment as Environment>::BlockNumber;
-    type Timestamp = <ink_env::DefaultEnvironment as Environment>::Timestamp;
+    type AccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
+    type Balance = <ink::env::DefaultEnvironment as Environment>::Balance;
+    type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
+    type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
+    type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
 
     type ChainExtension = FetchRandom;
 }
@@ -111,7 +110,6 @@ mod rand_extension {
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink_lang as ink;
 
         /// We test if the default constructor does its job.
         #[ink::test]
@@ -124,7 +122,7 @@ mod rand_extension {
         fn chain_extension_works() {
             // given
             struct MockedExtension;
-            impl ink_env::test::ChainExtension for MockedExtension {
+            impl ink::env::test::ChainExtension for MockedExtension {
                 /// The static function id of the chain extension.
                 fn func_id(&self) -> u32 {
                     1101
@@ -134,7 +132,7 @@ mod rand_extension {
                 ///
                 /// Returns an error code and may fill the `output` buffer with a
                 /// SCALE encoded result. The error code is taken from the
-                /// `ink_env::chain_extension::FromStatusCode` implementation for
+                /// `ink::env::chain_extension::FromStatusCode` implementation for
                 /// `RandomReadErr`.
                 fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
                     let ret: [u8; 32] = [1; 32];
@@ -142,7 +140,7 @@ mod rand_extension {
                     0
                 }
             }
-            ink_env::test::register_chain_extension(MockedExtension);
+            ink::env::test::register_chain_extension(MockedExtension);
             let mut rand_extension = RandExtension::default();
             assert_eq!(rand_extension.get(), [0; 32]);
 
