@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod storable;
 mod storable_hint;
 mod storage_key;
 mod storage_layout;
-mod storable;
 
 #[macro_export]
 macro_rules! test_derive {

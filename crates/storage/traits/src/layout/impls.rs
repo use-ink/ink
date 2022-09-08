@@ -38,7 +38,7 @@ use ink_prelude::{
 };
 use ink_primitives::{
     AccountId,
-    Key
+    Key,
 };
 use scale_info::TypeInfo;
 

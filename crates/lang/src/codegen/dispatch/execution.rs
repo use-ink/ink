@@ -26,7 +26,7 @@ use ink_env::{
 };
 use ink_storage::traits::{
     Storable,
-    StorageKey
+    StorageKey,
 };
 use scale::Encode;
 

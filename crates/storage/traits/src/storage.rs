@@ -30,8 +30,8 @@ pub trait Storable: Sized {
 /// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default because
 /// they can be written directly into the storage cell.
 impl<P> Storable for P
-    where
-        P: scale::Encode + scale::Decode,
+where
+    P: scale::Encode + scale::Decode,
 {
     #[inline]
     fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T) {
