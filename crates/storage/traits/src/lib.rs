@@ -32,10 +32,7 @@ mod storage;
 mod layout;
 
 #[cfg(feature = "std")]
-pub use self::layout::{
-    LayoutCryptoHasher,
-    StorageLayout,
-};
+pub use self::layout::StorageLayout;
 pub use self::{
     impls::{
         AutoKey,
