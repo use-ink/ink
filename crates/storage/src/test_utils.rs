@@ -15,19 +15,6 @@
 //! Utilities for testing if the storage interaction of an object
 //! which is pushed/pulled/cleared to/from storage behaves as it should.
 
-/// Runs `f` using the off-chain testing environment.
-#[cfg(test)]
-pub fn run_test<F>(f: F)
-where
-    F: FnOnce(),
-{
-    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        f();
-        Ok(())
-    })
-    .unwrap()
-}
-
 /// Creates test to verify that the primitive types are packed.
 #[macro_export]
 macro_rules! storage_hint_works_for_primitive {

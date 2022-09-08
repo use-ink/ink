@@ -16,10 +16,6 @@ use crate::{
     Packed,
     StorageLayout,
 };
-use ink_env::{
-    AccountId,
-    Hash,
-};
 use ink_metadata::layout::{
     ArrayLayout,
     Discriminant,
@@ -40,7 +36,10 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    AccountId,
+    Key
+};
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {
@@ -56,7 +55,7 @@ macro_rules! impl_storage_layout_for_primitives {
 }
 #[rustfmt::skip]
 impl_storage_layout_for_primitives!(
-    Hash, AccountId, String,
+    AccountId, String,
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,

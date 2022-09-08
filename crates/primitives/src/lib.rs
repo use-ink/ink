@@ -23,10 +23,17 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod types;
 mod key;
 pub mod traits;
 
-pub use self::key::{
-    Key,
-    KeyComposer,
+pub use self::{
+    types::{
+        AccountId,
+        Hash,
+    },
+    key::{
+        Key,
+        KeyComposer,
+    }
 };

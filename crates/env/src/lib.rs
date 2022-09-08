@@ -100,12 +100,10 @@ pub use self::{
     },
     topics::Topics,
     types::{
-        AccountId,
         Clear,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
-        Hash,
         NoChainExtension,
     },
 };

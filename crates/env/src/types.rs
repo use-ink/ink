@@ -32,12 +32,7 @@
 //! the trait bounds on the `Environment` trait types.
 
 use super::arithmetic::AtLeast32BitUnsigned;
-use core::array::TryFromSliceError;
-use derive_more::From;
-use scale::{
-    Decode,
-    Encode,
-};
+use ink_primitives::{AccountId, Hash};
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
 
@@ -195,110 +190,6 @@ pub type Gas = u64;
 /// The default block number type.
 pub type BlockNumber = u32;
 
-/// The default environment `AccountId` type.
-///
-/// # Note
-///
-/// This is a mirror of the `AccountId` type used in the default configuration
-/// of PALLET contracts.
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Encode,
-    Decode,
-    From,
-    Default,
-)]
-#[cfg_attr(feature = "std", derive(TypeInfo))]
-pub struct AccountId([u8; 32]);
-
-impl AsRef<[u8; 32]> for AccountId {
-    #[inline]
-    fn as_ref(&self) -> &[u8; 32] {
-        &self.0
-    }
-}
-
-impl AsMut<[u8; 32]> for AccountId {
-    #[inline]
-    fn as_mut(&mut self) -> &mut [u8; 32] {
-        &mut self.0
-    }
-}
-
-impl AsRef<[u8]> for AccountId {
-    #[inline]
-    fn as_ref(&self) -> &[u8] {
-        &self.0[..]
-    }
-}
-
-impl AsMut<[u8]> for AccountId {
-    #[inline]
-    fn as_mut(&mut self) -> &mut [u8] {
-        &mut self.0[..]
-    }
-}
-
-impl<'a> TryFrom<&'a [u8]> for AccountId {
-    type Error = TryFromSliceError;
-
-    fn try_from(bytes: &'a [u8]) -> Result<Self, TryFromSliceError> {
-        let address = <[u8; 32]>::try_from(bytes)?;
-        Ok(Self(address))
-    }
-}
-
-/// The default environment `Hash` type.
-///
-/// # Note
-///
-/// This is a mirror of the `Hash` type used in the default configuration
-/// of PALLET contracts.
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Encode,
-    Decode,
-    From,
-    Default,
-)]
-#[cfg_attr(feature = "std", derive(TypeInfo))]
-pub struct Hash([u8; 32]);
-
-impl<'a> TryFrom<&'a [u8]> for Hash {
-    type Error = TryFromSliceError;
-
-    fn try_from(bytes: &'a [u8]) -> Result<Self, TryFromSliceError> {
-        let address = <[u8; 32]>::try_from(bytes)?;
-        Ok(Self(address))
-    }
-}
-
-impl AsRef<[u8]> for Hash {
-    fn as_ref(&self) -> &[u8] {
-        &self.0[..]
-    }
-}
-
-impl AsMut<[u8]> for Hash {
-    fn as_mut(&mut self) -> &mut [u8] {
-        &mut self.0[..]
-    }
-}
-
 /// The equivalent of `Zero` for hashes.
 ///
 /// A hash that consists only of 0 bits is clear.
@@ -322,10 +213,10 @@ impl Clear for [u8; 32] {
 
 impl Clear for Hash {
     fn is_clear(&self) -> bool {
-        <[u8; 32] as Clear>::is_clear(&self.0)
+        <[u8; 32] as Clear>::is_clear(self.as_ref())
     }
 
     fn clear() -> Self {
-        Self(<[u8; 32] as Clear>::clear())
+        Self::from(<[u8; 32] as Clear>::clear())
     }
 }
