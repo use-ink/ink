@@ -1,5 +1,4 @@
 use contract::Contract;
-use ink_lang as ink;
 use ink::selector_bytes;
 
 #[ink::contract]

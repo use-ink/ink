@@ -2,7 +2,6 @@ use ink_env::{
     DefaultEnvironment,
     Environment,
 };
-use ink_lang as ink;
 
 pub struct EnvironmentMoreTopics;
 

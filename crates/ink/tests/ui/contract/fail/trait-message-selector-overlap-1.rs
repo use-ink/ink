@@ -1,6 +1,4 @@
 mod foo1 {
-    use ink_lang as ink;
-
     #[ink::trait_definition]
     pub trait TraitDefinition {
         #[ink(message)]
@@ -9,8 +7,6 @@ mod foo1 {
 }
 
 mod foo2 {
-    use ink_lang as ink;
-
     #[ink::trait_definition]
     pub trait TraitDefinition {
         #[ink(message)]

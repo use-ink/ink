@@ -1,4 +1,3 @@
-use ink_lang as ink;
 use ink::{
     reflect::{
         ContractConstructorDecoder,

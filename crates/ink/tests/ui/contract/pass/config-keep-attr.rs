@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 #[ink::contract(keep_attr = "foo, bar")]
 mod contract {
     #[ink(storage)]

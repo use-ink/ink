@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 pub struct CustomEnv;
 
 impl ink_env::Environment for CustomEnv {
