@@ -15,7 +15,7 @@
 //! Traits and interfaces to operate with storage entities.
 //!
 //! Generally a type is said to be a storage entity if it implements the
-//! [`ink_primitives::traits::Storable`] trait. This defines certain constants and routines in order
+//! [`ink_storage::traits::Storable`] trait. This defines certain constants and routines in order
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!

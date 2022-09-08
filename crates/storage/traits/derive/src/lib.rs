@@ -40,7 +40,7 @@ synstructure::decl_derive!(
     /// # Examples
     ///
     /// ```
-    /// use ink_primitives::traits::Storable;
+    /// use ink_storage::traits::Storable;
     ///
     /// #[derive(Storable)]
     /// struct NamedFields {
@@ -69,7 +69,7 @@ synstructure::decl_derive!(
     ///     AutoKey,
     ///     ManualKey,
     /// };
-    /// use ink_primitives::traits::Storable;
+    /// use ink_storage::traits::Storable;
     ///
     /// #[derive(Default, StorableHint, Storable)]
     /// struct NamedFields {
