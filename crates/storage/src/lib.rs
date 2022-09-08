@@ -43,7 +43,7 @@
     unused_extern_crates
 )]
 
-pub mod traits;
+pub use ink_storage_traits as traits;
 
 #[allow(dead_code)]
 pub(crate) mod lazy;
