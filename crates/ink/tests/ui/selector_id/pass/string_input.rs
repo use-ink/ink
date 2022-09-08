@@ -1,4 +1,3 @@
-use ink_lang as ink;
 use ink_lang_ir as ir;
 
 macro_rules! assert_macro_eq {
