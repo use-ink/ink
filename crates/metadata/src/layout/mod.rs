@@ -106,6 +106,14 @@ impl<'a> From<&'a Key> for LayoutKey {
 }
 
 impl LayoutKey {
+    /// Construct a custom layout key.
+    pub fn new<T>(key: T) -> Self
+    where
+        T: Into<u32>,
+    {
+        Self { key: key.into() }
+    }
+
     /// Returns the key of the layout key.
     pub fn key(&self) -> &Key {
         &self.key
@@ -240,6 +248,10 @@ where
     /// Returns the type of the encoded entity.
     pub fn ty(&self) -> &F::Type {
         &self.ty
+    }
+
+    pub fn new_from_ty(key: LayoutKey, ty: <F as Form>::Type) -> Self {
+        Self { key, ty }
     }
 }
 
@@ -448,24 +460,22 @@ pub struct StructLayout<F: Form = MetaForm> {
     fields: Vec<FieldLayout<F>>,
 }
 
-impl StructLayout {
+impl<F> StructLayout<F>
+where
+    F: Form,
+{
     /// Creates a new struct layout.
-    pub fn new<N, F>(name: N, fields: F) -> Self
+    pub fn new<N, T>(name: N, fields: T) -> Self
     where
-        N: Into<&'static str>,
-        F: IntoIterator<Item = FieldLayout>,
+        N: Into<F::String>,
+        T: IntoIterator<Item = FieldLayout<F>>,
     {
         Self {
             name: name.into(),
             fields: fields.into_iter().collect(),
         }
     }
-}
 
-impl<F> StructLayout<F>
-where
-    F: Form,
-{
     /// Returns the name of the struct.
     pub fn name(&self) -> &F::String {
         &self.name
@@ -509,15 +519,37 @@ pub struct FieldLayout<F: Form = MetaForm> {
 
 impl FieldLayout {
     /// Creates a new field layout.
-    pub fn new<N, L>(name: N, layout: L) -> Self
+    pub fn new<'a, N, L>(name: N, layout: L) -> Self
     where
-        N: Into<&'static str>,
+        N: Into<&'a str>,
         L: Into<Layout>,
     {
         Self {
-            name: name.into(),
+            name: name.into().to_string(),
             layout: layout.into(),
         }
+    }
+}
+
+pub trait OptStr {
+    fn opt_str(&self) -> Option<String>;
+}
+
+impl OptStr for &'static str {
+    fn opt_str(&self) -> Option<String> {
+        self.to_string().into()
+    }
+}
+
+impl OptStr for String {
+    fn opt_str(&self) -> Option<String> {
+        self.to_owned().into()
+    }
+}
+
+impl OptStr for Option<&'static str> {
+    fn opt_str(&self) -> Option<String> {
+        self.map(|s| s.to_string())
     }
 }
 
@@ -525,6 +557,17 @@ impl<F> FieldLayout<F>
 where
     F: Form,
 {
+    /// Creates a new custom field layout.
+    pub fn new_custom<N, L>(name: N, layout: L) -> Self
+    where
+        N: Into<F::String>,
+        L: Into<Layout<F>>,
+    {
+        Self {
+            name: name.into(),
+            layout: layout.into(),
+        }
+    }
     /// Returns the name of the field.
     pub fn name(&self) -> &F::String {
         &self.name
@@ -544,7 +587,7 @@ impl IntoPortable for FieldLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name.into_portable(registry),
+            name: self.name,
             layout: self.layout.into_portable(registry),
         }
     }
@@ -585,14 +628,14 @@ pub struct EnumLayout<F: Form = MetaForm> {
 
 impl EnumLayout {
     /// Creates a new enum layout.
-    pub fn new<N, K, V>(name: N, dispatch_key: K, variants: V) -> Self
+    pub fn new<'a, N, K, V>(name: N, dispatch_key: K, variants: V) -> Self
     where
-        N: Into<&'static str>,
+        N: Into<&'a str>,
         K: Into<LayoutKey>,
         V: IntoIterator<Item = (Discriminant, StructLayout)>,
     {
         Self {
-            name: name.into(),
+            name: name.into().to_string(),
             dispatch_key: dispatch_key.into(),
             variants: variants.into_iter().collect(),
         }
