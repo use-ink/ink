@@ -516,7 +516,7 @@ mod erc20 {
                 Clear,
             };
             let mut result = Hash::clear();
-            let len_result = result.as_ref().len();
+            let len_result = <Hash as AsRef<[u8]>>::as_ref(&result).len();
             let encoded = entity.encode();
             let len_encoded = encoded.len();
             if len_encoded <= len_result {
