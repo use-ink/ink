@@ -38,6 +38,7 @@ use ink_prelude::{
 };
 use ink_primitives::{
     AccountId,
+    Hash,
     Key,
 };
 use scale_info::TypeInfo;
@@ -55,7 +56,7 @@ macro_rules! impl_storage_layout_for_primitives {
 }
 #[rustfmt::skip]
 impl_storage_layout_for_primitives!(
-    AccountId, String,
+    AccountId, Hash, String,
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,
