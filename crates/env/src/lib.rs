@@ -100,13 +100,13 @@ pub use self::{
     },
     topics::Topics,
     types::{
-        Clear,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
         NoChainExtension,
     },
 };
+use ink_primitives::Clear;
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {

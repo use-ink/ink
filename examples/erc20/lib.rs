@@ -219,8 +219,8 @@ mod erc20 {
     mod tests {
         use super::*;
 
-        use ink_env::Clear;
         use ink_lang as ink;
+        use ink_primitives::Clear;
 
         type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
 
@@ -507,16 +507,13 @@ mod erc20 {
         where
             T: scale::Encode,
         {
-            use ink_env::{
-                hash::{
-                    Blake2x256,
-                    CryptoHash,
-                    HashOutput,
-                },
-                Clear,
+            use ink_env::hash::{
+                Blake2x256,
+                CryptoHash,
+                HashOutput,
             };
             let mut result = Hash::clear();
-            let len_result = <Hash as AsRef<[u8]>>::as_ref(&result).len();
+            let len_result = result.as_ref().len();
             let encoded = entity.encode();
             let len_encoded = encoded.len();
             if len_encoded <= len_result {

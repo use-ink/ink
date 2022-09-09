@@ -113,13 +113,6 @@ impl<'a> TryFrom<&'a [u8]> for Hash {
     }
 }
 
-impl AsRef<[u8; 32]> for Hash {
-    #[inline]
-    fn as_ref(&self) -> &[u8; 32] {
-        &self.0
-    }
-}
-
 impl AsRef<[u8]> for Hash {
     fn as_ref(&self) -> &[u8] {
         &self.0[..]
@@ -129,5 +122,36 @@ impl AsRef<[u8]> for Hash {
 impl AsMut<[u8]> for Hash {
     fn as_mut(&mut self) -> &mut [u8] {
         &mut self.0[..]
+    }
+}
+
+/// The equivalent of `Zero` for hashes.
+///
+/// A hash that consists only of 0 bits is clear.
+pub trait Clear {
+    /// Returns `true` if the hash is clear.
+    fn is_clear(&self) -> bool;
+
+    /// Returns a clear hash.
+    fn clear() -> Self;
+}
+
+impl Clear for [u8; 32] {
+    fn is_clear(&self) -> bool {
+        self.as_ref().iter().all(|&byte| byte == 0x00)
+    }
+
+    fn clear() -> Self {
+        [0x00; 32]
+    }
+}
+
+impl Clear for Hash {
+    fn is_clear(&self) -> bool {
+        <[u8; 32] as Clear>::is_clear(&self.0)
+    }
+
+    fn clear() -> Self {
+        Self(<[u8; 32] as Clear>::clear())
     }
 }

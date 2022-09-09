@@ -33,6 +33,7 @@ pub use self::{
     },
     types::{
         AccountId,
+        Clear,
         Hash,
     },
 };
