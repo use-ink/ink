@@ -25,6 +25,8 @@
 //! If at least one of the type's fields occupies its own separate storage cell, it is a
 //! non-[`Packed`] type because it occupies more than one storage cell.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 mod impls;
 mod storage;
 
