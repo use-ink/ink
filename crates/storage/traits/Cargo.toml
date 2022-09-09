@@ -23,6 +23,10 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 syn = { version = "1", features = ["full"] }
 
+[dev-dependencies]
+paste = "1.0"
+ink_env = { version = "4.0.0-alpha.1", path = "../../env" }
+
 [features]
 default = ["std"]
 std = [
