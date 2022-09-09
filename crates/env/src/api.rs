@@ -623,8 +623,11 @@ where
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
 ///
 /// # Storage Compatibility
-/// When the smart contract code is modified, it is important to observe an additional virtual restriction
-/// that is imposed on this procedure: you should not change the order in which the contract state variables
+///
+/// When the smart contract code is modified,
+/// it is important to observe an additional virtual restriction
+/// that is imposed on this procedure:
+/// you should not change the order in which the contract state variables
 /// are declared, nor their type.
 ///
 /// Violating the restriction will not prevent a successful compilation,
@@ -675,7 +678,8 @@ where
 /// }
 /// ```
 ///
-/// Please refer to the [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// Please refer to the
+/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
