@@ -65,7 +65,7 @@ pub trait Packed: Storable + scale::Decode + scale::Encode + private::Sealed {}
 ///
 /// # Note
 ///
-/// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
+/// The trait is automatically implemented for [`Packed`] types
 /// via blanket implementation.
 pub trait StorageKey {
     /// Storage key of the type.
@@ -81,7 +81,7 @@ pub trait StorageKey {
 ///
 /// # Note
 ///
-/// The trait is automatically implemented for [`Packed`](crate::traits::Packed) types
+/// The trait is automatically implemented for [`Packed`] types
 /// via blanket implementation.
 pub trait StorableHint<Key: StorageKey> {
     /// Storable type with storage key inside.
