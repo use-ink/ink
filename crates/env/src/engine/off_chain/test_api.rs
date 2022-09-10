@@ -200,6 +200,7 @@ where
 }
 
 /// Sets the value transferred from the caller to the callee as part of the call.
+///
 /// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
 pub fn set_value_transferred<T>(value: T::Balance)
 where
@@ -211,6 +212,7 @@ where
 }
 
 /// Transfers value from the caller account to the contract.
+///
 /// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
 pub fn transfer_in<T>(value: T::Balance)
 where
@@ -394,11 +396,11 @@ pub fn assert_contract_termination<T, F>(
     assert_eq!(beneficiary, expected_beneficiary);
 }
 
-#[macro_export]
 /// Prepend contract message call with value transfer. Used for tests in off-chain environment.
+#[macro_export]
 macro_rules! pay_with_call {
-            ($contract:ident . $message:ident ( $($params:ty)? ) , $amount:expr) => {{
-                ::ink_env::test::transfer_in::<Environment>($amount);
+        ($contract:ident . $message:ident ( $($params:ty)? ) , $amount:expr) => {{
+                $crate::test::transfer_in::<Environment>($amount);
                 $contract.$message($($params:ty)?)
-            }}
+        }}
 }
