@@ -635,6 +635,7 @@ where
 /// This can result in severe errors in the application utilizing the contract.
 ///
 /// If the storage of your contract looks like this:
+///
 /// ```ignore
 /// use ink_lang as ink;
 /// #[ink(storage)]
@@ -643,9 +644,11 @@ where
 ///     y: bool,
 /// }
 /// ```
+///
 /// The procedures listed below will make it invalid:
 ///
 /// Changing the order of variables:
+///
 /// ```ignore
 /// #[ink(storage)]
 /// pub struct YourContract {
@@ -653,14 +656,18 @@ where
 ///     x: u32,
 /// }
 /// ```
+///
 /// Removing existing variable:
+///
 /// ```ignore
 /// #[ink(storage)]
 /// pub struct YourContract {
 ///     x: u32,
 /// }
 /// ```
+///
 /// Changing type of a variable:
+///
 /// ```ignore
 /// #[ink(storage)]
 /// pub struct YourContract {
@@ -668,11 +675,13 @@ where
 ///     y: bool,
 /// }
 /// ```
+///
 /// Introducing a new variable before any of the existing ones
+///
 /// ```ignore
 /// #[ink(storage)]
 /// pub struct YourContract {
-///     z: Vec[u32],
+///     z: Vec<u32>,
 ///     x: u32,
 ///     y: bool,
 /// }

@@ -33,4 +33,4 @@ more information on proxy patterns.
 When working on the contract upgradeability, it is important to observe additional rules that are imposed on
 the modifications of storage:
 
-Please refer to the section of [Storage Compatibility](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html) in the ink! documentation.
+Please refer to the section of [Storage Compatibility](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html) in the ink! crate documentation.
