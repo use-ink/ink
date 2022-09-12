@@ -7,6 +7,10 @@
 /examples/**/target/
 /design/
 
+# IDEs
+.vscode
+*.swp
+
 # Ignore backup files creates by cargo fmt.
 **/*.rs.bk
 
