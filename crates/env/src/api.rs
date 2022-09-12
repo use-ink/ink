@@ -637,7 +637,6 @@ where
 /// If the storage of your contract looks like this:
 ///
 /// ```ignore
-/// use ink_lang as ink;
 /// #[ink(storage)]
 /// pub struct YourContract {
 ///     x: u32,
@@ -676,7 +675,7 @@ where
 /// }
 /// ```
 ///
-/// Introducing a new variable before any of the existing ones
+/// Introducing a new variable before any of the existing ones:
 ///
 /// ```ignore
 /// #[ink(storage)]
