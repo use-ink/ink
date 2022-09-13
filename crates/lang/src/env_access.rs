@@ -565,9 +565,9 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     Clear,
     ///     call::{build_call, DelegateCall, Selector, ExecutionInput, utils::ReturnType}
     /// };
+    /// use ink_primitives::Clear;
     ///
     /// #
     /// #     #[ink(storage)]

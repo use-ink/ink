@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub use ink_primitives_derive::Storable;
+use ink_primitives::Key;
 
 /// Trait for representing types which can be read and written to storage.
 ///
@@ -42,4 +42,58 @@ where
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         scale::Decode::decode(input)
     }
+}
+
+pub(crate) mod private {
+    /// Seals the implementation of `Packed`.
+    pub trait Sealed {}
+}
+
+/// Trait for describing types that can be read and written to storage while all fields occupy
+/// only a single storage cell.
+///
+/// If at least one of the fields in the type occupies its own storage cell, this type
+/// is considered non-packed.
+///
+/// # Note
+///
+/// The trait is automatically implemented for types that implement `scale::Encode`
+/// and `scale::Decode` via blanket implementation.
+pub trait Packed: Storable + scale::Decode + scale::Encode + private::Sealed {}
+
+/// Holds storage key for the type.
+///
+/// # Note
+///
+/// The trait is automatically implemented for [`Packed`] types
+/// via blanket implementation.
+pub trait StorageKey {
+    /// Storage key of the type.
+    const KEY: Key;
+
+    /// Returns the storage key.
+    fn key(&self) -> Key {
+        Self::KEY
+    }
+}
+
+/// Describes the type that should be used for storing the value and preferred storage key.
+///
+/// # Note
+///
+/// The trait is automatically implemented for [`Packed`] types
+/// via blanket implementation.
+pub trait StorableHint<Key: StorageKey> {
+    /// Storable type with storage key inside.
+    type Type: Storable;
+    /// The storage key that the type prefers. It can be overwritten by an auto-generated storage key.
+    type PreferredKey: StorageKey;
+}
+
+/// Automatically returns the type that should be used for storing the value.
+///
+/// The trait is used by codegen to determine which storage key the type should have.
+pub trait AutoStorableHint<Key: StorageKey> {
+    /// Storable type with storage key inside.
+    type Type: Storable;
 }

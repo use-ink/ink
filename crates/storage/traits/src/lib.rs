@@ -15,7 +15,7 @@
 //! Traits and interfaces to operate with storage entities.
 //!
 //! Generally a type is said to be a storage entity if it implements the
-//! [`ink_primitives::traits::Storable`] trait. This defines certain constants and routines in order
+//! [`Storable`] trait. This defines certain constants and routines in order
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!
@@ -25,6 +25,8 @@
 //! If at least one of the type's fields occupies its own separate storage cell, it is a
 //! non-[`Packed`] type because it occupies more than one storage cell.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 mod impls;
 mod storage;
 
@@ -32,10 +34,7 @@ mod storage;
 mod layout;
 
 #[cfg(feature = "std")]
-pub use self::layout::{
-    LayoutCryptoHasher,
-    StorageLayout,
-};
+pub use self::layout::StorageLayout;
 pub use self::{
     impls::{
         AutoKey,
@@ -45,11 +44,13 @@ pub use self::{
     storage::{
         AutoStorableHint,
         Packed,
+        Storable,
         StorableHint,
         StorageKey,
     },
 };
 pub use ink_storage_derive::{
+    Storable,
     StorableHint,
     StorageKey,
     StorageLayout,

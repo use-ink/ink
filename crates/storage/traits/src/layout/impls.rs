@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::traits::{
+use crate::{
     Packed,
     StorageLayout,
-};
-use ink_env::{
-    AccountId,
-    Hash,
 };
 use ink_metadata::layout::{
     ArrayLayout,
@@ -40,7 +36,11 @@ use ink_prelude::{
     string::String,
     vec::Vec,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    AccountId,
+    Hash,
+    Key,
+};
 use scale_info::TypeInfo;
 
 macro_rules! impl_storage_layout_for_primitives {
@@ -56,7 +56,7 @@ macro_rules! impl_storage_layout_for_primitives {
 }
 #[rustfmt::skip]
 impl_storage_layout_for_primitives!(
-    Hash, AccountId, String,
+    AccountId, Hash, String,
     bool, char, (),
     u8, u16, u32, u64, u128,
     i8, i16, i32, i64, i128,

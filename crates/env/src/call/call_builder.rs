@@ -24,11 +24,11 @@ use crate::{
         ExecutionInput,
     },
     types::Gas,
-    Clear,
     Environment,
     Error,
 };
 use core::marker::PhantomData;
+use ink_primitives::Clear;
 use num_traits::Zero;
 
 /// The final parameters to the cross-contract call.
@@ -222,9 +222,9 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     Clear,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
 /// # };
+/// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
 ///     .call_type(DelegateCall::new()
