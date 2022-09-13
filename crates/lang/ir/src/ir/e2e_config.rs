@@ -45,7 +45,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("node_log") {
                 if let Some((_, ast)) = node_log {
-                    return Err(duplicate_config_err(ast, arg, "node_log"))
+                    return Err(duplicate_config_err(ast, arg, "node_log", "e2e test"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     node_log = Some((lit_str.clone(), arg))
@@ -57,7 +57,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 }
             } else if arg.name.is_ident("ws_url") {
                 if let Some((_, ast)) = ws_url {
-                    return Err(duplicate_config_err(ast, arg, "ws_url"))
+                    return Err(duplicate_config_err(ast, arg, "ws_url", "e2e test"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     ws_url = Some((lit_str.clone(), arg))
@@ -69,7 +69,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 }
             } else if arg.name.is_ident("skip_build") {
                 if let Some((_, ast)) = skip_build {
-                    return Err(duplicate_config_err(ast, arg, "skip_build"))
+                    return Err(duplicate_config_err(ast, arg, "skip_build", "e2e test"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     skip_build = Some((lit_bool.clone(), arg))
