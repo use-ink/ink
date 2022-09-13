@@ -1,4 +1,4 @@
-use ink_primitives::traits::Storable;
+use ink_storage::traits::Storable;
 
 #[derive(Default, scale::Encode, scale::Decode)]
 #[cfg_attr(

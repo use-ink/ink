@@ -63,7 +63,7 @@ impl GenerateCode for StorageItem<'_> {
                 #[derive(
                     ::ink_storage::traits::StorableHint,
                     ::ink_storage::traits::StorageKey,
-                    ::ink_primitives::traits::Storable,
+                    ::ink_storage::traits::Storable,
                 )]
             };
         }

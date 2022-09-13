@@ -104,15 +104,13 @@ pub use self::{
     },
     topics::Topics,
     types::{
-        AccountId,
-        Clear,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
-        Hash,
         NoChainExtension,
     },
 };
+use ink_primitives::Clear;
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {

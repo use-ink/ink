@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::traits::{
+use crate::{
     AutoStorableHint,
     Packed,
     StorableHint,
@@ -111,6 +111,26 @@ where
 
 #[cfg(test)]
 mod tests {
+    /// Creates test to verify that the primitive types are packed.
+    #[macro_export]
+    macro_rules! storage_hint_works_for_primitive {
+        ( $ty:ty ) => {
+            paste::item! {
+                #[test]
+                #[allow(non_snake_case)]
+                fn [<$ty _storage_hint_works>] () {
+                    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+                        assert_eq!(
+                            ::core::any::TypeId::of::<$ty>(),
+                            ::core::any::TypeId::of::<<$ty as $crate::StorableHint<$crate::ManualKey<123>>>::Type>()
+                        );
+                        Ok(())
+                    })
+                    .unwrap()
+                }
+            }
+        };
+    }
     mod arrays {
         use crate::storage_hint_works_for_primitive;
 
@@ -123,7 +143,7 @@ mod tests {
 
     mod prims {
         use crate::storage_hint_works_for_primitive;
-        use ink_env::AccountId;
+        use ink_primitives::AccountId;
 
         storage_hint_works_for_primitive!(bool);
         storage_hint_works_for_primitive!(String);

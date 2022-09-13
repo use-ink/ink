@@ -15,10 +15,11 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "4.0.0-alpha.1", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_allocator = { version = "4.0.0-alpha.1", path = "../allocator/", default-features = false }
-ink_primitives = { version = "4.0.0-alpha.1", path = "../primitives/", default-features = false }
-ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude/", default-features = false }
+ink_metadata = { version = "4.0.0-alpha.1", path = "../metadata", default-features = false, features = ["derive"], optional = true }
+ink_allocator = { version = "4.0.0-alpha.1", path = "../allocator", default-features = false }
+ink_storage_traits = { version = "4.0.0-alpha.1", path = "../storage/traits", default-features = false }
+ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude", default-features = false }
+ink_primitives = { version = "4.0.0-alpha.1", path = "../primitives", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
@@ -77,6 +78,7 @@ std = [
     "ink_allocator/std",
     "ink_prelude/std",
     "ink_primitives/std",
+    "ink_storage_traits/std",
     "ink_engine/std",
     "scale/std",
     "scale-info/std",

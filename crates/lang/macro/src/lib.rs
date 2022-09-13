@@ -705,7 +705,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     StorageKey,
 ///     StorableHint,
 /// };
-/// use ink_primitives::traits::Storable;
+/// use ink_storage::traits::Storable;
 ///
 /// // Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all
 /// // required traits to be storable.
@@ -797,7 +797,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///         StorableHint,
 ///         StorageKey,
 ///     };
-///     use ink_primitives::traits::Storable;
+///     use ink_storage::traits::Storable;
 ///
 ///     #[ink_lang::storage_item(derive = false)]
 ///     #[derive(StorableHint, Storable, StorageKey)]
