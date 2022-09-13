@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use const_fnv1a_hash::fnv1a_hash_32;
 use ink_prelude::vec;
-use sha2_const::Sha256;
 
 /// A key into the smart contract storage.
 ///
@@ -33,18 +33,12 @@ impl KeyComposer {
     /// Concatenate two `Key` into one during compilation.
     pub const fn concat(left: Key, right: Key) -> Key {
         // If one of the keys is zero, then return another without hashing.
-        // If both keys are non-zero, return the hash of both keys.
+        // If both keys are non-zero, return the hash of the XOR difference of both keys.
         match (left, right) {
             (0, 0) => 0,
             (0, _) => right,
             (_, 0) => left,
-            (left, right) => {
-                let hash = Sha256::new()
-                    .update(&left.to_be_bytes())
-                    .update(&right.to_be_bytes())
-                    .finalize();
-                Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
-            }
+            (left, right) => fnv1a_hash_32(&(left ^ right).to_be_bytes(), None),
         }
     }
 
@@ -59,8 +53,7 @@ impl KeyComposer {
             return 0
         }
 
-        let hash = Sha256::new().update(bytes).finalize();
-        Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+        fnv1a_hash_32(bytes, None)
     }
 
     /// Evaluates the storage key of the field in the structure, variant or union.
@@ -69,8 +62,7 @@ impl KeyComposer {
     /// 1. If `variant_name` is not empty then computes the ASCII byte representation and call it `V`.
     /// 1. Compute the ASCII byte representation of `field_name` and call it `F`.
     /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
-    /// 1. Apply the `SHA2` 256-bit hash `H` of `C`.
-    /// 1. The first 4 bytes of `H` make up the storage key.
+    /// 1. The `FNV1A` 32-bit hash of `C` is the storage key.
     ///
     /// # Note
     ///
@@ -99,7 +91,6 @@ impl KeyComposer {
         } else {
             vec![struct_name.as_bytes(), field_name.as_bytes()].join(separator)
         };
-
         Ok(Self::from_bytes(composed_key.as_slice()))
     }
 }
