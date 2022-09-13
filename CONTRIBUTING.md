@@ -69,7 +69,7 @@ Verify the following locally, otherwise the CI will fail:
     - `cargo check --all-features`
 1. Do all the examples still compile?
     - `cargo contract check --manifest-path ./examples/.../Cargo.toml`
-1. Is the `wasm-32` target still compiling?
+1. Is the `wasm32` target still compiling?
     - `cargo check --no-default-features --target wasm32-unknown-unknown`
 1. Are all the tests passing?
     - `cargo test --all-features --workspace`
