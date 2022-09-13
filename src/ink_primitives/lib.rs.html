@@ -36,6 +36,13 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -62,11 +69,18 @@
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 
 <span class="kw">mod</span> <span class="ident">key</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traits</span>;
+<span class="kw">mod</span> <span class="ident">types</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::key</span>::{
-    <span class="ident">Key</span>,
-    <span class="ident">KeyComposer</span>,
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">key</span>::{
+        <span class="ident">Key</span>,
+        <span class="ident">KeyComposer</span>,
+    },
+    <span class="ident">types</span>::{
+        <span class="ident">AccountId</span>,
+        <span class="ident">Clear</span>,
+        <span class="ident">Hash</span>,
+    },
 };
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_primitives" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

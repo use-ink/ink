@@ -167,8 +167,6 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -271,15 +269,13 @@
     },
     <span class="ident">topics::Topics</span>,
     <span class="ident">types</span>::{
-        <span class="ident">AccountId</span>,
-        <span class="ident">Clear</span>,
         <span class="ident">DefaultEnvironment</span>,
         <span class="ident">Environment</span>,
         <span class="ident">FromLittleEndian</span>,
-        <span class="ident">Hash</span>,
         <span class="ident">NoChainExtension</span>,
     },
 };
+<span class="kw">use</span> <span class="ident">ink_primitives::Clear</span>;
 
 <span class="macro">cfg_if::cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-debug&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span> {

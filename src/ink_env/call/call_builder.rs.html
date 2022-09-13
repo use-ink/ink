@@ -675,11 +675,11 @@
         <span class="ident">ExecutionInput</span>,
     },
     <span class="ident">types::Gas</span>,
-    <span class="ident">Clear</span>,
     <span class="ident">Environment</span>,
     <span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Clear</span>;
 <span class="kw">use</span> <span class="ident">num_traits::Zero</span>;
 
 <span class="doccomment">/// The final parameters to the cross-contract call.</span>
@@ -873,9 +873,9 @@
 <span class="doccomment">/// # use ::ink_env::{</span>
 <span class="doccomment">/// #     Environment,</span>
 <span class="doccomment">/// #     DefaultEnvironment,</span>
-<span class="doccomment">/// #     Clear,</span>
 <span class="doccomment">/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},</span>
 <span class="doccomment">/// # };</span>
+<span class="doccomment">/// # use ink_primitives::Clear;</span>
 <span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
 <span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()</span>
 <span class="doccomment">///     .call_type(DelegateCall::new()</span>

@@ -6,9 +6,10 @@ sourcesIndex["ink_lang_ir"] = {"name":"","dirs":[{"name":"ast","files":["attr_ar
 sourcesIndex["ink_lang_macro"] = {"name":"","files":["blake2b.rs","chain_extension.rs","contract.rs","ink_test.rs","lib.rs","selector.rs","storage_item.rs","trait_def.rs"]};
 sourcesIndex["ink_metadata"] = {"name":"","dirs":[{"name":"layout","files":["mod.rs","validate.rs"]}],"files":["lib.rs","specs.rs","utils.rs"]};
 sourcesIndex["ink_prelude"] = {"name":"","files":["lib.rs"]};
-sourcesIndex["ink_primitives"] = {"name":"","files":["key.rs","lib.rs","traits.rs"]};
-sourcesIndex["ink_primitives_derive"] = {"name":"","files":["lib.rs","storable.rs"]};
-sourcesIndex["ink_storage"] = {"name":"","dirs":[{"name":"lazy","files":["mapping.rs","mod.rs"]},{"name":"traits","dirs":[{"name":"impls","files":["mod.rs"]},{"name":"layout","files":["impls.rs","mod.rs"]}],"files":["mod.rs","storage.rs"]}],"files":["lib.rs"]};
-sourcesIndex["ink_storage_derive"] = {"name":"","files":["lib.rs","storable_hint.rs","storage_key.rs","storage_layout.rs"]};
+sourcesIndex["ink_primitives"] = {"name":"","files":["key.rs","lib.rs","types.rs"]};
+sourcesIndex["ink_storage"] = {"name":"","dirs":[{"name":"lazy","files":["mapping.rs","mod.rs"]}],"files":["lib.rs"]};
+sourcesIndex["ink_storage_codegen"] = {"name":"","files":["lib.rs"]};
+sourcesIndex["ink_storage_derive"] = {"name":"","files":["lib.rs","storable.rs","storable_hint.rs","storage_key.rs","storage_layout.rs"]};
+sourcesIndex["ink_storage_traits"] = {"name":"","dirs":[{"name":"impls","files":["mod.rs"]},{"name":"layout","files":["impls.rs","mod.rs"]}],"files":["lib.rs","storage.rs"]};
 sourcesIndex["scale_info"] = {"name":"","dirs":[{"name":"ty","files":["composite.rs","fields.rs","mod.rs","path.rs","variant.rs"]}],"files":["build.rs","form.rs","impls.rs","interner.rs","lib.rs","meta_type.rs","prelude.rs","registry.rs","utils.rs"]};
 createSourceSidebar();

@@ -338,8 +338,6 @@
 <span id="332">332</span>
 <span id="333">333</span>
 <span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -368,10 +366,8 @@
     <span class="ident">StorageKey</span>,
 };
 <span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::{
-    <span class="ident">traits::Storable</span>,
-    <span class="ident">Key</span>,
-};
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
+<span class="kw">use</span> <span class="ident">ink_storage_traits::Storable</span>;
 <span class="kw">use</span> <span class="ident">scale</span>::{
     <span class="ident">Encode</span>,
     <span class="ident">Error</span>,

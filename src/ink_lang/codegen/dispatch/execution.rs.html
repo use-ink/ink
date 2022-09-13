@@ -212,6 +212,8 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -238,8 +240,10 @@
     <span class="ident">Environment</span>,
     <span class="ident">ReturnFlags</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::traits::Storable</span>;
-<span class="kw">use</span> <span class="ident">ink_storage::traits::StorageKey</span>;
+<span class="kw">use</span> <span class="ident">ink_storage::traits</span>::{
+    <span class="ident">Storable</span>,
+    <span class="ident">StorageKey</span>,
+};
 <span class="kw">use</span> <span class="ident">scale::Encode</span>;
 
 <span class="doccomment">/// Returns `Ok` if the caller did not transfer additional value to the callee.</span>

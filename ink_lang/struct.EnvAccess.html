@@ -236,9 +236,9 @@ for a complete contract example.</p>
 <h5 id="example-11"><a href="#example-11">Example</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_env</span>::{
     <span class="ident">DefaultEnvironment</span>,
-    <span class="ident">Clear</span>,
     <span class="ident">call</span>::{<span class="ident">build_call</span>, <span class="ident">DelegateCall</span>, <span class="ident">Selector</span>, <span class="ident">ExecutionInput</span>, <span class="ident">utils::ReturnType</span>}
 };
+<span class="kw">use</span> <span class="ident">ink_primitives::Clear</span>;
 
 <span class="doccomment">/// Invokes in delegate manner a contract message and fetches the result.</span>
 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>

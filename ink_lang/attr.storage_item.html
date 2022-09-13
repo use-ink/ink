@@ -35,7 +35,7 @@ the parent’s storage key allows one to achieve it.</p>
     <span class="ident">StorageKey</span>,
     <span class="ident">StorableHint</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::traits::Storable</span>;
+<span class="kw">use</span> <span class="ident">ink_storage::traits::Storable</span>;
 
 <span class="comment">// Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all</span>
 <span class="comment">// required traits to be storable.</span>
@@ -123,7 +123,7 @@ all required storage traits.</p>
     <span class="ident">StorableHint</span>,
     <span class="ident">StorageKey</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::traits::Storable</span>;
+<span class="kw">use</span> <span class="ident">ink_storage::traits::Storable</span>;
 
 <span class="attribute">#[<span class="ident">ink_lang::storage_item</span>(<span class="ident">derive</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StorableHint</span>, <span class="ident">Storable</span>, <span class="ident">StorageKey</span>)]</span>
