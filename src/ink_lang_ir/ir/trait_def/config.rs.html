@@ -113,18 +113,6 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -141,10 +129,11 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>,
-    <span class="ident">error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
-    <span class="ident">ir::config::WhitelistedAttributes</span>,
+    <span class="ident">utils</span>::{
+        <span class="ident">duplicate_config_err</span>,
+        <span class="ident">WhitelistedAttributes</span>,
+    },
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
 
 <span class="doccomment">/// The ink! configuration.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -175,24 +164,6 @@
     }
 }
 
-<span class="doccomment">/// Return an error to notify about duplicate ink! trait definition configuration arguments.</span>
-<span class="kw">fn</span> <span class="ident">duplicate_config_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">first</span>: <span class="ident">F</span>, <span class="ident">second</span>: <span class="ident">S</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">syn::Error</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Spanned</span>,
-    <span class="ident">S</span>: <span class="ident">Spanned</span>,
-{
-    <span class="macro">format_err!</span>(
-        <span class="ident">second</span>.<span class="ident">span</span>(),
-        <span class="string">&quot;encountered duplicate ink! trait definition `{}` configuration argument&quot;</span>,
-        <span class="ident">name</span>,
-    )
-    .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
-        <span class="ident">first</span>.<span class="ident">span</span>(),
-        <span class="string">&quot;first `{}` configuration argument here&quot;</span>,
-        <span class="ident">name</span>
-    ))
-}
-
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ast::AttributeArgs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TraitDefinitionConfig</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
@@ -202,7 +173,12 @@
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span>.<span class="ident">into_iter</span>() {
             <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">name</span>.<span class="ident">is_ident</span>(<span class="string">&quot;namespace&quot;</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">meta_name_value</span>)) <span class="op">=</span> <span class="ident">namespace</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">duplicate_config_err</span>(<span class="ident">meta_name_value</span>, <span class="ident">arg</span>, <span class="string">&quot;namespace&quot;</span>))
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">duplicate_config_err</span>(
+                        <span class="ident">meta_name_value</span>,
+                        <span class="ident">arg</span>,
+                        <span class="string">&quot;namespace&quot;</span>,
+                        <span class="string">&quot;trait definition&quot;</span>,
+                    ))
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ast::PathOrLit::Lit</span>(<span class="ident">syn::Lit::Str</span>(<span class="ident">lit_str</span>)) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arg</span>.<span class="ident">value</span> {
                     <span class="kw">if</span> <span class="ident">syn::parse_str</span>::<span class="op">&lt;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">lit_str</span>.<span class="ident">value</span>()).<span class="ident">is_err</span>() {
