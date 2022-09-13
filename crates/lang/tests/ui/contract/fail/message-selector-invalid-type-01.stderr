@@ -2,4 +2,4 @@ error: #[ink(selector = ..)] attributes with string inputs are deprecated. use a
   --> tests/ui/contract/fail/message-selector-invalid-type-01.rs:14:24
    |
 14 |         #[ink(message, selector = "0xC0DECAFE")]
-   |                        ^^^^^^^^^^^^^^^^^^^^^^^
+   |                        ^^^^^^^^
