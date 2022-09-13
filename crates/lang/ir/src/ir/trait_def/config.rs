@@ -58,7 +58,12 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("namespace") {
                 if let Some((_, meta_name_value)) = namespace {
-                    return Err(duplicate_config_err(meta_name_value, arg, "namespace"))
+                    return Err(duplicate_config_err(
+                        meta_name_value,
+                        arg,
+                        "namespace",
+                        "trait definition",
+                    ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {

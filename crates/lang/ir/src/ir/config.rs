@@ -43,7 +43,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
         for arg in args.into_iter() {
             if arg.name.is_ident("env") {
                 if let Some((_, ast)) = env {
-                    return Err(duplicate_config_err(ast, arg, "env"))
+                    return Err(duplicate_config_err(ast, arg, "env", "contract"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
                     env = Some((Environment { path: path.clone() }, arg))
@@ -162,7 +162,7 @@ mod tests {
                 env = ::my::env::Types,
                 env = ::my::other::env::Types,
             },
-            Err("encountered duplicate ink! `env` configuration argument"),
+            Err("encountered duplicate ink! contract `env` configuration argument"),
         );
     }
 
