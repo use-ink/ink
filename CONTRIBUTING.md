@@ -97,6 +97,11 @@ You can have a look at the [PR#1284](https://github.com/paritytech/ink/pull/1284
 
 Our [continuous integration (CI)](https://github.com/paritytech/ink/blob/master/.gitlab-ci.yml) will check for the following properties of all changes.
 
+*Note:* We use Rust `stable` together with `export RUSTC_BOOTSTRAP=1` in our CI.
+So you have to export this environment variable locally too!
+Setting it will enable nightly features in stable Rust. So it's definitely a hack,
+but we decided on it since using nightly in the CI came with a lot of maintenance burden.
+
 1. Is `rustfmt` happy with it ?
     - `cargo fmt --all`
 1. Is `clippy` happy with it?
@@ -104,13 +109,13 @@ Our [continuous integration (CI)](https://github.com/paritytech/ink/blob/master/
 1. Does the code still compile?
     - `cargo check --all-features`
 1. Do all the examples still compile?
-    - `cargo +nightly contract check --manifest-path ./examples/.../Cargo.toml`
+    - `cargo contract check --manifest-path ./examples/.../Cargo.toml`
 1. Is the `wasm-32` target still compiling?
     - `cargo check --no-default-features --target wasm32-unknown-unknown`
 1. Are all the tests passing?
     - `cargo test --all-features --workspace`
 1. Are all the tests for the examples passing?
-    - `cargo +nightly test --manifest-path ./examples/.../Cargo.toml`
+    - `cargo test --manifest-path ./examples/.../Cargo.toml`
 1. Is the test code coverage increasing or at least stable?
 1. Has the size of the example contract binaries changed?
 
