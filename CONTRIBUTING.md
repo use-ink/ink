@@ -64,7 +64,7 @@ Verify the following locally, otherwise the CI will fail:
 1. Is `rustfmt` happy with it ?
     - `cargo +nightly fmt --all`
 1. Is `clippy` happy with it?
-    - `cargo clippy --all-targets --all-features`
+    - `cargo clippy --all-targets --all-features` -- -D warnings;
 1. Does the code still compile?
     - `cargo check --all-features`
 1. Do all the examples still compile?
