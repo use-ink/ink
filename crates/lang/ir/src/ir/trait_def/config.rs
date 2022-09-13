@@ -14,10 +14,11 @@
 
 use crate::{
     ast,
-    error::ExtError as _,
-    ir::config::WhitelistedAttributes,
+    utils::{
+        duplicate_config_err,
+        WhitelistedAttributes,
+    },
 };
-use syn::spanned::Spanned;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -48,24 +49,6 @@ impl TraitDefinitionConfig {
     }
 }
 
-/// Return an error to notify about duplicate ink! trait definition configuration arguments.
-fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
-where
-    F: Spanned,
-    S: Spanned,
-{
-    format_err!(
-        second.span(),
-        "encountered duplicate ink! trait definition `{}` configuration argument",
-        name,
-    )
-    .into_combine(format_err!(
-        first.span(),
-        "first `{}` configuration argument here",
-        name
-    ))
-}
-
 impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
     type Error = syn::Error;
 
@@ -75,7 +58,12 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("namespace") {
                 if let Some((_, meta_name_value)) = namespace {
-                    return Err(duplicate_config_err(meta_name_value, arg, "namespace"))
+                    return Err(duplicate_config_err(
+                        meta_name_value,
+                        arg,
+                        "namespace",
+                        "trait definition",
+                    ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {

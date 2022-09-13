@@ -14,9 +14,8 @@
 
 use crate::{
     ast,
-    error::ExtError as _,
+    utils::duplicate_config_err,
 };
-use syn::spanned::Spanned;
 
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -28,24 +27,6 @@ pub struct StorageItemConfig {
     derive: bool,
 }
 
-/// Return an error to notify about duplicate ink! ink storage configuration arguments.
-fn duplicate_config_err<F, S>(first: F, second: S, name: &str) -> syn::Error
-where
-    F: Spanned,
-    S: Spanned,
-{
-    format_err!(
-        second.span(),
-        "encountered duplicate ink! storage item `{}` configuration argument",
-        name,
-    )
-    .into_combine(format_err!(
-        first.span(),
-        "first `{}` configuration argument here",
-        name
-    ))
-}
-
 impl TryFrom<ast::AttributeArgs> for StorageItemConfig {
     type Error = syn::Error;
 
@@ -54,7 +35,12 @@ impl TryFrom<ast::AttributeArgs> for StorageItemConfig {
         for arg in args.into_iter() {
             if arg.name.is_ident("derive") {
                 if let Some(lit_bool) = derive {
-                    return Err(duplicate_config_err(lit_bool, arg, "derive"))
+                    return Err(duplicate_config_err(
+                        lit_bool,
+                        arg,
+                        "derive",
+                        "storage item",
+                    ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     derive = Some(lit_bool.clone())
