@@ -36,34 +36,45 @@ contributing in the first place anyways, right?)
 To help you out here's a [really good post](https://cbea.ms/git-commit/) on how to write good commit
 messages.
 
+### Stable vs Nightly Rust
+
+For everything but `rustfmt` we use Rust `stable` together with `export RUSTC_BOOTSTRAP=1`.
+You have to export this environment variable locally too! Setting it will enable nightly
+features in stable Rust. So it's definitely a hack, but we decided on it since using nightly
+in the CI and for tooling came with a lot of maintenance burden.
+
 ### Checklist
 
 Below is a checklist for you before doing a pull request.
 
-Following these will ensure that your pull request is going to be accepted.
-
-1. Run `rustfmt` automatically.
-1. Run `clippy` on your changes.
-1. Run tests via `cargo test --release` for off-chain testing.
-1. For critical parts perform some manual on-chain tests.
-1. Build the code and run tests also for the `wasm32` target.
-1. Try to run some examples and see if they are still working correctly.
-1. Sometimes clippy lints can be unfortunate or even buggy and it can be very hard to fix those.
-  In these situations you may skip the clippy lint with `#[clippy::skip]`, however,
-  note that this always requires a good rational as a side-comment and probably link to the eventual clippy bug.
-1. **Important** Strive for simple, clean and concise code.
-  If your code is very complex - because it is trying to accomplish complex things - try to think about how another aproach or design could simplify it.
+1. Name your branch with a prefix and a descriptive name in the style of `peter-refactor-storage-implementation`.
 1. We won't accept a pull request with `FIXME` or `TODO` comments in it.
    Please try to fix them by yourself and resolve all remaining to-do items.
    If that is not possible then write an issue for each of them and link to the source line and commit with a proper description. For more information go [here](#Issues-&-pull-requests).
 1. Document everything properly that you have written, refactored or touched. Especially keeping documentation up-to-date is very important. For larger portions please try to also update the ink! wiki or write a new entry there.
 1. Write tests for your code. If your code is hard to test, try to find a design that allows for testing.
-1. If needed also update the [`README`](README.md).
 1. For performance critical parts we also want additional performance tests.
 1. If you implement a fix for a reported bug also include a regression test alongside the fix if possible.
 1. When commenting or documenting code make use of proper punctuation.
-   This might seem pedantic but we believe that in essence this is going to improve overall comment and documentation quality.
+   This might seem pedantic, but we believe that in essence this is going to improve overall comment and documentation quality.
 1. If possible try to sign your commits, e.g. using GPG keys. For more information about this go [here](https://help.github.com/en/articles/signing-commits).
+
+Verify the following locally, otherwise the CI will fail:
+
+1. Is `rustfmt` happy with it ?
+    - `cargo +nightly fmt --all`
+1. Is `clippy` happy with it?
+    - `cargo clippy --all-targets --all-features`
+1. Does the code still compile?
+    - `cargo check --all-features`
+1. Do all the examples still compile?
+    - `cargo contract check --manifest-path ./examples/.../Cargo.toml`
+1. Is the `wasm-32` target still compiling?
+    - `cargo check --no-default-features --target wasm32-unknown-unknown`
+1. Are all the tests passing?
+    - `cargo test --all-features --workspace`
+1. Are all the tests for the examples passing?
+    - `cargo test --manifest-path ./examples/.../Cargo.toml`
 
 ### Backwards Compatibility
 
@@ -93,34 +104,6 @@ older nodes, please do the following:
 
 You can have a look at the [PR#1284](https://github.com/paritytech/ink/pull/1284/files#diff-e7cc1cdb3856da1293c785de863703d5961c324aa2018decb0166ea1eb0631e8R191) for a reference of how the described way could be implemented.
 
-## Continuous Integration
-
-Our [continuous integration (CI)](https://github.com/paritytech/ink/blob/master/.gitlab-ci.yml) will check for the following properties of all changes.
-
-*Note:* We use Rust `stable` together with `export RUSTC_BOOTSTRAP=1` in our CI.
-So you have to export this environment variable locally too!
-Setting it will enable nightly features in stable Rust. So it's definitely a hack,
-but we decided on it since using nightly in the CI came with a lot of maintenance burden.
-
-1. Is `rustfmt` happy with it ?
-    - `cargo fmt --all`
-1. Is `clippy` happy with it?
-    - `cargo clippy --all-targets --all-features`
-1. Does the code still compile?
-    - `cargo check --all-features`
-1. Do all the examples still compile?
-    - `cargo contract check --manifest-path ./examples/.../Cargo.toml`
-1. Is the `wasm-32` target still compiling?
-    - `cargo check --no-default-features --target wasm32-unknown-unknown`
-1. Are all the tests passing?
-    - `cargo test --all-features --workspace`
-1. Are all the tests for the examples passing?
-    - `cargo test --manifest-path ./examples/.../Cargo.toml`
-1. Is the test code coverage increasing or at least stable?
-1. Has the size of the example contract binaries changed?
-
-Only if our very demanding CI is happy with your pull request we will eventually merge it.
-Exceptions confirm the rule!
 
 ## Issues and Pull Requests
 
