@@ -259,14 +259,12 @@ mod erc20 {
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink::env::{
-            hash::{
-                Blake2x256,
-                CryptoHash,
-                HashOutput,
-            },
-            Clear,
+        use ink::env::hash::{
+            Blake2x256,
+            CryptoHash,
+            HashOutput,
         };
+        use ink_primitives::Clear;
 
         type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
 

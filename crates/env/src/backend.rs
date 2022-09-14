@@ -27,7 +27,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::traits::Storable;
+use ink_storage_traits::Storable;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]

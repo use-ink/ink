@@ -39,7 +39,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::traits::Storable;
+use ink_storage_traits::Storable;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -630,6 +630,74 @@ where
 /// # Errors
 ///
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+///
+/// # Storage Compatibility
+///
+/// When the smart contract code is modified,
+/// it is important to observe an additional virtual restriction
+/// that is imposed on this procedure:
+/// you should not change the order in which the contract state variables
+/// are declared, nor their type.
+///
+/// Violating the restriction will not prevent a successful compilation,
+/// but will result in the mix-up of values or failure to read the storage correctly.
+/// This can result in severe errors in the application utilizing the contract.
+///
+/// If the storage of your contract looks like this:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// The procedures listed below will make it invalid:
+///
+/// Changing the order of variables:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     y: bool,
+///     x: u32,
+/// }
+/// ```
+///
+/// Removing existing variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+/// }
+/// ```
+///
+/// Changing type of a variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u64,
+///     y: bool,
+/// }
+/// ```
+///
+/// Introducing a new variable before any of the existing ones:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     z: Vec<u32>,
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// Please refer to the
+/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }

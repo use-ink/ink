@@ -13,6 +13,9 @@
 // limitations under the License.
 
 mod storable;
+mod storable_hint;
+mod storage_key;
+mod storage_layout;
 
 #[macro_export]
 macro_rules! test_derive {

@@ -26,10 +26,8 @@ use crate::traits::{
     StorageKey,
 };
 use core::marker::PhantomData;
-use ink_primitives::{
-    traits::Storable,
-    Key,
-};
+use ink_primitives::Key;
+use ink_storage_traits::Storable;
 use scale::{
     Encode,
     Error,

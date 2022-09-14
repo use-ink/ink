@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink::env::AccountId;
-use ink::prelude::vec::Vec;
+use ink_prelude::vec::Vec;
+use ink_primitives::AccountId;
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
 // tokens.
@@ -582,7 +582,7 @@ mod erc1155 {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
         use crate::Erc1155;
-        
+
         fn set_sender(sender: AccountId) {
             ink::env::test::set_caller::<Environment>(sender);
         }

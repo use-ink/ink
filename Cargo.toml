@@ -14,7 +14,8 @@ members = [
     "crates/engine",
     "crates/env",
     "crates/storage",
-    "crates/storage/derive",
+    "crates/storage/traits",
+    "crates/storage/traits/derive",
 ]
 exclude = [
     "examples/",

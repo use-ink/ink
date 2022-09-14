@@ -14,15 +14,7 @@
 
 mod impls;
 
-use ink_env::hash::{
-    Blake2x256,
-    Keccak256,
-    Sha2x256,
-};
-use ink_metadata::layout::{
-    CryptoHasher,
-    Layout,
-};
+use ink_metadata::layout::Layout;
 use ink_primitives::Key;
 
 /// Implemented by types that have a storage layout.
@@ -32,28 +24,4 @@ pub trait StorageLayout {
     /// The given storage key is guiding the allocation of static fields onto
     /// the contract storage regions.
     fn layout(key: &Key) -> Layout;
-}
-
-/// Types implementing this trait are supported layouting crypto hashers.
-pub trait LayoutCryptoHasher {
-    /// Returns the layout crypto hasher for `Self`.
-    fn crypto_hasher() -> CryptoHasher;
-}
-
-impl LayoutCryptoHasher for Blake2x256 {
-    fn crypto_hasher() -> CryptoHasher {
-        CryptoHasher::Blake2x256
-    }
-}
-
-impl LayoutCryptoHasher for Sha2x256 {
-    fn crypto_hasher() -> CryptoHasher {
-        CryptoHasher::Sha2x256
-    }
-}
-
-impl LayoutCryptoHasher for Keccak256 {
-    fn crypto_hasher() -> CryptoHasher {
-        CryptoHasher::Keccak256
-    }
 }

@@ -175,12 +175,12 @@ impl<'a> ScopedBuffer<'a> {
     #[inline(always)]
     pub fn take_storable_encoded<T>(&mut self, value: &T) -> &'a mut [u8]
     where
-        T: ink_primitives::traits::Storable,
+        T: ink_storage_traits::Storable,
     {
         debug_assert_eq!(self.offset, 0);
         let buffer = core::mem::take(&mut self.buffer);
         let mut encode_scope = EncodeScope::from(buffer);
-        ink_primitives::traits::Storable::encode(value, &mut encode_scope);
+        ink_storage_traits::Storable::encode(value, &mut encode_scope);
         let encode_len = encode_scope.len();
         let _ = core::mem::replace(&mut self.buffer, encode_scope.into_buffer());
         self.take(encode_len)
