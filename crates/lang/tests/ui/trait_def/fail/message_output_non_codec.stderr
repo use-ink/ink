@@ -13,7 +13,7 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
              Rc<T>
              String
              Vec<T>
-             parity_scale_codec::Ref<'a, T, U>
+           and 2 others
    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
 note: required by a bound in `DispatchOutput`
   --> src/codegen/dispatch/type_check.rs
