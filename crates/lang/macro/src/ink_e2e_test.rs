@@ -12,37 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+use ink_lang_codegen::generate_code;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
-#[macro_use]
-#[doc(hidden)]
-pub mod result_info;
+pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match generate_or_err(attr, input) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    }
+}
 
-#[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
-pub mod codegen;
-
-pub mod reflect;
-
-mod chain_extension;
-mod contract_ref;
-mod env_access;
-
-pub use self::{
-    chain_extension::{
-        ChainExtensionInstance,
-        IsResultType,
-    },
-    contract_ref::ToAccountId,
-    env_access::EnvAccess,
-};
-pub use ink_lang_macro::{
-    blake2x256,
-    chain_extension,
-    contract,
-    e2e_test,
-    selector_bytes,
-    selector_id,
-    storage_item,
-    test,
-    trait_definition,
-};
+pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    let test_definition = ink_lang_ir::InkE2ETest::new(attr, input)?;
+    Ok(generate_code(&test_definition))
+}
