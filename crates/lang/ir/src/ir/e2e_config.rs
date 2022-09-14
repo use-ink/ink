@@ -180,7 +180,9 @@ mod tests {
                 skip_build = true,
                 skip_build = true,
             },
-            Err("encountered duplicate ink! e2e test `skip_build` configuration argument"),
+            Err(
+                "encountered duplicate ink! e2e test `skip_build` configuration argument",
+            ),
         );
     }
 
