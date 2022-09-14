@@ -288,12 +288,13 @@ docs:
     paths:
       - ./crate-docs/
   script:
-    # All crate docs need to be built separately, because there are
-    # some transitive deps. E.g. `ink_metadata` needs to be built
-    # separately because a dep of `ink_lang` uses it as well, but in
-    # its published form. If the `-p ink_metadata` is added to the
-    # `ink_lang` command this results in an "multiple packages with
-    # same spec, ambiguous" error.
+    # All crate docs currently need to be built separately. The reason
+    # is that `smart-bench-macro` is a dependency now in a number of places.
+    # This crate uses e.g. `ink_metadata`, but in its published form. So if
+    # e.g. the `-p ink_metadata` is added to the `ink_lang` command  this
+    # results in the cargo failure "multiple packages with same spec, ambiguous".
+    # TODO(#XXX) We might be able to remove this again once we've forked
+    # `smart-bench-macro` into the ink! repository.
     - cargo doc --no-deps --all-features -p ink_env
     - cargo doc --no-deps --all-features -p ink_storage
     - cargo doc --no-deps --all-features -p ink_storage_codegen
