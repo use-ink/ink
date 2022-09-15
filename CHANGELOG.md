@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### New `ink` crate
 The `ink_lang` crate has been replaced in [#1223](https://github.com/paritytech/ink/pull/1223) by a new top level `ink` 
 crate. All existing sub-crates are reexported and should be used via the new `ink` crate, so e.g. `ink::env` instead of 
-`::ink_env`. Contract authors should now import the top level `ink` crate instead of the individual crates.
+`ink_env`. Contract authors should now import the top level `ink` crate instead of the individual crates.
 
 ##### Migration
 - In `Cargo.toml` Replace all individual `ink_*` crate dependencies with the `ink` crate.
