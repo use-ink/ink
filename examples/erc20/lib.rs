@@ -504,14 +504,14 @@ mod erc20 {
         where
             T: scale::Encode,
         {
-            use ink::env::{
-                hash::{
+            use ink::{
+                env::hash::{
                     Blake2x256,
                     CryptoHash,
                     HashOutput,
                 },
+                primitives::Clear,
             };
-            use ink::primitives::Clear;
 
             let mut result = Hash::clear();
             let len_result = result.as_ref().len();
