@@ -1,4 +1,3 @@
-
 #[ink::trait_definition]
 pub trait TraitDefinition1 {
     #[ink(message)]
