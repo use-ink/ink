@@ -2,10 +2,9 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |        ^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the following implementations were found:
-             <BTreeMap<K, V> as parity_scale_codec::Decode>
+   = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
@@ -14,10 +13,9 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the following implementations were found:
-             <BTreeMap<K, V> as Encode>
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
@@ -28,8 +26,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
 9  | #[ink::storage_item]
    | ^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the following implementations were found:
-             <BTreeMap<K, V> as parity_scale_codec::Decode>
+   = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
@@ -51,8 +48,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
 9  | #[ink::storage_item]
    | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the following implementations were found:
-             <BTreeMap<K, V> as Encode>
+   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
@@ -74,8 +70,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
 9   | #[ink::storage_item]
     | ^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
     |
-    = help: the following implementations were found:
-              <BTreeMap<K, V> as parity_scale_codec::Decode>
+    = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
     = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
     = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
     = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
@@ -97,8 +92,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
 9   | #[ink::storage_item]
     | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
     |
-    = help: the following implementations were found:
-              <BTreeMap<K, V> as Encode>
+    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
     = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
     = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
     = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
