@@ -510,8 +510,9 @@ mod erc20 {
                     CryptoHash,
                     HashOutput,
                 },
-                Clear,
             };
+            use ink::primitives::Clear;
+
             let mut result = Hash::clear();
             let len_result = result.as_ref().len();
             let encoded = entity.encode();
