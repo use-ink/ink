@@ -31,7 +31,7 @@ compatibility was restored in `v3.3.0`.
 return an `Option<u32>` instead of `()`.
 - As part of [#1233](https://github.com/paritytech/ink/pull/1233) the `eth_compatibility` crate was removed. The
   `ecdsa_to_eth_address()` function from it can now be found in the `ink_env` crate.
-- As part of [#1267](https://github.com/paritytech/ink/pull/1267) an argument to `ink::codegen::execute_constructor()` (which is
+- As part of [#1267](https://github.com/paritytech/ink/pull/1267) an argument to `ink_lang::codegen::execute_constructor()` (which is
   used internally by the ink! macros) was removed.
 - As part of [#1313](https://github.com/paritytech/ink/pull/1313) the ink! ABI was changed so that the version was specified using a
   dedicated `version` key instead of an implicit key which wrapped the entire ABI.
@@ -272,7 +272,7 @@ made for bringing it back, please get in contact with us.
 
 If you use [`ink_storage::Mapping`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html)
 in your contract, you need to initialize the data structure using the helper function
-[`ink::utils::initialize_contract(…)`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html).
+[`ink_lang::utils::initialize_contract(…)`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html).
 For more code examples you can take a look at our examples, e.g.
 [`erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs).
 
@@ -288,7 +288,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 ```
 
 ### Added
-- Export `ink::utils::initialize_contract(…)` - [#1077](https://github.com/paritytech/ink/pull/1077).
+- Export `ink_lang::utils::initialize_contract(…)` - [#1077](https://github.com/paritytech/ink/pull/1077).
 - Add `get_owner()` function to `dns` example contract - [#1118](https://github.com/paritytech/ink/pull/1118) (thanks [@agryaznov](https://github.com/agryaznov)).
 - Improved usage documentation of `ink_storage::Mapping` - [#1138](https://github.com/paritytech/ink/pull/1138).
 
@@ -397,7 +397,7 @@ Specifically you need to upgrade to at least the pallet version
     - Annotating a wildcard selector in traits is not supported.
 - The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang` ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - Some of those traits and their carried information can be used for static reflection of ink!
-      smart contracts. Those types and traits reside in the new `ink::reflect` module and is
+      smart contracts. Those types and traits reside in the new `ink_lang::reflect` module and is
       publicly usable by ink! smart contract authors.
 
 ### Changed
