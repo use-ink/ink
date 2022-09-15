@@ -217,7 +217,7 @@ mod erc20 {
     mod tests {
         use super::*;
 
-        use ink_primitives::Clear;
+        use ink::primitives::Clear;
 
         type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
 

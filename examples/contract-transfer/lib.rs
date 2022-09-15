@@ -98,7 +98,7 @@ pub mod give_me {
 
         #[ink::test]
         fn test_transferred_value() {
-            use ink_lang::codegen::Env;
+            use ink::lang::codegen::Env;
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);
@@ -114,7 +114,7 @@ pub mod give_me {
             // then
             // we use helper macro to emulate method invocation coming with payment,
             // and there must be no panic
-            ink_env::pay_with_call!(give_me.was_it_ten(), 10);
+            ink::env::pay_with_call!(give_me.was_it_ten(), 10);
 
             // and
             // balances should be changed properly

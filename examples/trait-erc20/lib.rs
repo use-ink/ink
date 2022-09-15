@@ -264,7 +264,7 @@ mod erc20 {
             CryptoHash,
             HashOutput,
         };
-        use ink_primitives::Clear;
+        use ink::primitives::Clear;
 
         type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
 
