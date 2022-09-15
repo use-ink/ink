@@ -4,11 +4,7 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeDecode` is not satisfied
 6  |     fn message(&self, input: NonCodec);
    |                       ^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodec`
    |
-   = help: the following other types implement trait `WrapperTypeDecode`:
-             Arc<T>
-             Box<T>
-             Rc<T>
-   = note: required for `NonCodec` to implement `parity_scale_codec::Decode`
+   = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodec`
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
    |
@@ -16,26 +12,13 @@ note: required by a bound in `DispatchInput`
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
 error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
-  --> tests/ui/trait_def/fail/message_input_non_codec.rs:3:1
+  --> tests/ui/trait_def/fail/message_input_non_codec.rs:5:5
    |
-3  |   #[ink::trait_definition]
-   |   ^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
-4  |   pub trait TraitDefinition {
 5  | /     #[ink(message)]
 6  | |     fn message(&self, input: NonCodec);
-   | |_______________________________________- required by a bound introduced by this call
+   | |_______________________________________^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
    |
-   = help: the following other types implement trait `WrapperTypeEncode`:
-             &T
-             &mut T
-             Arc<T>
-             Box<T>
-             Cow<'a, T>
-             Rc<T>
-             String
-             Vec<T>
-             parity_scale_codec::Ref<'a, T, U>
-   = note: required for `NonCodec` to implement `Encode`
+   = note: required because of the requirements on the impl of `Encode` for `NonCodec`
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
   --> $WORKSPACE/crates/env/src/call/execution_input.rs
    |

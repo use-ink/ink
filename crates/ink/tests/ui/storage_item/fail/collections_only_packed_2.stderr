@@ -4,10 +4,11 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
 11 |     a: BTreeMap<u128, NonPacked>,
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
+   = help: the following implementations were found:
+             <BTreeMap<K, V> as parity_scale_codec::Decode>
+   = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
@@ -15,10 +16,11 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
 11 |     a: BTreeMap<u128, NonPacked>,
    |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
+   = help: the following implementations were found:
+             <BTreeMap<K, V> as Encode>
+   = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::Decode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
@@ -26,21 +28,22 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
 9  | #[ink::storage_item]
    | ^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
+   = help: the following implementations were found:
+             <BTreeMap<K, V> as parity_scale_codec::Decode>
+   = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
 10 | struct Contract {
    |        ^^^^^^^^
 note: required by a bound in `Storable`
-  --> $WORKSPACE/crates/primitives/src/traits.rs
+  --> $WORKSPACE/crates/storage/traits/src/storage.rs
    |
    | pub trait Storable: Sized {
    |                     ^^^^^ required by this bound in `Storable`
-   = note: this error originates in the derive macro `::ink::primitives::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
@@ -48,21 +51,22 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
 9  | #[ink::storage_item]
    | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
-   = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-   = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
+   = help: the following implementations were found:
+             <BTreeMap<K, V> as Encode>
+   = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
+   = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
    |
 10 | struct Contract {
    |        ^^^^^^^^
 note: required by a bound in `Storable`
-  --> $WORKSPACE/crates/primitives/src/traits.rs
+  --> $WORKSPACE/crates/storage/traits/src/storage.rs
    |
    | pub trait Storable: Sized {
    |                     ^^^^^ required by this bound in `Storable`
-   = note: this error originates in the derive macro `::ink::primitives::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::Decode` is not satisfied
    --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
@@ -70,10 +74,11 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
 9   | #[ink::storage_item]
     | ^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
     |
-    = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
-    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-    = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-    = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
+    = help: the following implementations were found:
+              <BTreeMap<K, V> as parity_scale_codec::Decode>
+    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
+    = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
+    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
     |
@@ -84,7 +89,7 @@ note: required by a bound in `Result`
     |
     | pub enum Result<T, E> {
     |                 ^ required by this bound in `Result`
-    = note: this error originates in the derive macro `::ink::primitives::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfied
    --> tests/ui/storage_item/fail/collections_only_packed_2.rs:9:1
@@ -92,10 +97,11 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
 9   | #[ink::storage_item]
     | ^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
     |
-    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
-    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
-    = note: required for `BTreeMap<u128, NonPacked>` to implement `StorableHint<()>`
-    = note: required for `BTreeMap<u128, NonPacked>` to implement `AutoStorableHint<ManualKey<2085512762>>`
+    = help: the following implementations were found:
+              <BTreeMap<K, V> as Encode>
+    = note: required because of the requirements on the impl of `Packed` for `BTreeMap<u128, NonPacked>`
+    = note: required because of the requirements on the impl of `StorableHint<()>` for `BTreeMap<u128, NonPacked>`
+    = note: required because of the requirements on the impl of `AutoStorableHint<ManualKey<2085512762_u32>>` for `BTreeMap<u128, NonPacked>`
 note: required because it appears within the type `Contract`
    --> tests/ui/storage_item/fail/collections_only_packed_2.rs:10:8
     |
@@ -106,4 +112,4 @@ note: required by a bound in `Result`
     |
     | pub enum Result<T, E> {
     |                 ^ required by this bound in `Result`
-    = note: this error originates in the derive macro `::ink::primitives::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
+    = note: this error originates in the derive macro `::ink::storage::traits::Storable` (in Nightly builds, run with -Z macro-backtrace for more info)
