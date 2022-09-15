@@ -63,16 +63,18 @@ pub use self::multisig::{
 
 #[ink::contract]
 mod multisig {
-    use ink::env::{
-        call::{
-            build_call,
-            Call,
-            ExecutionInput,
+    use ink::{
+        env::{
+            call::{
+                build_call,
+                Call,
+                ExecutionInput,
+            },
+            CallFlags,
         },
-        CallFlags,
+        prelude::vec::Vec,
+        storage::Mapping,
     };
-    use ink::prelude::vec::Vec;
-    use ink::storage::Mapping;
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.

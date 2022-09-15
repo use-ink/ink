@@ -260,7 +260,10 @@ mod payment_channel {
             let encodable = (self.env().account_id(), amount);
             let mut message =
                 <ink::env::hash::Sha2x256 as ink::env::hash::HashOutput>::Type::default();
-            ink::env::hash_encoded::<ink::env::hash::Sha2x256, _>(&encodable, &mut message);
+            ink::env::hash_encoded::<ink::env::hash::Sha2x256, _>(
+                &encodable,
+                &mut message,
+            );
 
             let mut pub_key = [0; 33];
             ink::env::ecdsa_recover(&signature, &message, &mut pub_key)

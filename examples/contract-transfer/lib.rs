@@ -173,8 +173,10 @@ pub mod give_me {
         }
 
         fn get_balance(account_id: AccountId) -> Balance {
-            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(account_id)
-                .expect("Cannot get account balance")
+            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
+                account_id,
+            )
+            .expect("Cannot get account balance")
         }
     }
 }
