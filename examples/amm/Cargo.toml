@@ -1,0 +1,42 @@
+[package]
+name = "amm"
+version = "4.0.0-alpha.1"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink_primitives = { version="3.3.1", default-features = false }
+ink_metadata = {  version="3.3.1", default-features = false, features = ["derive"], optional = true }
+ink_env = {  version="3.3.1", default-features = false }
+ink_storage = {  version="3.3.1", default-features = false }
+ink_lang = {  version="3.3.1", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
+[lib]
+name = "amm"
+path = "lib.rs"
+crate-type = [
+	"cdylib",
+]
+
+# This is necessary to get things to compile. Without it the compiler throws an error.
+# Setting overflow checks to "false" for an AMM is typically not a good idea...
+# "This typically goes back to a known bug in the Rust compiler:
+# https://github.com/rust-lang/rust/issues/78744"
+[profile.release.package.compiler_builtins]
+overflow-checks = false
+
+[features]
+default = ["std"]
+std = [
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info/std",
+]
+ink-as-dependency = []
