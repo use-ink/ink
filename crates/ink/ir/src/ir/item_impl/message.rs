@@ -68,7 +68,7 @@ impl Receiver {
 /// ## Inherent implementation message:
 ///
 /// ```
-/// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # <ink_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(message)]
 ///     pub fn my_message(&self, input: i32) -> bool {
@@ -82,7 +82,7 @@ impl Receiver {
 /// ## Trait implementation message:
 ///
 /// ```
-/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # let event = <ink_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(message)]
 ///     fn my_message(&mut self, input: bool) -> i32 {

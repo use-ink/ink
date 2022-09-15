@@ -289,7 +289,7 @@ docs:
         -p scale-info -p ink_metadata -p ink_env
         -p ink_storage -p ink_storage_traits -p ink_storage_codegen -p ink_storage_derive
         -p ink_primitives -p ink_prelude
-        -p ink -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
+        -p ink -p ink_macro -p ink_ir -p ink_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs

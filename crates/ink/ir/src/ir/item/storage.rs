@@ -31,7 +31,7 @@ use syn::spanned::Spanned as _;
 /// # Example
 ///
 /// ```
-/// # <ink_lang_ir::Storage as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
+/// # <ink_ir::Storage as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(storage)]
 /// pub struct MyStorage {
 ///     my_value: bool,

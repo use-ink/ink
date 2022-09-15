@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_lang_codegen::generate_code;
-use ink_lang_ir::Contract;
+use ink_codegen::generate_code;
+use ink_ir::Contract;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 

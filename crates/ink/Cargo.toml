@@ -20,13 +20,13 @@ ink_storage = { version = "4.0.0-alpha.1", path = "../storage", default-features
 ink_primitives = { version = "4.0.0-alpha.1", path = "../primitives", default-features = false }
 ink_metadata = { version = "4.0.0-alpha.1", path = "../metadata", default-features = false, optional = true }
 ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude", default-features = false }
-ink_lang_macro = { version = "4.0.0-alpha.1", path = "macro", default-features = false }
+ink_macro = { version = "4.0.0-alpha.1", path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 
 [dev-dependencies]
-ink_lang_ir = { path = "./ir" }
+ink_ir = { path = "./ir" }
 ink_metadata = { path = "../metadata", default-features = false }
 
 trybuild = { version = "1.0.60", features = ["diff"] }
@@ -41,7 +41,7 @@ std = [
     "ink_primitives/std",
     "ink_env/std",
     "ink_storage/std",
-    "ink_lang_macro/std",
+    "ink_macro/std",
     "scale/std",
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.

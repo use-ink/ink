@@ -123,7 +123,7 @@ impl ItemImpl {
     /// - The ink! implementation block has been annotated as in:
     ///
     /// ```
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # <ink_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_function(&self) {
@@ -138,7 +138,7 @@ impl ItemImpl {
     ///   specific annotations:
     ///
     /// ```
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # <ink_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]
     ///     pub fn my_constructor() -> Self {

@@ -40,7 +40,7 @@ use syn::{
 ///
 /// ```
 /// // #[ink::contract] <-- this line belongs to the ink! configuration!
-/// # use ink_lang_ir as ir;
+/// # use ink_ir as ir;
 /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
 /// mod my_contract {
 ///     #[ink(storage)]
@@ -411,7 +411,7 @@ impl ItemMod {
     /// least one `#[ink(message)]` or `#[ink(constructor)]` annotation, e.g.:
     ///
     /// ```
-    /// # use ink_lang_ir as ir;
+    /// # use ink_ir as ir;
     /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
     /// # mod my_module {
     /// # #[ink(storage)]
@@ -439,7 +439,7 @@ impl ItemMod {
     /// e.g.:
     ///
     /// ```
-    /// # use ink_lang_ir as ir;
+    /// # use ink_ir as ir;
     /// # <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
     /// # mod my_module {
     /// # #[ink(storage)]

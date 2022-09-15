@@ -28,7 +28,7 @@ use syn::spanned::Spanned as _;
 /// # Example
 ///
 /// ```
-/// # let event = <ink_lang_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
+/// # let event = <ink_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
 /// #[ink(event)]
 /// pub struct Transaction {
 ///     #[ink(topic)]

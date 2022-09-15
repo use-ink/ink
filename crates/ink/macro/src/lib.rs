@@ -35,7 +35,7 @@ use proc_macro::TokenStream;
 ///
 /// ```
 /// # use ink_lang_macro::blake2x256;
-/// # use ink_lang_ir::blake2b_256;
+/// # use ink_ir::blake2b_256;
 /// assert_eq!(
 ///     blake2x256!("hello"),
 ///     {

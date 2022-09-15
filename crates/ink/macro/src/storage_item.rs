@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_lang_codegen::generate_code;
+use ink_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
@@ -27,6 +27,6 @@ pub fn generate_or_err(
     config: TokenStream2,
     input: TokenStream2,
 ) -> Result<TokenStream2> {
-    let storage_item = ink_lang_ir::StorageItem::new(config, input)?;
+    let storage_item = ink_ir::StorageItem::new(config, input)?;
     Ok(generate_code(&storage_item))
 }
