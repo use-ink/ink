@@ -44,4 +44,8 @@ std = [
     "ink_lang_macro/std",
     "scale/std",
 ]
+# Enable contract debug messages via `debug_print!` and `debug_println!`.
+ink-debug = [
+    "ink_env/ink-debug",
+]
 show-codegen-docs = []
