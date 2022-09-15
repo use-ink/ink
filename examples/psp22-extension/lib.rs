@@ -1,7 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink::env::Environment;
-use ink::prelude::vec::Vec;
+use ink::{
+    env::Environment,
+    prelude::vec::Vec,
+};
 
 type DefaultAccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
 type DefaultBalance = <ink::env::DefaultEnvironment as Environment>::Balance;

@@ -1,7 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink::prelude::vec::Vec;
-use ink::primitives::AccountId;
+use ink::{
+    prelude::vec::Vec,
+    primitives::AccountId,
+};
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
 // tokens.
