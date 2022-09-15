@@ -98,7 +98,7 @@ pub mod give_me {
 
         #[ink::test]
         fn test_transferred_value() {
-            use ink::lang::codegen::Env;
+            use ink::codegen::Env;
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);
