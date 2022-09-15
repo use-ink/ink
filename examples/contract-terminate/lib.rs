@@ -32,10 +32,10 @@ pub mod just_terminates {
         fn terminating_works() {
             // given
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
-            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.alice);
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.alice);
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 contract_id,
                 100,
             );
@@ -45,7 +45,7 @@ pub mod just_terminates {
             let should_terminate = move || contract.terminate_me();
 
             // then
-            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+            ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_terminate,
                 accounts.alice,
                 100,
