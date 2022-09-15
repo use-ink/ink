@@ -1,5 +1,5 @@
-use ink_env::Environment;
 use ink::reflect::ContractEnv;
+use ink_env::Environment;
 
 #[ink::trait_definition]
 pub trait TraitDefinition {

@@ -1,5 +1,5 @@
 mod foo {
-        #[ink::trait_definition(namespace = "foo")]
+    #[ink::trait_definition(namespace = "foo")]
     pub trait TraitDefinition {
         #[ink(message)]
         fn message(&self);
@@ -7,7 +7,7 @@ mod foo {
 }
 
 mod bar {
-        #[ink::trait_definition(namespace = "bar")]
+    #[ink::trait_definition(namespace = "bar")]
     pub trait TraitDefinition {
         #[ink(message)]
         fn message(&self);
@@ -16,7 +16,6 @@ mod bar {
 
 use bar::TraitDefinition as TraitDefinition2;
 use foo::TraitDefinition as TraitDefinition1;
-use ink_env::DefaultEnvironment;
 use ink::{
     reflect::{
         TraitDefinitionRegistry,
@@ -25,6 +24,7 @@ use ink::{
     selector_bytes,
     selector_id,
 };
+use ink_env::DefaultEnvironment;
 
 fn main() {
     macro_rules! assert_selector_eq {

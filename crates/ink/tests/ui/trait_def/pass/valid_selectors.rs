@@ -10,7 +10,6 @@ pub trait TraitDefinition {
     fn message3(&mut self);
 }
 
-use ink_env::DefaultEnvironment;
 use ink::{
     reflect::{
         TraitDefinitionRegistry,
@@ -19,6 +18,7 @@ use ink::{
     selector_bytes,
     selector_id,
 };
+use ink_env::DefaultEnvironment;
 
 fn main() {
     macro_rules! assert_selector_eq {
