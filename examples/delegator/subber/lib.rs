@@ -5,8 +5,6 @@ pub use self::subber::{
     SubberRef,
 };
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod subber {
     use accumulator::AccumulatorRef;

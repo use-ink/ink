@@ -1,0 +1,28 @@
+error[E0411]: cannot find type `Self` in this scope
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:35
+  |
+4 |     pub struct Contract {}
+  |     --- `Self` not allowed in a constant item
+...
+8 |         pub fn constructor(this: &Self) -> Self {
+  |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+
+error[E0411]: cannot find type `Self` in this scope
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:35
+  |
+1 | #[ink::contract]
+  | ---------------- `Self` not allowed in a function
+...
+8 |         pub fn constructor(this: &Self) -> Self {
+  |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+
+error[E0106]: missing lifetime specifier
+ --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:34
+  |
+8 |         pub fn constructor(this: &Self) -> Self {
+  |                                  ^ expected named lifetime parameter
+  |
+help: consider introducing a named lifetime parameter
+  |
+8 |         pub<'a> fn constructor(this: &'a Self) -> Self {
+  |            ++++                       ++

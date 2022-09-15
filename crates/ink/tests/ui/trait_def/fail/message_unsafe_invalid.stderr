@@ -1,0 +1,5 @@
+error: unsafe ink! trait methods are not supported
+ --> tests/ui/trait_def/fail/message_unsafe_invalid.rs:4:5
+  |
+4 |     unsafe fn message_ref(&self);
+  |     ^^^^^^

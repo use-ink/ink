@@ -1,0 +1,5 @@
+error: associated constants in ink! trait definitions are not supported, yet
+ --> tests/ui/trait_def/fail/definition_assoc_const.rs:3:5
+  |
+3 |     const CONST: bool;
+  |     ^^^^^^^^^^^^^^^^^^

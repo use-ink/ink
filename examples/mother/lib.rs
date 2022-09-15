@@ -17,11 +17,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod mother {
-    use ink_prelude::{
+    use ink::prelude::{
         string::{
             String,
             ToString,
@@ -29,7 +27,7 @@ mod mother {
         vec::Vec,
     };
 
-    use ink_storage::Mapping;
+    use ink::storage::Mapping;
 
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
@@ -37,7 +35,7 @@ mod mother {
     #[derive(Default, PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
@@ -45,7 +43,7 @@ mod mother {
     #[derive(PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Outline {
         NoWinner,
@@ -59,7 +57,7 @@ mod mother {
     #[derive(PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Status {
         /// An auction has not started yet.
@@ -81,7 +79,7 @@ mod mother {
     #[derive(Debug, PartialEq, Eq, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub struct Auction {
         /// Branded name of the auction event.
@@ -178,14 +176,13 @@ mod mother {
         /// Prints the specified string into node's debug log.
         #[ink(message)]
         pub fn debug_log(&mut self, _message: String) {
-            ink_env::debug_println!("debug_log: {}", _message);
+            ink::env::debug_println!("debug_log: {}", _message);
         }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn echo_auction_works() {

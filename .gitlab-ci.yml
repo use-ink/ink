@@ -29,8 +29,8 @@ variables:
   # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "lang/codegen storage/traits/codegen metadata engine"
-  ALSO_WASM_CRATES:                "env storage storage/traits storage/traits/derive allocator prelude primitives lang lang/macro lang/ir"
+  PURELY_STD_CRATES:               "ink/codegen storage/traits/codegen metadata engine"
+  ALSO_WASM_CRATES:                "env storage storage/traits storage/traits/derive allocator prelude primitives ink ink/macro ink/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
@@ -112,8 +112,8 @@ fmt:
   script:
     - cargo +nightly fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
 examples-fmt:
@@ -289,7 +289,7 @@ docs:
         -p scale-info -p ink_metadata -p ink_env
         -p ink_storage -p ink_storage_traits -p ink_storage_codegen -p ink_storage_derive
         -p ink_primitives -p ink_prelude
-        -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
+        -p ink -p ink_macro -p ink_ir -p ink_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
@@ -367,7 +367,7 @@ examples-contract-build:
   <<:                              *test-refs
   script:
     - rustup component add rust-src --toolchain stable
-    - cargo install cargo-contract --version 2.0.0-alpha.1 --force
+    - cargo install cargo-contract --git https://github.com/paritytech/cargo-contract --branch aj/ink_crate --force
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;

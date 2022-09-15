@@ -1,11 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_env::Environment;
-use ink_lang as ink;
-use ink_prelude::vec::Vec;
+use ink::{
+    env::Environment,
+    prelude::vec::Vec,
+};
 
-type DefaultAccountId = <ink_env::DefaultEnvironment as Environment>::AccountId;
-type DefaultBalance = <ink_env::DefaultEnvironment as Environment>::Balance;
+type DefaultAccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
+type DefaultBalance = <ink::env::DefaultEnvironment as Environment>::Balance;
 
 #[ink::chain_extension]
 pub trait Psp22Extension {
@@ -90,7 +91,7 @@ impl From<scale::Error> for Psp22Error {
     }
 }
 
-impl ink_env::chain_extension::FromStatusCode for Psp22Error {
+impl ink::env::chain_extension::FromStatusCode for Psp22Error {
     fn from_status_code(status_code: u32) -> core::result::Result<(), Self> {
         match status_code {
             0 => Ok(()),
@@ -107,13 +108,13 @@ pub enum CustomEnvironment {}
 
 impl Environment for CustomEnvironment {
     const MAX_EVENT_TOPICS: usize =
-        <ink_env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
+        <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS;
 
     type AccountId = DefaultAccountId;
     type Balance = DefaultBalance;
-    type Hash = <ink_env::DefaultEnvironment as Environment>::Hash;
-    type Timestamp = <ink_env::DefaultEnvironment as Environment>::Timestamp;
-    type BlockNumber = <ink_env::DefaultEnvironment as Environment>::BlockNumber;
+    type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
+    type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
+    type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
 
     type ChainExtension = crate::Psp22Extension;
 }

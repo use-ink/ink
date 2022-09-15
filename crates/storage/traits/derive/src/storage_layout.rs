@@ -32,9 +32,9 @@ fn field_layout<'a>(
         };
         let ty = &field.ty;
         quote! {
-            ::ink_metadata::layout::FieldLayout::new(
+            ::ink::metadata::layout::FieldLayout::new(
                 #ident,
-                <#ty as ::ink_storage::traits::StorageLayout>::layout(__key),
+                <#ty as ::ink::storage::traits::StorageLayout>::layout(__key),
             )
         }
     })
@@ -53,10 +53,10 @@ fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
     let variant: &synstructure::VariantInfo = &s.variants()[0];
     let field_layouts = field_layout(variant);
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::StorageLayout for @Self {
-            fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                ::ink_metadata::layout::Layout::Struct(
-                    ::ink_metadata::layout::StructLayout::new(
+        gen impl ::ink::storage::traits::StorageLayout for @Self {
+            fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                ::ink::metadata::layout::Layout::Struct(
+                    ::ink::metadata::layout::StructLayout::new(
                         ::core::stringify!(#struct_ident),
                         [
                             #(#field_layouts ,)*
@@ -94,8 +94,8 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
         quote! {
             {
                 (
-                    ::ink_metadata::layout::Discriminant::from(#discriminant),
-                    ::ink_metadata::layout::StructLayout::new(
+                    ::ink::metadata::layout::Discriminant::from(#discriminant),
+                    ::ink::metadata::layout::StructLayout::new(
                         ::core::stringify!(#variant_ident),
                         [
                             #(#field_layouts ,)*
@@ -107,12 +107,12 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
     });
     let enum_ident = s.ast().ident.clone();
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::StorageLayout for @Self {
-            fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                ::ink_metadata::layout::Layout::Enum(
-                    ::ink_metadata::layout::EnumLayout::new(
+        gen impl ::ink::storage::traits::StorageLayout for @Self {
+            fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                ::ink::metadata::layout::Layout::Enum(
+                    ::ink::metadata::layout::EnumLayout::new(
                         ::core::stringify!(#enum_ident),
-                        ::ink_metadata::layout::LayoutKey::from(__key),
+                        ::ink::metadata::layout::LayoutKey::from(__key),
                         [
                             #(#variant_layouts ,)*
                         ]

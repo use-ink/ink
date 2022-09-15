@@ -1,0 +1,5 @@
+error: associated types in ink! trait definitions are not supported, yet
+ --> tests/ui/trait_def/fail/definition_assoc_type.rs:3:5
+  |
+3 |     type Type;
+  |     ^^^^^^^^^^

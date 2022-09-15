@@ -5,8 +5,6 @@ pub use self::adder::{
     AdderRef,
 };
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod adder {
     use accumulator::AccumulatorRef;
