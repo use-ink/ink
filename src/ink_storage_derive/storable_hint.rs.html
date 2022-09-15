@@ -123,7 +123,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">generics</span>.<span class="ident">clone</span>();
     <span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">push</span>(
-        <span class="ident">parse2</span>(<span class="macro">quote!</span> { #<span class="ident">salt_ident</span> : <span class="ident">::ink_storage::traits::StorageKey</span> }).<span class="ident">unwrap</span>(),
+        <span class="ident">parse2</span>(<span class="macro">quote!</span> { #<span class="ident">salt_ident</span> : <span class="ident">::ink::storage::traits::StorageKey</span> }).<span class="ident">unwrap</span>(),
     );
 
     <span class="kw">let</span> (<span class="ident">impl_generics</span>, <span class="kw">_</span>, <span class="ident">where_clause</span>) <span class="op">=</span> <span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
@@ -154,16 +154,16 @@
             .<span class="ident">collect</span>();
 
         <span class="macro">quote!</span> {
-            <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::ink_storage::traits::StorableHint</span><span class="op">&lt;</span>#<span class="ident">salt_ident</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics_original</span> #<span class="ident">where_clause</span> {
+            <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::ink::storage::traits::StorableHint</span><span class="op">&lt;</span>#<span class="ident">salt_ident</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics_original</span> #<span class="ident">where_clause</span> {
                 <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> #<span class="ident">ident</span> <span class="op">&lt;</span>#(#<span class="ident">ty_generics</span>),<span class="kw-2">*</span><span class="op">&gt;</span>;
                 <span class="kw">type</span> <span class="ident">PreferredKey</span> <span class="op">=</span> #<span class="ident">inner_salt_ident</span>;
             }
         }
     } <span class="kw">else</span> {
         <span class="macro">quote!</span> {
-            <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::ink_storage::traits::StorableHint</span><span class="op">&lt;</span>#<span class="ident">salt_ident</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics_original</span> #<span class="ident">where_clause</span> {
+            <span class="kw">impl</span> #<span class="ident">impl_generics</span> <span class="ident">::ink::storage::traits::StorableHint</span><span class="op">&lt;</span>#<span class="ident">salt_ident</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> #<span class="ident">ty_generics_original</span> #<span class="ident">where_clause</span> {
                 <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> #<span class="ident">ident</span> #<span class="ident">ty_generics_original</span>;
-                <span class="kw">type</span> <span class="ident">PreferredKey</span> <span class="op">=</span> <span class="ident">::ink_storage::traits::AutoKey</span>;
+                <span class="kw">type</span> <span class="ident">PreferredKey</span> <span class="op">=</span> <span class="ident">::ink::storage::traits::AutoKey</span>;
             }
         }
     }

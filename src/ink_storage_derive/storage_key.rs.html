@@ -73,8 +73,8 @@
     };
 
     <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
-        <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink_storage::traits::StorageKey</span> <span class="kw">for</span> @<span class="self">Self</span> {
-            <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">::ink_primitives::Key</span> <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">salt</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span>;
+        <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink::storage::traits::StorageKey</span> <span class="kw">for</span> @<span class="self">Self</span> {
+            <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">::ink::primitives::Key</span> <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">salt</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span>;
         }
     })
 }

@@ -1,4 +1,4 @@
 (function() {var implementors = {};
-implementors["ink_lang_ir"] = [{"text":"impl&lt;'a, C&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"ink_lang_ir/struct.CallableWithSelector.html\" title=\"struct ink_lang_ir::CallableWithSelector\">CallableWithSelector</a>&lt;'a, C&gt;","synthetic":false,"types":["ink_lang_ir::ir::item_impl::callable::CallableWithSelector"]}];
+implementors["ink_ir"] = [{"text":"impl&lt;'a, C&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"ink_ir/struct.CallableWithSelector.html\" title=\"struct ink_ir::CallableWithSelector\">CallableWithSelector</a>&lt;'a, C&gt;","synthetic":false,"types":["ink_ir::ir::item_impl::callable::CallableWithSelector"]}];
 implementors["scale_info"] = [];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

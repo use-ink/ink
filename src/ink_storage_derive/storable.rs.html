@@ -182,18 +182,18 @@
         <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>;
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">span</span>();
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">__input</span>)<span class="question-mark">?</span>
+            <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">__input</span>)<span class="question-mark">?</span>
         )
     });
     <span class="kw">let</span> <span class="ident">encode_body</span> <span class="op">=</span> <span class="ident">variant</span>.<span class="ident">each</span>(<span class="op">|</span><span class="ident">binding</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">binding</span>.<span class="ident">ast</span>().<span class="ident">ty</span>.<span class="ident">span</span>();
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="ident">::ink_storage::traits::Storable::encode</span>(#<span class="ident">binding</span>, <span class="ident">__dest</span>);
+            <span class="ident">::ink::storage::traits::Storable::encode</span>(#<span class="ident">binding</span>, <span class="ident">__dest</span>);
         )
     });
 
     <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
-         <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink_storage::traits::Storable</span> <span class="kw">for</span> @<span class="self">Self</span> {
+         <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink::storage::traits::Storable</span> <span class="kw">for</span> @<span class="self">Self</span> {
             <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
             <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">__ink_I</span>: <span class="ident">::scale::Input</span><span class="op">&gt;</span>(<span class="ident">__input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">__ink_I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span> {
@@ -232,7 +232,7 @@
                 <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>;
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">span</span>();
                 <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                    <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">__input</span>)<span class="question-mark">?</span>
+                    <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">__input</span>)<span class="question-mark">?</span>
                 )
             })
         })
@@ -251,12 +251,12 @@
         <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">variant</span>.<span class="ident">bindings</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ast</span>().<span class="ident">ty</span>.<span class="ident">span</span>();
             <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                <span class="ident">::ink_storage::traits::Storable::encode</span>(#<span class="ident">field</span>, <span class="ident">__dest</span>);
+                <span class="ident">::ink::storage::traits::Storable::encode</span>(#<span class="ident">field</span>, <span class="ident">__dest</span>);
             )
         });
         <span class="macro">quote!</span> {
              #<span class="ident">pat</span> =&gt; {
-                 { <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::encode</span>(<span class="kw-2">&amp;</span>#<span class="ident">index</span>, <span class="ident">__dest</span>); }
+                 { <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::encode</span>(<span class="kw-2">&amp;</span>#<span class="ident">index</span>, <span class="ident">__dest</span>); }
                  #(
                      { #<span class="ident">fields</span> }
                  )<span class="op">*</span>
@@ -264,12 +264,12 @@
          }
     });
     <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
-         <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink_storage::traits::Storable</span> <span class="kw">for</span> @<span class="self">Self</span> {
+         <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink::storage::traits::Storable</span> <span class="kw">for</span> @<span class="self">Self</span> {
             <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
             <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">__ink_I</span>: <span class="ident">::scale::Input</span><span class="op">&gt;</span>(<span class="ident">__input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">__ink_I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span> {
                 <span class="ident">::core::result::Result::Ok</span>(
-                    <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">__input</span>)<span class="question-mark">?</span> {
+                    <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::Storable</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">__input</span>)<span class="question-mark">?</span> {
                         #<span class="ident">decode_body</span>
                         <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid enum discriminant&quot;</span>),
                     }
