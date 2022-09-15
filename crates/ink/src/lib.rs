@@ -42,7 +42,7 @@ pub use self::{
     contract_ref::ToAccountId,
     env_access::EnvAccess,
 };
-pub use ink_lang_macro::{
+pub use ink_macro::{
     blake2x256,
     chain_extension,
     contract,

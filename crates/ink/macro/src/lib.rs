@@ -34,7 +34,7 @@ use proc_macro::TokenStream;
 /// # Example
 ///
 /// ```
-/// # use ink_lang_macro::blake2x256;
+/// # use ink_macro::blake2x256;
 /// # use ink_ir::blake2b_256;
 /// assert_eq!(
 ///     blake2x256!("hello"),
@@ -59,7 +59,7 @@ pub fn blake2x256(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```
-/// # use ink_lang_macro::selector_id;
+/// # use ink_macro::selector_id;
 /// assert_eq!(
 ///     selector_id!("hello"),
 ///     843960066,
@@ -79,7 +79,7 @@ pub fn selector_id(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```
-/// # use ink_lang_macro::selector_bytes;
+/// # use ink_macro::selector_bytes;
 /// assert_eq!(
 ///     selector_bytes!("hello"),
 ///     [50, 77, 207, 2],

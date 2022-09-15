@@ -70,7 +70,7 @@ The central delegating crate for the ink! eDSL is `ink_lang`.
 In the `crates/lang/` folder you'll find three separate
 crates on which `ink_lang` relies heavily:
 
-* `ink_lang_macro`: The procedural macros, they take code annotated with e.g.
+* `ink_macro`: The procedural macros, they take code annotated with e.g.
    `[ink::contract]` and forwards it to `ink_ir`.
 * `ink_ir`: Defines everything the procedural macro needs in order to
    parse, analyze and generate code for ink! smart contracts.
