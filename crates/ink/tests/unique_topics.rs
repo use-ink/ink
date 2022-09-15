@@ -61,7 +61,6 @@ mod my_contract {
     mod tests {
         use super::*;
         use ink_env::test::EmittedEvent;
-        use ink_lang as ink;
 
         #[ink::test]
         fn event_must_have_unique_topics() {
