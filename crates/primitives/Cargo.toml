@@ -19,7 +19,7 @@ derive_more = { version = "0.99", default-features = false, features = ["from", 
 ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude/", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
-const-fnv1a-hash = "1.1.0"
+xxhash-rust = { version = "0.8", features = ["const_xxh32"] }
 
 [features]
 default = ["std"]

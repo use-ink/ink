@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use const_fnv1a_hash::fnv1a_hash_32;
 use ink_prelude::vec;
+use xxhash_rust::const_xxh32::xxh32;
+
+/// The value 0 is a valid seed.
+const XXH32_SEED: u32 = 0;
 
 /// A key into the smart contract storage.
 ///
@@ -38,7 +41,7 @@ impl KeyComposer {
             (0, 0) => 0,
             (0, _) => right,
             (_, 0) => left,
-            (left, right) => fnv1a_hash_32(&(left ^ right).to_be_bytes(), None),
+            (left, right) => xxh32(&(left ^ right).to_be_bytes(), XXH32_SEED),
         }
     }
 
@@ -53,7 +56,7 @@ impl KeyComposer {
             return 0
         }
 
-        fnv1a_hash_32(bytes, None)
+        xxh32(bytes, XXH32_SEED)
     }
 
     /// Evaluates the storage key of the field in the structure, variant or union.
@@ -91,6 +94,7 @@ impl KeyComposer {
         } else {
             vec![struct_name.as_bytes(), field_name.as_bytes()].join(separator)
         };
+
         Ok(Self::from_bytes(composed_key.as_slice()))
     }
 }
@@ -110,33 +114,33 @@ mod tests {
     fn concat_works_correct() {
         assert_eq!(KeyComposer::concat(0, 13), 13);
         assert_eq!(KeyComposer::concat(31, 0), 31);
-        assert_eq!(KeyComposer::concat(31, 13), 0x3995d8bf);
+        assert_eq!(KeyComposer::concat(31, 13), 0x9ab19a67);
         assert_eq!(KeyComposer::concat(0, 0), 0);
     }
 
     #[test]
     fn from_str_works_correct() {
         assert_eq!(KeyComposer::from_str(""), 0);
-        assert_eq!(KeyComposer::from_str("123"), 0x7238631b);
-        assert_eq!(KeyComposer::from_str("Hello world"), 0x594d29c7);
+        assert_eq!(KeyComposer::from_str("123"), 0xb6855437);
+        assert_eq!(KeyComposer::from_str("Hello world"), 0x9705d437);
     }
 
     #[test]
     fn from_bytes_works_correct() {
         assert_eq!(KeyComposer::from_bytes(b""), 0);
-        assert_eq!(KeyComposer::from_bytes(b"123"), 0x7238631b);
-        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x594d29c7);
+        assert_eq!(KeyComposer::from_bytes(b"123"), 0xb6855437);
+        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x9705d437);
     }
 
     #[test]
     fn compute_key_works_correct() {
         assert_eq!(
             KeyComposer::compute_key("Contract", "", "balances"),
-            Ok(0xe26930c6)
+            Ok(0xf820ff02)
         );
         assert_eq!(
             KeyComposer::compute_key("Enum", "Variant", "0"),
-            Ok(0x9e253b67)
+            Ok(0x14786b51)
         );
         assert_eq!(
             KeyComposer::compute_key("", "Variant", "0"),
