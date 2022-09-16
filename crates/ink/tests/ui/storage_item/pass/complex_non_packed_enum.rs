@@ -12,7 +12,7 @@ use ink_storage::{
 #[derive(Default, scale::Encode, scale::Decode)]
 #[cfg_attr(
     feature = "std",
-    derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
 enum Packed {
     #[default]
