@@ -214,7 +214,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     The user is able to use a variety of built-in facilities, combine them in various ways
 ///     or even provide their own implementations of storage data structures.
 ///
-///     For more information visit the `ink_storage` crate documentation.
+///     For more information visit the `ink::storage` crate documentation.
 ///
 ///     **Example:**
 ///
@@ -675,22 +675,22 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ```
 /// use ink_prelude::vec::Vec;
-/// use ink_storage::{
+/// use ink::storage::{
 ///     Lazy,
 ///     Mapping,
 /// };
-/// use ink_storage::traits::{
+/// use ink::storage::traits::{
 ///     StorageKey,
 ///     StorableHint,
 /// };
-/// use ink_storage::traits::Storable;
+/// use ink::storage::traits::Storable;
 ///
 /// // Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all
 /// // required traits to be storable.
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
 ///     feature = "std",
-///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
 /// struct Packed {
 ///     s1: u128,
@@ -703,9 +703,9 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
 ///     feature = "std",
-///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
-/// struct PackedGeneric<T: ink_storage::traits::Packed> {
+/// struct PackedGeneric<T: ink::storage::traits::Packed> {
 ///     s1: (u128, bool),
 ///     s2: Vec<T>,
 ///     s3: String,
@@ -723,9 +723,9 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #[derive(Storable, StorableHint, StorageKey)]
 /// #[cfg_attr(
 ///     feature = "std",
-///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
-/// struct NonPackedGeneric<T: ink_storage::traits::Packed> {
+/// struct NonPackedGeneric<T: ink::storage::traits::Packed> {
 ///     s1: u32,
 ///     s2: T,
 ///     s3: Mapping<u128, T>,
@@ -735,7 +735,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #[derive(scale::Decode, scale::Encode)]
 /// #[cfg_attr(
 ///     feature = "std",
-///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
 /// struct PackedComplex {
 ///     s1: u128,
@@ -753,7 +753,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     s5: Lazy<NonPacked>,
 ///     s6: PackedGeneric<Packed>,
 ///     s7: NonPackedGeneric<Packed>,
-///     // Fails because: the trait `ink_storage::traits::Packed` is not implemented for `NonPacked`
+///     // Fails because: the trait `ink::storage::traits::Packed` is not implemented for `NonPacked`
 ///     // s8: Mapping<u128, NonPacked>,
 /// }
 /// ```
@@ -770,16 +770,16 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///     **Usage Example:**
 ///     ```
-///     use ink_storage::Mapping;
-///     use ink_storage::traits::{
+///     use ink::storage::Mapping;
+///     use ink::storage::traits::{
 ///         StorableHint,
 ///         StorageKey,
 ///     };
-///     use ink_storage::traits::Storable;
+///     use ink::storage::traits::Storable;
 ///
 ///     #[ink::storage_item(derive = false)]
 ///     #[derive(StorableHint, Storable, StorageKey)]
-///     struct NonPackedGeneric<T: ink_storage::traits::Packed> {
+///     struct NonPackedGeneric<T: ink::storage::traits::Packed> {
 ///         s1: u32,
 ///         s2: Mapping<u128, T>,
 ///     }
@@ -1264,12 +1264,12 @@ pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 synstructure::decl_derive!(
     [Storable] =>
-    /// Derives `ink_storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
+    /// Derives `ink::storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use ink_storage::traits::Storable;
+    /// use ink::storage::traits::Storable;
     ///
     /// #[derive(Storable)]
     /// struct NamedFields {
@@ -1283,7 +1283,7 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorableHint] =>
-    /// Derives `ink_storage`'s `StorableHint` trait for the given `struct` or `enum`.
+    /// Derives `ink::storage`'s `StorableHint` trait for the given `struct` or `enum`.
     ///
     /// If the type declaration contains generic `StorageKey`,
     /// it will use it as salt to generate a combined storage key.
@@ -1291,14 +1291,14 @@ synstructure::decl_derive!(
     /// # Examples
     ///
     /// ```
-    /// use ink_storage::traits::{
+    /// use ink::storage::traits::{
+    ///     Storable,
     ///     StorableHint,
     ///     StorageKey,
     ///     AutoStorableHint,
     ///     AutoKey,
     ///     ManualKey,
     /// };
-    /// use ink_storage::traits::Storable;
     ///
     /// #[derive(Default, StorableHint, Storable)]
     /// struct NamedFields {
@@ -1313,12 +1313,12 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageKey] =>
-    /// Derives `ink_storage`'s `StorageKey` trait for the given `struct` or `enum`.
+    /// Derives `ink::storage`'s `StorageKey` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use ink_storage::traits::{
+    /// use ink::storage::traits::{
     ///     AutoStorableHint,
     ///     StorageKey,
     ///     ManualKey,
@@ -1347,13 +1347,13 @@ synstructure::decl_derive!(
 );
 synstructure::decl_derive!(
     [StorageLayout] =>
-    /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.
+    /// Derives `ink::storage`'s `StorageLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
     ///
     /// ```
     /// use ink_metadata::layout::Layout::Struct;
-    /// use ink_storage::traits::StorageLayout;
+    /// use ink::storage::traits::StorageLayout;
     ///
     /// #[derive(StorageLayout)]
     /// struct NamedFields {

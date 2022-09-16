@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage_layout_derive;
+use super::storage_layout_derive;
 
 #[test]
 fn unit_struct_works() {
