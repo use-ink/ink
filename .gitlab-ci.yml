@@ -29,7 +29,7 @@ variables:
   # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "ink/codegen storage/traits/codegen metadata engine"
+  PURELY_STD_CRATES:               "ink/codegen metadata engine"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro ink/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
