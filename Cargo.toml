@@ -15,7 +15,6 @@ members = [
     "crates/env",
     "crates/storage",
     "crates/storage/traits",
-    "crates/storage/traits/derive",
 ]
 exclude = [
     "examples/",

@@ -18,7 +18,6 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_metadata = { version = "4.0.0-alpha.1", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
 ink_primitives = { version = "4.0.0-alpha.1", path = "../../primitives", default-features = false }
 ink_prelude = { version = "4.0.0-alpha.1", path = "../../prelude", default-features = false }
-ink_storage_derive = { version = "4.0.0-alpha.1", path = "derive", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 syn = { version = "1", features = ["full"] }

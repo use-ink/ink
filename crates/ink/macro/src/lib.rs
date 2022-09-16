@@ -19,6 +19,7 @@ mod chain_extension;
 mod contract;
 mod ink_test;
 mod selector;
+mod storage;
 mod storage_item;
 mod trait_def;
 
@@ -1260,6 +1261,119 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
     chain_extension::generate(attr.into(), item.into()).into()
 }
+
+synstructure::decl_derive!(
+    [Storable] =>
+    /// Derives `ink_storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ink_storage::traits::Storable;
+    ///
+    /// #[derive(Storable)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 1],
+    /// }
+    ///
+    /// let value = <NamedFields as Storable>::decode(&mut &[123, 123][..]);
+    /// ```
+    storage::storable_derive
+);
+synstructure::decl_derive!(
+    [StorableHint] =>
+    /// Derives `ink_storage`'s `StorableHint` trait for the given `struct` or `enum`.
+    ///
+    /// If the type declaration contains generic `StorageKey`,
+    /// it will use it as salt to generate a combined storage key.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ink_storage::traits::{
+    ///     StorableHint,
+    ///     StorageKey,
+    ///     AutoStorableHint,
+    ///     AutoKey,
+    ///     ManualKey,
+    /// };
+    /// use ink_storage::traits::Storable;
+    ///
+    /// #[derive(Default, StorableHint, Storable)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 32],
+    /// }
+    ///
+    /// let _: NamedFields = <NamedFields as StorableHint<AutoKey>>::Type::default();
+    /// let _: NamedFields = <NamedFields as StorableHint<ManualKey<123>>>::Type::default();
+    /// ```
+    storage::storable_hint_derive
+);
+synstructure::decl_derive!(
+    [StorageKey] =>
+    /// Derives `ink_storage`'s `StorageKey` trait for the given `struct` or `enum`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ink_storage::traits::{
+    ///     AutoStorableHint,
+    ///     StorageKey,
+    ///     ManualKey,
+    ///     AutoKey,
+    /// };
+    ///
+    /// #[derive(StorageKey)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 32],
+    /// }
+    ///
+    /// assert_eq!(<NamedFields as StorageKey>::KEY, 0);
+    ///
+    /// #[derive(StorageKey)]
+    /// struct NamedFieldsManualKey<KEY: StorageKey> {
+    ///     a: <u32 as AutoStorableHint<ManualKey<0, KEY>>>::Type,
+    ///     b: <[u32; 32] as AutoStorableHint<ManualKey<1, KEY>>>::Type,
+    /// }
+    ///
+    /// assert_eq!(<NamedFieldsManualKey<()> as StorageKey>::KEY, 0);
+    /// assert_eq!(<NamedFieldsManualKey<AutoKey> as StorageKey>::KEY, 0);
+    /// assert_eq!(<NamedFieldsManualKey<ManualKey<123>> as StorageKey>::KEY, 123);
+    /// ```
+    storage::storage_key_derive
+);
+synstructure::decl_derive!(
+    [StorageLayout] =>
+    /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ink_metadata::layout::Layout::Struct;
+    /// use ink_storage::traits::StorageLayout;
+    ///
+    /// #[derive(StorageLayout)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 32],
+    /// }
+    ///
+    /// let key = 0x123;
+    /// let mut value = NamedFields {
+    ///     a: 123,
+    ///     b: [22; 32],
+    /// };
+    ///
+    /// if let Struct(layout) = <NamedFields as StorageLayout>::layout(&key) {
+    ///     assert_eq!(*layout.fields()[0].name(), "a");
+    ///     assert_eq!(*layout.fields()[1].name(), "b");
+    /// }
+    /// ```
+    storage::storage_layout_derive
+);
 
 #[cfg(test)]
 pub use contract::generate_or_err;

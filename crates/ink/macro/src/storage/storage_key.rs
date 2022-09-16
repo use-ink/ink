@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_storage_codegen::DeriveUtils;
+use ink_ir::utils::find_storage_key_salt;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -23,7 +23,7 @@ pub fn storage_key_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.add_bounds(synstructure::AddBounds::None)
         .underscore_const(true);
 
-    let salt = if let Some(param) = s.ast().find_salt() {
+    let salt = if let Some(param) = find_storage_key_salt(s.ast()) {
         param.ident.to_token_stream()
     } else {
         quote! { () }
