@@ -34,11 +34,6 @@ variables:
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
-  # We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
-  # features still work on stable. This is done automatically by
-  # `cargo-contract`, but in our CI here we also use e.g.
-  # `cargo check` directly.
-  RUSTC_BOOTSTRAP:                 "1"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.

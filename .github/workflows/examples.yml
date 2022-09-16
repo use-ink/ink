@@ -35,11 +35,6 @@ jobs:
       UPGRADEABLE_CONTRACTS:    "forward-calls set-code-hash"
       DELEGATOR_SUBCONTRACTS:   "accumulator adder subber"
       RUST_BACKTRACE:           full
-      # We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
-      # features still work on stable. This is done automatically by
-      # `cargo-contract`, but in our CI here we also use e.g.
-      # `cargo check` directly.
-      RUSTC_BOOTSTRAP:          "1"
     steps:
 
       - uses: actions/setup-node@v3
