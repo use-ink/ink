@@ -32,7 +32,22 @@ pub use ink_env as env;
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
-pub use ink_storage as storage;
+
+pub mod storage {
+    pub mod traits {
+        pub use ink_storage::traits::*;
+        pub use ink_macro::{
+            Storable,
+            StorableHint,
+            StorageKey,
+            StorageLayout,
+        };
+    }
+    pub use ink_storage::{
+        Lazy,
+        Mapping,
+    };
+}
 
 pub use self::{
     chain_extension::{
