@@ -30,8 +30,8 @@ pub fn storage_key_derive(mut s: synstructure::Structure) -> TokenStream2 {
     };
 
     s.gen_impl(quote! {
-        gen impl ::ink_storage::traits::StorageKey for @Self {
-            const KEY: ::ink_primitives::Key = <#salt as ::ink_storage::traits::StorageKey>::KEY;
+        gen impl ::ink::storage::traits::StorageKey for @Self {
+            const KEY: ::ink::primitives::Key = <#salt as ::ink::storage::traits::StorageKey>::KEY;
         }
     })
 }

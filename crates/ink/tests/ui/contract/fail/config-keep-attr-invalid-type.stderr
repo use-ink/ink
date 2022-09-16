@@ -1,0 +1,5 @@
+error: expected a string with attributes separated by `,`
+ --> tests/ui/contract/fail/config-keep-attr-invalid-type.rs:1:17
+  |
+1 | #[ink::contract(keep_attr = true)]
+  |                 ^^^^^^^^^^^^^^^^

@@ -22,10 +22,10 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for UnitStruct {
-                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                        ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new(::core::stringify!(UnitStruct), [])
+                impl ::ink::storage::traits::StorageLayout for UnitStruct {
+                    fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                        ::ink::metadata::layout::Layout::Struct(
+                            ::ink::metadata::layout::StructLayout::new(::core::stringify!(UnitStruct), [])
                         )
                     }
                 }
@@ -42,23 +42,23 @@ fn tuple_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for TupleStruct {
-                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                        ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new(
+                impl ::ink::storage::traits::StorageLayout for TupleStruct {
+                    fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                        ::ink::metadata::layout::Layout::Struct(
+                            ::ink::metadata::layout::StructLayout::new(
                                 ::core::stringify!(TupleStruct),
                                 [
-                                    ::ink_metadata::layout::FieldLayout::new(
+                                    ::ink::metadata::layout::FieldLayout::new(
                                         "0",
-                                        <bool as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                        <bool as ::ink::storage::traits::StorageLayout>::layout(__key),
                                     ),
-                                    ::ink_metadata::layout::FieldLayout::new(
+                                    ::ink::metadata::layout::FieldLayout::new(
                                         "1",
-                                        <u32 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                        <u32 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                     ),
-                                    ::ink_metadata::layout::FieldLayout::new(
+                                    ::ink::metadata::layout::FieldLayout::new(
                                         "2",
-                                        <i64 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                        <i64 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                     ),
                                 ]
                             )
@@ -82,23 +82,23 @@ fn named_fields_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for NamedFieldsStruct {
-                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                        ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new(
+                impl ::ink::storage::traits::StorageLayout for NamedFieldsStruct {
+                    fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                        ::ink::metadata::layout::Layout::Struct(
+                            ::ink::metadata::layout::StructLayout::new(
                                 ::core::stringify!(NamedFieldsStruct),
                                 [
-                                    ::ink_metadata::layout::FieldLayout::new(
+                                    ::ink::metadata::layout::FieldLayout::new(
                                         "a",
-                                        <bool as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                        <bool as ::ink::storage::traits::StorageLayout>::layout(__key),
                                     ),
-                                    ::ink_metadata::layout::FieldLayout::new(
+                                    ::ink::metadata::layout::FieldLayout::new(
                                         "b",
-                                        <u32 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                        <u32 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                     ),
-                                    ::ink_metadata::layout::FieldLayout::new(
+                                    ::ink::metadata::layout::FieldLayout::new(
                                         "c",
-                                        <i64 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                        <i64 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                     ),
                                 ]
                             )
@@ -118,33 +118,33 @@ fn clike_enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for ClikeEnum {
-                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                        ::ink_metadata::layout::Layout::Enum(
-                            ::ink_metadata::layout::EnumLayout::new(
+                impl ::ink::storage::traits::StorageLayout for ClikeEnum {
+                    fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                        ::ink::metadata::layout::Layout::Enum(
+                            ::ink::metadata::layout::EnumLayout::new(
                                 ::core::stringify!(ClikeEnum),
-                                ::ink_metadata::layout::LayoutKey::from(__key),
+                                ::ink::metadata::layout::LayoutKey::from(__key),
                                 [
                                     {
                                         (
-                                            ::ink_metadata::layout::Discriminant::from(0usize),
-                                            ::ink_metadata::layout::StructLayout::new(
+                                            ::ink::metadata::layout::Discriminant::from(0usize),
+                                            ::ink::metadata::layout::StructLayout::new(
                                                 ::core::stringify!(A), []
                                             ),
                                         )
                                     },
                                     {
                                         (
-                                            ::ink_metadata::layout::Discriminant::from(1usize),
-                                            ::ink_metadata::layout::StructLayout::new(
+                                            ::ink::metadata::layout::Discriminant::from(1usize),
+                                            ::ink::metadata::layout::StructLayout::new(
                                                 ::core::stringify!(B), []
                                             ),
                                         )
                                     },
                                     {
                                         (
-                                            ::ink_metadata::layout::Discriminant::from(2usize),
-                                            ::ink_metadata::layout::StructLayout::new(
+                                            ::ink::metadata::layout::Discriminant::from(2usize),
+                                            ::ink::metadata::layout::StructLayout::new(
                                                 ::core::stringify!(C), []
                                             ),
                                         )
@@ -175,38 +175,38 @@ fn mixed_enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageLayout for MixedEnum {
-                    fn layout(__key: &::ink_primitives::Key) -> ::ink_metadata::layout::Layout {
-                        ::ink_metadata::layout::Layout::Enum(
-                            ::ink_metadata::layout::EnumLayout::new(
+                impl ::ink::storage::traits::StorageLayout for MixedEnum {
+                    fn layout(__key: &::ink::primitives::Key) -> ::ink::metadata::layout::Layout {
+                        ::ink::metadata::layout::Layout::Enum(
+                            ::ink::metadata::layout::EnumLayout::new(
                                 ::core::stringify!(MixedEnum),
-                                ::ink_metadata::layout::LayoutKey::from(__key),
+                                ::ink::metadata::layout::LayoutKey::from(__key),
                                 [
                                     {
                                         (
-                                            ::ink_metadata::layout::Discriminant::from(0usize),
-                                            ::ink_metadata::layout::StructLayout::new(
+                                            ::ink::metadata::layout::Discriminant::from(0usize),
+                                            ::ink::metadata::layout::StructLayout::new(
                                                 ::core::stringify!(A), []
                                             ),
                                         )
                                     },
                                     {
                                         (
-                                            ::ink_metadata::layout::Discriminant::from(1usize),
-                                            ::ink_metadata::layout::StructLayout::new(
+                                            ::ink::metadata::layout::Discriminant::from(1usize),
+                                            ::ink::metadata::layout::StructLayout::new(
                                                 ::core::stringify!(B),
                                                 [
-                                                    ::ink_metadata::layout::FieldLayout::new(
+                                                    ::ink::metadata::layout::FieldLayout::new(
                                                         "0",
-                                                        <bool as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                                        <bool as ::ink::storage::traits::StorageLayout>::layout(__key),
                                                     ),
-                                                    ::ink_metadata::layout::FieldLayout::new(
+                                                    ::ink::metadata::layout::FieldLayout::new(
                                                         "1",
-                                                        <u32 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                                        <u32 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                                     ),
-                                                    ::ink_metadata::layout::FieldLayout::new(
+                                                    ::ink::metadata::layout::FieldLayout::new(
                                                         "2",
-                                                        <i64 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                                        <i64 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                                     ),
                                                 ]
                                             ),
@@ -214,21 +214,21 @@ fn mixed_enum_works() {
                                     },
                                     {
                                         (
-                                            ::ink_metadata::layout::Discriminant::from(2usize),
-                                            ::ink_metadata::layout::StructLayout::new(
+                                            ::ink::metadata::layout::Discriminant::from(2usize),
+                                            ::ink::metadata::layout::StructLayout::new(
                                                 ::core::stringify!(C),
                                                 [
-                                                    ::ink_metadata::layout::FieldLayout::new(
+                                                    ::ink::metadata::layout::FieldLayout::new(
                                                         "a",
-                                                        <bool as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                                        <bool as ::ink::storage::traits::StorageLayout>::layout(__key),
                                                     ),
-                                                    ::ink_metadata::layout::FieldLayout::new(
+                                                    ::ink::metadata::layout::FieldLayout::new(
                                                         "b",
-                                                        <u32 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                                        <u32 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                                     ),
-                                                    ::ink_metadata::layout::FieldLayout::new(
+                                                    ::ink::metadata::layout::FieldLayout::new(
                                                         "c",
-                                                        <i64 as ::ink_storage::traits::StorageLayout>::layout(__key),
+                                                        <i64 as ::ink::storage::traits::StorageLayout>::layout(__key),
                                                     ),
                                                 ]
                                             ),

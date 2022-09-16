@@ -1,0 +1,5 @@
+error: ink! messages must not return `Self`
+  --> tests/ui/contract/fail/message-returns-self.rs:13:39
+   |
+13 |         pub fn returns_self(&self) -> Self {}
+   |                                       ^^^^

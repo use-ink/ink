@@ -15,7 +15,7 @@
 //! Definitions and utilities for calling chain extension methods.
 //!
 //! Users should not use these types and definitions directly but rather use the provided
-//! `#[ink::chain_extension]` procedural macro defined in the `ink_lang` crate.
+//! `#[ink::chain_extension]` procedural macro defined in the `ink` crate.
 
 use crate::{
     backend::EnvBackend,

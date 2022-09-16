@@ -22,8 +22,8 @@ fn unit_struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageKey for UnitStruct {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
+                impl ::ink::storage::traits::StorageKey for UnitStruct {
+                    const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -39,8 +39,8 @@ fn unit_struct_generic_works() {
         }
         expands to {
             const _: () = {
-                impl<T> ::ink_storage::traits::StorageKey for UnitStruct<T> {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
+                impl<T> ::ink::storage::traits::StorageKey for UnitStruct<T> {
+                    const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -52,12 +52,12 @@ fn unit_struct_generic_works() {
 fn unit_struct_salt_works() {
     crate::test_derive! {
         storage_key_derive {
-            struct UnitStruct<Salt: ::ink_storage::traits::StorageKey>;
+            struct UnitStruct<Salt: ::ink::storage::traits::StorageKey>;
         }
         expands to {
             const _: () = {
-                impl<Salt: ::ink_storage::traits::StorageKey> ::ink_storage::traits::StorageKey for UnitStruct<Salt> {
-                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::StorageKey>::KEY;
+                impl<Salt: ::ink::storage::traits::StorageKey> ::ink::storage::traits::StorageKey for UnitStruct<Salt> {
+                    const KEY: ::ink::primitives::Key = <Salt as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -77,8 +77,8 @@ fn struct_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageKey for NamedFields {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
+                impl ::ink::storage::traits::StorageKey for NamedFields {
+                    const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -98,8 +98,8 @@ fn struct_generic_works() {
         }
         expands to {
             const _: () = {
-                impl<T> ::ink_storage::traits::StorageKey for NamedFields<T> {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
+                impl<T> ::ink::storage::traits::StorageKey for NamedFields<T> {
+                    const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -119,8 +119,8 @@ fn struct_salt_works() {
         }
         expands to {
             const _: () = {
-                impl<Salt: StorageKey> ::ink_storage::traits::StorageKey for NamedFields<Salt> {
-                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::StorageKey>::KEY;
+                impl<Salt: StorageKey> ::ink::storage::traits::StorageKey for NamedFields<Salt> {
+                    const KEY: ::ink::primitives::Key = <Salt as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -140,8 +140,8 @@ fn enum_works() {
         }
         expands to {
             const _: () = {
-                impl ::ink_storage::traits::StorageKey for MixedEnum {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
+                impl ::ink::storage::traits::StorageKey for MixedEnum {
+                    const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -161,8 +161,8 @@ fn enum_generic_works() {
         }
         expands to {
             const _: () = {
-                impl<T> ::ink_storage::traits::StorageKey for MixedEnum<T> {
-                    const KEY: ::ink_primitives::Key = <() as ::ink_storage::traits::StorageKey>::KEY;
+                impl<T> ::ink::storage::traits::StorageKey for MixedEnum<T> {
+                    const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }
@@ -182,8 +182,8 @@ fn enum_salt_works() {
         }
         expands to {
             const _: () = {
-                impl<Salt: traits::StorageKey> ::ink_storage::traits::StorageKey for MixedEnum<Salt> {
-                    const KEY: ::ink_primitives::Key = <Salt as ::ink_storage::traits::StorageKey>::KEY;
+                impl<Salt: traits::StorageKey> ::ink::storage::traits::StorageKey for MixedEnum<Salt> {
+                    const KEY: ::ink::primitives::Key = <Salt as ::ink::storage::traits::StorageKey>::KEY;
                 }
             };
         }

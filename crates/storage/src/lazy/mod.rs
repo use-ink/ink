@@ -57,8 +57,7 @@ use scale::{
 ///
 /// This is an example of how you can do this:
 /// ```rust
-/// # use ink_lang as ink;
-/// # use ink_env::{
+/// # use ink::env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
 /// # };
@@ -66,7 +65,7 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink_storage::{traits::ManualKey, Lazy};
+/// use ink::storage::{traits::ManualKey, Lazy};
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]

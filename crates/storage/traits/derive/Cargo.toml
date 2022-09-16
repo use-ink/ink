@@ -25,9 +25,7 @@ synstructure = "0.12.4"
 ink_storage_codegen = { version = "4.0.0-alpha.1", path = "../codegen" }
 
 [dev-dependencies]
-ink_env = { path = "../../../env" }
+ink = { path = "../../../ink" }
 ink_metadata = { path = "../../../metadata" }
-ink_prelude = { path = "../../../prelude" }
-ink_primitives = { path = "../../../primitives" }
 ink_storage = { path = "../.." }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }

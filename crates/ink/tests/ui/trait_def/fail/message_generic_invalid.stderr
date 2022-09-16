@@ -1,0 +1,5 @@
+error: generic ink! trait methods are not supported
+ --> tests/ui/trait_def/fail/message_generic_invalid.rs:4:20
+  |
+4 |     fn message_ref<T>(&self);
+  |                    ^

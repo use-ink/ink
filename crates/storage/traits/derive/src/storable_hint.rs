@@ -30,7 +30,7 @@ fn storable_hint_inner(s: synstructure::Structure) -> TokenStream2 {
 
     let mut generics = s.ast().generics.clone();
     generics.params.push(
-        parse2(quote! { #salt_ident : ::ink_storage::traits::StorageKey }).unwrap(),
+        parse2(quote! { #salt_ident : ::ink::storage::traits::StorageKey }).unwrap(),
     );
 
     let (impl_generics, _, where_clause) = generics.split_for_impl();
@@ -61,16 +61,16 @@ fn storable_hint_inner(s: synstructure::Structure) -> TokenStream2 {
             .collect();
 
         quote! {
-            impl #impl_generics ::ink_storage::traits::StorableHint<#salt_ident> for #ident #ty_generics_original #where_clause {
+            impl #impl_generics ::ink::storage::traits::StorableHint<#salt_ident> for #ident #ty_generics_original #where_clause {
                 type Type = #ident <#(#ty_generics),*>;
                 type PreferredKey = #inner_salt_ident;
             }
         }
     } else {
         quote! {
-            impl #impl_generics ::ink_storage::traits::StorableHint<#salt_ident> for #ident #ty_generics_original #where_clause {
+            impl #impl_generics ::ink::storage::traits::StorableHint<#salt_ident> for #ident #ty_generics_original #where_clause {
                 type Type = #ident #ty_generics_original;
-                type PreferredKey = ::ink_storage::traits::AutoKey;
+                type PreferredKey = ::ink::storage::traits::AutoKey;
             }
         }
     }
