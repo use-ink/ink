@@ -282,7 +282,7 @@ docs:
   script:
     - cargo doc --no-deps --all-features
         -p scale-info -p ink_metadata -p ink_env
-        -p ink_storage -p ink_storage_traits -p ink_storage_codegen -p ink_storage_derive
+        -p ink_storage -p ink_storage_traits -p ink_storage_derive
         -p ink_primitives -p ink_prelude
         -p ink -p ink_macro -p ink_ir -p ink_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
