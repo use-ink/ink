@@ -110,33 +110,33 @@ mod tests {
     fn concat_works_correct() {
         assert_eq!(KeyComposer::concat(0, 13), 13);
         assert_eq!(KeyComposer::concat(31, 0), 31);
-        assert_eq!(KeyComposer::concat(31, 13), 0xD83A5CD8);
+        assert_eq!(KeyComposer::concat(31, 13), 0x3995d8bf);
         assert_eq!(KeyComposer::concat(0, 0), 0);
     }
 
     #[test]
     fn from_str_works_correct() {
         assert_eq!(KeyComposer::from_str(""), 0);
-        assert_eq!(KeyComposer::from_str("123"), 0xa665a459);
-        assert_eq!(KeyComposer::from_str("Hello world"), 0x64ec88ca);
+        assert_eq!(KeyComposer::from_str("123"), 0x7238631b);
+        assert_eq!(KeyComposer::from_str("Hello world"), 0x594d29c7);
     }
 
     #[test]
     fn from_bytes_works_correct() {
         assert_eq!(KeyComposer::from_bytes(b""), 0);
-        assert_eq!(KeyComposer::from_bytes(b"123"), 0xa665a459);
-        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x64ec88ca);
+        assert_eq!(KeyComposer::from_bytes(b"123"), 0x7238631b);
+        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x594d29c7);
     }
 
     #[test]
     fn compute_key_works_correct() {
         assert_eq!(
             KeyComposer::compute_key("Contract", "", "balances"),
-            Ok(0x05e859ec)
+            Ok(0xe26930c6)
         );
         assert_eq!(
             KeyComposer::compute_key("Enum", "Variant", "0"),
-            Ok(0x9d029590)
+            Ok(0x9e253b67)
         );
         assert_eq!(
             KeyComposer::compute_key("", "Variant", "0"),
