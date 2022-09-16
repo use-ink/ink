@@ -35,13 +35,13 @@ pub use ink_primitives as primitives;
 
 pub mod storage {
     pub mod traits {
-        pub use ink_storage::traits::*;
         pub use ink_macro::{
             Storable,
             StorableHint,
             StorageKey,
             StorageLayout,
         };
+        pub use ink_storage::traits::*;
     }
     pub use ink_storage::{
         Lazy,

@@ -61,7 +61,9 @@ impl StorageItem {
     /// Returns all types that were used in the storage declaration.
     pub fn all_used_types(&self) -> Vec<syn::Type> {
         let res: Vec<_> = match self.data().clone() {
-            syn::Data::Struct(st) => st.fields.iter().map(|field| field.ty.clone()).collect(),
+            syn::Data::Struct(st) => {
+                st.fields.iter().map(|field| field.ty.clone()).collect()
+            }
             syn::Data::Enum(en) => {
                 en.variants
                     .iter()

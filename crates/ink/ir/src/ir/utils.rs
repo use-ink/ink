@@ -152,7 +152,7 @@ pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam>
     input.generics.params.iter().find_map(|param| {
         if let syn::GenericParam::Type(type_param) = param {
             if let Some(syn::TypeParamBound::Trait(trait_bound)) =
-            type_param.bounds.first()
+                type_param.bounds.first()
             {
                 let segments = &trait_bound.path.segments;
                 if let Some(last) = segments.last() {
