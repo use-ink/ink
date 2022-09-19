@@ -18,7 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_env = { version = "4.0.0-alpha.1", path = "../env/", default-features = false }
 ink_metadata = { version = "4.0.0-alpha.1", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
 ink_primitives = { version = "4.0.0-alpha.1", path = "../primitives/", default-features = false }
-ink_storage_derive = { version = "4.0.0-alpha.1", path = "derive", default-features = false }
+ink_storage_traits = { version = "4.0.0-alpha.1", path = "traits", default-features = false }
 ink_prelude = { version = "4.0.0-alpha.1", path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
@@ -31,9 +31,8 @@ array-init = { version = "2.0", default-features = false }
 quickcheck = "1.0"
 quickcheck_macros = "1.0"
 itertools = "0.10"
-paste = "1.0"
 
-ink_lang = { path = "../lang", default-features = false }
+ink = { path = "../ink" }
 
 [features]
 default = ["std"]
@@ -42,6 +41,7 @@ std = [
     "ink_env/std",
     "ink_prelude/std",
     "ink_primitives/std",
+    "ink_storage_traits/std",
     "scale/std",
     "scale-info/std",
 ]

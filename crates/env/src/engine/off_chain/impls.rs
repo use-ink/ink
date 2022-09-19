@@ -44,7 +44,7 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_primitives::traits::Storable;
+use ink_storage_traits::Storable;
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size

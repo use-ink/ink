@@ -125,8 +125,6 @@ It provides methods to
 Below you can see the code using the `ink_lang` version of ink!.
 
 ```rust
-use ink_lang as ink;
-
 #[ink::contract]
 mod flipper {
     /// The storage of the flipper contract.
@@ -164,8 +162,7 @@ mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
-
+        
         #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
