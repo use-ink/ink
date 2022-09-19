@@ -29,16 +29,11 @@ variables:
   # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "lang/codegen storage/traits/codegen metadata engine"
-  ALSO_WASM_CRATES:                "env storage storage/traits storage/traits/derive allocator prelude primitives lang lang/macro lang/ir"
+  PURELY_STD_CRATES:               "ink/codegen storage/traits/codegen metadata engine"
+  ALSO_WASM_CRATES:                "env storage storage/traits storage/traits/derive allocator prelude primitives ink ink/macro ink/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
-  # We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
-  # features still work on stable. This is done automatically by
-  # `cargo-contract`, but in our CI here we also use e.g.
-  # `cargo check` directly.
-  RUSTC_BOOTSTRAP:                 "1"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
@@ -115,8 +110,8 @@ fmt:
   script:
     - cargo +nightly fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo +nightly fmt --verbose --all -- --check ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
 examples-fmt:
@@ -302,10 +297,10 @@ docs:
     - cargo doc --no-deps --all-features -p ink_storage_derive
     - cargo doc --no-deps --all-features -p ink_primitives
     - cargo doc --no-deps --all-features -p ink_prelude
-    - cargo doc --no-deps --all-features -p ink_lang
-    - cargo doc --no-deps --all-features -p ink_lang_macro
-    - cargo doc --no-deps --all-features -p ink_lang_ir
-    - cargo doc --no-deps --all-features -p ink_lang_codegen
+    - cargo doc --no-deps --all-features -p ink
+    - cargo doc --no-deps --all-features -p ink_macro
+    - cargo doc --no-deps --all-features -p ink_ir
+    - cargo doc --no-deps --all-features -p ink_codegen
     - cargo doc --no-deps --all-features -p ink_metadata
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
@@ -385,7 +380,7 @@ examples-contract-build:
   <<:                              *test-refs
   script:
     - rustup component add rust-src --toolchain stable
-    - cargo install cargo-contract --version 2.0.0-alpha.1 --force
+    - cargo install cargo-contract --git https://github.com/paritytech/cargo-contract --branch aj/ink_crate --force
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;

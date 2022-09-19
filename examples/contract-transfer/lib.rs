@@ -4,8 +4,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::new_without_default)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod give_me {
     /// No storage is needed for this simple contract.
@@ -30,8 +28,8 @@ pub mod give_me {
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: Balance) {
-            ink_env::debug_println!("requested value: {}", value);
-            ink_env::debug_println!("contract balance: {}", self.env().balance());
+            ink::env::debug_println!("requested value: {}", value);
+            ink::env::debug_println!("contract balance: {}", self.env().balance());
 
             assert!(value <= self.env().balance(), "insufficient funds!");
 
@@ -54,7 +52,7 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
-            ink_env::debug_println!(
+            ink::env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_value()
             );
@@ -65,7 +63,6 @@ pub mod give_me {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn transfer_works() {
@@ -101,7 +98,7 @@ pub mod give_me {
 
         #[ink::test]
         fn test_transferred_value() {
-            use ink_lang::codegen::Env;
+            use ink::codegen::Env;
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);
@@ -117,7 +114,7 @@ pub mod give_me {
             // then
             // we use helper macro to emulate method invocation coming with payment,
             // and there must be no panic
-            ink_env::pay_with_call!(give_me.was_it_ten(), 10);
+            ink::env::pay_with_call!(give_me.was_it_ten(), 10);
 
             // and
             // balances should be changed properly
@@ -140,7 +137,7 @@ pub mod give_me {
             // the `mock_transferred_value` as the value which the contract
             // will see as transferred to it.
             set_sender(accounts.eve);
-            ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(13);
+            ink::env::test::set_value_transferred::<ink::env::DefaultEnvironment>(13);
 
             // then
             give_me.was_it_ten();
@@ -157,27 +154,29 @@ pub mod give_me {
         }
 
         fn contract_id() -> AccountId {
-            ink_env::test::callee::<ink_env::DefaultEnvironment>()
+            ink::env::test::callee::<ink::env::DefaultEnvironment>()
         }
 
         fn set_sender(sender: AccountId) {
-            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(sender);
         }
 
         fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
         }
 
         fn set_balance(account_id: AccountId, balance: Balance) {
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 account_id, balance,
             )
         }
 
         fn get_balance(account_id: AccountId) -> Balance {
-            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account_id)
-                .expect("Cannot get account balance")
+            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
+                account_id,
+            )
+            .expect("Cannot get account balance")
         }
     }
 

@@ -1,0 +1,5 @@
+error: missing ink! storage struct
+ --> tests/ui/contract/fail/module-missing-storage.rs:2:1
+  |
+2 | mod contract {
+  | ^^^

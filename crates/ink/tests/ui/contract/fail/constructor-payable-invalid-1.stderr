@@ -1,0 +1,5 @@
+error: unknown ink! attribute argument (name = value)
+ --> tests/ui/contract/fail/constructor-payable-invalid-1.rs:7:28
+  |
+7 |         #[ink(constructor, payable = true)]
+  |                            ^^^^^^^^^^^^^^
