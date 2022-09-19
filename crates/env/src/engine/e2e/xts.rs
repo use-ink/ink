@@ -195,7 +195,7 @@ where
             data: data.into(),
             salt: salt.into(),
         };
-
+        // TODO(#xxx) Dry-run has to use the `state_call` RPC.
         let params = rpc_params![call_request];
         self.ws_client
             .request("contracts_instantiate", params)
@@ -288,6 +288,7 @@ where
             }),
             input_data: Bytes(data),
         };
+        // TODO(#xxx) Dry-run has to use the `state_call` RPC.
         let params = rpc_params![call_request];
         self.ws_client
             .request("contracts_call", params)
