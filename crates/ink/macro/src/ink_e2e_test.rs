@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_lang_codegen::generate_code;
+use ink_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
@@ -24,6 +24,6 @@ pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
-    let test_definition = ink_lang_ir::InkE2ETest::new(attr, input)?;
+    let test_definition = ink_ir::InkE2ETest::new(attr, input)?;
     Ok(generate_code(&test_definition))
 }

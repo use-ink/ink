@@ -862,7 +862,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     **Usage Example:**
 ///     ```no_compile
 ///     # // TODO(#xxx) Remove the `no_compile`.
-///     # use ink_lang as ink;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
 ///     async fn e2e_contract_must_transfer_value_to_sender(
@@ -881,7 +880,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     **Usage Example:**
 ///     ```no_compile
 ///     # // TODO(#xxx) Remove the `no_compile`.
-///     # use ink_lang as ink;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
 ///     async fn e2e_contract_must_transfer_value_to_sender(
@@ -902,7 +900,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     **Usage Example:**
 ///     ```no_compile
 ///     # // TODO(#xxx) Remove the `no_compile`.
-///     # use ink_lang as ink;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(skip_build = true)]
 ///     async fn e2e_contract_must_transfer_value_to_sender(
@@ -918,8 +915,6 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ```no_compile
 /// # // TODO(#xxx) Remove the `no_compile`.
-/// use ink_lang as ink;
-///
 /// #[cfg(test)]
 /// mod tests {
 ///     use ink_env::e2e::*;

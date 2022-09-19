@@ -183,8 +183,7 @@ pub mod give_me {
     #[cfg(test)]
     mod e2e_tests {
         use super::*;
-        use ink_env::e2e::*;
-        use ink_lang as ink;
+        use ink::env::e2e::*;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
