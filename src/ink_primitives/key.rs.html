@@ -158,11 +158,6 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -178,7 +173,10 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="ident">ink_prelude::vec</span>;
-<span class="kw">use</span> <span class="ident">sha2_const::Sha256</span>;
+<span class="kw">use</span> <span class="ident">xxhash_rust::const_xxh32::xxh32</span>;
+
+<span class="doccomment">/// The value 0 is a valid seed.</span>
+<span class="kw">const</span> <span class="ident">XXH32_SEED</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
 
 <span class="doccomment">/// A key into the smart contract storage.</span>
 <span class="doccomment">///</span>
@@ -198,18 +196,12 @@
     <span class="doccomment">/// Concatenate two `Key` into one during compilation.</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">concat</span>(<span class="ident">left</span>: <span class="ident">Key</span>, <span class="ident">right</span>: <span class="ident">Key</span>) -&gt; <span class="ident">Key</span> {
         <span class="comment">// If one of the keys is zero, then return another without hashing.</span>
-        <span class="comment">// If both keys are non-zero, return the hash of both keys.</span>
+        <span class="comment">// If both keys are non-zero, return the hash of the XOR difference of both keys.</span>
         <span class="kw">match</span> (<span class="ident">left</span>, <span class="ident">right</span>) {
             (<span class="number">0</span>, <span class="number">0</span>) =&gt; <span class="number">0</span>,
             (<span class="number">0</span>, <span class="kw">_</span>) =&gt; <span class="ident">right</span>,
             (<span class="kw">_</span>, <span class="number">0</span>) =&gt; <span class="ident">left</span>,
-            (<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">Sha256::new</span>()
-                    .<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">left</span>.<span class="ident">to_be_bytes</span>())
-                    .<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">to_be_bytes</span>())
-                    .<span class="ident">finalize</span>();
-                <span class="ident">Key::from_be_bytes</span>([<span class="ident">hash</span>[<span class="number">0</span>], <span class="ident">hash</span>[<span class="number">1</span>], <span class="ident">hash</span>[<span class="number">2</span>], <span class="ident">hash</span>[<span class="number">3</span>]])
-            }
+            (<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">xxh32</span>(<span class="kw-2">&amp;</span>(<span class="ident">left</span> <span class="op">^</span> <span class="ident">right</span>).<span class="ident">to_be_bytes</span>(), <span class="ident">XXH32_SEED</span>),
         }
     }
 
@@ -224,8 +216,7 @@
             <span class="kw">return</span> <span class="number">0</span>
         }
 
-        <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">Sha256::new</span>().<span class="ident">update</span>(<span class="ident">bytes</span>).<span class="ident">finalize</span>();
-        <span class="ident">Key::from_be_bytes</span>([<span class="ident">hash</span>[<span class="number">0</span>], <span class="ident">hash</span>[<span class="number">1</span>], <span class="ident">hash</span>[<span class="number">2</span>], <span class="ident">hash</span>[<span class="number">3</span>]])
+        <span class="ident">xxh32</span>(<span class="ident">bytes</span>, <span class="ident">XXH32_SEED</span>)
     }
 
     <span class="doccomment">/// Evaluates the storage key of the field in the structure, variant or union.</span>
@@ -234,8 +225,7 @@
     <span class="doccomment">/// 1. If `variant_name` is not empty then computes the ASCII byte representation and call it `V`.</span>
     <span class="doccomment">/// 1. Compute the ASCII byte representation of `field_name` and call it `F`.</span>
     <span class="doccomment">/// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.</span>
-    <span class="doccomment">/// 1. Apply the `SHA2` 256-bit hash `H` of `C`.</span>
-    <span class="doccomment">/// 1. The first 4 bytes of `H` make up the storage key.</span>
+    <span class="doccomment">/// 1. The `FNV1A` 32-bit hash of `C` is the storage key.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
@@ -284,33 +274,33 @@
     <span class="kw">fn</span> <span class="ident">concat_works_correct</span>() {
         <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::concat</span>(<span class="number">0</span>, <span class="number">13</span>), <span class="number">13</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::concat</span>(<span class="number">31</span>, <span class="number">0</span>), <span class="number">31</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::concat</span>(<span class="number">31</span>, <span class="number">13</span>), <span class="number">0xD83A5CD8</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::concat</span>(<span class="number">31</span>, <span class="number">13</span>), <span class="number">0x9ab19a67</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::concat</span>(<span class="number">0</span>, <span class="number">0</span>), <span class="number">0</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_str_works_correct</span>() {
         <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_str</span>(<span class="string">&quot;&quot;</span>), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_str</span>(<span class="string">&quot;123&quot;</span>), <span class="number">0xa665a459</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_str</span>(<span class="string">&quot;Hello world&quot;</span>), <span class="number">0x64ec88ca</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_str</span>(<span class="string">&quot;123&quot;</span>), <span class="number">0xb6855437</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_str</span>(<span class="string">&quot;Hello world&quot;</span>), <span class="number">0x9705d437</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_bytes_works_correct</span>() {
         <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_bytes</span>(<span class="string">b&quot;&quot;</span>), <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_bytes</span>(<span class="string">b&quot;123&quot;</span>), <span class="number">0xa665a459</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_bytes</span>(<span class="string">b&quot;Hello world&quot;</span>), <span class="number">0x64ec88ca</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_bytes</span>(<span class="string">b&quot;123&quot;</span>), <span class="number">0xb6855437</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">KeyComposer::from_bytes</span>(<span class="string">b&quot;Hello world&quot;</span>), <span class="number">0x9705d437</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compute_key_works_correct</span>() {
         <span class="macro">assert_eq!</span>(
             <span class="ident">KeyComposer::compute_key</span>(<span class="string">&quot;Contract&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;balances&quot;</span>),
-            <span class="prelude-val">Ok</span>(<span class="number">0x05e859ec</span>)
+            <span class="prelude-val">Ok</span>(<span class="number">0xf820ff02</span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="ident">KeyComposer::compute_key</span>(<span class="string">&quot;Enum&quot;</span>, <span class="string">&quot;Variant&quot;</span>, <span class="string">&quot;0&quot;</span>),
-            <span class="prelude-val">Ok</span>(<span class="number">0x9d029590</span>)
+            <span class="prelude-val">Ok</span>(<span class="number">0x14786b51</span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="ident">KeyComposer::compute_key</span>(<span class="string">&quot;&quot;</span>, <span class="string">&quot;Variant&quot;</span>, <span class="string">&quot;0&quot;</span>),
