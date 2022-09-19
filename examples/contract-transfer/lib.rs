@@ -189,12 +189,12 @@ pub mod give_me {
 
         #[ink::e2e_test]
         async fn e2e_sending_value_to_give_me_must_fail(
-            mut client: ink_env::e2e::Client<C, E>,
+            mut client: ink::env::e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
             let constructor = contract_transfer::constructors::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_env::e2e::alice(), constructor, 1000, None)
+                .instantiate(&mut ink::env::e2e::alice(), constructor, 1000, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -203,7 +203,7 @@ pub mod give_me {
             let transfer = contract_transfer::messages::give_me(120);
             let call_res = client
                 .call(
-                    &mut ink_env::e2e::bob(),
+                    &mut ink::env::e2e::bob(),
                     contract_acc_id.clone(),
                     transfer.into(),
                     10,
@@ -214,7 +214,7 @@ pub mod give_me {
             // then
             assert!(call_res.is_err());
             let contains_err_msg = match call_res.unwrap_err() {
-                ink_env::e2e::Error::CallDryRun(dry_run) => {
+                ink::env::e2e::Error::CallDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message)
                         .contains("paid an unpayable message")
                 }
@@ -226,12 +226,12 @@ pub mod give_me {
 
         #[ink::e2e_test]
         async fn e2e_contract_must_transfer_value_to_sender(
-            mut client: ink_env::e2e::Client<C, E>,
+            mut client: ink::env::e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
             let constructor = contract_transfer::constructors::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_env::e2e::bob(), constructor, 1337, None)
+                .instantiate(&mut ink::env::e2e::bob(), constructor, 1337, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -244,7 +244,7 @@ pub mod give_me {
             let transfer = contract_transfer::messages::give_me(120);
             let _ = client
                 .call(
-                    &mut ink_env::e2e::eve(),
+                    &mut ink::env::e2e::eve(),
                     contract_acc_id.clone(),
                     transfer.into(),
                     0,
