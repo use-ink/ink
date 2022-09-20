@@ -304,7 +304,7 @@ codecov:
     CARGO_INCREMENTAL:             0
     # Needed because `codecov` requires nightly features to work
     # (see `-Z` in the `RUSTFLAGS` below).
-    RUSTC_BOOSTRAP:                1
+    RUSTC_BOOSTRAP:                "1"
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
                                     -Clink-dead-code -Copt-level=0 -Coverflow-checks=off"
