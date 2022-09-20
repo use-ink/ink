@@ -65,7 +65,7 @@ impl KeyComposer {
     /// 1. If `variant_name` is not empty then computes the ASCII byte representation and call it `V`.
     /// 1. Compute the ASCII byte representation of `field_name` and call it `F`.
     /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
-    /// 1. The `FNV1A` 32-bit hash of `C` is the storage key.
+    /// 1. The `XXH32` hash of `C` is the storage key.
     ///
     /// # Note
     ///
