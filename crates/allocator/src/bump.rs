@@ -468,7 +468,7 @@ mod fuzz_tests {
 
         // We want to explicitly test for the case where a series of allocations eventually
         // runs out of pages of memory
-        if !(pages_required > max_pages) {
+        if pages_required <= max_pages {
             return TestResult::discard()
         }
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_storage_codegen::DeriveUtils;
+use ink_ir::utils::find_storage_key_salt;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -36,7 +36,7 @@ fn storable_hint_inner(s: synstructure::Structure) -> TokenStream2 {
     let (impl_generics, _, where_clause) = generics.split_for_impl();
     let (_, ty_generics_original, _) = s.ast().generics.split_for_impl();
 
-    if let Some(inner_salt_ident) = s.ast().find_salt() {
+    if let Some(inner_salt_ident) = find_storage_key_salt(s.ast()) {
         let inner_salt_ident = inner_salt_ident.ident.to_token_stream();
         let ty_generics: Vec<_> = s
             .ast()

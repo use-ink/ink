@@ -21,7 +21,9 @@ ink_primitives = { version = "4.0.0-alpha.1", path = "../../primitives/", defaul
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 syn = "1"
+synstructure = "0.12.6"
 proc-macro2 = "1"
+quote = "1"
 
 [dev-dependencies]
 ink_env = { path = "../../env" }

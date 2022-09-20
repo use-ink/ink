@@ -7,9 +7,9 @@ edition = "2021"
 license = "Apache-2.0"
 readme = "../README.md"
 repository = "https://github.com/paritytech/ink"
-documentation = "https://docs.rs/ink_storage_derive"
+documentation = "https://docs.rs/ink_storage_traits"
 homepage = "https://www.parity.io/"
-description = "[ink!] Utils codegen crate related to ink_storage."
+description = "[ink!] defines traits for using ink storage."
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
 categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
@@ -18,7 +18,6 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 ink_metadata = { version = "4.0.0-alpha.1", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
 ink_primitives = { version = "4.0.0-alpha.1", path = "../../primitives", default-features = false }
 ink_prelude = { version = "4.0.0-alpha.1", path = "../../prelude", default-features = false }
-ink_storage_derive = { version = "4.0.0-alpha.1", path = "derive", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 syn = { version = "1", features = ["full"] }

@@ -7,10 +7,10 @@ workings of this project.
 In general we treat documentation as a first-class citizen.
 All crates mentioned below should be documented really well.
 You can find the crate documentation on docs.rs or for our
-`master` branch under GitHub pages. So for `ink_lang` e.g.:
+`master` branch under GitHub pages. So for `ink` e.g.:
 
-* [https://docs.rs/ink_lang/latest/ink_lang](https://docs.rs/ink_lang/latest/ink_lang) (latest)
-* [https://paritytech.github.io/ink/ink_lang](https://paritytech.github.io/ink/ink_lang) (`master`)
+* [https://docs.rs/ink/latest/ink](https://docs.rs/ink/latest/ink) (latest published release)
+* [https://paritytech.github.io/ink/ink](https://paritytech.github.io/ink/ink) (`master`)
 
 ink! is composed of a number of crates that are all found in the
 `crates/` folder. On a high-level those can be grouped as:
@@ -65,10 +65,10 @@ The above diagram shows the main components of the ink! language
 and how they interact. This pipeline is run once you execute
 `cargo build` on an ink! smart contract.
 
-The central delegating crate for the ink! eDSL is `ink_lang`.
+The central delegating crate for the ink! eDSL is `ink`.
 
-In the `crates/lang/` folder you'll find three separate
-crates on which `ink_lang` relies heavily:
+In the `crates/ink/` folder you'll find three separate
+crates on which `ink` relies heavily:
 
 * `ink_macro`: The procedural macros, they take code annotated with e.g.
    `[ink::contract]` and forwards it to `ink_ir`.

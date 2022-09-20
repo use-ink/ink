@@ -15,7 +15,7 @@
 //! The global registry with which it is possible to refer back to the global
 //! trait call builder and call forwarder types using only the trait identifier.
 //!
-//! This works by making the global trait registry type defined in the `ink_lang`
+//! This works by making the global trait registry type defined in the `ink`
 //! crate implement each and every ink! trait definition and defining associated
 //! types for the trait's respective call builder and call forwarder.
 
@@ -44,7 +44,7 @@ impl<'a> TraitDefinition<'a> {
     /// Generates the code for the global trait registry implementation.
     ///
     /// This also generates the code for the global trait info object which
-    /// implements some `ink_lang` traits to provide common information about
+    /// implements some `ink` traits to provide common information about
     /// the ink! trait definition such as its unique identifier.
     pub fn generate_trait_registry_impl(&self) -> TokenStream2 {
         TraitRegistry::from(*self).generate_code()
