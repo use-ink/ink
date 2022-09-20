@@ -72,4 +72,3 @@ std = [
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
-wee-alloc = ["ink_allocator/wee-alloc"]

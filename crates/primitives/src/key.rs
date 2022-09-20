@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use ink_prelude::vec;
-use sha2_const::Sha256;
+use xxhash_rust::const_xxh32::xxh32;
+
+/// The value 0 is a valid seed.
+const XXH32_SEED: u32 = 0;
 
 /// A key into the smart contract storage.
 ///
@@ -33,18 +36,12 @@ impl KeyComposer {
     /// Concatenate two `Key` into one during compilation.
     pub const fn concat(left: Key, right: Key) -> Key {
         // If one of the keys is zero, then return another without hashing.
-        // If both keys are non-zero, return the hash of both keys.
+        // If both keys are non-zero, return the hash of the XOR difference of both keys.
         match (left, right) {
             (0, 0) => 0,
             (0, _) => right,
             (_, 0) => left,
-            (left, right) => {
-                let hash = Sha256::new()
-                    .update(&left.to_be_bytes())
-                    .update(&right.to_be_bytes())
-                    .finalize();
-                Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
-            }
+            (left, right) => xxh32(&(left ^ right).to_be_bytes(), XXH32_SEED),
         }
     }
 
@@ -59,8 +56,7 @@ impl KeyComposer {
             return 0
         }
 
-        let hash = Sha256::new().update(bytes).finalize();
-        Key::from_be_bytes([hash[0], hash[1], hash[2], hash[3]])
+        xxh32(bytes, XXH32_SEED)
     }
 
     /// Evaluates the storage key of the field in the structure, variant or union.
@@ -69,8 +65,7 @@ impl KeyComposer {
     /// 1. If `variant_name` is not empty then computes the ASCII byte representation and call it `V`.
     /// 1. Compute the ASCII byte representation of `field_name` and call it `F`.
     /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
-    /// 1. Apply the `SHA2` 256-bit hash `H` of `C`.
-    /// 1. The first 4 bytes of `H` make up the storage key.
+    /// 1. The `XXH32` hash of `C` is the storage key.
     ///
     /// # Note
     ///
@@ -119,33 +114,33 @@ mod tests {
     fn concat_works_correct() {
         assert_eq!(KeyComposer::concat(0, 13), 13);
         assert_eq!(KeyComposer::concat(31, 0), 31);
-        assert_eq!(KeyComposer::concat(31, 13), 0xD83A5CD8);
+        assert_eq!(KeyComposer::concat(31, 13), 0x9ab19a67);
         assert_eq!(KeyComposer::concat(0, 0), 0);
     }
 
     #[test]
     fn from_str_works_correct() {
         assert_eq!(KeyComposer::from_str(""), 0);
-        assert_eq!(KeyComposer::from_str("123"), 0xa665a459);
-        assert_eq!(KeyComposer::from_str("Hello world"), 0x64ec88ca);
+        assert_eq!(KeyComposer::from_str("123"), 0xb6855437);
+        assert_eq!(KeyComposer::from_str("Hello world"), 0x9705d437);
     }
 
     #[test]
     fn from_bytes_works_correct() {
         assert_eq!(KeyComposer::from_bytes(b""), 0);
-        assert_eq!(KeyComposer::from_bytes(b"123"), 0xa665a459);
-        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x64ec88ca);
+        assert_eq!(KeyComposer::from_bytes(b"123"), 0xb6855437);
+        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x9705d437);
     }
 
     #[test]
     fn compute_key_works_correct() {
         assert_eq!(
             KeyComposer::compute_key("Contract", "", "balances"),
-            Ok(0x05e859ec)
+            Ok(0xf820ff02)
         );
         assert_eq!(
             KeyComposer::compute_key("Enum", "Variant", "0"),
-            Ok(0x9d029590)
+            Ok(0x14786b51)
         );
         assert_eq!(
             KeyComposer::compute_key("", "Variant", "0"),
