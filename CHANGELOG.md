@@ -15,14 +15,21 @@ The `ink_lang` crate has been replaced in [#1223](https://github.com/paritytech/
 crate. All existing sub-crates are reexported and should be used via the new `ink` crate, so e.g. `ink::env` instead of
 `ink_env`. Contract authors should now import the top level `ink` crate instead of the individual crates.
 
-All storage traits were unified into the `ink_storage` crate [#1389](https://github.com/paritytech/ink/pull/1389), and
-all of the derive implementations for those traits were moved up to the new top level `ink` crate [#1400](https://github.com/paritytech/ink/pull/1400)
-
 ##### Migration
 - In `Cargo.toml` Replace all individual `ink_*` crate dependencies with the `ink` crate.
 - In the contract source:
   - Remove the commonly used `use ink_lang as ink` idiom.
   - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
+
+##### Storage Rework
+[#1331](https://github.com/paritytech/ink/pull/1331) [changes the way](https://github.com/paritytech/ink/issues/1134) 
+`ink!` works with contract storage. Storage keys are generated at compile-time, and user facing traits have been 
+replaced with new abstractions.
+
+##### Migration
+- Initialize `Mapping` fields with `Mapping::default()` instead of  `ink_lang::utils::initialize_contract` in
+constructors.
+- Remove `SpreadAllocate`, `SpreadLayout` and `PackedLayout` implementations.
 
 #### Removal of `wee-alloc` support
 ink! uses a bump allocator by default, additionally we supported another allocator (`wee-alloc`)
