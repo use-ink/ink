@@ -49,9 +49,3 @@ pub use self::{
         StorageKey,
     },
 };
-pub use ink_storage_derive::{
-    Storable,
-    StorableHint,
-    StorageKey,
-    StorageLayout,
-};

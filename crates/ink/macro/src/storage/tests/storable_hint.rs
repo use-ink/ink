@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storable_hint_derive;
+use super::storable_hint_derive;
 
 #[test]
 fn unit_struct_works() {

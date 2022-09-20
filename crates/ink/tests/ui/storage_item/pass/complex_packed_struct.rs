@@ -5,12 +5,12 @@ use ink_prelude::{
     },
     vec::Vec,
 };
-use ink_storage::traits::Storable;
+use ink::storage::traits::Storable;
 
 #[derive(Default, PartialEq, Eq, PartialOrd, Ord, scale::Encode, scale::Decode)]
 #[cfg_attr(
     feature = "std",
-    derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
 struct Deep2 {
     a: u8,
@@ -24,7 +24,7 @@ struct Deep2 {
 #[derive(Default, scale::Encode, scale::Decode)]
 #[cfg_attr(
     feature = "std",
-    derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
 struct Deep1 {
     a: Deep2,
@@ -37,7 +37,7 @@ struct Deep1 {
 #[derive(Default, scale::Encode, scale::Decode)]
 #[cfg_attr(
     feature = "std",
-    derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
 struct Contract {
     a: Deep1,
