@@ -354,7 +354,7 @@
 <span class="doccomment">//! The global registry with which it is possible to refer back to the global</span>
 <span class="doccomment">//! trait call builder and call forwarder types using only the trait identifier.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! This works by making the global trait registry type defined in the `ink_lang`</span>
+<span class="doccomment">//! This works by making the global trait registry type defined in the `ink`</span>
 <span class="doccomment">//! crate implement each and every ink! trait definition and defining associated</span>
 <span class="doccomment">//! types for the trait&#39;s respective call builder and call forwarder.</span>
 
@@ -383,7 +383,7 @@
     <span class="doccomment">/// Generates the code for the global trait registry implementation.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This also generates the code for the global trait info object which</span>
-    <span class="doccomment">/// implements some `ink_lang` traits to provide common information about</span>
+    <span class="doccomment">/// implements some `ink` traits to provide common information about</span>
     <span class="doccomment">/// the ink! trait definition such as its unique identifier.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_trait_registry_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="ident">TraitRegistry::from</span>(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">generate_code</span>()

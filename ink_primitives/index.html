@@ -6,11 +6,11 @@
                                 <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
     <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">ink_primitives</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_primitives/lib.rs.html#15-39">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Utilities in use by ink!.</p>
-<p>These are kept separate from ink core utilities to allow for more dynamic inter-crate dependencies.
+<p>These are kept separate from ink! core utilities to allow for more dynamic inter-crate dependencies.
 The main problem is that today Cargo manages crate features on a per-crate basis instead of
-a per-crate-target basis thus making dependencies from <code>ink_lang</code> (or others) to <code>ink_env</code> or <code>ink_storage</code> impossible.</p>
+a per-crate-target basis thus making dependencies from <code>ink</code> (or others) to <code>ink_env</code> or <code>ink_storage</code> impossible.</p>
 <p>By introducing <code>ink_primitives</code> we have a way to share utility components between <code>ink_env</code> or <code>ink_storage</code> and
-other parts of the framework, like <code>ink_lang</code>.</p>
+other parts of the framework, like <code>ink</code>.</p>
 </div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.AccountId.html" title="ink_primitives::AccountId struct">AccountId</a></div><div class="item-right docblock-short"><p>The default environment <code>AccountId</code> type.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Hash.html" title="ink_primitives::Hash struct">Hash</a></div><div class="item-right docblock-short"><p>The default environment <code>Hash</code> type.</p>
