@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking Changes
 
 #### New `ink` crate
-The `ink_lang` crate has been replaced in [#1223](https://github.com/paritytech/ink/pull/1223) by a new top level `ink` 
-crate. All existing sub-crates are reexported and should be used via the new `ink` crate, so e.g. `ink::env` instead of 
+The `ink_lang` crate has been replaced in [#1223](https://github.com/paritytech/ink/pull/1223) by a new top level `ink`
+crate. All existing sub-crates are reexported and should be used via the new `ink` crate, so e.g. `ink::env` instead of
 `ink_env`. Contract authors should now import the top level `ink` crate instead of the individual crates.
 
 ##### Migration
@@ -18,6 +18,20 @@ crate. All existing sub-crates are reexported and should be used via the new `in
 - In the contract source:
   - Remove the commonly used `use ink_lang as ink` idiom.
   - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
+
+#### Removal of `wee-alloc` support
+ink! uses a bump allocator by default, additionally we supported another allocator (`wee-alloc`)
+through a feature flag. `wee-alloc` is no longer maintained and we removed support for it.
+
+### Changed
+- Introduce `ink` entrance crate ‒ [#1223](https://github.com/paritytech/ink/pull/1223)
+- Use `XXH32` instead of `sha256` for calculating storage keys ‒ [#1393](https://github.com/paritytech/ink/pull/1393)
+
+### Fixed
+- Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
+
+### Removed
+- Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
 
 ## Version 4.0.0-alpha.1
 
@@ -60,7 +74,7 @@ return an `Option<u32>` instead of `()`.
 - Move ink! linter into `ink` repository ‒ [#1361](https://github.com/paritytech/ink/pull/1267)
 
 ### Removed
-- :x: Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+- :x: Implement `ecdsa_to_eth_address()` and remove `eth_compatibility` crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 
 ## Version 3.3.1
 
@@ -157,7 +171,7 @@ We added two new `Mapping` API functions:
 [`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224).
 These are more gas-efficient than whatever you were using previously.
 
-Additionaly there are a couple new `ink_env` functions now:
+Additionally there are a couple new `ink_env` functions now:
 * [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
 * [`ink_env::own_code_hash`](https://paritytech.github.io/ink/ink_env/fn.own_code_hash.html)
 * [`ink_env::code_hash`](https://paritytech.github.io/ink/ink_env/fn.code_hash.html)
