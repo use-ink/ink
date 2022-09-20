@@ -4,14 +4,10 @@
     Parity's ink! for writing smart contracts
 </h1>
 
-[![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
+[![linux][a1]][a2] [![loc][e1]][e2] [![stack-exchange][s1]][s2]
 
 [a1]: https://gitlab.parity.io/parity/ink/badges/master/pipeline.svg
 [a2]: https://gitlab.parity.io/parity/ink/pipelines?ref=master
-[c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
-[c2]: https://codecov.io/gh/paritytech/ink/branch/master
-[d1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
-[d2]: https://coveralls.io/github/paritytech/ink?branch=master
 [e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/click-blue.svg
@@ -162,7 +158,7 @@ mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
-        
+
         #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);

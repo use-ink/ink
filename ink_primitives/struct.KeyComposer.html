@@ -15,7 +15,7 @@
 <li>If <code>variant_name</code> is not empty then computes the ASCII byte representation and call it <code>V</code>.</li>
 <li>Compute the ASCII byte representation of <code>field_name</code> and call it <code>F</code>.</li>
 <li>Concatenate (<code>S</code> and <code>F</code>) or (<code>S</code>, <code>V</code> and <code>F</code>) using <code>::</code> as separator and call it <code>C</code>.</li>
-<li>The <code>FNV1A</code> 32-bit hash of <code>C</code> is the storage key.</li>
+<li>The <code>XXH32</code> hash of <code>C</code> is the storage key.</li>
 </ol>
 <h5 id="note"><a href="#note">Note</a></h5>
 <ul>
