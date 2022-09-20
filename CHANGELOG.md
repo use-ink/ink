@@ -22,9 +22,9 @@ crate. All existing sub-crates are reexported and should be used via the new `in
   - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
 
 #### Storage Rework
-[#1331](https://github.com/paritytech/ink/pull/1331) [changes the way](https://github.com/paritytech/ink/issues/1134) 
-`ink!` works with contract storage. Storage keys are generated at compile-time, and user facing traits have been 
-replaced with new abstractions.
+[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys 
+are generated at compile-time, and user facing abstractions which determine how contract data is laid out in storage
+have changed.
 
 ##### Migration
 - Initialize `Mapping` fields with `Mapping::default()` instead of  `ink_lang::utils::initialize_contract` in
