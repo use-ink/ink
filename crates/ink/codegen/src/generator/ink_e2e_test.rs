@@ -128,6 +128,10 @@ impl GenerateCode for InkE2ETest<'_> {
                     *metadata_path.borrow_mut() = Some(path.clone());
                 });
             });
+        } else {
+            BUILD_ONCE.call_once(|| {
+                env_logger::init();
+            });
         }
 
         log::info!("using metadata path: {:?}", path);
