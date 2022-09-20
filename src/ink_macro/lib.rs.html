@@ -1269,6 +1269,120 @@
 <span id="1263">1263</span>
 <span id="1264">1264</span>
 <span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
+<span id="1291">1291</span>
+<span id="1292">1292</span>
+<span id="1293">1293</span>
+<span id="1294">1294</span>
+<span id="1295">1295</span>
+<span id="1296">1296</span>
+<span id="1297">1297</span>
+<span id="1298">1298</span>
+<span id="1299">1299</span>
+<span id="1300">1300</span>
+<span id="1301">1301</span>
+<span id="1302">1302</span>
+<span id="1303">1303</span>
+<span id="1304">1304</span>
+<span id="1305">1305</span>
+<span id="1306">1306</span>
+<span id="1307">1307</span>
+<span id="1308">1308</span>
+<span id="1309">1309</span>
+<span id="1310">1310</span>
+<span id="1311">1311</span>
+<span id="1312">1312</span>
+<span id="1313">1313</span>
+<span id="1314">1314</span>
+<span id="1315">1315</span>
+<span id="1316">1316</span>
+<span id="1317">1317</span>
+<span id="1318">1318</span>
+<span id="1319">1319</span>
+<span id="1320">1320</span>
+<span id="1321">1321</span>
+<span id="1322">1322</span>
+<span id="1323">1323</span>
+<span id="1324">1324</span>
+<span id="1325">1325</span>
+<span id="1326">1326</span>
+<span id="1327">1327</span>
+<span id="1328">1328</span>
+<span id="1329">1329</span>
+<span id="1330">1330</span>
+<span id="1331">1331</span>
+<span id="1332">1332</span>
+<span id="1333">1333</span>
+<span id="1334">1334</span>
+<span id="1335">1335</span>
+<span id="1336">1336</span>
+<span id="1337">1337</span>
+<span id="1338">1338</span>
+<span id="1339">1339</span>
+<span id="1340">1340</span>
+<span id="1341">1341</span>
+<span id="1342">1342</span>
+<span id="1343">1343</span>
+<span id="1344">1344</span>
+<span id="1345">1345</span>
+<span id="1346">1346</span>
+<span id="1347">1347</span>
+<span id="1348">1348</span>
+<span id="1349">1349</span>
+<span id="1350">1350</span>
+<span id="1351">1351</span>
+<span id="1352">1352</span>
+<span id="1353">1353</span>
+<span id="1354">1354</span>
+<span id="1355">1355</span>
+<span id="1356">1356</span>
+<span id="1357">1357</span>
+<span id="1358">1358</span>
+<span id="1359">1359</span>
+<span id="1360">1360</span>
+<span id="1361">1361</span>
+<span id="1362">1362</span>
+<span id="1363">1363</span>
+<span id="1364">1364</span>
+<span id="1365">1365</span>
+<span id="1366">1366</span>
+<span id="1367">1367</span>
+<span id="1368">1368</span>
+<span id="1369">1369</span>
+<span id="1370">1370</span>
+<span id="1371">1371</span>
+<span id="1372">1372</span>
+<span id="1373">1373</span>
+<span id="1374">1374</span>
+<span id="1375">1375</span>
+<span id="1376">1376</span>
+<span id="1377">1377</span>
+<span id="1378">1378</span>
+<span id="1379">1379</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1290,6 +1404,7 @@
 <span class="kw">mod</span> <span class="ident">contract</span>;
 <span class="kw">mod</span> <span class="ident">ink_test</span>;
 <span class="kw">mod</span> <span class="ident">selector</span>;
+<span class="kw">mod</span> <span class="ident">storage</span>;
 <span class="kw">mod</span> <span class="ident">storage_item</span>;
 <span class="kw">mod</span> <span class="ident">trait_def</span>;
 
@@ -1484,7 +1599,7 @@
 <span class="doccomment">///     The user is able to use a variety of built-in facilities, combine them in various ways</span>
 <span class="doccomment">///     or even provide their own implementations of storage data structures.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     For more information visit the `ink_storage` crate documentation.</span>
+<span class="doccomment">///     For more information visit the `ink::storage` crate documentation.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     **Example:**</span>
 <span class="doccomment">///</span>
@@ -1945,22 +2060,22 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use ink_prelude::vec::Vec;</span>
-<span class="doccomment">/// use ink_storage::{</span>
+<span class="doccomment">/// use ink::storage::{</span>
 <span class="doccomment">///     Lazy,</span>
 <span class="doccomment">///     Mapping,</span>
 <span class="doccomment">/// };</span>
-<span class="doccomment">/// use ink_storage::traits::{</span>
+<span class="doccomment">/// use ink::storage::traits::{</span>
 <span class="doccomment">///     StorageKey,</span>
 <span class="doccomment">///     StorableHint,</span>
 <span class="doccomment">/// };</span>
-<span class="doccomment">/// use ink_storage::traits::Storable;</span>
+<span class="doccomment">/// use ink::storage::traits::Storable;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all</span>
 <span class="doccomment">/// // required traits to be storable.</span>
 <span class="doccomment">/// #[derive(scale::Decode, scale::Encode)]</span>
 <span class="doccomment">/// #[cfg_attr(</span>
 <span class="doccomment">///     feature = &quot;std&quot;,</span>
-<span class="doccomment">///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)</span>
+<span class="doccomment">///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)</span>
 <span class="doccomment">/// )]</span>
 <span class="doccomment">/// struct Packed {</span>
 <span class="doccomment">///     s1: u128,</span>
@@ -1973,9 +2088,9 @@
 <span class="doccomment">/// #[derive(scale::Decode, scale::Encode)]</span>
 <span class="doccomment">/// #[cfg_attr(</span>
 <span class="doccomment">///     feature = &quot;std&quot;,</span>
-<span class="doccomment">///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)</span>
+<span class="doccomment">///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)</span>
 <span class="doccomment">/// )]</span>
-<span class="doccomment">/// struct PackedGeneric&lt;T: ink_storage::traits::Packed&gt; {</span>
+<span class="doccomment">/// struct PackedGeneric&lt;T: ink::storage::traits::Packed&gt; {</span>
 <span class="doccomment">///     s1: (u128, bool),</span>
 <span class="doccomment">///     s2: Vec&lt;T&gt;,</span>
 <span class="doccomment">///     s3: String,</span>
@@ -1993,9 +2108,9 @@
 <span class="doccomment">/// #[derive(Storable, StorableHint, StorageKey)]</span>
 <span class="doccomment">/// #[cfg_attr(</span>
 <span class="doccomment">///     feature = &quot;std&quot;,</span>
-<span class="doccomment">///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)</span>
+<span class="doccomment">///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)</span>
 <span class="doccomment">/// )]</span>
-<span class="doccomment">/// struct NonPackedGeneric&lt;T: ink_storage::traits::Packed&gt; {</span>
+<span class="doccomment">/// struct NonPackedGeneric&lt;T: ink::storage::traits::Packed&gt; {</span>
 <span class="doccomment">///     s1: u32,</span>
 <span class="doccomment">///     s2: T,</span>
 <span class="doccomment">///     s3: Mapping&lt;u128, T&gt;,</span>
@@ -2005,7 +2120,7 @@
 <span class="doccomment">/// #[derive(scale::Decode, scale::Encode)]</span>
 <span class="doccomment">/// #[cfg_attr(</span>
 <span class="doccomment">///     feature = &quot;std&quot;,</span>
-<span class="doccomment">///     derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)</span>
+<span class="doccomment">///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)</span>
 <span class="doccomment">/// )]</span>
 <span class="doccomment">/// struct PackedComplex {</span>
 <span class="doccomment">///     s1: u128,</span>
@@ -2023,7 +2138,7 @@
 <span class="doccomment">///     s5: Lazy&lt;NonPacked&gt;,</span>
 <span class="doccomment">///     s6: PackedGeneric&lt;Packed&gt;,</span>
 <span class="doccomment">///     s7: NonPackedGeneric&lt;Packed&gt;,</span>
-<span class="doccomment">///     // Fails because: the trait `ink_storage::traits::Packed` is not implemented for `NonPacked`</span>
+<span class="doccomment">///     // Fails because: the trait `ink::storage::traits::Packed` is not implemented for `NonPacked`</span>
 <span class="doccomment">///     // s8: Mapping&lt;u128, NonPacked&gt;,</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
@@ -2040,16 +2155,16 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///     **Usage Example:**</span>
 <span class="doccomment">///     ```</span>
-<span class="doccomment">///     use ink_storage::Mapping;</span>
-<span class="doccomment">///     use ink_storage::traits::{</span>
+<span class="doccomment">///     use ink::storage::Mapping;</span>
+<span class="doccomment">///     use ink::storage::traits::{</span>
 <span class="doccomment">///         StorableHint,</span>
 <span class="doccomment">///         StorageKey,</span>
 <span class="doccomment">///     };</span>
-<span class="doccomment">///     use ink_storage::traits::Storable;</span>
+<span class="doccomment">///     use ink::storage::traits::Storable;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     #[ink::storage_item(derive = false)]</span>
 <span class="doccomment">///     #[derive(StorableHint, Storable, StorageKey)]</span>
-<span class="doccomment">///     struct NonPackedGeneric&lt;T: ink_storage::traits::Packed&gt; {</span>
+<span class="doccomment">///     struct NonPackedGeneric&lt;T: ink::storage::traits::Packed&gt; {</span>
 <span class="doccomment">///         s1: u32,</span>
 <span class="doccomment">///         s2: Mapping&lt;u128, T&gt;,</span>
 <span class="doccomment">///     }</span>
@@ -2531,6 +2646,119 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chain_extension</span>(<span class="ident">attr</span>: <span class="ident">TokenStream</span>, <span class="ident">item</span>: <span class="ident">TokenStream</span>) -&gt; <span class="ident">TokenStream</span> {
     <span class="ident">chain_extension::generate</span>(<span class="ident">attr</span>.<span class="ident">into</span>(), <span class="ident">item</span>.<span class="ident">into</span>()).<span class="ident">into</span>()
 }
+
+<span class="macro">synstructure::decl_derive!</span>(
+    [<span class="ident">Storable</span>] =&gt;
+    <span class="doccomment">/// Derives `ink::storage`&#39;s `Storable` trait for the given `struct`, `enum` or `union`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use ink::storage::traits::Storable;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[derive(Storable)]</span>
+    <span class="doccomment">/// struct NamedFields {</span>
+    <span class="doccomment">///     a: u32,</span>
+    <span class="doccomment">///     b: [u32; 1],</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let value = &lt;NamedFields as Storable&gt;::decode(&amp;mut &amp;[123, 123][..]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="ident">storage::storable_derive</span>
+);
+<span class="macro">synstructure::decl_derive!</span>(
+    [<span class="ident">StorableHint</span>] =&gt;
+    <span class="doccomment">/// Derives `ink::storage`&#39;s `StorableHint` trait for the given `struct` or `enum`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the type declaration contains generic `StorageKey`,</span>
+    <span class="doccomment">/// it will use it as salt to generate a combined storage key.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use ink::storage::traits::{</span>
+    <span class="doccomment">///     Storable,</span>
+    <span class="doccomment">///     StorableHint,</span>
+    <span class="doccomment">///     StorageKey,</span>
+    <span class="doccomment">///     AutoStorableHint,</span>
+    <span class="doccomment">///     AutoKey,</span>
+    <span class="doccomment">///     ManualKey,</span>
+    <span class="doccomment">/// };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[derive(Default, StorableHint, Storable)]</span>
+    <span class="doccomment">/// struct NamedFields {</span>
+    <span class="doccomment">///     a: u32,</span>
+    <span class="doccomment">///     b: [u32; 32],</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let _: NamedFields = &lt;NamedFields as StorableHint&lt;AutoKey&gt;&gt;::Type::default();</span>
+    <span class="doccomment">/// let _: NamedFields = &lt;NamedFields as StorableHint&lt;ManualKey&lt;123&gt;&gt;&gt;::Type::default();</span>
+    <span class="doccomment">/// ```</span>
+    <span class="ident">storage::storable_hint_derive</span>
+);
+<span class="macro">synstructure::decl_derive!</span>(
+    [<span class="ident">StorageKey</span>] =&gt;
+    <span class="doccomment">/// Derives `ink::storage`&#39;s `StorageKey` trait for the given `struct` or `enum`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use ink::storage::traits::{</span>
+    <span class="doccomment">///     AutoStorableHint,</span>
+    <span class="doccomment">///     StorageKey,</span>
+    <span class="doccomment">///     ManualKey,</span>
+    <span class="doccomment">///     AutoKey,</span>
+    <span class="doccomment">/// };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[derive(StorageKey)]</span>
+    <span class="doccomment">/// struct NamedFields {</span>
+    <span class="doccomment">///     a: u32,</span>
+    <span class="doccomment">///     b: [u32; 32],</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(&lt;NamedFields as StorageKey&gt;::KEY, 0);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[derive(StorageKey)]</span>
+    <span class="doccomment">/// struct NamedFieldsManualKey&lt;KEY: StorageKey&gt; {</span>
+    <span class="doccomment">///     a: &lt;u32 as AutoStorableHint&lt;ManualKey&lt;0, KEY&gt;&gt;&gt;::Type,</span>
+    <span class="doccomment">///     b: &lt;[u32; 32] as AutoStorableHint&lt;ManualKey&lt;1, KEY&gt;&gt;&gt;::Type,</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(&lt;NamedFieldsManualKey&lt;()&gt; as StorageKey&gt;::KEY, 0);</span>
+    <span class="doccomment">/// assert_eq!(&lt;NamedFieldsManualKey&lt;AutoKey&gt; as StorageKey&gt;::KEY, 0);</span>
+    <span class="doccomment">/// assert_eq!(&lt;NamedFieldsManualKey&lt;ManualKey&lt;123&gt;&gt; as StorageKey&gt;::KEY, 123);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="ident">storage::storage_key_derive</span>
+);
+<span class="macro">synstructure::decl_derive!</span>(
+    [<span class="ident">StorageLayout</span>] =&gt;
+    <span class="doccomment">/// Derives `ink::storage`&#39;s `StorageLayout` trait for the given `struct` or `enum`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use ink_metadata::layout::Layout::Struct;</span>
+    <span class="doccomment">/// use ink::storage::traits::StorageLayout;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[derive(StorageLayout)]</span>
+    <span class="doccomment">/// struct NamedFields {</span>
+    <span class="doccomment">///     a: u32,</span>
+    <span class="doccomment">///     b: [u32; 32],</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let key = 0x123;</span>
+    <span class="doccomment">/// let mut value = NamedFields {</span>
+    <span class="doccomment">///     a: 123,</span>
+    <span class="doccomment">///     b: [22; 32],</span>
+    <span class="doccomment">/// };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// if let Struct(layout) = &lt;NamedFields as StorageLayout&gt;::layout(&amp;key) {</span>
+    <span class="doccomment">///     assert_eq!(*layout.fields()[0].name(), &quot;a&quot;);</span>
+    <span class="doccomment">///     assert_eq!(*layout.fields()[1].name(), &quot;b&quot;);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="ident">storage::storage_layout_derive</span>
+);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">contract::generate_or_err</span>;

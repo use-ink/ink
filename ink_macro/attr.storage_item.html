@@ -5,7 +5,7 @@
         </a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In ink_macro</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ink_macro/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
                                 <a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_macro</a>::<wbr><a class="attr" href="#">storage_item</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_macro/lib.rs.html#789-791">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[storage_item]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Prepares the type to be fully compatible and usable with the storage.
+    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_macro</a>::<wbr><a class="attr" href="#">storage_item</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_macro/lib.rs.html#790-792">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[storage_item]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Prepares the type to be fully compatible and usable with the storage.
 It implements all necessary traits and calculates the storage key for types.
 <code>Packed</code> types don’t have a storage key, but non-packed types (like <code>Mapping</code>, <code>Lazy</code> etc.)
 require calculating the storage key during compilation.</p>
@@ -27,22 +27,22 @@ the parent’s storage key allows one to achieve it.</p>
 </ul>
 <h2 id="example"><a href="#example">Example</a></h2><h3 id="trait-implementation"><a href="#trait-implementation">Trait implementation</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_prelude::vec::Vec</span>;
-<span class="kw">use</span> <span class="ident">ink_storage</span>::{
+<span class="kw">use</span> <span class="ident">ink::storage</span>::{
     <span class="ident">Lazy</span>,
     <span class="ident">Mapping</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_storage::traits</span>::{
+<span class="kw">use</span> <span class="ident">ink::storage::traits</span>::{
     <span class="ident">StorageKey</span>,
     <span class="ident">StorableHint</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_storage::traits::Storable</span>;
+<span class="kw">use</span> <span class="ident">ink::storage::traits::Storable</span>;
 
 <span class="comment">// Deriving `scale::Decode` and `scale::Encode` also derives blanket implementation of all</span>
 <span class="comment">// required traits to be storable.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Decode</span>, <span class="ident">scale::Encode</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
-    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink_storage::traits::StorageLayout</span>)
+    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink::storage::traits::StorageLayout</span>)
 )]</span>
 <span class="kw">struct</span> <span class="ident">Packed</span> {
     <span class="ident">s1</span>: <span class="ident">u128</span>,
@@ -55,9 +55,9 @@ the parent’s storage key allows one to achieve it.</p>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Decode</span>, <span class="ident">scale::Encode</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
-    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink_storage::traits::StorageLayout</span>)
+    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink::storage::traits::StorageLayout</span>)
 )]</span>
-<span class="kw">struct</span> <span class="ident">PackedGeneric</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ink_storage::traits::Packed</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">PackedGeneric</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ink::storage::traits::Packed</span><span class="op">&gt;</span> {
     <span class="ident">s1</span>: (<span class="ident">u128</span>, <span class="ident">bool</span>),
     <span class="ident">s2</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">s3</span>: <span class="ident">String</span>,
@@ -75,9 +75,9 @@ the parent’s storage key allows one to achieve it.</p>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Storable</span>, <span class="ident">StorableHint</span>, <span class="ident">StorageKey</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
-    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink_storage::traits::StorageLayout</span>)
+    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink::storage::traits::StorageLayout</span>)
 )]</span>
-<span class="kw">struct</span> <span class="ident">NonPackedGeneric</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ink_storage::traits::Packed</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">NonPackedGeneric</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ink::storage::traits::Packed</span><span class="op">&gt;</span> {
     <span class="ident">s1</span>: <span class="ident">u32</span>,
     <span class="ident">s2</span>: <span class="ident">T</span>,
     <span class="ident">s3</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u128</span>, <span class="ident">T</span><span class="op">&gt;</span>,
@@ -87,7 +87,7 @@ the parent’s storage key allows one to achieve it.</p>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Decode</span>, <span class="ident">scale::Encode</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
-    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink_storage::traits::StorageLayout</span>)
+    <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>, <span class="ident">ink::storage::traits::StorageLayout</span>)
 )]</span>
 <span class="kw">struct</span> <span class="ident">PackedComplex</span> {
     <span class="ident">s1</span>: <span class="ident">u128</span>,
@@ -105,7 +105,7 @@ the parent’s storage key allows one to achieve it.</p>
     <span class="ident">s5</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">NonPacked</span><span class="op">&gt;</span>,
     <span class="ident">s6</span>: <span class="ident">PackedGeneric</span><span class="op">&lt;</span><span class="ident">Packed</span><span class="op">&gt;</span>,
     <span class="ident">s7</span>: <span class="ident">NonPackedGeneric</span><span class="op">&lt;</span><span class="ident">Packed</span><span class="op">&gt;</span>,
-    <span class="comment">// Fails because: the trait `ink_storage::traits::Packed` is not implemented for `NonPacked`</span>
+    <span class="comment">// Fails because: the trait `ink::storage::traits::Packed` is not implemented for `NonPacked`</span>
     <span class="comment">// s8: Mapping&lt;u128, NonPacked&gt;,</span>
 }</code></pre></div>
 <h3 id="header-arguments"><a href="#header-arguments">Header Arguments</a></h3>
@@ -118,16 +118,16 @@ header argument:</p>
 all required storage traits.</p>
 <p><strong>Usage Example:</strong></p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_storage::Mapping</span>;
-<span class="kw">use</span> <span class="ident">ink_storage::traits</span>::{
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink::storage::Mapping</span>;
+<span class="kw">use</span> <span class="ident">ink::storage::traits</span>::{
     <span class="ident">StorableHint</span>,
     <span class="ident">StorageKey</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_storage::traits::Storable</span>;
+<span class="kw">use</span> <span class="ident">ink::storage::traits::Storable</span>;
 
 <span class="attribute">#[<span class="ident">ink::storage_item</span>(<span class="ident">derive</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StorableHint</span>, <span class="ident">Storable</span>, <span class="ident">StorageKey</span>)]</span>
-<span class="kw">struct</span> <span class="ident">NonPackedGeneric</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ink_storage::traits::Packed</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">NonPackedGeneric</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ink::storage::traits::Packed</span><span class="op">&gt;</span> {
     <span class="ident">s1</span>: <span class="ident">u32</span>,
     <span class="ident">s2</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u128</span>, <span class="ident">T</span><span class="op">&gt;</span>,
 }</code></pre></div>

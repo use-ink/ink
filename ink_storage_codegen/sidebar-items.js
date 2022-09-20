@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"trait":[["DeriveUtils","Provides common methods for `DeriveInput`."]]};
