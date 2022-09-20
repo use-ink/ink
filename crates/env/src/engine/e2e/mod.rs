@@ -24,6 +24,10 @@ pub use client::{
 };
 pub use default_accounts::*;
 // TODO(#xxx) `smart-bench_macro` needs to be forked.
+use pallet_contracts_primitives::{
+    ContractExecResult,
+    ContractInstantiateResult,
+};
 pub use smart_bench_macro;
 use xts::ContractsApi;
 

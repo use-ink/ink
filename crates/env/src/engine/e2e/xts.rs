@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::*;
-use crate::{
-    e2e::Signer,
-    Environment,
+use super::{
+    log_info,
+    sr25519,
+    ContractExecResult,
+    ContractInstantiateResult,
+    IdentifyAccount,
+    Signer,
+    Verify,
 };
+use crate::Environment;
 
 use core::marker::PhantomData;
 use jsonrpsee::{
@@ -27,17 +32,11 @@ use jsonrpsee::{
         WsClientBuilder,
     },
 };
-use pallet_contracts_primitives::{
-    ContractResult,
-    ExecReturnValue,
-    InstantiateReturnValue,
-};
 use sp_core::{
     Bytes,
     H256,
 };
 use subxt::{
-    rpc::NumberOrHex,
     tx::{
         ExtrinsicParams,
         TxEvents,
@@ -77,37 +76,25 @@ pub struct Call<C: subxt::Config, B> {
     data: Vec<u8>,
 }
 
-/// Result of a contract call dry run.
-pub(super) type ContractDryCallResult<E> = ContractResult<
-    Result<ExecReturnValue, serde_json::Value>,
-    <E as Environment>::Balance,
->;
-
-/// Result of a contract instantiation dry run.
-pub(super) type ContractDryInstantiateResult<C, E> = ContractResult<
-    Result<InstantiateReturnValue<<C as subxt::Config>::AccountId>, serde_json::Value>,
-    <E as Environment>::Balance,
->;
-
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
-struct InstantiateRequest<C: subxt::Config> {
+struct InstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
-    value: NumberOrHex,
-    gas_limit: NumberOrHex,
-    storage_deposit_limit: Option<NumberOrHex>,
+    value: E::Balance,
+    gas_limit: crate::types::Gas,
+    storage_deposit_limit: Option<E::Balance>,
     code: Code,
-    data: Bytes,
-    salt: Bytes,
+    data: Vec<u8>,
+    salt: Vec<u8>,
 }
 
 /// Reference to an existing code hash or a new Wasm module.
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
 enum Code {
     /// A Wasm module as raw bytes.
-    Upload(Bytes),
+    Upload(Vec<u8>),
     #[allow(unused)]
     /// The code hash of an on-chain Wasm blob.
     Existing(H256),
@@ -116,15 +103,15 @@ enum Code {
 /// A struct that encodes RPC parameters required for a call to a smart contract.
 ///
 /// Copied from [`pallet-contracts-rpc`].
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
-struct RpcCallRequest<C: subxt::Config> {
+struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: C::AccountId,
-    value: NumberOrHex,
-    gas_limit: NumberOrHex,
-    storage_deposit_limit: Option<NumberOrHex>,
-    input_data: Bytes,
+    value: E::Balance,
+    gas_limit: crate::types::Gas,
+    storage_deposit_limit: Option<E::Balance>,
+    input_data: Vec<u8>,
 }
 
 /// Provides functions for interacting with the `pallet-contracts` API.
@@ -147,9 +134,7 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance:
-        scale::Encode + TryFrom<NumberOrHex> + TryFrom<sp_rpc::number::NumberOrHex>,
-    NumberOrHex: From<<E as Environment>::Balance>,
+    E::Balance: scale::Encode,
 
     Call<C, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
@@ -180,29 +165,27 @@ where
         data: Vec<u8>,
         salt: Vec<u8>,
         signer: &Signer<C>,
-    ) -> ContractDryInstantiateResult<C, E> {
-        let code = Code::Upload(code.into());
-        let value = value.try_into().ok().unwrap();
-        let call_request = InstantiateRequest::<C> {
+    ) -> ContractInstantiateResult<C::AccountId, E::Balance> {
+        let code = Code::Upload(code);
+        let call_request = InstantiateRequest::<C, E> {
             origin: signer.account_id().clone(),
             value,
-            gas_limit: NumberOrHex::Number(DRY_RUN_GAS_LIMIT),
-            storage_deposit_limit: storage_deposit_limit.map(|l| {
-                l.try_into()
-                    .expect("unable to convert `storage_deposit_limit`")
-            }),
+            gas_limit: DRY_RUN_GAS_LIMIT,
+            storage_deposit_limit,
             code,
-            data: data.into(),
-            salt: salt.into(),
+            data,
+            salt,
         };
-        // TODO(#xxx) Dry-run has to use the `state_call` RPC.
-        let params = rpc_params![call_request];
-        self.ws_client
-            .request("contracts_instantiate", params)
+        let func = "ContractsApi_instantiate";
+        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
+        let bytes: Bytes = self
+            .ws_client
+            .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_instantiate`: {:?}", err);
-            })
+            });
+        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
@@ -275,27 +258,26 @@ where
         contract: C::AccountId,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-        data: Vec<u8>,
-    ) -> ContractDryCallResult<E> {
-        let call_request = RpcCallRequest::<C> {
+        input_data: Vec<u8>,
+    ) -> ContractExecResult<E::Balance> {
+        let call_request = RpcCallRequest::<C, E> {
             origin: contract.clone(),
             dest: contract,
-            value: value.try_into().expect("unable to convert `value`"),
-            gas_limit: DRY_RUN_GAS_LIMIT.into(),
-            storage_deposit_limit: storage_deposit_limit.map(|l| {
-                l.try_into()
-                    .expect("unable to convert `storage_deposit_limit`")
-            }),
-            input_data: Bytes(data),
+            value,
+            gas_limit: DRY_RUN_GAS_LIMIT,
+            storage_deposit_limit,
+            input_data,
         };
-        // TODO(#xxx) Dry-run has to use the `state_call` RPC.
-        let params = rpc_params![call_request];
-        self.ws_client
-            .request("contracts_call", params)
+        let func = "ContractsApi_call";
+        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
+        let bytes: Bytes = self
+            .ws_client
+            .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {:?}", err);
-            })
+            });
+        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.

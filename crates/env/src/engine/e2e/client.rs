@@ -24,10 +24,10 @@ use super::{
         self,
         api,
         Call,
-        ContractDryCallResult,
-        ContractDryInstantiateResult,
         InstantiateWithCode,
     },
+    ContractExecResult,
+    ContractInstantiateResult,
     ContractsApi,
     InkConstructor,
     InkMessage,
@@ -43,7 +43,6 @@ use sp_runtime::traits::{
 use subxt::{
     ext::bitvec::macros::internal::funty::Fundamental,
     metadata::DecodeStaticType,
-    rpc::NumberOrHex,
     storage::address::{
         StorageHasher,
         StorageMapKey,
@@ -82,7 +81,7 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     pub account_id: C::AccountId,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: ContractDryInstantiateResult<C, E>,
+    pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: TxEvents<C>,
 }
@@ -109,7 +108,7 @@ where
 pub struct CallResult<C: subxt::Config, E: Environment> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: ContractDryCallResult<E>,
+    pub dry_run: ContractExecResult<E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: TxEvents<C>,
 }
@@ -144,11 +143,11 @@ where
     <E as Environment>::Balance: core::fmt::Debug,
 {
     /// The `instantiate_with_code` dry run failed.
-    InstantiateDryRun(ContractDryInstantiateResult<C, E>),
+    InstantiateDryRun(ContractInstantiateResult<C::AccountId, E::Balance>),
     /// The `instantiate_with_code` extrinsic failed.
     InstantiateExtrinsic(subxt::error::DispatchError),
     /// The `call` dry run failed.
-    CallDryRun(ContractDryCallResult<E>),
+    CallDryRun(ContractExecResult<E::Balance>),
     /// The `call` extrinsic failed.
     CallExtrinsic(subxt::error::DispatchError),
 }
@@ -215,11 +214,7 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: core::fmt::Debug
-        + scale::Encode
-        + TryFrom<NumberOrHex>
-        + TryFrom<sp_rpc::number::NumberOrHex>,
-    NumberOrHex: From<<E as Environment>::Balance>,
+    E::Balance: core::fmt::Debug + scale::Encode,
 
     Call<C, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
@@ -430,7 +425,6 @@ where
             "call dry run debug message: {}",
             String::from_utf8_lossy(&dry_run.debug_message)
         ));
-
         if dry_run.result.is_err() {
             return Err(Error::CallDryRun(dry_run))
         }
