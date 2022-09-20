@@ -6,12 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.0.0-alpha.1
+
 ### Breaking Changes
 
 #### New `ink` crate
 The `ink_lang` crate has been replaced in [#1223](https://github.com/paritytech/ink/pull/1223) by a new top level `ink`
 crate. All existing sub-crates are reexported and should be used via the new `ink` crate, so e.g. `ink::env` instead of
 `ink_env`. Contract authors should now import the top level `ink` crate instead of the individual crates.
+
+All storage traits were unified into the `ink_storage` crate [#1389](https://github.com/paritytech/ink/pull/1389), and
+all of the derive implementations for those traits were moved up to the new top level `ink` crate [#1400](https://github.com/paritytech/ink/pull/1400)
 
 ##### Migration
 - In `Cargo.toml` Replace all individual `ink_*` crate dependencies with the `ink` crate.
@@ -29,6 +34,9 @@ through a feature flag. `wee-alloc` is no longer maintained and we removed suppo
 
 ### Fixed
 - Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
+
+### Added
+- Add ink_env::pay_with_call! helper macro for off-chain emulation of sending payments with contract msg calls - [#1379](https://github.com/paritytech/ink/pull/1379)
 
 ### Removed
 - Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
