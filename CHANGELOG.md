@@ -43,7 +43,7 @@ through a feature flag. `wee-alloc` is no longer maintained and we removed suppo
 - Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
 
 ### Added
-- Add ink_env::pay_with_call! helper macro for off-chain emulation of sending payments with contract msg calls - [#1379](https://github.com/paritytech/ink/pull/1379)
+- Add `ink_env::pay_with_call!` helper macro for off-chain emulation of sending payments with contract message calls ‒ [#1379](https://github.com/paritytech/ink/pull/1379)
 
 ### Removed
 - Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
