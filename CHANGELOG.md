@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Version 4.0.0-alpha.1
+## Version 4.0.0-alpha.2
 
 ### Breaking Changes
 
