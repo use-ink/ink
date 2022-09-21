@@ -51,7 +51,7 @@ through a feature flag. `wee-alloc` is no longer maintained and we removed suppo
 
 ## Version 4.0.0-alpha.2
 
-**This version was skipped due to an error in the release process**
+**This version was skipped due to a human error in the release process**
 
 ## Version 4.0.0-alpha.1
 
