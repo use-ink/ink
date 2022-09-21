@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## Version 4.0.0-alpha.2
+## Version 4.0.0-alpha.3
 
 ### Breaking Changes
 
@@ -48,6 +48,13 @@ through a feature flag. `wee-alloc` is no longer maintained and we removed suppo
 
 ### Removed
 - Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
+
+## Version 4.0.0-alpha.2
+
+**This version was skipped due to an error during the release process**
+
+As part of this series of `alpha`s we are looking for ways to streamline our release process,
+so small errors like this are learning experiences for us.
 
 ## Version 4.0.0-alpha.1
 
