@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.0.0-alpha.2
+
 ### Breaking Changes
 
 #### New `ink` crate
@@ -19,6 +21,16 @@ crate. All existing sub-crates are reexported and should be used via the new `in
   - Remove the commonly used `use ink_lang as ink` idiom.
   - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
 
+#### Storage Rework
+[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys 
+are generated at compile-time, and user facing abstractions which determine how contract data is laid out in storage
+have changed.
+
+##### Migration
+- Initialize `Mapping` fields with `Mapping::default()` instead of  `ink_lang::utils::initialize_contract` in
+constructors. See [`erc20`](./examples/erc20/lib.rs) and other examples which use a `Mapping`.
+- Remove `SpreadAllocate`, `SpreadLayout` and `PackedLayout` implementations.
+
 #### Removal of `wee-alloc` support
 ink! uses a bump allocator by default, additionally we supported another allocator (`wee-alloc`)
 through a feature flag. `wee-alloc` is no longer maintained and we removed support for it.
@@ -29,6 +41,10 @@ through a feature flag. `wee-alloc` is no longer maintained and we removed suppo
 
 ### Fixed
 - Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
+- Allow pay_with_call to take multiple arguments ‒ [#1401](https://github.com/paritytech/ink/pull/1401)
+
+### Added
+- Add `ink_env::pay_with_call!` helper macro for off-chain emulation of sending payments with contract message calls ‒ [#1379](https://github.com/paritytech/ink/pull/1379)
 
 ### Removed
 - Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
