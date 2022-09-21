@@ -28,7 +28,7 @@ have changed.
 
 ##### Migration
 - Initialize `Mapping` fields with `Mapping::default()` instead of  `ink_lang::utils::initialize_contract` in
-constructors.
+constructors. See [`erc20`](./examples/erc20/lib.rs) and other examples which use a `Mapping`.
 - Remove `SpreadAllocate`, `SpreadLayout` and `PackedLayout` implementations.
 
 #### Removal of `wee-alloc` support
