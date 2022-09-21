@@ -35,4 +35,6 @@ fn ui_tests() {
     t.compile_fail("tests/ui/trait_def/fail/*.rs");
 
     t.pass("tests/ui/chain_extension/E-01-simple.rs");
+
+    t.pass("tests/ui/pay_with_call/pass/multiple_args.rs");
 }
