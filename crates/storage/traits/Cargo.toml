@@ -24,7 +24,6 @@ syn = { version = "1", features = ["full"] }
 
 [dev-dependencies]
 paste = "1.0"
-ink_env = { version = "4.0.0-alpha.3", path = "../../env" }
 
 [features]
 default = ["std"]
