@@ -399,8 +399,8 @@ pub fn assert_contract_termination<T, F>(
 /// Prepend contract message call with value transfer. Used for tests in off-chain environment.
 #[macro_export]
 macro_rules! pay_with_call {
-    ($contract:ident . $message:ident ( $($params:ty)? ) , $amount:expr) => {{
+    ($contract:ident . $message:ident ( $( $params:expr ),* ) , $amount:expr) => {{
         $crate::test::transfer_in::<Environment>($amount);
-        $contract.$message($($params:ty)?)
+        $contract.$message($ ($params) ,*)
     }}
 }
