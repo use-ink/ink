@@ -15,8 +15,8 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_prelude = { version = "4.0.0-alpha.2", path = "../prelude/", default-features = false }
-ink_primitives = { version = "4.0.0-alpha.2", path = "../primitives/", default-features = false }
+ink_prelude = { version = "4.0.0-alpha.3", path = "../prelude/", default-features = false }
+ink_primitives = { version = "4.0.0-alpha.3", path = "../primitives/", default-features = false }
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 impl-serde = "0.4.0"

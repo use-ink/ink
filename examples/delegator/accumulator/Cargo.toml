@@ -1,6 +1,6 @@
 [package]
 name = "accumulator"
-version = "4.0.0-alpha.2"
+version = "4.0.0-alpha.3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 

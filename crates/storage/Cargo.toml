@@ -15,11 +15,11 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env = { version = "4.0.0-alpha.2", path = "../env/", default-features = false }
-ink_metadata = { version = "4.0.0-alpha.2", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "4.0.0-alpha.2", path = "../primitives/", default-features = false }
-ink_storage_traits = { version = "4.0.0-alpha.2", path = "traits", default-features = false }
-ink_prelude = { version = "4.0.0-alpha.2", path = "../prelude/", default-features = false }
+ink_env = { version = "4.0.0-alpha.3", path = "../env/", default-features = false }
+ink_metadata = { version = "4.0.0-alpha.3", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
+ink_primitives = { version = "4.0.0-alpha.3", path = "../primitives/", default-features = false }
+ink_storage_traits = { version = "4.0.0-alpha.3", path = "traits", default-features = false }
+ink_prelude = { version = "4.0.0-alpha.3", path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
