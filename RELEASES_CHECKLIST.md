@@ -35,6 +35,10 @@ We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) to r
 steps though, and we hope to make this more streamlined in the future.
 
 1. Create a new feature branch off `master`.
+1. Bump the version in all TOML files to the new version.
+    ```
+    find . -type f -name *.toml -exec sed -i -e 's/$OLD_VERSION/$NEW_VERSION/g' {} \;
+    ```
 1. Make sure you've moved the changes in the `CHANGELOG.md` from `[Unreleased]` into a new
    section for the release.
 1. Check that all notable PRs since the last release are now in the new release section,
@@ -45,13 +49,18 @@ steps though, and we hope to make this more streamlined in the future.
 1. Open a release PR
     - Wait for approvals from Core team members.
     - Ensure the entire CI pipeline is green.
-1. Do a dry run with `cargo release [new_version] -v --no-tag --no-push --dependent-version upgrade`
-    - `[new_version]` should be the the . 
-      - 
+1. Do a dry run with `cargo release [new_version] -v --no-tag --no-push`
+    - `[new_version]` should be the **exact** SemVer compatible version you are attempting to release e.g. 
+      `4.0.0-alpha.3`
+      - It is possible to supply a SemVer level here e.g. `major`, `minor`, `patch` or `<pre-release-name>`, however
+        this will automatically bump and commit the changes to the `Cargo.toml` manifests. We have already done that in
+        an earlier step so it is not necessary.
     - We don't want `cargo-release` to create any releases or push any code, we'll do
        that manually once we've actually published to `crates.io`.
 1. If there are no errors, merge the release PR into `master`.
-1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [level] -v --no-tag --no-push --execute`
+1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [new_version] -v --no-tag --no-push --execute`
+    - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer compatible version you are 
+      attempting to release e.g. `4.0.0-alpha.3`.
     - We add the grace period since crates depend on one another.
     - We add the `--execute` flag to _actually_ publish things to crates.io.
 1. Replace `vX.X.X` with the new version in the following command and then execute it:
