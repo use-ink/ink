@@ -1,6 +1,6 @@
 [package]
 name = "trait-incrementer"
-version = "4.0.0-alpha.1"
+version = "4.0.0-alpha.3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false

@@ -29,8 +29,8 @@ variables:
   # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "ink/codegen storage/traits/codegen metadata engine"
-  ALSO_WASM_CRATES:                "env storage storage/traits storage/traits/derive allocator prelude primitives ink ink/macro ink/ir"
+  PURELY_STD_CRATES:               "ink/codegen metadata engine"
+  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro ink/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
@@ -282,7 +282,7 @@ docs:
   script:
     - cargo doc --no-deps --all-features
         -p scale-info -p ink_metadata -p ink_env
-        -p ink_storage -p ink_storage_traits -p ink_storage_codegen -p ink_storage_derive
+        -p ink_storage -p ink_storage_traits
         -p ink_primitives -p ink_prelude
         -p ink -p ink_macro -p ink_ir -p ink_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
@@ -302,6 +302,9 @@ codecov:
     QUICKCHECK_TESTS:              1
     INK_COVERAGE_REPORTING:        "true"
     CARGO_INCREMENTAL:             0
+    # Needed because `codecov` requires nightly features to work
+    # (see `-Z` in the `RUSTFLAGS` below).
+    RUSTC_BOOTSTRAP:               "1"
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
                                     -Clink-dead-code -Copt-level=0 -Coverflow-checks=off"
