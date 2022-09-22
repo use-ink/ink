@@ -491,7 +491,7 @@ impl IntoPortable for StructLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         StructLayout {
-            name: self.name.into(),
+            name: self.name,
             fields: self
                 .fields
                 .into_iter()
@@ -645,7 +645,7 @@ impl IntoPortable for EnumLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EnumLayout {
-            name: self.name.into(),
+            name: self.name,
             dispatch_key: self.dispatch_key,
             variants: self
                 .variants
