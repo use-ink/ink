@@ -365,7 +365,7 @@ examples-contract-build:
   <<:                              *test-refs
   script:
     - rustup component add rust-src --toolchain stable
-    - cargo install cargo-contract --git https://github.com/paritytech/cargo-contract --branch aj/ink_crate --force
+    - cargo install cargo-contract --git https://github.com/paritytech/cargo-contract --version 2.0.0-alpha.3 --force
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
