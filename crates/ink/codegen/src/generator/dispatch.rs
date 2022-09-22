@@ -545,6 +545,13 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
+            let constructor_output = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::Output
+            );
             let deny_payment = quote_spanned!(constructor_span=>
                 !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
@@ -552,12 +559,24 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
-
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
+                    }
+
+                    let result: #constructor_output = #constructor_callable(input);
+                    let failure = ::ink::is_result_type!(#constructor_output)
+                        && ::ink::is_result_err!(result);
+
+                    if failure {
+                        // We return early here since there is no need to push back the
+                        // intermediate results of the contract - the transaction is going to be
+                        // reverted anyways.
+                        ::ink::env::return_value::<#constructor_output>(
+                            ::ink::env::ReturnFlags::default().set_reverted(true), &result
+                        )
                     }
 
                     ::ink::codegen::execute_constructor::<#storage_ident, _, _>(

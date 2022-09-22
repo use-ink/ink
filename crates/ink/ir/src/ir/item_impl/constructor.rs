@@ -84,15 +84,18 @@ impl quote::ToTokens for Constructor {
 }
 
 impl Constructor {
-    /// Returns `true` if the given type is `Self`.
+    /// Returns `true` if the given type is `Self` or `Result<Self>`
     fn type_is_self_val(ty: &syn::Type) -> bool {
-        matches!(ty, syn::Type::Path(syn::TypePath {
+        // TODO: clean and parse Result<Self, ()>
+        let res = matches!(ty, syn::Type::Path(syn::TypePath {
             qself: None,
             path
-        }) if path.is_ident("Self"))
+        }) if path.is_ident("Self") );
+        println!("{:?}", ty);
+        res
     }
 
-    /// Ensures that the return type of the ink! constructor is `Self`.
+    /// Ensures that the return type of the ink! constructor is `Self` or `Result<Self>`.
     ///
     /// Returns an appropriate error otherwise.
     ///
