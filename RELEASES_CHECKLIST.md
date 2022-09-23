@@ -35,7 +35,7 @@ We'll be using [`cargo-release`](https://github.com/crate-ci/cargo-release) to r
 steps though, and we hope to make this more streamlined in the future.
 
 1. Create a new feature branch off `master`.
-2. Copy the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
+1. Copy the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
    into the PR description. This will cause the individual PRs to be linked to the release in which they are included.
 1. Bump the version in all TOML files to the new version.
     ```
