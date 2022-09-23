@@ -17,6 +17,13 @@ mod storable_hint;
 mod storage_key;
 mod storage_layout;
 
+use crate::storage::{
+    storable::storable_derive,
+    storable_hint::storable_hint_derive,
+    storage_key::storage_key_derive,
+    storage_layout::storage_layout_derive,
+};
+
 #[macro_export]
 macro_rules! test_derive {
     ($name:path { $($i:tt)* } expands to { $($o:tt)* }) => {

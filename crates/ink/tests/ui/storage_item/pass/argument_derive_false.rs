@@ -1,5 +1,5 @@
-use ink_storage::traits::Storable;
-use ink_storage::traits::{
+use ink::storage::traits::Storable;
+use ink::storage::traits::{
     ManualKey,
     StorageKey,
 };

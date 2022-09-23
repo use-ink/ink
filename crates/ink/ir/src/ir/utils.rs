@@ -144,3 +144,24 @@ where
         name
     ))
 }
+
+/// Finds the salt of a struct, enum or union.
+/// The salt is any generic that has bound `StorageKey`.
+/// In most cases it is the parent storage key or the auto-generated storage key.
+pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam> {
+    input.generics.params.iter().find_map(|param| {
+        if let syn::GenericParam::Type(type_param) = param {
+            if let Some(syn::TypeParamBound::Trait(trait_bound)) =
+                type_param.bounds.first()
+            {
+                let segments = &trait_bound.path.segments;
+                if let Some(last) = segments.last() {
+                    if last.ident == "StorageKey" {
+                        return Some(type_param.clone())
+                    }
+                }
+            }
+        }
+        None
+    })
+}

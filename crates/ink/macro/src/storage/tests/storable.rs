@@ -20,7 +20,7 @@
 #![allow(clippy::eq_op)]
 #![allow(clippy::match_single_binding)]
 
-use crate::storable_derive;
+use super::storable_derive;
 
 #[test]
 fn unit_struct_works() {
