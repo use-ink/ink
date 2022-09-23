@@ -36,9 +36,10 @@ ink!. There are still a few manual steps though, and we hope to make this more s
 in the future.
 
 1. Create a new feature branch off `master`.
-1. Copy the release notes that appear in the [`CHANGELOG.md`](https://github.com/paritytech/ink/blob/master/CHANGELOG.md)
-   into the PR description. This will cause the individual PRs to be linked to the release 
-   in which they are included.
+1. Copy the release notes that appear in the [`CHANGELOG.md`](https://githubcom/paritytech/ink/blob/master/CHANGELOG.md)
+   into the PR description. 
+   - This will cause the individual PRs to be linked to the release in which they are 
+     included.
 1. Bump the version in all TOML files to the new version.
     ```
     find . -type f -name *.toml -exec sed -i -e 's/$OLD_VERSION/$NEW_VERSION/g' {} \;
@@ -65,15 +66,16 @@ in the future.
 1. Check the output of the dry run:
    - Does not show any automatic bumping of crate versions.
    - Runs without error.
-1. Following a successful dry run, we can now publish to crates.io. This will be done from 
-   the release branch, since it is possible for the dry run to succeed but for the actual 
-   publish to fail, which would require some changes. So before running the next step:
-   - Ensure there have been no new commits to `master` which are not included in this 
-     branch.
-   - Notify core team members in the Element channel that no PRs should be merged to 
-     `master` during the release.
-   - The above are to ensure that the bundled code pushed to crates.io is the same as the 
-     tagged release on GitHub.
+1. Following a successful dry run, we can now publish to crates.io. 
+   - This will be done from the release branch itself.
+   - This is because it is possible for the dry run to succeed but for the actual publish 
+     to fail and require some changes. So before running the next step:
+     - Ensure there have been no new commits to `master` which are not included in this 
+       branch.
+     - Notify core team members in the Element channel that no PRs should be merged to 
+       `master` during the release.
+     - The above are to ensure that the bundled code pushed to crates.io is the same as 
+       the tagged release on GitHub.
 1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [new_version] -v --no-tag --no-push --execute`
     - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer 
       compatible version you are attempting to release e.g. `4.0.0-alpha.3`.
