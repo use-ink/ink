@@ -1,18 +1,19 @@
 [package]
 name = "ink_storage_traits"
-version = "4.0.0-alpha.3"
-authors = ["Parity Technologies <admin@parity.io>"]
-edition = "2021"
-
-license = "Apache-2.0"
-readme = "../README.md"
-repository = "https://github.com/paritytech/ink"
 documentation = "https://docs.rs/ink_storage_traits"
-homepage = "https://www.parity.io/"
-description = "[ink!] defines traits for using ink storage."
-keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
-categories = ["no-std", "embedded"]
-include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description.workspace = true
+keywords.workspace = true
+categories.workspace = true
+include.workspace = true
 
 [dependencies]
 ink_metadata = { version = "4.0.0-alpha.3", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
