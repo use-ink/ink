@@ -248,6 +248,14 @@ impl Constructor {
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
     }
+
+    /// Returns the return type of the ink! constructor if any.
+    pub fn output(&self) -> Option<&syn::Type> {
+        match &self.item.sig.output {
+            syn::ReturnType::Default => None,
+            syn::ReturnType::Type(_, return_type) => Some(return_type),
+        }
+    }
 }
 
 #[cfg(test)]

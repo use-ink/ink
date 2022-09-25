@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod return_err {
 
@@ -14,20 +12,28 @@ mod return_err {
         value: bool,
     }
 
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    pub enum Error {
+        Foo,
+    }
+
+    pub type Result<T> = core::result::Result<T, Error>;
+
     impl ReturnErr {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(bool: false) -> Result<Self> {
-            Result::Err(Error::Foo)
+        pub fn new(init_value: bool) -> Result<Self> {
+            Err(Error::Foo)
         }
 
         /// Constructor that initializes the `bool` value to `false`.
         ///
         /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
-        }
+        // #[ink(constructor)]
+        // pub fn default() -> Self {
+        //     Self::new(Default::default())
+        // }
 
         /// A message that can be called on instantiated contracts.
         /// This one flips the value of the stored `bool` from `true`

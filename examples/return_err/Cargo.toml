@@ -5,11 +5,7 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { version = "4.0.0-alpha.1", default-features = false }
-ink_metadata = { version = "4.0.0-alpha.1", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "4.0.0-alpha.1", default-features = false }
-ink_storage = { version = "4.0.0-alpha.1", default-features = false }
-ink_lang = { version = "4.0.0-alpha.1", default-features = false }
+ink = { path = "../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
@@ -17,18 +13,12 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 [lib]
 name = "return_err"
 path = "lib.rs"
-crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-]
+crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
 std = [
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_storage/std",
-    "ink_primitives/std",
+    "ink/std",
     "scale/std",
     "scale-info/std",
 ]
