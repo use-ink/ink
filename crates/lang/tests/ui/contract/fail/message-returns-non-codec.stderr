@@ -49,8 +49,13 @@ note: required by a bound in `return_value`
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
+<<<<<<< HEAD:crates/lang/tests/ui/contract/fail/message-returns-non-codec.stderr
 6   |       pub struct NonCodecType;
     |       ------------------------ doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
+=======
+4   |     pub struct NonCodecType;
+    |     ----------------------- doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
+>>>>>>> 9fe9a4224... Fix UI tests for latest stable `1.64` (#1416):crates/ink/tests/ui/contract/fail/message-returns-non-codec.stderr
 ...
 18  | /         pub fn message(&self) -> NonCodecType {
 19  | |             NonCodecType
@@ -62,11 +67,5 @@ error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<De
 note: the following trait must be implemented
    --> $CARGO/parity-scale-codec-3.1.5/src/codec.rs
     |
-    | / pub trait Decode: Sized {
-    | |     // !INTERNAL USE ONLY!
-    | |     // This const helps SCALE to optimize the encoding/decoding by doing fake specialization.
-    | |     #[doc(hidden)]
-...   |
-    | |     }
-    | | }
-    | |_^
+    | pub trait Decode: Sized {
+    | ^^^^^^^^^^^^^^^^^^^^^^^

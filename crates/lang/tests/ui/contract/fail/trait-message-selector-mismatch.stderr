@@ -1,8 +1,13 @@
 error[E0308]: mismatched types
   --> tests/ui/contract/fail/trait-message-selector-mismatch.rs:25:9
    |
+<<<<<<< HEAD:crates/lang/tests/ui/contract/fail/trait-message-selector-mismatch.stderr
 25 |         fn message(&self) {}
    |         ^^^^^^^^^^^^^^^^^^^^ expected `1_u32`, found `2_u32`
+=======
+23 |         fn message(&self) {}
+   |         ^^ expected `1`, found `2`
+>>>>>>> 9fe9a4224... Fix UI tests for latest stable `1.64` (#1416):crates/ink/tests/ui/contract/fail/trait-message-selector-mismatch.stderr
    |
-   = note: expected struct `TraitMessageSelector<1_u32>`
-              found struct `TraitMessageSelector<2_u32>`
+   = note: expected struct `TraitMessageSelector<1>`
+              found struct `TraitMessageSelector<2>`

@@ -1,8 +1,13 @@
 error[E0599]: no function or associated item named `env` found for struct `Contract` in the current scope
   --> tests/ui/contract/fail/impl-block-using-static-env-no-marker.rs:22:27
    |
+<<<<<<< HEAD:crates/lang/tests/ui/contract/fail/impl-block-using-static-env-no-marker.stderr
 6  |     pub struct Contract {}
    |     ------------------- function or associated item `env` not found for this
+=======
+4  |     pub struct Contract {}
+   |     --- function or associated item `env` not found for this struct
+>>>>>>> 9fe9a4224... Fix UI tests for latest stable `1.64` (#1416):crates/ink/tests/ui/contract/fail/impl-block-using-static-env-no-marker.stderr
 ...
 22 |             let _ = Self::env().caller();
    |                           ^^^ function or associated item not found in `Contract`
