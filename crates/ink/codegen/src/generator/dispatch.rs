@@ -257,8 +257,8 @@ impl Dispatch<'_> {
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
 
-                        const CALLABLE: fn(Self::Input) -> Self::Storage = |#input_tuple_bindings| {
-                            #storage_ident::#constructor_ident( #( #input_bindings ),* )
+                        const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
+                            #storage_ident::#constructor_ident(#( #input_bindings ),* )
                         };
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
@@ -573,7 +573,7 @@ impl Dispatch<'_> {
                         )
                     }
 
-                    ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
+                    ::ink::codegen::execute_constructor::<#constructor_output, _, _>(
                         move || { #constructor_callable(input) }
                     )
                 }
