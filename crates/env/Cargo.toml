@@ -59,8 +59,7 @@ serde_json = "1.0.81"
 tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = "0.4"
 env_logger = "0.8"
-# TODO we need to use `subxt`'s `master` until the next release is published.
-subxt = { git = "https://github.com/paritytech/subxt" }
+subxt = "0.24.0"
 
 # Substrate
 sp-rpc = "6.0.0"
