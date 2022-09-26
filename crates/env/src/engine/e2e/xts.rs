@@ -233,7 +233,6 @@ where
                     err
                 );
             })
-            // TODO(#xxx) It should be configurable to use `.wait_for_finalized_success` instead.
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
