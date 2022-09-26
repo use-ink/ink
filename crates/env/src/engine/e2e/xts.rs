@@ -218,13 +218,15 @@ where
         )
         .unvalidated();
 
-        self
-            .client
+        self.client
             .tx()
             .sign_and_submit_then_watch_default(&call, signer)
             .await
             .map(|tx_progress| {
-                log_info(&format!("signed and submitted tx with hash {:?}", tx_progress.extrinsic_hash()));
+                log_info(&format!(
+                    "signed and submitted tx with hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
                 tx_progress
             })
             .unwrap_or_else(|err| {
@@ -236,18 +238,12 @@ where
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `wait_for_in_block`: {:?}",
-                    err
-                );
+                panic!("error on call `wait_for_in_block`: {:?}", err);
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `fetch_events`: {:?}",
-                    err
-                );
+                panic!("error on call `fetch_events`: {:?}", err);
             })
     }
 
