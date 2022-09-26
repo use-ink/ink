@@ -1,6 +1,6 @@
 #[ink::contract]
 mod contract {
-    use ink_storage::traits::StorageLayout;
+    use ink::storage::traits::StorageLayout;
 
     #[ink(storage)]
     pub struct Contract {

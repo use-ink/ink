@@ -14,13 +14,14 @@
 
 mod config;
 
+use crate::utils::find_storage_key_salt;
 use config::StorageItemConfig;
-use ink_storage_codegen::DeriveUtils;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     ToTokens,
 };
+use std::collections::HashSet;
 
 /// A checked ink! storage item with its configuration.
 pub struct StorageItem {
@@ -59,7 +60,36 @@ impl StorageItem {
 
     /// Returns all types that were used in the storage declaration.
     pub fn all_used_types(&self) -> Vec<syn::Type> {
-        self.ast.all_types()
+        let res: Vec<_> = match self.data().clone() {
+            syn::Data::Struct(st) => {
+                st.fields.iter().map(|field| field.ty.clone()).collect()
+            }
+            syn::Data::Enum(en) => {
+                en.variants
+                    .iter()
+                    .flat_map(|variant| variant.fields.iter())
+                    .map(|field| field.ty.clone())
+                    .collect()
+            }
+            syn::Data::Union(un) => {
+                un.fields
+                    .named
+                    .iter()
+                    .map(|field| field.ty.clone())
+                    .collect()
+            }
+        };
+        let mut set = HashSet::new();
+        res.into_iter()
+            .filter(|ty| {
+                if !set.contains(ty) {
+                    set.insert(ty.clone());
+                    true
+                } else {
+                    false
+                }
+            })
+            .collect()
     }
 
     /// Returns the config of the storage.
@@ -94,7 +124,7 @@ impl StorageItem {
 
     /// Returns salt for storage key.
     pub fn salt(&self) -> TokenStream2 {
-        if let Some(param) = self.ast.find_salt() {
+        if let Some(param) = find_storage_key_salt(&self.ast) {
             param.ident.to_token_stream()
         } else {
             quote! { () }

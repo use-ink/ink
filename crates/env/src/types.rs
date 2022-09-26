@@ -159,7 +159,7 @@ pub trait Environment {
     /// This is a type that is defined through the `#[ink::chain_extension]` procedural macro.
     /// For more information about usage and definition click [this][chain_extension] link.
     ///
-    /// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html
+    /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
 }
 

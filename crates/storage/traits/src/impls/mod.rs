@@ -119,14 +119,10 @@ mod tests {
                 #[test]
                 #[allow(non_snake_case)]
                 fn [<$ty _storage_hint_works>] () {
-                    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-                        assert_eq!(
-                            ::core::any::TypeId::of::<$ty>(),
-                            ::core::any::TypeId::of::<<$ty as $crate::StorableHint<$crate::ManualKey<123>>>::Type>()
-                        );
-                        Ok(())
-                    })
-                    .unwrap()
+                    assert_eq!(
+                        ::core::any::TypeId::of::<$ty>(),
+                        ::core::any::TypeId::of::<<$ty as $crate::StorableHint<$crate::ManualKey<123>>>::Type>()
+                    );
                 }
             }
         };
