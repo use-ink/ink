@@ -21,7 +21,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
 
-#[cfg(not(feature = "std"))]
+#[cfg(not(any(feature = "std", feature = "no-allocator")))]
 #[global_allocator]
 static mut ALLOC: bump::BumpAllocator = bump::BumpAllocator {};
 

@@ -25,3 +25,4 @@ quickcheck_macros = "1"
 default = ["std"]
 std = []
 ink-fuzz-tests = ["std"]
+no-allocator = []
