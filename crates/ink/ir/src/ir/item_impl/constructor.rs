@@ -250,6 +250,7 @@ impl Constructor {
     }
 
     /// Returns the return type of the ink! constructor if any.
+    // TODO: rewrite as enum
     pub fn output(&self) -> Option<&syn::Type> {
         match &self.item.sig.output {
             syn::ReturnType::Default => None,

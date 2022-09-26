@@ -573,7 +573,7 @@ impl Dispatch<'_> {
                         )
                     }
 
-                    ::ink::codegen::execute_constructor::<#constructor_output, _, _>(
+                    ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
                         move || { #constructor_callable(input) }
                     )
                 }

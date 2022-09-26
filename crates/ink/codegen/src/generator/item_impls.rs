@@ -138,17 +138,8 @@ impl ItemImpls<'_> {
                         >();
                     )
                 });
-                let constructor_output = constructor.output().map(|output_type| {
-                    let span = output_type.span();
-                    quote_spanned!(span=>
-                        ::ink::codegen::utils::consume_type::<
-                            ::ink::codegen::DispatchOutput<#output_type>
-                        >();
-                    )
-                });
                 quote_spanned!(constructor_span=>
                     #( #constructor_inputs )*
-                    #constructor_output
                 )
             });
         let message_inout_guards = self
