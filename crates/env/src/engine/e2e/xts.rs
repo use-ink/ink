@@ -47,8 +47,9 @@ use subxt::{
 /// The gas limit for contract instantiate and call dry runs.
 const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
-// TODO(#1422) Should be fetched automatically.
-#[subxt::subxt(runtime_metadata_path = "metadata/contracts-node.scale")]
+// TODO(#xxx) Should be fetched automatically.
+//#[subxt::subxt(runtime_metadata_path = "/Users/michi/projects/ink/crates/env/e2e/metadata/contracts-node.scale")]
+#[subxt::subxt(crate = "crate::e2e::subxt", runtime_metadata_path = "metadata/contracts-node.scale")]
 pub(super) mod api {}
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
@@ -67,7 +68,7 @@ pub struct InstantiateWithCode<B> {
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct Call<C: subxt::Config, B> {
-    dest: ::subxt::ext::sp_runtime::MultiAddress<C::AccountId, ()>,
+    dest: sp_runtime::MultiAddress<C::AccountId, ()>,
     #[codec(compact)]
     value: B,
     #[codec(compact)]

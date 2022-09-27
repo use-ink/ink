@@ -59,7 +59,8 @@ serde_json = { version = "1.0.81", optional = true }
 tokio = { version = "1.18.2", features = ["rt-multi-thread"], optional = true }
 log = { version = "0.4", optional = true }
 env_logger = { version = "0.9", optional = true }
-subxt = { version = "0.24.0", optional = true }
+# TODO we need to use `subxt`'s `master` until the next release is published.
+subxt = { git = "https://github.com/paritytech/subxt", branch = "master", optional = true }
 
 # Substrate
 sp-rpc = { version = "6.0.0", optional = true }
@@ -67,8 +68,8 @@ sp-core = { version = "6.0.0", optional = true }
 sp-keyring = { version = "6.0.0", optional = true }
 sp-runtime = { version = "6.0.0", optional = true }
 
-# TODO(#1421) `smart-bench_macro` needs to be forked.
-smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp", package = "smart-bench-macro", optional = true}
+# TODO(#xxx) `smart-bench_macro` needs to be forked.
+smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp-cross-contract", package = "smart-bench-macro", optional = true }
 
 [features]
 default = ["std"]
