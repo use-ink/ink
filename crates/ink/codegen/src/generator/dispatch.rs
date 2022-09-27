@@ -24,7 +24,11 @@ use ir::{
     HexLiteral as _,
 };
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote, quote_spanned};
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
 use syn::spanned::Spanned as _;
 
 /// Generates code for the message and constructor dispatcher.
