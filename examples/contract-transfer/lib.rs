@@ -10,6 +10,12 @@ pub mod give_me {
     #[ink(storage)]
     pub struct GiveMe {}
 
+    /// Emitted whenever a new name is being registered.
+    #[ink(event)]
+    pub struct Foo {
+        balance: Balance,
+    }
+
     impl GiveMe {
         /// Creates a new instance of this contract.
         #[ink(constructor, payable)]
@@ -57,6 +63,13 @@ pub mod give_me {
                 self.env().transferred_value()
             );
             assert!(self.env().transferred_value() == 10, "payment was not ten");
+        }
+
+        /// TODO
+        #[ink(message)]
+        pub fn foo(&mut self) -> Result<Balance, ()> {
+            self.env().emit_event(Foo { balance: self.env().balance()});
+            Ok(self.env().balance())
         }
     }
 
@@ -260,6 +273,36 @@ pub mod give_me {
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);
             assert!(client.node_log_contains("requested value: 100000000000000\n"));
+
+            Ok(())
+        }
+
+        #[ink::e2e_test]
+        async fn e2e_foo(
+            mut client: ink::env::e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = contract_transfer::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink::env::e2e::bob(), constructor, 1337, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let foo = contract_transfer::messages::foo();
+            let out = client
+                .call(
+                    &mut ink::env::e2e::eve(),
+                    contract_acc_id.clone(),
+                    foo.into(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("call failed");
+
+            eprintln!("{:?}", out.dry_run);
 
             Ok(())
         }
