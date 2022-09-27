@@ -59,7 +59,8 @@ serde_json = "1.0.81"
 tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = "0.4"
 env_logger = "0.8"
-subxt = "0.24.0"
+# TODO we need to use `subxt`'s `master` until the next release is published.
+subxt = { git = "https://github.com/paritytech/subxt", branch = "cmichi-allow-specifying-crate-path" }
 
 # Substrate
 sp-rpc = "6.0.0"
@@ -68,7 +69,8 @@ sp-keyring = "6.0.0"
 sp-runtime = "6.0.0"
 
 # TODO(#xxx) `smart-bench_macro` needs to be forked.
-smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp", package = "smart-bench-macro"}
+smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp-cross-contract", package = "smart-bench-macro"}
+#smart-bench-macro = { path = "/Users/michi/projects/smart-bench/macro/" }
 
 [features]
 default = ["std"]

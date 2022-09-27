@@ -162,7 +162,12 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match &self {
-            Error::InstantiateDryRun(_) => f.write_str("InstantiateDryRun"),
+            Error::InstantiateDryRun(res) => f.write_str(
+            &format!(
+                    "InstantiateDryRun: {}",
+                    &String::from_utf8_lossy(&res.debug_message)
+                )
+            ),
             Error::InstantiateExtrinsic(_) => f.write_str("InstantiateExtrinsic"),
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
@@ -259,7 +264,9 @@ where
     where
         CO: InkConstructor,
     {
-        let reader = std::fs::File::open(&self.contract_path).unwrap_or_else(|err| {
+        let contract_path = CO::CONTRACT_PATH;
+        log_info(&format!("opening {:?}", contract_path));
+        let reader = std::fs::File::open(&contract_path).unwrap_or_else(|err| {
             panic!("contract path cannot be opened: {:?}", err);
         });
         let contract: contract_metadata::ContractMetadata =
@@ -273,7 +280,7 @@ where
 
         log_info(&format!(
             "{:?} has {} KiB",
-            self.contract_path,
+            contract_path,
             code.0.len() / 1024
         ));
 
@@ -311,7 +318,7 @@ where
         constructor: &CO,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>> {
         let mut data = CO::SELECTOR.to_vec();
-        log_info(&format!("instantiating with selector: {:?}", CO::SELECTOR));
+        log_info(&format!("instantiating with selector: {:?} {:04X?}", CO::SELECTOR, CO::SELECTOR));
         <CO as scale::Encode>::encode_to(constructor, &mut data);
 
         let salt = std::time::SystemTime::now()

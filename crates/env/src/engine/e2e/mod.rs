@@ -35,6 +35,7 @@ pub use env_logger;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::tx::PairSigner;
 pub use tokio;
+pub use subxt;
 
 use log;
 use sp_core::sr25519;
@@ -84,12 +85,16 @@ pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 pub trait InkConstructor: scale::Encode {
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
+    /// TODO
+    const CONTRACT_PATH: &'static str;
 }
 
 /// Trait for contract messages.
 pub trait InkMessage: scale::Encode {
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
+    /// TODO
+    const CONTRACT_PATH: &'static str;
 }
 
 /// We use this to only initialize `env_logger` once.
@@ -118,4 +123,12 @@ pub fn log_info(msg: &str) {
 /// Writes `msg` to stderr.
 pub fn log_error(msg: &str) {
     log::error!("[{}] {}", log_prefix(), msg);
+}
+
+/// TODO
+#[macro_export]
+macro_rules! build {
+        ($($arg:tt)*) => (
+            ink::env::e2e::smart_bench_macro::contract!($($arg)*)
+        );
 }

@@ -541,7 +541,7 @@ impl DispatchError {
             Self::InvalidSelector => "unable to decode selector",
             Self::UnknownSelector => "encountered unknown selector",
             Self::InvalidParameters => "unable to decode input",
-            Self::CouldNotReadInput => "could not read input",
+            Self::CouldNotReadInput => "could not read input from extrinsic",
             Self::PaidUnpayableMessage => "paid an unpayable message",
         }
     }
