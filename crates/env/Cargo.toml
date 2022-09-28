@@ -58,7 +58,7 @@ serde = { version = "1.0.137", default-features = false, features = ["derive"], 
 serde_json = { version = "1.0.81", optional = true }
 tokio = { version = "1.18.2", features = ["rt-multi-thread"], optional = true }
 log = { version = "0.4", optional = true }
-env_logger = { version = "0.8", optional = true }
+env_logger = { version = "0.9", optional = true }
 subxt = { version = "0.24.0", optional = true }
 
 # Substrate
