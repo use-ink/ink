@@ -27,26 +27,7 @@ use syn::{
     Result,
 };
 
-<<<<<<<< HEAD:crates/ink/ir/src/ir/event_def.rs
-/// A checked ink! event definition.
-========
-/// An ink! event struct definition.
-///
-/// # Example
-///
-/// ```
-/// # let event = <ink_ir::Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
-/// #[ink(event)]
-/// pub struct Transaction {
-///     #[ink(topic)]
-///     from: AccountId,
-///     #[ink(topic)]
-///     to: AccountId,
-///     value: Balance,
-/// }
-/// # }).unwrap();
-/// ```
->>>>>>>> master:crates/ink/ir/src/ir/item/event.rs
+/// An ink! event enum definition.
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkEventDefinition {
     pub item: syn::ItemEnum,
