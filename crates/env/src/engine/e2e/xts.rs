@@ -47,7 +47,7 @@ use subxt::{
 /// The gas limit for contract instantiate and call dry runs.
 const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
-// TODO(#xxx) Should be fetched automatically.
+// TODO(#1422) Should be fetched automatically.
 #[subxt::subxt(runtime_metadata_path = "metadata/contracts-node.scale")]
 pub(super) mod api {}
 
@@ -317,7 +317,6 @@ where
                     err
                 );
             })
-            // TODO(#xxx) It should be configurable to use `.wait_for_finalized_success` instead.
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {

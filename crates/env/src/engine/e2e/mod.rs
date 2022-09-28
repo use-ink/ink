@@ -23,7 +23,7 @@ pub use client::{
     Error,
 };
 pub use default_accounts::*;
-// TODO(#xxx) `smart-bench_macro` needs to be forked.
+// TODO(#1421) `smart-bench_macro` needs to be forked.
 use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
@@ -80,7 +80,7 @@ pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
 pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 
 /// Trait for contract constructors.
-// TODO(#xxx) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
+// TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
 pub trait InkConstructor: scale::Encode {
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
