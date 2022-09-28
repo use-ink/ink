@@ -50,6 +50,7 @@ pub use self::{
         Contract,
         ExtensionId,
         ImplItem,
+        InkE2ETest,
         InkEventDefinition,
         InkItem,
         InkItemTrait,

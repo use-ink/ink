@@ -19,8 +19,10 @@ mod blake2;
 mod chain_extension;
 mod config;
 mod contract;
+mod e2e_config;
 mod event_def;
 mod idents_lint;
+mod ink_e2e_test;
 mod ink_test;
 mod item;
 mod item_impl;
@@ -68,6 +70,8 @@ pub use self::{
     },
     config::Config,
     contract::Contract,
+    e2e_config::E2EConfig,
+    ink_e2e_test::InkE2ETest,
     event_def::InkEventDefinition,
     ink_test::InkTest,
     item::{

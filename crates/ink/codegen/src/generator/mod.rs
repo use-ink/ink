@@ -35,6 +35,7 @@ mod dispatch;
 mod env;
 mod event_def;
 mod events;
+mod ink_e2e_test;
 mod ink_test;
 mod item_impls;
 mod metadata;
@@ -61,6 +62,7 @@ pub use self::{
     env::Env,
     event_def::EventDefinition,
     events::Events,
+    ink_e2e_test::InkE2ETest,
     ink_test::InkTest,
     item_impls::ItemImpls,
     metadata::Metadata,
