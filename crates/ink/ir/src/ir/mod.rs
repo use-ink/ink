@@ -71,8 +71,8 @@ pub use self::{
     config::Config,
     contract::Contract,
     e2e_config::E2EConfig,
-    ink_e2e_test::InkE2ETest,
     event_def::InkEventDefinition,
+    ink_e2e_test::InkE2ETest,
     ink_test::InkTest,
     item::{
         InkItem,

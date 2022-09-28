@@ -97,7 +97,7 @@ impl InkEventDefinition {
                 index,
                 ident: variant.ident.clone(),
                 named_fields,
-                fields
+                fields,
             })
         }
         Ok(Self {
@@ -140,11 +140,8 @@ impl InkEventDefinition {
 
     /// Returns the maximum number of topics of any event variant.
     pub fn max_len_topics(&self) -> usize {
-        self
-            .variants()
-            .map(|v| v.fields()
-                .filter(|event| event.is_topic)
-                .count())
+        self.variants()
+            .map(|v| v.fields().filter(|event| event.is_topic).count())
             .max()
             .unwrap_or_default()
     }

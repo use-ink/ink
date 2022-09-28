@@ -30,8 +30,8 @@ mod my_contract {
             #[ink(topic)]
             v2: bool,
             #[ink(topic)]
-            v3: bool
-        }
+            v3: bool,
+        },
     }
 
     impl MyContract {
