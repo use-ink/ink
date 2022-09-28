@@ -157,7 +157,7 @@ impl Metadata<'_> {
             syn::Pat::Ident(ident) => &ident.ident,
             _ => unreachable!("encountered ink! dispatch input with missing identifier"),
         };
-        let type_spec = generate_type_spec(&pat_type.ty);
+        let type_spec = Self::generate_type_spec(&pat_type.ty);
         quote! {
             ::ink::metadata::MessageParamSpec::new(::core::stringify!(#ident))
                 .of_type(#type_spec)
@@ -325,10 +325,9 @@ impl Metadata<'_> {
         self.contract.module().events().map(|event| {
             let span = event.span();
             let ident = event.ident();
+            let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
+            let args = Self::generate_event_args(event);
             quote_spanned!(span =>
-<<<<<<<< HEAD:crates/ink/codegen/src/generator/metadata/mod.rs
-                <#ident as ::ink_metadata::EventMetadata>::event_spec()
-========
                 ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
                     .args([
                         #( #args ),*
@@ -337,36 +336,10 @@ impl Metadata<'_> {
                         #( #docs ),*
                     ])
                     .done()
->>>>>>>> master:crates/ink/codegen/src/generator/metadata.rs
             )
         })
     }
-}
 
-<<<<<<<< HEAD:crates/ink/codegen/src/generator/metadata/mod.rs
-/// Generates the ink! metadata for the given type.
-pub fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
-    fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-        quote! { ::ink_metadata::TypeSpec::new::<#ty>() }
-    }
-    if let syn::Type::Path(type_path) = ty {
-        if type_path.qself.is_some() {
-            return without_display_name(ty)
-        }
-        let path = &type_path.path;
-        if path.segments.is_empty() {
-            return without_display_name(ty)
-        }
-        let segs = path
-            .segments
-            .iter()
-            .map(|seg| &seg.ident)
-            .collect::<Vec<_>>();
-        quote! {
-            ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
-                ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                    .map(::core::convert::AsRef::as_ref)
-========
     /// Generate ink! metadata for a single argument of an ink! event definition.
     fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
         event.fields().map(|event_field| {
@@ -386,11 +359,8 @@ pub fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
                         #( #docs ),*
                     ])
                     .done()
->>>>>>>> master:crates/ink/codegen/src/generator/metadata.rs
             )
-        }
-    } else {
-        without_display_name(ty)
+        })
     }
 }
 
@@ -431,7 +401,7 @@ mod tests {
                  * may span many,
                  * many lines
                  "
-            .to_string()],
+                .to_string()],
         );
         assert_eq!(
             extract_doc_attributes(&[
