@@ -144,7 +144,7 @@
     <span class="ident">Error</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">default_accounts</span>::<span class="kw-2">*</span>;
-<span class="comment">// TODO(#xxx) `smart-bench_macro` needs to be forked.</span>
+<span class="comment">// TODO(#1421) `smart-bench_macro` needs to be forked.</span>
 <span class="kw">use</span> <span class="ident">pallet_contracts_primitives</span>::{
     <span class="ident">ContractExecResult</span>,
     <span class="ident">ContractInstantiateResult</span>,
@@ -201,7 +201,7 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Signer</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">PairSigner</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">sr25519::Pair</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Trait for contract constructors.</span>
-<span class="comment">// TODO(#xxx) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.</span>
+<span class="comment">// TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">InkConstructor</span>: <span class="ident">scale::Encode</span> {
     <span class="doccomment">/// An ink! selector consists of four bytes.</span>
     <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];

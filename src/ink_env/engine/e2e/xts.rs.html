@@ -331,11 +331,6 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -385,7 +380,7 @@
 <span class="doccomment">/// The gas limit for contract instantiate and call dry runs.</span>
 <span class="kw">const</span> <span class="ident">DRY_RUN_GAS_LIMIT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">500_000_000_000</span>;
 
-<span class="comment">// TODO(#xxx) Should be fetched automatically.</span>
+<span class="comment">// TODO(#1422) Should be fetched automatically.</span>
 <span class="attribute">#[<span class="ident">subxt::subxt</span>(<span class="ident">runtime_metadata_path</span> <span class="op">=</span> <span class="string">&quot;metadata/contracts-node.scale&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod</span> <span class="ident">api</span> {}
 
@@ -640,13 +635,15 @@
         )
         .<span class="ident">unvalidated</span>();
 
-        <span class="self">self</span>
-            .<span class="ident">client</span>
+        <span class="self">self</span>.<span class="ident">client</span>
             .<span class="ident">tx</span>()
             .<span class="ident">sign_and_submit_then_watch_default</span>(<span class="kw-2">&amp;</span><span class="ident">call</span>, <span class="ident">signer</span>)
             .<span class="kw">await</span>
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">tx_progress</span><span class="op">|</span> {
-                <span class="ident">log_info</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;signed and submitted call with extrinsic hash {:?}&quot;</span>, <span class="ident">tx_progress</span>.<span class="ident">extrinsic_hash</span>()));
+                <span class="ident">log_info</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">&quot;signed and submitted call with extrinsic hash {:?}&quot;</span>,
+                    <span class="ident">tx_progress</span>.<span class="ident">extrinsic_hash</span>()
+                ));
                 <span class="ident">tx_progress</span>
             })
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
@@ -655,22 +652,15 @@
                     <span class="ident">err</span>
                 );
             })
-            <span class="comment">// TODO(#xxx) It should be configurable to use `.wait_for_finalized_success` instead.</span>
             .<span class="ident">wait_for_in_block</span>()
             .<span class="kw">await</span>
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;error on call `wait_for_in_block`: {:?}&quot;</span>,
-                    <span class="ident">err</span>
-                );
+                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {:?}&quot;</span>, <span class="ident">err</span>);
             })
             .<span class="ident">fetch_events</span>()
             .<span class="kw">await</span>
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;error on call `fetch_events`: {:?}&quot;</span>,
-                    <span class="ident">err</span>
-                );
+                <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {:?}&quot;</span>, <span class="ident">err</span>);
             })
     }
 }
