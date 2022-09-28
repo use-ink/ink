@@ -1,8 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::new_without_default)]
 
-use ink_lang as ink;
-
 #[ink::trait_definition]
 pub trait Flip {
     /// Flips the current value of the Flipper's boolean.
@@ -48,7 +46,6 @@ pub mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn default_works() {

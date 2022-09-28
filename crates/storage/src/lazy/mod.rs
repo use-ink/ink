@@ -29,10 +29,8 @@ use crate::traits::{
     StorageKey,
 };
 use core::marker::PhantomData;
-use ink_primitives::{
-    traits::Storable,
-    Key,
-};
+use ink_primitives::Key;
+use ink_storage_traits::Storable;
 use scale::{
     Error,
     Input,
@@ -59,8 +57,7 @@ use scale::{
 ///
 /// This is an example of how you can do this:
 /// ```rust
-/// # use ink_lang as ink;
-/// # use ink_env::{
+/// # use ink::env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
 /// # };
@@ -68,7 +65,7 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink_storage::{traits::ManualKey, Lazy};
+/// use ink::storage::{traits::ManualKey, Lazy};
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]

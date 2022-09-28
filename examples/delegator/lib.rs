@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod delegator {
     use accumulator::AccumulatorRef;
@@ -17,7 +15,7 @@ mod delegator {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(ink_storage::traits::StorageLayout, scale_info::TypeInfo)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Which {
         Adder,

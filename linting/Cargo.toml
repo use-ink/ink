@@ -1,6 +1,6 @@
 [package]
 name = "ink_linting"
-version = "4.0.0-alpha.1"
+version = "4.0.0-alpha.3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -29,7 +29,7 @@ dylint_testing = "2.0.0"
 
 # The following are ink! dependencies, they are only required for the `ui` tests.
 ink_env = { path = "../crates/env", default-features = false }
-ink_lang = { path = "../crates/lang", default-features = false }
+ink = { path = "../crates/ink", default-features = false }
 ink_metadata = { path = "../crates/metadata", default-features = false }
 ink_primitives = { path = "../crates/primitives", default-features = false }
 ink_storage = { path = "../crates/storage", default-features = false }

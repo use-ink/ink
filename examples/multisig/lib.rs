@@ -60,20 +60,21 @@ pub use self::multisig::{
     Multisig,
     Transaction,
 };
-use ink_lang as ink;
 
 #[ink::contract]
 mod multisig {
-    use ink_env::{
-        call::{
-            build_call,
-            Call,
-            ExecutionInput,
+    use ink::{
+        env::{
+            call::{
+                build_call,
+                Call,
+                ExecutionInput,
+            },
+            CallFlags,
         },
-        CallFlags,
+        prelude::vec::Vec,
+        storage::Mapping,
     };
-    use ink_prelude::vec::Vec;
-    use ink_storage::Mapping;
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
@@ -98,7 +99,7 @@ mod multisig {
     #[derive(Clone, Copy, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
@@ -117,7 +118,7 @@ mod multisig {
             PartialEq,
             Eq,
             scale_info::TypeInfo,
-            ink_storage::traits::StorageLayout
+            ink::storage::traits::StorageLayout
         )
     )]
     pub struct Transaction {
@@ -154,7 +155,7 @@ mod multisig {
             PartialEq,
             Eq,
             scale_info::TypeInfo,
-            ink_storage::traits::StorageLayout
+            ink::storage::traits::StorageLayout
         )
     )]
     pub struct Transactions {
@@ -306,7 +307,7 @@ mod multisig {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
         /// ```should_panic
-        /// use ink_env::{
+        /// use ink::env::{
         ///     call::{
         ///         utils::ArgumentList,
         ///         Call,
@@ -317,7 +318,7 @@ mod multisig {
         ///     AccountId,
         ///     DefaultEnvironment as Env,
         /// };
-        /// use ink_lang::selector_bytes;
+        /// use ink::selector_bytes;
         /// use scale::Encode;
         /// use multisig::{Transaction, ConfirmationStatus};
         ///
@@ -340,7 +341,7 @@ mod multisig {
         /// //
         /// // Note that the selector bytes of the `submit_transaction` method
         /// // are `[86, 244, 13, 223]`.
-        /// let (id, _status) = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        /// let (id, _status) = ink::env::call::build_call::<ink::env::DefaultEnvironment>()
         ///     .call_type(Call::new().callee(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(ExecutionInput::new(Selector::new([86, 244, 13, 223]))
@@ -354,7 +355,7 @@ mod multisig {
         /// //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
-        /// ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+        /// ink::env::call::build_call::<ink::env::DefaultEnvironment>()
         ///     .call_type(Call::new().callee(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236]))
@@ -536,7 +537,7 @@ mod multisig {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             assert!(self.env().transferred_value() == t.transferred_value);
-            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
                         .callee(t.callee)
@@ -569,7 +570,7 @@ mod multisig {
         ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
                         .callee(t.callee)
@@ -713,11 +714,10 @@ mod multisig {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_env::{
+        use ink::env::{
             call::utils::ArgumentList,
             test,
         };
-        use ink_lang as ink;
 
         const WALLET: [u8; 32] = [7; 32];
 
@@ -739,7 +739,7 @@ mod multisig {
         }
 
         fn set_caller(sender: AccountId) {
-            ink_env::test::set_caller::<Environment>(sender);
+            ink::env::test::set_caller::<Environment>(sender);
         }
 
         fn set_from_wallet() {
@@ -758,13 +758,13 @@ mod multisig {
         }
 
         fn default_accounts() -> test::DefaultAccounts<Environment> {
-            ink_env::test::default_accounts::<Environment>()
+            ink::env::test::default_accounts::<Environment>()
         }
 
         fn build_contract() -> Multisig {
             // Set the contract's address as `WALLET`.
             let callee: AccountId = AccountId::from(WALLET);
-            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(callee);
+            ink::env::test::set_callee::<ink::env::DefaultEnvironment>(callee);
 
             let accounts = default_accounts();
             let owners = vec![accounts.alice, accounts.bob, accounts.eve];

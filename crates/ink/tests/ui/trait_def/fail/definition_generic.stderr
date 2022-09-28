@@ -1,0 +1,5 @@
+error: ink! trait definitions must not be generic
+ --> tests/ui/trait_def/fail/definition_generic.rs:2:27
+  |
+2 | pub trait TraitDefinition<T> {
+  |                           ^

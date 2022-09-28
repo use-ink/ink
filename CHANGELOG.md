@@ -6,6 +6,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.0.0-alpha.3
+
+### Breaking Changes
+
+#### New `ink` crate
+The `ink_lang` crate has been replaced in [#1223](https://github.com/paritytech/ink/pull/1223) by a new top level `ink`
+crate. All existing sub-crates are reexported and should be used via the new `ink` crate, so e.g. `ink::env` instead of
+`ink_env`. Contract authors should now import the top level `ink` crate instead of the individual crates.
+
+##### Migration
+- In `Cargo.toml` Replace all individual `ink_*` crate dependencies with the `ink` crate.
+- In the contract source:
+  - Remove the commonly used `use ink_lang as ink` idiom.
+  - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
+
+#### Storage Rework
+[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys 
+are generated at compile-time, and user facing abstractions which determine how contract data is laid out in storage
+have changed.
+
+##### Migration
+- Initialize `Mapping` fields with `Mapping::default()` instead of  `ink_lang::utils::initialize_contract` in
+constructors. See [`erc20`](./examples/erc20/lib.rs) and other examples which use a `Mapping`.
+- Remove `SpreadAllocate`, `SpreadLayout` and `PackedLayout` implementations.
+
+#### Removal of `wee-alloc` support
+ink! uses a bump allocator by default, additionally we supported another allocator (`wee-alloc`)
+through a feature flag. `wee-alloc` is no longer maintained and we removed support for it.
+
+### Changed
+- Introduce `ink` entrance crate ‒ [#1223](https://github.com/paritytech/ink/pull/1223)
+- Use `XXH32` instead of `sha256` for calculating storage keys ‒ [#1393](https://github.com/paritytech/ink/pull/1393)
+
+### Fixed
+- Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
+- Allow pay_with_call to take multiple arguments ‒ [#1401](https://github.com/paritytech/ink/pull/1401)
+
+### Added
+- Add `ink_env::pay_with_call!` helper macro for off-chain emulation of sending payments with contract message calls ‒ [#1379](https://github.com/paritytech/ink/pull/1379)
+
+### Removed
+- Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
+
+## Version 4.0.0-alpha.2
+
+**This version was skipped due to an error during the release process**
+
+As part of this series of `alpha`s we are looking for ways to streamline our release process,
+so small errors like this are learning experiences for us.
+
 ## Version 4.0.0-alpha.1
 
 ### Compatibility
@@ -47,7 +97,7 @@ return an `Option<u32>` instead of `()`.
 - Move ink! linter into `ink` repository ‒ [#1361](https://github.com/paritytech/ink/pull/1267)
 
 ### Removed
-- :x: Implement ecdsa_to_eth_address() and remove eth_compatibility crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+- :x: Implement `ecdsa_to_eth_address()` and remove `eth_compatibility` crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
 
 ## Version 3.3.1
 
@@ -144,7 +194,7 @@ We added two new `Mapping` API functions:
 [`Mapping::insert_return_size`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html#method.insert_return_size) ‒ [#1224](https://github.com/paritytech/ink/pull/1224).
 These are more gas-efficient than whatever you were using previously.
 
-Additionaly there are a couple new `ink_env` functions now:
+Additionally there are a couple new `ink_env` functions now:
 * [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
 * [`ink_env::own_code_hash`](https://paritytech.github.io/ink/ink_env/fn.own_code_hash.html)
 * [`ink_env::code_hash`](https://paritytech.github.io/ink/ink_env/fn.code_hash.html)

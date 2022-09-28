@@ -41,7 +41,7 @@ pub mod state {
 /// # Note
 ///
 /// This is needed because of conflicting implementations of `From<T> for T`
-/// in the generated code of `ink_lang`.
+/// in the generated code of `ink`.
 pub trait FromAccountId<T>
 where
     T: Environment,
