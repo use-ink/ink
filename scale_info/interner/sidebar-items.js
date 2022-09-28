@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["Interner","Interning data structure generic over the element type."],["Symbol","A symbol from an interner."],["UntrackedSymbol","A symbol that is not lifetime tracked."]]};

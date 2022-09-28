@@ -107,6 +107,10 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -128,7 +132,9 @@
 <span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">config</span>;
 <span class="kw">mod</span> <span class="ident">contract</span>;
+<span class="kw">mod</span> <span class="ident">e2e_config</span>;
 <span class="kw">mod</span> <span class="ident">idents_lint</span>;
+<span class="kw">mod</span> <span class="ident">ink_e2e_test</span>;
 <span class="kw">mod</span> <span class="ident">ink_test</span>;
 <span class="kw">mod</span> <span class="ident">item</span>;
 <span class="kw">mod</span> <span class="ident">item_impl</span>;
@@ -176,6 +182,8 @@
     },
     <span class="ident">config::Config</span>,
     <span class="ident">contract::Contract</span>,
+    <span class="ident">e2e_config::E2EConfig</span>,
+    <span class="ident">ink_e2e_test::InkE2ETest</span>,
     <span class="ident">ink_test::InkTest</span>,
     <span class="ident">item</span>::{
         <span class="ident">Event</span>,

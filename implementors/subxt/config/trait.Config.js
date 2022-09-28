@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["ink_env"] = [{"text":"impl Config for <a class=\"enum\" href=\"ink_env/e2e/enum.SubstrateConfig.html\" title=\"enum ink_env::e2e::SubstrateConfig\">SubstrateConfig</a>","synthetic":false,"types":["ink_env::engine::e2e::SubstrateConfig"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

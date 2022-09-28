@@ -37,6 +37,7 @@
 <span id="37">37</span>
 <span id="38">38</span>
 <span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -68,6 +69,7 @@
         <span class="kw">mod</span> <span class="ident">on_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::on_chain::EnvInstance</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> {
+        <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">e2e</span>;
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">off_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::off_chain::EnvInstance</span>;
     } <span class="kw">else</span> {

@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/e2e/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_env/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
+
+<span class="doccomment">//! Module for the logic behind ink!&#39;s End-to-End testing framework.</span>
+
+<span class="kw">mod</span> <span class="ident">client</span>;
+<span class="kw">mod</span> <span class="ident">default_accounts</span>;
+<span class="kw">mod</span> <span class="ident">xts</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">client</span>::{
+    <span class="ident">Client</span>,
+    <span class="ident">Error</span>,
+};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">default_accounts</span>::<span class="kw-2">*</span>;
+<span class="comment">// TODO(#xxx) `smart-bench_macro` needs to be forked.</span>
+<span class="kw">use</span> <span class="ident">pallet_contracts_primitives</span>::{
+    <span class="ident">ContractExecResult</span>,
+    <span class="ident">ContractInstantiateResult</span>,
+};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">smart_bench_macro</span>;
+<span class="kw">use</span> <span class="ident">xts::ContractsApi</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">env_logger</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sp_keyring::AccountKeyring</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">subxt::tx::PairSigner</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio</span>;
+
+<span class="kw">use</span> <span class="ident">log</span>;
+<span class="kw">use</span> <span class="ident">sp_core::sr25519</span>;
+<span class="kw">use</span> <span class="ident">sp_runtime::traits</span>::{
+    <span class="ident">IdentifyAccount</span>,
+    <span class="ident">Verify</span>,
+};
+<span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">cell::RefCell</span>,
+    <span class="ident">sync::Once</span>,
+};
+
+<span class="doccomment">/// Default set of commonly used types by Substrate runtimes.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SubstrateConfig</span> {}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">subxt::Config</span> <span class="kw">for</span> <span class="ident">SubstrateConfig</span> {
+    <span class="kw">type</span> <span class="ident">Index</span> <span class="op">=</span> <span class="ident">u32</span>;
+    <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">u32</span>;
+    <span class="kw">type</span> <span class="ident">Hash</span> <span class="op">=</span> <span class="ident">sp_core::H256</span>;
+    <span class="kw">type</span> <span class="ident">Hashing</span> <span class="op">=</span> <span class="ident">sp_runtime::traits::BlakeTwo256</span>;
+    <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> <span class="ident">sp_runtime::AccountId32</span>;
+    <span class="kw">type</span> <span class="ident">Address</span> <span class="op">=</span> <span class="ident">sp_runtime::MultiAddress</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::AccountId</span>, <span class="ident">u32</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Header</span> <span class="op">=</span>
+        <span class="ident">sp_runtime::generic::Header</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::BlockNumber</span>, <span class="ident">sp_runtime::traits::BlakeTwo256</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Signature</span> <span class="op">=</span> <span class="ident">sp_runtime::MultiSignature</span>;
+    <span class="kw">type</span> <span class="ident">Extrinsic</span> <span class="op">=</span> <span class="ident">sp_runtime::OpaqueExtrinsic</span>;
+    <span class="kw">type</span> <span class="ident">ExtrinsicParams</span> <span class="op">=</span> <span class="ident">subxt::tx::SubstrateExtrinsicParams</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+}
+
+<span class="doccomment">/// Default set of commonly used types by Polkadot nodes.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">PolkadotConfig</span> <span class="op">=</span> <span class="ident">subxt::config::WithExtrinsicParams</span><span class="op">&lt;</span>
+    <span class="ident">SubstrateConfig</span>,
+    <span class="ident">subxt::tx::PolkadotExtrinsicParams</span><span class="op">&lt;</span><span class="ident">SubstrateConfig</span><span class="op">&gt;</span>,
+<span class="op">&gt;</span>;
+
+<span class="doccomment">/// Signer that is used throughout the E2E testing.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The E2E testing can only be used with nodes that support `sr25519`</span>
+<span class="doccomment">/// cryptography.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Signer</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">PairSigner</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">sr25519::Pair</span><span class="op">&gt;</span>;
+
+<span class="doccomment">/// Trait for contract constructors.</span>
+<span class="comment">// TODO(#xxx) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">InkConstructor</span>: <span class="ident">scale::Encode</span> {
+    <span class="doccomment">/// An ink! selector consists of four bytes.</span>
+    <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
+}
+
+<span class="doccomment">/// Trait for contract messages.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">InkMessage</span>: <span class="ident">scale::Encode</span> {
+    <span class="doccomment">/// An ink! selector consists of four bytes.</span>
+    <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
+}
+
+<span class="doccomment">/// We use this to only initialize `env_logger` once.</span>
+<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">INIT</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once::new</span>();
+
+<span class="comment">// We save the name of the currently executing test here as a mean</span>
+<span class="comment">// of prefixing log entries to make it easier pinning them to tests.</span>
+<span class="macro">thread_local!</span> {
+    <span class="doccomment">/// This prefix will be used for log output. It is set by each</span>
+    <span class="doccomment">/// `#[ink::e2e_test]` with the function name as String.</span>
+    <span class="doccomment">/// This way it is possible to distinguish the lines in stdout</span>
+    <span class="doccomment">/// and stderr, to still know which line belongs to which test.</span>
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="ident">LOG_PREFIX</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;no prefix set&quot;</span>));
+}
+
+<span class="doccomment">/// Returns the name of the test which is currently executed.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log_prefix</span>() -&gt; <span class="ident">String</span> {
+    <span class="ident">LOG_PREFIX</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">log_prefix</span><span class="op">|</span> <span class="ident">log_prefix</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>())
+}
+
+<span class="doccomment">/// Writes `msg` to stdout.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log_info</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="macro">log::info!</span>(<span class="string">&quot;[{}] {}&quot;</span>, <span class="ident">log_prefix</span>(), <span class="ident">msg</span>);
+}
+
+<span class="doccomment">/// Writes `msg` to stderr.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log_error</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="macro">log::error!</span>(<span class="string">&quot;[{}] {}&quot;</span>, <span class="ident">log_prefix</span>(), <span class="ident">msg</span>);
+}
+</code></pre></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

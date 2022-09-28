@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines an End-to-End test."><meta name="keywords" content="rust, rustlang, rust-lang, e2e_test"><title>e2e_test in ink_macro - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In ink_macro</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ink_macro/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_macro</a>::<wbr><a class="attr" href="#">e2e_test</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_macro/lib.rs.html#965-967">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[e2e_test]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines an End-to-End test.</p>
+<p>The system requirements are:</p>
+<ul>
+<li>A Substrate node with <code>pallet-contracts</code> running in the background.
+You can e.g. use <a href="https://github.com/paritytech/substrate-contracts-node"><code>substrate-contracts-node</code></a>
+and launch it with
+<code>substrate-contracts-node -lerror,runtime::contracts=debug &gt; /tmp/contracts-node.log 2&gt;&amp;1</code>.</li>
+<li>A <code>cargo-contract</code> installation that can build the contract.</li>
+</ul>
+<p>Before the test function is invoked the contract will have been build. Any errors
+that occur during the contract build will prevent the test function from being
+invoked.</p>
+<h3 id="header-arguments"><a href="#header-arguments">Header Arguments</a></h3>
+<p>The <code>#[ink::e2e_test]</code> macro can be provided with some additional comma-separated
+header arguments:</p>
+<ul>
+<li>
+<p><code>ws_url: String</code></p>
+<p>The <code>ws_url</code> denotes the WebSocket URL where to connect to the RPC
+endpoint of the node.</p>
+<p><strong>Usage Example:</strong></p>
+<div class="example-wrap"><pre class="language-no_compile"><code>type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+#[ink::e2e_test(ws_url = &quot;ws://localhost:9944&quot;)]
+async fn e2e_contract_must_transfer_value_to_sender(
+    mut client: ink::env::e2e::Client&lt;C, E&gt;,
+) -&gt; E2EResult&lt;()&gt; {
+    Ok(())
+}</code></pre></div>
+<p><strong>Default value:</strong> <code>&quot;ws://localhost:9944&quot;</code>.</p>
+</li>
+<li>
+<p><code>node_log: String</code></p>
+<p>The <code>node_log</code> denotes the path under which to find the node’s log.</p>
+<p><strong>Usage Example:</strong></p>
+<div class="example-wrap"><pre class="language-no_compile"><code>type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+#[ink::e2e_test(ws_url = &quot;ws://localhost:9944&quot;)]
+async fn e2e_contract_must_transfer_value_to_sender(
+    mut client: ink::env::e2e::Client&lt;C, E&gt;,
+) -&gt; E2EResult&lt;()&gt; {
+    assert!(client.node_log_contains(&quot;requested value: 100000000000000\n&quot;));
+    Ok(())
+}</code></pre></div>
+<p><strong>Default value:</strong> <code>&quot;/tmp/contracts-node.log&quot;</code>.</p>
+</li>
+<li>
+<p><code>skip_build: true</code></p>
+<p>Skips building the contract as part of the test. This is handy for debugging
+test logic, when one wants to avoid the overhead of building the contract.</p>
+<p><strong>Usage Example:</strong></p>
+<div class="example-wrap"><pre class="language-no_compile"><code>type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+#[ink::e2e_test(skip_build = true)]
+async fn e2e_contract_must_transfer_value_to_sender(
+    mut client: ink::env::e2e::Client&lt;C, E&gt;,
+) -&gt; E2EResult&lt;()&gt; {
+    Ok(())
+}</code></pre></div>
+<p><strong>Default value:</strong> <code>false</code>.</p>
+</li>
+</ul>
+<h2 id="example"><a href="#example">Example</a></h2><div class="example-wrap"><pre class="language-no_compile"><code>#[cfg(test)]
+mod tests {
+    use ink::env::e2e::*;
+    type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+
+    #[ink::e2e_test(skip_build = true)]
+    async fn e2e_test_2(mut client: ink::env::e2e::Client&lt;C,E&gt;) -&gt; E2EResult&lt;()&gt; {
+        // given
+        let constructor = contract_transfer::constructors::new();
+        let contract_acc_id = client.instantiate(
+            &amp;mut ink::env::e2e::alice(),
+            constructor,
+            1337,
+            None,
+        )
+        .await
+        .expect(&quot;instantiating contract failed&quot;)
+        .account_id;
+
+        // when
+        let transfer = contract_transfer::messages::give_me(120);
+        let call_res = client.call(
+            &amp;mut ink::env::e2e::bob(),
+            contract_acc_id.clone(),
+            transfer.into(),
+            10,
+            None,
+        )
+        .await;
+
+        // then
+        assert!(call_res.is_ok());
+        Ok(())
+    }
+}</code></pre></div>
+<p>You can also use build the <code>Signer</code> type yourself, without going through
+the pre-defined functions:</p>
+<div class="example-wrap"><pre class="language-no_compile"><code>let mut bob = ink::env::e2e::PairSigner::new(
+    ink::env::e2e::AccountKeyring::Bob.pair()
+);</code></pre></div></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
