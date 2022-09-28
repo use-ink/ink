@@ -50,25 +50,25 @@ secp256k1 = { version = "0.24", features = ["recovery", "global-context"], optio
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-contract-metadata = "2.0.0-alpha.2"
-impl-serde = { version = "0.3.1", default-features = false }
-jsonrpsee = { version = "0.14.0", features = ["ws-client"] }
-pallet-contracts-primitives = "6.0.0"
-serde = { version = "1.0.137", default-features = false, features = ["derive"] }
-serde_json = "1.0.81"
-tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
-log = "0.4"
-env_logger = "0.8"
-subxt = "0.24.0"
+contract-metadata = { version = "2.0.0-alpha.2", optional = true }
+impl-serde = { version = "0.3.1", default-features = false, optional = true  }
+jsonrpsee = { version = "0.14.0", features = ["ws-client"], optional = true  }
+pallet-contracts-primitives = { version = "6.0.0", optional = true }
+serde = { version = "1.0.137", default-features = false, features = ["derive"], optional = true }
+serde_json = { version = "1.0.81", optional = true }
+tokio = { version = "1.18.2", features = ["rt-multi-thread"], optional = true }
+log = { version = "0.4", optional = true }
+env_logger = { version = "0.8", optional = true }
+subxt = { version = "0.24.0", optional = true }
 
 # Substrate
-sp-rpc = "6.0.0"
-sp-core = "6.0.0"
-sp-keyring = "6.0.0"
-sp-runtime = "6.0.0"
+sp-rpc = { version = "6.0.0", optional = true }
+sp-core = { version = "6.0.0", optional = true }
+sp-keyring = { version = "6.0.0", optional = true }
+sp-runtime = { version = "6.0.0", optional = true }
 
 # TODO(#1421) `smart-bench_macro` needs to be forked.
-smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp", package = "smart-bench-macro"}
+smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp", package = "smart-bench-macro", optional = true}
 
 [features]
 default = ["std"]
@@ -89,6 +89,22 @@ std = [
     "sha2",
     "sha3",
     "blake2",
+    # E2E testing environment
+    "contract-metadata",
+    "impl-serde",
+    "jsonrpsee",
+    "pallet-contracts-primitives",
+    "serde",
+    "serde_json",
+    "tokio",
+    "log",
+    "env_logger",
+    "subxt",
+    "sp-rpc",
+    "sp-core",
+    "sp-keyring",
+    "sp-runtime",
+    "smart-bench-macro",
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
