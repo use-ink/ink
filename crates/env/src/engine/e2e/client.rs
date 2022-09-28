@@ -509,7 +509,7 @@ where
 
     /// Returns true if the `substrate-contracts-node` log under
     /// `/tmp/contracts-node.log` contains `msg`.
-    /// TODO(#xxx) Matches on any log entry currently, even if done
+    /// TODO(#1423) Matches on any log entry currently, even if done
     /// by a different test.
     pub fn node_log_contains(&self, msg: &str) -> bool {
         let output = std::process::Command::new("grep")
