@@ -15,7 +15,6 @@
 //! ## Warning
 //!
 //! This contract is an *example*. It is neither audited nor endorsed for production use.
-//! Do **not** rely on it to keep any
 //!
 //! ## Tokens and AMMs
 //!
