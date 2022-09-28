@@ -355,7 +355,7 @@ mod tests {
                  * may span many,
                  * many lines
                  "
-                .to_string()],
+            .to_string()],
         );
         assert_eq!(
             extract_doc_attributes(&[

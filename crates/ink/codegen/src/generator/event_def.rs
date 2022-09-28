@@ -70,22 +70,21 @@ impl<'a> EventDefinition<'a> {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
 
-        let impls =
-            self.event_def.variants().map(|ev| {
-                let event_variant_ident = ev.ident();
-                let index = ev.index();
-                quote_spanned!(span=>
-                    impl ::ink_lang::reflect::EventVariantInfo<#index> for #event_ident {
-                        const SIGNATURE: [u8: 32] = ::ink_lang::blake2x256!(::core::concat!(
-                            ::core::module_path!(),
-                            "::",
-                            ::core::stringify!(#event_ident),
-                            "::",
-                            ::core::stringify!(#event_variant_ident)
-                        ));
-                    }
-                )
-            });
+        let impls = self.event_def.variants().map(|ev| {
+            let event_variant_ident = ev.ident();
+            let index = ev.index();
+            quote_spanned!(span=>
+                impl ::ink_lang::reflect::EventVariantInfo<#index> for #event_ident {
+                    const SIGNATURE: [u8: 32] = ::ink_lang::blake2x256!(::core::concat!(
+                        ::core::module_path!(),
+                        "::",
+                        ::core::stringify!(#event_ident),
+                        "::",
+                        ::core::stringify!(#event_variant_ident)
+                    ));
+                }
+            )
+        });
         quote_spanned!(span=>
             #(
                 #impls
@@ -102,9 +101,7 @@ impl<'a> EventDefinition<'a> {
     fn generate_topics_guard(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
-        let len_topics = self
-            .event_def
-            .max_len_topics();
+        let len_topics = self.event_def.max_len_topics();
 
         quote_spanned!(span=>
             impl ::ink_lang::codegen::EventLenTopics for #event_ident {

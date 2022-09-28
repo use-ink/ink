@@ -18,9 +18,7 @@ use crate::{
 };
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-};
+use quote::quote;
 
 /// Generates code for the ink! event structs of the contract.
 #[derive(From)]
