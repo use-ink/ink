@@ -67,7 +67,7 @@ jobs:
         run: |
             curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-linux' && \
             unzip substrate-contracts-node.zip && \
-            chmod artifacts/substrate-contracts-node-linux/substrate-contracts-node +x  &&
+            chmod +x artifacts/substrate-contracts-node-linux/substrate-contracts-node &&
             substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Rust Cache
