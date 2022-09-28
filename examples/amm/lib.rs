@@ -38,37 +38,10 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod amm {
-    use ink_storage::{traits::SpreadAllocate, Mapping};
-
-    /// Errors are returned for the following conditions:
-    /// ZeroLiquidity - the caller does not have any LP tokens
-    /// ZeroAmount - the caller has a zero balance for the token in question
-    /// InsufficientAmount - the caller sends a transaction exceeding their balance
-    /// NonEquivalentAmount - an LP deposits two tokens with unequal value
-    /// ThresholdNotReached - the calculated LP token amount for a contribution is 0
-    /// InvalidLPAmount - a caller withdraws more than the value of their LP balance
-    /// InsufficientLiquidity - swap amount exceeds what is available in the pool
-    /// SlippageExceeded - the max or min slippage exceeds the threshold set by the caller
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub enum Error {
-        ZeroLiquidity,
-        ZeroAmount,
-        InsufficientAmount,
-        NonEquivalentAmount,
-        ThresholdNotReached,
-        InvalidLPAmount,
-        InsufficientLiquidity,
-        SlippageExceeded,
-    }
-
-    /// We create an ergonomic helper so we can do things like Result<Balance> instead of
-    /// Result<Balance, Error>
-    pub type Result<T> = core::result::Result<T, Error>;
+    use ink::storage::Mapping;
+    use scale::{Decode, Encode};
 
     /// Amm
     /// This contract maintains all three tokens: token1, token2, and lp_tokens
@@ -79,7 +52,7 @@ mod amm {
     /// total2_balances - a ledger containing all user balances for token2
     /// lp_token_balances - a ledger containing all user balances for the LP token
     /// fee - the LP cut for all swaps made in the pool
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     #[ink(storage)]
     pub struct Amm {
         total_lp_tokens: LPTokens,
@@ -97,10 +70,34 @@ mod amm {
     type Token2 = Balance;
     type LPTokens = Balance;
 
+    /// Errors are returned for the following conditions:
+    /// ZeroLiquidity - the caller does not have any LP tokens
+    /// ZeroAmount - the caller has a zero balance for the token in question
+    /// InsufficientAmount - the caller sends a transaction exceeding their balance
+    /// NonEquivalentAmount - an LP deposits two tokens with unequal value
+    /// ThresholdNotReached - the calculated LP token amount for a contribution is 0
+    /// InvalidLPAmount - a caller withdraws more than the value of their LP balance
+    /// InsufficientLiquidity - swap amount exceeds what is available in the pool
+    /// SlippageExceeded - the max or min slippage exceeds the threshold set by the caller
+    #[derive(Debug, PartialEq, Eq, Encode, Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        InsufficientAmount,
+        InsufficientLiquidity,
+        InvalidLPAmount,
+        NonEquivalentAmount,
+        SlippageExceeded,
+        ThresholdNotReached,
+        ZeroAmount,
+        ZeroLiquidity,
+    }
+
+    /// We create an ergonomic helper so we can do things like Result<Balance> instead of
+    /// Result<Balance, Error>
+    pub type Result<T> = core::result::Result<T, Error>;
+
     /// Struct to hold Account balances
-    #[derive(
-        Default, Copy, PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode,
-    )]
+    #[derive(Default, Copy, PartialEq, Eq, Debug, Clone, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct Balances {
         token1: Token1,
@@ -120,13 +117,6 @@ mod amm {
         fee: Balance,
     }
 
-    /// Used to describe how much of each token was minted
-    #[ink(event)]
-    pub struct TokensMinted {
-        token1_amount: Token1,
-        token2_amount: Token2,
-    }
-
     /// Used to describe if token1 was swapped for Token2 or if Token2 was swapped for
     /// Token1
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -136,14 +126,30 @@ mod amm {
         Token2ForToken1,
     }
 
+    /// Used to describe how much of each token was minted
+    #[ink(event)]
+    pub struct TokensMinted {
+        #[ink(topic)]
+        account: AccountId,
+        #[ink(topic)]
+        token1_amount: Token1,
+        #[ink(topic)]
+        token2_amount: Token2,
+    }
+
     /// Used to describe how much of each token was deposited
     /// amount_token1 - how many of token1 was deposited by the liquidity provider
     /// amount_token2 - how many of token2 was deposited by the liquidity provider
     /// amount_lp - how many lp_tokens were given in exchange for both tokens
     #[ink(event)]
     pub struct LiquidityProvided {
+        #[ink(topic)]
+        account: AccountId,
+        #[ink(topic)]
         token1_amount: Token1,
+        #[ink(topic)]
         token2_amount: Token2,
+        #[ink(topic)]
         amount_lp: LPTokens,
     }
 
@@ -153,8 +159,13 @@ mod amm {
     /// amount_lp - how many lp_tokens were burned in exchange for both tokens
     #[ink(event)]
     pub struct LiquidityWithdrawn {
+        #[ink(topic)]
+        account: AccountId,
+        #[ink(topic)]
         token1_amount: Token1,
+        #[ink(topic)]
         token2_amount: Token2,
+        #[ink(topic)]
         amount_lp: LPTokens,
     }
 
@@ -164,8 +175,13 @@ mod amm {
     /// swap_type - Used to describe which token was deposited
     #[ink(event)]
     pub struct TokenSwapped {
+        #[ink(topic)]
+        account: AccountId,
+        #[ink(topic)]
         deposit_amount: Token1,
+        #[ink(topic)]
         swap_amount: Token2,
+        #[ink(topic)]
         swap_type: SwapType,
     }
 
@@ -184,14 +200,24 @@ mod amm {
         /// struct members the right way.
         #[ink(constructor)]
         pub fn new(fee: Balance, precision: u128) -> Self {
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.fee = if fee >= 1000 { 0 } else { fee };
-                contract.precision = if fee < 1_000_000 {
+            Self {
+                fee: if fee >= 1000 { 0 } else { fee },
+                precision: if fee < 1_000_000 {
                     1_000_000
                 } else {
                     precision
-                }
-            })
+                },
+                ..Self::default()
+            }
+            // ink_lang::utils::initialize_contract(|contract: &mut Self| {
+            // ink::utilities::initialize_contract(|contract: &mut Self| {
+            //     contract.fee = if fee >= 1000 { 0 } else { fee };
+            //     contract.precision = if fee < 1_000_000 {
+            //         1_000_000
+            //     } else {
+            //         precision
+            //     }
+            // })
         }
 
         // ==============================================================================
@@ -212,6 +238,7 @@ mod amm {
                 .insert(&caller, &(token2 + token2_amount));
 
             self.env().emit_event(TokensMinted {
+                account: caller,
                 token1_amount,
                 token2_amount,
             })
@@ -269,6 +296,7 @@ mod amm {
                 .insert(&caller, &(lp_token_balance + lp_tokens_for_deposit));
 
             self.env().emit_event(LiquidityProvided {
+                account: caller,
                 token1_amount,
                 token2_amount,
                 amount_lp: lp_tokens_for_deposit,
@@ -303,6 +331,7 @@ mod amm {
                 .insert(&caller, &(token2_amount + t2_balance));
 
             self.env().emit_event(LiquidityWithdrawn {
+                account: caller,
                 token1_amount,
                 token2_amount,
                 amount_lp: claim,
@@ -338,6 +367,7 @@ mod amm {
                 .insert(&caller, &(t2_balance + token2_amount));
 
             self.env().emit_event(TokenSwapped {
+                account: caller,
                 deposit_amount: token1_amount,
                 swap_amount: token2_amount,
                 swap_type: SwapType::Token1ForToken2,
@@ -374,6 +404,7 @@ mod amm {
                 .insert(&caller, &(token2_balance + token2_amount));
 
             self.env().emit_event(TokenSwapped {
+                account: caller,
                 deposit_amount: token2_amount,
                 swap_amount: token1_amount,
                 swap_type: SwapType::Token2ForToken1,
@@ -527,7 +558,6 @@ mod amm {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn can_create_amm() {
@@ -548,6 +578,8 @@ mod amm {
         fn faucet_increases_token_counts() {
             let mut contract = Amm::new(0, 1_000_000);
             contract.faucet(100, 200);
+
+            // assert_eq!(1, ink::env::test::recorded_events().count());
 
             assert_eq!(
                 contract.balances(),
