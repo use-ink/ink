@@ -442,7 +442,7 @@ mod tests {
         let event_def = <InkEventDefinition as TryFrom<syn::ItemEnum>>::try_from(
             syn::parse_quote! {
                 #[ink(event)]
-                pub struct MyEvent {
+                pub enum MyEvent {
                     Event {
                         #[ink(topic)]
                         field_1: i32,
@@ -454,7 +454,8 @@ mod tests {
             },
         )
         .unwrap();
-        let mut fields_iter = event_def.fields();
+        let event_variant = event_def.variants().next().expect("Event variant");
+        let mut fields_iter = event_variant.fields();
         for (is_topic, expected_field) in expected_fields {
             let field = fields_iter.next().unwrap();
             assert_eq!(field.is_topic, is_topic);
