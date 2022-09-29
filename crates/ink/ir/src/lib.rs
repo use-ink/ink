@@ -30,7 +30,7 @@
 #[macro_use]
 mod error;
 
-mod ast;
+pub mod ast;
 mod ir;
 mod literal;
 

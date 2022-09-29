@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::config::E2EConfig;
-use proc_macro::TokenStream as TokenStream2;
+use crate::{
+    config::E2EConfig, ir,
+};
+use proc_macro2::TokenStream as TokenStream2;
 
 /// The End-to-End test with all required information.
 pub struct InkE2ETest {
@@ -24,28 +26,20 @@ pub struct InkE2ETest {
 }
 
 /// The End-to-End test with all required information.
+#[derive(derive_more::From)]
 pub struct E2EFn {
     /// The function which was annotated.
     pub item_fn: syn::ItemFn,
-}
-
-impl TryFrom<syn::ItemFn> for E2EFn {
-    type Error = syn::Error;
-
-    fn try_from(item_fn: syn::ItemFn) -> Result<E2EFn, Self::Error> {
-        idents_lint::ensure_no_ink_identifiers(&item_fn)?;
-        Ok(E2EFn { item_fn })
-    }
 }
 
 impl InkE2ETest {
     /// Returns `Ok` if the test matches all requirements for an
     /// ink! E2E test definition.
     pub fn new(attrs: TokenStream2, input: TokenStream2) -> Result<Self, syn::Error> {
-        let config = syn::parse2::<ast::AttributeArgs>(attrs)?;
+        let config = syn::parse2::<ink_ir::ast::AttributeArgs>(attrs)?;
         let e2e_config = ir::E2EConfig::try_from(config)?;
         let item_fn = syn::parse2::<syn::ItemFn>(input)?;
-        let e2e_fn = E2EFn::try_from(item_fn)?;
+        let e2e_fn = E2EFn::from(item_fn);
         Ok(Self {
             item_fn: e2e_fn,
             config: e2e_config,

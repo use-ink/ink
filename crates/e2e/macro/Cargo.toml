@@ -19,6 +19,7 @@ name = "ink_e2e_macro"
 proc-macro = true
 
 [dependencies]
+ink_ir = { version = "4.0.0-alpha.3", path = "../../ink/ir" }
 derive_more = "0.99.17"
 env_logger = "0.9.1"
 log = "0.4.17"

@@ -38,14 +38,14 @@ pub fn contract_path() -> Option<PathBuf> {
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
-pub struct InkE2ETest<'a> {
+pub struct InkE2ETest {
     /// The test function to generate code for.
-    test: &'a ir::InkE2ETest,
+    test: ir::InkE2ETest,
 }
 
-impl InkE2ETest<'_> {
+impl InkE2ETest {
     /// Generates the code for `#[ink:e2e_test]`.
-    fn generate_code(&self) -> TokenStream2 {
+    pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
             return quote! {}

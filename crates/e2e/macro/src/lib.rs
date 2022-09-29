@@ -161,5 +161,6 @@ fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
 
 fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
     let test_definition = ir::InkE2ETest::new(attr, input)?;
-    Ok(generate_code(&test_definition))
+    let codegen = codegen::InkE2ETest::from(test_definition);
+    Ok(codegen.generate_code())
 }
