@@ -34,13 +34,13 @@ impl GenerateCode for EventDefinition<'_> {
         // let event_info_impl = self.generate_event_info_impl();
         // let event_metadata_impl = self.generate_event_metadata_impl();
         let event_variants_impls = self.generate_event_variant_info_impls();
-        let topics_impl = self.generate_topics_impl2();
+        let topics_impl = self.generate_topics_impl();
         // let topics_guard = self.generate_topics_guard();
         quote! {
             #event_enum
             // #event_info_impl
             // #event_metadata_impl
-            // #topics_impl
+            #topics_impl
             // #topics_guard
         }
     }
@@ -110,9 +110,48 @@ impl<'a> EventDefinition<'a> {
         )
     }
 
-    fn generate_topics_impl2(&self) -> TokenStream2 {
+    fn generate_topics_impl(&self) -> TokenStream2 {
         let span = self.event_def.span();
+        let event_ident = self.event_def.ident();
+        let len_topics = self
+            .event_def
+            .max_len_topics();
+
+        // Anonymous events require 1 fewer topics since they do not include their signature.
+        let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
+        let remaining_topics_ty = match len_topics + anonymous_topics_offset {
+            0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
+            n => {
+                quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n])
+            }
+        };
+
         quote_spanned!(span =>
+            const _: () = {
+                impl ::ink_env::Topics for #event_ident {
+                    type RemainingTopics = #remaining_topics_ty;
+
+                    fn topics<E, B>(
+                        &self,
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                    {
+                        todo!()
+                        // const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink::reflect::EventInfo>::PATH.as_bytes();
+                        //
+                        // builder
+                        //     .build::<Self>()
+                        //     #event_signature_topic
+                        //     #(
+                        //         #topic_impls
+                        //     )*
+                        //     .finish()
+                    }
+                }
+            };
         )
     }
 

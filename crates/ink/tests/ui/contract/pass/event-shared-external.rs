@@ -1,5 +1,3 @@
-use ink_lang as ink;
-
 // todo: add the wiring to detect the events metadata, and in cargo-contract merge together
 // todo: consider the possibility of enforcing shared events to be an enum, and tied to an ink! trait def
 // only a single event type per interface which encapsulates all the possible events
