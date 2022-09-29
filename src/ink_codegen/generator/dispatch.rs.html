@@ -897,6 +897,25 @@
 <span id="897">897</span>
 <span id="898">898</span>
 <span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -924,6 +943,7 @@
 };
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">quote</span>::{
+    <span class="ident">format_ident</span>,
     <span class="ident">quote</span>,
     <span class="ident">quote_spanned</span>,
 };
@@ -1387,19 +1407,25 @@
                 #<span class="ident">constructor_ident</span>(#<span class="ident">constructor_input</span>)
             )
         });
-        <span class="kw">let</span> <span class="ident">constructor_match</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
-            <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">index</span>);
-            <span class="kw">let</span> <span class="ident">constructor_selector</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+
+        <span class="kw">let</span> <span class="ident">constructor_selector</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;CONSTRUCTOR_{}&quot;</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                <span class="kw">const</span> #<span class="ident">const_ident</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
                     <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
                         <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
-                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
-            );
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>;
+            )
+        });
+
+        <span class="kw">let</span> <span class="ident">constructor_match</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;CONSTRUCTOR_{}&quot;</span>, <span class="ident">index</span>);
             <span class="kw">let</span> <span class="ident">constructor_input</span> <span class="op">=</span> <span class="ident">expand_constructor_input</span>(<span class="ident">constructor_span</span>, <span class="ident">storage_ident</span>, <span class="ident">index</span>);
             <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
-                #<span class="ident">constructor_selector</span> =&gt; {
+                #<span class="ident">const_ident</span> =&gt; {
                     <span class="ident">::core::result::Result::Ok</span>(<span class="self">Self</span>::#<span class="ident">constructor_ident</span>(
                         <span class="op">&lt;</span>#<span class="ident">constructor_input</span> <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
                             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidParameters</span>)<span class="question-mark">?</span>
@@ -1478,6 +1504,9 @@
                     <span class="kw">where</span>
                         <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
+                        #(
+                            #<span class="ident">constructor_selector</span>
+                        )<span class="op">*</span>
                         <span class="kw">match</span> <span class="op">&lt;</span>[<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
                             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidSelector</span>)<span class="question-mark">?</span>
                         {
@@ -1555,19 +1584,25 @@
                 #<span class="ident">message_ident</span>(#<span class="ident">message_input</span>)
             )
         });
-        <span class="kw">let</span> <span class="ident">message_match</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
-            <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message_variant_ident</span>(<span class="ident">index</span>);
-            <span class="kw">let</span> <span class="ident">message_selector</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+
+        <span class="kw">let</span> <span class="ident">message_selector</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;MESSAGE_{}&quot;</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                <span class="kw">const</span> #<span class="ident">const_ident</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
                     <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
                         <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
-                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
-            );
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>;
+            )
+        });
+
+        <span class="kw">let</span> <span class="ident">message_match</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;MESSAGE_{}&quot;</span>, <span class="ident">index</span>);
             <span class="kw">let</span> <span class="ident">message_input</span> <span class="op">=</span> <span class="ident">expand_message_input</span>(<span class="ident">message_span</span>, <span class="ident">storage_ident</span>, <span class="ident">index</span>);
             <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
-                #<span class="ident">message_selector</span> =&gt; {
+                #<span class="ident">const_ident</span> =&gt; {
                     <span class="ident">::core::result::Result::Ok</span>(<span class="self">Self</span>::#<span class="ident">message_ident</span>(
                         <span class="op">&lt;</span>#<span class="ident">message_input</span> <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
                             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidParameters</span>)<span class="question-mark">?</span>
@@ -1676,6 +1711,9 @@
                     <span class="kw">where</span>
                         <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
+                        #(
+                            #<span class="ident">message_selector</span>
+                        )<span class="op">*</span>
                         <span class="kw">match</span> <span class="op">&lt;</span>[<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
                             .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidSelector</span>)<span class="question-mark">?</span>
                         {
