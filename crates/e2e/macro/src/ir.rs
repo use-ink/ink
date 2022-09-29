@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ast,
-    ir,
-    ir::idents_lint,
-};
-use proc_macro2::TokenStream as TokenStream2;
+use crate::config::E2EConfig;
+use proc_macro::TokenStream as TokenStream2;
 
 /// The End-to-End test with all required information.
 pub struct InkE2ETest {
     /// The function which was annotated.
     pub item_fn: E2EFn,
     /// The specified configuration.
-    pub config: ir::E2EConfig,
+    pub config: E2EConfig,
 }
 
 /// The End-to-End test with all required information.

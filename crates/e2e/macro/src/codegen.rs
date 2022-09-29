@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use crate::ir;
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -43,7 +43,7 @@ pub struct InkE2ETest<'a> {
     test: &'a ir::InkE2ETest,
 }
 
-impl GenerateCode for InkE2ETest<'_> {
+impl InkE2ETest<'_> {
     /// Generates the code for `#[ink:e2e_test]`.
     fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
@@ -178,11 +178,5 @@ impl GenerateCode for InkE2ETest<'_> {
                 __ret
             }
         }
-    }
-}
-
-impl GenerateCode for ir::InkE2ETest {
-    fn generate_code(&self) -> TokenStream2 {
-        InkE2ETest::from(self).generate_code()
     }
 }
