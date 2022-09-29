@@ -218,18 +218,20 @@ mod tests {
 
     #[test]
     fn simple_try_from_works() {
-        let item_struct: syn::ItemStruct = syn::parse_quote! {
+        let item_struct: syn::ItemEnum = syn::parse_quote! {
             #[ink(event)]
-            pub struct MyEvent {
-                #[ink(topic)]
-                field_1: i32,
-                field_2: bool,
+            pub enum MyEvent {
+                Event {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
             }
         };
         assert!(InkEventDefinition::try_from(item_struct).is_ok());
     }
 
-    fn assert_try_from_fails(item_struct: syn::ItemStruct, expected: &str) {
+    fn assert_try_from_fails(item_struct: syn::ItemEnum, expected: &str) {
         assert_eq!(
             InkEventDefinition::try_from(item_struct).map_err(|err| err.to_string()),
             Err(expected.to_string())
@@ -242,10 +244,12 @@ mod tests {
             syn::parse_quote! {
                 #[ink(event)]
                 #[ink(storage)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "encountered conflicting ink! attribute argument",
@@ -257,11 +261,12 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(event)]
-                #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "encountered duplicate ink! attribute",
@@ -274,10 +279,12 @@ mod tests {
             syn::parse_quote! {
                 #[ink(storage)]
                 #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "unexpected first ink! attribute argument",
@@ -285,13 +292,15 @@ mod tests {
     }
 
     #[test]
-    fn missing_storage_attribute_fails() {
+    fn missing_event_attribute_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "encountered unexpected empty expanded ink! attribute arguments",
@@ -303,10 +312,12 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(event)]
-                pub struct GenericEvent<T> {
-                    #[ink(topic)]
-                    field_1: T,
-                    field_2: bool,
+                pub enum GenericEvent<T> {
+                    Event {
+                        #[ink(topic)]
+                        field_1: T,
+                        field_2: bool,
+                    }
                 }
             },
             "generic ink! event structs are not supported",
@@ -318,10 +329,12 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(event)]
-                struct PrivateEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
+                enum PrivateEvent {
+                    Event {
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "non `pub` ink! event structs are not supported",
@@ -333,11 +346,13 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(topic)]
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "encountered duplicate ink! attribute",
@@ -349,10 +364,12 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(message)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(message)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "first optional ink! attribute of an event field must be #[ink(topic)]",
@@ -364,11 +381,13 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(event)]
-                pub struct MyEvent {
-                    #[ink(topic)]
-                    #[ink(payable)]
-                    field_1: i32,
-                    field_2: bool,
+                pub enum MyEvent {
+                    Event {
+                        #[ink(topic)]
+                        #[ink(payable)]
+                        field_1: i32,
+                        field_2: bool,
+                    }
                 }
             },
             "encountered conflicting ink! attribute for event field",
@@ -420,15 +439,17 @@ mod tests {
                 },
             ),
         ];
-        let event_def = <InkEventDefinition as TryFrom<syn::ItemStruct>>::try_from(
+        let event_def = <InkEventDefinition as TryFrom<syn::ItemEnum>>::try_from(
             syn::parse_quote! {
                 #[ink(event)]
                 pub struct MyEvent {
-                    #[ink(topic)]
-                    field_1: i32,
-                    field_2: u64,
-                    #[ink(topic)]
-                    field_3: [u8; 32],
+                    Event {
+                        #[ink(topic)]
+                        field_1: i32,
+                        field_2: u64,
+                        #[ink(topic)]
+                        field_3: [u8; 32],
+                    }
                 }
             },
         )
@@ -444,7 +465,7 @@ mod tests {
 
     #[test]
     fn anonymous_event_works() {
-        fn assert_anonymous_event(event: syn::ItemStruct) {
+        fn assert_anonymous_event(event: syn::ItemEnum) {
             match InkEventDefinition::try_from(event) {
                 Ok(event) => {
                     assert!(event.anonymous);
