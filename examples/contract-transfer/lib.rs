@@ -182,12 +182,9 @@ pub mod give_me {
 
     #[cfg(test)]
     mod e2e_tests {
-        use super::*;
-        use ink_e2e::*;
-
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink::e2e_test]
+        #[ink_e2e::e2e_test]
         async fn e2e_sending_value_to_give_me_must_fail(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -224,7 +221,7 @@ pub mod give_me {
             Ok(())
         }
 
-        #[ink::e2e_test]
+        #[ink_e2e::e2e_test]
         async fn e2e_contract_must_transfer_value_to_sender(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {

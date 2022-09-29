@@ -31,7 +31,7 @@ use pallet_contracts_primitives::{
 pub use smart_bench_macro;
 use xts::ContractsApi;
 
-pub use ink_e2e_macro;
+pub use ink_e2e_macro::e2e_test;
 pub use env_logger;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::tx::PairSigner;
