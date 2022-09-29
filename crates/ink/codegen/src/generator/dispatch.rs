@@ -25,6 +25,7 @@ use ir::{
 };
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    format_ident,
     quote,
     quote_spanned,
 };
@@ -488,19 +489,25 @@ impl Dispatch<'_> {
                 #constructor_ident(#constructor_input)
             )
         });
-        let constructor_match = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
-            let constructor_ident = constructor_variant_ident(index);
-            let constructor_selector = quote_spanned!(span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
+
+        let constructor_selector = (0..count_constructors).map(|index| {
+            let const_ident = format_ident!("CONSTRUCTOR_{}", index);
+            quote_spanned!(span=>
+                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
                         <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
-                }>>::SELECTOR
-            );
+                }>>::SELECTOR;
+            )
+        });
+
+        let constructor_match = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let const_ident = format_ident!("CONSTRUCTOR_{}", index);
             let constructor_input = expand_constructor_input(constructor_span, storage_ident, index);
             quote_spanned!(constructor_span=>
-                #constructor_selector => {
+                #const_ident => {
                     ::core::result::Result::Ok(Self::#constructor_ident(
                         <#constructor_input as ::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
@@ -579,6 +586,9 @@ impl Dispatch<'_> {
                     where
                         I: ::scale::Input,
                     {
+                        #(
+                            #constructor_selector
+                        )*
                         match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
                         {
@@ -656,19 +666,25 @@ impl Dispatch<'_> {
                 #message_ident(#message_input)
             )
         });
-        let message_match = (0..count_messages).map(|index| {
-            let message_span = message_spans[index];
-            let message_ident = message_variant_ident(index);
-            let message_selector = quote_spanned!(span=>
-                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
+
+        let message_selector = (0..count_messages).map(|index| {
+            let const_ident = format_ident!("MESSAGE_{}", index);
+            quote_spanned!(span=>
+                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
-                }>>::SELECTOR
-            );
+                }>>::SELECTOR;
+            )
+        });
+
+        let message_match = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let const_ident = format_ident!("MESSAGE_{}", index);
             let message_input = expand_message_input(message_span, storage_ident, index);
             quote_spanned!(message_span=>
-                #message_selector => {
+                #const_ident => {
                     ::core::result::Result::Ok(Self::#message_ident(
                         <#message_input as ::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
@@ -777,6 +793,9 @@ impl Dispatch<'_> {
                     where
                         I: ::scale::Input,
                     {
+                        #(
+                            #message_selector
+                        )*
                         match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
                         {
