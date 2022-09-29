@@ -13,7 +13,8 @@
 // limitations under the License.
 
 use crate::{
-    config::E2EConfig, ir,
+    config::E2EConfig,
+    ir,
 };
 use proc_macro2::TokenStream as TokenStream2;
 

@@ -14,8 +14,8 @@
 
 // extern crate proc_macro;
 
-mod config;
 mod codegen;
+mod config;
 mod ir;
 
 use proc_macro::TokenStream;
