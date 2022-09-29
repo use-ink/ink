@@ -49,8 +49,10 @@ use syn::{
 ///     }
 ///
 ///     #[ink(event)]
-///     pub struct MyEvent {
-///         /* event fields */
+///     pub enum MyEvent {
+///         Event {
+///             /* event fields */
+///         }
 ///     }
 ///
 ///     impl MyStorage {

@@ -33,10 +33,12 @@ fn simple_storage_works() {
 fn simple_event_works() {
     let event_struct: syn::Item = syn::parse_quote! {
         #[ink(event)]
-        pub struct MyEvent {
-            #[ink(topic)]
-            param_1: bool,
-            param_2: i32,
+        pub enum MyEvent {
+            Event {
+                #[ink(topic)]
+                param_1: bool,
+                param_2: i32,
+            }
         }
     };
     assert!(matches!(
