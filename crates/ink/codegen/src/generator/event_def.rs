@@ -117,6 +117,32 @@ impl<'a> EventDefinition<'a> {
             .event_def
             .max_len_topics();
 
+        let variant_match_arms = self
+            .event_def
+            .variants()
+            .map(|variant| {
+                let span = variant.span();
+                let variant_ident = variant.ident();
+                let field_bindings = variant.fields()
+                    .map(|field| {
+                        let span = field.span();
+                        let field_ident = field.ident();
+                        quote_spanned!(span=> ref #field_ident)
+                    });
+                let field_topics = variant.fields()
+                    .map(|field| {
+
+                    });
+
+                quote_spanned!(span=>
+                    Self::#variant_ident { #( field_bindings, ) } => {
+                        #(
+                            field_topics
+                        )*
+                    }
+                )
+            });
+
         // Anonymous events require 1 fewer topics since they do not include their signature.
         let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
         let remaining_topics_ty = match len_topics + anonymous_topics_offset {
@@ -139,16 +165,11 @@ impl<'a> EventDefinition<'a> {
                         E: ::ink::env::Environment,
                         B: ::ink::env::topics::TopicsBuilderBackend<E>,
                     {
-                        todo!()
-                        // const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink::reflect::EventInfo>::PATH.as_bytes();
-                        //
-                        // builder
-                        //     .build::<Self>()
-                        //     #event_signature_topic
-                        //     #(
-                        //         #topic_impls
-                        //     )*
-                        //     .finish()
+                        match self {
+                            #(
+                                variant_match_arms
+                            )*
+                        }
                     }
                 }
             };

@@ -87,15 +87,18 @@ impl InkEventDefinition {
                 // strip out the `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
                 field.attrs = other_attrs;
+                let ident = field.ident
+                    .ok_or_else(|| format_err_spanned!(variant.span(), "event variants must have named fields"))?;
                 fields.push(EventField {
                     is_topic: topic_attr.is_some(),
                     field: field.clone(),
+                    ident,
                 })
             }
             let named_fields = matches!(variant.fields, syn::Fields::Named(_));
             variants.push(EventVariant {
                 index,
-                ident: variant.ident.clone(),
+                item: variant.clone(),
                 named_fields,
                 fields,
             })
@@ -151,15 +154,20 @@ impl InkEventDefinition {
 #[derive(Debug, PartialEq, Eq)]
 pub struct EventVariant {
     index: usize,
-    ident: Ident,
+    item: syn::Variant,
     named_fields: bool,
     fields: Vec<EventField>,
 }
 
 impl EventVariant {
+    /// Returns the span of the event variant.
+    pub fn span(&self) -> Span {
+        self.item.span()
+    }
+
     /// The identifier of the event variant.
     pub fn ident(&self) -> &Ident {
-        &self.ident
+        &self.item.ident
     }
 
     /// The index of the the event variant in the enum definition.
@@ -181,6 +189,8 @@ pub struct EventField {
     pub is_topic: bool,
     /// The event field.
     field: syn::Field,
+    /// The event field ident.
+    ident: syn::Ident,
 }
 
 impl EventField {
@@ -202,8 +212,8 @@ impl EventField {
     }
 
     /// Returns the identifier of the event field if any.
-    pub fn ident(&self) -> Option<&Ident> {
-        self.field.ident.as_ref()
+    pub fn ident(&self) -> &Ident {
+        &self.ident
     }
 
     /// Returns the type of the event field.
