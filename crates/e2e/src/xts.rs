@@ -21,7 +21,10 @@ use super::{
     Signer,
     Verify,
 };
-use crate::Environment;
+use ink_env::{
+    Environment,
+    Gas,
+};
 
 use core::marker::PhantomData;
 use jsonrpsee::{
@@ -57,7 +60,7 @@ pub struct InstantiateWithCode<B> {
     #[codec(compact)]
     value: B,
     #[codec(compact)]
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<B>,
     code: Vec<u8>,
     data: Vec<u8>,
@@ -71,7 +74,7 @@ pub struct Call<C: subxt::Config, B> {
     #[codec(compact)]
     value: B,
     #[codec(compact)]
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<B>,
     data: Vec<u8>,
 }
@@ -82,7 +85,7 @@ pub struct Call<C: subxt::Config, B> {
 struct InstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<E::Balance>,
     code: Code,
     data: Vec<u8>,
@@ -109,7 +112,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: C::AccountId,
     value: E::Balance,
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
@@ -196,7 +199,7 @@ where
     pub async fn instantiate_with_code(
         &self,
         value: E::Balance,
-        gas_limit: crate::types::Gas,
+        gas_limit: Gas,
         storage_deposit_limit: Option<E::Balance>,
         code: Vec<u8>,
         data: Vec<u8>,
@@ -283,7 +286,7 @@ where
         &self,
         contract: sp_runtime::MultiAddress<C::AccountId, ()>,
         value: E::Balance,
-        gas_limit: crate::types::Gas,
+        gas_limit: Gas,
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,

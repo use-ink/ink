@@ -11,6 +11,7 @@ members = [
     "crates/ink/macro",
     "crates/prelude",
     "crates/primitives",
+    "crates/e2e",
     "crates/engine",
     "crates/env",
     "crates/storage",
