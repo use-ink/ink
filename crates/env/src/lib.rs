@@ -84,6 +84,10 @@ mod tests;
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
 
+#[cfg(any(feature = "std", test, doc))]
+#[doc(inline)]
+pub use self::engine::e2e;
+
 use self::backend::{
     EnvBackend,
     TypedEnvBackend,
