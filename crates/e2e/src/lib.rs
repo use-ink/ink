@@ -37,7 +37,6 @@ pub use sp_keyring::AccountKeyring;
 pub use subxt::tx::PairSigner;
 pub use tokio;
 
-use log;
 use sp_core::sr25519;
 use sp_runtime::traits::{
     IdentifyAccount,
