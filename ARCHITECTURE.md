@@ -170,3 +170,5 @@ one point.
 
 The prefix `seal` here is for historic reasons. There is some analogy to sealing a
 contract. And we found seals to be a cute animal as well ‒ like squids!
+
+## TODO add info about environment

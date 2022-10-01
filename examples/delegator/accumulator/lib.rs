@@ -15,7 +15,7 @@ pub mod accumulator {
 
     impl Accumulator {
         /// Initializes the value to the initial value.
-        #[ink(constructor, payable)]
+        #[ink(constructor)]
         pub fn new(init_value: i32) -> Self {
             Self { value: init_value }
         }

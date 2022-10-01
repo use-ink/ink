@@ -411,6 +411,248 @@ where
         })
     }
 
+    /// This function extracts the metadata of the contract at the file path
+    /// `target/ink/$contract_name.contract`.
+    ///
+    /// The function subsequently uploads and instantiates an instance of the contract.
+    ///
+    /// Calling this function multiple times is idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    pub async fn upload<CO>(
+        &mut self,
+        signer: &mut Signer<C>,
+        // TODO(#xxx) It has to be possible to supply a contact bundle path directly here.
+        // Otherwise cross-contract testing is not possible. Currently we instantiate just
+        // by default the contract for which the test is executed.
+        // contract_path: Option<PathBuf>,
+        constructor: CO,
+        //value: E::Balance,
+        //storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
+        where
+            CO: InkConstructor,
+    {
+        // same as above -----
+        let contract_path = CO::CONTRACT_PATH;
+        log_info(&format!("opening {:?}", contract_path));
+        let reader = std::fs::File::open(&contract_path).unwrap_or_else(|err| {
+            panic!("contract path cannot be opened: {:?}", err);
+        });
+        let contract: contract_metadata::ContractMetadata =
+            serde_json::from_reader(reader).map_err(|err| {
+                panic!("error reading metadata: {:?}", err);
+            })?;
+        let code = contract
+            .source
+            .wasm
+            .expect("contract bundle is missing `source.wasm`");
+
+        log_info(&format!(
+            "{:?} has {} KiB",
+            contract_path,
+            code.0.len() / 1024
+        ));
+        // -----------------
+
+        let ret = self
+            .exec_upload(signer, code.0)
+            .await?;
+        log_info(&format!("instantiated contract at {:?}", ret.account_id));
+
+        Ok(ret)
+    }
+
+    /// Executes an `instantiate_with_code` call and captures the resulting events.
+    async fn exec_upload<CO: InkConstructor>(
+        &mut self,
+        signer: &mut Signer<C>,
+        code: Vec<u8>,
+    ) -> Result<InstantiationResult<C, E>, Error<C, E>> {
+        log_info(&format!("uploading"));
+
+        // dry run the instantiate to calculate the gas limit
+        let dry_run = self
+            .api
+            .upload_dry_run(
+                code.clone(),
+                signer,
+            )
+            .await;
+        log_info(&format!(
+            "upload dry run debug message: {:?}",
+            String::from_utf8_lossy(&dry_run.debug_message)
+        ));
+        log_info(&format!("upload dry run result: {:?}", dry_run.result));
+        if dry_run.result.is_err() {
+            return Err(Error::UploadDryRun(dry_run))
+        }
+
+        let tx_events = self
+            .api
+            .upload(
+                code,
+                signer,
+            )
+            .await;
+        signer.increment_nonce();
+
+        let mut account_id = None;
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {:?}", err);
+            });
+
+            if let Some(uploaded) = evt
+                .as_event::<ContractUploadEvent<C>>()
+                .unwrap_or_else(|err| {
+                    panic!("event conversion to `Uploaded` failed: {:?}", err);
+                })
+            {
+                log_info(&format!(
+                    "contract was uploaded with hash {:?}",
+                    instantiated.contract
+                ));
+                account_id = Some(instantiated.contract);
+                break
+            } else if evt
+                .as_event::<xts::api::system::events::ExtrinsicFailed>()
+                .unwrap_or_else(|err| {
+                    panic!("event conversion to `ExtrinsicFailed` failed: {:?}", err)
+                })
+                .is_some()
+            {
+                let metadata = self.api.client.metadata();
+                let dispatch_error = subxt::error::DispatchError::decode_from(
+                    evt.field_bytes(),
+                    &metadata,
+                );
+                log_error(&format!(
+                    "extrinsic for upload failed: {:?}",
+                    dispatch_error
+                ));
+                return Err(Error::UploadExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(UploadResult {
+            dry_run,
+            // The `account_id` must exist at this point. If the instantiation fails
+            // the dry-run must already return that.
+            account_id: account_id.expect("cannot extract account_id from events"),
+            events: tx_events,
+        })
+    }
+
+    /*
+
+    pub fn run(&self) -> Result<(), ErrorVariant> {
+        let crate_metadata = CrateMetadata::from_manifest_path(
+            self.extrinsic_opts.manifest_path.as_ref(),
+        )?;
+        let transcoder = ContractMessageTranscoder::load(crate_metadata.metadata_path())?;
+        let signer = super::pair_signer(self.extrinsic_opts.signer()?);
+
+        let wasm_path = match &self.wasm_path {
+            Some(wasm_path) => wasm_path.clone(),
+            None => crate_metadata.dest_wasm,
+        };
+
+        tracing::debug!("Contract code path: {}", wasm_path.display());
+        let code = std::fs::read(&wasm_path)
+            .context(format!("Failed to read from {}", wasm_path.display()))?;
+
+        async_std::task::block_on(async {
+            let url = self.extrinsic_opts.url_to_string();
+            let client = OnlineClient::from_url(url.clone()).await?;
+
+            if self.extrinsic_opts.dry_run {
+                match self.upload_code_rpc(code, &signer).await? {
+                    Ok(result) => {
+                        let upload_result = UploadDryRunResult {
+                            result: String::from("Success!"),
+                            code_hash: format!("{:?}", result.code_hash),
+                            deposit: result.deposit,
+                        };
+                        if self.output_json {
+                            println!("{}", upload_result.to_json()?);
+                        } else {
+                            upload_result.print();
+                        }
+                    }
+                    Err(err) => {
+                        let metadata = client.metadata();
+                        let err = ErrorVariant::from_dispatch_error(&err, &metadata)?;
+                        if self.output_json {
+                            return Err(err)
+                        } else {
+                            name_value_println!("Result", err);
+                        }
+                    }
+                }
+                Ok(())
+            } else if let Some(code_stored) = self
+                .upload_code(&client, code, &signer, &transcoder)
+                .await?
+            {
+                let upload_result = UploadResult {
+                    code_hash: format!("{:?}", code_stored.code_hash),
+                };
+                if self.output_json {
+                    println!("{}", upload_result.to_json()?);
+                } else {
+                    upload_result.print();
+                }
+                Ok(())
+            } else {
+                Err("This contract has already been uploaded".into())
+            }
+        })
+    }
+
+    async fn upload_code_rpc(
+        &self,
+        code: Vec<u8>,
+        signer: &PairSigner,
+    ) -> Result<CodeUploadResult<CodeHash, Balance>> {
+        let url = self.extrinsic_opts.url_to_string();
+        let storage_deposit_limit = self.extrinsic_opts.storage_deposit_limit;
+        let call_request = CodeUploadRequest {
+            origin: signer.account_id().clone(),
+            code,
+            storage_deposit_limit,
+        };
+        state_call(&url, "ContractsApi_upload_code", call_request).await
+    }
+
+    async fn upload_code(
+        &self,
+        client: &Client,
+        code: Vec<u8>,
+        signer: &PairSigner,
+        transcoder: &ContractMessageTranscoder,
+    ) -> Result<Option<api::contracts::events::CodeStored>, ErrorVariant> {
+        let call = super::runtime_api::api::tx()
+            .contracts()
+            .upload_code(code, self.extrinsic_opts.storage_deposit_limit);
+
+        let result = submit_extrinsic(client, &call, signer).await?;
+        let display_events =
+            DisplayEvents::from_events(&result, transcoder, &client.metadata())?;
+
+        let output = if self.output_json {
+            display_events.to_json()?
+        } else {
+            display_events.display_events(self.extrinsic_opts.verbosity()?)
+        };
+        println!("{}", output);
+        let code_stored = result.find_first::<api::contracts::events::CodeStored>()?;
+        Ok(code_stored)
+    }
+     */
+
+
+
     /// Executes a `call` for the contract at `account_id`.
     ///
     /// Returns when the transaction is included in a block. The return value

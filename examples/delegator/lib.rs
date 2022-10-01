@@ -125,7 +125,6 @@ mod delegator {
 
     #[cfg(test)]
     mod e2e_tests {
-        use super::*;
         use ink::env::e2e::*;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -135,25 +134,63 @@ mod delegator {
             mut client: ink::env::e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
-            ink::env::build!("target/ink/accumulator/accumulator.contract");
+            //ink::env::import!("target/ink/accumulator/accumulator.contract");
 
-            let constructor = accumulator::constructors::new(123 as i32);
-            let contract_acc_id = client
-                .instantiate(&mut ink::env::e2e::alice(), constructor, 1000, None)
+            ink::env::build!("target/ink/accumulator/accumulator.contract");
+            let _accumuluator_acc_id = client
+                .upload(&mut ink::env::e2e::alice(), constructor, 9, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
+            /*
+            let accumulator_hash = accumulator::_ink_hash;
+            let contract_bundle = accumulator::_ink_contract_path;
+            let metadata = ink::env::e2e::metadata(contract_bundle);
+            let accumulator_hash = metadata.source.hash;
+            let accumulator_hash: delegator::contract_types::ink_primitives::types::Hash
 
+            ink::env::build!("target/ink/subber/subber.contract");
+            let subber_hash = subber::_ink_hash;
+            let contract_bundle = subber::_ink_contract_path;
+            let metadata = ink::env::e2e::metadata(contract_bundle);
+            let subber_hash = metadata.source.hash;
 
+            ink::env::build!("target/ink/adder/adder.contract");
+            let adder_hash = subber::_ink_hash;
+            let contract_bundle = adder::_ink_contract_path;
+            let metadata = ink::env::e2e::metadata(contract_bundle);
+            let adder_hash = metadata.source.hash;
+            */
 
             /*
-
-            let constructor = delegator::constructors::new();
-            let contract_acc_id = client
-                .instantiate(&mut ink::env::e2e::alice(), constructor, 1000, None)
+            let constructor = accumulator::constructors::new(123 as i32);
+            let _accumuluator_acc_id = client
+                .instantiate(&mut ink::env::e2e::alice(), constructor, 9, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
+             */
+
+           //let _hash: Hash = accumuluator::_ink_metadata().hash(),
+            //let _hash = ink::env::e2e::extract_hash_from_contract_bundle(accumulator::_ink_contract_path);
+
+            /*
+            let constructor = delegator::constructors::new(
+                1234, // initial value
+                1337, // salt
+                accumulator_hash,
+                adder_hash,
+                subber_hash,
+            );
+
+            let _delegator_acc_id = client
+                .instantiate(&mut ink::env::e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+             */
+
+            /*
 
             // when
             let transfer = contract_transfer::messages::give_me(120);

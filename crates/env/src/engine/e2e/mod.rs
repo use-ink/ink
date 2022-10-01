@@ -47,6 +47,10 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
+use std::fs::File;
+use std::io::BufReader;
+use std::path::PathBuf;
+use contract_metadata::ContractMetadata;
 
 /// Default set of commonly used types by Substrate runtimes.
 #[cfg(feature = "std")]
@@ -131,4 +135,31 @@ macro_rules! build {
         ($($arg:tt)*) => (
             ink::env::e2e::smart_bench_macro::contract!($($arg)*)
         );
+}
+
+/// TODO
+pub fn metadata(contract_bundle: &str) -> ContractMetadata {
+    let reader = std::fs::File::open(std::path::Path::new(&contract_bundle))
+        .unwrap_or_else(|e| panic!("Failed to read metadata file: {}", e));
+    let metadata: ContractMetadata = serde_json::from_reader(reader)
+        .unwrap_or_else(|e| panic!("Failed to deserialize contract metadata: {}", e));
+    metadata
+}
+
+// TODO move to utils
+/// Extracts the `source.hash` field from the contract bundle.
+pub fn extract_hash_from_contract_bundle(path: &PathBuf) -> String {
+    let file =
+        File::open(path).expect(&format!("Contract file at {:?} does not exist", path));
+    let reader = BufReader::new(file);
+    let json: serde_json::Value = serde_json::from_reader(reader).unwrap_or_else(|err| {
+        panic!("JSON at {:?} is not well-formatted: {:?}", path, err)
+    });
+    json.get("source")
+        .expect("Unable to get 'source' field from contract JSON")
+        .get("hash")
+        .expect("Unable to get 'hash' field from contract JSON")
+        .to_string()
+        .trim_matches('"')
+        .to_string()
 }
