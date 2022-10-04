@@ -52,7 +52,7 @@ use syn::Result;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
 ///     async fn e2e_contract_must_transfer_value_to_sender(
-///         mut client: ink::env::e2e::Client<C, E>,
+///         mut client: ::ink_e2e::Client<C, E>,
 ///     ) -> E2EResult<()> {
 ///         Ok(())
 ///     }
@@ -70,7 +70,7 @@ use syn::Result;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
 ///     async fn e2e_contract_must_transfer_value_to_sender(
-///         mut client: ink::env::e2e::Client<C, E>,
+///         mut client: ::ink_e2e::Client<C, E>,
 ///     ) -> E2EResult<()> {
 ///         assert!(client.node_log_contains("requested value: 100000000000000\n"));
 ///         Ok(())
@@ -90,7 +90,7 @@ use syn::Result;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///     #[ink::e2e_test(skip_build = true)]
 ///     async fn e2e_contract_must_transfer_value_to_sender(
-///         mut client: ink::env::e2e::Client<C, E>,
+///         mut client: ::ink_e2e::Client<C, E>,
 ///     ) -> E2EResult<()> {
 ///         Ok(())
 ///     }
@@ -104,15 +104,15 @@ use syn::Result;
 /// # // TODO(#xxx) Remove the `no_compile`.
 /// #[cfg(test)]
 /// mod tests {
-///     use ink::env::e2e::*;
+///     use ::ink_e2e::*;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
 ///     #[ink::e2e_test(skip_build = true)]
-///     async fn e2e_test_2(mut client: ink::env::e2e::Client<C,E>) -> E2EResult<()> {
+///     async fn e2e_test_2(mut client: ::ink_e2e::Client<C,E>) -> E2EResult<()> {
 ///         // given
 ///         let constructor = contract_transfer::constructors::new();
 ///         let contract_acc_id = client.instantiate(
-///             &mut ink::env::e2e::alice(),
+///             &mut ::ink_e2e::alice(),
 ///             constructor,
 ///             1337,
 ///             None,
@@ -124,7 +124,7 @@ use syn::Result;
 ///         // when
 ///         let transfer = contract_transfer::messages::give_me(120);
 ///         let call_res = client.call(
-///             &mut ink::env::e2e::bob(),
+///             &mut ::ink_e2e::bob(),
 ///             contract_acc_id.clone(),
 ///             transfer.into(),
 ///             10,
@@ -143,8 +143,8 @@ use syn::Result;
 /// the pre-defined functions:
 ///
 /// ```no_compile
-/// let mut bob = ink::env::e2e::PairSigner::new(
-///     ink::env::e2e::AccountKeyring::Bob.pair()
+/// let mut bob = ::ink_e2e::PairSigner::new(
+///     ::ink_e2e::AccountKeyring::Bob.pair()
 /// );
 /// ```
 #[proc_macro_attribute]

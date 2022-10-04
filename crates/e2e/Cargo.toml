@@ -37,7 +37,7 @@ sp-keyring = { version = "6.0.0" }
 sp-runtime = { version = "6.0.0" }
 
 # TODO(#1421) `smart-bench_macro` needs to be forked.
-smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp", package = "smart-bench-macro" }
+smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "aj-ink-e2e-test-mvp", package = "smart-bench-macro" }
 
 [features]
 default = ["std"]

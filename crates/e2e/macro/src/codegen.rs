@@ -147,28 +147,28 @@ impl InkE2ETest {
 
         quote! {
             #( #attrs )*
-            #[ink::env::e2e::tokio::test]
+            #[::ink_e2e::tokio::test]
             async #vis fn #fn_name () #ret {
-                use ink::env::e2e::log_info;
-                ink::env::e2e::LOG_PREFIX.with(|log_prefix| {
+                use ::ink_e2e::log_info;
+                ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
                     let str = format!("test: {}", stringify!(#fn_name));
                     *log_prefix.borrow_mut() = String::from(str);
                 });
                 log_info("setting up e2e test");
 
-                ink::env::e2e::INIT.call_once(|| {
-                    ink::env::e2e::env_logger::init();
+                ::ink_e2e::INIT.call_once(|| {
+                    ::ink_e2e::env_logger::init();
                 });
 
                 log_info("extracting metadata");
                 // TODO(#1421) `smart-bench_macro` needs to be forked.
-                ink::env::e2e::smart_bench_macro::contract!(#path);
+                ::ink_e2e::smart_bench_macro::contract!(#path);
 
                 log_info("creating new client");
 
                 // TODO(#xxx) Make those two generic environments customizable.
-                let mut client = ink::env::e2e::Client::<
-                    ink::env::e2e::PolkadotConfig,
+                let mut client = ::ink_e2e::Client::<
+                    ::ink_e2e::PolkadotConfig,
                     ink::env::DefaultEnvironment
                 >::new(&#path, &#ws_url, &#node_log).await;
 
