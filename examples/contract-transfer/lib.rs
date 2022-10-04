@@ -184,6 +184,7 @@ pub mod give_me {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+        // todo: [AJ] fix compilation error here with tokio reexport: `failed to resolve: use of undeclared crate or module `tokio``
         #[ink_e2e::e2e_test]
         async fn e2e_sending_value_to_give_me_must_fail(
             mut client: ink_e2e::Client<C, E>,
