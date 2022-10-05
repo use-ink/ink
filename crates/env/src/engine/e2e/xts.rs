@@ -47,7 +47,7 @@ use subxt::{
 /// The gas limit for contract instantiate and call dry runs.
 const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
-// TODO(#xxx) Should be fetched automatically.
+// TODO(#1422) Should be fetched automatically.
 #[subxt::subxt(runtime_metadata_path = "metadata/contracts-node.scale")]
 pub(super) mod api {}
 
@@ -302,13 +302,15 @@ where
         )
         .unvalidated();
 
-        self
-            .client
+        self.client
             .tx()
             .sign_and_submit_then_watch_default(&call, signer)
             .await
             .map(|tx_progress| {
-                log_info(&format!("signed and submitted call with extrinsic hash {:?}", tx_progress.extrinsic_hash()));
+                log_info(&format!(
+                    "signed and submitted call with extrinsic hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
                 tx_progress
             })
             .unwrap_or_else(|err| {
@@ -317,22 +319,15 @@ where
                     err
                 );
             })
-            // TODO(#xxx) It should be configurable to use `.wait_for_finalized_success` instead.
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `wait_for_in_block`: {:?}",
-                    err
-                );
+                panic!("error on call `wait_for_in_block`: {:?}", err);
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `fetch_events`: {:?}",
-                    err
-                );
+                panic!("error on call `fetch_events`: {:?}", err);
             })
     }
 }

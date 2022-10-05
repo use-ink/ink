@@ -161,7 +161,7 @@ impl GenerateCode for InkE2ETest<'_> {
                 });
 
                 log_info("extracting metadata");
-                // TODO(#xxx) `smart-bench_macro` needs to be forked.
+                // TODO(#1421) `smart-bench_macro` needs to be forked.
                 ink::env::e2e::smart_bench_macro::contract!(#path);
 
                 log_info("creating new client");
