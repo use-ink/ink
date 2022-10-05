@@ -21,30 +21,16 @@ pub use validate::ValidateLayout;
 
 use crate::{
     serde_hex,
-    utils::{
-        deserialize_from_byte_str,
-        serialize_as_byte_str,
-    },
+    utils::{deserialize_from_byte_str, serialize_as_byte_str},
 };
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
-    form::{
-        Form,
-        MetaForm,
-        PortableForm,
-    },
-    meta_type,
-    IntoPortable,
-    Registry,
-    TypeInfo,
+    form::{Form, MetaForm, PortableForm},
+    meta_type, IntoPortable, Registry, TypeInfo,
 };
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
@@ -491,7 +477,7 @@ impl IntoPortable for StructLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         StructLayout {
-            name: self.name,
+            name: self.name.to_string(),
             fields: self
                 .fields
                 .into_iter()
@@ -519,13 +505,13 @@ pub struct FieldLayout<F: Form = MetaForm> {
 
 impl FieldLayout {
     /// Creates a new field layout.
-    pub fn new<'a, N, L>(name: N, layout: L) -> Self
+    pub fn new<N, L>(name: N, layout: L) -> Self
     where
-        N: Into<&'a str>,
+        N: Into<<MetaForm as Form>::String>,
         L: Into<Layout>,
     {
         Self {
-            name: name.into().to_string(),
+            name: name.into(),
             layout: layout.into(),
         }
     }
@@ -565,7 +551,7 @@ impl IntoPortable for FieldLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name,
+            name: self.name.to_string(),
             layout: self.layout.into_portable(registry),
         }
     }
@@ -606,14 +592,14 @@ pub struct EnumLayout<F: Form = MetaForm> {
 
 impl EnumLayout {
     /// Creates a new enum layout.
-    pub fn new<'a, N, K, V>(name: N, dispatch_key: K, variants: V) -> Self
+    pub fn new<N, K, V>(name: N, dispatch_key: K, variants: V) -> Self
     where
-        N: Into<&'a str>,
+        N: Into<<MetaForm as Form>::String>,
         K: Into<LayoutKey>,
         V: IntoIterator<Item = (Discriminant, StructLayout)>,
     {
         Self {
-            name: name.into().to_string(),
+            name: name.into(),
             dispatch_key: dispatch_key.into(),
             variants: variants.into_iter().collect(),
         }
@@ -645,7 +631,7 @@ impl IntoPortable for EnumLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EnumLayout {
-            name: self.name,
+            name: self.name.to_string(),
             dispatch_key: self.dispatch_key,
             variants: self
                 .variants

@@ -14,33 +14,15 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::{
-    serde_hex,
-    utils::trim_extra_whitespace,
-};
+use crate::{serde_hex, utils::DocString};
 #[cfg(not(feature = "std"))]
-use alloc::{
-    format,
-    vec,
-    vec::Vec,
-};
+use alloc::{format, vec, vec::Vec};
 use core::marker::PhantomData;
 use scale_info::{
-    form::{
-        Form,
-        MetaForm,
-        PortableForm,
-    },
-    meta_type,
-    IntoPortable,
-    Registry,
-    TypeInfo,
+    form::{Form, MetaForm, PortableForm},
+    meta_type, IntoPortable, Registry, TypeInfo,
 };
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,7 +61,7 @@ impl IntoPortable for ContractSpec {
                 .into_iter()
                 .map(|event| event.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs,
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
@@ -147,7 +129,7 @@ where
 
 impl<F, S> ContractSpecBuilder<F, S>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Sets the messages of the contract specification.
     pub fn messages<M>(self, messages: M) -> Self
@@ -180,17 +162,14 @@ where
     }
 
     /// Sets the documentation of the contract specification.
-    pub fn docs<'a, D>(self, docs: D) -> Self
+    pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'a str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: ContractSpec {
-                docs: docs
-                    .into_iter()
-                    .map(ToString::to_string)
-                    .collect::<Vec<_>>(),
+                docs: docs.into_iter().collect::<Vec<_>>(),
                 ..self.spec
             },
             ..self
@@ -260,7 +239,7 @@ impl IntoPortable for ConstructorSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            label: self.label,
+            label: self.label.to_string(),
             selector: self.selector,
             payable: self.payable,
             args: self
@@ -268,7 +247,7 @@ impl IntoPortable for ConstructorSpec {
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs,
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
@@ -320,16 +299,16 @@ pub struct ConstructorSpecBuilder<F: Form, Selector, IsPayable> {
 
 impl<F> ConstructorSpec<F>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Creates a new constructor spec builder.
     pub fn from_label(
-        label: impl ToString,
+        label: <F as Form>::String,
     ) -> ConstructorSpecBuilder<F, Missing<state::Selector>, Missing<state::IsPayable>>
     {
         ConstructorSpecBuilder {
             spec: Self {
-                label: label.to_string(),
+                label,
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
@@ -380,7 +359,7 @@ where
 
 impl<F, S, P> ConstructorSpecBuilder<F, S, P>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
@@ -394,15 +373,16 @@ where
     }
 
     /// Sets the documentation of the message specification.
-    pub fn docs<'a, D>(self, docs: D) -> Self
+    pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'a str>,
+        D: IntoIterator<Item = <F as Form>::String>,
+        F::String: DocString,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
         this.spec.docs = docs
             .into_iter()
-            .map(|s| trim_extra_whitespace(s).to_string())
+            .map(DocString::trim_extra_whitespace)
             .collect::<Vec<_>>();
         this
     }
@@ -465,11 +445,11 @@ mod state {
 
 impl<F> MessageSpec<F>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Creates a new message spec builder.
     pub fn from_label(
-        label: impl ToString,
+        label: <F as Form>::String,
     ) -> MessageSpecBuilder<
         F,
         Missing<state::Selector>,
@@ -479,7 +459,7 @@ where
     > {
         MessageSpecBuilder {
             spec: Self {
-                label: label.to_string(),
+                label,
                 selector: Selector::default(),
                 mutates: false,
                 payable: false,
@@ -644,17 +624,13 @@ where
     }
 
     /// Sets the documentation of the message specification.
-    pub fn docs<'a, D>(self, docs: D) -> Self
+    pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'a str>,
-        F: Form<String = String>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs
-            .into_iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
         this
     }
 }
@@ -681,7 +657,7 @@ impl IntoPortable for MessageSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            label: self.label,
+            label: self.label.to_string(),
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
@@ -691,7 +667,7 @@ impl IntoPortable for MessageSpec {
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
             return_type: self.return_type.into_portable(registry),
-            docs: self.docs,
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
@@ -722,7 +698,7 @@ where
 
 impl<F> EventSpecBuilder<F>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Sets the input arguments of the event specification.
     pub fn args<A>(self, args: A) -> Self
@@ -736,16 +712,13 @@ where
     }
 
     /// Sets the input arguments of the event specification.
-    pub fn docs<'a, D>(self, docs: D) -> Self
+    pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'a str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs
-            .into_iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
         this
     }
 
@@ -760,26 +733,26 @@ impl IntoPortable for EventSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
-            label: self.label,
+            label: self.label.to_string(),
             args: self
                 .args
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs,
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
 impl<F> EventSpec<F>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Creates a new event specification builder.
-    pub fn new(label: impl ToString) -> EventSpecBuilder<F> {
+    pub fn new(label: <F as Form>::String) -> EventSpecBuilder<F> {
         EventSpecBuilder {
             spec: Self {
-                label: label.to_string(),
+                label,
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -1004,20 +977,20 @@ impl IntoPortable for EventParamSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventParamSpec {
-            label: self.label,
+            label: self.label.to_string(),
             indexed: self.indexed,
             ty: self.ty.into_portable(registry),
-            docs: self.docs,
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
 impl EventParamSpec {
     /// Creates a new event parameter specification builder.
-    pub fn new(label: impl ToString) -> EventParamSpecBuilder<MetaForm> {
+    pub fn new(label: <MetaForm as Form>::String) -> EventParamSpecBuilder<MetaForm> {
         EventParamSpecBuilder {
             spec: Self {
-                label: label.to_string(),
+                label,
                 // By default event parameters are not indexed.
                 indexed: false,
                 // We initialize every parameter type as `()`.
@@ -1081,7 +1054,7 @@ where
 
 impl<F> EventParamSpecBuilder<F>
 where
-    F: Form<String = String>,
+    F: Form,
 {
     /// Sets the type of the event parameter.
     pub fn of_type(self, spec: TypeSpec<F>) -> Self {
@@ -1098,17 +1071,14 @@ where
     }
 
     /// Sets the documentation of the event parameter.
-    pub fn docs<'a, D>(self, docs: D) -> Self
+    pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'a str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: EventParamSpec {
-                docs: docs
-                    .into_iter()
-                    .map(ToString::to_string)
-                    .collect::<Vec<_>>(),
+                docs: docs.into_iter().collect::<Vec<_>>(),
                 ..self.spec
             },
         }
@@ -1192,7 +1162,7 @@ impl IntoPortable for MessageParamSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
-            label: self.label,
+            label: self.label.to_string(),
             ty: self.ty.into_portable(registry),
         }
     }
@@ -1200,10 +1170,10 @@ impl IntoPortable for MessageParamSpec {
 
 impl MessageParamSpec {
     /// Constructs a new message parameter specification via builder.
-    pub fn new(label: impl ToString) -> MessageParamSpecBuilder {
+    pub fn new(label: <MetaForm as Form>::String) -> MessageParamSpecBuilder {
         MessageParamSpecBuilder {
             spec: Self {
-                label: label.to_string(),
+                label,
                 // Uses `()` type by default.
                 ty: TypeSpec::new::<()>(),
             },

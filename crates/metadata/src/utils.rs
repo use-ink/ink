@@ -22,7 +22,7 @@ where
 {
     if bytes.is_empty() {
         // Return empty string without prepended `0x`.
-        return serializer.serialize_str("")
+        return serializer.serialize_str("");
     }
     serde_hex::serialize(bytes, serializer)
 }
@@ -58,11 +58,26 @@ where
     deserializer.deserialize_str(Visitor)
 }
 
-/// Strips a single whitespace at the start and removes trailing spaces
-pub fn trim_extra_whitespace(item: &str) -> &str {
-    if let Some(stripped) = item.strip_prefix(' ') {
-        stripped.trim_end()
-    } else {
-        item.trim_end()
+pub trait DocString {
+    fn trim_extra_whitespace(item: Self) -> Self;
+}
+
+impl DocString for String {
+    fn trim_extra_whitespace(item: Self) -> Self {
+        if let Some(stripped) = &item.strip_prefix(' ') {
+            stripped.trim_end().into()
+        } else {
+            item.trim_end().into()
+        }
+    }
+}
+
+impl DocString for &'static str {
+    fn trim_extra_whitespace(item: Self) -> Self {
+        if let Some(stripped) = item.strip_prefix(' ') {
+            stripped.trim_end().into()
+        } else {
+            item.trim_end().into()
+        }
     }
 }
