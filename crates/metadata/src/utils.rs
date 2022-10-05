@@ -75,9 +75,9 @@ impl DocString for String {
 impl DocString for &'static str {
     fn trim_extra_whitespace(item: Self) -> Self {
         if let Some(stripped) = item.strip_prefix(' ') {
-            stripped.trim_end().into()
+            stripped.trim_end()
         } else {
-            item.trim_end().into()
+            item.trim_end()
         }
     }
 }
