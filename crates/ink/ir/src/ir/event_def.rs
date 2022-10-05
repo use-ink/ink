@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir,
-    ir::utils,
-};
+use crate::ir;
 use proc_macro2::{
     Ident,
     Span,
@@ -69,11 +65,11 @@ impl quote::ToTokens for InkEventDefinition {
 
 impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn new(mut item: syn::ItemEnum, anonymous: bool) -> Result<Self> {
+    pub fn new(item: syn::ItemEnum, anonymous: bool) -> Result<Self> {
         let mut variants = Vec::new();
-        for (index, variant) in item.variants.iter_mut().enumerate() {
+        for (index, variant) in item.variants.iter().enumerate() {
             let mut fields = Vec::new();
-            for field in variant.fields.iter_mut() {
+            for field in variant.fields.iter() {
                 let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
                     field.span(),
                     field.attrs.clone(),
@@ -84,15 +80,18 @@ impl InkEventDefinition {
                         }
                     },
                 )?;
+                let ident = field.ident.as_ref()
+                    .ok_or_else(|| format_err_spanned!(variant, "event variants must have named fields"))?;
                 // strip out the `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
-                field.attrs = other_attrs;
-                let ident = field.ident
-                    .ok_or_else(|| format_err_spanned!(variant.span(), "event variants must have named fields"))?;
+                let field = syn::Field {
+                    attrs: other_attrs,
+                    ..field.clone()
+                };
                 fields.push(EventField {
                     is_topic: topic_attr.is_some(),
-                    field: field.clone(),
-                    ident,
+                    field,
+                    ident: ident.clone(),
                 })
             }
             let named_fields = matches!(variant.fields, syn::Fields::Named(_));
@@ -469,7 +468,7 @@ mod tests {
         for (is_topic, expected_field) in expected_fields {
             let field = fields_iter.next().unwrap();
             assert_eq!(field.is_topic, is_topic);
-            assert_eq!(field.ident(), Some(expected_field.ident()));
+            assert_eq!(field.ident(), expected_field.ident());
             assert_eq!(field.ty(), expected_field.ty());
         }
     }

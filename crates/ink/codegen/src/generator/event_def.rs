@@ -31,14 +31,13 @@ pub struct EventDefinition<'a> {
 impl GenerateCode for EventDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let event_enum = self.generate_event_enum();
-        // let event_info_impl = self.generate_event_info_impl();
         // let event_metadata_impl = self.generate_event_metadata_impl();
-        let event_variants_impls = self.generate_event_variant_info_impls();
+        let event_info_impls = self.generate_event_variant_info_impls();
         let topics_impl = self.generate_topics_impl();
         // let topics_guard = self.generate_topics_guard();
         quote! {
             #event_enum
-            // #event_info_impl
+            #event_info_impls
             // #event_metadata_impl
             #topics_impl
             // #topics_guard
@@ -56,16 +55,6 @@ impl<'a> EventDefinition<'a> {
         )
     }
 
-    fn generate_event_info_impl(&self) -> TokenStream2 {
-        let span = self.event_def.span();
-        let event_ident = self.event_def.ident();
-        quote_spanned!(span=>
-            impl ::ink_lang::reflect::EventInfo for #event_ident {
-                const PATH: &'static str = module_path!();
-            }
-        )
-    }
-
     fn generate_event_variant_info_impls(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
@@ -74,14 +63,14 @@ impl<'a> EventDefinition<'a> {
             let event_variant_ident = ev.ident();
             let index = ev.index();
             quote_spanned!(span=>
-                impl ::ink_lang::reflect::EventVariantInfo<#index> for #event_ident {
-                    const SIGNATURE: [u8: 32] = ::ink_lang::blake2x256!(::core::concat!(
-                        ::core::module_path!(),
-                        "::",
-                        ::core::stringify!(#event_ident),
-                        "::",
-                        ::core::stringify!(#event_variant_ident)
-                    ));
+                impl ::ink::reflect::EventVariantInfo<#index> for #event_ident {
+                    const NAME: &'static str = ::core::stringify!(#event_ident);
+                    // const SIGNATURE: [u8; 32] = ::ink::blake2x256!(::core::concat!(
+                    //     ::core::module_path!(), "::",
+                    //     ::core::stringify!(#event_ident), "::",
+                    //     ::core::stringify!(#event_variant_ident))
+                    // );
+                    const SIGNATURE: [u8; 32] = ;
                 }
             )
         });
@@ -104,8 +93,8 @@ impl<'a> EventDefinition<'a> {
         let len_topics = self.event_def.max_len_topics();
 
         quote_spanned!(span=>
-            impl ::ink_lang::codegen::EventLenTopics for #event_ident {
-                type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
+            impl ::ink::codegen::EventLenTopics for #event_ident {
+                type LenTopics = ::ink::codegen::EventTopics<#len_topics>;
             }
         )
     }
@@ -131,17 +120,46 @@ impl<'a> EventDefinition<'a> {
                     });
                 let field_topics = variant.fields()
                     .map(|field| {
-
+                        let field_type = field.ty();
+                        let field_ident = field.ident();
+                        quote_spanned!(span =>
+                            builder.push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                                &::ink_env::topics::PrefixedValue {
+                                    // todo: deduplicate with EVENT_SIGNATURE
+                                    prefix: ::core::concat!(
+                                        ::core::module_path!(),
+                                        "::",
+                                        ::core::stringify!(#event_ident),
+                                        "::",
+                                        ::core::stringify!(#field_ident),
+                                    ).as_bytes(),
+                                    value: &self.#field_ident,
+                                }
+                            );
+                        )
                     });
 
                 quote_spanned!(span=>
-                    Self::#variant_ident { #( field_bindings, ) } => {
+                    Self::#variant_ident { #( #field_bindings, )* } => {
                         #(
-                            field_topics
+                            #field_topics
                         )*
                     }
                 )
             });
+
+        let event_signature_topic = match self.event_def.anonymous {
+            true => None,
+            false => {
+                Some(quote_spanned!(span=>
+                    .push_topic::<::ink_env::topics::PrefixedValue<()>>(
+                        &::ink_env::topics::PrefixedValue {
+                            prefix: EVENT_SIGNATURE, value: &(),
+                        }
+                    )
+                ))
+            }
+        };
 
         // Anonymous events require 1 fewer topics since they do not include their signature.
         let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
@@ -165,11 +183,18 @@ impl<'a> EventDefinition<'a> {
                         E: ::ink::env::Environment,
                         B: ::ink::env::topics::TopicsBuilderBackend<E>,
                     {
-                        match self {
-                            #(
-                                variant_match_arms
-                            )*
-                        }
+                        let builder = builder
+                            .build::<Self>()
+                            #event_signature_topic;
+
+                        // return type of match arms matching topics len?
+                        let builder =
+                            match self {
+                                #(
+                                    #variant_match_arms
+                                )*
+                            };
+                        builder.finish()
                     }
                 }
             };
@@ -245,7 +270,7 @@ impl<'a> EventDefinition<'a> {
     //                     E: ::ink_env::Environment,
     //                     B: ::ink_env::topics::TopicsBuilderBackend<E>,
     //                 {
-    //                     const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink_lang::reflect::EventInfo>::PATH.as_bytes();
+    //                     const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink::reflect::EventInfo>::PATH.as_bytes();
     //
     //                     builder
     //                         .build::<Self>()

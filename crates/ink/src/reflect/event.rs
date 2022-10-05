@@ -13,18 +13,6 @@
 // limitations under the License.
 
 /// todo: docs
-pub trait EventInfo {
-    /// The complete path of the ink! event definition.
-    ///
-    /// This is equivalent to Rust's builtin `module_path!` macro
-    /// invocation at the definition site of the ink! event, concatenated with
-    /// the event identifier.
-    ///
-    /// todo: rename?
-    const PATH: &'static str;
-}
-
-/// todo: docs
 /// The ID is the index of the event variant in the enum
 pub trait EventVariantInfo<const ID: u32> {
     const NAME: &'static str;
