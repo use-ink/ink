@@ -182,6 +182,7 @@ pub mod give_me {
 
     #[cfg(test)]
     mod e2e_tests {
+        use super::*;
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::e2e_test]
