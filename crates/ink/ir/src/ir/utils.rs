@@ -122,7 +122,7 @@ impl WhitelistedAttributes {
 }
 
 /// Return an error to notify about duplicate ink! configuration arguments.
-pub(crate) fn duplicate_config_err<F, S>(
+pub fn duplicate_config_err<F, S>(
     first: F,
     second: S,
     name: &str,

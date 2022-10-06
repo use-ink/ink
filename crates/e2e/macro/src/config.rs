@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
+use ink_ir::{
     ast,
+    format_err_spanned,
     utils::{
         duplicate_config_err,
         WhitelistedAttributes,
@@ -120,11 +121,6 @@ impl E2EConfig {
     pub fn skip_build(&self) -> syn::LitBool {
         let default_skip_build = syn::LitBool::new(false, proc_macro2::Span::call_site());
         self.skip_build.clone().unwrap_or(default_skip_build)
-    }
-
-    /// Return set of attributes that can be passed to call builder in the codegen.
-    pub fn whitelisted_attributes(&self) -> &WhitelistedAttributes {
-        &self.whitelisted_attributes
     }
 }
 

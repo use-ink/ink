@@ -33,7 +33,7 @@ use super::{
     InkMessage,
     Signer,
 };
-use crate::Environment;
+use ink_env::Environment;
 use std::path::PathBuf;
 
 use sp_runtime::traits::{
