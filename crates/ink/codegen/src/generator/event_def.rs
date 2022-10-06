@@ -70,7 +70,11 @@ impl<'a> EventDefinition<'a> {
                     //     ::core::stringify!(#event_ident), "::",
                     //     ::core::stringify!(#event_variant_ident))
                     // );
-                    const SIGNATURE: [u8; 32] = ;
+                    const SIGNATURE: [u8; 32] = ::ink::reflect::event_variant_signature(
+                        ::core::module_path!(),
+                        ::core::stringify!(#event_ident),
+                        ::core::stringify!(#event_variant_ident),
+                    );
                 }
             )
         });

@@ -21,3 +21,10 @@ pub trait EventVariantInfo<const ID: u32> {
     /// Should be able to compute up front
     const SIGNATURE: [u8; 32];
 }
+
+pub const fn event_variant_signature(path: &'static str, event_ident: &'static str, event_variant: &'static str) -> [u8; 32] {
+    let buf = [0u8; 32];
+    // todo: use xxh3?
+    // let bytes = path.as_bytes()
+    buf
+}
