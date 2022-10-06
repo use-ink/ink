@@ -147,8 +147,8 @@ impl InkE2ETest {
 
         quote! {
             #( #attrs )*
-            #[::ink_e2e::tokio::test]
-            async #vis fn #fn_name () #ret {
+            #[test]
+            #vis fn #fn_name () #ret {
                 use ::ink_e2e::log_info;
                 ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
                     let str = format!("test: {}", stringify!(#fn_name));
@@ -166,16 +166,26 @@ impl InkE2ETest {
 
                 log_info("creating new client");
 
-                // TODO(#xxx) Make those two generic environments customizable.
-                let mut client = ::ink_e2e::Client::<
-                    ::ink_e2e::PolkadotConfig,
-                    ink::env::DefaultEnvironment
-                >::new(&#path, &#ws_url, &#node_log).await;
+                let run = async {
+                    // TODO(#xxx) Make those two generic environments customizable.
+                    let mut client = ::ink_e2e::Client::<
+                        ::ink_e2e::PolkadotConfig,
+                        ink::env::DefaultEnvironment
+                    >::new(&#path, &#ws_url, &#node_log).await;
 
-                let __ret = {
-                    #block
+                    let __ret = {
+                        #block
+                    };
+                    __ret
                 };
-                __ret
+
+                {
+                    return ::ink_e2e::tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .expect("Failed building the Runtime")
+                        .block_on(run);
+                }
             }
         }
     }
