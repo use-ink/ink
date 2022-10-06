@@ -94,6 +94,7 @@ impl<'a> EventDefinition<'a> {
     fn generate_topics_guard(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
+        // todo: [AJ] check if event signature topic should be included here (it is now, wasn't before)
         let len_topics = self.event_def.max_len_topics();
 
         quote_spanned!(span=>
@@ -143,36 +144,39 @@ impl<'a> EventDefinition<'a> {
                         )
                     });
 
+                let event_signature_topic = match self.event_def.anonymous {
+                    true => None,
+                    false => {
+                        Some(quote_spanned!(span=>
+                            .push_topic::<::ink_env::topics::PrefixedValue<()>>(
+                                &::ink_env::topics::PrefixedValue {
+                                    // todo: look up event signature topic via indexed trait impl
+                                    prefix: EVENT_SIGNATURE, value: &(),
+                                }
+                            )
+                        ))
+                    }
+                };
+
+                let remaining_topics_ty = match len_topics {
+                    0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
+                    n => {
+                        quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n])
+                    }
+                };
+
                 quote_spanned!(span=>
                     Self::#variant_ident { #( #field_bindings, )* } => {
-                        #(
-                            #field_topics
-                        )*
+                        builder
+                            .build::<#remaining_topics_ty>()
+                            #event_signature_topic
+                            #(
+                                #field_topics
+                            )*
+                            .finish()
                     }
                 )
             });
-
-        let event_signature_topic = match self.event_def.anonymous {
-            true => None,
-            false => {
-                Some(quote_spanned!(span=>
-                    .push_topic::<::ink_env::topics::PrefixedValue<()>>(
-                        &::ink_env::topics::PrefixedValue {
-                            prefix: EVENT_SIGNATURE, value: &(),
-                        }
-                    )
-                ))
-            }
-        };
-
-        // Anonymous events require 1 fewer topics since they do not include their signature.
-        let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
-        let remaining_topics_ty = match len_topics + anonymous_topics_offset {
-            0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
-            n => {
-                quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n])
-            }
-        };
 
         quote_spanned!(span =>
             const _: () = {
@@ -187,105 +191,14 @@ impl<'a> EventDefinition<'a> {
                         E: ::ink::env::Environment,
                         B: ::ink::env::topics::TopicsBuilderBackend<E>,
                     {
-                        let builder = builder
-                            .build::<Self>()
-                            #event_signature_topic;
-
-                        // return type of match arms matching topics len?
-                        let builder =
-                            match self {
-                                #(
-                                    #variant_match_arms
-                                )*
-                            };
-                        builder.finish()
+                        match self {
+                            #(
+                                #variant_match_arms
+                            )*
+                        };
                     }
                 }
             };
         )
     }
-
-    // /// Generates the `Topics` trait implementations for the user defined events.
-    // fn generate_topics_impl(&self) -> TokenStream2 {
-    //     let span = self.event_def.span();
-    //     let event_ident = self.event_def.ident();
-    //     let len_topics = self
-    //         .event_def
-    //         .max_len_topics();
-    //     let topic_impls = self
-    //         .event_def
-    //         .fields()
-    //         .enumerate()
-    //         .filter(|(_, field)| field.is_topic)
-    //         .map(|(n, topic_field)| {
-    //             let span = topic_field.span();
-    //             let field_ident = topic_field
-    //                 .ident()
-    //                 .map(quote::ToTokens::into_token_stream)
-    //                 .unwrap_or_else(|| quote_spanned!(span => #n));
-    //             let field_type = topic_field.ty();
-    //             quote_spanned!(span =>
-    //                 .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-    //                     &::ink_env::topics::PrefixedValue {
-    //                         // todo: deduplicate with EVENT_SIGNATURE
-    //                         prefix: ::core::concat!(
-    //                             ::core::module_path!(),
-    //                             "::",
-    //                             ::core::stringify!(#event_ident),
-    //                             "::",
-    //                             ::core::stringify!(#field_ident),
-    //                         ).as_bytes(),
-    //                         value: &self.#field_ident,
-    //                     }
-    //                 )
-    //             )
-    //         });
-    //     // Only include topic for event signature in case of non-anonymous event.
-    //     let event_signature_topic = match self.event_def.anonymous {
-    //         true => None,
-    //         false => {
-    //             Some(quote_spanned!(span=>
-    //                 .push_topic::<::ink_env::topics::PrefixedValue<()>>(
-    //                     &::ink_env::topics::PrefixedValue {
-    //                         prefix: EVENT_SIGNATURE, value: &(),
-    //                     }
-    //                 )
-    //             ))
-    //         }
-    //     };
-    //     // Anonymous events require 1 fewer topics since they do not include their signature.
-    //     let anonymous_topics_offset = if self.event_def.anonymous { 0 } else { 1 };
-    //     let remaining_topics_ty = match len_topics + anonymous_topics_offset {
-    //         0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
-    //         n => {
-    //             quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n])
-    //         }
-    //     };
-    //     quote_spanned!(span =>
-    //         const _: () = {
-    //             impl ::ink_env::Topics for #event_ident {
-    //                 type RemainingTopics = #remaining_topics_ty;
-    //
-    //                 fn topics<E, B>(
-    //                     &self,
-    //                     builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
-    //                 ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
-    //                 where
-    //                     E: ::ink_env::Environment,
-    //                     B: ::ink_env::topics::TopicsBuilderBackend<E>,
-    //                 {
-    //                     const EVENT_SIGNATURE: &[u8] = <#event_ident as ::ink::reflect::EventInfo>::PATH.as_bytes();
-    //
-    //                     builder
-    //                         .build::<Self>()
-    //                         #event_signature_topic
-    //                         #(
-    //                             #topic_impls
-    //                         )*
-    //                         .finish()
-    //                 }
-    //             }
-    //         };
-    //     )
-    // }
 }

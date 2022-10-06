@@ -28,7 +28,6 @@ use syn::{
 pub struct InkEventDefinition {
     pub item: syn::ItemEnum,
     variants: Vec<EventVariant>,
-    pub anonymous: bool,
 }
 
 impl TryFrom<syn::ItemEnum> for InkEventDefinition {
@@ -51,24 +50,10 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
             attrs: other_attrs,
             ..item_enum
         };
-        Self::new(item_enum, ink_attrs.is_anonymous())
-    }
-}
-
-impl quote::ToTokens for InkEventDefinition {
-    /// We mainly implement this trait for this ink! type to have a derived
-    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        self.item.to_tokens(tokens)
-    }
-}
-
-impl InkEventDefinition {
-    /// Returns `Ok` if the input matches all requirements for an ink! event definition.
-    pub fn new(item: syn::ItemEnum, anonymous: bool) -> Result<Self> {
         let mut variants = Vec::new();
-        for (index, variant) in item.variants.iter().enumerate() {
+        for (index, variant) in item_enum.variants.iter().enumerate() {
             let mut fields = Vec::new();
+            let anonymous = true; // todo: extract this value from a variant attribute: ink_attrs.is_anonymous()?
             for field in variant.fields.iter() {
                 let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
                     field.span(),
@@ -100,25 +85,34 @@ impl InkEventDefinition {
                 item: variant.clone(),
                 named_fields,
                 fields,
+                anonymous,
             })
         }
         Ok(Self {
-            item,
+            item: item_enum,
             variants,
-            anonymous,
         })
     }
+}
 
+impl quote::ToTokens for InkEventDefinition {
+    /// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        self.item.to_tokens(tokens)
+    }
+}
+
+impl InkEventDefinition {
     /// Returns `Ok` if the input matches all requirements for an ink! event definition.
     pub fn from_event_def_tokens(
         config: TokenStream2,
         input: TokenStream2,
     ) -> Result<Self> {
         let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
-        let anonymous = false; // todo parse this from attr config
         let item = syn::parse2::<syn::ItemEnum>(input)?;
         // let item = InkItemTrait::new(&config, parsed_item)?;
-        Self::new(item, anonymous)
+        Self::try_from(item)
     }
 
     /// Returns the identifier of the event struct.
@@ -143,7 +137,10 @@ impl InkEventDefinition {
     /// Returns the maximum number of topics of any event variant.
     pub fn max_len_topics(&self) -> usize {
         self.variants()
-            .map(|v| v.fields().filter(|event| event.is_topic).count())
+            .map(|v| {
+                let topics_len = v.fields().filter(|event| event.is_topic).count();
+                if v.anonymous { topics_len } else { topics_len + 1usize }
+            })
             .max()
             .unwrap_or_default()
     }
@@ -156,6 +153,7 @@ pub struct EventVariant {
     item: syn::Variant,
     named_fields: bool,
     fields: Vec<EventField>,
+    anonymous: bool,
 }
 
 impl EventVariant {
@@ -178,6 +176,11 @@ impl EventVariant {
     /// of the event variant struct.
     pub fn fields(&self) -> impl Iterator<Item = &EventField> {
         self.fields.iter()
+    }
+
+    /// Returns true if the signature of the event variant should *not* be indexed by a topic.
+    pub fn anonymous(&self) -> bool {
+        self.anonymous
     }
 }
 
