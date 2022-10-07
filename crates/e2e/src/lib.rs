@@ -32,11 +32,11 @@ pub use smart_bench_macro;
 use xts::ContractsApi;
 
 pub use env_logger;
+pub use ink_e2e_macro::e2e_test;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::tx::PairSigner;
 pub use tokio;
 
-use log;
 use sp_core::sr25519;
 use sp_runtime::traits::{
     IdentifyAccount,

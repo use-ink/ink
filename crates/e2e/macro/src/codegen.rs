@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use crate::ir;
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -38,14 +38,14 @@ pub fn contract_path() -> Option<PathBuf> {
 
 /// Generates code for the `[ink::e2e_test]` macro.
 #[derive(From)]
-pub struct InkE2ETest<'a> {
+pub struct InkE2ETest {
     /// The test function to generate code for.
-    test: &'a ir::InkE2ETest,
+    test: ir::InkE2ETest,
 }
 
-impl GenerateCode for InkE2ETest<'_> {
+impl InkE2ETest {
     /// Generates the code for `#[ink:e2e_test]`.
-    fn generate_code(&self) -> TokenStream2 {
+    pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
             return quote! {}
@@ -147,42 +147,46 @@ impl GenerateCode for InkE2ETest<'_> {
 
         quote! {
             #( #attrs )*
-            #[ink::env::e2e::tokio::test]
-            async #vis fn #fn_name () #ret {
-                use ink::env::e2e::log_info;
-                ink::env::e2e::LOG_PREFIX.with(|log_prefix| {
+            #[test]
+            #vis fn #fn_name () #ret {
+                use ::ink_e2e::log_info;
+                ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
                     let str = format!("test: {}", stringify!(#fn_name));
                     *log_prefix.borrow_mut() = String::from(str);
                 });
                 log_info("setting up e2e test");
 
-                ink::env::e2e::INIT.call_once(|| {
-                    ink::env::e2e::env_logger::init();
+                ::ink_e2e::INIT.call_once(|| {
+                    ::ink_e2e::env_logger::init();
                 });
 
                 log_info("extracting metadata");
                 // TODO(#1421) `smart-bench_macro` needs to be forked.
-                ink::env::e2e::smart_bench_macro::contract!(#path);
+                ::ink_e2e::smart_bench_macro::contract!(#path);
 
                 log_info("creating new client");
 
-                // TODO(#xxx) Make those two generic environments customizable.
-                let mut client = ink::env::e2e::Client::<
-                    ink::env::e2e::PolkadotConfig,
-                    ink::env::DefaultEnvironment
-                >::new(&#path, &#ws_url, &#node_log).await;
+                let run = async {
+                    // TODO(#xxx) Make those two generic environments customizable.
+                    let mut client = ::ink_e2e::Client::<
+                        ::ink_e2e::PolkadotConfig,
+                        ink::env::DefaultEnvironment
+                    >::new(&#path, &#ws_url, &#node_log).await;
 
-                let __ret = {
-                    #block
+                    let __ret = {
+                        #block
+                    };
+                    __ret
                 };
-                __ret
+
+                {
+                    return ::ink_e2e::tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .expect("Failed building the Runtime")
+                        .block_on(run);
+                }
             }
         }
-    }
-}
-
-impl GenerateCode for ir::InkE2ETest {
-    fn generate_code(&self) -> TokenStream2 {
-        InkE2ETest::from(self).generate_code()
     }
 }

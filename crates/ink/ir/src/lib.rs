@@ -30,7 +30,7 @@
 #[macro_use]
 mod error;
 
-mod ast;
+pub mod ast;
 mod ir;
 mod literal;
 
@@ -50,7 +50,6 @@ pub use self::{
         Contract,
         ExtensionId,
         ImplItem,
-        InkE2ETest,
         InkEventDefinition,
         InkItem,
         InkItemTrait,
