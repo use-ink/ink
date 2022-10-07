@@ -20,7 +20,7 @@ mod my_contract {
     pub struct MyContract {}
 
     /// Exemplary event
-    #[ink(event)]
+    #[ink::event_definition]
     pub enum Event {
         MyEvent {
             #[ink(topic)]

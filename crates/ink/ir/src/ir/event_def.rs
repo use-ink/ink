@@ -105,29 +105,6 @@ impl quote::ToTokens for InkEventDefinition {
 }
 
 impl InkEventDefinition {
-    /// Create an [`InkEventDefinition`] for a event defined as part of an `#[ink::contract]`.
-    ///
-    /// This will be an enum annotated with the `#[ink(event)]` attribute.
-    pub fn from_inline_event(item_enum: syn::ItemEnum) -> Result<Self> {
-        let enum_span = item_enum.span();
-        let (_, other_attrs) = ir::sanitize_attributes(
-            enum_span,
-            item_enum.attrs,
-            &ir::AttributeArgKind::Event,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Event => Ok(()),
-                    _ => Err(None),
-                }
-            },
-        )?;
-        let item_enum = syn::ItemEnum {
-            attrs: other_attrs,
-            ..item_enum
-        };
-        Self::try_from(item_enum)
-    }
-
     /// Create an [`InkEventDefinition`] for a event defined externally to a contract.
     ///
     /// This will be an enum annotated with the `#[ink::event_def]` attribute.
