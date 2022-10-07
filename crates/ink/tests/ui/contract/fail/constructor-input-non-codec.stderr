@@ -8,7 +8,6 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
              Arc<T>
              Box<T>
              Rc<T>
-             sp_core::Bytes
    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
 note: required by a bound in `DispatchInput`
   --> src/codegen/dispatch/type_check.rs
@@ -26,7 +25,6 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
              Arc<T>
              Box<T>
              Rc<T>
-             sp_core::Bytes
    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
@@ -44,7 +42,7 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
              Rc<T>
              String
              Vec<T>
-           and 2 others
+             parity_scale_codec::Ref<'a, T, U>
    = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
 note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
   --> $WORKSPACE/crates/env/src/call/execution_input.rs

@@ -21,7 +21,10 @@ use super::{
     Signer,
     Verify,
 };
-use crate::Environment;
+use ink_env::{
+    Environment,
+    Gas,
+};
 
 use core::marker::PhantomData;
 use jsonrpsee::{
@@ -47,7 +50,7 @@ use subxt::{
 /// The gas limit for contract instantiate and call dry runs.
 const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
-// TODO(#xxx) Should be fetched automatically.
+// TODO(#1422) Should be fetched automatically.
 #[subxt::subxt(runtime_metadata_path = "metadata/contracts-node.scale")]
 pub(super) mod api {}
 
@@ -57,7 +60,7 @@ pub struct InstantiateWithCode<B> {
     #[codec(compact)]
     value: B,
     #[codec(compact)]
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<B>,
     code: Vec<u8>,
     data: Vec<u8>,
@@ -71,7 +74,7 @@ pub struct Call<C: subxt::Config, B> {
     #[codec(compact)]
     value: B,
     #[codec(compact)]
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<B>,
     data: Vec<u8>,
 }
@@ -82,7 +85,7 @@ pub struct Call<C: subxt::Config, B> {
 struct InstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<E::Balance>,
     code: Code,
     data: Vec<u8>,
@@ -109,7 +112,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: C::AccountId,
     value: E::Balance,
-    gas_limit: crate::types::Gas,
+    gas_limit: Gas,
     storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
@@ -196,7 +199,7 @@ where
     pub async fn instantiate_with_code(
         &self,
         value: E::Balance,
-        gas_limit: crate::types::Gas,
+        gas_limit: Gas,
         storage_deposit_limit: Option<E::Balance>,
         code: Vec<u8>,
         data: Vec<u8>,
@@ -283,7 +286,7 @@ where
         &self,
         contract: sp_runtime::MultiAddress<C::AccountId, ()>,
         value: E::Balance,
-        gas_limit: crate::types::Gas,
+        gas_limit: Gas,
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,
@@ -302,13 +305,15 @@ where
         )
         .unvalidated();
 
-        self
-            .client
+        self.client
             .tx()
             .sign_and_submit_then_watch_default(&call, signer)
             .await
             .map(|tx_progress| {
-                log_info(&format!("signed and submitted call with extrinsic hash {:?}", tx_progress.extrinsic_hash()));
+                log_info(&format!(
+                    "signed and submitted call with extrinsic hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
                 tx_progress
             })
             .unwrap_or_else(|err| {
@@ -317,22 +322,15 @@ where
                     err
                 );
             })
-            // TODO(#xxx) It should be configurable to use `.wait_for_finalized_success` instead.
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `wait_for_in_block`: {:?}",
-                    err
-                );
+                panic!("error on call `wait_for_in_block`: {:?}", err);
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `fetch_events`: {:?}",
-                    err
-                );
+                panic!("error on call `fetch_events`: {:?}", err);
             })
     }
 }

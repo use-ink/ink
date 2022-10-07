@@ -23,7 +23,7 @@ pub use client::{
     Error,
 };
 pub use default_accounts::*;
-// TODO(#xxx) `smart-bench_macro` needs to be forked.
+// TODO(#1421) `smart-bench_macro` needs to be forked.
 use pallet_contracts_primitives::{
     ContractExecResult,
     ContractInstantiateResult,
@@ -32,11 +32,11 @@ pub use smart_bench_macro;
 use xts::ContractsApi;
 
 pub use env_logger;
+pub use ink_e2e_macro::e2e_test;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::tx::PairSigner;
 pub use tokio;
 
-use log;
 use sp_core::sr25519;
 use sp_runtime::traits::{
     IdentifyAccount,
@@ -80,7 +80,7 @@ pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
 pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 
 /// Trait for contract constructors.
-// TODO(#xxx) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
+// TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
 pub trait InkConstructor: scale::Encode {
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];

@@ -34,7 +34,6 @@ mod contract;
 mod dispatch;
 mod env;
 mod events;
-mod ink_e2e_test;
 mod ink_test;
 mod item_impls;
 mod metadata;
@@ -60,7 +59,6 @@ pub use self::{
     dispatch::Dispatch,
     env::Env,
     events::Events,
-    ink_e2e_test::InkE2ETest,
     ink_test::InkTest,
     item_impls::ItemImpls,
     metadata::Metadata,
