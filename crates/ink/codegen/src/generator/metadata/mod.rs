@@ -87,6 +87,7 @@ impl Metadata<'_> {
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
         // let events = self.generate_events();
+        // todo: call into InkEventDefinition::from_inline_event for inlinne events
         let docs = self
             .contract
             .module()
