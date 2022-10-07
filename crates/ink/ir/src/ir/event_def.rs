@@ -37,7 +37,23 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
         let mut variants = Vec::new();
         for (index, variant) in item_enum.variants.iter().enumerate() {
             let mut fields = Vec::new();
-            let anonymous = true; // todo: extract this value from a variant attribute: ink_attrs.is_anonymous()?
+            let (ink_attrs, other_attrs) = ir::sanitize_optional_attributes(
+                variant.span(),
+                variant.attrs.clone(),
+                |arg| {
+                    match arg.kind() {
+                        ir::AttributeArg::Anonymous => Ok(()),
+                        _ => Err(None),
+                    }
+                },
+            )?;
+            // strip out the `#[ink(anonymous)] attributes, since the item will be used to
+            // regenerate the event enum
+            let variant = syn::Variant {
+                attrs: other_attrs,
+                ..variant.clone()
+            };
+            let anonymous = ink_attrs.map_or(false, |attrs| attrs.is_anonymous());
             for field in variant.fields.iter() {
                 let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
                     field.span(),
@@ -49,8 +65,9 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                         }
                     },
                 )?;
-                let ident = field.ident.as_ref()
-                    .ok_or_else(|| format_err_spanned!(variant, "event variants must have named fields"))?;
+                let ident = field.ident.as_ref().ok_or_else(|| {
+                    format_err_spanned!(variant, "event variants must have named fields")
+                })?;
                 // strip out the `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
                 let field = syn::Field {
@@ -93,13 +110,13 @@ impl InkEventDefinition {
     /// This will be an enum annotated with the `#[ink(event)]` attribute.
     pub fn from_inline_event(item_enum: syn::ItemEnum) -> Result<Self> {
         let enum_span = item_enum.span();
-        let (ink_attrs, other_attrs) = ir::sanitize_attributes(
+        let (_, other_attrs) = ir::sanitize_attributes(
             enum_span,
             item_enum.attrs,
             &ir::AttributeArgKind::Event,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
+                    ir::AttributeArg::Event => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -148,7 +165,11 @@ impl InkEventDefinition {
         self.variants()
             .map(|v| {
                 let topics_len = v.fields().filter(|event| event.is_topic).count();
-                if v.anonymous { topics_len } else { topics_len + 1usize }
+                if v.anonymous {
+                    topics_len
+                } else {
+                    topics_len + 1usize
+                }
             })
             .max()
             .unwrap_or_default()
@@ -460,8 +481,8 @@ mod tests {
                 },
             ),
         ];
-        let event_def = <InkEventDefinition as TryFrom<syn::ItemEnum>>::try_from(
-            syn::parse_quote! {
+        let event_def =
+            <InkEventDefinition as TryFrom<syn::ItemEnum>>::try_from(syn::parse_quote! {
                 #[ink(event)]
                 pub enum MyEvent {
                     Event {
@@ -472,9 +493,8 @@ mod tests {
                         field_3: [u8; 32],
                     }
                 }
-            },
-        )
-        .unwrap();
+            })
+            .unwrap();
         let event_variant = event_def.variants().next().expect("Event variant");
         let mut fields_iter = event_variant.fields();
         for (is_topic, expected_field) in expected_fields {

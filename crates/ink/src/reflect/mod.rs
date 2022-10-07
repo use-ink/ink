@@ -47,8 +47,8 @@ pub use self::{
         ExecuteDispatchable,
     },
     event::{
+        event_variant_signature,
         EventVariantInfo,
-        event_variant_signature
     },
     trait_def::{
         TraitDefinitionRegistry,

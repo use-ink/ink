@@ -107,9 +107,7 @@ impl<'a> EventDefinition<'a> {
     fn generate_topics_impl(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
-        let len_topics = self
-            .event_def
-            .max_len_topics();
+        let len_topics = self.event_def.max_len_topics();
 
         let variant_match_arms = self
             .event_def
