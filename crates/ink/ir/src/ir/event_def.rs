@@ -33,9 +33,9 @@ pub struct InkEventDefinition {
 impl TryFrom<syn::ItemEnum> for InkEventDefinition {
     type Error = syn::Error;
 
-    fn try_from(item_enum: syn::ItemEnum) -> Result<Self> {
+    fn try_from(mut item_enum: syn::ItemEnum) -> Result<Self> {
         let mut variants = Vec::new();
-        for (index, variant) in item_enum.variants.iter().enumerate() {
+        for (index, variant) in item_enum.variants.iter_mut().enumerate() {
             let mut fields = Vec::new();
             let (ink_attrs, other_attrs) = ir::sanitize_optional_attributes(
                 variant.span(),
@@ -49,12 +49,9 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
             )?;
             // strip out the `#[ink(anonymous)] attributes, since the item will be used to
             // regenerate the event enum
-            let variant = syn::Variant {
-                attrs: other_attrs,
-                ..variant.clone()
-            };
+            variant.attrs = other_attrs;
             let anonymous = ink_attrs.map_or(false, |attrs| attrs.is_anonymous());
-            for field in variant.fields.iter() {
+            for (index, field) in variant.fields.iter_mut().enumerate() {
                 let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
                     field.span(),
                     field.attrs.clone(),
@@ -65,18 +62,19 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                         }
                     },
                 )?;
-                let ident = field.ident.as_ref().ok_or_else(|| {
-                    format_err_spanned!(variant, "event variants must have named fields")
-                })?;
+                let ident = field
+                    .ident
+                    .expect("field has no name");
+                    // todo: make this work
+                    // .as_ref()
+                    // .map(|ident| ident.clone())
+                    // .unwrap_or(quote::format_ident!("{}", index));
                 // strip out the `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
-                let field = syn::Field {
-                    attrs: other_attrs,
-                    ..field.clone()
-                };
+                field.attrs = other_attrs;
                 fields.push(EventField {
                     is_topic: topic_attr.is_some(),
-                    field,
+                    field: field.clone(),
                     ident: ident.clone(),
                 })
             }
