@@ -481,26 +481,20 @@ mod tests {
         fn assert_anonymous_event(event: syn::ItemEnum) {
             match InkEventDefinition::try_from(event) {
                 Ok(event) => {
-                    assert!(event.anonymous);
+                    assert!(event.variants[0].anonymous);
                 }
                 Err(_) => panic!("encountered unexpected invalid anonymous event"),
             }
         }
         assert_anonymous_event(syn::parse_quote! {
             #[ink(event)]
-            #[ink(anonymous)]
-            pub struct MyEvent {
-                #[ink(topic)]
-                field_1: i32,
-                field_2: bool,
-            }
-        });
-        assert_anonymous_event(syn::parse_quote! {
-            #[ink(event, anonymous)]
-            pub struct MyEvent {
-                #[ink(topic)]
-                field_1: i32,
-                field_2: bool,
+            pub enum MyEvent {
+                #[ink(anonymous)]
+                Event {
+                    #[ink(topic)]
+                    field_1: i32,
+                    field_2: bool,
+                }
             }
         });
     }

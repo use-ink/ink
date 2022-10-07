@@ -83,9 +83,9 @@ where
     /// The number of expected topics is given by the `TopicsAmount` type parameter.
     pub fn build<TopicsAmount: EventTopicsAmount>(
         mut self,
-    ) -> TopicsBuilder<TopicsAmount::RemainingTopics, E, B> {
+    ) -> TopicsBuilder<TopicsAmount, E, B> {
         self.backend
-            .expect(<TopicsAmount::RemainingTopics as EventTopicsAmount>::AMOUNT);
+            .expect(<TopicsAmount as EventTopicsAmount>::AMOUNT);
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),

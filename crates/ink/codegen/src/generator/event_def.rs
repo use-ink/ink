@@ -128,7 +128,7 @@ impl<'a> EventDefinition<'a> {
                         let field_type = field.ty();
                         let field_ident = field.ident();
                         quote_spanned!(span =>
-                            builder.push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                            .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
                                 &::ink_env::topics::PrefixedValue {
                                     // todo: deduplicate with EVENT_SIGNATURE
                                     prefix: ::core::concat!(
@@ -140,11 +140,11 @@ impl<'a> EventDefinition<'a> {
                                     ).as_bytes(),
                                     value: &self.#field_ident,
                                 }
-                            );
+                            )
                         )
                     });
 
-                let event_signature_topic = match self.event_def.anonymous {
+                let event_signature_topic = match variant.anonymous() {
                     true => None,
                     false => {
                         Some(quote_spanned!(span=>
@@ -181,8 +181,6 @@ impl<'a> EventDefinition<'a> {
         quote_spanned!(span =>
             const _: () = {
                 impl ::ink_env::Topics for #event_ident {
-                    type RemainingTopics = #remaining_topics_ty;
-
                     fn topics<E, B>(
                         &self,
                         builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
@@ -195,7 +193,7 @@ impl<'a> EventDefinition<'a> {
                             #(
                                 #variant_match_arms
                             )*
-                        };
+                        }
                     }
                 }
             };
