@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with cargo-contract.  If not, see <http://www.gnu.org/licenses/>.
 
+#![doc(html_logo_url = "https://use.ink/img/crate-docs/logo.png", html_favicon_url = "https://use.ink/crate-docs/favicon.png")]
+
 #![feature(rustc_private)]
 
 dylint_linting::dylint_library!();

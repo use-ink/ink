@@ -25,6 +25,8 @@
 //! If at least one of the type's fields occupies its own separate storage cell, it is a
 //! non-[`Packed`] type because it occupies more than one storage cell.
 
+#![doc(html_logo_url = "https://use.ink/img/crate-docs/logo.png", html_favicon_url = "https://use.ink/crate-docs/favicon.png")]
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod impls;
