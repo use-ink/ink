@@ -342,7 +342,10 @@ where
                     instantiated.contract
                 ));
                 account_id = Some(instantiated.contract);
-                break
+
+                // We can't `break` here, we need to assign the account id from the
+                // last `ContractInstantiatedEvent`, in case the contract instantiates
+                // multiple accounts as part of its constructor!
             } else if evt
                 .as_event::<xts::api::system::events::ExtrinsicFailed>()
                 .unwrap_or_else(|err| {
