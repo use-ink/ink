@@ -122,4 +122,131 @@ mod delegator {
             }
         }
     }
+
+    #[cfg(test)]
+    mod e2e_tests {
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::e2e_test(skip_build = true)]
+        async fn e2e_delegator(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // given
+            ink_e2e::build!("target/ink/accumulator/accumulator.contract");
+            let accumulator_hash: ink_e2e::H256 = client
+                .upload(&mut ink_e2e::alice(), accumulator::PATH, None)
+                .await
+                .expect("uploading `accumulator` failed")
+                .code_hash;
+
+            ink_e2e::build!("target/ink/adder/adder.contract");
+            let adder_hash: ink_e2e::H256 = client
+                .upload(&mut ink_e2e::alice(), adder::PATH, None)
+                .await
+                .expect("uploading `adder` failed")
+                .code_hash;
+
+            ink_e2e::build!("target/ink/subber/subber.contract");
+            let subber_hash: ink_e2e::H256 = client
+                .upload(&mut ink_e2e::alice(), subber::PATH, None)
+                .await
+                .expect("uploading `subber` failed")
+                .code_hash;
+
+            ink_e2e::build!("target/ink/delegator.contract");
+            let constructor = delegator::constructors::new(
+                1234, // initial value
+                1337, // salt
+                ink_e2e::utils::runtime_hash_to_ink_hash::<ink::env::DefaultEnvironment>(
+                    &accumulator_hash,
+                ),
+                ink_e2e::utils::runtime_hash_to_ink_hash::<ink::env::DefaultEnvironment>(
+                    &adder_hash,
+                ),
+                ink_e2e::utils::runtime_hash_to_ink_hash::<ink::env::DefaultEnvironment>(
+                    &subber_hash,
+                ),
+            );
+
+            let delegator_acc_id = client
+                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let value = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    delegator_acc_id.clone(),
+                    delegator::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("calling `get` failed")
+                .value;
+            assert_eq!(value, 1234);
+            let _ = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    delegator_acc_id.clone(),
+                    delegator::messages::change(6),
+                    0,
+                    None,
+                )
+                .await
+                .expect("calling `change` failed");
+
+            // then
+            let value = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    delegator_acc_id.clone(),
+                    delegator::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("calling `get` failed")
+                .value;
+            assert_eq!(value, 1234 + 6);
+
+            // when
+            let _ = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    delegator_acc_id.clone(),
+                    delegator::messages::switch(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("calling `switch` failed");
+            let _ = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    delegator_acc_id.clone(),
+                    delegator::messages::change(3),
+                    0,
+                    None,
+                )
+                .await
+                .expect("calling `change` failed");
+
+            // then
+            let value = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    delegator_acc_id.clone(),
+                    delegator::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("calling `get` failed")
+                .value;
+            assert_eq!(value, 1234 + 6 - 3);
+
+            Ok(())
+        }
+    }
 }
