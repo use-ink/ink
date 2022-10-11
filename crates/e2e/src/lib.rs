@@ -16,6 +16,7 @@
 
 mod client;
 mod default_accounts;
+pub mod utils;
 mod xts;
 
 pub use client::{

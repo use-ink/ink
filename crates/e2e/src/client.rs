@@ -259,40 +259,7 @@ where
     where
         CO: InkConstructor,
     {
-        let reader = std::fs::File::open(&self.contract_path).unwrap_or_else(|err| {
-            panic!("contract path cannot be opened: {:?}", err);
-        });
-        let contract: contract_metadata::ContractMetadata =
-            serde_json::from_reader(reader).map_err(|err| {
-                panic!("error reading metadata: {:?}", err);
-            })?;
-        let code = contract
-            .source
-            .wasm
-            .expect("contract bundle is missing `source.wasm`");
-
-        log_info(&format!(
-            "{:?} has {} KiB",
-            self.contract_path,
-            code.0.len() / 1024
-        ));
-
-        let nonce = self
-            .api
-            .client
-            .rpc()
-            .system_account_next_index(signer.account_id())
-            .await
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error getting next index for {:?}: {:?}",
-                    signer.account_id(),
-                    err
-                );
-            });
-        log_info(&format!("nonce: {:?}", nonce));
-        signer.set_nonce(nonce);
-
+        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
         let ret = self
             .exec_instantiate(signer, value, storage_deposit_limit, code.0, &constructor)
             .await?;
