@@ -22,7 +22,7 @@ serde = { version = "1.0", default-features = false, features = ["derive", "allo
 impl-serde = "0.4.0"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 #scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj/custom-meta-types", features = ["derive", "serde", "decode"] }
+scale-info = { git = "https://github.com/paritytech/scale-info", features = ["derive", "serde", "decode"] }
 
 [dev-dependencies]
 pretty_assertions = "1"

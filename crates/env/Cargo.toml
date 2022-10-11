@@ -49,7 +49,7 @@ secp256k1 = { version = "0.24", features = ["recovery", "global-context"], optio
 # Never use this crate outside the off-chain environment!
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
 #scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj/custom-meta-types", features = ["derive"], optional = true }
+scale-info = { git = "https://github.com/paritytech/scale-info", features = ["derive"], optional = true }
 
 contract-metadata = { version = "2.0.0-alpha.2", optional = true }
 impl-serde = { version = "0.3.1", default-features = false, optional = true  }
