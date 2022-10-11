@@ -116,7 +116,6 @@ where
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
-// TODO(#xxx) Improve the `Debug` implementation.
 impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
@@ -191,6 +190,7 @@ where
 
 // We implement a custom `Debug` here, as to avoid requiring the trait
 // bound `Debug` for `C`.
+// TODO(#xxx) Improve the Debug implementations below to also output `_`.
 impl<C, E> core::fmt::Debug for Error<C, E>
 where
     C: subxt::Config,
