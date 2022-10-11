@@ -61,7 +61,6 @@ pub use ink_macro::{
     blake2x256,
     chain_extension,
     contract,
-    e2e_test,
     selector_bytes,
     selector_id,
     storage_item,
