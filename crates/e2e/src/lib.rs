@@ -24,20 +24,23 @@ pub use client::{
     Error,
 };
 pub use default_accounts::*;
+pub use env_logger;
+pub use ink_e2e_macro::e2e_test;
 // TODO(#1421) `smart-bench_macro` needs to be forked.
+pub use smart_bench_macro;
+pub use sp_core::H256;
+pub use sp_keyring::AccountKeyring;
+pub use subxt::{
+    self,
+    tx::PairSigner,
+};
+pub use tokio;
+
 use pallet_contracts_primitives::{
+    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
 };
-pub use smart_bench_macro;
-use xts::ContractsApi;
-
-pub use env_logger;
-pub use ink_e2e_macro::e2e_test;
-pub use sp_keyring::AccountKeyring;
-pub use subxt::tx::PairSigner;
-pub use tokio;
-
 use sp_core::sr25519;
 use sp_runtime::traits::{
     IdentifyAccount,
@@ -47,6 +50,7 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
+use xts::ContractsApi;
 
 /// Default set of commonly used types by Substrate runtimes.
 #[cfg(feature = "std")]
@@ -83,14 +87,22 @@ pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 /// Trait for contract constructors.
 // TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
 pub trait InkConstructor: scale::Encode {
+    /// Return type of the constructor.
+    type RETURN;
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
+    /// Path to the contract bundle.
+    const CONTRACT_PATH: &'static str;
 }
 
 /// Trait for contract messages.
 pub trait InkMessage: scale::Encode {
+    /// Return type of the message.
+    type RETURN;
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
+    /// Path to the contract bundle.
+    const CONTRACT_PATH: &'static str;
 }
 
 /// We use this to only initialize `env_logger` once.
@@ -119,4 +131,12 @@ pub fn log_info(msg: &str) {
 /// Writes `msg` to stderr.
 pub fn log_error(msg: &str) {
     log::error!("[{}] {}", log_prefix(), msg);
+}
+
+/// Builds a contract and imports its scaffolded structure as a module.
+#[macro_export]
+macro_rules! build {
+        ($($arg:tt)*) => (
+            ink_e2e::smart_bench_macro::contract!($($arg)*)
+        );
 }

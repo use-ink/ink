@@ -26,6 +26,7 @@ use super::{
         Call,
         InstantiateWithCode,
     },
+    CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
     ContractsApi,
@@ -34,7 +35,6 @@ use super::{
     Signer,
 };
 use ink_env::Environment;
-use std::path::PathBuf;
 
 use sp_runtime::traits::{
     IdentifyAccount,
@@ -86,6 +86,34 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     pub events: TxEvents<C>,
 }
 
+/// Result of a contract upload.
+pub struct UploadResult<C: subxt::Config, E: Environment> {
+    /// The hash with which the contract can be instantiated.
+    pub code_hash: C::Hash,
+    /// The result of the dry run, contains debug messages
+    /// if there were any.
+    pub dry_run: CodeUploadResult<C::Hash, E::Balance>,
+    /// Events that happened with the contract instantiation.
+    pub events: TxEvents<C>,
+}
+
+/// We implement a custom `Debug` here, to avoid requiring the trait
+/// bound `Debug` for `E`.
+impl<C, E> core::fmt::Debug for UploadResult<C, E>
+where
+    C: subxt::Config,
+    E: Environment,
+    <E as Environment>::Balance: core::fmt::Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("UploadResult")
+            .field("code_hash", &self.code_hash)
+            .field("dry_run", &self.dry_run)
+            .field("events", &self.events)
+            .finish()
+    }
+}
+
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
 // TODO(#xxx) Improve the `Debug` implementation.
@@ -105,18 +133,23 @@ where
 }
 
 /// Result of a contract call.
-pub struct CallResult<C: subxt::Config, E: Environment> {
+pub struct CallResult<C: subxt::Config, E: Environment, V> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: ContractExecResult<E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: TxEvents<C>,
+    /// Contains the return value of the called function.
+    ///
+    /// This field contains the decoded `data` from the dry-run,
+    /// the raw data is available under `dry_run.result.data`.
+    pub value: V,
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<C, E> core::fmt::Debug for CallResult<C, E>
+impl<C, E, V> core::fmt::Debug for CallResult<C, E, V>
 where
     C: subxt::Config,
     E: Environment,
@@ -146,6 +179,10 @@ where
     InstantiateDryRun(ContractInstantiateResult<C::AccountId, E::Balance>),
     /// The `instantiate_with_code` extrinsic failed.
     InstantiateExtrinsic(subxt::error::DispatchError),
+    /// The `upload` dry run failed.
+    UploadDryRun(CodeUploadResult<C::Hash, E::Balance>),
+    /// The `upload` extrinsic failed.
+    UploadExtrinsic(subxt::error::DispatchError),
     /// The `call` dry run failed.
     CallDryRun(ContractExecResult<E::Balance>),
     /// The `call` extrinsic failed.
@@ -162,8 +199,15 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match &self {
-            Error::InstantiateDryRun(_) => f.write_str("InstantiateDryRun"),
+            Error::InstantiateDryRun(res) => {
+                f.write_str(&format!(
+                    "InstantiateDryRun: {}",
+                    &String::from_utf8_lossy(&res.debug_message)
+                ))
+            }
             Error::InstantiateExtrinsic(_) => f.write_str("InstantiateExtrinsic"),
+            Error::UploadDryRun(_) => f.write_str("UploadDryRun"),
+            Error::UploadExtrinsic(_) => f.write_str("UploadExtrinsic"),
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
         }
@@ -187,6 +231,21 @@ where
     const EVENT: &'static str = "Instantiated";
 }
 
+/// Code with the specified hash has been stored.
+#[derive(Debug, scale::Decode, scale::Encode)]
+struct CodeStoredEvent<C: subxt::Config> {
+    /// Hash under which the contract code was stored.
+    pub code_hash: C::Hash,
+}
+
+impl<C> subxt::events::StaticEvent for CodeStoredEvent<C>
+where
+    C: subxt::Config,
+{
+    const PALLET: &'static str = "Contracts";
+    const EVENT: &'static str = "CodeStored";
+}
+
 /// The `Client` takes care of communicating with the node.
 ///
 /// This node's RPC interface will be used for instantiating the contract
@@ -198,7 +257,6 @@ where
 {
     api: ContractsApi<C, E>,
     node_log: String,
-    contract_path: PathBuf,
 }
 
 impl<C, E> Client<C, E>
@@ -214,13 +272,13 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: core::fmt::Debug + scale::Encode,
+    E::Balance: core::fmt::Debug + scale::Encode + serde::Serialize,
 
     Call<C, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
-    pub async fn new(contract_path: &str, url: &str, node_log: &str) -> Self {
+    pub async fn new(url: &str, node_log: &str) -> Self {
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
@@ -232,7 +290,6 @@ where
 
         Self {
             api: ContractsApi::new(client, url).await,
-            contract_path: PathBuf::from(contract_path),
             node_log: node_log.to_string(),
         }
     }
@@ -248,10 +305,6 @@ where
     pub async fn instantiate<CO>(
         &mut self,
         signer: &mut Signer<C>,
-        // TODO(#xxx) It has to be possible to supply a contact bundle path directly here.
-        // Otherwise cross-contract testing is not possible. Currently we instantiate just
-        // by default the contract for which the test is executed.
-        // contract_path: Option<PathBuf>,
         constructor: CO,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -261,10 +314,9 @@ where
     {
         let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
         let ret = self
-            .exec_instantiate(signer, value, storage_deposit_limit, code.0, &constructor)
+            .exec_instantiate(signer, value, storage_deposit_limit, code, &constructor)
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
-
         Ok(ret)
     }
 
@@ -278,7 +330,10 @@ where
         constructor: &CO,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>> {
         let mut data = CO::SELECTOR.to_vec();
-        log_info(&format!("instantiating with selector: {:?}", CO::SELECTOR));
+        log_info(&format!(
+            "instantiating with selector: {:02X?}",
+            CO::SELECTOR
+        ));
         <CO as scale::Encode>::encode_to(constructor, &mut data);
 
         let salt = std::time::SystemTime::now()
@@ -370,7 +425,103 @@ where
             dry_run,
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
-            account_id: account_id.expect("cannot extract account_id from events"),
+            account_id: account_id.expect("cannot extract `account_id` from events"),
+            events: tx_events,
+        })
+    }
+
+    /// This function extracts the metadata of the contract at the file path
+    /// `target/ink/$contract_name.contract`.
+    ///
+    /// The function subsequently uploads and instantiates an instance of the contract.
+    ///
+    /// Calling this function multiple times is idempotent, the contract is
+    /// newly instantiated each time using a unique salt. No existing contract
+    /// instance is reused!
+    pub async fn upload(
+        &mut self,
+        signer: &mut Signer<C>,
+        contract_path: &str,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<C, E>, Error<C, E>> {
+        let code = crate::utils::extract_wasm(contract_path);
+        let ret = self
+            .exec_upload(signer, code, storage_deposit_limit)
+            .await?;
+        log_info(&format!("contract stored with hash {:?}", ret.code_hash));
+        Ok(ret)
+    }
+
+    /// Executes an `instantiate_with_code` call and captures the resulting events.
+    async fn exec_upload(
+        &mut self,
+        signer: &mut Signer<C>,
+        code: Vec<u8>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<UploadResult<C, E>, Error<C, E>> {
+        // dry run the instantiate to calculate the gas limit
+        let dry_run = self
+            .api
+            .upload_dry_run(signer, code.clone(), storage_deposit_limit)
+            .await;
+        log_info(&format!("upload dry run: {:?}", dry_run));
+        if dry_run.is_err() {
+            return Err(Error::UploadDryRun(dry_run))
+        }
+
+        self.set_current_nonce(signer).await;
+        let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
+        signer.increment_nonce();
+
+        let mut hash = None;
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {:?}", err);
+            });
+
+            if let Some(uploaded) =
+                evt.as_event::<CodeStoredEvent<C>>().unwrap_or_else(|err| {
+                    panic!("event conversion to `Uploaded` failed: {:?}", err);
+                })
+            {
+                log_info(&format!(
+                    "contract was uploaded with hash {:?}",
+                    uploaded.code_hash
+                ));
+                hash = Some(uploaded.code_hash);
+                break
+            } else if evt
+                .as_event::<xts::api::system::events::ExtrinsicFailed>()
+                .unwrap_or_else(|err| {
+                    panic!("event conversion to `ExtrinsicFailed` failed: {:?}", err)
+                })
+                .is_some()
+            {
+                let metadata = self.api.client.metadata();
+                let dispatch_error = subxt::error::DispatchError::decode_from(
+                    evt.field_bytes(),
+                    &metadata,
+                );
+                log_error(&format!(
+                    "extrinsic for upload failed: {:?}",
+                    dispatch_error
+                ));
+                return Err(Error::UploadExtrinsic(dispatch_error))
+            }
+        }
+
+        // The `pallet-contracts` behavior is that if the code was already stored on the
+        // chain we won't get an event with the hash, but the extrinsic will still succeed.
+        // We then don't error (`cargo-contract` would), but instead return the hash from
+        // the dry-run.
+        let code_hash = match hash {
+            Some(hash) => hash,
+            None => dry_run.as_ref().expect("must have worked").code_hash,
+        };
+
+        Ok(UploadResult {
+            dry_run,
+            code_hash,
             events: tx_events,
         })
     }
@@ -379,14 +530,21 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn call(
-        &self,
+    pub async fn call<M>(
+        &mut self,
         signer: &mut Signer<C>,
         account_id: C::AccountId,
-        contract_call: EncodedMessage,
+        contract_call: M,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<C, E>, Error<C, E>> {
+    ) -> Result<CallResult<C, E, <M as InkMessage>::RETURN>, Error<C, E>>
+    where
+        M: InkMessage,
+        <M as InkMessage>::RETURN: scale::Decode,
+    {
+        let contract_call: EncodedMessage = contract_call.into();
+        log_info(&format!("call: {:02X?}", contract_call.0));
+
         let dry_run = self
             .api
             .call_dry_run(account_id.clone(), value, None, contract_call.0.clone())
@@ -432,11 +590,16 @@ where
                     &metadata,
                 );
                 log_error(&format!("extrinsic for call failed: {:?}", dispatch_error));
-                return Err(Error::InstantiateExtrinsic(dispatch_error))
+                return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
 
+        let bytes = &dry_run.result.as_ref().unwrap().data;
+        let value: <M as InkMessage>::RETURN = scale::Decode::decode(&mut bytes.as_ref())
+            .expect("decoding dry run result to ink! message return type failed");
+
         Ok(CallResult {
+            value,
             dry_run,
             events: tx_events,
         })

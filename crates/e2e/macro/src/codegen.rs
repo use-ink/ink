@@ -171,7 +171,7 @@ impl InkE2ETest {
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         ink::env::DefaultEnvironment
-                    >::new(&#path, &#ws_url, &#node_log).await;
+                    >::new(&#ws_url, &#node_log).await;
 
                     let __ret = {
                         #block
