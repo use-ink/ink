@@ -203,7 +203,7 @@ pub mod give_me {
                 .call(
                     &mut ink_e2e::bob(),
                     contract_acc_id.clone(),
-                    transfer.into(),
+                    transfer,
                     10,
                     None,
                 )
@@ -244,7 +244,7 @@ pub mod give_me {
                 .call(
                     &mut ink_e2e::eve(),
                     contract_acc_id.clone(),
-                    transfer.into(),
+                    transfer,
                     0,
                     None,
                 )
