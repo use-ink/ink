@@ -96,7 +96,7 @@ where
     <E as Environment>::Balance: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("CallResult")
+        f.debug_struct("InstantiationResult")
             .field("account_id", &self.account_id)
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
