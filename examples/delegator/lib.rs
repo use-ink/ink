@@ -127,31 +127,29 @@ mod delegator {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::e2e_test(skip_build = true)]
+        #[ink_e2e::e2e_test(
+            additional_contracts = "accumulator/Cargo.toml adder/Cargo.toml subber/Cargo.toml"
+        )]
         async fn e2e_delegator(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
-            ink_e2e::build!("target/ink/accumulator/accumulator.contract");
             let accumulator_hash: ink_e2e::H256 = client
-                .upload(&mut ink_e2e::alice(), accumulator::PATH, None)
+                .upload(&mut ink_e2e::alice(), accumulator::CONTRACT_PATH, None)
                 .await
                 .expect("uploading `accumulator` failed")
                 .code_hash;
 
-            ink_e2e::build!("target/ink/adder/adder.contract");
             let adder_hash: ink_e2e::H256 = client
-                .upload(&mut ink_e2e::alice(), adder::PATH, None)
+                .upload(&mut ink_e2e::alice(), adder::CONTRACT_PATH, None)
                 .await
                 .expect("uploading `adder` failed")
                 .code_hash;
 
-            ink_e2e::build!("target/ink/subber/subber.contract");
             let subber_hash: ink_e2e::H256 = client
-                .upload(&mut ink_e2e::alice(), subber::PATH, None)
+                .upload(&mut ink_e2e::alice(), subber::CONTRACT_PATH, None)
                 .await
                 .expect("uploading `subber` failed")
                 .code_hash;
 
-            ink_e2e::build!("target/ink/delegator.contract");
             let constructor = delegator::constructors::new(
                 1234, // initial value
                 1337, // salt
