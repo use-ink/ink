@@ -539,6 +539,8 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
+
+            //TODO: needs to return an enum and see whether the return type is Self or Result<Self> or similar
             let constructor_output = quote_spanned!(constructor_span=>
                 <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
@@ -560,6 +562,7 @@ impl Dispatch<'_> {
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
 
+                    //TODO: conditioally extract result type check for error
                     let result: #constructor_output = #constructor_callable(input);
                     let failure = ::ink::is_result_type!(#constructor_output)
                         && ::ink::is_result_err!(result);
@@ -573,6 +576,7 @@ impl Dispatch<'_> {
                         )
                     }
 
+                    //TODO: this has to be reworked too
                     ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
                         move || { #constructor_callable(input) }
                     )

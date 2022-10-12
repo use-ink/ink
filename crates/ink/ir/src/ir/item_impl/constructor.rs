@@ -72,6 +72,7 @@ impl quote::ToTokens for Constructor {
 }
 
 impl Constructor {
+    //TODO: need to rework this support type aliases
     /// Returns `true` if the given type is `Self`.
     fn type_is_self_val(ty: &syn::Type) -> bool {
         matches!(ty, syn::Type::Path(syn::TypePath {
@@ -80,6 +81,7 @@ impl Constructor {
         }) if path.is_ident("Self"))
     }
 
+    //TODO: Hence why this method also needs to be reworked
     /// Returns `true` if the given type is `Result<Self>`.
     fn type_is_result_self_val(ty: &syn::Type) -> bool {
         println!("\n{:#?}\n", ty);
