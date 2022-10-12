@@ -88,7 +88,7 @@ pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 // TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
 pub trait InkConstructor: scale::Encode {
     /// Return type of the constructor.
-    type RETURN;
+    type ReturnType;
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
     /// Path to the contract bundle.
@@ -98,7 +98,7 @@ pub trait InkConstructor: scale::Encode {
 /// Trait for contract messages.
 pub trait InkMessage: scale::Encode {
     /// Return type of the message.
-    type RETURN;
+    type ReturnType;
     /// An ink! selector consists of four bytes.
     const SELECTOR: [u8; 4];
     /// Path to the contract bundle.

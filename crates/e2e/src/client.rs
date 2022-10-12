@@ -537,10 +537,10 @@ where
         contract_call: M,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<C, E, <M as InkMessage>::RETURN>, Error<C, E>>
+    ) -> Result<CallResult<C, E, <M as InkMessage>::ReturnType>, Error<C, E>>
     where
         M: InkMessage,
-        <M as InkMessage>::RETURN: scale::Decode,
+        <M as InkMessage>::ReturnType: scale::Decode,
     {
         let contract_call: EncodedMessage = contract_call.into();
         log_info(&format!("call: {:02X?}", contract_call.0));
@@ -595,8 +595,9 @@ where
         }
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: <M as InkMessage>::RETURN = scale::Decode::decode(&mut bytes.as_ref())
-            .expect("decoding dry run result to ink! message return type failed");
+        let value: <M as InkMessage>::ReturnType =
+            scale::Decode::decode(&mut bytes.as_ref())
+                .expect("decoding dry run result to ink! message return type failed");
 
         Ok(CallResult {
             value,
