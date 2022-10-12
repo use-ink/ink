@@ -119,19 +119,6 @@ pub struct RootLayout<F: Form = MetaForm> {
     layout: Box<Layout<F>>,
 }
 
-impl RootLayout {
-    /// Creates a new root layout.
-    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
-    where
-        L: Into<Layout>,
-    {
-        Self {
-            root_key,
-            layout: Box::new(layout.into()),
-        }
-    }
-}
-
 impl IntoPortable for RootLayout {
     type Output = RootLayout<PortableForm>;
 
@@ -147,6 +134,17 @@ impl<F> RootLayout<F>
 where
     F: Form,
 {
+    /// Creates a new root layout.
+    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
+    where
+        L: Into<Layout<F>>,
+    {
+        Self {
+            root_key,
+            layout: Box::new(layout.into()),
+        }
+    }
+
     /// Returns the root key of the sub-tree.
     pub fn root_key(&self) -> &LayoutKey {
         &self.root_key
