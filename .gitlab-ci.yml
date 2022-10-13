@@ -86,6 +86,9 @@ workflow:
   tags:
     - kubernetes-parity-build
 
+.start-substrate-contracts-node:                     &start-substrate-contracts-node
+    - substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+
 #### stage:                        lint
 #
 # Note: For all of these lints we `allow_failure` so that the rest of the build can
@@ -280,11 +283,21 @@ docs:
     paths:
       - ./crate-docs/
   script:
-    - cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata -p ink_env
-        -p ink_storage -p ink_storage_traits
-        -p ink_primitives -p ink_prelude
-        -p ink -p ink_macro -p ink_ir -p ink_codegen
+    # All crate docs currently need to be built separately. The reason
+    # is that `smart-bench-macro` is a dependency now in a number of places.
+    # This crate uses e.g. `ink_metadata`, but in its published form. So if
+    # e.g. the `-p ink_metadata` is added to the `ink_lang` command  this
+    # results in the cargo failure "multiple packages with same spec, ambiguous".
+    - cargo doc --no-deps --all-features -p ink_env
+    - cargo doc --no-deps --all-features -p ink_storage
+    - cargo doc --no-deps --all-features -p ink_storage_traits
+    - cargo doc --no-deps --all-features -p ink_primitives
+    - cargo doc --no-deps --all-features -p ink_prelude
+    - cargo doc --no-deps --all-features -p ink
+    - cargo doc --no-deps --all-features -p ink_macro
+    - cargo doc --no-deps --all-features -p ink_ir
+    - cargo doc --no-deps --all-features -p ink_codegen
+    - cargo doc --no-deps --all-features -p ink_metadata
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
@@ -347,6 +360,7 @@ examples-test:
     - job:                         clippy-std
       artifacts:                   false
   script:
+    - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
@@ -365,7 +379,7 @@ examples-contract-build:
   <<:                              *test-refs
   script:
     - rustup component add rust-src --toolchain stable
-    - cargo install cargo-contract --git https://github.com/paritytech/cargo-contract --version 2.0.0-alpha.3 --force
+    - cargo install cargo-contract --git https://github.com/paritytech/cargo-contract --version 2.0.0-alpha.4 --force
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;

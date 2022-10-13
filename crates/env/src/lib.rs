@@ -103,6 +103,7 @@ pub use self::{
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
+        Gas,
         NoChainExtension,
     },
 };

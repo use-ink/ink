@@ -12,9 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
-use crate::{ir, ir::attrs::SelectorOrWildcard};
-use proc_macro2::{Ident, Span};
+use super::{
+    ensure_callable_invariants,
+    Callable,
+    CallableKind,
+    InputsIter,
+    Visibility,
+};
+use crate::{
+    ir,
+    ir::attrs::SelectorOrWildcard,
+};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -72,7 +84,7 @@ impl quote::ToTokens for Constructor {
 }
 
 impl Constructor {
-    //TODO: need to rework this support type aliases
+    // TODO: need to rework this support type aliases
     /// Returns `true` if the given type is `Self`.
     fn type_is_self_val(ty: &syn::Type) -> bool {
         matches!(ty, syn::Type::Path(syn::TypePath {
@@ -81,7 +93,7 @@ impl Constructor {
         }) if path.is_ident("Self"))
     }
 
-    //TODO: Hence why this method also needs to be reworked
+    // TODO: Hence why this method also needs to be reworked
     /// Returns `true` if the given type is `Result<Self>`.
     fn type_is_result_self_val(ty: &syn::Type) -> bool {
         println!("\n{:#?}\n", ty);
@@ -93,8 +105,13 @@ impl Constructor {
     }
 
     fn is_result_path(path: &syn::Path) -> bool {
-        if path.leading_colon.is_none() && path.segments.len() == 1 && path.segments[0].ident == "Result" {
-            if let syn::PathArguments::AngleBracketed(angle_args) = &path.segments[0].arguments {
+        if path.leading_colon.is_none()
+            && path.segments.len() == 1
+            && path.segments[0].ident == "Result"
+        {
+            if let syn::PathArguments::AngleBracketed(angle_args) =
+                &path.segments[0].arguments
+            {
                 if let Some(syn::GenericArgument::Type(ty)) = angle_args.args.first() {
                     return Self::type_is_self_val(ty)
                 }
@@ -122,11 +139,13 @@ impl Constructor {
                 ))
             }
             syn::ReturnType::Type(_, return_type) => {
-                if !Self::type_is_self_val(return_type.as_ref()) && !Self::type_is_result_self_val(return_type.as_ref()) {
+                if !Self::type_is_self_val(return_type.as_ref())
+                    && !Self::type_is_result_self_val(return_type.as_ref())
+                {
                     return Err(format_err_spanned!(
                         return_type,
                         "ink! constructors must return Self or Result<Self>",
-                    ));
+                    ))
                 }
             }
         }
@@ -166,11 +185,13 @@ impl Constructor {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |arg| match arg.kind() {
-                ir::AttributeArg::Constructor
-                | ir::AttributeArg::Payable
-                | ir::AttributeArg::Selector(_) => Ok(()),
-                _ => Err(None),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )
     }
@@ -208,14 +229,14 @@ impl Callable for Constructor {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector);
+            return Some(selector)
         }
         None
     }
 
     fn has_wildcard_selector(&self) -> bool {
         if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true;
+            return true
         }
         false
     }
@@ -460,7 +481,10 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(item_method, "ink! constructors must return Self or Result<Self>")
+            assert_try_from_fails(
+                item_method,
+                "ink! constructors must return Self or Result<Self>",
+            )
         }
     }
 

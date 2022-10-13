@@ -19,7 +19,7 @@ First of all, thank you for taking your time to contribute to ink!
 ## Code of Conduct
 
 We are a friendly and welcoming open source community.
-You can find our code of conduct [here](CODE_OF_CONDUCT.md).
+You can find our code of conduct [here](CODE_OF_CONDUCT.adoc).
 
 ## During Development
 
