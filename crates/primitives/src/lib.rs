@@ -21,8 +21,10 @@
 //! By introducing `ink_primitives` we have a way to share utility components between `ink_env` or `ink_storage` and
 //! other parts of the framework, like `ink`.
 
-#![doc(html_logo_url = "https://use.ink/img/crate-docs/logo.png", html_favicon_url = "https://use.ink/crate-docs/favicon.png")]
-
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod key;
