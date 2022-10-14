@@ -14,6 +14,11 @@
 
 //! Module for the logic behind ink!'s End-to-End testing framework.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
+
 mod client;
 mod default_accounts;
 mod xts;
