@@ -10,24 +10,11 @@ pub mod give_me {
     #[ink(storage)]
     pub struct GiveMe {}
 
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
-    pub enum Error {
-        Foo,
-    }
-
-    pub type Result<T> = core::result::Result<T, Error>;
-
     impl GiveMe {
         /// Creates a new instance of this contract.
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             Self {}
-        }
-
-        #[ink(constructor, payable)]
-        pub fn new2() -> Result<Self> {
-            Err(Error::Foo)
         }
 
         /// Transfers `value` amount of tokens to the caller.

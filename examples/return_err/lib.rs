@@ -3,13 +3,9 @@
 #[ink::contract]
 mod return_err {
 
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct ReturnErr {
-        /// Stores a single `bool` value on the storage.
-        value: bool,
+        instantiated: bool,
     }
 
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -18,63 +14,33 @@ mod return_err {
         Foo,
     }
 
+    impl Default for ReturnErr {
+        fn default() -> Self {
+            Self { instantiated: true }
+        }
+    }
+
     pub type Result<T> = core::result::Result<T, Error>;
 
     impl ReturnErr {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Result<Self> {
-            Err(Error::Foo)
+        pub fn new() -> Self {
+            Default::default()
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        // #[ink(constructor)]
-        // pub fn default() -> Self {
-        //     Self::new(Default::default())
-        // }
+        #[ink(constructor, payable)]
+        pub fn new2(fail: bool) -> Result<Self> {
+            if fail {
+                Err(Error::Foo)
+            } else {
+                Ok(Default::default())
+            }
+        }
 
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
         #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
-        }
-    }
-
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
-    #[cfg(test)]
-    mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
-
-        /// Imports `ink_lang` so we can use `#[ink::test]`.
-        use ink_lang as ink;
-
-        /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let return_err = ReturnErr::default();
-            assert_eq!(return_err.get(), false);
-        }
-
-        /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut return_err = ReturnErr::new(false);
-            assert_eq!(return_err.get(), false);
-            return_err.flip();
-            assert_eq!(return_err.get(), true);
+        pub fn is_instantiated(&self) -> bool {
+            self.instantiated
         }
     }
 }

@@ -101,7 +101,6 @@ impl Storage<'_> {
             #[::ink::storage_item]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
             #[cfg(not(feature = "__ink_dylint_Storage"))]
-            #[derive(scale::Encode)]
             pub struct #ident #generics {
                 #( #fields ),*
             }
