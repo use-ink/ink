@@ -64,11 +64,9 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                 )?;
                 let ident = field
                     .ident
-                    .expect("field has no name");
-                    // todo: make this work
-                    // .as_ref()
-                    // .map(|ident| ident.clone())
-                    // .unwrap_or(quote::format_ident!("{}", index));
+                    .clone()
+                    .unwrap_or_else(|| panic!("FIELDS SHOULD HAVE A NAME {:?}", field.ident));
+                    // .unwrap_or(quote::format_ident!("{}", index));  // todo: should it also handle tuple variants? This breaks 
                 // strip out the `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
                 field.attrs = other_attrs;
