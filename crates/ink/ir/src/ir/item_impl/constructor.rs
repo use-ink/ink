@@ -96,7 +96,6 @@ impl Constructor {
     // TODO: Hence why this method also needs to be reworked
     /// Returns `true` if the given type is `Result<Self>`.
     fn type_is_result_self_val(ty: &syn::Type) -> bool {
-        println!("\n{:#?}\n", ty);
         let res = matches!(ty, syn::Type::Path(syn::TypePath {
             qself: None,
             path
