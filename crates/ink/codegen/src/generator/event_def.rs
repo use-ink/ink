@@ -126,8 +126,8 @@ impl<'a> EventDefinition<'a> {
                         let field_type = field.ty();
                         let field_ident = field.ident();
                         quote_spanned!(span =>
-                            .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
-                                &::ink_env::topics::PrefixedValue {
+                            .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
+                                &::ink::env::topics::PrefixedValue {
                                     // todo: deduplicate with EVENT_SIGNATURE
                                     prefix: ::core::concat!(
                                         ::core::module_path!(),
@@ -146,8 +146,8 @@ impl<'a> EventDefinition<'a> {
                     true => None,
                     false => {
                         Some(quote_spanned!(span=>
-                            .push_topic::<::ink_env::topics::PrefixedValue<()>>(
-                                &::ink_env::topics::PrefixedValue {
+                            .push_topic::<::ink::env::topics::PrefixedValue<()>>(
+                                &::ink::env::topics::PrefixedValue {
                                     // todo: look up event signature topic via indexed trait impl
                                     prefix: EVENT_SIGNATURE, value: &(),
                                 }
@@ -178,7 +178,7 @@ impl<'a> EventDefinition<'a> {
 
         quote_spanned!(span =>
             const _: () = {
-                impl ::ink_env::Topics for #event_ident {
+                impl ::ink::env::Topics for #event_ident {
                     fn topics<E, B>(
                         &self,
                         builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
