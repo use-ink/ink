@@ -94,7 +94,7 @@ mod erc20 {
             let mut balances = Mapping::default();
             let caller = Self::env().caller();
             balances.insert(&caller, &total_supply);
-            Self::env().emit_event(Transfer {
+            Self::env().emit_event(Event::Transfer {
                 from: None,
                 to: Some(caller),
                 value: total_supply,
@@ -154,7 +154,7 @@ mod erc20 {
         fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
             self.allowances.insert((&owner, &spender), &value);
-            self.env().emit_event(Approval {
+            self.env().emit_event(Event::Approval {
                 owner,
                 spender,
                 value,
@@ -245,7 +245,7 @@ mod erc20 {
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
             self.balances.insert(to, &(to_balance + value));
-            self.env().emit_event(Transfer {
+            self.env().emit_event(Event::Transfer {
                 from: Some(*from),
                 to: Some(*to),
                 value,
