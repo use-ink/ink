@@ -14,7 +14,7 @@
 
 /// todo: docs
 /// The ID is the index of the event variant in the enum
-pub trait EventVariantInfo<const ID: u32> {
+pub trait EventVariantInfo<const ID: usize> {
     const NAME: &'static str;
     /// todo: docs
     /// Will be hashed unique path of Event -> Variant, used for topic of Event variant

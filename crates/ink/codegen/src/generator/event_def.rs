@@ -142,14 +142,15 @@ impl<'a> EventDefinition<'a> {
                         )
                     });
 
+                let index = variant.index();
                 let event_signature_topic = match variant.anonymous() {
                     true => None,
                     false => {
                         Some(quote_spanned!(span=>
                             .push_topic::<::ink::env::topics::PrefixedValue<()>>(
                                 &::ink::env::topics::PrefixedValue {
-                                    // todo: look up event signature topic via indexed trait impl
-                                    prefix: EVENT_SIGNATURE, value: &(),
+                                    prefix: &<#event_ident as ::ink::reflect::EventVariantInfo<#index>>::SIGNATURE,
+                                    value: &(),
                                 }
                             )
                         ))
