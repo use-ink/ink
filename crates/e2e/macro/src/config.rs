@@ -84,7 +84,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `skip_build` ink! e2e test configuration argument",
+                        "expected a bool literal for `additional_contracts` ink! e2e test configuration argument",
                     ))
                 }
             } else {
