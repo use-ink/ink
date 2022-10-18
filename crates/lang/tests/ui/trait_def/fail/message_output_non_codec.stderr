@@ -24,22 +24,16 @@ note: required by a bound in `DispatchOutput`
 error[E0599]: the method `fire` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
    --> tests/ui/trait_def/fail/message_output_non_codec.rs:7:5
     |
-<<<<<<< HEAD:crates/lang/tests/ui/trait_def/fail/message_output_non_codec.stderr
-3   |   pub struct NonCodec;
-    |   -------------------- doesn't satisfy `NonCodec: parity_scale_codec::Decode`
-=======
-1   | pub struct NonCodec;
+3   | pub struct NonCodec;
     | ------------------- doesn't satisfy `NonCodec: parity_scale_codec::Decode`
->>>>>>> 9fe9a4224... Fix UI tests for latest stable `1.64` (#1416):crates/ink/tests/ui/trait_def/fail/message_output_non_codec.stderr
 ...
-7   | /     #[ink(message)]
-8   | |     fn message(&self) -> NonCodec;
-    | |__________________________________^ method cannot be called on `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>` due to unsatisfied trait bounds
+7   |     #[ink(message)]
+    |     ^ method cannot be called on `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>` due to unsatisfied trait bounds
     |
     = note: the following trait bounds were not satisfied:
             `NonCodec: parity_scale_codec::Decode`
 note: the following trait must be implemented
-   --> $CARGO/parity-scale-codec-3.1.5/src/codec.rs
+   --> $CARGO/parity-scale-codec-3.2.1/src/codec.rs
     |
     | pub trait Decode: Sized {
     | ^^^^^^^^^^^^^^^^^^^^^^^

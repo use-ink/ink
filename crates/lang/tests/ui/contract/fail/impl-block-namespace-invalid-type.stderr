@@ -2,4 +2,4 @@ error: expected string type for `namespace` argument, e.g. #[ink(namespace = "he
  --> tests/ui/contract/fail/impl-block-namespace-invalid-type.rs:8:11
   |
 8 |     #[ink(namespace = true)]
-  |           ^^^^^^^^^^^^^^^^
+  |           ^^^^^^^^^
