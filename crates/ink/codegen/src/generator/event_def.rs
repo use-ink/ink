@@ -136,7 +136,7 @@ impl<'a> EventDefinition<'a> {
                                         "::",
                                         ::core::stringify!(#field_ident),
                                     ).as_bytes(),
-                                    value: &self.#field_ident,
+                                    value: #field_ident,
                                 }
                             )
                         )
