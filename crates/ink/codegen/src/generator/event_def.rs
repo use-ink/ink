@@ -127,14 +127,18 @@ impl<'a> EventDefinition<'a> {
                         quote_spanned!(span =>
                             .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
                                 &::ink::env::topics::PrefixedValue {
-                                    // todo: concat SIGNATURE + field name (possibly index by topic)
-                                    prefix: ::core::concat!(
-                                        ::core::module_path!(),
-                                        "::",
-                                        ::core::stringify!(#event_ident),
-                                        "::",
-                                        ::core::stringify!(#field_ident),
-                                    ).as_bytes(),
+                                    // todo: figure out whether we even need to include a prefix here?
+                                    // Previously the prefix would be the full field path e.g.
+                                    // erc20::Event::Transfer::from + value.
+                                    // However the value on its own might be sufficient, albeit
+                                    // requiring combination with the signature topic and some
+                                    // metadata to determine whether a topic value belongs to a
+                                    // specific field of a given Event variant. The upside is that
+                                    // indexers can use the unhashed value for meaningful topics
+                                    // e.g. addresses < 32 bytes. If the prefix is included we
+                                    // will always require to hash the value so need any indexer
+                                    // would not be able to go from hash > address.
+                                    prefix: &[],
                                     value: #field_ident,
                                 }
                             )
