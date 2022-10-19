@@ -18,7 +18,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 ink_e2e_macro = { version = "4.0.0-alpha.3", path = "./macro" }
 ink_env = { version = "4.0.0-alpha.3", path = "../env" }
 
-contract-metadata = { version = "2.0.0-alpha.2" }
+contract-metadata = { version = "2.0.0-alpha.4" }
 impl-serde = { version = "0.3.1", default-features = false }
 jsonrpsee = { version = "0.15.1", features = ["ws-client"] }
 pallet-contracts-primitives = { version = "6.0.0" }
@@ -28,7 +28,8 @@ tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = { version = "0.4" }
 env_logger = { version = "0.9" }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-subxt = { version = "0.24.0" }
+# TODO we need to use `subxt` `master` until the next release 0.25 is published.
+subxt = { git = "https://github.com/paritytech/subxt" }
 
 # Substrate
 sp-rpc = { version = "6.0.0" }
@@ -37,7 +38,7 @@ sp-keyring = { version = "6.0.0" }
 sp-runtime = { version = "6.0.0" }
 
 # TODO(#1421) `smart-bench_macro` needs to be forked.
-smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "aj-ink-e2e-test-mvp", package = "smart-bench-macro" }
+smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp-cross-contract", package = "smart-bench-macro" }
 
 [features]
 default = ["std"]

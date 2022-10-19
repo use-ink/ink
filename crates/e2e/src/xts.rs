@@ -35,6 +35,7 @@ use jsonrpsee::{
         WsClientBuilder,
     },
 };
+use pallet_contracts_primitives::CodeUploadResult;
 use sp_core::{
     Bytes,
     H256,
@@ -51,7 +52,10 @@ use subxt::{
 const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
 // TODO(#1422) Should be fetched automatically.
-#[subxt::subxt(runtime_metadata_path = "metadata/contracts-node.scale")]
+#[subxt::subxt(
+    crate = "crate::subxt",
+    runtime_metadata_path = "metadata/contracts-node.scale"
+)]
 pub(super) mod api {}
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
@@ -70,7 +74,7 @@ pub struct InstantiateWithCode<B> {
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct Call<C: subxt::Config, B> {
-    dest: ::subxt::ext::sp_runtime::MultiAddress<C::AccountId, ()>,
+    dest: sp_runtime::MultiAddress<C::AccountId, ()>,
     #[codec(compact)]
     value: B,
     #[codec(compact)]
@@ -79,10 +83,17 @@ pub struct Call<C: subxt::Config, B> {
     data: Vec<u8>,
 }
 
+/// A raw call to `pallet-contracts`'s `upload`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct UploadCode<B> {
+    code: Vec<u8>,
+    storage_deposit_limit: Option<B>,
+}
+
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
-struct InstantiateRequest<C: subxt::Config, E: Environment> {
+struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: Gas,
@@ -92,15 +103,16 @@ struct InstantiateRequest<C: subxt::Config, E: Environment> {
     salt: Vec<u8>,
 }
 
-/// Reference to an existing code hash or a new Wasm module.
+/// A struct that encodes RPC parameters required to upload a new smart contract.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
-enum Code {
-    /// A Wasm module as raw bytes.
-    Upload(Vec<u8>),
-    #[allow(unused)]
-    /// The code hash of an on-chain Wasm blob.
-    Existing(H256),
+struct RpcCodeUploadRequest<C: subxt::Config, E: Environment>
+where
+    E::Balance: serde::Serialize,
+{
+    origin: C::AccountId,
+    code: Vec<u8>,
+    storage_deposit_limit: Option<E::Balance>,
 }
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
@@ -115,6 +127,17 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     gas_limit: Gas,
     storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
+}
+
+/// Reference to an existing code hash or a new Wasm module.
+#[derive(serde::Serialize, scale::Encode)]
+#[serde(rename_all = "camelCase")]
+enum Code {
+    /// A Wasm module as raw bytes.
+    Upload(Vec<u8>),
+    #[allow(unused)]
+    /// The code hash of an on-chain Wasm blob.
+    Existing(H256),
 }
 
 /// Provides functions for interacting with the `pallet-contracts` API.
@@ -137,7 +160,7 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: scale::Encode,
+    E::Balance: scale::Encode + serde::Serialize,
 
     Call<C, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
@@ -170,7 +193,7 @@ where
         signer: &Signer<C>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance> {
         let code = Code::Upload(code);
-        let call_request = InstantiateRequest::<C, E> {
+        let call_request = RpcInstantiateRequest::<C, E> {
             origin: signer.account_id().clone(),
             value,
             gas_limit: DRY_RUN_GAS_LIMIT,
@@ -216,6 +239,80 @@ where
                 code,
                 data,
                 salt,
+            },
+            Default::default(),
+        )
+        .unvalidated();
+
+        self.client
+            .tx()
+            .sign_and_submit_then_watch_default(&call, signer)
+            .await
+            .map(|tx_progress| {
+                log_info(&format!(
+                    "signed and submitted tx with hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
+                tx_progress
+            })
+            .unwrap_or_else(|err| {
+                panic!(
+                    "error on call `sign_and_submit_then_watch_default`: {:?}",
+                    err
+                );
+            })
+            .wait_for_in_block()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `wait_for_in_block`: {:?}", err);
+            })
+            .fetch_events()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `fetch_events`: {:?}", err);
+            })
+    }
+
+    /// Dry runs the upload of the given `code`.
+    pub async fn upload_dry_run(
+        &self,
+        signer: &Signer<C>,
+        code: Vec<u8>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CodeUploadResult<C::Hash, E::Balance> {
+        let call_request = RpcCodeUploadRequest::<C, E> {
+            origin: signer.account_id().clone(),
+            code,
+            storage_deposit_limit,
+        };
+        let func = "ContractsApi_upload_code";
+        let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
+        let bytes: Bytes = self
+            .ws_client
+            .request("state_call", params)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on ws request `upload_code`: {:?}", err);
+            });
+        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+    }
+
+    /// Submits an extrinsic to upload a given code.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn upload(
+        &self,
+        signer: &Signer<C>,
+        code: Vec<u8>,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> TxEvents<C> {
+        let call = subxt::tx::StaticTxPayload::new(
+            "Contracts",
+            "upload_code",
+            UploadCode::<E::Balance> {
+                code,
+                storage_deposit_limit,
             },
             Default::default(),
         )
