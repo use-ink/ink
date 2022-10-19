@@ -70,7 +70,7 @@ impl<'a> EventDefinition<'a> {
                         ::core::stringify!(#event_ident)
                     );
                     const NAME: &'static str = ::core::stringify!(#event_variant_ident);
-                    const SIGNATURE: [u8; 32] = ::ink::reflect::event_variant_signature(
+                    const SIGNATURE_TOPIC: [u8; 32] = ::ink::primitives::event_signature_topic(
                         <Self as ::ink::reflect::EventVariantInfo<#index>>::PATH,
                         <Self as ::ink::reflect::EventVariantInfo<#index>>::NAME,
                     );
@@ -148,7 +148,7 @@ impl<'a> EventDefinition<'a> {
                         Some(quote_spanned!(span=>
                             .push_topic::<::ink::env::topics::PrefixedValue<()>>(
                                 &::ink::env::topics::PrefixedValue {
-                                    prefix: &<#event_ident as ::ink::reflect::EventVariantInfo<#index>>::SIGNATURE,
+                                    prefix: &<#event_ident as ::ink::reflect::EventVariantInfo<#index>>::SIGNATURE_TOPIC,
                                     value: &(),
                                 }
                             )

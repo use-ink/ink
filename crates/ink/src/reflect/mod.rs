@@ -46,10 +46,7 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
     },
-    event::{
-        event_variant_signature,
-        EventVariantInfo,
-    },
+    event::EventVariantInfo,
     trait_def::{
         TraitDefinitionRegistry,
         TraitInfo,

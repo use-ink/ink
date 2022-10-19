@@ -23,10 +23,12 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod event;
 mod key;
 mod types;
 
 pub use self::{
+    event::event_signature_topic,
     key::{
         Key,
         KeyComposer,
