@@ -257,7 +257,6 @@ pub mod give_me {
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);
-            assert!(client.node_log_contains("requested value: 100000000000000\n"));
 
             Ok(())
         }
