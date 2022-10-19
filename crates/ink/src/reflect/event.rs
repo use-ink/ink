@@ -15,6 +15,7 @@
 /// todo: docs
 /// The ID is the index of the event variant in the enum
 pub trait EventVariantInfo<const ID: usize> {
+    const PATH: &'static str;
     const NAME: &'static str;
     /// todo: docs
     /// Will be hashed unique path of Event -> Variant, used for topic of Event variant
@@ -25,7 +26,6 @@ pub trait EventVariantInfo<const ID: usize> {
 // todo: move to primitives where xxh3 dependency is?
 pub const fn event_variant_signature(
     path: &'static str,
-    event_ident: &'static str,
     event_variant: &'static str,
 ) -> [u8; 32] {
     let buf = [0u8; 32];

@@ -64,16 +64,15 @@ impl<'a> EventDefinition<'a> {
             let index = ev.index();
             quote_spanned!(span=>
                 impl ::ink::reflect::EventVariantInfo<#index> for #event_ident {
-                    const NAME: &'static str = ::core::stringify!(#event_ident);
-                    // const SIGNATURE: [u8; 32] = ::ink::blake2x256!(::core::concat!(
-                    //     ::core::module_path!(), "::",
-                    //     ::core::stringify!(#event_ident), "::",
-                    //     ::core::stringify!(#event_variant_ident))
-                    // );
-                    const SIGNATURE: [u8; 32] = ::ink::reflect::event_variant_signature(
+                    const PATH: &'static str = ::core::concat!(
                         ::core::module_path!(),
-                        ::core::stringify!(#event_ident),
-                        ::core::stringify!(#event_variant_ident),
+                        "::",
+                        ::core::stringify!(#event_ident)
+                    );
+                    const NAME: &'static str = ::core::stringify!(#event_variant_ident);
+                    const SIGNATURE: [u8; 32] = ::ink::reflect::event_variant_signature(
+                        <Self as ::ink::reflect::EventVariantInfo<#index>>::PATH,
+                        <Self as ::ink::reflect::EventVariantInfo<#index>>::NAME,
                     );
                 }
             )
@@ -128,7 +127,7 @@ impl<'a> EventDefinition<'a> {
                         quote_spanned!(span =>
                             .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
                                 &::ink::env::topics::PrefixedValue {
-                                    // todo: deduplicate with EVENT_SIGNATURE
+                                    // todo: concat SIGNATURE + field name (possibly index by topic)
                                     prefix: ::core::concat!(
                                         ::core::module_path!(),
                                         "::",
