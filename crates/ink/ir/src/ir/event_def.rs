@@ -51,7 +51,7 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
             // regenerate the event enum
             variant.attrs = other_attrs;
             let anonymous = ink_attrs.map_or(false, |attrs| attrs.is_anonymous());
-            for (index, field) in variant.fields.iter_mut().enumerate() {
+            for (_index, field) in variant.fields.iter_mut().enumerate() {
                 let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
                     field.span(),
                     field.attrs.clone(),

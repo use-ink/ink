@@ -20,7 +20,6 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::spanned::Spanned as _;
 
 /// Generates code for an event definition.
 #[derive(From)]

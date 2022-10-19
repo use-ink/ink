@@ -18,7 +18,6 @@ use derive_more::From;
 use ir::IsDocAttribute;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote_spanned;
-use syn::spanned::Spanned as _;
 
 /// Generates code for an event definition.
 #[derive(From)]
