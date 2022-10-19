@@ -347,13 +347,6 @@ mod sys {
 
         pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>) -> !;
 
-        pub fn seal_random(
-            subject_ptr: Ptr32<[u8]>,
-            subject_len: u32,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-
         pub fn seal_call(
             flags: u32,
             callee_ptr: Ptr32<[u8]>,
@@ -667,22 +660,6 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
         unsafe {
             sys::seal_weight_to_fee(
                 gas,
-                Ptr32Mut::from_slice(output),
-                Ptr32Mut::from_ref(&mut output_len),
-            )
-        };
-    }
-    extract_from_slice(output, output_len as usize);
-}
-
-#[inline(always)]
-pub fn random(subject: &[u8], output: &mut &mut [u8]) {
-    let mut output_len = output.len() as u32;
-    {
-        unsafe {
-            sys::seal_random(
-                Ptr32::from_slice(subject),
-                subject.len() as u32,
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
             )

@@ -98,18 +98,6 @@ where
     })
 }
 
-/// Set the entropy hash of the current block.
-///
-/// # Note
-///
-/// This allows to control what [`random`][`crate::random`] returns.
-pub fn set_block_entropy<T>(_entropy: T::Hash) -> Result<()>
-where
-    T: Environment,
-{
-    unimplemented!("off-chain environment does not yet support `set_block_entropy`");
-}
-
 /// Returns the contents of the past performed environmental debug messages in order.
 pub fn recorded_debug_messages() -> RecordedDebugMessages {
     <EnvInstance as OnInstance>::on_instance(|instance| {
