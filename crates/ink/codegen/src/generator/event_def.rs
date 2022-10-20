@@ -31,12 +31,14 @@ impl GenerateCode for EventDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let event_enum = self.generate_event_enum();
         // let event_metadata_impl = self.generate_event_metadata_impl();
-        let event_info_impls = self.generate_event_variant_info_impls();
+        let event_info_impls = self.generate_event_info_impl();
+        let event_variant_info_impls = self.generate_event_variant_info_impls();
         let topics_impl = self.generate_topics_impl();
         let topics_guard = self.generate_topics_guard();
         quote! {
             #event_enum
             #event_info_impls
+            #event_variant_info_impls
             // #event_metadata_impl
             #topics_impl
             #topics_guard
@@ -54,6 +56,21 @@ impl<'a> EventDefinition<'a> {
         )
     }
 
+    fn generate_event_info_impl(&self) -> TokenStream2 {
+        let span = self.event_def.span();
+        let event_ident = self.event_def.ident();
+
+        quote_spanned!(span=>
+            impl ::ink::reflect::EventInfo for #event_ident {
+                const PATH: &'static str = ::core::concat!(
+                    ::core::module_path!(),
+                    "::",
+                    ::core::stringify!(#event_ident)
+                );
+            }
+        )
+    }
+
     fn generate_event_variant_info_impls(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
@@ -63,14 +80,9 @@ impl<'a> EventDefinition<'a> {
             let index = ev.index();
             quote_spanned!(span=>
                 impl ::ink::reflect::EventVariantInfo<#index> for #event_ident {
-                    const PATH: &'static str = ::core::concat!(
-                        ::core::module_path!(),
-                        "::",
-                        ::core::stringify!(#event_ident)
-                    );
                     const NAME: &'static str = ::core::stringify!(#event_variant_ident);
                     const SIGNATURE_TOPIC: [u8; 32] = ::ink::primitives::event_signature_topic(
-                        <Self as ::ink::reflect::EventVariantInfo<#index>>::PATH,
+                        <Self as ::ink::reflect::EventInfo>::PATH,
                         <Self as ::ink::reflect::EventVariantInfo<#index>>::NAME,
                     );
                 }

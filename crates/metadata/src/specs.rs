@@ -632,40 +632,47 @@ impl IntoPortable for MessageSpec {
 /// Describes an event definition.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::Type: Serialize, F::String: Serialize",
-    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+serialize = "F::Type: Serialize, F::String: Serialize",
+deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EventSpec<F: Form = MetaForm> {
-    /// The label of the event.
-    label: F::String,
-    /// The event arguments.
-    args: Vec<EventParamSpec<F>>,
+    /// The fully qualified path of the event.
+    path: F::String,
+    /// The event variants.
+    variants: Vec<EventVariantSpec<F>>,
     /// The event documentation.
     docs: Vec<F::String>,
 }
 
-/// An event specification builder.
+/// An event variant specification builder.
 #[must_use]
 pub struct EventSpecBuilder {
     spec: EventSpec,
 }
 
 impl EventSpecBuilder {
-    /// Sets the input arguments of the event specification.
-    pub fn args<A>(self, args: A) -> Self
-    where
-        A: IntoIterator<Item = EventParamSpec>,
-    {
+    /// Sets the fully qualified path of the event.
+    pub fn path(self, path: &'static str) -> Self {
         let mut this = self;
-        debug_assert!(this.spec.args.is_empty());
-        this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this.spec.path = path;
         this
     }
 
-    /// Sets the input arguments of the event specification.
+    /// Sets the variants of the event specification.
+    pub fn variants<A>(self, variants: A) -> Self
+        where
+            A: IntoIterator<Item = EventVariantSpec>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.variants.is_empty());
+        this.spec.variants = variants.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the documentation of the event specification.
     pub fn docs<D>(self, docs: D) -> Self
-    where
-        D: IntoIterator<Item = &'static str>,
+        where
+            D: IntoIterator<Item = &'static str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -684,6 +691,107 @@ impl IntoPortable for EventSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
+            path: self.path.into_portable(registry),
+            variants: self
+                .variants
+                .into_iter()
+                .map(|arg| arg.into_portable(registry))
+                .collect::<Vec<_>>(),
+            docs: registry.map_into_portable(self.docs),
+        }
+    }
+}
+
+impl EventSpec {
+    /// Creates a new event specification builder.
+    pub fn new(path: &'static str) -> EventSpecBuilder {
+        EventSpecBuilder {
+            spec: Self {
+                path,
+                variants: Vec::new(),
+                docs: Vec::new(),
+            },
+        }
+    }
+}
+
+impl<F> EventSpec<F>
+    where
+        F: Form,
+{
+    /// Returns the fully qualified path of the event.
+    pub fn path(&self) -> &F::String {
+        &self.path
+    }
+
+    /// The event variants.
+    pub fn variants(&self) -> &[EventVariantSpec<F>] {
+        &self.variants
+    }
+
+    /// The event variant documentation.
+    pub fn docs(&self) -> &[F::String] {
+        &self.docs
+    }
+}
+
+/// Describes an event variant.
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
+pub struct EventVariantSpec<F: Form = MetaForm> {
+    /// The label of the event variant.
+    label: F::String,
+    /// todo: The unique event signature for event topics.
+    // signature: F::String,
+    /// The event variant arguments.
+    args: Vec<EventParamSpec<F>>,
+    /// The event variant documentation.
+    docs: Vec<F::String>,
+}
+
+/// An event variant specification builder.
+#[must_use]
+pub struct EventVariantSpecBuilder {
+    spec: EventVariantSpec,
+}
+
+impl EventVariantSpecBuilder {
+    /// Sets the input arguments of the event variant specification.
+    pub fn args<A>(self, args: A) -> Self
+    where
+        A: IntoIterator<Item = EventParamSpec>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Sets the documentation of the event variant specification.
+    pub fn docs<D>(self, docs: D) -> Self
+    where
+        D: IntoIterator<Item = &'static str>,
+    {
+        let mut this = self;
+        debug_assert!(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this
+    }
+
+    /// Finalizes building the event specification.
+    pub fn done(self) -> EventVariantSpec {
+        self.spec
+    }
+}
+
+impl IntoPortable for EventVariantSpec {
+    type Output = EventVariantSpec<PortableForm>;
+
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
+        EventVariantSpec {
             label: self.label.into_portable(registry),
             args: self
                 .args
@@ -695,10 +803,10 @@ impl IntoPortable for EventSpec {
     }
 }
 
-impl EventSpec {
-    /// Creates a new event specification builder.
-    pub fn new(label: &'static str) -> EventSpecBuilder {
-        EventSpecBuilder {
+impl EventVariantSpec {
+    /// Creates a new event variant specification builder.
+    pub fn new(label: &'static str) -> EventVariantSpecBuilder {
+        EventVariantSpecBuilder {
             spec: Self {
                 label,
                 args: Vec::new(),
@@ -708,21 +816,21 @@ impl EventSpec {
     }
 }
 
-impl<F> EventSpec<F>
+impl<F> EventVariantSpec<F>
 where
     F: Form,
 {
-    /// Returns the label of the event.
+    /// Returns the label of the event variant.
     pub fn label(&self) -> &F::String {
         &self.label
     }
 
-    /// The event arguments.
+    /// The event variant arguments.
     pub fn args(&self) -> &[EventParamSpec<F>] {
         &self.args
     }
 
-    /// The event documentation.
+    /// The event variant documentation.
     pub fn docs(&self) -> &[F::String] {
         &self.docs
     }

@@ -37,7 +37,7 @@ pub use self::specs::{
     EventParamSpec,
     EventParamSpecBuilder,
     EventSpec,
-    EventSpecBuilder,
+    EventVariantSpecBuilder,
     MessageParamSpec,
     MessageParamSpecBuilder,
     MessageSpec,
