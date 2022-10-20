@@ -34,37 +34,57 @@ impl GenerateCode for EventMetadata<'_> {
             .attrs()
             .iter()
             .filter_map(|attr| attr.extract_docs());
-        // let args = self.event_def.fields().map(|event_field| {
-        //     let span = event_field.span();
-        //     let ident = event_field.ident();
-        //     let is_topic = event_field.is_topic;
-        //     let docs = event_field
-        //         .attrs()
-        //         .into_iter()
-        //         .filter_map(|attr| attr.extract_docs());
-        //     let ty = super::generate_type_spec(event_field.ty());
-        //     quote_spanned!(span =>
-        //         ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
-        //             .of_type(#ty)
-        //             .indexed(#is_topic)
-        //             .docs([
-        //                 #( #docs ),*
-        //             ])
-        //             .done()
-        //     )
-        // });
-        // todo generate event metadata
-        let args = Vec::<TokenStream2>::new();
+        let variants = self.event_def.variants().map(|ev| {
+            let span = ev.span();
+            let label = ev.ident();
+
+            let args = ev.fields().map(|event_field| {
+                let span = event_field.span();
+                let ident = event_field.ident();
+                let is_topic = event_field.is_topic;
+                let docs = event_field
+                    .attrs()
+                    .into_iter()
+                    .filter_map(|attr| attr.extract_docs());
+                let ty = super::generate_type_spec(event_field.ty());
+                quote_spanned!(span =>
+                    ::ink::metadata::EventParamSpec::new(::core::stringify!(#ident))
+                        .of_type(#ty)
+                        .indexed(#is_topic)
+                        .docs([
+                            #( #docs ),*
+                        ])
+                        .done()
+                )
+            });
+
+            let docs = ev
+                .attrs()
+                .iter()
+                .filter_map(|attr| attr.extract_docs())
+                .collect::<Vec<_>>();
+
+            quote_spanned!(span=>
+                ::ink::metadata::EventVariantSpec::new(::core::stringify!(#label))
+                    .args([
+                        #( #args ),*
+                    ])
+                    .docs([
+                        #( #docs ),*
+                    ])
+                    .done()
+            )
+        });
+
         quote_spanned!(span=>
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                impl ::ink_metadata::EventMetadata for #event_ident {
-                    fn event_spec() -> ::ink_metadata::EventSpec {
-                        // todo: insert event ident
-                        ::ink_metadata::EventSpec::new(::core::stringify!(#event_ident))
-                            .args([
-                                #( #args ),*
+                impl ::ink::metadata::EventMetadata for #event_ident {
+                    fn event_spec() -> ::ink::metadata::EventSpec {
+                        ::ink::metadata::EventSpec::new(<#event_ident as ::ink::reflect::EventInfo>::PATH)
+                            .variants([
+                                #( #variants ),*
                             ])
                             .docs([
                                 #( #docs ),*

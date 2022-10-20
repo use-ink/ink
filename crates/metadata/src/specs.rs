@@ -632,8 +632,8 @@ impl IntoPortable for MessageSpec {
 /// Describes an event definition.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
-serialize = "F::Type: Serialize, F::String: Serialize",
-deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EventSpec<F: Form = MetaForm> {
     /// The fully qualified path of the event.
@@ -660,8 +660,8 @@ impl EventSpecBuilder {
 
     /// Sets the variants of the event specification.
     pub fn variants<A>(self, variants: A) -> Self
-        where
-            A: IntoIterator<Item = EventVariantSpec>,
+    where
+        A: IntoIterator<Item = EventVariantSpec>,
     {
         let mut this = self;
         debug_assert!(this.spec.variants.is_empty());
@@ -671,8 +671,8 @@ impl EventSpecBuilder {
 
     /// Sets the documentation of the event specification.
     pub fn docs<D>(self, docs: D) -> Self
-        where
-            D: IntoIterator<Item = &'static str>,
+    where
+        D: IntoIterator<Item = &'static str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -716,8 +716,8 @@ impl EventSpec {
 }
 
 impl<F> EventSpec<F>
-    where
-        F: Form,
+where
+    F: Form,
 {
     /// Returns the fully qualified path of the event.
     pub fn path(&self) -> &F::String {

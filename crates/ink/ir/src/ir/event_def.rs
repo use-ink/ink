@@ -62,11 +62,10 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                         }
                     },
                 )?;
-                let ident = field
-                    .ident
-                    .clone()
-                    .unwrap_or_else(|| panic!("FIELDS SHOULD HAVE A NAME {:?}", field.ident));
-                    // .unwrap_or(quote::format_ident!("{}", index));  // todo: should it also handle tuple variants? This breaks 
+                let ident = field.ident.clone().unwrap_or_else(|| {
+                    panic!("FIELDS SHOULD HAVE A NAME {:?}", field.ident)
+                });
+                // .unwrap_or(quote::format_ident!("{}", index));  // todo: should it also handle tuple variants? This breaks
                 // strip out the `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
                 field.attrs = other_attrs;
@@ -163,6 +162,13 @@ impl EventVariant {
     /// Returns the span of the event variant.
     pub fn span(&self) -> Span {
         self.item.span()
+    }
+
+    /// Returns all non-ink! attributes of the event variant.
+    pub fn attrs(&self) -> Vec<syn::Attribute> {
+        let (_, non_ink_attrs) = ir::partition_attributes(self.item.attrs.clone())
+            .expect("encountered invalid event field attributes");
+        non_ink_attrs
     }
 
     /// The identifier of the event variant.

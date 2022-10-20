@@ -30,16 +30,16 @@ pub struct EventDefinition<'a> {
 impl GenerateCode for EventDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let event_enum = self.generate_event_enum();
-        // let event_metadata_impl = self.generate_event_metadata_impl();
         let event_info_impls = self.generate_event_info_impl();
         let event_variant_info_impls = self.generate_event_variant_info_impls();
+        let event_metadata_impl = self.generate_event_metadata_impl();
         let topics_impl = self.generate_topics_impl();
         let topics_guard = self.generate_topics_guard();
         quote! {
             #event_enum
             #event_info_impls
             #event_variant_info_impls
-            // #event_metadata_impl
+            #event_metadata_impl
             #topics_impl
             #topics_guard
         }

@@ -155,40 +155,11 @@ impl Metadata<'_> {
             syn::Pat::Ident(ident) => &ident.ident,
             _ => unreachable!("encountered ink! dispatch input with missing identifier"),
         };
-        let type_spec = Self::generate_type_spec(&pat_type.ty);
+        let type_spec = generate_type_spec(&pat_type.ty);
         quote! {
             ::ink::metadata::MessageParamSpec::new(::core::stringify!(#ident))
                 .of_type(#type_spec)
                 .done()
-        }
-    }
-
-    /// Generates the ink! metadata for the given type.
-    fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
-        fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ::ink::metadata::TypeSpec::new::<#ty>() }
-        }
-        if let syn::Type::Path(type_path) = ty {
-            if type_path.qself.is_some() {
-                return without_display_name(ty)
-            }
-            let path = &type_path.path;
-            if path.segments.is_empty() {
-                return without_display_name(ty)
-            }
-            let segs = path
-                .segments
-                .iter()
-                .map(|seg| &seg.ident)
-                .collect::<Vec<_>>();
-            quote! {
-                ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
-                )
-            }
-        } else {
-            without_display_name(ty)
         }
     }
 
@@ -310,12 +281,41 @@ impl Metadata<'_> {
                 }
             }
             Some(ty) => {
-                let type_spec = Self::generate_type_spec(ty);
+                let type_spec = generate_type_spec(ty);
                 quote! {
                     ::ink::metadata::ReturnTypeSpec::new(#type_spec)
                 }
             }
         }
+    }
+}
+
+/// Generates the ink! metadata for the given type.
+fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
+    fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+        quote! { ::ink::metadata::TypeSpec::new::<#ty>() }
+    }
+    if let syn::Type::Path(type_path) = ty {
+        if type_path.qself.is_some() {
+            return without_display_name(ty)
+        }
+        let path = &type_path.path;
+        if path.segments.is_empty() {
+            return without_display_name(ty)
+        }
+        let segs = path
+            .segments
+            .iter()
+            .map(|seg| &seg.ident)
+            .collect::<Vec<_>>();
+        quote! {
+            ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
+                ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
+                    .map(::core::convert::AsRef::as_ref)
+            )
+        }
+    } else {
+        without_display_name(ty)
     }
 }
 
