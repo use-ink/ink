@@ -33,13 +33,13 @@ impl GenerateCode for EventDefinition<'_> {
         // let event_metadata_impl = self.generate_event_metadata_impl();
         let event_info_impls = self.generate_event_variant_info_impls();
         let topics_impl = self.generate_topics_impl();
-        // let topics_guard = self.generate_topics_guard();
+        let topics_guard = self.generate_topics_guard();
         quote! {
             #event_enum
             #event_info_impls
             // #event_metadata_impl
             #topics_impl
-            // #topics_guard
+            #topics_guard
         }
     }
 }
