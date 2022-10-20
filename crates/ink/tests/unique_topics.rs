@@ -16,9 +16,6 @@
 
 #[ink::contract]
 mod my_contract {
-    #[ink(storage)]
-    pub struct MyContract {}
-
     /// Exemplary event
     #[ink::event_definition]
     pub enum Event {
@@ -33,6 +30,9 @@ mod my_contract {
             v3: bool,
         },
     }
+
+    #[ink(storage)]
+    pub struct MyContract {}
 
     impl MyContract {
         /// Creates a new `MyContract` instance.
