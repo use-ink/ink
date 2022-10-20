@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// extern crate proc_macro;
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 
 mod codegen;
 mod config;
@@ -79,25 +82,6 @@ use syn::Result;
 ///
 ///     **Default value:** `"/tmp/contracts-node.log"`.
 ///
-/// - `skip_build: true`
-///
-///     Skips building the contract as part of the test. This is handy for debugging
-///     test logic, when one wants to avoid the overhead of building the contract.
-///
-///     **Usage Example:**
-///     ```no_compile
-///     # // TODO(#xxx) Remove the `no_compile`.
-///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-///     #[ink::e2e_test(skip_build = true)]
-///     async fn e2e_contract_must_transfer_value_to_sender(
-///         mut client: ::ink_e2e::Client<C, E>,
-///     ) -> E2EResult<()> {
-///         Ok(())
-///     }
-///     ```
-///
-///     **Default value:** `false`.
-///
 /// # Example
 ///
 /// ```no_compile
@@ -107,7 +91,7 @@ use syn::Result;
 ///     use ::ink_e2e::*;
 ///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
-///     #[ink::e2e_test(skip_build = true)]
+///     #[ink::e2e_test]
 ///     async fn e2e_test_2(mut client: ::ink_e2e::Client<C,E>) -> E2EResult<()> {
 ///         // given
 ///         let constructor = contract_transfer::constructors::new();
@@ -148,7 +132,7 @@ use syn::Result;
 /// );
 /// ```
 #[proc_macro_attribute]
-pub fn e2e_test(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     generate(attr.into(), item.into()).into()
 }
 

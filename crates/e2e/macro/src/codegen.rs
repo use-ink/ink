@@ -18,22 +18,32 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::{
-    path::PathBuf,
+    collections::HashMap,
     sync::Once,
 };
 
-/// We use this to only build the contract once for all tests.
+/// We use this to only build the contracts once for all tests, at the
+/// time of generating the Rust code for the tests, so at compile time.
 static BUILD_ONCE: Once = Once::new();
 
-// We save the name of the currently executing test here.
 thread_local! {
-    pub static CONTRACT_PATH: RefCell<Option<PathBuf>> = RefCell::new(None);
+    // We save a mapping of `contract_manifest_path` to the built `*.contract` files.
+    // This is necessary so that not each individual `#[ink_e2e::test]` starts
+    // rebuilding the main contract and possibly specified `additional_contracts` contracts.
+    pub static ALREADY_BUILT_CONTRACTS: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
 }
 
-/// Returns the path to the contract bundle of the contract for which a test
+/// Returns the path to the `*.contract` file of the contract for which a test
 /// is currently executed.
-pub fn contract_path() -> Option<PathBuf> {
-    CONTRACT_PATH.with(|metadata_path| metadata_path.borrow().clone())
+pub fn already_built_contracts() -> HashMap<String, String> {
+    ALREADY_BUILT_CONTRACTS.with(|already_built| already_built.borrow().clone())
+}
+
+/// Sets a new `HashMap` for the already built contracts.
+pub fn set_already_built_contracts(hash_map: HashMap<String, String>) {
+    ALREADY_BUILT_CONTRACTS.with(|metadata_paths| {
+        *metadata_paths.borrow_mut() = hash_map;
+    });
 }
 
 /// Generates code for the `[ink::e2e_test]` macro.
@@ -64,86 +74,51 @@ impl InkE2ETest {
 
         let ws_url = &self.test.config.ws_url();
         let node_log = &self.test.config.node_log();
-        let skip_build = &self.test.config.skip_build();
 
-        // This path will only be used in case `skip_build` is activated
-        // and no path was specified for it.
-        // TODO(#xxx) we should require specifying a path for `skip_build`.
-        let mut path = PathBuf::from("./target/ink/metadata.json".to_string());
+        let mut additional_contracts: Vec<String> =
+            self.test.config.additional_contracts();
+        let default_main_contract_manifest_path = String::from("Cargo.toml");
+        let mut contracts_to_build_and_import = vec![default_main_contract_manifest_path];
+        contracts_to_build_and_import.append(&mut additional_contracts);
 
-        // If a prior test did already build the contract and set the path
-        // to the metadata file.
-        if let Some(metadata_path) = contract_path() {
-            path = metadata_path;
-        }
-
-        if !skip_build.value && contract_path().is_none() {
+        let mut already_built_contracts = already_built_contracts();
+        if already_built_contracts.is_empty() {
+            // Build all of them for the first time and initialize everything
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
-                use std::process::{
-                    Command,
-                    Stdio,
-                };
-                let output = Command::new("cargo")
-                    // TODO(#xxx) Add possibility of configuring `skip_linting` in attributes.
-                    .args(["+stable", "contract", "build", "--skip-linting", "--output-json"])
-                    .env("RUST_LOG", "")
-                    .stderr(Stdio::inherit())
-                    .output()
-                    .expect("failed to execute `cargo-contract` build process");
-
-                log::info!("`cargo-contract` returned status: {}", output.status);
-                eprintln!("`cargo-contract` returned status: {}", output.status);
-                log::info!(
-                    "`cargo-contract` stdout: {}",
-                    String::from_utf8_lossy(&output.stdout)
-                );
-                eprintln!(
-                    "`cargo-contract` stdout: {}",
-                    String::from_utf8_lossy(&output.stdout)
-                );
-                if !output.status.success() {
-                    log::info!(
-                        "`cargo-contract` stderr: {}",
-                        String::from_utf8_lossy(&output.stderr)
-                    );
-                    eprintln!(
-                        "`cargo-contract` stderr: {}",
-                        String::from_utf8_lossy(&output.stderr)
-                    );
+                for manifest_path in contracts_to_build_and_import {
+                    let dest_metadata = build_contract(&manifest_path);
+                    let _ = already_built_contracts.insert(manifest_path, dest_metadata);
                 }
-
-                assert!(output.status.success());
-
-                let json = String::from_utf8_lossy(&output.stdout);
-                let metadata: serde_json::Value =
-                    serde_json::from_str(&json).expect("cannot convert json to utf8");
-                let mut dest_metadata =
-                    metadata["metadata_result"]["dest_bundle"].to_string();
-                dest_metadata = dest_metadata.trim_matches('"').to_string();
-                path = PathBuf::from(dest_metadata);
-                log::info!("extracted metadata path: {}", path.display());
-
-                CONTRACT_PATH.with(|metadata_path| {
-                    *metadata_path.borrow_mut() = Some(path.clone());
-                });
+                set_already_built_contracts(already_built_contracts.clone());
             });
-        } else {
-            BUILD_ONCE.call_once(|| {
-                env_logger::init();
-            });
+        } else if !already_built_contracts.is_empty() {
+            // Some contracts have already been built and we check if the
+            // `additional_contracts` for this particular test contain ones
+            // that haven't been build before
+            for manifest_path in contracts_to_build_and_import {
+                if already_built_contracts.get("Cargo.toml").is_none() {
+                    let dest_metadata = build_contract(&manifest_path);
+                    let _ = already_built_contracts.insert(manifest_path, dest_metadata);
+                }
+            }
+            set_already_built_contracts(already_built_contracts.clone());
         }
 
-        log::info!("using metadata path: {:?}", path);
-
-        path.try_exists().unwrap_or_else(|err| {
-            panic!("path {:?} does not exist: {:?}", path, err);
-        });
-        let os_path = path
-            .as_os_str()
-            .to_str()
-            .expect("converting path to str failed");
-        let path = syn::LitStr::new(os_path, proc_macro2::Span::call_site());
+        assert!(
+            !already_built_contracts.is_empty(),
+            "built contract artifacts must exist here"
+        );
+        let meta: Vec<TokenStream2> = already_built_contracts
+            .iter()
+            .map(|(_manifest_path, bundle_path)| {
+                let path = syn::LitStr::new(bundle_path, proc_macro2::Span::call_site());
+                quote! {
+                    // TODO(#1421) `smart-bench_macro` needs to be forked.
+                    ::ink_e2e::smart_bench_macro::contract!(#path);
+                }
+            })
+            .collect();
 
         quote! {
             #( #attrs )*
@@ -160,9 +135,7 @@ impl InkE2ETest {
                     ::ink_e2e::env_logger::init();
                 });
 
-                log_info("extracting metadata");
-                // TODO(#1421) `smart-bench_macro` needs to be forked.
-                ::ink_e2e::smart_bench_macro::contract!(#path);
+                #( #meta )*
 
                 log_info("creating new client");
 
@@ -171,7 +144,7 @@ impl InkE2ETest {
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         ink::env::DefaultEnvironment
-                    >::new(&#path, &#ws_url, &#node_log).await;
+                    >::new(&#ws_url, &#node_log).await;
 
                     let __ret = {
                         #block
@@ -189,4 +162,50 @@ impl InkE2ETest {
             }
         }
     }
+}
+
+/// Builds the contract at `manifest_path`, returns the path to the contract
+/// bundle build artifact.
+fn build_contract(manifest_path: &str) -> String {
+    use std::process::{
+        Command,
+        Stdio,
+    };
+    let output = Command::new("cargo")
+        .args([
+            "+stable",
+            "contract",
+            "build",
+            "--skip-linting",
+            "--output-json",
+            &format!("--manifest-path={}", manifest_path),
+        ])
+        .env("RUST_LOG", "")
+        .stderr(Stdio::inherit())
+        .output()
+        .expect("failed to execute `cargo-contract` build process");
+
+    log::info!("`cargo-contract` returned status: {}", output.status);
+    log::info!(
+        "`cargo-contract` stdout: {}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    if !output.status.success() {
+        log::error!(
+            "`cargo-contract` stderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    assert!(
+        output.status.success(),
+        "contract build for {} failed",
+        manifest_path
+    );
+
+    let json = String::from_utf8_lossy(&output.stdout);
+    let metadata: serde_json::Value =
+        serde_json::from_str(&json).expect("cannot convert json to utf8");
+    let dest_metadata = metadata["metadata_result"]["dest_bundle"].to_string();
+    dest_metadata.trim_matches('"').to_string()
 }
