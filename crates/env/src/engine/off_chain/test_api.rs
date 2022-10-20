@@ -200,6 +200,8 @@ where
 }
 
 /// Sets the value transferred from the caller to the callee as part of the call.
+///
+/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
 pub fn set_value_transferred<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
@@ -207,6 +209,44 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.set_value_transferred(value);
     })
+}
+
+/// Transfers value from the caller account to the contract.
+///
+/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
+pub fn transfer_in<T>(value: T::Balance)
+where
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let caller = instance
+            .engine
+            .exec_context
+            .caller
+            .as_ref()
+            .expect("no caller has been set")
+            .as_bytes()
+            .to_vec();
+
+        let caller_old_balance = instance
+            .engine
+            .get_balance(caller.clone())
+            .unwrap_or_default();
+
+        let callee = instance.engine.get_callee();
+        let contract_old_balance = instance
+            .engine
+            .get_balance(callee.clone())
+            .unwrap_or_default();
+
+        instance
+            .engine
+            .set_balance(caller, caller_old_balance - value);
+        instance
+            .engine
+            .set_balance(callee, contract_old_balance + value);
+        instance.engine.set_value_transferred(value);
+    });
 }
 
 /// Returns the amount of storage cells used by the account `account_id`.
@@ -354,4 +394,13 @@ pub fn assert_contract_termination<T, F>(
             .expect("input can not be decoded");
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
+}
+
+/// Prepend contract message call with value transfer. Used for tests in off-chain environment.
+#[macro_export]
+macro_rules! pay_with_call {
+    ($contract:ident . $message:ident ( $( $params:expr ),* ) , $amount:expr) => {{
+        $crate::test::transfer_in::<Environment>($amount);
+        $contract.$message($ ($params) ,*)
+    }}
 }

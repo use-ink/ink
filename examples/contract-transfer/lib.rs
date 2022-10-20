@@ -101,20 +101,31 @@ pub mod give_me {
 
         #[ink::test]
         fn test_transferred_value() {
+            use ink_lang::codegen::Env;
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);
+            let contract_account = give_me.env().account_id();
 
             // when
-            // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_value` as the value which the contract
-            // will see as transferred to it.
+            // Push the new execution context which sets initial balances and
+            // sets Eve as the caller
+            set_balance(accounts.eve, 100);
+            set_balance(contract_account, 0);
             set_sender(accounts.eve);
-            ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(10);
 
             // then
-            // there must be no panic
-            give_me.was_it_ten();
+            // we use helper macro to emulate method invocation coming with payment,
+            // and there must be no panic
+            ink_env::pay_with_call!(give_me.was_it_ten(), 10);
+
+            // and
+            // balances should be changed properly
+            let contract_new_balance = get_balance(contract_account);
+            let caller_new_balance = get_balance(accounts.eve);
+
+            assert_eq!(caller_new_balance, 100 - 10);
+            assert_eq!(contract_new_balance, 10);
         }
 
         #[ink::test]
