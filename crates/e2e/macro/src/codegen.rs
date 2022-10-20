@@ -28,7 +28,7 @@ static BUILD_ONCE: Once = Once::new();
 
 thread_local! {
     // We save a mapping of `contract_manifest_path` to the built `*.contract` files.
-    // This is necessary so that not each individual `#[ink_e2e::e2e_tests]` starts
+    // This is necessary so that not each individual `#[ink_e2e::test]` starts
     // rebuilding the main contract and possibly specified `additional_contracts` contracts.
     pub static ALREADY_BUILT_CONTRACTS: RefCell<HashMap<String, String>> = RefCell::new(HashMap::new());
 }

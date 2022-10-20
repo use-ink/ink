@@ -132,7 +132,7 @@ use syn::Result;
 /// );
 /// ```
 #[proc_macro_attribute]
-pub fn e2e_test(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     generate(attr.into(), item.into()).into()
 }
 
