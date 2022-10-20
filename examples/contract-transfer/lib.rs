@@ -240,7 +240,7 @@ pub mod give_me {
 
             // when
             let transfer = contract_transfer::messages::give_me(120);
-            let _ = client
+            let call_res = client
                 .call(
                     &mut ink_e2e::eve(),
                     contract_acc_id.clone(),
@@ -252,12 +252,16 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
+            let contains_debug_println =
+                String::from_utf8_lossy(&call_res.dry_run.debug_message)
+                    .contains("requested value: 120\n");
+            assert!(contains_debug_println);
+
             let balance_after: Balance = client
                 .balance(contract_acc_id)
                 .await
                 .expect("getting balance failed");
             assert_eq!(balance_before - balance_after, 120);
-            assert!(client.node_log_contains("requested value: 100000000000000\n"));
 
             Ok(())
         }

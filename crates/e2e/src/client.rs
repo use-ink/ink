@@ -256,7 +256,6 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
-    node_log: String,
 }
 
 impl<C, E> Client<C, E>
@@ -278,7 +277,7 @@ where
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
-    pub async fn new(url: &str, node_log: &str) -> Self {
+    pub async fn new(url: &str) -> Self {
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
@@ -290,7 +289,6 @@ where
 
         Self {
             api: ContractsApi::new(client, url).await,
-            node_log: node_log.to_string(),
         }
     }
 
@@ -641,25 +639,6 @@ where
             account_id, alice_pre
         ));
         Ok(alice_pre.data.free)
-    }
-
-    /// Returns true if the `substrate-contracts-node` log under
-    /// `/tmp/contracts-node.log` contains `msg`.
-    /// TODO(#1423) Matches on any log entry currently, even if done
-    /// by a different test.
-    pub fn node_log_contains(&self, msg: &str) -> bool {
-        let output = std::process::Command::new("grep")
-            .arg("-q")
-            .arg(msg)
-            .arg(&self.node_log)
-            .spawn()
-            .map_err(|err| {
-                format!("ERROR while executing `grep` with {:?}: {:?}", msg, err)
-            })
-            .expect("failed to execute process")
-            .wait_with_output()
-            .expect("failed to receive output");
-        output.status.success()
     }
 
     /// Fetches the next system account index for `signer.account_id()`
