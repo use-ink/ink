@@ -1,6 +1,6 @@
 # [Unreleased]
 
-# Version 3.4
+# Version 3.4.0
 
 We keep ink! v3 updated with nice features and fixes from the `master` branch.
 
