@@ -12,10 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::{ContractEnv, DispatchError};
-use core::{convert::Infallible, mem::ManuallyDrop};
-use ink_env::{Environment, ReturnFlags};
-use ink_storage::traits::{Storable, StorageKey};
+use crate::reflect::{
+    ContractEnv,
+    DispatchError,
+};
+use core::{
+    convert::Infallible,
+    mem::ManuallyDrop,
+};
+use ink_env::{
+    Environment,
+    ReturnFlags,
+};
+use ink_storage::traits::{
+    Storable,
+    StorageKey,
+};
 use scale::Encode;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
@@ -30,7 +42,7 @@ where
 {
     let transferred = ink_env::transferred_value::<E>();
     if transferred != <E as Environment>::Balance::from(0_u32) {
-        return Err(DispatchError::PaidUnpayableMessage);
+        return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
 }
