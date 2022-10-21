@@ -84,7 +84,6 @@ impl quote::ToTokens for Constructor {
 }
 
 impl Constructor {
-    // TODO: need to rework this support type aliases
     /// Returns `true` if the given type is `Self`.
     fn type_is_self_val(ty: &syn::Type) -> bool {
         matches!(ty, syn::Type::Path(syn::TypePath {
@@ -93,7 +92,6 @@ impl Constructor {
         }) if path.is_ident("Self"))
     }
 
-    // TODO: Hence why this method also needs to be reworked
     /// Returns `true` if the given type is `Result<Self>`.
     fn type_is_result_self_val(ty: &syn::Type) -> bool {
         let res = matches!(ty, syn::Type::Path(syn::TypePath {
@@ -105,11 +103,11 @@ impl Constructor {
 
     fn is_result_path(path: &syn::Path) -> bool {
         if path.leading_colon.is_none()
-            && path.segments.len() == 1
-            && path.segments[0].ident == "Result"
+            && path.segments.last().is_some()
+            && path.segments.last().unwrap().ident == "Result"
         {
             if let syn::PathArguments::AngleBracketed(angle_args) =
-                &path.segments[0].arguments
+                &path.segments.last().unwrap().arguments
             {
                 if let Some(syn::GenericArgument::Type(ty)) = angle_args.args.first() {
                     return Self::type_is_self_val(ty)
