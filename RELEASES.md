@@ -1,5 +1,17 @@
 # [Unreleased]
 
+# Version 3.4.0
+
+We keep ink! v3 updated with nice features and fixes from the `master` branch.
+
+This release:
+
+- Introduces the `ink_env::pay_with_call!` helper macro for the emulation of invoking payble messages in off-chain tests.
+  As response to ink! developers request on the [ Substrate StackExchange](https://substrate.stackexchange.com/a/4793/472).
+- Fixes contracts compilation error with the latest Rust `+nightly`  ‒ [#1417](https://github.com/paritytech/ink/issues/1417) (thanks [@xgreenx](https://github.com/xgreenx)).
+
+See the back portation PR [#1439](https://github.com/paritytech/ink/pull/1439) for details.
+
 # Version 3.3.1
 
 At the moment teams which use both Substrate and ink! in the same codebase are
