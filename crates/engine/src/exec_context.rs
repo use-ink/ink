@@ -21,6 +21,7 @@ use super::types::{
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
+#[derive(Default)]
 pub struct ExecContext {
     /// The caller of the contract execution. Might be user or another contract.
     ///
@@ -42,18 +43,6 @@ pub struct ExecContext {
     pub block_number: BlockNumber,
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
-}
-
-impl Default for ExecContext {
-    fn default() -> Self {
-        Self {
-            caller: None,
-            callee: None,
-            value_transferred: 0,
-            block_number: 0,
-            block_timestamp: 0,
-        }
-    }
 }
 
 impl ExecContext {
