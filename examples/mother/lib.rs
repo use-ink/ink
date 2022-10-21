@@ -124,6 +124,7 @@ mod mother {
 
     /// Event emitted when an auction being echoed.
     #[ink(event)]
+    #[cfg_attr(feature = "std", derive(Eq, PartialEq))]
     pub struct AuctionEchoed {
         auction: Auction,
     }
@@ -210,6 +211,53 @@ mod mother {
         fn trap_works() {
             let mut contract = Mother::default();
             let _ = contract.revert_or_trap(Some(Failure::Panic));
+        }
+
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn e2e_echo_auction_must_emit_event(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = mother::constructors::default();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let auction = Auction::default();
+            let transfer = mother::messages::echo_auction(auction.clone());
+            let call = client
+                .call(
+                    &mut ink_e2e::eve(),
+                    contract_acc_id.clone(),
+                    transfer,
+                    0,
+                    None,
+                )
+                .await
+                .expect("call failed");
+
+            // then
+            let events = client.emitted_contract_events::<Mother, _>(&call);
+
+            // option one for checking if an event was emitted
+            assert!(client.contains_event(
+                &call.events,
+                &AuctionEchoed {
+                    auction: auction.clone()
+                }
+            ));
+
+            // option two for checking if an event was emitted
+            type ContractEvents = <Mother as ink::traits::ContractEventBase>::Type;
+            assert!(events
+                .contains(&ContractEvents::AuctionEchoed(AuctionEchoed { auction })));
+
+            Ok(())
         }
     }
 }

@@ -219,7 +219,7 @@ mod erc20 {
 
         use ink::primitives::Clear;
 
-        type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
+        type Event = <Erc20 as ::ink::traits::ContractEventBase>::Type;
 
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,

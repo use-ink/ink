@@ -141,7 +141,7 @@ pub struct Environment {
 impl Default for Environment {
     fn default() -> Self {
         Self {
-            path: syn::parse_quote! { ::ink_env::DefaultEnvironment },
+            path: syn::parse_quote! { ink_env::DefaultEnvironment },
         }
     }
 }

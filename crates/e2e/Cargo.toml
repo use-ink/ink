@@ -17,8 +17,12 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 [dependencies]
 ink_e2e_macro = { version = "4.0.0-alpha.3", path = "./macro" }
 ink_env = { version = "4.0.0-alpha.3", path = "../env" }
+ink_metadata = { version = "4.0.0-alpha.3", path = "../metadata" }
+ink_traits = { version = "4.0.0-alpha.3", path = "../ink/traits" }
 
 contract-metadata = { version = "2.0.0-alpha.4" }
+transcode = { package = "contract-transcode", version = "2.0.0-alpha.4" }
+hex = "0.4.3"
 impl-serde = { version = "0.3.1", default-features = false }
 jsonrpsee = { version = "0.15.1", features = ["ws-client"] }
 pallet-contracts-primitives = { version = "6.0.0" }

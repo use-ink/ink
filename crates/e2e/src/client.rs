@@ -35,11 +35,17 @@ use super::{
     Signer,
 };
 use ink_env::Environment;
+use ink_metadata::InkProject;
 
+use scale::{
+    Compact,
+    Decode,
+};
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
 };
+use std::fs::File;
 use subxt::{
     ext::bitvec::macros::internal::funty::Fundamental,
     metadata::DecodeStaticType,
@@ -143,6 +149,8 @@ pub struct CallResult<C: subxt::Config, E: Environment, V> {
     /// This field contains the decoded `data` from the dry-run,
     /// the raw data is available under `dry_run.result.data`.
     pub value: V,
+    /// Path to the `.contract` file of the called contract.
+    pub contract_path: &'static str,
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
@@ -292,6 +300,25 @@ where
             api: ContractsApi::new(client, url).await,
             node_log: node_log.to_string(),
         }
+    }
+
+    /// Returns an `InkProject` from the passed `contract_path`.
+    pub fn load_ink_project(&self, contract_path: &str) -> InkProject {
+        let file = File::open(contract_path)
+            .expect(&format!("Failed to open contract path {}", contract_path));
+        let metadata: contract_metadata::ContractMetadata = serde_json::from_reader(file)
+            .expect(&format!(
+                "Failed to deserialize contract file {}",
+                contract_path
+            ));
+        let ink_metadata = serde_json::from_value(serde_json::Value::Object(
+            metadata.abi,
+        ))
+        .expect(&format!(
+            "Failed to deserialize ink project metadata from file {}",
+            contract_path
+        ));
+        ink_metadata
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -603,6 +630,7 @@ where
             value,
             dry_run,
             events: tx_events,
+            contract_path: M::CONTRACT_PATH,
         })
     }
 
@@ -641,6 +669,105 @@ where
             account_id, alice_pre
         ));
         Ok(alice_pre.data.free)
+    }
+
+    pub fn contains_event<A: scale::Encode>(
+        &self,
+        events: &TxEvents<C>,
+        arg: &A,
+    ) -> bool {
+        fn find_subsequence(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+            haystack
+                .windows(needle.len())
+                .position(|window| window == needle)
+        }
+        let enc = scale::Encode::encode(&arg);
+
+        for event in events.iter().flatten() {
+            let event_data = &mut event.field_bytes();
+            if find_subsequence(&event_data, &enc).is_some() {
+                return true
+            }
+        }
+        false
+    }
+
+    /// Returns the _decoded_ events that were emitted by a contract while
+    /// executing `call`.
+    ///
+    /// These events are of the actual transaction processing on-chain.
+    /// So not of the dry-run.
+    pub fn emitted_contract_events<CON: ink_traits::ContractEventBase, F>(
+        // pub fn emitted_contract_events<EVT: scale::Decode, T>(
+        &self,
+        call: &CallResult<C, E, F>,
+    ) -> Vec<<CON as ink_traits::ContractEventBase>::Type>
+    where
+        <CON as ink_traits::ContractEventBase>::Type: scale::Decode,
+    {
+        use api::contracts::events::ContractEmitted;
+        let runtime_metadata = self.api.client.metadata();
+        let events_transcoder =
+            transcode::TranscoderBuilder::new(&runtime_metadata.types())
+                .with_default_custom_type_transcoders()
+                .done();
+        let encoded_events: &TxEvents<C> = &call.events;
+
+        let mut decoded_events = Vec::new();
+        for event in encoded_events.iter().flatten() {
+            let event_metadata = runtime_metadata
+                .event(event.pallet_index(), event.variant_index())
+                .unwrap_or_else(|err| {
+                    panic!("failed getting event metadata: {:?}", err);
+                });
+            let event_data = &mut event.field_bytes();
+
+            for field in event_metadata.fields() {
+                if <ContractEmitted as subxt::events::StaticEvent>::is_event(
+                    event.pallet_name(),
+                    event.variant_name(),
+                ) && field.name() == Some("data")
+                {
+                    match self.decode_contract_event::<
+
+                    <CON as ink_traits::ContractEventBase>::Type
+                        >(event_data) {
+                        Ok(decoded_event) => {
+                            decoded_events.push(decoded_event);
+                        }
+                        Err(err) => {
+                            eprintln!(
+                                    "Decoding contract event failed: {:?}. It might have come from another contract.",
+                                    err
+                                )
+                        }
+                    }
+                } else {
+                    // TODO(#xxx) System events like `ExtrinsicFailed`, `CodeStored`, etc. should
+                    // also be decoded and returned here.
+                    let _decoded_field = events_transcoder
+                        .decode(&runtime_metadata.types(), field.type_id(), event_data)
+                        .unwrap_or_else(|err| {
+                            panic!("unable to decode event: {:?}", err);
+                        });
+                }
+            }
+        }
+        decoded_events
+    }
+
+    /// Decodes `data` to `EVT`.
+    pub fn decode_contract_event<EVT: scale::Decode>(
+        &self,
+        data: &mut &[u8],
+    ) -> Result<EVT, scale::Error> {
+        // data is an encoded `Vec<u8>` so is prepended with its length `Compact<u32>`, which we
+        // ignore because the structure of the event data is known for decoding.
+        let _len = <Compact<u32>>::decode(data).unwrap_or_else(|err| {
+            panic!("unable to decode length: {:?}", err);
+        });
+
+        EVT::decode(data)
     }
 
     /// Returns true if the `substrate-contracts-node` log under

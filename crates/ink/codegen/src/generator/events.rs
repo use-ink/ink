@@ -95,6 +95,9 @@ impl<'a> Events<'a> {
         quote! {
             #[allow(non_camel_case_types)]
             #[derive(::scale::Encode, ::scale::Decode)]
+            // We are deriving `Eq` and `PartialEq` to enable better testing of
+            // event emission in our E2E testing framework.
+            #[cfg_attr(feature = "std", derive(Eq, PartialEq))]
             #[cfg(not(feature = "__ink_dylint_EventBase"))]
             pub enum #base_event_ident {
                 #( #event_idents(#event_idents), )*

@@ -19,6 +19,8 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+extern crate core;
+
 mod client;
 mod default_accounts;
 pub mod utils;
