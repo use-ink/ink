@@ -73,7 +73,7 @@ mod dns {
         CallerIsNotOwner,
     }
 
-    /// Type alias for the contract's result type.
+    
     pub type Result<T> = core::result::Result<T, Error>;
 
     impl DomainNameService {
