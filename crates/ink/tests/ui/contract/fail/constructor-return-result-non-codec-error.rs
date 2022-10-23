@@ -10,8 +10,8 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn constructor() -> core::result::Result<Self, Error>{
-            Ok(Self{})
+        pub fn constructor() -> core::result::Result<Self, Error> {
+            Ok(Self {})
         }
 
         #[ink(message)]

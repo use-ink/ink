@@ -11,7 +11,7 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn constructor() -> core::result::Result<u8, Error>{
+        pub fn constructor() -> core::result::Result<u8, Error> {
             Ok(5_u8)
         }
 

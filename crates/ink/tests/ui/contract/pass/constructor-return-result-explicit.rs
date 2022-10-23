@@ -11,7 +11,7 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn constructor() -> core::result::Result<Self, Error>{
+        pub fn constructor() -> core::result::Result<Self, Error> {
             Err(Error::Foo)
         }
 
