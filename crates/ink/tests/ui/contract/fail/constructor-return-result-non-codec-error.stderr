@@ -1,0 +1,22 @@
+error[E0277]: the trait bound `contract::Error: WrapperTypeEncode` is not satisfied
+  --> tests/ui/contract/fail/constructor-return-result-non-codec-error.rs:13:9
+   |
+13 |         pub fn constructor() -> core::result::Result<Self, Error>{
+   |         ^^^ the trait `WrapperTypeEncode` is not implemented for `contract::Error`
+   |
+   = help: the following other types implement trait `WrapperTypeEncode`:
+             &T
+             &mut T
+             Arc<T>
+             Box<T>
+             Cow<'a, T>
+             Rc<T>
+             String
+             Vec<T>
+             parity_scale_codec::Ref<'a, T, U>
+   = note: required because of the requirements on the impl of `Encode` for `contract::Error`
+note: required by a bound in `execute_constructor`
+  --> src/codegen/dispatch/execution.rs
+   |
+   |     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: Encode,
+   |                                                                         ^^^^^^ required by this bound in `execute_constructor`
