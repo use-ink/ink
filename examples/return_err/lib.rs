@@ -4,8 +4,9 @@
 mod return_err {
 
     #[ink(storage)]
+    #[derive(Default)]
     pub struct ReturnErr {
-        instantiated: bool,
+        count: i32,
     }
 
     /// Example of Error enum
@@ -14,15 +15,6 @@ mod return_err {
     pub enum Error {
         Foo,
     }
-
-    impl Default for ReturnErr {
-        fn default() -> Self {
-            Self { instantiated: true }
-        }
-    }
-
-    /// Type alias for the contract's result type.
-    pub type Result<T> = core::result::Result<T, Error>;
 
     impl ReturnErr {
         /// Classic constructor that instantiated the contract
@@ -33,7 +25,7 @@ mod return_err {
 
         /// Constructor that can be manually failed
         #[ink(constructor, payable)]
-        pub fn another_new(fail: bool) -> Result<Self> {
+        pub fn another_new(fail: bool) -> Result<Self, Error> {
             if fail {
                 Err(Error::Foo)
             } else {
@@ -41,10 +33,16 @@ mod return_err {
             }
         }
 
-        /// Checks if the contract has been instantiated
+        /// Gets the value of a counter
         #[ink(message)]
-        pub fn is_instantiated(&self) -> bool {
-            self.instantiated
+        pub fn get_count(&self) -> i32 {
+            self.count
+        }
+
+        /// Changes the value of counter
+        #[ink(message)]
+        pub fn incr(&mut self, n: i32) {
+            self.count += n;
         }
     }
     #[cfg(test)]
@@ -53,8 +51,9 @@ mod return_err {
 
         #[ink::test]
         fn classic_constructor_works() {
-            let contract = ReturnErr::new();
-            assert!(contract.is_instantiated())
+            let mut contract = ReturnErr::new();
+            contract.incr(5);
+            assert_eq!(contract.get_count(), 5)
         }
 
         #[ink::test]
@@ -68,7 +67,9 @@ mod return_err {
         fn constructor_safely_works() {
             let contract = ReturnErr::another_new(false);
             assert!(contract.is_ok());
-            assert!(contract.unwrap().is_instantiated())
+            let mut contract = contract.unwrap();
+            contract.incr(-5);
+            assert_eq!(contract.get_count(), -5);
         }
     }
 }

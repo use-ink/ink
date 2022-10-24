@@ -1,14 +1,10 @@
-use return_err::{
-    Error,
-    ReturnErr,
-};
-
 #[ink::contract]
 mod return_err {
 
     #[ink(storage)]
+    #[derive(Default)]
     pub struct ReturnErr {
-        instantiated: bool,
+        count: i32,
     }
 
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -17,14 +13,6 @@ mod return_err {
         Foo,
     }
 
-    impl Default for ReturnErr {
-        fn default() -> Self {
-            Self { instantiated: true }
-        }
-    }
-
-    pub type Result<T> = core::result::Result<T, Error>;
-
     impl ReturnErr {
         #[ink(constructor)]
         pub fn new() -> Self {
@@ -32,7 +20,7 @@ mod return_err {
         }
 
         #[ink(constructor, payable)]
-        pub fn another_new(fail: bool) -> Result<Self> {
+        pub fn another_new(fail: bool) -> Result<Self, Error> {
             if fail {
                 Err(Error::Foo)
             } else {
@@ -41,8 +29,13 @@ mod return_err {
         }
 
         #[ink(message)]
-        pub fn is_instantiated(&self) -> bool {
-            self.instantiated
+        pub fn get_count(&self) -> i32 {
+            self.count
+        }
+
+        #[ink(message)]
+        pub fn incr(&mut self, n: i32) {
+            self.count += n;
         }
     }
 }
@@ -54,5 +47,7 @@ fn main() {
 
     let contract = ReturnErr::another_new(false);
     assert!(contract.is_ok());
-    assert!(contract.unwrap().is_instantiated());
+    let mut contract = contract.unwrap();
+    contract.incr(-5);
+    assert_eq!(contract.get_count(), -5);
 }
