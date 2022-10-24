@@ -101,6 +101,8 @@ impl Constructor {
         res
     }
 
+    /// Helper functions that evaluates that the return type is `Result`
+    /// and the `Ok` variant is `Self` type
     fn is_result_path(path: &syn::Path) -> bool {
         if path.leading_colon.is_none()
             && path.segments.last().is_some()
@@ -270,7 +272,6 @@ impl Constructor {
     }
 
     /// Returns the return type of the ink! constructor if any.
-    // TODO: rewrite as enum
     pub fn output(&self) -> Option<&syn::Type> {
         match &self.item.sig.output {
             syn::ReturnType::Default => None,
@@ -426,6 +427,11 @@ mod tests {
                 #[ink(constructor)]
                 fn my_constructor(input1: i32, input2: i64, input3: u32, input4: u64) -> Self {}
             },
+            // Result return type
+            syn::parse_quote! {
+                #[ink(constructor)]
+                pub fn my_constructor() -> Result<Self, ()> {}
+            },
         ];
         for item_method in item_methods {
             assert!(<ir::Constructor as TryFrom<_>>::try_from(item_method).is_ok());
@@ -474,7 +480,7 @@ mod tests {
             },
             syn::parse_quote! {
                 #[ink(constructor)]
-                pub fn my_constructor() -> Result<Self, ()> {}
+                pub fn my_constructor() -> Result<i32, ()> {}
             },
         ];
         for item_method in item_methods {

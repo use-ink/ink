@@ -41,7 +41,7 @@ mod return_err {
             }
         }
 
-        /// Gets  if the contract has been instantiated
+        /// Checks if the contract has been instantiated
         #[ink(message)]
         pub fn is_instantiated(&self) -> bool {
             self.instantiated
