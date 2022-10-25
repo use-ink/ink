@@ -41,7 +41,15 @@ impl_as_ref_for_generator!(Metadata);
 
 impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let contract = self.generate_contract();
+        let constructors = self.generate_constructors();
+        let messages = self.generate_messages();
+        let docs = self
+            .contract
+            .module()
+            .attrs()
+            .iter()
+            .filter_map(|attr| attr.extract_docs());
+
         let layout = self.generate_layout();
 
         quote! {
@@ -49,12 +57,29 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
+                pub fn __ink_generate_metadata(
+                    events: ::ink::prelude::vec::Vec<::ink::metadata::EventSpec>
+                ) -> ::ink::metadata::InkProject  {
                     let layout = #layout;
                     ::ink::metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
                         ::core::panic!("metadata ink! generation failed: {}", error)
                     });
-                    ::ink::metadata::InkProject::new(layout, #contract)
+                    let contract =
+                        ::ink::metadata::ContractSpec::new()
+                            .constructors([
+                                #( #constructors ),*
+                            ])
+                            .messages([
+                                #( #messages ),*
+                            ])
+                            .events(
+                                events
+                            )
+                            .docs([
+                                #( #docs ),*
+                            ])
+                            .done();
+                    ::ink::metadata::InkProject::new(layout, contract)
                 }
             };
         }
@@ -81,32 +106,6 @@ impl Metadata<'_> {
                 ),
             ))
         )
-    }
-
-    fn generate_contract(&self) -> TokenStream2 {
-        let constructors = self.generate_constructors();
-        let messages = self.generate_messages();
-        // let events = self.generate_events();
-        // todo: call into InkEventDefinition::from_inline_event for inlinne events
-        let docs = self
-            .contract
-            .module()
-            .attrs()
-            .iter()
-            .filter_map(|attr| attr.extract_docs());
-        quote! {
-            ::ink::metadata::ContractSpec::new()
-                .constructors([
-                    #( #constructors ),*
-                ])
-                .messages([
-                    #( #messages ),*
-                ])
-                .docs([
-                    #( #docs ),*
-                ])
-                .done()
-        }
     }
 
     /// Generates ink! metadata for all ink! smart contract constructors.
