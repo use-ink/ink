@@ -85,8 +85,8 @@
 ///     }
 /// }
 ///
-/// # use ink::reflect::TraitDefinitionRegistry;
-/// # use ink::reflect::TraitMessageInfo;
+/// # use ink::traits::TraitDefinitionRegistry;
+/// # use ink::traits::TraitMessageInfo;
 /// # use ink_env::DefaultEnvironment;
 /// # use ink::{selector_id, selector_bytes};
 ///

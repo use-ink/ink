@@ -25,7 +25,7 @@ use core::fmt::Display;
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::ContractAmountDispatchables;
+/// # use ink::traits::ContractAmountDispatchables;
 ///
 /// #[ink::contract]
 /// pub mod contract {
@@ -73,8 +73,8 @@ pub trait ContractAmountDispatchables {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::ContractAmountDispatchables;
-/// # use ink::reflect::ContractDispatchableMessages;
+/// # use ink::traits::ContractAmountDispatchables;
+/// # use ink::traits::ContractDispatchableMessages;
 /// # use ink::selector_id;
 ///
 /// #[ink::contract]
@@ -122,8 +122,8 @@ pub trait ContractDispatchableMessages<const AMOUNT: usize> {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::ContractAmountDispatchables;
-/// # use ink::reflect::ContractDispatchableConstructors;
+/// # use ink::traits::ContractAmountDispatchables;
+/// # use ink::traits::ContractDispatchableConstructors;
 /// # use ink::selector_id;
 ///
 /// #[ink::contract]
@@ -173,7 +173,7 @@ pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::DispatchableMessageInfo;
+/// # use ink::traits::DispatchableMessageInfo;
 /// # use ink::{selector_id, selector_bytes};
 ///
 /// #[ink::contract]
@@ -270,7 +270,7 @@ pub trait DispatchableMessageInfo<const ID: u32> {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::DispatchableConstructorInfo;
+/// # use ink::traits::DispatchableConstructorInfo;
 /// # use ink::{selector_id, selector_bytes};
 ///
 /// #[ink::contract]
@@ -354,7 +354,7 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::ContractMessageDecoder;
+/// # use ink::traits::ContractMessageDecoder;
 /// # use ink::selector_bytes;
 /// # use scale::{Encode, Decode};
 ///
@@ -433,7 +433,7 @@ pub trait ContractMessageDecoder {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::ContractConstructorDecoder;
+/// # use ink::traits::ContractConstructorDecoder;
 /// # use ink::selector_bytes;
 /// # use scale::{Encode, Decode};
 ///
@@ -573,7 +573,7 @@ impl From<DispatchError> for scale::Error {
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::{ContractMessageDecoder, DecodeDispatch, DispatchError};
+/// # use ink::traits::{ContractMessageDecoder, DecodeDispatch, DispatchError};
 /// # use ink::selector_bytes;
 /// # use scale::Encode;
 ///

@@ -48,11 +48,11 @@ mod contract {
 
 fn main() {
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
+        <Contract as ::ink::traits::DispatchableMessageInfo<
             {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
+                <Contract as ::ink::traits::ContractDispatchableMessages<
                     {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                        <Contract as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     },
                 >>::IDS[0]
             },
@@ -60,11 +60,11 @@ fn main() {
         [0xFB, 0xAB, 0x03, 0xCE],
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
+        <Contract as ::ink::traits::DispatchableMessageInfo<
             {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
+                <Contract as ::ink::traits::ContractDispatchableMessages<
                     {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                        <Contract as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     },
                 >>::IDS[1]
             },
@@ -72,11 +72,11 @@ fn main() {
         1_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
+        <Contract as ::ink::traits::DispatchableMessageInfo<
             {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
+                <Contract as ::ink::traits::ContractDispatchableMessages<
                     {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                        <Contract as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     },
                 >>::IDS[2]
             },
@@ -84,11 +84,11 @@ fn main() {
         0xC0DE_CAFE_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
+        <Contract as ::ink::traits::DispatchableMessageInfo<
             {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
+                <Contract as ::ink::traits::ContractDispatchableMessages<
                     {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                        <Contract as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     },
                 >>::IDS[3]
             },
@@ -96,11 +96,11 @@ fn main() {
         [0xB6, 0xC3, 0x27, 0x49],
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
+        <Contract as ::ink::traits::DispatchableMessageInfo<
             {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
+                <Contract as ::ink::traits::ContractDispatchableMessages<
                     {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                        <Contract as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     },
                 >>::IDS[4]
             },

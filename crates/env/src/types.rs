@@ -31,137 +31,13 @@
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
-use super::arithmetic::AtLeast32BitUnsigned;
 use ink_primitives::{
     AccountId,
-    Clear,
     Hash,
 };
+use ink_traits::Environment;
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
-
-/// Allows to instantiate a type from its little-endian bytes representation.
-pub trait FromLittleEndian {
-    /// The little-endian bytes representation.
-    type Bytes: Default + AsRef<[u8]> + AsMut<[u8]>;
-
-    /// Create a new instance from the little-endian bytes representation.
-    fn from_le_bytes(bytes: Self::Bytes) -> Self;
-}
-
-impl FromLittleEndian for u8 {
-    type Bytes = [u8; 1];
-
-    #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        u8::from_le_bytes(bytes)
-    }
-}
-
-impl FromLittleEndian for u16 {
-    type Bytes = [u8; 2];
-
-    #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        u16::from_le_bytes(bytes)
-    }
-}
-
-impl FromLittleEndian for u32 {
-    type Bytes = [u8; 4];
-
-    #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        u32::from_le_bytes(bytes)
-    }
-}
-
-impl FromLittleEndian for u64 {
-    type Bytes = [u8; 8];
-
-    #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        u64::from_le_bytes(bytes)
-    }
-}
-
-impl FromLittleEndian for u128 {
-    type Bytes = [u8; 16];
-
-    #[inline]
-    fn from_le_bytes(bytes: Self::Bytes) -> Self {
-        u128::from_le_bytes(bytes)
-    }
-}
-
-/// The environmental types usable by contracts defined with ink!.
-pub trait Environment {
-    /// The maximum number of supported event topics provided by the runtime.
-    ///
-    /// The value must match the maximum number of supported event topics of the used runtime.
-    const MAX_EVENT_TOPICS: usize;
-
-    /// The address type.
-    type AccountId: 'static
-        + scale::Codec
-        + Clone
-        + PartialEq
-        + Eq
-        + Ord
-        + AsRef<[u8]>
-        + AsMut<[u8]>
-        + Default;
-
-    /// The type of balances.
-    type Balance: 'static
-        + scale::Codec
-        + Copy
-        + Clone
-        + PartialEq
-        + Eq
-        + AtLeast32BitUnsigned
-        + FromLittleEndian;
-
-    /// The type of hash.
-    type Hash: 'static
-        + scale::Codec
-        + Copy
-        + Clone
-        + Clear
-        + PartialEq
-        + Eq
-        + Ord
-        + AsRef<[u8]>
-        + AsMut<[u8]>;
-
-    /// The type of a timestamp.
-    type Timestamp: 'static
-        + scale::Codec
-        + Copy
-        + Clone
-        + PartialEq
-        + Eq
-        + AtLeast32BitUnsigned
-        + FromLittleEndian;
-
-    /// The type of block number.
-    type BlockNumber: 'static
-        + scale::Codec
-        + Copy
-        + Clone
-        + PartialEq
-        + Eq
-        + AtLeast32BitUnsigned
-        + FromLittleEndian;
-
-    /// The chain extension for the environment.
-    ///
-    /// This is a type that is defined through the `#[ink::chain_extension]` procedural macro.
-    /// For more information about usage and definition click [this][chain_extension] link.
-    ///
-    /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
-    type ChainExtension;
-}
 
 /// Placeholder for chains that have no defined chain extension.
 pub enum NoChainExtension {}

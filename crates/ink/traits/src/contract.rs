@@ -37,7 +37,7 @@
 ///
 /// use contract::Contract;
 ///
-/// # use ink::reflect::ContractName;
+/// # use ink::traits::ContractName;
 /// assert_eq!(
 ///     <Contract as ContractName>::NAME,
 ///     "Contract",
@@ -81,7 +81,7 @@ pub trait ContractName {
 ///
 /// use contract::Contract;
 ///
-/// # use ink::reflect::ContractEnv;
+/// # use ink::traits::ContractEnv;
 /// # use ink::codegen::utils::IsSameType;
 ///
 /// // The following line only compiles successfully if both
@@ -124,7 +124,7 @@ pub trait ContractName {
 /// }
 ///
 /// use contract::Contract;
-/// # use ink::reflect::ContractEnv;
+/// # use ink::traits::ContractEnv;
 /// # use ink::codegen::utils::IsSameType;
 ///
 /// // The following line only compiles successfully if both
@@ -137,7 +137,7 @@ pub trait ContractName {
 /// ```
 pub trait ContractEnv {
     /// The environment type.
-    type Env: ::ink_env::Environment;
+    type Env: super::Environment;
 }
 
 /// Refers to the generated ink! smart contract reference type.
@@ -170,7 +170,7 @@ pub trait ContractEnv {
 ///
 /// use contract::{Contract, ContractRef};
 /// # use ink::codegen::utils::IsSameType;
-/// # use ink::reflect::ContractReference;
+/// # use ink::traits::ContractReference;
 ///
 /// // The following line only compiles successfully if both
 /// // `ContractReference` and `<Contract as ContractReference>::Type`

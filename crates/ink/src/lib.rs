@@ -25,11 +25,11 @@ pub mod result_info;
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
 pub mod codegen;
 
-pub mod reflect;
-
 mod chain_extension;
 mod contract_ref;
 mod env_access;
+
+pub use ink_traits as traits;
 
 pub use ink_env as env;
 #[cfg(feature = "std")]

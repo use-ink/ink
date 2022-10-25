@@ -20,6 +20,7 @@ ink_allocator = { version = "4.0.0-alpha.3", path = "../allocator", default-feat
 ink_storage_traits = { version = "4.0.0-alpha.3", path = "../storage/traits", default-features = false }
 ink_prelude = { version = "4.0.0-alpha.3", path = "../prelude", default-features = false }
 ink_primitives = { version = "4.0.0-alpha.3", path = "../primitives", default-features = false }
+ink_traits = { version = "4.0.0-alpha.3", path = "../ink/traits", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }

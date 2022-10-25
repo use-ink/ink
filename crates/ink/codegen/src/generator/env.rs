@@ -28,17 +28,17 @@ impl GenerateCode for Env<'_> {
         let env = self.contract.config().env();
         let storage_ident = self.contract.module().storage().ident();
         quote! {
-            impl ::ink::reflect::ContractEnv for #storage_ident {
+            impl ::ink::traits::ContractEnv for #storage_ident {
                 type Env = #env;
             }
 
-            type Environment = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
+            type Environment = <#storage_ident as ::ink::traits::ContractEnv>::Env;
 
-            type AccountId = <<#storage_ident as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::AccountId;
-            type Balance = <<#storage_ident as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::Balance;
-            type Hash = <<#storage_ident as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::Hash;
-            type Timestamp = <<#storage_ident as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::Timestamp;
-            type BlockNumber = <<#storage_ident as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::BlockNumber;
+            type AccountId = <<#storage_ident as ::ink::traits::ContractEnv>::Env as ::ink::env::Environment>::AccountId;
+            type Balance = <<#storage_ident as ::ink::traits::ContractEnv>::Env as ::ink::env::Environment>::Balance;
+            type Hash = <<#storage_ident as ::ink::traits::ContractEnv>::Env as ::ink::env::Environment>::Hash;
+            type Timestamp = <<#storage_ident as ::ink::traits::ContractEnv>::Env as ::ink::env::Environment>::Timestamp;
+            type BlockNumber = <<#storage_ident as ::ink::traits::ContractEnv>::Env as ::ink::env::Environment>::BlockNumber;
         }
     }
 }

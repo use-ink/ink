@@ -17,12 +17,12 @@ mod bar {
 use bar::TraitDefinition as TraitDefinition2;
 use foo::TraitDefinition as TraitDefinition1;
 use ink::{
-    reflect::{
+    selector_bytes,
+    selector_id,
+    traits::{
         TraitDefinitionRegistry,
         TraitMessageInfo,
     },
-    selector_bytes,
-    selector_id,
 };
 use ink_env::DefaultEnvironment;
 

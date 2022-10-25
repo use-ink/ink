@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::{
-    ContractEnv,
-    DispatchError,
-};
 use core::{
     convert::Infallible,
     mem::ManuallyDrop,
@@ -27,6 +23,10 @@ use ink_env::{
 use ink_storage::traits::{
     Storable,
     StorageKey,
+};
+use ink_traits::{
+    ContractEnv,
+    DispatchError,
 };
 use scale::Encode;
 

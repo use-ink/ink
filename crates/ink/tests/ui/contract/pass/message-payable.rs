@@ -20,6 +20,6 @@ mod contract {
 use contract::Contract;
 
 fn main() {
-    assert!(<Contract as ::ink::reflect::DispatchableMessageInfo<1>>::PAYABLE);
-    assert!(!<Contract as ::ink::reflect::DispatchableMessageInfo<2>>::PAYABLE);
+    assert!(<Contract as ::ink::traits::DispatchableMessageInfo<1>>::PAYABLE);
+    assert!(!<Contract as ::ink::traits::DispatchableMessageInfo<2>>::PAYABLE);
 }

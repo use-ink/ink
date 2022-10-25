@@ -104,7 +104,7 @@ impl TraitRegistry<'_> {
         let trait_info_ident = self.trait_def.trait_info_ident();
         let messages = self.generate_registry_messages();
         quote_spanned!(span=>
-            impl<E> #name for ::ink::reflect::TraitDefinitionRegistry<E>
+            impl<E> #name for ::ink::traits::TraitDefinitionRegistry<E>
             where
                 E: ::ink::env::Environment,
             {
@@ -255,7 +255,7 @@ impl TraitRegistry<'_> {
 
             #trait_message_info
 
-            impl<E> ::ink::reflect::TraitInfo for #trait_info_ident<E>
+            impl<E> ::ink::traits::TraitInfo for #trait_info_ident<E>
             where
                 E: ::ink::env::Environment,
             {
@@ -294,7 +294,7 @@ impl TraitRegistry<'_> {
         syn::LitInt::new(&format!("{}", id), span)
     }
 
-    /// Generates the [`::ink::reflect::TraitMessageInfo`] implementations for all
+    /// Generates the [`::ink::traits::TraitMessageInfo`] implementations for all
     /// ink! messages defined by the ink! trait definition.
     fn generate_info_for_trait_messages(&self) -> TokenStream2 {
         let span = self.span();
@@ -310,7 +310,7 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates the [`::ink::reflect::TraitMessageInfo`] implementation for a single
+    /// Generates the [`::ink::traits::TraitMessageInfo`] implementation for a single
     /// ink! message defined by the ink! trait definition.
     fn generate_info_for_trait_for_message(
         &self,
@@ -323,7 +323,7 @@ impl TraitRegistry<'_> {
         let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
         quote_spanned!(span=>
-            impl<E> ::ink::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
+            impl<E> ::ink::traits::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
                 const PAYABLE: ::core::primitive::bool = #is_payable;
 
                 const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];

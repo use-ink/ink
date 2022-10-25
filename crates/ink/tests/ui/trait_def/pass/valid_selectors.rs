@@ -11,12 +11,12 @@ pub trait TraitDefinition {
 }
 
 use ink::{
-    reflect::{
+    selector_bytes,
+    selector_id,
+    traits::{
         TraitDefinitionRegistry,
         TraitMessageInfo,
     },
-    selector_bytes,
-    selector_id,
 };
 use ink_env::DefaultEnvironment;
 

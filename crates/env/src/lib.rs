@@ -105,13 +105,12 @@ pub use self::{
     topics::Topics,
     types::{
         DefaultEnvironment,
-        Environment,
-        FromLittleEndian,
         Gas,
         NoChainExtension,
     },
 };
 use ink_primitives::Clear;
+pub use ink_traits::Environment;
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {

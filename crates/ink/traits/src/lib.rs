@@ -23,8 +23,16 @@
 //! contract authors as well as they allow to inspect compile time information
 //! about the ink! smart contract at hand.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
+#![cfg_attr(not(feature = "std"), no_std)]
+
+mod arithmetic;
 mod contract;
 mod dispatch;
+mod environment;
 mod event;
 mod trait_def;
 
@@ -45,6 +53,10 @@ pub use self::{
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         ExecuteDispatchable,
+    },
+    environment::{
+        Environment,
+        FromLittleEndian,
     },
     event::ContractEventBase,
     trait_def::{

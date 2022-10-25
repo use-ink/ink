@@ -1,11 +1,11 @@
 use ink::{
-    reflect::{
+    selector_bytes,
+    traits::{
         ContractConstructorDecoder,
         ContractMessageDecoder,
         DecodeDispatch,
         DispatchError,
     },
-    selector_bytes,
 };
 use scale::Encode;
 

@@ -17,5 +17,5 @@ mod contract {
 use contract::Contract;
 
 fn main() {
-    assert!(!<Contract as ::ink::reflect::DispatchableConstructorInfo<0>>::PAYABLE);
+    assert!(!<Contract as ::ink::traits::DispatchableConstructorInfo<0>>::PAYABLE);
 }

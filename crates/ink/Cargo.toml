@@ -16,6 +16,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 ink_env = { version = "4.0.0-alpha.3", path = "../env", default-features = false }
+ink_traits = { version = "4.0.0-alpha.3", path = "traits", default-features = false }
 ink_storage = { version = "4.0.0-alpha.3", path = "../storage", default-features = false }
 ink_primitives = { version = "4.0.0-alpha.3", path = "../primitives", default-features = false }
 ink_metadata = { version = "4.0.0-alpha.3", path = "../metadata", default-features = false, optional = true }
@@ -40,6 +41,7 @@ std = [
     "ink_prelude/std",
     "ink_primitives/std",
     "ink_env/std",
+    "ink_traits/std",
     "ink_storage/std",
     "ink_macro/std",
     "scale/std",

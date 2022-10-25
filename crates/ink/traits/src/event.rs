@@ -40,7 +40,7 @@
 /// }
 ///
 /// use contract::Contract;
-/// # use ink::reflect::ContractEventBase;
+/// # use ink::traits::ContractEventBase;
 ///
 /// type BaseEvent = <Contract as ContractEventBase>::Type;
 /// ```

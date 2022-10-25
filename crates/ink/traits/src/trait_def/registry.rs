@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::ContractEnv;
+use crate::ContractEnv;
 use core::marker::PhantomData;
 
 /// Type that is guaranteed by ink! to implement all ink! trait definitions.
@@ -37,7 +37,7 @@ use core::marker::PhantomData;
 /// # Usage
 ///
 /// ```
-/// # use ink::reflect::TraitDefinitionRegistry;
+/// # use ink::traits::TraitDefinitionRegistry;
 /// use ink_env::DefaultEnvironment;
 ///
 /// #[ink::trait_definition]
@@ -56,7 +56,7 @@ pub struct TraitDefinitionRegistry<E> {
 
 impl<E> ContractEnv for TraitDefinitionRegistry<E>
 where
-    E: ink_env::Environment,
+    E: crate::Environment,
 {
     type Env = E;
 }

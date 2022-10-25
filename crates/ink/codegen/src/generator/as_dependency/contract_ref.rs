@@ -105,12 +105,12 @@ impl ContractRef<'_> {
             }
 
             const _: () = {
-                impl ::ink::reflect::ContractReference for #storage_ident {
+                impl ::ink::traits::ContractReference for #storage_ident {
                     type Type = #ref_ident;
                 }
 
-                impl ::ink::reflect::ContractEnv for #ref_ident {
-                    type Env = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
+                impl ::ink::traits::ContractEnv for #ref_ident {
+                    type Env = <#storage_ident as ::ink::traits::ContractEnv>::Env;
                 }
             };
         )
@@ -207,7 +207,7 @@ impl ContractRef<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             impl #trait_path for #forwarder_ident {
-                type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink::traits::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #messages
