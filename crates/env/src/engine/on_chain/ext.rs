@@ -28,6 +28,7 @@ macro_rules! define_error_codes {
     ) => {
         /// Every error that can be returned to a contract when it calls any of the host functions.
         #[repr(u32)]
+        #[derive(::core::fmt::Debug)]
         pub enum Error {
             $(
                 $( #[$attr] )*

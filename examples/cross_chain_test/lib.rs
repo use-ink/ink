@@ -19,12 +19,13 @@ mod cross_chain_test {
                 DefaultEnvironment,
             };
 
-            build_call::<DefaultEnvironment>()
+            let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<()>()
-                .fire()
-                .unwrap();
+                .returns::<Result<(), u8>>()
+                .fire();
+
+            ink::env::debug_println!("cross_contract::call output: {:?}", &result);
         }
     }
 }

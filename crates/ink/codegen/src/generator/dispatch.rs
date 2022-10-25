@@ -432,16 +432,25 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
-                ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! message failed: {}", error)
-                    })
+                let result = ::ink::env::decode_input::<
+                        <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>();
+                ::ink::env::debug_println!("Result from `decode_input` {:?}", &result);
+
+                if result.is_err() {
+                    ::ink::env::return_value::<::core::result::Result<(), u8>>(
+                        ::ink::env::ReturnFlags::default().set_reverted(true), &Err(1234)
+                    )
+                }
+
+                // TODO: Stop handling this `DispatchError`
+                result.map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
+                .and_then(|decoder| {
+                    <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
+                        as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                })
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
             }
         )
     }
@@ -783,6 +792,7 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
+                #[derive(::core::fmt::Debug)]
                 pub enum __ink_MessageDecoder {
                     #( #message_variants ),*
                 }

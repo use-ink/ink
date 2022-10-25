@@ -379,7 +379,7 @@ impl CallBuilder<'_> {
                 ::ink::env::call::utils::Set< ::ink::env::call::Call< Environment > >,
                 ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
                 ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<
-                    ::core::result::Result<#return_type, ()>
+                    #return_type
                 >>,
             >
         );

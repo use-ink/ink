@@ -425,7 +425,11 @@ impl TypedEnvBackend for EnvInstance {
             output,
         );
         match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
+            Ok(()) => {
+                let decoded = scale::Decode::decode(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(ext::Error::CalleeReverted) => {
                 let decoded = scale::Decode::decode(&mut &output[..])?;
                 Ok(decoded)
             }

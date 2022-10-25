@@ -42,7 +42,7 @@ where
     /// The flags used to change the behavior of a contract call.
     call_flags: CallFlags,
     /// The expected return type.
-    _return_type: ReturnType<Result<R, ()>>,
+    _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
     exec_input: ExecutionInput<Args>,
     /// `Environment` is used by `CallType` for correct types
@@ -244,7 +244,7 @@ pub fn build_call<E>() -> CallBuilder<
     E,
     Unset<Call<E>>,
     Unset<ExecutionInput<EmptyArgumentList>>,
-    Unset<ReturnType<Result<(), ()>>>,
+    Unset<ReturnType<()>>,
 >
 where
     E: Environment,
@@ -397,7 +397,7 @@ where
     }
 }
 
-impl<E, CallType, Args> CallBuilder<E, CallType, Args, Unset<ReturnType<Result<(), ()>>>>
+impl<E, CallType, Args> CallBuilder<E, CallType, Args, Unset<ReturnType<()>>>
 where
     E: Environment,
 {
@@ -408,9 +408,7 @@ where
     /// Either use `.returns::<()>` to signal that the call does not return a value
     /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
     #[inline]
-    pub fn returns<R>(
-        self,
-    ) -> CallBuilder<E, CallType, Args, Set<ReturnType<Result<R, ()>>>> {
+    pub fn returns<R>(self) -> CallBuilder<E, CallType, Args, Set<ReturnType<R>>> {
         CallBuilder {
             call_type: self.call_type,
             call_flags: self.call_flags,
@@ -511,12 +509,7 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<
-        E,
-        Set<Call<E>>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<Result<RetType, ()>>>,
-    >
+    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
@@ -537,7 +530,7 @@ impl<E, Args, RetType>
         E,
         Set<DelegateCall<E>>,
         Set<ExecutionInput<Args>>,
-        Set<ReturnType<Result<RetType, ()>>>,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
@@ -598,7 +591,7 @@ impl<E>
         E,
         Set<Call<E>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
-        Unset<ReturnType<Result<(), ()>>>,
+        Unset<ReturnType<()>>,
     >
 where
     E: Environment,
@@ -614,7 +607,7 @@ impl<E>
         E,
         Set<DelegateCall<E>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
-        Unset<ReturnType<Result<(), ()>>>,
+        Unset<ReturnType<()>>,
     >
 where
     E: Environment,
@@ -626,12 +619,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<
-        E,
-        Set<Call<E>>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<Result<R, ()>>>,
-    >
+    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -644,12 +632,7 @@ where
 }
 
 impl<E, Args, R>
-    CallBuilder<
-        E,
-        Set<DelegateCall<E>>,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<Result<R, ()>>>,
-    >
+    CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<R>>>
 where
     E: Environment,
     Args: scale::Encode,
