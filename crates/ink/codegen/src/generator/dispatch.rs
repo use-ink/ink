@@ -438,7 +438,7 @@ impl Dispatch<'_> {
 
                 if result.is_err() {
                     ::ink::env::return_value::<::core::result::Result<(), u8>>(
-                        ::ink::env::ReturnFlags::default().set_reverted(true), &Err(1234)
+                        ::ink::env::ReturnFlags::default().set_reverted(true), &Err(123)
                     )
                 }
 
