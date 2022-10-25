@@ -436,7 +436,7 @@ impl Dispatch<'_> {
                         <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>();
                 ::ink::env::debug_println!("Result from `decode_input` {:?}", &result);
 
-                // TOOD: Here will pick out the `Dispatch` error we're interested in telling the
+                // TODO: Here will pick out the `Dispatch` error we're interested in telling the
                 // user about and encode it correctly
                 if result.is_err() {
                     ::ink::env::return_value::<::core::result::Result<(), u8>>(
