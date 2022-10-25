@@ -2,7 +2,7 @@
 
 set -ex
 
-F=$1
+F="${1:-pass}"
 
 cargo contract build --manifest-path examples/flipper/Cargo.toml --skip-linting
 cargo contract instantiate \

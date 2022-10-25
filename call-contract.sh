@@ -2,7 +2,7 @@
 
 set -ex
 
-F=$1
+F="${1:-pass}"
 CROSS_CONTRACT_ADDR=$2
 FLIPPER_ADDR=$3
 
