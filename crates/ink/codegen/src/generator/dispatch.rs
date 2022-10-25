@@ -436,6 +436,8 @@ impl Dispatch<'_> {
                         <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>();
                 ::ink::env::debug_println!("Result from `decode_input` {:?}", &result);
 
+                // TOOD: Here will pick out the `Dispatch` error we're interested in telling the
+                // user about and encode it correctly
                 if result.is_err() {
                     ::ink::env::return_value::<::core::result::Result<(), u8>>(
                         ::ink::env::ReturnFlags::default().set_reverted(true), &Err(123)
@@ -779,12 +781,19 @@ impl Dispatch<'_> {
 
                     push_contract(contract, #mutates_storage);
 
-                    if ::core::any::TypeId::of::<#message_output>() != ::core::any::TypeId::of::<()>() {
-                        // In case the return type is `()` we do not return a value.
-                        ::ink::env::return_value::<#message_output>(
-                            ::ink::env::ReturnFlags::default(), &result
-                        )
-                    }
+                    // if ::core::any::TypeId::of::<#message_output>() != ::core::any::TypeId::of::<()>() {
+                    //     // In case the return type is `()` we do not return a value.
+                    //     ::ink::env::return_value::<#message_output>(
+                    //         ::ink::env::ReturnFlags::default(), &result
+                    //     )
+                    // }
+
+                    // We manually wrap the message output in a `Result` since that's what the
+                    // `CallBuilder` is expecting, otherwise we can't decode the output correctly
+                    ::ink::env::return_value::<::core::result::Result<#message_output, u8>>(
+                        ::ink::env::ReturnFlags::default(), &Ok(result)
+                    )
+
                 }
             )
         });
