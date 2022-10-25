@@ -1,5 +1,5 @@
 use ink::{
-    reflect::{
+    traits::{
         ContractConstructorDecoder,
         ContractMessageDecoder,
         DecodeDispatch,

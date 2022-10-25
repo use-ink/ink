@@ -91,9 +91,9 @@ impl ItemImpls<'_> {
                 let message_guard_payable = message.is_payable().then(|| {
                     quote_spanned!(message_span=>
                         const _: ::ink::codegen::TraitMessagePayable<{
-                            <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                            <<::ink::traits::TraitDefinitionRegistry<<#storage_ident as ::ink::traits::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
-                                as ::ink::reflect::TraitMessageInfo<#message_local_id>>::PAYABLE
+                                as ::ink::traits::TraitMessageInfo<#message_local_id>>::PAYABLE
                         }> = ::ink::codegen::TraitMessagePayable::<true>;
                     )
                 });
@@ -102,9 +102,9 @@ impl ItemImpls<'_> {
                     quote_spanned!(message_span=>
                         const _: ::ink::codegen::TraitMessageSelector<{
                             ::core::primitive::u32::from_be_bytes(
-                                <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                                <<::ink::traits::TraitDefinitionRegistry<<#storage_ident as ::ink::traits::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
-                                    as ::ink::reflect::TraitMessageInfo<#message_local_id>>::SELECTOR
+                                    as ::ink::traits::TraitMessageInfo<#message_local_id>>::SELECTOR
                             )
                         }> = ::ink::codegen::TraitMessageSelector::<#given_selector>;
                     )
@@ -218,7 +218,7 @@ impl ItemImpls<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             impl #trait_path for #self_type {
-                type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink::traits::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #( #messages )*

@@ -62,11 +62,11 @@ impl<'a> Events<'a> {
                 impl<'a> ::ink::codegen::EmitEvent<#storage_ident> for ::ink::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
-                        E: Into<<#storage_ident as ::ink::reflect::ContractEventBase>::Type>,
+                        E: Into<<#storage_ident as ::ink::traits::ContractEventBase>::Type>,
                     {
                         ::ink::env::emit_event::<
                             Environment,
-                            <#storage_ident as ::ink::reflect::ContractEventBase>::Type
+                            <#storage_ident as ::ink::traits::ContractEventBase>::Type
                         >(event.into());
                     }
                 }
@@ -104,7 +104,7 @@ impl<'a> Events<'a> {
             }
 
             const _: () = {
-                impl ::ink::reflect::ContractEventBase for #storage_ident {
+                impl ::ink::traits::ContractEventBase for #storage_ident {
                     type Type = #base_event_ident;
                 }
             };
@@ -156,7 +156,7 @@ impl<'a> Events<'a> {
         let event_ident = event.ident();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
-            <<#storage_ident as ::ink::reflect::ContractEnv>::Env
+            <<#storage_ident as ::ink::traits::ContractEnv>::Env
                 as ::ink::env::Environment>::MAX_EVENT_TOPICS
         );
         quote_spanned!(span=>

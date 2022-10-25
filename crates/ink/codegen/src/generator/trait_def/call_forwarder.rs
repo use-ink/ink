@@ -274,7 +274,7 @@ impl CallForwarder<'_> {
         let forwarder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
-            impl<E> ::ink::reflect::ContractEnv for #forwarder_ident<E>
+            impl<E> ::ink::traits::ContractEnv for #forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
             {

@@ -11,7 +11,7 @@ pub trait TraitDefinition {
 }
 
 use ink::{
-    reflect::{
+    traits::{
         TraitDefinitionRegistry,
         TraitMessageInfo,
     },

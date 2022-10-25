@@ -41,11 +41,11 @@ use crate::{
     EnvBackend,
     Environment,
     Error,
-    FromLittleEndian,
     Result,
     ReturnFlags,
     TypedEnvBackend,
 };
+use ink_traits::FromLittleEndian;
 use ink_storage_traits::Storable;
 
 impl CryptoHash for Blake2x128 {

@@ -1,4 +1,4 @@
-use ink::reflect::ContractEnv;
+use ink::traits::ContractEnv;
 use ink_env::Environment;
 
 #[ink::trait_definition]

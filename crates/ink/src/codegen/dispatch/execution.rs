@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::{
-    ContractEnv,
-    DispatchError,
-};
 use core::{
     convert::Infallible,
     mem::ManuallyDrop,
@@ -23,6 +19,10 @@ use core::{
 use ink_env::{
     Environment,
     ReturnFlags,
+};
+use ink_traits::{
+    ContractEnv,
+    DispatchError,
 };
 use ink_storage::traits::{
     Storable,

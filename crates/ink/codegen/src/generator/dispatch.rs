@@ -138,7 +138,7 @@ impl Dispatch<'_> {
         let count_messages = self.query_amount_messages();
         let count_constructors = self.query_amount_constructors();
         quote_spanned!(span=>
-            impl ::ink::reflect::ContractAmountDispatchables for #storage_ident {
+            impl ::ink::traits::ContractAmountDispatchables for #storage_ident {
                 const MESSAGES: ::core::primitive::usize = #count_messages;
                 const CONSTRUCTORS: ::core::primitive::usize = #count_constructors;
             }
@@ -171,9 +171,9 @@ impl Dispatch<'_> {
                     quote_spanned!(span=>
                         {
                             ::core::primitive::u32::from_be_bytes(
-                                <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                                <<::ink::traits::TraitDefinitionRegistry<<#storage_ident as ::ink::traits::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
-                                    as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                                    as ::ink::traits::TraitMessageInfo<#local_id>>::SELECTOR
                             )
                         }
                     )
@@ -187,12 +187,12 @@ impl Dispatch<'_> {
             })
             .collect::<Vec<_>>();
         quote_spanned!(span=>
-            impl ::ink::reflect::ContractDispatchableMessages<{
-                <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+            impl ::ink::traits::ContractDispatchableMessages<{
+                <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
             }> for #storage_ident {
                 const IDS: [
                     ::core::primitive::u32;
-                    <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                    <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                 ] = [
                     #( #message_ids , )*
                 ];
@@ -225,12 +225,12 @@ impl Dispatch<'_> {
                 quote_spanned!(span=> #id)
             });
         quote_spanned!(span=>
-            impl ::ink::reflect::ContractDispatchableConstructors<{
-                <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+            impl ::ink::traits::ContractDispatchableConstructors<{
+                <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
             }> for #storage_ident {
                 const IDS: [
                     ::core::primitive::u32;
-                    <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
                 ] = [
                     #( #constructor_ids ),*
                 ];
@@ -260,7 +260,7 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
                 quote_spanned!(constructor_span=>
-                    impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
+                    impl ::ink::traits::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Storage = #storage_ident;
 
@@ -306,7 +306,7 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 quote_spanned!(message_span=>
-                    impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                    impl ::ink::traits::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
@@ -343,14 +343,14 @@ impl Dispatch<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let payable = quote! {{
-                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                    <<::ink::traits::TraitDefinitionRegistry<<#storage_ident as ::ink::traits::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink::reflect::TraitMessageInfo<#local_id>>::PAYABLE
+                        as ::ink::traits::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
-                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                    <<::ink::traits::TraitDefinitionRegistry<<#storage_ident as ::ink::traits::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                        as ::ink::traits::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let selector_id = quote! {{
                     ::core::primitive::u32::from_be_bytes(#selector)
@@ -364,7 +364,7 @@ impl Dispatch<'_> {
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let label = format!("{}::{}", trait_ident, message_ident);
                 quote_spanned!(message_span=>
-                    impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                    impl ::ink::traits::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
@@ -407,16 +407,16 @@ impl Dispatch<'_> {
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
                 if !#any_constructor_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
+                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::traits::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
                 ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
+                        <#storage_ident as ::ink::traits::ContractConstructorDecoder>::Type>()
+                    .map_err(|_| ::ink::traits::DispatchError::CouldNotReadInput)
                     .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                        <<#storage_ident as ::ink::traits::ContractConstructorDecoder>::Type
+                            as ::ink::traits::ExecuteDispatchable>::execute_dispatchable(decoder)
                     })
                     .unwrap_or_else(|error| {
                         ::core::panic!("dispatching ink! constructor failed: {}", error)
@@ -428,16 +428,16 @@ impl Dispatch<'_> {
             #[allow(clippy::nonminimal_bool)]
             fn call() {
                 if !#any_message_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
+                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::traits::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
                 ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
+                        <#storage_ident as ::ink::traits::ContractMessageDecoder>::Type>()
+                    .map_err(|_| ::ink::traits::DispatchError::CouldNotReadInput)
                     .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                        <<#storage_ident as ::ink::traits::ContractMessageDecoder>::Type
+                            as ::ink::traits::ExecuteDispatchable>::execute_dispatchable(decoder)
                     })
                     .unwrap_or_else(|error| {
                         ::core::panic!("dispatching ink! message failed: {}", error)
@@ -464,9 +464,9 @@ impl Dispatch<'_> {
             constructor_index: usize,
         ) -> TokenStream2 {
             quote_spanned!(span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                <#storage_ident as ::ink::traits::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#constructor_index]
                 }>>::Input
             )
@@ -493,9 +493,9 @@ impl Dispatch<'_> {
         let constructor_selector = (0..count_constructors).map(|index| {
             let const_ident = format_ident!("CONSTRUCTOR_{}", index);
             quote_spanned!(span=>
-                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::traits::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
                 }>>::SELECTOR;
             )
@@ -510,7 +510,7 @@ impl Dispatch<'_> {
                 #const_ident => {
                     ::core::result::Result::Ok(Self::#constructor_ident(
                         <#constructor_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::traits::DispatchError::InvalidParameters)?
                     ))
                 }
             )
@@ -529,13 +529,13 @@ impl Dispatch<'_> {
                 quote! {
                     ::core::result::Result::Ok(Self::#constructor_ident(
                         <#constructor_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::traits::DispatchError::InvalidParameters)?
                     ))
                 }
             }
             None => {
                 quote! {
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
+                    ::core::result::Result::Err(::ink::traits::DispatchError::UnknownSelector)
                 }
             }
         };
@@ -546,16 +546,16 @@ impl Dispatch<'_> {
             let constructor_span = constructor_spans[index];
             let constructor_ident = constructor_variant_ident(index);
             let constructor_callable = quote_spanned!(constructor_span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                <#storage_ident as ::ink::traits::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
             let deny_payment = quote_spanned!(constructor_span=>
-                !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                !<#storage_ident as ::ink::traits::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
@@ -564,7 +564,7 @@ impl Dispatch<'_> {
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
-                            <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
+                            <#storage_ident as ::ink::traits::ContractEnv>::Env>()?;
                     }
 
                     ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
@@ -580,9 +580,9 @@ impl Dispatch<'_> {
                     #( #constructors_variants ),*
                 }
 
-                impl ::ink::reflect::DecodeDispatch for __ink_ConstructorDecoder {
+                impl ::ink::traits::DecodeDispatch for __ink_ConstructorDecoder {
                     fn decode_dispatch<I>(input: &mut I)
-                        -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
+                        -> ::core::result::Result<Self, ::ink::traits::DispatchError>
                     where
                         I: ::scale::Input,
                     {
@@ -590,7 +590,7 @@ impl Dispatch<'_> {
                             #constructor_selector
                         )*
                         match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
+                            .map_err(|_| ::ink::traits::DispatchError::InvalidSelector)?
                         {
                             #( #constructor_match , )*
                             _invalid => #possibly_wildcard_selector_constructor
@@ -603,21 +603,21 @@ impl Dispatch<'_> {
                     where
                         I: ::scale::Input,
                     {
-                        <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
+                        <Self as ::ink::traits::DecodeDispatch>::decode_dispatch(input)
                             .map_err(::core::convert::Into::into)
                     }
                 }
 
-                impl ::ink::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
+                impl ::ink::traits::ExecuteDispatchable for __ink_ConstructorDecoder {
                     #[allow(clippy::nonminimal_bool)]
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink::traits::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
                         }
                     }
                 }
 
-                impl ::ink::reflect::ContractConstructorDecoder for #storage_ident {
+                impl ::ink::traits::ContractConstructorDecoder for #storage_ident {
                     type Type = __ink_ConstructorDecoder;
                 }
             };
@@ -642,9 +642,9 @@ impl Dispatch<'_> {
             message_index: usize,
         ) -> TokenStream2 {
             quote_spanned!(span=>
-                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#message_index]
                 }>>::Input
             )
@@ -670,9 +670,9 @@ impl Dispatch<'_> {
         let message_selector = (0..count_messages).map(|index| {
             let const_ident = format_ident!("MESSAGE_{}", index);
             quote_spanned!(span=>
-                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::SELECTOR;
             )
@@ -687,7 +687,7 @@ impl Dispatch<'_> {
                 #const_ident => {
                     ::core::result::Result::Ok(Self::#message_ident(
                         <#message_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::traits::DispatchError::InvalidParameters)?
                     ))
                 }
             )
@@ -701,13 +701,13 @@ impl Dispatch<'_> {
                 quote! {
                     ::core::result::Result::Ok(Self::#message_ident(
                         <#message_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
+                            .map_err(|_| ::ink::traits::DispatchError::InvalidParameters)?
                     ))
                 }
             }
             None => {
                 quote! {
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
+                    ::core::result::Result::Err(::ink::traits::DispatchError::UnknownSelector)
                 }
             }
         };
@@ -718,30 +718,30 @@ impl Dispatch<'_> {
             let message_span = message_spans[index];
             let message_ident = message_variant_ident(index);
             let message_callable = quote_spanned!(message_span=>
-                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
             let message_output = quote_spanned!(message_span=>
-                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::Output
             );
             let deny_payment = quote_spanned!(message_span=>
-                !<#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                !<#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
             let mutates_storage = quote_spanned!(message_span=>
-                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::MUTATES
             );
@@ -752,7 +752,7 @@ impl Dispatch<'_> {
 
                     if #any_message_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
-                            <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
+                            <#storage_ident as ::ink::traits::ContractEnv>::Env>()?;
                     }
 
                     let result: #message_output = #message_callable(&mut contract, input);
@@ -787,9 +787,9 @@ impl Dispatch<'_> {
                     #( #message_variants ),*
                 }
 
-                impl ::ink::reflect::DecodeDispatch for __ink_MessageDecoder {
+                impl ::ink::traits::DecodeDispatch for __ink_MessageDecoder {
                     fn decode_dispatch<I>(input: &mut I)
-                        -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
+                        -> ::core::result::Result<Self, ::ink::traits::DispatchError>
                     where
                         I: ::scale::Input,
                     {
@@ -797,7 +797,7 @@ impl Dispatch<'_> {
                             #message_selector
                         )*
                         match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
+                            .map_err(|_| ::ink::traits::DispatchError::InvalidSelector)?
                         {
                             #( #message_match , )*
                             _invalid => #possibly_wildcard_selector_message
@@ -810,7 +810,7 @@ impl Dispatch<'_> {
                     where
                         I: ::scale::Input,
                     {
-                        <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
+                        <Self as ::ink::traits::DecodeDispatch>::decode_dispatch(input)
                             .map_err(::core::convert::Into::into)
                     }
                 }
@@ -824,11 +824,11 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink::reflect::ExecuteDispatchable for __ink_MessageDecoder {
+                impl ::ink::traits::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
                     fn execute_dispatchable(
                         self
-                    ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
+                    ) -> ::core::result::Result<(), ::ink::traits::DispatchError> {
                         let key = <#storage_ident as ::ink::storage::traits::StorageKey>::KEY;
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                             ::core::mem::ManuallyDrop::new(
@@ -851,7 +851,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink::reflect::ContractMessageDecoder for #storage_ident {
+                impl ::ink::traits::ContractMessageDecoder for #storage_ident {
                     type Type = __ink_MessageDecoder;
                 }
             };
@@ -875,9 +875,9 @@ impl Dispatch<'_> {
         let message_is_payable = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
             quote_spanned!(message_span=>
-                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink::traits::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::PAYABLE
             )
@@ -904,9 +904,9 @@ impl Dispatch<'_> {
         let constructor_is_payable = (0..count_constructors).map(|index| {
             let constructor_span = constructor_spans[index];
             quote_spanned!(constructor_span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                <#storage_ident as ::ink::traits::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::traits::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::traits::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
                 }>>::PAYABLE
             )
