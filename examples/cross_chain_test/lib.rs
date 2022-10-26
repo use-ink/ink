@@ -22,7 +22,8 @@ mod cross_chain_test {
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<Result<(), u8>>()
+                .returns::<Result<(), ::ink::reflect::DispatchError>>()
+                // .returns::<()>()
                 .fire();
 
             ink::env::debug_println!("cross_contract::call output: {:?}", &result);

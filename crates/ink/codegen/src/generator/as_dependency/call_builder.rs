@@ -378,9 +378,7 @@ impl CallBuilder<'_> {
                 Environment,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call< Environment > >,
                 ::ink::env::call::utils::Set< ::ink::env::call::ExecutionInput<#arg_list> >,
-                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<
-                    #return_type
-                >>,
+                ::ink::env::call::utils::Set< ::ink::env::call::utils::ReturnType<#return_type> >,
             >
         );
         quote_spanned!(span=>
