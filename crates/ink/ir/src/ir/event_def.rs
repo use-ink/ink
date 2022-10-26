@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
+use crate::{
+    blake2b_256,
+    ir,
+};
 use proc_macro2::{
     Ident,
     Span,
@@ -145,6 +148,18 @@ impl InkEventDefinition {
             })
             .max()
             .unwrap_or_default()
+    }
+
+    /// Unique identifier for the event definition.
+    ///
+    /// **Note:** This needs only to be unique within the set of events imported by an individual
+    /// contract.
+    pub fn unique_identifier(&self) -> [u8; 32] {
+        let event_enum = &self.item;
+        let event_toks = quote::quote!( #event_enum ).to_string();
+        let mut output = [0u8; 32];
+        blake2b_256(event_toks.as_bytes(), &mut output);
+        output
     }
 }
 
