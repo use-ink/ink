@@ -1,5 +1,14 @@
-error: ink! constructors must return Self or Result<Self>
-  --> tests/ui/contract/fail/constructor-return-result-invalid.rs:14:33
+error[E0277]: the trait bound `codegen::dispatch::execution::private::Seal<Result<u8, contract::Error>>: codegen::dispatch::execution::ConstructorReturnType<Contract>` is not satisfied
+  --> tests/ui/contract/fail/constructor-return-result-invalid.rs:14:9
    |
-14 |         pub fn constructor() -> core::result::Result<u8, Error> {
-   |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 |         pub fn constructor() -> Result<u8, Error> {
+   |         ^^^ the trait `codegen::dispatch::execution::ConstructorReturnType<Contract>` is not implemented for `codegen::dispatch::execution::private::Seal<Result<u8, contract::Error>>`
+   |
+   = help: the following other types implement trait `codegen::dispatch::execution::ConstructorReturnType<C>`:
+             codegen::dispatch::execution::private::Seal<C>
+             codegen::dispatch::execution::private::Seal<Result<C, E>>
+note: required by a bound in `execute_constructor`
+  --> src/codegen/dispatch/execution.rs
+   |
+   |     private::Seal<R>: ConstructorReturnType<Contract>,
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `execute_constructor`

@@ -330,7 +330,6 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     type Input;
     /// The ink! storage struct type.
     type Storage;
-
     /// Reflects the output type of the dispatchable ink! message.
     type Output;
 

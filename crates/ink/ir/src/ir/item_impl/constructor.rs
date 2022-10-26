@@ -84,41 +84,6 @@ impl quote::ToTokens for Constructor {
 }
 
 impl Constructor {
-    /// Returns `true` if the given type is `Self`.
-    fn type_is_self_val(ty: &syn::Type) -> bool {
-        matches!(ty, syn::Type::Path(syn::TypePath {
-            qself: None,
-            path
-        }) if path.is_ident("Self"))
-    }
-
-    /// Returns `true` if the given type is `Result<Self>`.
-    fn type_is_result_self_val(ty: &syn::Type) -> bool {
-        let res = matches!(ty, syn::Type::Path(syn::TypePath {
-            qself: None,
-            path
-        }) if Self::is_result_path(path));
-        res
-    }
-
-    /// Helper functions that evaluates that the return type is `Result`
-    /// and the `Ok` variant is `Self` type
-    fn is_result_path(path: &syn::Path) -> bool {
-        if path.leading_colon.is_none()
-            && path.segments.last().is_some()
-            && path.segments.last().unwrap().ident == "Result"
-        {
-            if let syn::PathArguments::AngleBracketed(angle_args) =
-                &path.segments.last().unwrap().arguments
-            {
-                if let Some(syn::GenericArgument::Type(ty)) = angle_args.args.first() {
-                    return Self::type_is_self_val(ty)
-                }
-            }
-        }
-        false
-    }
-
     /// Ensures that the return type of the ink! constructor is `Self` or `Result<Self>`.
     ///
     /// Returns an appropriate error otherwise.
@@ -130,23 +95,11 @@ impl Constructor {
     fn ensure_valid_return_type(
         method_item: &syn::ImplItemMethod,
     ) -> Result<(), syn::Error> {
-        match &method_item.sig.output {
-            syn::ReturnType::Default => {
-                return Err(format_err_spanned!(
-                    &method_item.sig,
-                    "missing return for ink! constructor",
-                ))
-            }
-            syn::ReturnType::Type(_, return_type) => {
-                if !Self::type_is_self_val(return_type.as_ref())
-                    && !Self::type_is_result_self_val(return_type.as_ref())
-                {
-                    return Err(format_err_spanned!(
-                        return_type,
-                        "ink! constructors must return Self or Result<Self>",
-                    ))
-                }
-            }
+        if let syn::ReturnType::Default = &method_item.sig.output {
+            return Err(format_err_spanned!(
+                &method_item.sig,
+                "missing return for ink! constructor",
+            ))
         }
         Ok(())
     }
@@ -460,34 +413,6 @@ mod tests {
         ];
         for item_method in item_methods {
             assert_try_from_fails(item_method, "missing return for ink! constructor")
-        }
-    }
-
-    #[test]
-    fn try_from_invalid_return_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
-            syn::parse_quote! {
-                #[ink(constructor)]
-                fn my_constructor() -> &Self {}
-            },
-            syn::parse_quote! {
-                #[ink(constructor)]
-                pub fn my_constructor() -> &mut Self {}
-            },
-            syn::parse_quote! {
-                #[ink(constructor)]
-                pub fn my_constructor() -> i32 {}
-            },
-            syn::parse_quote! {
-                #[ink(constructor)]
-                pub fn my_constructor() -> Result<i32, ()> {}
-            },
-        ];
-        for item_method in item_methods {
-            assert_try_from_fails(
-                item_method,
-                "ink! constructors must return Self or Result<Self>",
-            )
         }
     }
 
