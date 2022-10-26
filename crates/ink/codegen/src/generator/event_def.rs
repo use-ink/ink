@@ -125,36 +125,35 @@ impl<'a> EventDefinition<'a> {
             .map(|variant| {
                 let span = variant.span();
                 let variant_ident = variant.ident();
-                let field_bindings = variant.fields()
-                    .map(|field| {
-                        let span = field.span();
-                        let field_ident = field.ident();
-                        quote_spanned!(span=> ref #field_ident)
-                    });
-                let field_topics = variant.fields()
+                let (field_bindings, field_topics): (Vec<_>, Vec<_>) = variant.fields()
+                    .filter(|field| field.is_topic)
                     .map(|field| {
                         let field_type = field.ty();
                         let field_ident = field.ident();
-                        quote_spanned!(span =>
-                            .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
-                                &::ink::env::topics::PrefixedValue {
-                                    // todo: figure out whether we even need to include a prefix here?
-                                    // Previously the prefix would be the full field path e.g.
-                                    // erc20::Event::Transfer::from + value.
-                                    // However the value on its own might be sufficient, albeit
-                                    // requiring combination with the signature topic and some
-                                    // metadata to determine whether a topic value belongs to a
-                                    // specific field of a given Event variant. The upside is that
-                                    // indexers can use the unhashed value for meaningful topics
-                                    // e.g. addresses < 32 bytes. If the prefix is included we
-                                    // will always require to hash the value so need any indexer
-                                    // would not be able to go from hash > address.
-                                    prefix: &[],
-                                    value: #field_ident,
-                                }
-                            )
-                        )
-                    });
+                        let push_topic =
+                            quote_spanned!(span =>
+                                .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
+                                    &::ink::env::topics::PrefixedValue {
+                                        // todo: figure out whether we even need to include a prefix here?
+                                        // Previously the prefix would be the full field path e.g.
+                                        // erc20::Event::Transfer::from + value.
+                                        // However the value on its own might be sufficient, albeit
+                                        // requiring combination with the signature topic and some
+                                        // metadata to determine whether a topic value belongs to a
+                                        // specific field of a given Event variant. The upside is that
+                                        // indexers can use the unhashed value for meaningful topics
+                                        // e.g. addresses < 32 bytes. If the prefix is included we
+                                        // will always require to hash the value so need any indexer
+                                        // would not be able to go from hash > address.
+                                        prefix: &[],
+                                        value: #field_ident,
+                                    }
+                                )
+                            );
+                        let binding = quote_spanned!(span=> ref #field_ident);
+                        (binding, push_topic)
+                    })
+                    .unzip();
 
                 let index = variant.index();
                 let event_signature_topic = match variant.anonymous() {
@@ -179,7 +178,7 @@ impl<'a> EventDefinition<'a> {
                 };
 
                 quote_spanned!(span=>
-                    Self::#variant_ident { #( #field_bindings, )* } => {
+                    Self::#variant_ident { #( #field_bindings, )* .. } => {
                         builder
                             .build::<#remaining_topics_ty>()
                             #event_signature_topic
