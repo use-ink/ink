@@ -256,16 +256,19 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
+                let output_tuple_type = constructor.output().map(quote::ToTokens::to_token_stream)
+                    .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(constructor.inputs());
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
                 quote_spanned!(constructor_span=>
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
+                        type Output = #output_tuple_type;
                         type Storage = #storage_ident;
 
-                        const CALLABLE: fn(Self::Input) -> Self::Storage = |#input_tuple_bindings| {
-                            #storage_ident::#constructor_ident( #( #input_bindings ),* )
+                        const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
+                            #storage_ident::#constructor_ident(#( #input_bindings ),* )
                         };
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
@@ -559,7 +562,6 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
-
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
