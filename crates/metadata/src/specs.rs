@@ -993,7 +993,7 @@ impl EventParamSpecBuilder {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: EventParamSpec {
-                docs: docs.into_iter().collect::<Vec<_>>(),
+                docs: docs.into_iter().map(trim_extra_whitespace).collect::<Vec<_>>(),
                 ..self.spec
             },
         }
