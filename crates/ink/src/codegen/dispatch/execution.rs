@@ -16,10 +16,7 @@ use crate::reflect::{
     ContractEnv,
     DispatchError,
 };
-use core::{
-    convert::Infallible,
-    mem::ManuallyDrop,
-};
+use core::mem::ManuallyDrop;
 use ink_env::{
     Environment,
     ReturnFlags,
@@ -58,7 +55,7 @@ pub fn execute_constructor<Contract, F, R>(f: F) -> Result<(), DispatchError>
 where
     Contract: Storable + StorageKey + ContractEnv,
     F: FnOnce() -> R,
-    <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: Encode,
+    <private::Seal<R> as ConstructorReturnType<Contract>>::Error: Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
 {
     let result = ManuallyDrop::new(private::Seal(f()));
@@ -73,16 +70,13 @@ where
             );
             Ok(())
         }
-        Err(_) => {
+        Err(error) => {
             // Constructor is fallible and failed.
             //
             // We need to revert the state of the transaction.
             ink_env::return_value::<
-                <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue,
-            >(
-                ReturnFlags::default().set_reverted(true),
-                result.return_value(),
-            )
+                <private::Seal<R> as ConstructorReturnType<Contract>>::Error,
+            >(ReturnFlags::default().set_reverted(true), error)
         }
     }
 }
@@ -119,18 +113,11 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     ///
     /// # Note
     ///
-    /// For infallible constructors this is `core::convert::Infallible`.
-    type Error;
-
-    /// The type of the return value of the constructor.
-    ///
-    /// # Note
-    ///
     /// For infallible constructors this is `()` whereas for fallible
-    /// constructors this is the actual return value. Since we only ever
-    /// return a value in case of `Result::Err` the `Result::Ok` value
+    /// constructors this is the actual return error type. Since we only ever
+    /// return a value in case of `Result::Err` the `Result::Ok` value type
     /// does not matter.
-    type ReturnValue;
+    type Error;
 
     /// Converts the return value into a `Result` instance.
     ///
@@ -138,45 +125,24 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     ///
     /// For infallible constructor returns this always yields `Ok`.
     fn as_result(&self) -> Result<&C, &Self::Error>;
-
-    /// Returns the actual return value of the constructor.
-    ///
-    /// # Note
-    ///
-    /// For infallible constructor returns this always yields `()`
-    /// and is basically ignored since this does not get called
-    /// if the constructor did not fail.
-    fn return_value(&self) -> &Self::ReturnValue;
 }
 
 impl<C> ConstructorReturnType<C> for private::Seal<C> {
-    type Error = Infallible;
-    type ReturnValue = ();
+    type Error = ();
 
-    #[inline]
+    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         Ok(&self.0)
-    }
-
-    #[inline]
-    fn return_value(&self) -> &Self::ReturnValue {
-        &()
     }
 }
 
 impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
     const IS_RESULT: bool = true;
     type Error = E;
-    type ReturnValue = Result<C, E>;
 
-    #[inline]
+    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
-    }
-
-    #[inline]
-    fn return_value(&self) -> &Self::ReturnValue {
-        &self.0
     }
 }
 
