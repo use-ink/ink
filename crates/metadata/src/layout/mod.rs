@@ -21,16 +21,30 @@ pub use validate::ValidateLayout;
 
 use crate::{
     serde_hex,
-    utils::{deserialize_from_byte_str, serialize_as_byte_str},
+    utils::{
+        deserialize_from_byte_str,
+        serialize_as_byte_str,
+    },
 };
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
-    form::{Form, MetaForm, PortableForm},
-    meta_type, IntoPortable, Registry, TypeInfo,
+    form::{
+        Form,
+        MetaForm,
+        PortableForm,
+    },
+    meta_type,
+    IntoPortable,
+    Registry,
+    TypeInfo,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
