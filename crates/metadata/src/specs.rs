@@ -428,19 +428,19 @@ pub struct MessageSpec<F: Form = MetaForm> {
     ///
     /// In case of trait provided messages and constructors the prefix
     /// by convention in ink! is the label of the trait.
-    pub label: F::String,
+    label: F::String,
     /// The selector hash of the message.
-    pub selector: Selector,
+    selector: Selector,
     /// If the message is allowed to mutate the contract state.
-    pub mutates: bool,
+    mutates: bool,
     /// If the message accepts any `value` from the caller.
-    pub payable: bool,
+    payable: bool,
     /// The parameters of the message.
-    pub args: Vec<MessageParamSpec<F>>,
+    args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
-    pub return_type: ReturnTypeSpec<F>,
+    return_type: ReturnTypeSpec<F>,
     /// The message documentation.
-    pub docs: Vec<F::String>,
+    docs: Vec<F::String>,
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
@@ -698,11 +698,11 @@ impl IntoPortable for MessageSpec {
 ))]
 pub struct EventSpec<F: Form = MetaForm> {
     /// The label of the event.
-    pub label: F::String,
+    label: F::String,
     /// The event arguments.
-    pub args: Vec<EventParamSpec<F>>,
+    args: Vec<EventParamSpec<F>>,
     /// The event documentation.
-    pub docs: Vec<F::String>,
+    docs: Vec<F::String>,
 }
 
 /// An event specification builder.
@@ -882,9 +882,9 @@ pub type DisplayName<F> = scale_info::Path<F>;
 pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
     #[serde(rename = "type")]
-    pub ty: F::Type,
+    ty: F::Type,
     /// The compile-time known displayed representation of the type.
-    pub display_name: DisplayName<F>,
+    display_name: DisplayName<F>,
 }
 
 impl IntoPortable for TypeSpec {
@@ -980,14 +980,14 @@ where
 ))]
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The label of the parameter.
-    pub label: F::String,
+    label: F::String,
     /// If the event parameter is indexed.
-    pub indexed: bool,
+    indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    pub ty: TypeSpec<F>,
+    ty: TypeSpec<F>,
     /// The documentation associated with the arguments.
-    pub docs: Vec<F::String>,
+    docs: Vec<F::String>,
 }
 
 impl IntoPortable for EventParamSpec {
@@ -1117,7 +1117,7 @@ where
 ))]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    pub opt_type: Option<TypeSpec<F>>,
+    opt_type: Option<TypeSpec<F>>,
 }
 
 impl IntoPortable for ReturnTypeSpec {
@@ -1169,10 +1169,10 @@ where
 ))]
 pub struct MessageParamSpec<F: Form = MetaForm> {
     /// The label of the parameter.
-    pub label: F::String,
+    label: F::String,
     /// The type of the parameter.
     #[serde(rename = "type")]
-    pub ty: TypeSpec<F>,
+    ty: TypeSpec<F>,
 }
 
 impl IntoPortable for MessageParamSpec {
