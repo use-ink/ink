@@ -113,7 +113,10 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     ///
     /// # Note
     ///
-    /// For infallible constructors this is `()`.
+    /// For infallible constructors this is `()` whereas for fallible
+    /// constructors this is the actual return error type. Since we only ever
+    /// return a value in case of `Result::Err` the `Result::Ok` value type
+    /// does not matter.
     type Error;
 
     /// Converts the return value into a `Result` instance.
