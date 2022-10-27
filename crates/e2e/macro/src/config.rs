@@ -24,39 +24,24 @@ use ink_ir::{
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct E2EConfig {
-    /// The path where the node writes its log.
-    node_log: Option<syn::LitStr>,
     /// The WebSocket URL where to connect with the node.
     ws_url: Option<syn::LitStr>,
-    /// Denotes if the contract should be build before executing the test.
-    skip_build: Option<syn::LitBool>,
     /// The set of attributes that can be passed to call builder in the codegen.
     whitelisted_attributes: WhitelistedAttributes,
+    /// Additional contracts that have to be built before executing the test.
+    additional_contracts: Vec<String>,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut node_log: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut ws_url: Option<(syn::LitStr, ast::MetaNameValue)> = None;
-        let mut skip_build: Option<(syn::LitBool, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
+        let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("node_log") {
-                if let Some((_, ast)) = node_log {
-                    return Err(duplicate_config_err(ast, arg, "node_log", "e2e test"))
-                }
-                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
-                    node_log = Some((lit_str.clone(), arg))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a path for `node_log` ink! e2e test configuration argument",
-                    ))
-                }
-            } else if arg.name.is_ident("ws_url") {
+            if arg.name.is_ident("ws_url") {
                 if let Some((_, ast)) = ws_url {
                     return Err(duplicate_config_err(ast, arg, "ws_url", "e2e test"))
                 }
@@ -68,20 +53,25 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         "expected a string literal for `ws_url` ink! e2e test configuration argument",
                     ))
                 }
-            } else if arg.name.is_ident("skip_build") {
-                if let Some((_, ast)) = skip_build {
-                    return Err(duplicate_config_err(ast, arg, "skip_build", "e2e test"))
+            } else if arg.name.is_ident("keep_attr") {
+                whitelisted_attributes.parse_arg_value(&arg)?;
+            } else if arg.name.is_ident("additional_contracts") {
+                if let Some((_, ast)) = additional_contracts {
+                    return Err(duplicate_config_err(
+                        ast,
+                        arg,
+                        "additional_contracts",
+                        "e2e test",
+                    ))
                 }
-                if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
-                    skip_build = Some((lit_bool.clone(), arg))
+                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                    additional_contracts = Some((lit_str.clone(), arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `skip_build` ink! e2e test configuration argument",
+                        "expected a bool literal for `additional_contracts` ink! e2e test configuration argument",
                     ))
                 }
-            } else if arg.name.is_ident("keep_attr") {
-                whitelisted_attributes.parse_arg_value(&arg)?;
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -89,24 +79,18 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 ))
             }
         }
+        let additional_contracts = additional_contracts
+            .map(|(value, _)| value.value().split(" ").map(String::from).collect())
+            .unwrap_or_else(|| Vec::new());
         Ok(E2EConfig {
-            node_log: node_log.map(|(value, _)| value),
             ws_url: ws_url.map(|(value, _)| value),
-            skip_build: skip_build.map(|(value, _)| value),
+            additional_contracts,
             whitelisted_attributes,
         })
     }
 }
 
 impl E2EConfig {
-    /// Returns the path to the node log if specified.
-    /// Otherwise returns the default path `/tmp/contracts-node.log`.
-    pub fn node_log(&self) -> syn::LitStr {
-        let default_node_log =
-            syn::LitStr::new("/tmp/contracts-node.log", proc_macro2::Span::call_site());
-        self.node_log.clone().unwrap_or(default_node_log)
-    }
-
     /// Returns the WebSocket URL where to connect to the RPC endpoint
     /// of the node, if specified. Otherwise returns the default URL
     /// `ws://localhost:9944`.
@@ -116,11 +100,10 @@ impl E2EConfig {
         self.ws_url.clone().unwrap_or(default_ws_url)
     }
 
-    /// Returns `true` if `skip_build = true` was configured.
-    /// Otherwise returns `false`.
-    pub fn skip_build(&self) -> syn::LitBool {
-        let default_skip_build = syn::LitBool::new(false, proc_macro2::Span::call_site());
-        self.skip_build.clone().unwrap_or(default_skip_build)
+    /// Returns a vector of additional contracts that have to be built
+    /// and imported before executing the test.
+    pub fn additional_contracts(&self) -> Vec<String> {
+        self.additional_contracts.clone()
     }
 }
 
@@ -173,11 +156,11 @@ mod tests {
     fn duplicate_args_fails() {
         assert_try_from(
             syn::parse_quote! {
-                skip_build = true,
-                skip_build = true,
+                additional_contracts = "adder/Cargo.toml",
+                additional_contracts = "adder/Cargo.toml",
             },
             Err(
-                "encountered duplicate ink! e2e test `skip_build` configuration argument",
+                "encountered duplicate ink! e2e test `additional_contracts` configuration argument",
             ),
         );
     }
@@ -192,10 +175,9 @@ mod tests {
                 keep_attr = "foo, bar"
             },
             Ok(E2EConfig {
-                node_log: None,
                 ws_url: None,
                 whitelisted_attributes: attrs,
-                skip_build: None,
+                additional_contracts: Vec::new(),
             }),
         )
     }

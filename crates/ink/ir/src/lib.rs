@@ -27,6 +27,11 @@
 //! Therefore all ink! definition are found and accessed using the
 //! [`ItemMod`](`crate::ir::ItemMod`) data structure.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
+
 #[macro_use]
 mod error;
 
