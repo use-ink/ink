@@ -25,3 +25,6 @@ exclude = [
 [profile.release]
 panic = "abort"
 lto = true
+
+[patch.crates-io]
+scale-info = { git = "https://github.com/paritytech/scale-info", branch = "cl/next-release" }
