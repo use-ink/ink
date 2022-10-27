@@ -14,22 +14,30 @@
 
 //! Utilities in use by ink!.
 //!
-//! These are kept separate from ink core utilities to allow for more dynamic inter-crate dependencies.
+//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate dependencies.
 //! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `ink_lang` (or others) to `ink_env` or `ink_storage` impossible.
+//! a per-crate-target basis thus making dependencies from `ink` (or others) to `ink_env` or `ink_storage` impossible.
 //!
 //! By introducing `ink_primitives` we have a way to share utility components between `ink_env` or `ink_storage` and
-//! other parts of the framework, like `ink_lang`.
+//! other parts of the framework, like `ink`.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod key;
-mod key_ptr;
-
-#[cfg(test)]
-mod tests;
+mod types;
 
 pub use self::{
-    key::Key,
-    key_ptr::KeyPtr,
+    key::{
+        Key,
+        KeyComposer,
+    },
+    types::{
+        AccountId,
+        Clear,
+        Hash,
+    },
 };

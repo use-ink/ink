@@ -1,15 +1,11 @@
 [package]
 name = "subber"
-version = "4.0.0"
+version = "4.0.0-alpha.3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { path = "../../../crates/primitives", default-features = false }
-ink_metadata = { path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { path = "../../../crates/env", default-features = false }
-ink_storage = { path = "../../../crates/storage", default-features = false }
-ink_lang = { path = "../../../crates/lang", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 accumulator = { path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
 
@@ -29,11 +25,7 @@ crate-type = [
 [features]
 default = ["std"]
 std = [
-    "ink_primitives/std",
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_storage/std",
-    "ink_lang/std",
+    "ink/std",
     "scale/std",
     "scale-info/std",
 

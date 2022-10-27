@@ -1,0 +1,5 @@
+error: missing ink! constructor
+ --> tests/ui/contract/fail/module-missing-constructor.rs:2:1
+  |
+2 | mod contract {
+  | ^^^

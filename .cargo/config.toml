@@ -1,0 +1,4 @@
+[env]
+# We need to enable `RUSTC_BOOTSTRAP` so that the nightly ink!
+# features still work on stable.
+RUSTC_BOOTSTRAP = "1"

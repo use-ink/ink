@@ -1,8 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_env::AccountId;
-use ink_lang as ink;
-use ink_prelude::vec::Vec;
+use ink::{
+    prelude::vec::Vec,
+    primitives::AccountId,
+};
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
 // tokens.
@@ -24,7 +25,7 @@ const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xBC, 0x19, 0x7C, 0x81];
 /// A type representing the unique IDs of tokens managed by this contract.
 pub type TokenId = u128;
 
-type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
+type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 
 // The ERC-1155 error types.
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -187,10 +188,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink::storage::Mapping;
 
     type Owner = AccountId;
     type Operator = AccountId;
@@ -223,14 +221,14 @@ mod erc1155 {
     /// Indicate that a token's URI has been updated.
     #[ink(event)]
     pub struct Uri {
-        value: ink_prelude::string::String,
+        value: ink::prelude::string::String,
         #[ink(topic)]
         token_id: TokenId,
     }
 
     /// An ERC-1155 contract.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
@@ -245,11 +243,7 @@ mod erc1155 {
         /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            //
-            // Not that `token_id_nonce` will be initialized to its `Default` value.
-            ink_lang::utils::initialize_contract(|_| {})
+            Default::default()
         }
 
         /// Create the initial supply for a token.
@@ -362,7 +356,7 @@ mod erc1155 {
             // supported (tests end up panicking).
             #[cfg(not(test))]
             {
-                use ink_env::call::{
+                use ink::env::call::{
                     build_call,
                     Call,
                     ExecutionInput,
@@ -384,9 +378,9 @@ mod erc1155 {
                     .returns::<Vec<u8>>()
                     .params();
 
-                match ink_env::invoke_contract(&params) {
+                match ink::env::invoke_contract(&params) {
                     Ok(v) => {
-                        ink_env::debug_println!(
+                        ink::env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",
                             v,
                             from
@@ -400,11 +394,11 @@ mod erc1155 {
                     }
                     Err(e) => {
                         match e {
-                            ink_env::Error::CodeNotFound
-                            | ink_env::Error::NotCallable => {
+                            ink::env::Error::CodeNotFound
+                            | ink::env::Error::NotCallable => {
                                 // Our recipient wasn't a smart contract, so there's nothing more for
                                 // us to do
-                                ink_env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
+                                ink::env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
                             }
                             _ => {
                                 // We got some sort of error from the call to our recipient smart
@@ -591,14 +585,12 @@ mod erc1155 {
         use super::*;
         use crate::Erc1155;
 
-        use ink_lang as ink;
-
         fn set_sender(sender: AccountId) {
-            ink_env::test::set_caller::<Environment>(sender);
+            ink::env::test::set_caller::<Environment>(sender);
         }
 
-        fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
-            ink_env::test::default_accounts::<Environment>()
+        fn default_accounts() -> ink::env::test::DefaultAccounts<Environment> {
+            ink::env::test::default_accounts::<Environment>()
         }
 
         fn alice() -> AccountId {

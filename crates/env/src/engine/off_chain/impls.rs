@@ -44,7 +44,7 @@ use ink_engine::{
     ext,
     ext::Engine,
 };
-use ink_primitives::Key;
+use ink_storage_traits::Storable;
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -184,34 +184,43 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
-        V: scale::Encode,
+        K: scale::Encode,
+        V: Storable,
     {
-        let v = scale::Encode::encode(value);
-        self.engine.set_storage(key.as_ref(), &v[..])
+        let mut v = vec![];
+        Storable::encode(value, &mut v);
+        self.engine.set_storage(&key.encode(), &v[..])
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
-        R: scale::Decode,
+        K: scale::Encode,
+        R: Storable,
     {
         let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(key.as_ref(), &mut &mut output[..]) {
+        match self.engine.get_storage(&key.encode(), &mut &mut output[..]) {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = scale::Decode::decode(&mut &output[..])?;
+        let decoded = Storable::decode(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
-        self.engine.contains_storage(key.as_ref())
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode,
+    {
+        self.engine.contains_storage(&key.encode())
     }
 
-    fn clear_contract_storage(&mut self, key: &Key) {
-        self.engine.clear_storage(key.as_ref())
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode,
+    {
+        self.engine.clear_storage(&key.encode())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

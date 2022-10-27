@@ -39,7 +39,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_storage_traits::Storable;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -183,49 +183,58 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key and returns
-/// the size of pre-existing value at the specified key if any.
+/// Writes the value to the contract storage under the given storage key and returns the size
+/// of pre-existing value if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
 where
-    V: scale::Encode,
+    K: scale::Encode,
+    V: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<K, V>(instance, key, value)
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
+/// Returns the value stored under the given storage key in the contract's storage if any.
 ///
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
+pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
-    R: scale::Decode,
+    K: scale::Encode,
+    R: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<R>(instance, key)
+        EnvBackend::get_contract_storage::<K, R>(instance, key)
     })
 }
 
-/// Checks whether there is a value stored under the given key in
-/// the contract's storage.
+/// Checks whether there is a value stored under the given storage key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-pub fn contract_storage_contains(key: &Key) -> Option<u32> {
+pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
+where
+    K: scale::Encode,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::contract_storage_contains(instance, key)
+        EnvBackend::contains_contract_storage::<K>(instance, key)
     })
 }
 
-/// Clears the contract's storage key entry.
-pub fn clear_contract_storage(key: &Key) {
+/// Clears the contract's storage entry under the given storage key.
+///
+/// If a value was stored under the specified storage key, the size of the value is returned.
+pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
+where
+    K: scale::Encode,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage(instance, key)
+        EnvBackend::clear_contract_storage::<K>(instance, key)
     })
 }
 
@@ -621,6 +630,74 @@ where
 /// # Errors
 ///
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+///
+/// # Storage Compatibility
+///
+/// When the smart contract code is modified,
+/// it is important to observe an additional virtual restriction
+/// that is imposed on this procedure:
+/// you should not change the order in which the contract state variables
+/// are declared, nor their type.
+///
+/// Violating the restriction will not prevent a successful compilation,
+/// but will result in the mix-up of values or failure to read the storage correctly.
+/// This can result in severe errors in the application utilizing the contract.
+///
+/// If the storage of your contract looks like this:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// The procedures listed below will make it invalid:
+///
+/// Changing the order of variables:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     y: bool,
+///     x: u32,
+/// }
+/// ```
+///
+/// Removing existing variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+/// }
+/// ```
+///
+/// Changing type of a variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u64,
+///     y: bool,
+/// }
+/// ```
+///
+/// Introducing a new variable before any of the existing ones:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     z: Vec<u32>,
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// Please refer to the
+/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }

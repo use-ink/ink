@@ -26,13 +26,13 @@ jobs:
 # Once this is resolved we should re-enable building the examples on windows
 #          - windows-latest
         toolchain:
-          - nightly
+          - stable
         job:
           - build
           - test
     runs-on: ${{ matrix.platform }}
     env:
-      UPGRADEABLE_CONTRACTS:    "forward-calls delegate-calls"
+      UPGRADEABLE_CONTRACTS:    "forward-calls set-code-hash"
       DELEGATOR_SUBCONTRACTS:   "accumulator adder subber"
       RUST_BACKTRACE:           full
     steps:
@@ -41,14 +41,14 @@ jobs:
       - run: npm install wasm-opt -g
 
       - name: Checkout sources & submodules
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
           submodules: recursive
 
       - name: Install toolchain
         id: toolchain
-        uses: actions-rs/toolchain@master
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.toolchain }}
@@ -56,16 +56,30 @@ jobs:
           override: true
 
       - name: Install cargo-dylint
-        uses: baptiste0928/cargo-install@v1
+        uses: baptiste0928/cargo-install@bf6758885262d0e6f61089a9d8c8790d3ac3368f # v1.3.0
         with:
           crate: cargo-dylint
           version: 1
 
       - name: Install dylint-link
-        uses: baptiste0928/cargo-install@v1
+        uses: baptiste0928/cargo-install@bf6758885262d0e6f61089a9d8c8790d3ac3368f # v1.3.0
         with:
           crate: dylint-link
           version: 1
+
+      - name: Download and run latest `substrate-contracts-node` binary
+        if: runner.os == 'macOS'
+        run: |
+            curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-mac' && \
+            unzip substrate-contracts-node.zip && \
+            chmod +x artifacts/substrate-contracts-node-mac/substrate-contracts-node &&
+            ./artifacts/substrate-contracts-node-mac/substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+
+      - name: Install and run latest `substrate-contracts-node` binary
+        if: runner.os == 'Windows'
+        run: |
+            cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked && \
+            substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2.0.0
@@ -90,12 +104,12 @@ jobs:
                echo "Processing delegator contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
            }
-           $upgradeable_contracts = "forward-calls","delegate-calls"
+           $upgradeable_contracts = "forward-calls","set-code-hash"
            foreach ($contract in $upgradeable_contracts) {
                echo "Processing upgradeable contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/${contract}/Cargo.toml;
            }
-           cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+           cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            foreach ($example in Get-ChildItem  -Directory "examples\*") {
                if ($example -Match 'upgradeable-contracts') { continue }
                echo "Processing example: $example";
@@ -114,7 +128,7 @@ jobs:
                 echo "Processing upgradeable contract: $contract";
                 cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/$contract/Cargo.toml;
            done
-           cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+           cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            for example in examples/*/; do
                if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
                echo "Processing example: $example";

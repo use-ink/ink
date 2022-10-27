@@ -12,23 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use cfg_if::cfg_if;
-use core::{
-    fmt::{
-        self,
-        Debug,
-        Display,
-        Formatter,
-    },
-    ops::AddAssign,
-};
-#[cfg(feature = "std")]
-use scale_info::{
-    build::Fields,
-    Path,
-    Type,
-    TypeInfo,
-};
+use ink_prelude::vec;
+use xxhash_rust::const_xxh32::xxh32;
+
+/// The value 0 is a valid seed.
+const XXH32_SEED: u32 = 0;
 
 /// A key into the smart contract storage.
 ///
@@ -39,314 +27,128 @@ use scale_info::{
 ///   to indicate the respective cells using this primitive type.
 /// - The `Key` type can be compared to a raw pointer and also allows operations
 ///   similar to pointer arithmetic.
-/// - Users usually should not have to deal with this low-level primitive themselves
-///   and instead use the more high-level primitives provided by the `ink_storage`
-///   crate.
-#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(transparent)]
-pub struct Key([u8; 32]);
+pub type Key = u32;
 
-impl Key {
-    /// Creates a new key instance from the given bytes.
+/// Contains all rules related to storage key creation.
+pub struct KeyComposer;
+
+impl KeyComposer {
+    /// Concatenate two `Key` into one during compilation.
+    pub const fn concat(left: Key, right: Key) -> Key {
+        // If one of the keys is zero, then return another without hashing.
+        // If both keys are non-zero, return the hash of the XOR difference of both keys.
+        match (left, right) {
+            (0, 0) => 0,
+            (0, _) => right,
+            (_, 0) => left,
+            (left, right) => xxh32(&(left ^ right).to_be_bytes(), XXH32_SEED),
+        }
+    }
+
+    /// Return the storage key from the supplied `str`.
+    pub const fn from_str(str: &str) -> Key {
+        Self::from_bytes(str.as_bytes())
+    }
+
+    /// Returns the storage key from the supplied `bytes`.
+    pub const fn from_bytes(bytes: &[u8]) -> Key {
+        if bytes.is_empty() {
+            return 0
+        }
+
+        xxh32(bytes, XXH32_SEED)
+    }
+
+    /// Evaluates the storage key of the field in the structure, variant or union.
+    ///
+    /// 1. Compute the ASCII byte representation of `struct_name` and call it `S`.
+    /// 1. If `variant_name` is not empty then computes the ASCII byte representation and call it `V`.
+    /// 1. Compute the ASCII byte representation of `field_name` and call it `F`.
+    /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
+    /// 1. The `XXH32` hash of `C` is the storage key.
     ///
     /// # Note
     ///
-    /// This constructor only exists since it is not yet possible to define
-    /// the `From` trait implementation as const.
-    #[inline]
-    pub const fn new(bytes: [u8; 32]) -> Self {
-        Self(bytes)
-    }
-}
-
-impl From<[u8; 32]> for Key {
-    #[inline]
-    fn from(bytes: [u8; 32]) -> Self {
-        Self::new(bytes)
-    }
-}
-
-impl AsRef<[u8; 32]> for Key {
-    #[inline]
-    fn as_ref(&self) -> &[u8; 32] {
-        &self.0
-    }
-}
-
-impl AsMut<[u8; 32]> for Key {
-    #[inline]
-    fn as_mut(&mut self) -> &mut [u8; 32] {
-        &mut self.0
-    }
-}
-
-impl Key {
-    fn write_bytes(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "0x")?;
-        let bytes = self.as_ref();
-        let len_bytes = bytes.len();
-        let len_chunk = 4;
-        let len_chunks = len_bytes / len_chunk;
-        for i in 0..len_chunks {
-            let offset = i * len_chunk;
-            write!(
-                f,
-                "_{:02X}{:02X}{:02X}{:02X}",
-                bytes[offset],
-                bytes[offset + 1],
-                bytes[offset + 2],
-                bytes[offset + 3]
-            )?;
+    /// - `variant_name` is empty for structures and unions.
+    /// - if the field is unnamed then `field_name` is `"{}"` where `{}` is a number of the field.
+    pub fn compute_key(
+        struct_name: &str,
+        variant_name: &str,
+        field_name: &str,
+    ) -> Result<Key, Error> {
+        if struct_name.is_empty() {
+            return Err(Error::StructNameIsEmpty)
         }
-        Ok(())
-    }
-}
-
-impl Debug for Key {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "Key(")?;
-        self.write_bytes(f)?;
-        write!(f, ")")?;
-        Ok(())
-    }
-}
-
-impl Display for Key {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        self.write_bytes(f)
-    }
-}
-
-impl Key {
-    /// Reinterprets the underlying bytes of the key as `&[u64; 4]`.
-    ///
-    /// # Safety
-    ///
-    /// This is only safe to do on little-endian systems therefore
-    /// this function is only enabled on these platforms.
-    #[cfg(target_endian = "little")]
-    fn reinterpret_as_u64x4(&self) -> &[u64; 4] {
-        // SAFETY: Conversion is only safe on little endian architectures.
-        unsafe { &*(&self.0 as *const [u8; 32] as *const [u64; 4]) }
-    }
-
-    /// Reinterprets the underlying bytes of the key as `&mut [u64; 4]`.
-    ///
-    /// # Safety
-    ///
-    /// This is only safe to do on little-endian systems therefore
-    /// this function is only enabled on these platforms.
-    #[cfg(target_endian = "little")]
-    fn reinterpret_as_u64x4_mut(&mut self) -> &mut [u64; 4] {
-        // SAFETY: Conversion is only safe on little endian architectures.
-        unsafe { &mut *(&mut self.0 as *mut [u8; 32] as *mut [u64; 4]) }
-    }
-}
-
-impl scale::Encode for Key {
-    #[inline]
-    fn size_hint(&self) -> usize {
-        32
-    }
-
-    #[inline]
-    fn encode_to<O>(&self, output: &mut O)
-    where
-        O: scale::Output + ?Sized,
-    {
-        output.write(self.as_ref());
-    }
-
-    #[inline]
-    fn using_encoded<R, F>(&self, f: F) -> R
-    where
-        F: FnOnce(&[u8]) -> R,
-    {
-        f(self.as_ref())
-    }
-
-    #[inline]
-    fn encoded_size(&self) -> usize {
-        self.size_hint()
-    }
-}
-
-impl scale::EncodeLike<[u8; 32]> for Key {}
-
-impl scale::Decode for Key {
-    #[inline]
-    fn decode<I>(input: &mut I) -> Result<Self, scale::Error>
-    where
-        I: scale::Input,
-    {
-        let bytes = <[u8; 32] as scale::Decode>::decode(input)?;
-        Ok(Self::from(bytes))
-    }
-
-    #[inline]
-    fn encoded_fixed_size() -> Option<usize> {
-        Some(32)
-    }
-}
-
-#[cfg(feature = "std")]
-impl TypeInfo for Key {
-    type Identity = Self;
-
-    fn type_info() -> Type {
-        Type::builder()
-            .path(Path::new("Key", "ink_primitives"))
-            .composite(
-                Fields::unnamed().field(|f| f.ty::<[u8; 32]>().type_name("[u8; 32]")),
-            )
-    }
-}
-
-impl Key {
-    /// Adds the `u64` value to the `Key`.
-    ///
-    /// # Note
-    ///
-    /// This implementation is heavily optimized for little-endian Wasm platforms.
-    ///
-    /// # Developer Note
-    ///
-    /// Since we are operating on little-endian we can convert the underlying `[u8; 32]`
-    /// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`
-    /// it is more efficient to work on chunks of `u8` represented as `u64`.
-    #[cfg(target_endian = "little")]
-    fn add_assign_u64_le(&mut self, rhs: u64) {
-        let words = self.reinterpret_as_u64x4_mut();
-        let (res0, ovfl) = words[0].overflowing_add(rhs);
-        let (res1, ovfl) = words[1].overflowing_add(ovfl as u64);
-        let (res2, ovfl) = words[2].overflowing_add(ovfl as u64);
-        let (res3, _ovfl) = words[3].overflowing_add(ovfl as u64);
-        words[0] = res0;
-        words[1] = res1;
-        words[2] = res2;
-        words[3] = res3;
-    }
-
-    /// Adds the `u64` value to the key storing the result in `result`.
-    ///
-    /// # Note
-    ///
-    /// This implementation is heavily optimized for little-endian Wasm platforms.
-    ///
-    /// # Developer Note
-    ///
-    /// Since we are operating on little-endian we can convert the underlying `[u8; 32]`
-    /// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`
-    /// it is more efficient to work on chunks of `u8` represented as `u64`.
-    #[cfg(target_endian = "little")]
-    fn add_assign_u64_le_using(&self, rhs: u64, result: &mut Key) {
-        let input = self.reinterpret_as_u64x4();
-        let result = result.reinterpret_as_u64x4_mut();
-        let (res0, ovfl) = input[0].overflowing_add(rhs);
-        let (res1, ovfl) = input[1].overflowing_add(ovfl as u64);
-        let (res2, ovfl) = input[2].overflowing_add(ovfl as u64);
-        let (res3, _ovfl) = input[3].overflowing_add(ovfl as u64);
-        result[0] = res0;
-        result[1] = res1;
-        result[2] = res2;
-        result[3] = res3;
-    }
-
-    /// Adds the `u64` value to the `Key`.
-    ///
-    /// # Note
-    ///
-    /// This is a fallback implementation that has not been optimized for any
-    /// specific target platform or endianness.
-    #[cfg(target_endian = "big")]
-    fn add_assign_u64_be(&mut self, rhs: u64) {
-        let rhs_bytes = rhs.to_be_bytes();
-        let lhs_bytes = self.as_mut();
-        let len_rhs = rhs_bytes.len();
-        let len_lhs = lhs_bytes.len();
-        let mut carry = 0;
-        for i in 0..len_rhs {
-            let (res, ovfl) =
-                lhs_bytes[i].overflowing_add(rhs_bytes[i].wrapping_add(carry));
-            lhs_bytes[i] = res;
-            carry = ovfl as u8;
+        if field_name.is_empty() {
+            return Err(Error::FieldNameIsEmpty)
         }
-        for i in len_rhs..len_lhs {
-            let (res, ovfl) = lhs_bytes[i].overflowing_add(carry);
-            lhs_bytes[i] = res;
-            carry = ovfl as u8;
-            if carry == 0 {
-                return
-            }
-        }
-    }
 
-    /// Adds the `u64` value to the key storing the result in `result`.
-    ///
-    /// # Note
-    ///
-    /// This is a fallback implementation that has not been optimized for any
-    /// specific target platform or endianness.
-    #[cfg(target_endian = "big")]
-    fn add_assign_u64_be_using(&self, rhs: u64, result: &mut Key) {
-        let rhs_bytes = rhs.to_be_bytes();
-        let lhs_bytes = self.as_ref();
-        let result_bytes = result.as_mut();
-        let len_rhs = rhs_bytes.len();
-        let len_lhs = lhs_bytes.len();
-        let mut carry = 0;
-        for i in 0..len_rhs {
-            let (res, ovfl) =
-                lhs_bytes[i].overflowing_add(rhs_bytes[i].wrapping_add(carry));
-            result_bytes[i] = res;
-            carry = ovfl as u8;
-        }
-        for i in len_rhs..len_lhs {
-            let (res, ovfl) = lhs_bytes[i].overflowing_add(carry);
-            result_bytes[i] = res;
-            carry = ovfl as u8;
-            // Note: We cannot bail out early in this case in order to
-            //       guarantee that we fully overwrite the result key.
-        }
-    }
+        let separator = &b"::"[..];
+        let composed_key = if !variant_name.is_empty() {
+            vec![
+                struct_name.as_bytes(),
+                variant_name.as_bytes(),
+                field_name.as_bytes(),
+            ]
+            .join(separator)
+        } else {
+            vec![struct_name.as_bytes(), field_name.as_bytes()].join(separator)
+        };
 
-    /// Adds the `u64` value to the key storing the result in `result`.
-    ///
-    /// # Note
-    ///
-    /// This will overwrite the contents of the `result` key.
-    #[inline]
-    pub fn add_assign_using<T>(&self, rhs: T, result: &mut Key)
-    where
-        T: Into<u64>,
-    {
-        let rhs = rhs.into();
-        cfg_if! {
-            if #[cfg(target_endian = "little")] {
-                self.add_assign_u64_le_using(rhs, result);
-            } else {
-                self.add_assign_u64_be_using(rhs, result);
-            }
-        }
+        Ok(Self::from_bytes(composed_key.as_slice()))
     }
 }
 
-impl AddAssign<u64> for Key {
-    #[inline]
-    fn add_assign(&mut self, rhs: u64) {
-        cfg_if! {
-            if #[cfg(target_endian = "little")] {
-                self.add_assign_u64_le(rhs);
-            } else {
-                self.add_assign_u64_be(rhs);
-            }
-        }
-    }
+/// Possible errors during the computation of the storage key.
+#[derive(Debug, PartialEq, Eq)]
+pub enum Error {
+    StructNameIsEmpty,
+    FieldNameIsEmpty,
 }
 
-impl AddAssign<&u64> for Key {
-    #[inline]
-    fn add_assign(&mut self, rhs: &u64) {
-        <Self as AddAssign<u64>>::add_assign(self, *rhs)
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn concat_works_correct() {
+        assert_eq!(KeyComposer::concat(0, 13), 13);
+        assert_eq!(KeyComposer::concat(31, 0), 31);
+        assert_eq!(KeyComposer::concat(31, 13), 0x9ab19a67);
+        assert_eq!(KeyComposer::concat(0, 0), 0);
+    }
+
+    #[test]
+    fn from_str_works_correct() {
+        assert_eq!(KeyComposer::from_str(""), 0);
+        assert_eq!(KeyComposer::from_str("123"), 0xb6855437);
+        assert_eq!(KeyComposer::from_str("Hello world"), 0x9705d437);
+    }
+
+    #[test]
+    fn from_bytes_works_correct() {
+        assert_eq!(KeyComposer::from_bytes(b""), 0);
+        assert_eq!(KeyComposer::from_bytes(b"123"), 0xb6855437);
+        assert_eq!(KeyComposer::from_bytes(b"Hello world"), 0x9705d437);
+    }
+
+    #[test]
+    fn compute_key_works_correct() {
+        assert_eq!(
+            KeyComposer::compute_key("Contract", "", "balances"),
+            Ok(0xf820ff02)
+        );
+        assert_eq!(
+            KeyComposer::compute_key("Enum", "Variant", "0"),
+            Ok(0x14786b51)
+        );
+        assert_eq!(
+            KeyComposer::compute_key("", "Variant", "0"),
+            Err(Error::StructNameIsEmpty)
+        );
+        assert_eq!(
+            KeyComposer::compute_key("Enum", "Variant", ""),
+            Err(Error::FieldNameIsEmpty)
+        );
     }
 }

@@ -1,13 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod dns {
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink::storage::Mapping;
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
@@ -58,7 +53,7 @@ mod dns {
     /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: Mapping<Hash, AccountId>,
@@ -85,11 +80,7 @@ mod dns {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.default_address = Default::default();
-            })
+            Default::default()
         }
 
         /// Register specific name with caller as owner.
@@ -115,7 +106,7 @@ mod dns {
                 return Err(Error::CallerIsNotOwner)
             }
 
-            let old_address = self.name_to_address.get(name);
+            let old_address = self.name_to_address.get(&name);
             self.name_to_address.insert(&name, &new_address);
 
             self.env().emit_event(SetAddress {
@@ -179,15 +170,14 @@ mod dns {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<Environment>()
+        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<Environment>()
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink_env::test::set_caller::<Environment>(caller);
+            ink::env::test::set_caller::<Environment>(caller);
         }
 
         #[ink::test]

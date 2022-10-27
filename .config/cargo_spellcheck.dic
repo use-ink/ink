@@ -38,7 +38,9 @@ defragmentation
 deploy
 dereferencing
 deserialize/S
+deserialization
 dispatchable/S
+E2E
 encodable
 evaluable
 fuzzer
@@ -96,6 +98,7 @@ layout/JG
 namespace/S
 parameterize/SD
 runtime/S
+storable
 struct/S
 vec/S
 vector/S
@@ -106,3 +109,4 @@ natively
 payability
 unpayable
 initializer
+WebSocket/S

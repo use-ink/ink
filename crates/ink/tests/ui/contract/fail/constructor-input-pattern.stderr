@@ -1,0 +1,5 @@
+error: ink! constructor arguments must have an identifier
+ --> tests/ui/contract/fail/constructor-input-pattern.rs:8:28
+  |
+8 |         pub fn constructor((_a, _b): (i32, i32)) -> Self {
+  |                            ^^^^^^^^^^^^^^^^^^^^

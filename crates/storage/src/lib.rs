@@ -20,6 +20,10 @@
 //! FFI to interface with FRAME contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     missing_docs,
@@ -43,17 +47,13 @@
     unused_extern_crates
 )]
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
+pub use ink_storage_traits as traits;
 
-pub mod traits;
-
-mod lazy;
-mod pack;
-
-#[cfg(test)]
-mod test_utils;
+#[allow(dead_code)]
+pub(crate) mod lazy;
 
 #[doc(inline)]
-pub use self::lazy::mapping::Mapping;
+pub use self::lazy::{
+    Lazy,
+    Mapping,
+};

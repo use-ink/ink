@@ -1,23 +1,19 @@
 [package]
 name = "payment_channel"
-version = "4.0.0"
+version = "4.0.0-alpha.3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink_primitives = { path = "../../crates/primitives", default-features = false }
-ink_metadata = { path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { path = "../../crates/env", default-features = false }
-ink_storage = { path = "../../crates/storage", default-features = false }
-ink_lang = { path = "../../crates/lang", default-features = false }
+ink = { path = "../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"] }
 
 [dev-dependencies]
 hex-literal = { version = "0.3" }
-sp-core = { version = "6.0.0", default-features = false }
+sp-core = "6.0.0"
 
 [lib]
 name = "payment_channel"
@@ -27,13 +23,9 @@ crate-type = ["cdylib"]
 [features]
 default = ["std"]
 std = [
-    "ink_metadata/std",
-    "ink_env/std",
-    "ink_storage/std",
-    "ink_primitives/std",
+    "ink/std",
     "scale/std",
     "scale-info/std",
-    "sp-core/std",
 ]
 
 ink-as-dependency = []

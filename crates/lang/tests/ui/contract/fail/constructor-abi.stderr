@@ -1,5 +1,0 @@
-error: ink! constructors must not have explicit ABI
-  --> tests/ui/contract/fail/constructor-abi.rs:10:13
-   |
-10 |         pub extern "C" fn constructor() -> Self {
-   |             ^^^^^^^^^^

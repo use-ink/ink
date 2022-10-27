@@ -17,11 +17,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod mother {
-    use ink_prelude::{
+    use ink::prelude::{
         string::{
             String,
             ToString,
@@ -29,52 +27,23 @@ mod mother {
         vec::Vec,
     };
 
-    use ink_lang::utils::initialize_contract;
-    use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadAllocate,
-            SpreadLayout,
-        },
-        Mapping,
-    };
+    use ink::storage::Mapping;
 
-    use ink_storage::traits::KeyPtr;
     /// Struct for storing winning bids per bidding sample (a block).
     /// Vector index corresponds to sample number.
     /// Wrapping vector, just added for testing UI components.
-    #[derive(
-        Default,
-        scale::Encode,
-        scale::Decode,
-        PartialEq,
-        Eq,
-        Debug,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-        SpreadAllocate,
-    )]
+    #[derive(Default, PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
 
     /// Auction outline.
-    #[derive(
-        scale::Encode,
-        scale::Decode,
-        Eq,
-        PartialEq,
-        Debug,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-    )]
+    #[derive(PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Outline {
         NoWinner,
@@ -85,19 +54,10 @@ mod mother {
     /// Auction statuses.
     /// Logic inspired by
     /// [Parachain Auction](https://github.com/paritytech/polkadot/blob/master/runtime/common/src/traits.rs#L160)
-    #[derive(
-        scale::Encode,
-        scale::Decode,
-        Eq,
-        PartialEq,
-        Debug,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-    )]
+    #[derive(PartialEq, Eq, Debug, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Status {
         /// An auction has not started yet.
@@ -115,27 +75,11 @@ mod mother {
         RfDelay(BlockNumber),
     }
 
-    impl SpreadAllocate for Status {
-        #[inline]
-        fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-            ptr.advance_by(<BlockNumber>::FOOTPRINT * 2);
-            Self::NotStarted
-        }
-    }
     /// Struct for storing auction data.
-    #[derive(
-        Debug,
-        PartialEq,
-        scale::Encode,
-        scale::Decode,
-        Clone,
-        SpreadLayout,
-        PackedLayout,
-        SpreadAllocate,
-    )]
+    #[derive(Debug, PartialEq, Eq, Clone, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout,)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub struct Auction {
         /// Branded name of the auction event.
@@ -186,7 +130,7 @@ mod mother {
 
     /// Storage of the contract.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct Mother {
         auction: Auction,
         balances: Mapping<AccountId, Balance>,
@@ -195,18 +139,25 @@ mod mother {
     impl Mother {
         #[ink(constructor)]
         pub fn new(auction: Auction) -> Self {
-            initialize_contract(|c: &mut Self| {
-                c.balances = <Mapping<AccountId, Balance>>::default();
-                c.auction = auction;
-            })
+            Self {
+                balances: Default::default(),
+                auction,
+            }
         }
 
         #[ink(constructor)]
         pub fn default() -> Self {
-            initialize_contract(|c: &mut Self| {
-                c.balances = <Mapping<AccountId, Balance>>::default();
-                c.auction = Auction::default();
-            })
+            Default::default()
+        }
+
+        /// Demonstrates the ability to fail a constructor safely.
+        #[ink(constructor)]
+        pub fn failed_new(fail: bool) -> Result<Self, Failure> {
+            if fail {
+                Err(Failure::Revert("Reverting instantiation".to_string()))
+            } else {
+                Ok(Default::default())
+            }
         }
 
         /// Takes an auction data struct as input and returns it back.
@@ -235,14 +186,13 @@ mod mother {
         /// Prints the specified string into node's debug log.
         #[ink(message)]
         pub fn debug_log(&mut self, _message: String) {
-            ink_env::debug_println!("debug_log: {}", _message);
+            ink::env::debug_println!("debug_log: {}", _message);
         }
     }
 
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn echo_auction_works() {
@@ -263,6 +213,19 @@ mod mother {
             contract
                 .revert_or_trap(None)
                 .expect("Contract unexpected failure!");
+        }
+
+        #[ink::test]
+        fn constructor_works_or_fails() {
+            let contract = Mother::failed_new(true);
+            assert!(contract.is_err());
+            assert_eq!(
+                contract.err(),
+                Some(Failure::Revert("Reverting instantiation".to_string()))
+            );
+
+            let contract = Mother::failed_new(false);
+            assert!(contract.is_ok());
         }
 
         #[ink::test]

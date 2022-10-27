@@ -14,36 +14,26 @@
 
 //! Crate providing allocator support for all Wasm compilations of ink! smart contracts.
 //!
-//! The default allocator is a bump allocator whose goal is to have a small size footprint. If you
-//! are not concerned about the size of your final Wasm binaries you may opt into using the more
-//! full-featured `wee_alloc` allocator by activating the `wee-alloc` crate feature.
+//! The allocator is a bump allocator whose goal is to have a small size footprint.
+//! It never frees memory, having this logic in place would increase the size footprint
+//! of each contract.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
 
-// We use `wee_alloc` as the global allocator since it is optimized for binary file size
-// so that contracts compiled with it as allocator do not grow too much in size.
 #[cfg(not(feature = "std"))]
-#[cfg(feature = "wee-alloc")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-#[cfg(not(feature = "std"))]
-#[cfg(not(feature = "wee-alloc"))]
 #[global_allocator]
 static mut ALLOC: bump::BumpAllocator = bump::BumpAllocator {};
 
-#[cfg(not(feature = "wee-alloc"))]
 mod bump;
 
 #[cfg(not(feature = "std"))]
 mod handlers;
 
-#[cfg(all(
-    test,
-    feature = "std",
-    feature = "ink-fuzz-tests",
-    not(feature = "wee-alloc")
-))]
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests",))]
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
