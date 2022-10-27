@@ -70,16 +70,13 @@ where
             );
             Ok(())
         }
-        Err(_) => {
+        Err(error) => {
             // Constructor is fallible and failed.
             //
             // We need to revert the state of the transaction.
             ink_env::return_value::<
                 <private::Seal<R> as ConstructorReturnType<Contract>>::Error,
-            >(
-                ReturnFlags::default().set_reverted(true),
-                result.error_value(),
-            )
+            >(ReturnFlags::default().set_reverted(true), error)
         }
     }
 }
@@ -125,28 +122,14 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     ///
     /// For infallible constructor returns this always yields `Ok`.
     fn as_result(&self) -> Result<&C, &Self::Error>;
-
-    /// Returns the actual return value of the constructor.
-    ///
-    /// # Note
-    ///
-    /// For infallible constructor returns this always yields `()`
-    /// and is basically ignored since this does not get called
-    /// if the constructor did not fail.
-    fn error_value(&self) -> &Self::Error;
 }
 
 impl<C> ConstructorReturnType<C> for private::Seal<C> {
     type Error = ();
 
-    #[inline]
+    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         Ok(&self.0)
-    }
-
-    #[inline]
-    fn error_value(&self) -> &Self::Error {
-        &()
     }
 }
 
@@ -154,17 +137,9 @@ impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
     const IS_RESULT: bool = true;
     type Error = E;
 
-    #[inline]
+    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
-    }
-
-    #[inline]
-    fn error_value(&self) -> &Self::Error {
-        self.0
-            .as_ref()
-            .err()
-            .expect("value returned only when error occurs. qed")
     }
 }
 
