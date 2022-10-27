@@ -647,6 +647,8 @@
 <span id="645">645</span>
 <span id="646">646</span>
 <span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -979,9 +981,11 @@
     <span class="kw">type</span> <span class="ident">Input</span>;
     <span class="doccomment">/// The ink! storage struct type.</span>
     <span class="kw">type</span> <span class="ident">Storage</span>;
+    <span class="doccomment">/// Reflects the output type of the dispatchable ink! message.</span>
+    <span class="kw">type</span> <span class="ident">Output</span>;
 
     <span class="doccomment">/// The closure that can be used to dispatch into the dispatchable ink! constructor.</span>
-    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Storage</span>;
+    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 
     <span class="doccomment">/// Yields `true` if the dispatchable ink! constructor is payable.</span>
     <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">bool</span>;
