@@ -1115,6 +1115,7 @@ where
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
+#[must_use]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
     opt_type: Option<TypeSpec<F>>,
@@ -1145,7 +1146,6 @@ where
     /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(None); // no return type;
     /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
-    #[must_use]
     pub fn new<T>(ty: T) -> Self
     where
         T: Into<Option<TypeSpec<F>>>,
@@ -1153,6 +1153,11 @@ where
         Self {
             opt_type: ty.into(),
         }
+    }
+
+    /// Create a new return type specification from a custom type.
+    pub fn new_custom(ty: Option<TypeSpec<F>>) -> Self {
+        Self { opt_type: ty }
     }
 
     /// Returns the optional return type
