@@ -84,17 +84,13 @@ impl quote::ToTokens for Constructor {
 }
 
 impl Constructor {
-    /// Ensures that the return type of the ink! constructor is `Self` or `Result<Self>`.
-    ///
-    /// Returns an appropriate error otherwise.
+    /// Ensure that the constructor has a return.
+    /// Returns an error otherwise.
     ///
     /// # Errors
     ///
-    /// If the ink! constructor does not return `Self` or is missing a return
-    /// type entirely.
-    fn ensure_valid_return_type(
-        method_item: &syn::ImplItemMethod,
-    ) -> Result<(), syn::Error> {
+    /// If the ink! constructor is missing a return type.
+    fn ensure_return(method_item: &syn::ImplItemMethod) -> Result<(), syn::Error> {
         if let syn::ReturnType::Default = &method_item.sig.output {
             return Err(format_err_spanned!(
                 &method_item.sig,
@@ -154,7 +150,7 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
 
     fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
-        Self::ensure_valid_return_type(&method_item)?;
+        Self::ensure_return(&method_item)?;
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
