@@ -175,7 +175,6 @@ fn build_contract(manifest_path: &str) -> String {
             "+stable",
             "contract",
             "build",
-            "--skip-linting",
             "--output-json",
             &format!("--manifest-path={}", manifest_path),
         ])
