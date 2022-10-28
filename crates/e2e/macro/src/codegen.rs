@@ -73,7 +73,6 @@ impl InkE2ETest {
         };
 
         let ws_url = &self.test.config.ws_url();
-        let node_log = &self.test.config.node_log();
 
         let mut additional_contracts: Vec<String> =
             self.test.config.additional_contracts();
@@ -144,7 +143,7 @@ impl InkE2ETest {
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         ink::env::DefaultEnvironment
-                    >::new(&#ws_url, &#node_log).await;
+                    >::new(&#ws_url).await;
 
                     let __ret = {
                         #block
@@ -176,7 +175,6 @@ fn build_contract(manifest_path: &str) -> String {
             "+stable",
             "contract",
             "build",
-            "--skip-linting",
             "--output-json",
             &format!("--manifest-path={}", manifest_path),
         ])
