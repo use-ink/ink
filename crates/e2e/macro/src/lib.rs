@@ -63,25 +63,6 @@ use syn::Result;
 ///
 ///     **Default value:** `"ws://localhost:9944"`.
 ///
-/// - `node_log: String`
-///
-///     The `node_log` denotes the path under which to find the node's log.
-///
-///     **Usage Example:**
-///     ```no_compile
-///     # // TODO(#xxx) Remove the `no_compile`.
-///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
-///     async fn e2e_contract_must_transfer_value_to_sender(
-///         mut client: ::ink_e2e::Client<C, E>,
-///     ) -> E2EResult<()> {
-///         assert!(client.node_log_contains("requested value: 100000000000000\n"));
-///         Ok(())
-///     }
-///     ```
-///
-///     **Default value:** `"/tmp/contracts-node.log"`.
-///
 /// # Example
 ///
 /// ```no_compile
@@ -132,7 +113,7 @@ use syn::Result;
 /// );
 /// ```
 #[proc_macro_attribute]
-pub fn e2e_test(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     generate(attr.into(), item.into()).into()
 }
 

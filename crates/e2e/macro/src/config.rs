@@ -24,8 +24,6 @@ use ink_ir::{
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct E2EConfig {
-    /// The path where the node writes its log.
-    node_log: Option<syn::LitStr>,
     /// The WebSocket URL where to connect with the node.
     ws_url: Option<syn::LitStr>,
     /// The set of attributes that can be passed to call builder in the codegen.
@@ -38,25 +36,12 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut node_log: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut ws_url: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("node_log") {
-                if let Some((_, ast)) = node_log {
-                    return Err(duplicate_config_err(ast, arg, "node_log", "e2e test"))
-                }
-                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
-                    node_log = Some((lit_str.clone(), arg))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a path for `node_log` ink! e2e test configuration argument",
-                    ))
-                }
-            } else if arg.name.is_ident("ws_url") {
+            if arg.name.is_ident("ws_url") {
                 if let Some((_, ast)) = ws_url {
                     return Err(duplicate_config_err(ast, arg, "ws_url", "e2e test"))
                 }
@@ -98,7 +83,6 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
             .map(|(value, _)| value.value().split(' ').map(String::from).collect())
             .unwrap_or_else(Vec::new);
         Ok(E2EConfig {
-            node_log: node_log.map(|(value, _)| value),
             ws_url: ws_url.map(|(value, _)| value),
             additional_contracts,
             whitelisted_attributes,
@@ -107,14 +91,6 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
 }
 
 impl E2EConfig {
-    /// Returns the path to the node log if specified.
-    /// Otherwise returns the default path `/tmp/contracts-node.log`.
-    pub fn node_log(&self) -> syn::LitStr {
-        let default_node_log =
-            syn::LitStr::new("/tmp/contracts-node.log", proc_macro2::Span::call_site());
-        self.node_log.clone().unwrap_or(default_node_log)
-    }
-
     /// Returns the WebSocket URL where to connect to the RPC endpoint
     /// of the node, if specified. Otherwise returns the default URL
     /// `ws://localhost:9944`.
@@ -199,7 +175,6 @@ mod tests {
                 keep_attr = "foo, bar"
             },
             Ok(E2EConfig {
-                node_log: None,
                 ws_url: None,
                 whitelisted_attributes: attrs,
                 additional_contracts: Vec::new(),

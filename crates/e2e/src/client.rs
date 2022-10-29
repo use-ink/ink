@@ -256,7 +256,6 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
-    node_log: String,
 }
 
 impl<C, E> Client<C, E>
@@ -278,7 +277,7 @@ where
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
-    pub async fn new(url: &str, node_log: &str) -> Self {
+    pub async fn new(url: &str) -> Self {
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
@@ -290,7 +289,6 @@ where
 
         Self {
             api: ContractsApi::new(client, url).await,
-            node_log: node_log.to_string(),
         }
     }
 
@@ -365,7 +363,6 @@ where
             return Err(Error::InstantiateDryRun(dry_run))
         }
 
-        self.set_current_nonce(signer).await;
         let tx_events = self
             .api
             .instantiate_with_code(
@@ -378,7 +375,6 @@ where
                 signer,
             )
             .await;
-        signer.increment_nonce();
 
         let mut account_id = None;
         for evt in tx_events.iter() {
@@ -469,9 +465,7 @@ where
             return Err(Error::UploadDryRun(dry_run))
         }
 
-        self.set_current_nonce(signer).await;
         let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
-        signer.increment_nonce();
 
         let mut hash = None;
         for evt in tx_events.iter() {
@@ -558,7 +552,6 @@ where
             return Err(Error::CallDryRun(dry_run))
         }
 
-        self.set_current_nonce(signer).await;
         let tx_events = self
             .api
             .call(
@@ -570,7 +563,6 @@ where
                 signer,
             )
             .await;
-        signer.increment_nonce();
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -641,44 +633,5 @@ where
             account_id, alice_pre
         ));
         Ok(alice_pre.data.free)
-    }
-
-    /// Returns true if the `substrate-contracts-node` log under
-    /// `/tmp/contracts-node.log` contains `msg`.
-    /// TODO(#1423) Matches on any log entry currently, even if done
-    /// by a different test.
-    pub fn node_log_contains(&self, msg: &str) -> bool {
-        let output = std::process::Command::new("grep")
-            .arg("-q")
-            .arg(msg)
-            .arg(&self.node_log)
-            .spawn()
-            .map_err(|err| {
-                format!("ERROR while executing `grep` with {:?}: {:?}", msg, err)
-            })
-            .expect("failed to execute process")
-            .wait_with_output()
-            .expect("failed to receive output");
-        output.status.success()
-    }
-
-    /// Fetches the next system account index for `signer.account_id()`
-    /// and sets it as nonce for `signer`.
-    async fn set_current_nonce(&mut self, signer: &mut Signer<C>) {
-        let nonce = self
-            .api
-            .client
-            .rpc()
-            .system_account_next_index(signer.account_id())
-            .await
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error getting next index for {:?}: {:?}",
-                    signer.account_id(),
-                    err
-                );
-            });
-        log_info(&format!("setting signer nonce to {:?}", nonce));
-        signer.set_nonce(nonce);
     }
 }

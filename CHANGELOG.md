@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
 
 - Remove random function from ink!.
 
@@ -24,7 +25,7 @@ crate. All existing sub-crates are reexported and should be used via the new `in
   - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
 
 #### Storage Rework
-[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys 
+[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys
 are generated at compile-time, and user facing abstractions which determine how contract data is laid out in storage
 have changed.
 
