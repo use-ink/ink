@@ -87,39 +87,37 @@ mod erc721 {
         NotAllowed,
     }
 
-    /// Event emitted when a token transfer occurs.
-    #[ink(event)]
-    pub struct Transfer {
-        #[ink(topic)]
-        from: Option<AccountId>,
-        #[ink(topic)]
-        to: Option<AccountId>,
-        #[ink(topic)]
-        id: TokenId,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Event emitted when a token transfer occurs.
+        Transfer {
+            #[ink(topic)]
+            from: Option<AccountId>,
+            #[ink(topic)]
+            to: Option<AccountId>,
+            #[ink(topic)]
+            id: TokenId,
+        },
+        /// Event emitted when a token approve occurs.
+        Approval {
+            #[ink(topic)]
+            from: AccountId,
+            #[ink(topic)]
+            to: AccountId,
+            #[ink(topic)]
+            id: TokenId,
+        },
+        /// Event emitted when an operator is enabled or disabled for an owner.
+        /// The operator can manage all NFTs of the owner.
+        ApprovalForAll {
+            #[ink(topic)]
+            owner: AccountId,
+            #[ink(topic)]
+            operator: AccountId,
+            approved: bool,
+        }
     }
-
-    /// Event emitted when a token approve occurs.
-    #[ink(event)]
-    pub struct Approval {
-        #[ink(topic)]
-        from: AccountId,
-        #[ink(topic)]
-        to: AccountId,
-        #[ink(topic)]
-        id: TokenId,
-    }
-
-    /// Event emitted when an operator is enabled or disabled for an owner.
-    /// The operator can manage all NFTs of the owner.
-    #[ink(event)]
-    pub struct ApprovalForAll {
-        #[ink(topic)]
-        owner: AccountId,
-        #[ink(topic)]
-        operator: AccountId,
-        approved: bool,
-    }
-
+    
     impl Erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
@@ -200,7 +198,7 @@ mod erc721 {
         pub fn mint(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.add_token_to(&caller, id)?;
-            self.env().emit_event(Transfer {
+            self.env().emit_event(Event::Transfer {
                 from: Some(AccountId::from([0x0; 32])),
                 to: Some(caller),
                 id,
@@ -230,7 +228,7 @@ mod erc721 {
             owned_tokens_count.insert(&caller, &count);
             token_owner.remove(&id);
 
-            self.env().emit_event(Transfer {
+            self.env().emit_event(Event::Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
                 id,
@@ -256,7 +254,7 @@ mod erc721 {
             self.clear_approval(id);
             self.remove_token_from(from, id)?;
             self.add_token_to(to, id)?;
-            self.env().emit_event(Transfer {
+            self.env().emit_event(Event::Transfer {
                 from: Some(*from),
                 to: Some(*to),
                 id,
@@ -324,7 +322,7 @@ mod erc721 {
             if to == caller {
                 return Err(Error::NotAllowed)
             }
-            self.env().emit_event(ApprovalForAll {
+            self.env().emit_event(Event::ApprovalForAll {
                 owner: caller,
                 operator: to,
                 approved,
@@ -359,7 +357,7 @@ mod erc721 {
                 self.token_approvals.insert(&id, to);
             }
 
-            self.env().emit_event(Approval {
+            self.env().emit_event(Event::Approval {
                 from: caller,
                 to: *to,
                 id,
