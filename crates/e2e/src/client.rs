@@ -363,7 +363,6 @@ where
             return Err(Error::InstantiateDryRun(dry_run))
         }
 
-        self.set_current_nonce(signer).await;
         let tx_events = self
             .api
             .instantiate_with_code(
@@ -376,7 +375,6 @@ where
                 signer,
             )
             .await;
-        signer.increment_nonce();
 
         let mut account_id = None;
         for evt in tx_events.iter() {
@@ -467,9 +465,7 @@ where
             return Err(Error::UploadDryRun(dry_run))
         }
 
-        self.set_current_nonce(signer).await;
         let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
-        signer.increment_nonce();
 
         let mut hash = None;
         for evt in tx_events.iter() {
@@ -556,7 +552,6 @@ where
             return Err(Error::CallDryRun(dry_run))
         }
 
-        self.set_current_nonce(signer).await;
         let tx_events = self
             .api
             .call(
@@ -568,7 +563,6 @@ where
                 signer,
             )
             .await;
-        signer.increment_nonce();
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
@@ -639,25 +633,5 @@ where
             account_id, alice_pre
         ));
         Ok(alice_pre.data.free)
-    }
-
-    /// Fetches the next system account index for `signer.account_id()`
-    /// and sets it as nonce for `signer`.
-    async fn set_current_nonce(&mut self, signer: &mut Signer<C>) {
-        let nonce = self
-            .api
-            .client
-            .rpc()
-            .system_account_next_index(signer.account_id())
-            .await
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error getting next index for {:?}: {:?}",
-                    signer.account_id(),
-                    err
-                );
-            });
-        log_info(&format!("setting signer nonce to {:?}", nonce));
-        signer.set_nonce(nonce);
     }
 }
