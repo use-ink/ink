@@ -204,7 +204,9 @@ impl Engine {
     pub fn deposit_event(&mut self, topics: &[u8], data: &[u8]) {
         // The first byte contains the number of topics in the slice
         let topics_count: scale::Compact<u32> = scale::Decode::decode(&mut &topics[0..1])
-            .expect("decoding number of topics failed");
+            .unwrap_or_else(|err| {
+                panic!("decoding number of topics failed. Reason: {}", err)
+            });
         let topics_count = topics_count.0 as usize;
 
         let topics_vec = if topics_count > 0 {
@@ -239,7 +241,11 @@ impl Engine {
 
         self.database
             .insert_into_contract_storage(&callee, key, encoded_value.to_vec())
-            .map(|v| <u32>::try_from(v.len()).expect("usize to u32 conversion failed"))
+            .map(|v| {
+                <u32>::try_from(v.len()).unwrap_or_else(|err| {
+                    panic!("usize to u32 conversion failed: {}", err)
+                })
+            })
     }
 
     /// Returns the decoded contract storage at the key if any.
@@ -290,10 +296,12 @@ impl Engine {
     pub fn terminate(&mut self, beneficiary: &[u8]) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
-        let all = self.get_balance(contract).expect("could not get balance");
+        let all = self
+            .get_balance(contract)
+            .unwrap_or_else(|err| panic!("could not get balance. Reason: {:?}", err));
         let value = &scale::Encode::encode(&all)[..];
         self.transfer(beneficiary, value)
-            .expect("transfer did not work");
+            .unwrap_or_else(|err| panic!("transfer did not work. Reason: {:?}", err));
 
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this

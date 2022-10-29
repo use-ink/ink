@@ -344,7 +344,7 @@ mod erc721 {
             let caller = self.env().caller();
             let owner = self.owner_of(id);
             if !(owner == Some(caller)
-                || self.approved_for_all(owner.expect("Error with AccountId"), caller))
+                || self.approved_for_all(owner.unwrap_or_else(|err| panic!("Error with AccountId: {}", err)), caller))
             {
                 return Err(Error::NotAllowed)
             };
@@ -391,8 +391,8 @@ mod erc721 {
                 && (from == owner
                     || from == self.token_approvals.get(&id)
                     || self.approved_for_all(
-                        owner.expect("Error with AccountId"),
-                        from.expect("Error with AccountId"),
+                        owner.unwrap_or_else(|err| panic!("Error with AccountId: {}", err)),
+                        from.unwrap_or_else(|err| panic!("Error with AccountId: {}", err)),
                     ))
         }
 

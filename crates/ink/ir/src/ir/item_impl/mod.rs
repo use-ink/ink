@@ -309,7 +309,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             return Err(format_err!(
                 impl_block_span,
                 "namespace ink! property is not allowed on ink! trait implementation blocks",
-            ))
+            ));
         }
         Ok(Self {
             attrs: other_attrs,

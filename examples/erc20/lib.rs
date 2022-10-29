@@ -228,7 +228,7 @@ mod erc20 {
             expected_value: Balance,
         ) {
             let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
-                .expect("encountered invalid contract event data buffer");
+                .unwrap_or_else(|err| panic!("encountered invalid contract event data buffer: {}", err));
             if let Event::Transfer(Transfer { from, to, value }) = decoded_event {
                 assert_eq!(from, expected_from, "encountered invalid Transfer.from");
                 assert_eq!(to, expected_to, "encountered invalid Transfer.to");

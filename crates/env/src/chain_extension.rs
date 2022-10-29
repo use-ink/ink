@@ -382,7 +382,7 @@ where
                 ErrorCode::from_status_code,
                 |mut output| {
                     let decoded = <O as scale::Decode>::decode(&mut output)
-                        .expect("encountered error while decoding chain extension method call return value");
+                        .unwrap_or_else(|err| panic!("encountered error while decoding chain extension method call return value: {}", err));
                     Ok(decoded)
                 },
             )
@@ -431,10 +431,10 @@ where
                 |_status_code| Ok(()),
                 |mut output| {
                     let decoded = <O as scale::Decode>::decode(&mut output)
-                        .expect("encountered error while decoding chain extension method call return value");
+                        .unwrap_or_else(|err| panic!("encountered error while decoding chain extension method call return value: {}", err));
                     Ok(decoded)
                 },
-            ).expect("assume the chain extension method never fails")
+            ).unwrap_or_else(|err| panic!("assume the chain extension method never fails, but there's a first time for anything{:?}", err))
         })
     }
 }

@@ -117,7 +117,7 @@ impl GenerateCode for InkE2ETest<'_> {
 
                 let json = String::from_utf8_lossy(&output.stdout);
                 let metadata: serde_json::Value =
-                    serde_json::from_str(&json).expect("cannot convert json to utf8");
+                    serde_json::from_str(&json).unwrap_or_else(|err| panic!("cannot convert json to utf8. Reason: {}", err));
                 let mut dest_metadata =
                     metadata["metadata_result"]["dest_bundle"].to_string();
                 dest_metadata = dest_metadata.trim_matches('"').to_string();

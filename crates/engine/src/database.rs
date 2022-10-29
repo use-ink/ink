@@ -114,8 +114,9 @@ impl Database {
     pub fn get_balance(&self, account_id: &[u8]) -> Option<Balance> {
         let hashed_key = balance_of_key(account_id);
         self.get(&hashed_key).map(|encoded_balance| {
-            scale::Decode::decode(&mut &encoded_balance[..])
-                .expect("unable to decode balance from database")
+            scale::Decode::decode(&mut &encoded_balance[..]).unwrap_or_else(|err| {
+                panic!("unable to decode balance from database. Reason: {}", err)
+            })
         })
     }
 

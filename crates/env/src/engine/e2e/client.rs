@@ -316,7 +316,7 @@ where
 
         let salt = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .expect("unable to get unix time")
+            .unwrap_or_else(|err| panic!("unable to get unix time. Reason: {}", err))
             .as_millis()
             .as_u128()
             .to_le_bytes()
@@ -520,9 +520,9 @@ where
             .map_err(|err| {
                 format!("ERROR while executing `grep` with {:?}: {:?}", msg, err)
             })
-            .expect("failed to execute process")
+            .unwrap_or_else(|err| panic!("failed to execute process. Reason: {}", err))
             .wait_with_output()
-            .expect("failed to receive output");
+            .unwrap_or_else(|err| panic!("failed to receive output. Reason: {}", err));
         output.status.success()
     }
 }

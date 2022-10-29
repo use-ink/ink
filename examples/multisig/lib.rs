@@ -82,7 +82,7 @@ mod multisig {
 
     type TransactionId = u32;
     const WRONG_TRANSACTION_ID: &str =
-        "The user specified an invalid transaction id. Abort.";
+        "The user specified an invalid transaction id. Abort. {}";
 
     /// A wrapper that allows us to encode a blob of bytes.
     ///
@@ -349,7 +349,7 @@ mod multisig {
         ///     )
         ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .fire()
-        ///     .expect("submit_transaction won't panic");
+        ///     .unwrap_or_else(|err| panic!("submit_transaction won't panic: {}", err));
         ///
         /// // Wait until all required owners have confirmed and then execute the transaction
         /// //
@@ -363,7 +363,7 @@ mod multisig {
         ///     )
         ///     .returns::<()>()
         ///     .fire()
-        ///     .expect("invoke_transaction won't panic");
+        ///     .unwrap_or_else(|err| panic!("invoke_transaction won't panic: {}", err));
         /// ```
         #[ink(message)]
         pub fn add_owner(&mut self, new_owner: AccountId) {
@@ -446,7 +446,7 @@ mod multisig {
             self.ensure_caller_is_owner();
             let trans_id = self.transaction_list.next_id;
             self.transaction_list.next_id =
-                trans_id.checked_add(1).expect("Transaction ids exhausted.");
+                trans_id.checked_add(1).unwrap_or_else(|err| panic!("Transaction ids exhausted. {}", err));
             self.transactions.insert(trans_id, &transaction);
             self.transaction_list.transactions.push(trans_id);
             self.env().emit_event(Submission {
@@ -507,9 +507,7 @@ mod multisig {
                 let mut confirmation_count = self
                     .confirmation_count
                     .get(&trans_id)
-                    .expect(
-                    "There is a entry in `self.confirmations`. Hence a count must exit.",
-                );
+                    .unwrap_or_else(|err| panic!("There is a entry in `self.confirmations`. Hence a count must exit. {}", err));
                 // Will not underflow as there is at least one confirmation
                 confirmation_count -= 1;
                 self.confirmation_count
@@ -535,7 +533,7 @@ mod multisig {
             trans_id: TransactionId,
         ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
-            let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
+            let t = self.take_transaction(trans_id).unwrap_or_else(|err| panic!(WRONG_TRANSACTION_ID, err));
             assert!(self.env().transferred_value() == t.transferred_value);
             let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
                 .call_type(
@@ -569,7 +567,7 @@ mod multisig {
             trans_id: TransactionId,
         ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
-            let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
+            let t = self.take_transaction(trans_id).unwrap_or_else(|err| panic!(WRONG_TRANSACTION_ID, err));
             let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
@@ -627,9 +625,9 @@ mod multisig {
         /// Get the index of `owner` in `self.owners`.
         /// Panics if `owner` is not found in `self.owners`.
         fn owner_index(&self, owner: &AccountId) -> u32 {
-            self.owners.iter().position(|x| *x == *owner).expect(
-                "This is only called after it was already verified that the id is
-                 actually an owner.",
+            self.owners.iter().position(|x| *x == *owner).unwrap_or_else(
+                |err| panic!("This is only called after it was already verified that the id is
+                 actually an owner.", err),
             ) as u32
         }
 
@@ -644,7 +642,7 @@ mod multisig {
                     .transactions
                     .iter()
                     .position(|t| t == &trans_id)
-                    .expect("The transaction exists hence it must also be in the list.");
+                    .unwrap_or_else(|err| panic!("The transaction exists hence it must also be in the list. {}", err));
                 self.transaction_list.transactions.swap_remove(pos);
                 for owner in self.owners.iter() {
                     self.confirmations.remove(&(trans_id, *owner));
@@ -674,14 +672,14 @@ mod multisig {
             assert!(
                 self.confirmation_count
                     .get(&trans_id)
-                    .expect(WRONG_TRANSACTION_ID)
+                    .unwrap_or_else(|err| panic!(WRONG_TRANSACTION_ID, err))
                     >= self.requirement
             );
         }
 
         /// Panic if the transaction `trans_id` does not exit.
         fn ensure_transaction_exists(&self, trans_id: TransactionId) {
-            self.transactions.get(trans_id).expect(WRONG_TRANSACTION_ID);
+            self.transactions.get(trans_id).unwrap_or_else(|err| panic!(WRONG_TRANSACTION_ID, err));
         }
 
         /// Panic if the sender is no owner of the wallet.

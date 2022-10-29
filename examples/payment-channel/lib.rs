@@ -267,7 +267,7 @@ mod payment_channel {
 
             let mut pub_key = [0; 33];
             ink::env::ecdsa_recover(&signature, &message, &mut pub_key)
-                .expect("recover failed");
+                .unwrap_or_else(|err| panic!("recover failed: {}", err));
             let mut signature_account_id = [0; 32];
             <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &pub_key,
@@ -305,7 +305,7 @@ mod payment_channel {
 
         fn get_account_balance(account: AccountId) -> Balance {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(account)
-                .expect("Cannot get account balance")
+                .unwrap_or_else(|err| panic!("Cannot get account balance: {}", err))
         }
 
         fn advance_block() {
@@ -315,7 +315,7 @@ mod payment_channel {
         fn get_current_time() -> Timestamp {
             let since_the_epoch = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .expect("Time went backwards");
+                .unwrap_or_else(|err| panic!("Time went backwards: {}", err));
             since_the_epoch.as_secs()
                 + since_the_epoch.subsec_nanos() as u64 / 1_000_000_000
         }
@@ -330,7 +330,7 @@ mod payment_channel {
             let pub_key = pair.public();
             let compressed_pub_key: [u8; 33] = pub_key.encode()[..]
                 .try_into()
-                .expect("slice with incorrect length");
+                .unwrap_or_else(|err| panic!("slice with incorrect length: {}", err));
             let mut account_id = [0; 32];
             <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &compressed_pub_key,
@@ -465,7 +465,7 @@ mod payment_channel {
             let signature = sign(contract_id, amount);
             payment_channel
                 .withdraw(amount, signature)
-                .expect("withdraw failed");
+                .unwrap_or_else(|err| panic!("withdraw failed: {}", err));
 
             // then
             assert_eq!(payment_channel.get_balance(), amount);
@@ -517,7 +517,7 @@ mod payment_channel {
 
             payment_channel
                 .start_sender_close()
-                .expect("start_sender_close failed");
+                .unwrap_or_else(|err| panic!("start_sender_close failed: {}", err));
             advance_block();
 
             // then
@@ -543,7 +543,7 @@ mod payment_channel {
 
             payment_channel
                 .start_sender_close()
-                .expect("start_sender_close failed");
+                .unwrap_or_else(|err| panic!("start_sender_close failed: {}", err));
             advance_block();
 
             // then

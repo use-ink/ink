@@ -145,8 +145,8 @@ where
             WsClientBuilder::default()
                 .build(&url)
                 .await
-                .unwrap_or_else(|err| {
-                    panic!("error on ws request: {:?}", err);
+                .unwrap_or_else(|error| {
+                    panic!("error on ws request: {:?}", error);
                 });
 
         Self {
@@ -182,10 +182,11 @@ where
             .ws_client
             .request("state_call", params)
             .await
-            .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_instantiate`: {:?}", err);
+            .unwrap_or_else(|error| {
+                panic!("error on ws request `contracts_instantiate`: {:?}", error);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding failed. Reason: {}", err))
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
@@ -229,10 +230,10 @@ where
                 ));
                 tx_progress
             })
-            .unwrap_or_else(|err| {
+            .unwrap_or_else(|error| {
                 panic!(
                     "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
+                    error
                 );
             })
             .wait_for_in_block()
@@ -272,7 +273,8 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding failed. Reason: {}", err))
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.

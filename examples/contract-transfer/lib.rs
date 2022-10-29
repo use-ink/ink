@@ -176,7 +176,7 @@ pub mod give_me {
             ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
                 account_id,
             )
-            .expect("Cannot get account balance")
+            .unwrap_or_else(|err| panic!("Cannot get account balance: {}", err))
         }
     }
 
@@ -196,7 +196,7 @@ pub mod give_me {
             let contract_acc_id = client
                 .instantiate(&mut ink::env::e2e::alice(), constructor, 1000, None)
                 .await
-                .expect("instantiate failed")
+                .unwrap_or_else(|err| panic!("instantiate failed: {}", err))
                 .account_id;
 
             // when
@@ -233,12 +233,12 @@ pub mod give_me {
             let contract_acc_id = client
                 .instantiate(&mut ink::env::e2e::bob(), constructor, 1337, None)
                 .await
-                .expect("instantiate failed")
+                .unwrap_or_else(|err| panic!("instantiate failed: {}", err))
                 .account_id;
             let balance_before: Balance = client
                 .balance(contract_acc_id.clone())
                 .await
-                .expect("getting balance failed");
+                .unwrap_or_else(|err| panic!("getting balance failed: {}", err));
 
             // when
             let transfer = contract_transfer::messages::give_me(120);
@@ -251,13 +251,13 @@ pub mod give_me {
                     None,
                 )
                 .await
-                .expect("call failed");
+                .unwrap_or_else(|err| panic!("call failed: {}", err));
 
             // then
             let balance_after: Balance = client
                 .balance(contract_acc_id)
                 .await
-                .expect("getting balance failed");
+                .expectunwrap_or_else(|err| panic!("getting balance failed: {}", err));
             assert_eq!(balance_before - balance_after, 120);
             assert!(client.node_log_contains("requested value: 100000000000000\n"));
 

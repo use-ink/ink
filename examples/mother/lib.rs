@@ -202,7 +202,7 @@ mod mother {
             );
             contract
                 .revert_or_trap(None)
-                .expect("Contract unexpected failure!");
+                .unwrap_or_else(|err| panic!("Contract unexpected failure! {}", err));
         }
 
         #[ink::test]

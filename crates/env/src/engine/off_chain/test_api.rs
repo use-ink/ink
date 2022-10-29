@@ -170,7 +170,8 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let callee = instance.engine.get_callee();
-        scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
+        scale::Decode::decode(&mut &callee[..])
+            .unwrap_or_else(|err| panic!("encoding failed. Reason: {}", err))
     })
 }
 
@@ -388,10 +389,11 @@ pub fn assert_contract_termination<T, F>(
         .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
     let (value_transferred, encoded_beneficiary): (T::Balance, Vec<u8>) =
-        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
+        scale::Decode::decode(&mut &encoded_input[..])
+            .unwrap_or_else(|err| panic!("input can not be decoded. Reason: {}", err));
     let beneficiary =
         <T::AccountId as scale::Decode>::decode(&mut &encoded_beneficiary[..])
-            .expect("input can not be decoded");
+            .unwrap_or_else(|err| panic!("input can not be decoded. Reason: {}", err));
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
 }

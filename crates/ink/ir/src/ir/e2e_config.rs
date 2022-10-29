@@ -53,7 +53,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a path for `node_log` ink! e2e test configuration argument",
-                    ))
+                    ));
                 }
             } else if arg.name.is_ident("ws_url") {
                 if let Some((_, ast)) = ws_url {
@@ -65,7 +65,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a string literal for `ws_url` ink! e2e test configuration argument",
-                    ))
+                    ));
                 }
             } else if arg.name.is_ident("skip_build") {
                 if let Some((_, ast)) = skip_build {
@@ -77,7 +77,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a bool literal for `skip_build` ink! e2e test configuration argument",
-                    ))
+                    ));
                 }
             } else if arg.name.is_ident("keep_attr") {
                 whitelisted_attributes.parse_arg_value(&arg)?;

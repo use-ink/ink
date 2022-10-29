@@ -349,7 +349,12 @@ impl InkItemTrait {
                 }
             },
         )
-        .expect("encountered unexpected invalid attributes on ink! trait definition");
+        .unwrap_or_else(|err| {
+            panic!(
+                "encountered unexpected invalid attributes on ink! trait definition: {}",
+                err
+            )
+        });
         let namespace = config.namespace();
         let ident = &item_trait.ident;
         let trait_prefix = TraitPrefix::new(ident, namespace);
@@ -380,7 +385,7 @@ impl InkItemTrait {
                 ).into_combine(format_err_spanned!(
                     duplicate_selector,
                     "first ink! trait constructor or message with same selector found here",
-                )))
+                )));
             }
             assert!(
                 duplicate_ident.is_none(),

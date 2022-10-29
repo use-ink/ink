@@ -37,7 +37,7 @@ impl ChainExtension {
     /// Returns the Rust attributes of the ink! chain extension.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
         let (_, attrs) = ir::partition_attributes(self.item.attrs.iter().cloned())
-            .expect("encountered unexpected invalid attributes for ink! chain extension");
+            .unwrap_or_else(|err| panic!("encountered unexpected invalid attributes for ink! chain extension: {}", err));
         attrs
     }
 
@@ -278,7 +278,7 @@ impl ChainExtension {
                 item_type.ident,
                 "chain extensions expect an associated type with name `ErrorCode` but found {}",
                 item_type.ident,
-            ))
+            ));
         }
         if !item_type.generics.params.is_empty() {
             return Err(format_err_spanned!(
@@ -412,7 +412,7 @@ impl ChainExtension {
             return Err(format_err_spanned!(
                 default_impl,
                 "ink! chain extension methods with default implementations are not supported"
-            ))
+            ));
         }
         if let Some(constness) = &method.sig.constness {
             return Err(format_err_spanned!(

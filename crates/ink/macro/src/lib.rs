@@ -932,7 +932,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///             None,
 ///         )
 ///         .await
-///         .expect("instantiating contract failed")
+///         .unwrap_or_else(|err| panic!("instantiating contract failed. Reason: {:?}", err))
 ///         .account_id;
 ///
 ///         // when

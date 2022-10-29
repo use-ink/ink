@@ -112,7 +112,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 return Err(format_err!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
-                ))
+                ));
             }
             for arg in normalized.args() {
                 if !matches!(arg.kind(), ir::AttributeArg::Topic) {
@@ -169,7 +169,9 @@ impl<'a> EventField<'a> {
     /// Returns all non-ink! attributes of the event field.
     pub fn attrs(self) -> Vec<syn::Attribute> {
         let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
-            .expect("encountered invalid event field attributes");
+            .unwrap_or_else(|err| {
+                panic!("encountered invalid event field attributes: {}", err)
+            });
         non_ink_attrs
     }
 
