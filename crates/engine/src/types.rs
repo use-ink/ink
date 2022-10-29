@@ -17,9 +17,6 @@
 
 use derive_more::From;
 
-/// Same type as the `DefaultEnvironment::Hash` type.
-pub type Hash = [u8; 32];
-
 /// Same type as the `DefaultEnvironment::BlockNumber` type.
 pub type BlockNumber = u32;
 

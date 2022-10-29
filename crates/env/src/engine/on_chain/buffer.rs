@@ -146,14 +146,6 @@ impl<'a> ScopedBuffer<'a> {
         lhs
     }
 
-    /// Returns a buffer scope filled with `bytes` with the proper length.
-    pub fn take_bytes(&mut self, bytes: &[u8]) -> &'a mut [u8] {
-        debug_assert_eq!(self.offset, 0);
-        let buffer = self.take(bytes.len());
-        buffer.copy_from_slice(bytes);
-        buffer
-    }
-
     /// Encode the given value into the scoped buffer and return the sub slice
     /// containing all the encoded bytes.
     #[inline(always)]

@@ -450,15 +450,6 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    /// Returns a random hash seed.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`random`][`crate::random`]
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-    where
-        E: Environment;
-
     /// Checks whether a specified account belongs to a contract.
     ///
     /// # Note

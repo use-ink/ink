@@ -47,7 +47,6 @@ secp256k1 = { version = "0.24", features = ["recovery", "global-context"], optio
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
-rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [features]
@@ -62,8 +61,6 @@ std = [
     "scale/std",
     "scale-info/std",
     "secp256k1",
-    "rand/std",
-    "rand/std_rng",
     "num-traits/std",
     # Enables hashing crates for off-chain environment.
     "sha2",
