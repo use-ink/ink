@@ -456,7 +456,7 @@ where
     ///             )
     ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
     ///         .params();
-    ///     self.env().instantiate_contract(&create_params).expect("instantiation must succeed")
+    ///     self.env().instantiate_contract(&create_params).unwrap_or_else(|err| panic!("instantiation must succeed: {}", err))
     /// }
     /// #
     /// #     }
@@ -519,7 +519,7 @@ where
     ///     )
     ///     .returns::<i32>()
     ///     .params();
-    ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed")
+    ///     self.env().invoke_contract(&call_params).unwrap_or_else(|err| panic!("call invocation must succeed: {}", err))
     /// }
     /// #
     /// #     }
@@ -578,7 +578,7 @@ where
     ///         )
     ///         .returns::<i32>()
     ///         .params();
-    ///     self.env().invoke_contract_delegate(&call_params).expect("call delegate invocation must succeed")
+    ///     self.env().invoke_contract_delegate(&call_params).unwrap_or_else(|err| panic!("call delegate invocation must succeed: {}", err))
     /// }
     /// #
     /// #     }
@@ -652,7 +652,7 @@ where
     /// #[ink(message)]
     /// pub fn give_me_ten(&mut self) {
     ///     let value: Balance = 10;
-    ///     self.env().transfer(self.env().caller(), value).expect("transfer failed");
+    ///     self.env().transfer(self.env().caller(), value).unwrap_or_else(|err| panic!("transfer failed: {}", err));
     /// }
     /// #
     /// #     }
@@ -810,7 +810,7 @@ where
     ///     let output = self
     ///         .env()
     ///         .ecdsa_to_eth_address(&pub_key)
-    ///         .expect("must return an Ethereum address for the compressed public key");
+    ///         .unwrap_or_else("must return an Ethereum address for the compressed public key: {}", err);
     ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
     /// }
     /// #
@@ -939,7 +939,7 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn own_code_hash(&mut self) -> Hash {
-    ///     self.env().own_code_hash().expect("contract should have a code hash")
+    ///     self.env().own_code_hash().unwrap_or_else(|err| panic!("contract should have a code hash: {}", err))
     /// }
     /// #    }
     /// # }

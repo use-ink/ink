@@ -336,7 +336,7 @@ where
 
         let salt = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .expect("unable to get unix time")
+            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
             .as_millis()
             .as_u128()
             .to_le_bytes()
@@ -510,7 +510,12 @@ where
         // the dry-run.
         let code_hash = match hash {
             Some(hash) => hash,
-            None => dry_run.as_ref().expect("must have worked").code_hash,
+            None => {
+                dry_run
+                    .as_ref()
+                    .unwrap_or_else(|err| panic!("must have worked: {:?}", err))
+                    .code_hash
+            }
         };
 
         Ok(UploadResult {
@@ -588,8 +593,12 @@ where
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
         let value: <M as InkMessage>::ReturnType =
-            scale::Decode::decode(&mut bytes.as_ref())
-                .expect("decoding dry run result to ink! message return type failed");
+            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+                panic!(
+                    "decoding dry run result to ink! message return type failed: {}",
+                    err
+                )
+            });
 
         Ok(CallResult {
             value,

@@ -169,7 +169,9 @@ impl<'a> EventField<'a> {
     /// Returns all non-ink! attributes of the event field.
     pub fn attrs(self) -> Vec<syn::Attribute> {
         let (_, non_ink_attrs) = ir::partition_attributes(self.field.attrs.clone())
-            .expect("encountered invalid event field attributes");
+            .unwrap_or_else(|err| {
+                panic!("encountered invalid event field attributes: {}", err)
+            });
         non_ink_attrs
     }
 
