@@ -267,7 +267,7 @@ mod payment_channel {
 
             let mut pub_key = [0; 33];
             ink::env::ecdsa_recover(&signature, &message, &mut pub_key)
-                .unwrap_or_else(|err| panic!("recover failed: {}", err));
+                .unwrap_or_else(|err| panic!("recover failed: {:?}", err));
             let mut signature_account_id = [0; 32];
             <ink::env::hash::Blake2x256 as ink::env::hash::CryptoHash>::hash(
                 &pub_key,

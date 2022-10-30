@@ -264,7 +264,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -342,7 +342,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
@@ -810,7 +810,7 @@ where
     ///     let output = self
     ///         .env()
     ///         .ecdsa_to_eth_address(&pub_key)
-    ///         .unwrap_or_else("must return an Ethereum address for the compressed public key: {}", err);
+    ///         .unwrap_or_else(|err| panic!("must return an Ethereum address for the compressed public key: {}", err));
     ///     assert_eq!(output, EXPECTED_ETH_ADDRESS);
     /// }
     /// #
