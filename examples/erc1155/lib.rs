@@ -319,7 +319,7 @@ mod erc1155 {
             let mut sender_balance = self
                 .balances
                 .get(&(from, token_id))
-                .unwrap_or_else(|err| panic!("Caller should have ensured that `from` holds `token_id`. {}", err));
+                .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
             self.balances.insert(&(from, token_id), &sender_balance);
 
