@@ -644,7 +644,7 @@ mod multisig {
                     .transactions
                     .iter()
                     .position(|t| t == &trans_id)
-                    .unwrap_or_else(|err| panic!("The transaction exists hence it must also be in the list. {}", err));
+                    .expect("The transaction exists hence it must also be in the list.");
                 self.transaction_list.transactions.swap_remove(pos);
                 for owner in self.owners.iter() {
                     self.confirmations.remove(&(trans_id, *owner));
