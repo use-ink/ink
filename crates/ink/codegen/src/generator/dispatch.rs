@@ -31,6 +31,8 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+use super::is_conditionally_excluded;
+
 /// Generates code for the message and constructor dispatcher.
 ///
 /// This code efficiently selects the dispatched ink! constructor or message
@@ -96,6 +98,7 @@ impl Dispatch<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
+            .filter(|constr| !is_conditionally_excluded(constr.attrs()))
             .count()
     }
 
@@ -107,6 +110,7 @@ impl Dispatch<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_messages())
+            .filter(|msg| !is_conditionally_excluded(msg.attrs()))
             .count()
     }
 
@@ -162,11 +166,13 @@ impl Dispatch<'_> {
             .flat_map(|item_impl| {
                 iter::repeat(item_impl.trait_path()).zip(item_impl.iter_messages())
             })
-            .map(|(trait_path, message)| {
+            .filter_map(|(trait_path, message)| {
+                if is_conditionally_excluded(message.attrs()) {
+                    return None;
+                }
                 let span = message.span();
                 message_spans.push(span);
-
-                if let Some(trait_path) = trait_path {
+                let tokens = if let Some(trait_path) = trait_path {
                     let local_id = message.local_id().hex_padded_suffixed();
                     quote_spanned!(span=>
                         {
@@ -183,7 +189,8 @@ impl Dispatch<'_> {
                         .into_be_u32()
                         .hex_padded_suffixed();
                     quote_spanned!(span=> #id)
-                }
+                };
+                Some(tokens)
             })
             .collect::<Vec<_>>();
         quote_spanned!(span=>
@@ -215,6 +222,7 @@ impl Dispatch<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
+            .filter(|constructor| !is_conditionally_excluded(constructor.attrs()))
             .map(|constructor| {
                 let span = constructor.span();
                 constructor_spans.push(span);
@@ -250,6 +258,7 @@ impl Dispatch<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
+            .filter(|constructor| !is_conditionally_excluded(constructor.attrs()))
             .map(|constructor| {
                 let constructor_span = constructor.span();
                 let constructor_ident = constructor.ident();
@@ -294,6 +303,7 @@ impl Dispatch<'_> {
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
             .flat_map(|item_impl| item_impl.iter_messages())
+            .filter(|message| !is_conditionally_excluded(message.attrs()))
             .map(|message| {
                 let message_span = message.span();
                 let message_ident = message.ident();
@@ -313,7 +323,6 @@ impl Dispatch<'_> {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
-
                         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                             |storage, #input_tuple_bindings| {
                                 #storage_ident::#message_ident( storage #( , #input_bindings )* )
@@ -329,6 +338,7 @@ impl Dispatch<'_> {
             .contract
             .module()
             .impls()
+            .filter(|message| !is_conditionally_excluded(message.attrs()))
             .filter_map(|item_impl| {
                 item_impl
                     .trait_path()

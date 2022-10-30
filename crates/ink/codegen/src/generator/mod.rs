@@ -42,6 +42,9 @@ mod storage;
 mod storage_item;
 mod trait_def;
 
+use quote::ToTokens;
+use syn::Attribute;
+
 pub use self::{
     arg_list::{
         generate_argument_list,
@@ -70,3 +73,18 @@ pub use self::{
     storage_item::StorageItem,
     trait_def::TraitDefinition,
 };
+
+/// Check if the the condition for `cfg` for any of the cfg flags is satisfied
+pub fn is_conditionally_excluded(attrs: &[Attribute]) -> bool {
+    for attr_tokens in attrs
+        .iter()
+        .filter(|a| a.path.is_ident("cfg"))
+        .map(|a| &a.tokens)
+    {
+        let _s = attr_tokens.to_token_stream();
+        if !cfg!(_s) {
+            return true
+        }
+    }
+    false
+}

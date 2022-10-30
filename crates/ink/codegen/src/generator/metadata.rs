@@ -27,6 +27,8 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+use super::is_conditionally_excluded;
+
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
 pub struct Metadata<'a> {
@@ -114,6 +116,7 @@ impl Metadata<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
+            .filter(|constructor| !is_conditionally_excluded(constructor.attrs()))
             .map(|constructor| Self::generate_constructor(constructor))
     }
 
@@ -207,6 +210,7 @@ impl Metadata<'_> {
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
             .flat_map(|item_impl| item_impl.iter_messages())
+            .filter(|message| !is_conditionally_excluded(message.attrs()))
             .map(|message| {
                 let span = message.span();
                 let docs = message
@@ -257,6 +261,7 @@ impl Metadata<'_> {
                     })
             })
             .flatten()
+            .filter(|(_, message)| !is_conditionally_excluded(message.attrs()))
             .map(|((trait_ident, trait_path), message)| {
                 let message_span = message.span();
                 let message_ident = message.ident();
