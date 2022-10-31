@@ -87,11 +87,13 @@ mod payment_channel {
     /// Type alias for the contract's `Result` type.
     pub type Result<T> = core::result::Result<T, Error>;
 
-    /// Emitted when the sender starts closing the channel.
-    #[ink(event)]
-    pub struct SenderCloseStarted {
-        expiration: Timestamp,
-        close_duration: Timestamp,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Emitted when the sender starts closing the channel.
+        SenderCloseStarted {
+            expiration: Timestamp,
+            close_duration: Timestamp,
+        },
     }
 
     impl PaymentChannel {
@@ -159,7 +161,7 @@ mod payment_channel {
             let now = self.env().block_timestamp();
             let expiration = now + self.close_duration;
 
-            self.env().emit_event(SenderCloseStarted {
+            self.env().emit_event(Event::SenderCloseStarted {
                 expiration,
                 close_duration: self.close_duration,
             });
