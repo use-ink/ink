@@ -14,6 +14,7 @@
 
 use crate::{
     blake2b_256,
+    error::ExtError as _,
     ir,
 };
 use proc_macro2::{
@@ -55,16 +56,37 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
             variant.attrs = other_attrs;
             let anonymous = ink_attrs.map_or(false, |attrs| attrs.is_anonymous());
             for (_index, field) in variant.fields.iter_mut().enumerate() {
-                let (topic_attr, other_attrs) = ir::sanitize_optional_attributes(
-                    field.span(),
-                    field.attrs.clone(),
-                    |arg| {
-                        match arg.kind() {
-                            ir::AttributeArg::Topic => Ok(()),
-                            _ => Err(None),
+                let field_span = field.span();
+                let (ink_attrs, other_attrs) =
+                    ir::partition_attributes(field.attrs.clone())?;
+
+                let is_topic = if ink_attrs.is_empty() {
+                    false
+                } else {
+                    let normalized =
+                        ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                            err.into_combine(format_err!(field_span, "at this invocation",))
+                        })?;
+                    match normalized.first().kind() {
+                        ir::AttributeArg::Topic => {
+
+                        },
+                        _ => return Err(format_err!(
+                            field_span,
+                            "first optional ink! attribute of an event field must be #[ink(topic)]",
+                        ))
+                    }
+
+                    for arg in normalized.args() {
+                        if !matches!(arg.kind(), ir::AttributeArg::Topic) {
+                            return Err(format_err!(
+                            arg.span(),
+                            "encountered conflicting ink! attribute for event field",
+                        ))
                         }
-                    },
-                )?;
+                    }
+                };
+
                 let ident = field.ident.clone().unwrap_or_else(|| {
                     panic!("FIELDS SHOULD HAVE A NAME {:?}", field.ident)
                 });
@@ -73,7 +95,7 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                 // regenerate the event enum
                 field.attrs = other_attrs;
                 fields.push(EventField {
-                    is_topic: topic_attr.is_some(),
+                    is_topic,
                     field: field.clone(),
                     ident: ident.clone(),
                 })
@@ -256,8 +278,8 @@ mod tests {
 
     #[test]
     fn simple_try_from_works() {
-        let item_struct: syn::ItemEnum = syn::parse_quote! {
-            #[ink(event)]
+        let item_enum: syn::ItemEnum = syn::parse_quote! {
+            #[ink::event_definition]
             pub enum MyEvent {
                 Event {
                     #[ink(topic)]
@@ -266,48 +288,13 @@ mod tests {
                 }
             }
         };
-        assert!(InkEventDefinition::try_from(item_struct).is_ok());
+        assert!(InkEventDefinition::try_from(item_enum).is_ok());
     }
 
-    fn assert_try_from_fails(item_struct: syn::ItemEnum, expected: &str) {
+    fn assert_try_from_fails(item_enum: syn::ItemEnum, expected: &str) {
         assert_eq!(
-            InkEventDefinition::try_from(item_struct).map_err(|err| err.to_string()),
+            InkEventDefinition::try_from(item_enum).map_err(|err| err.to_string()),
             Err(expected.to_string())
-        )
-    }
-
-    #[test]
-    fn conflicting_struct_attributes_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                #[ink(storage)]
-                pub enum MyEvent {
-                    Event {
-                        #[ink(topic)]
-                        field_1: i32,
-                        field_2: bool,
-                    }
-                }
-            },
-            "encountered conflicting ink! attribute argument",
-        )
-    }
-
-    #[test]
-    fn duplicate_struct_attributes_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub enum MyEvent {
-                    Event {
-                        #[ink(topic)]
-                        field_1: i32,
-                        field_2: bool,
-                    }
-                }
-            },
-            "encountered duplicate ink! attribute",
         )
     }
 
@@ -316,7 +303,7 @@ mod tests {
         assert_try_from_fails(
             syn::parse_quote! {
                 #[ink(storage)]
-                #[ink(event)]
+                #[ink::event_definition]
                 pub enum MyEvent {
                     Event {
                         #[ink(topic)]
@@ -346,27 +333,10 @@ mod tests {
     }
 
     #[test]
-    fn generic_event_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(event)]
-                pub enum GenericEvent<T> {
-                    Event {
-                        #[ink(topic)]
-                        field_1: T,
-                        field_2: bool,
-                    }
-                }
-            },
-            "generic ink! event structs are not supported",
-        )
-    }
-
-    #[test]
     fn non_pub_event_struct() {
         assert_try_from_fails(
             syn::parse_quote! {
-                #[ink(event)]
+                #[ink::event_definition]
                 enum PrivateEvent {
                     Event {
                         #[ink(topic)]
@@ -383,7 +353,7 @@ mod tests {
     fn duplicate_field_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
-                #[ink(event)]
+                #[ink::event_definition]
                 pub enum MyEvent {
                     Event {
                         #[ink(topic)]
@@ -401,7 +371,7 @@ mod tests {
     fn invalid_field_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
-                #[ink(event)]
+                #[ink::event_definition]
                 pub enum MyEvent {
                     Event {
                         #[ink(message)]
@@ -418,7 +388,7 @@ mod tests {
     fn conflicting_field_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
-                #[ink(event)]
+                #[ink::event_definition]
                 pub enum MyEvent {
                     Event {
                         #[ink(topic)]
@@ -428,7 +398,7 @@ mod tests {
                     }
                 }
             },
-            "encountered conflicting ink! attribute for event field",
+            "encountered conflicting ink! attribute argument",
         )
     }
 
@@ -479,7 +449,7 @@ mod tests {
         ];
         let event_def =
             <InkEventDefinition as TryFrom<syn::ItemEnum>>::try_from(syn::parse_quote! {
-                #[ink(event)]
+                #[ink::event_definition]
                 pub enum MyEvent {
                     Event {
                         #[ink(topic)]
@@ -512,7 +482,7 @@ mod tests {
             }
         }
         assert_anonymous_event(syn::parse_quote! {
-            #[ink(event)]
+            #[ink::event_definition]
             pub enum MyEvent {
                 #[ink(anonymous)]
                 Event {
