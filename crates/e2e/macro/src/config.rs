@@ -80,8 +80,8 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
             }
         }
         let additional_contracts = additional_contracts
-            .map(|(value, _)| value.value().split(" ").map(String::from).collect())
-            .unwrap_or_else(|| Vec::new());
+            .map(|(value, _)| value.value().split(' ').map(String::from).collect())
+            .unwrap_or_else(Vec::new);
         Ok(E2EConfig {
             ws_url: ws_url.map(|(value, _)| value),
             additional_contracts,

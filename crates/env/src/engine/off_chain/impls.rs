@@ -495,15 +495,6 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-    where
-        E: Environment,
-    {
-        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        self.engine.random(subject, &mut &mut output[..]);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
-    }
-
     fn is_contract<E>(&mut self, _account: &E::AccountId) -> bool
     where
         E: Environment,
