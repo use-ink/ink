@@ -4,37 +4,35 @@
 mod dns {
     use ink::storage::Mapping;
 
-    /// Emitted whenever a new name is being registered.
-    #[ink(event)]
-    pub struct Register {
-        #[ink(topic)]
-        name: Hash,
-        #[ink(topic)]
-        from: AccountId,
-    }
-
-    /// Emitted whenever an address changes.
-    #[ink(event)]
-    pub struct SetAddress {
-        #[ink(topic)]
-        name: Hash,
-        from: AccountId,
-        #[ink(topic)]
-        old_address: Option<AccountId>,
-        #[ink(topic)]
-        new_address: AccountId,
-    }
-
-    /// Emitted whenever a name is being transferred.
-    #[ink(event)]
-    pub struct Transfer {
-        #[ink(topic)]
-        name: Hash,
-        from: AccountId,
-        #[ink(topic)]
-        old_owner: Option<AccountId>,
-        #[ink(topic)]
-        new_owner: AccountId,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Emitted whenever a new name is being registered.
+        Register {
+            #[ink(topic)]
+            name: Hash,
+            #[ink(topic)]
+            from: AccountId,
+        },
+        /// Emitted whenever an address changes.
+        SetAddress {
+            #[ink(topic)]
+            name: Hash,
+            from: AccountId,
+            #[ink(topic)]
+            old_address: Option<AccountId>,
+            #[ink(topic)]
+            new_address: AccountId,
+        },
+        /// Emitted whenever a name is being transferred.
+        Transfer {
+            #[ink(topic)]
+            name: Hash,
+            from: AccountId,
+            #[ink(topic)]
+            old_owner: Option<AccountId>,
+            #[ink(topic)]
+            new_owner: AccountId,
+        },
     }
 
     /// Domain name service contract inspired by
@@ -92,7 +90,8 @@ mod dns {
             }
 
             self.name_to_owner.insert(&name, &caller);
-            self.env().emit_event(Register { name, from: caller });
+            self.env()
+                .emit_event(Event::Register { name, from: caller });
 
             Ok(())
         }
@@ -109,7 +108,7 @@ mod dns {
             let old_address = self.name_to_address.get(&name);
             self.name_to_address.insert(&name, &new_address);
 
-            self.env().emit_event(SetAddress {
+            self.env().emit_event(Event::SetAddress {
                 name,
                 from: caller,
                 old_address,
@@ -130,7 +129,7 @@ mod dns {
             let old_owner = self.name_to_owner.get(&name);
             self.name_to_owner.insert(&name, &to);
 
-            self.env().emit_event(Transfer {
+            self.env().emit_event(Event::Transfer {
                 name,
                 from: caller,
                 old_owner,
