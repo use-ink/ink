@@ -256,13 +256,25 @@ impl ItemImpls<'_> {
         let receiver = message.receiver();
         let ident = message.ident();
         let inputs = message.inputs();
-        let output_arrow = message.output().map(|_| quote! { -> });
-        let output = message.output();
+        // let output_arrow = message.output().map(|_| quote! { -> });
+        // let output = message.output();
+
+        let output = message
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote! { () });
+        let output = quote! {
+            ::core::result::Result<#output, u8>
+        };
+
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
-            #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
-                #( #statements )*
+            #vis fn #ident(#receiver #( , #inputs )* ) -> #output {
+                let mut f = || { #( #statements )* };
+                let o = f();
+                ::core::result::Result::Ok(o)
+
             }
         )
     }
