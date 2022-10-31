@@ -260,12 +260,17 @@ impl ItemImpls<'_> {
         // let output = message.output();
 
         let output = message
-            .output()
-            .map(quote::ToTokens::to_token_stream)
+            .map_result()
+            .map(|ty| quote::ToTokens::to_token_stream(&ty))
             .unwrap_or_else(|| quote! { () });
-        let output = quote! {
-            ::core::result::Result<#output, u8>
-        };
+
+        // let output = message
+        //     .output()
+        //     .map(quote::ToTokens::to_token_stream)
+        //     .unwrap_or_else(|| quote! { () });
+        // let output = quote! {
+        //     ::core::result::Result<#output, u8>
+        // };
 
         let statements = message.statements();
         quote_spanned!(span =>
