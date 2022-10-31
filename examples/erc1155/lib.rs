@@ -193,37 +193,35 @@ mod erc1155 {
     type Owner = AccountId;
     type Operator = AccountId;
 
-    /// Indicate that a token transfer has occured.
-    ///
-    /// This must be emitted even if a zero value transfer occurs.
-    #[ink(event)]
-    pub struct TransferSingle {
-        #[ink(topic)]
-        operator: Option<AccountId>,
-        #[ink(topic)]
-        from: Option<AccountId>,
-        #[ink(topic)]
-        to: Option<AccountId>,
-        token_id: TokenId,
-        value: Balance,
-    }
-
-    /// Indicate that an approval event has happened.
-    #[ink(event)]
-    pub struct ApprovalForAll {
-        #[ink(topic)]
-        owner: AccountId,
-        #[ink(topic)]
-        operator: AccountId,
-        approved: bool,
-    }
-
-    /// Indicate that a token's URI has been updated.
-    #[ink(event)]
-    pub struct Uri {
-        value: ink::prelude::string::String,
-        #[ink(topic)]
-        token_id: TokenId,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Indicate that a token transfer has occured.
+        ///
+        /// This must be emitted even if a zero value transfer occurs.
+        TransferSingle {
+            #[ink(topic)]
+            operator: Option<AccountId>,
+            #[ink(topic)]
+            from: Option<AccountId>,
+            #[ink(topic)]
+            to: Option<AccountId>,
+            token_id: TokenId,
+            value: Balance,
+        },
+        /// Indicate that an approval event has happened.
+        ApprovalForAll {
+            #[ink(topic)]
+            owner: AccountId,
+            #[ink(topic)]
+            operator: AccountId,
+            approved: bool,
+        },
+        /// Indicate that a token's URI has been updated.
+        Uri {
+            value: ink::prelude::string::String,
+            #[ink(topic)]
+            token_id: TokenId,
+        },
     }
 
     /// An ERC-1155 contract.
@@ -263,7 +261,7 @@ mod erc1155 {
             self.balances.insert(&(caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
-            self.env().emit_event(TransferSingle {
+            self.env().emit_event(Event::TransferSingle {
                 operator: Some(caller),
                 from: None,
                 to: if value == 0 { None } else { Some(caller) },
@@ -290,7 +288,7 @@ mod erc1155 {
             self.balances.insert(&(caller, token_id), &value);
 
             // Emit transfer event but with mint semantics
-            self.env().emit_event(TransferSingle {
+            self.env().emit_event(Event::TransferSingle {
                 operator: Some(caller),
                 from: None,
                 to: Some(caller),
@@ -328,7 +326,7 @@ mod erc1155 {
             self.balances.insert(&(to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
-            self.env().emit_event(TransferSingle {
+            self.env().emit_event(Event::TransferSingle {
                 operator: Some(caller),
                 from: Some(from),
                 to: Some(from),
@@ -522,7 +520,7 @@ mod erc1155 {
                 self.approvals.remove((&caller, &operator));
             }
 
-            self.env().emit_event(ApprovalForAll {
+            self.env().emit_event(Event::ApprovalForAll {
                 owner: caller,
                 operator,
                 approved,
