@@ -150,15 +150,14 @@ impl InkEventDefinition {
             .unwrap_or_default()
     }
 
-    /// Unique identifier for the event definition.
+    /// Returns a unique identifier for this event definition.
     ///
-    /// **Note:** This needs only to be unique within the set of events imported by an individual
-    /// contract.
-    pub fn unique_identifier(&self) -> [u8; 32] {
-        let event_enum = &self.item;
-        let event_toks = quote::quote!( #event_enum ).to_string();
+    /// **Note:** this only needs to be unique within the context of a contract binary.
+    pub fn unique_id(&self) -> [u8; 32] {
+        let item_enum = &self.item;
+        let event_def_str = quote::quote!( #item_enum ).to_string();
         let mut output = [0u8; 32];
-        blake2b_256(event_toks.as_bytes(), &mut output);
+        blake2b_256(event_def_str.as_bytes(), &mut output);
         output
     }
 }

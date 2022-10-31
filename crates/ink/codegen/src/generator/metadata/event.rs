@@ -82,13 +82,11 @@ impl GenerateCode for EventMetadata<'_> {
 
         quote_spanned!(span=>
             #[cfg(not(feature = "std"))]
-            const _: () = {
-                /// This adds a custom section to the unoptimized Wasm, the name of which
-                /// is used by `cargo-contract` to discover the extern function to get this
-                /// events metadata.
-                #[link_section = stringify!(#event_metadata_fn)]
-                pub static __INK_EVENT_METADATA: u32 = 0;
-            };
+            #[link_section = stringify!(#event_metadata_extern)]
+            /// This adds a custom section to the unoptimized Wasm, the name of which
+            /// is used by `cargo-contract` to discover the extern function to get this
+            /// events metadata.
+            pub static __INK_EVENT_METADATA: u32 = 0;
 
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
