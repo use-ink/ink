@@ -76,13 +76,13 @@ impl GenerateCode for EventMetadata<'_> {
             )
         });
 
-        let unique_id = self.event_def.unique_identifier();
+        let unique_id = self.event_def.unique_id();
         let hex = impl_serde::serialize::to_hex(&unique_id, true);
         let event_metadata_fn = quote::format_ident!("__ink_event_metadata_{}", hex);
 
         quote_spanned!(span=>
             #[cfg(not(feature = "std"))]
-            #[link_section = stringify!(#event_metadata_extern)]
+            #[link_section = stringify!(#event_metadata_fn)]
             /// This adds a custom section to the unoptimized Wasm, the name of which
             /// is used by `cargo-contract` to discover the extern function to get this
             /// events metadata.
