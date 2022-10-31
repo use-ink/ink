@@ -17,8 +17,7 @@ mod erc20 {
         allowances: Mapping<(AccountId, AccountId), Balance>,
     }
 
-
-    #[ink(event)]
+    #[ink::event_definition]
     pub enum Event {
         /// Event emitted when a token transfer occurs.
         Transfer {
@@ -36,7 +35,7 @@ mod erc20 {
             #[ink(topic)]
             spender: AccountId,
             value: Balance,
-        }
+        },
     }
 
     /// The ERC-20 error types.
@@ -59,7 +58,7 @@ mod erc20 {
             let mut balances = Mapping::default();
             let caller = Self::env().caller();
             balances.insert(&caller, &total_supply);
-            Self::env().emit_event(Transfer {
+            Self::env().emit_event(Event::Transfer {
                 from: None,
                 to: Some(caller),
                 value: total_supply,
@@ -143,7 +142,7 @@ mod erc20 {
         pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
             self.allowances.insert((&owner, &spender), &value);
-            self.env().emit_event(Approval {
+            self.env().emit_event(Event::Approval {
                 owner,
                 spender,
                 value,
@@ -205,7 +204,7 @@ mod erc20 {
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
             self.balances.insert(to, &(to_balance + value));
-            self.env().emit_event(Transfer {
+            self.env().emit_event(Event::Transfer {
                 from: Some(*from),
                 to: Some(*to),
                 value,
@@ -220,8 +219,6 @@ mod erc20 {
 
         use ink::primitives::Clear;
 
-        type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
-
         fn assert_transfer_event(
             event: &ink::env::test::EmittedEvent,
             expected_from: Option<AccountId>,
@@ -230,7 +227,7 @@ mod erc20 {
         ) {
             let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..])
                 .expect("encountered invalid contract event data buffer");
-            if let Event::Transfer(Transfer { from, to, value }) = decoded_event {
+            if let Event::Transfer { from, to, value } = decoded_event {
                 assert_eq!(from, expected_from, "encountered invalid Transfer.from");
                 assert_eq!(to, expected_to, "encountered invalid Transfer.to");
                 assert_eq!(value, expected_value, "encountered invalid Trasfer.value");
