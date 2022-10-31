@@ -74,7 +74,21 @@ pub use self::{
     trait_def::TraitDefinition,
 };
 
-/// Check if the the condition for `cfg` for any of the cfg flags is satisfied
+/// Check if the the conditional compilation expression
+/// for any `cfg` attributes is satisfied.
+///
+/// # Example
+/// If we have an annotated item (e.g. message)
+/// ```ignore
+/// #[ink(message)]
+/// #[cfg(feature = "foo")]
+/// #[cfg(feature = "baz")]
+/// pub fn get(&self) -> String {
+///     self.value.clone()
+/// }
+/// ```
+/// The function would would iterate over the `cfg` attributes
+/// and return `true` if any of the feature flags are set
 pub fn is_conditionally_excluded(attrs: &[Attribute]) -> bool {
     for attr_tokens in attrs
         .iter()

@@ -24,6 +24,8 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+use super::is_conditionally_excluded;
+
 /// Generates code for the ink! event structs of the contract.
 #[derive(From)]
 pub struct Events<'a> {
@@ -88,6 +90,7 @@ impl<'a> Events<'a> {
             .contract
             .module()
             .events()
+            .filter(|event| !is_conditionally_excluded(event.attrs()))
             .map(|event| event.ident())
             .collect::<Vec<_>>();
         let base_event_ident =
@@ -172,19 +175,25 @@ impl<'a> Events<'a> {
 
     /// Generates the guard code that protects against having too many topics defined on an ink! event.
     fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        self.contract.module().events().map(move |event| {
-            let span = event.span();
-            let topics_guard = self.generate_topics_guard(event);
-            quote_spanned!(span =>
-                #topics_guard
-            )
-        })
+        self.contract
+            .module()
+            .events()
+            .filter(|event| !is_conditionally_excluded(event.attrs()))
+            .map(move |event| {
+                let span = event.span();
+                let topics_guard = self.generate_topics_guard(event);
+                quote_spanned!(span =>
+                    #topics_guard
+                )
+            })
     }
 
     /// Generates the `Topics` trait implementations for the user defined events.
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let contract_ident = self.contract.module().storage().ident();
-        self.contract.module().events().map(move |event| {
+        self.contract.module().events()
+            .filter(|event| !is_conditionally_excluded(event.attrs()))
+            .map(move |event| {
             let span = event.span();
             let event_ident = event.ident();
             let event_signature = syn::LitByteStr::new(
@@ -257,28 +266,32 @@ impl<'a> Events<'a> {
 
     /// Generates all the user defined event struct definitions.
     fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        self.contract.module().events().map(move |event| {
-            let span = event.span();
-            let ident = event.ident();
-            let attrs = event.attrs();
-            let fields = event.fields().map(|event_field| {
-                let span = event_field.span();
-                let attrs = event_field.attrs();
-                let vis = event_field.vis();
-                let ident = event_field.ident();
-                let ty = event_field.ty();
-                quote_spanned!(span=>
+        self.contract
+            .module()
+            .events()
+            .filter(|event| !is_conditionally_excluded(event.attrs()))
+            .map(move |event| {
+                let span = event.span();
+                let ident = event.ident();
+                let attrs = event.attrs();
+                let fields = event.fields().map(|event_field| {
+                    let span = event_field.span();
+                    let attrs = event_field.attrs();
+                    let vis = event_field.vis();
+                    let ident = event_field.ident();
+                    let ty = event_field.ty();
+                    quote_spanned!(span=>
+                        #( #attrs )*
+                        #vis #ident : #ty
+                    )
+                });
+                quote_spanned!(span =>
                     #( #attrs )*
-                    #vis #ident : #ty
+                    #[derive(scale::Encode, scale::Decode)]
+                    pub struct #ident {
+                        #( #fields ),*
+                    }
                 )
-            });
-            quote_spanned!(span =>
-                #( #attrs )*
-                #[derive(scale::Encode, scale::Decode)]
-                pub struct #ident {
-                    #( #fields ),*
-                }
-            )
-        })
+            })
     }
 }
