@@ -115,9 +115,9 @@ mod erc721 {
             #[ink(topic)]
             operator: AccountId,
             approved: bool,
-        }
+        },
     }
-    
+
     impl Erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
