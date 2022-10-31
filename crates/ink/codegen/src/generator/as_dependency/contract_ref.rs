@@ -343,14 +343,15 @@ impl ContractRef<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        let output_type = message.output().map(|ty| quote! { -> #ty });
+        // let output_type = message.output().map(|ty| quote! { -> #ty });
+        let output_type = message.map_result().expect("This always returns Some atm");
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
             pub fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
-            ) #output_type {
+            ) -> #output_type {
                 <Self as ::ink::codegen::TraitCallBuilder>::#call_operator(self)
                     .#message_ident( #( #input_bindings ),* )
                     .fire()
