@@ -122,10 +122,10 @@ mod mother {
         Panic,
     }
 
-    /// Event emitted when an auction being echoed.
-    #[ink(event)]
-    pub struct AuctionEchoed {
-        auction: Auction,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Event emitted when an auction being echoed.
+        AuctionEchoed { auction: Auction },
     }
 
     /// Storage of the contract.
@@ -163,7 +163,7 @@ mod mother {
         /// Takes an auction data struct as input and returns it back.
         #[ink(message)]
         pub fn echo_auction(&mut self, auction: Auction) -> Auction {
-            self.env().emit_event(AuctionEchoed {
+            self.env().emit_event(Event::AuctionEchoed {
                 auction: auction.clone(),
             });
             auction
