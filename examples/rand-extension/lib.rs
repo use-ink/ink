@@ -63,10 +63,12 @@ mod rand_extension {
         value: [u8; 32],
     }
 
-    #[ink(event)]
-    pub struct RandomUpdated {
-        #[ink(topic)]
-        new: [u8; 32],
+    #[ink::event_definition]
+    pub enum Event {
+        RandomUpdated {
+            #[ink(topic)]
+            new: [u8; 32],
+        },
     }
 
     impl RandExtension {
@@ -94,7 +96,8 @@ mod rand_extension {
             self.value = new_random;
             // Emit the `RandomUpdated` event when the random seed
             // is successfully fetched.
-            self.env().emit_event(RandomUpdated { new: new_random });
+            self.env()
+                .emit_event(Event::RandomUpdated { new: new_random });
             Ok(())
         }
 
