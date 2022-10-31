@@ -167,81 +167,69 @@ mod multisig {
         next_id: TransactionId,
     }
 
-    /// Emitted when an owner confirms a transaction.
-    #[ink(event)]
-    pub struct Confirmation {
-        /// The transaction that was confirmed.
-        #[ink(topic)]
-        transaction: TransactionId,
-        /// The owner that sent the confirmation.
-        #[ink(topic)]
-        from: AccountId,
-        /// The confirmation status after this confirmation was applied.
-        #[ink(topic)]
-        status: ConfirmationStatus,
-    }
-
-    /// Emitted when an owner revoked a confirmation.
-    #[ink(event)]
-    pub struct Revocation {
-        /// The transaction that was revoked.
-        #[ink(topic)]
-        transaction: TransactionId,
-        /// The owner that sent the revocation.
-        #[ink(topic)]
-        from: AccountId,
-    }
-
-    /// Emitted when an owner submits a transaction.
-    #[ink(event)]
-    pub struct Submission {
-        /// The transaction that was submitted.
-        #[ink(topic)]
-        transaction: TransactionId,
-    }
-
-    /// Emitted when a transaction was canceled.
-    #[ink(event)]
-    pub struct Cancellation {
-        /// The transaction that was canceled.
-        #[ink(topic)]
-        transaction: TransactionId,
-    }
-
-    /// Emitted when a transaction was executed.
-    #[ink(event)]
-    pub struct Execution {
-        /// The transaction that was executed.
-        #[ink(topic)]
-        transaction: TransactionId,
-        /// Indicates whether the transaction executed successfully. If so the `Ok` value holds
-        /// the output in bytes. The Option is `None` when the transaction was executed through
-        /// `invoke_transaction` rather than `evaluate_transaction`.
-        #[ink(topic)]
-        result: Result<Option<Vec<u8>>, Error>,
-    }
-
-    /// Emitted when an owner is added to the wallet.
-    #[ink(event)]
-    pub struct OwnerAddition {
-        /// The owner that was added.
-        #[ink(topic)]
-        owner: AccountId,
-    }
-
-    /// Emitted when an owner is removed from the wallet.
-    #[ink(event)]
-    pub struct OwnerRemoval {
-        /// The owner that was removed.
-        #[ink(topic)]
-        owner: AccountId,
-    }
-
-    /// Emitted when the requirement changed.
-    #[ink(event)]
-    pub struct RequirementChange {
-        /// The new requirement value.
-        new_requirement: u32,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Emitted when an owner confirms a transaction.
+        Confirmation {
+            /// The transaction that was confirmed.
+            #[ink(topic)]
+            transaction: TransactionId,
+            /// The owner that sent the confirmation.
+            #[ink(topic)]
+            from: AccountId,
+            /// The confirmation status after this confirmation was applied.
+            #[ink(topic)]
+            status: ConfirmationStatus,
+        },
+        /// Emitted when an owner revoked a confirmation.
+        Revocation {
+            /// The transaction that was revoked.
+            #[ink(topic)]
+            transaction: TransactionId,
+            /// The owner that sent the revocation.
+            #[ink(topic)]
+            from: AccountId,
+        },
+        /// Emitted when an owner submits a transaction.
+        Submission {
+            /// The transaction that was submitted.
+            #[ink(topic)]
+            transaction: TransactionId,
+        },
+        /// Emitted when a transaction was canceled.
+        Cancellation {
+            /// The transaction that was canceled.
+            #[ink(topic)]
+            transaction: TransactionId,
+        },
+        /// Emitted when a transaction was executed.
+        Execution {
+            /// The transaction that was executed.
+            #[ink(topic)]
+            transaction: TransactionId,
+            /// Indicates whether the transaction executed successfully. If so the `Ok` value holds
+            /// the output in bytes. The Option is `None` when the transaction was executed through
+            /// `invoke_transaction` rather than `evaluate_transaction`.
+            #[ink(topic)]
+            result: Result<Option<Vec<u8>>, Error>,
+        },
+        /// Emitted when an owner is added to the wallet.
+        OwnerAddition {
+            /// The owner that was added.
+            #[ink(topic)]
+            owner: AccountId,
+        },
+        /// Emitted when an owner is removed from the wallet.
+        OwnerRemoval {
+            /// The owner that was removed.
+            #[ink(topic)]
+            owner: AccountId,
+        },
+        /// Emitted when the requirement changed.
+        RequirementChange {
+            /// The new requirement value.
+            new_requirement: u32,
+        },
     }
 
     #[ink(storage)]
@@ -372,7 +360,7 @@ mod multisig {
             ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
             self.is_owner.insert(new_owner, &());
             self.owners.push(new_owner);
-            self.env().emit_event(OwnerAddition { owner: new_owner });
+            self.env().emit_event(Event::OwnerAddition { owner: new_owner });
         }
 
         /// Remove an owner from the contract.
@@ -396,7 +384,7 @@ mod multisig {
             self.is_owner.remove(&owner);
             self.requirement = requirement;
             self.clean_owner_confirmations(&owner);
-            self.env().emit_event(OwnerRemoval { owner });
+            self.env().emit_event(Event::OwnerRemoval { owner });
         }
 
         /// Replace an owner from the contract with a new one.
@@ -416,8 +404,8 @@ mod multisig {
             self.is_owner.remove(&old_owner);
             self.is_owner.insert(new_owner, &());
             self.clean_owner_confirmations(&old_owner);
-            self.env().emit_event(OwnerRemoval { owner: old_owner });
-            self.env().emit_event(OwnerAddition { owner: new_owner });
+            self.env().emit_event(Event::OwnerRemoval { owner: old_owner });
+            self.env().emit_event(Event::OwnerAddition { owner: new_owner });
         }
 
         /// Change the requirement to a new value.
@@ -432,7 +420,7 @@ mod multisig {
             self.ensure_from_wallet();
             ensure_requirement_is_valid(self.owners.len() as u32, new_requirement);
             self.requirement = new_requirement;
-            self.env().emit_event(RequirementChange { new_requirement });
+            self.env().emit_event(Event::RequirementChange { new_requirement });
         }
 
         /// Add a new transaction candidate to the contract.
@@ -449,7 +437,7 @@ mod multisig {
                 trans_id.checked_add(1).expect("Transaction ids exhausted.");
             self.transactions.insert(trans_id, &transaction);
             self.transaction_list.transactions.push(trans_id);
-            self.env().emit_event(Submission {
+            self.env().emit_event(Event::Submission {
                 transaction: trans_id,
             });
             (
@@ -468,7 +456,7 @@ mod multisig {
         pub fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
             if self.take_transaction(trans_id).is_some() {
-                self.env().emit_event(Cancellation {
+                self.env().emit_event(Event::Cancellation {
                     transaction: trans_id,
                 });
             }
@@ -514,7 +502,7 @@ mod multisig {
                 confirmation_count -= 1;
                 self.confirmation_count
                     .insert(&trans_id, &confirmation_count);
-                self.env().emit_event(Revocation {
+                self.env().emit_event(Event::Revocation {
                     transaction: trans_id,
                     from: caller,
                 });
@@ -551,7 +539,7 @@ mod multisig {
                 .returns::<()>()
                 .fire()
                 .map_err(|_| Error::TransactionFailed);
-            self.env().emit_event(Execution {
+            self.env().emit_event(Event::Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
             });
@@ -584,7 +572,7 @@ mod multisig {
                 .returns::<Vec<u8>>()
                 .fire()
                 .map_err(|_| Error::TransactionFailed);
-            self.env().emit_event(Execution {
+            self.env().emit_event(Event::Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),
             });
@@ -615,7 +603,7 @@ mod multisig {
                 }
             };
             if new_confirmation {
-                self.env().emit_event(Confirmation {
+                self.env().emit_event(Event::Confirmation {
                     transaction,
                     from: confirmer,
                     status,
