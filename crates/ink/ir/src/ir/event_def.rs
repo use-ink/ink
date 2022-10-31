@@ -138,14 +138,7 @@ impl InkEventDefinition {
     /// Returns the maximum number of topics of any event variant.
     pub fn max_len_topics(&self) -> usize {
         self.variants()
-            .map(|v| {
-                let topics_len = v.fields().filter(|event| event.is_topic).count();
-                if v.anonymous {
-                    topics_len
-                } else {
-                    topics_len + 1usize
-                }
-            })
+            .map(|v| v.len_topics())
             .max()
             .unwrap_or_default()
     }
@@ -204,6 +197,16 @@ impl EventVariant {
     /// Returns true if the signature of the event variant should *not* be indexed by a topic.
     pub fn anonymous(&self) -> bool {
         self.anonymous
+    }
+
+    /// The number of topics of this event variant.
+    pub fn len_topics(&self) -> usize {
+        let topics_len = self.fields().filter(|event| event.is_topic).count();
+        if self.anonymous {
+            topics_len
+        } else {
+            topics_len + 1usize
+        }
     }
 }
 

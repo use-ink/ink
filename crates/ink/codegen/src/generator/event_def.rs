@@ -117,7 +117,6 @@ impl<'a> EventDefinition<'a> {
     fn generate_topics_impl(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
-        let len_topics = self.event_def.max_len_topics();
 
         let variant_match_arms = self
             .event_def
@@ -170,7 +169,7 @@ impl<'a> EventDefinition<'a> {
                     }
                 };
 
-                let remaining_topics_ty = match len_topics {
+                let remaining_topics_ty = match variant.len_topics() {
                     0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
                     n => {
                         quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n])
