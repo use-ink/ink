@@ -24,6 +24,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
+    ToTokens,
 };
 use syn::spanned::Spanned as _;
 
@@ -131,6 +132,7 @@ impl Metadata<'_> {
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
+        let ret_ty = Self::generate_constructor_return_type(constructor.output());
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
@@ -140,6 +142,7 @@ impl Metadata<'_> {
                     #( #args ),*
                 ])
                 .payable(#is_payable)
+                .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
                 ])
@@ -311,6 +314,39 @@ impl Metadata<'_> {
                 let type_spec = Self::generate_type_spec(ty);
                 quote! {
                     ::ink::metadata::ReturnTypeSpec::new(#type_spec)
+                }
+            }
+        }
+    }
+
+    /// Generates ink! metadata for the given return type of a constructor.
+    fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
+        /// Returns `true` if the given type is `Self`.
+        fn type_is_self_val(ty: &syn::Type) -> bool {
+            matches!(ty, syn::Type::Path(syn::TypePath {
+            qself: None,
+            path
+        }) if path.is_ident("Self"))
+        }
+
+        match ret_ty {
+            None => {
+                quote! {
+                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
+                }
+            }
+            Some(ty) => {
+                if type_is_self_val(ty) {
+                    return quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
+                }
+                let type_spec = Self::generate_type_spec(ty);
+                let type_token = ty.to_token_stream();
+                quote! {
+                    if !::ink::is_result_type!(#type_token) {
+                        ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
+                    } else {
+                       ::ink::metadata::ReturnTypeSpec::new(#type_spec)
+                    }
                 }
             }
         }

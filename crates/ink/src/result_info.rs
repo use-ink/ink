@@ -77,6 +77,44 @@ macro_rules! is_result_err {
     }};
 }
 
+// trying to evaluate error type here
+
+// pub struct GetResultErr<'lt, T>(pub &'lt T);
+
+// impl<T, E> GetResultErr<'_, ::core::result::Result<T, E>>
+//     where E: ToString{
+//     #[inline]
+//     // We need to allow for dead code at this point because
+//     // the Rust compiler thinks this function is unused even
+//     // though it acts as the specialized case for detection.
+//     #[allow(dead_code)]
+//     pub fn value(&self) -> String {
+//     }
+// }
+
+// pub trait GetResultErrFallback {
+//     #[inline]
+//     fn value(&self) -> bool {
+//         false
+//     }
+// }
+// impl<T> GetResultErrFallback for GetResultErr<'_, T> {}
+
+// /// Evaluates to `true` if the given expression is a `Result::Err(_)`.
+// ///
+// /// # Note
+// ///
+// /// This given expression is not required to be of type `Result`.
+// #[macro_export]
+// #[doc(hidden)]
+// macro_rules! get_result_err {
+//     ( $e:expr $(,)? ) => {{
+//         #[allow(unused_imports)]
+//         use $crate::result_info::GetResultErrFallback as _;
+//         $crate::result_info::GetResultErr(&$e).value()
+//     }};
+// }
+
 #[cfg(test)]
 mod tests {
     #[test]

@@ -27,6 +27,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     let cs = ConstructorSpec::from_label(label)
         .selector(123_456_789u32.to_be_bytes())
         .payable(true)
+        .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
     let portable_spec = cs.into_portable(&mut registry);
@@ -43,6 +44,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
             "label": "foo",
             "payable": true,
             "selector": "0x075bcd15",
+            "returnType": null,
             "args": [],
             "docs": []
         })
@@ -63,12 +65,14 @@ fn spec_contract_json() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
+                .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
                 .done(),
             ConstructorSpec::from_label("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .payable(Default::default())
                 .args(Vec::new())
+                .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
                 .done(),
         ])
@@ -185,6 +189,7 @@ fn trim_docs() {
         .selector(123_456_789u32.to_be_bytes())
         .docs(vec![" foobar      "])
         .payable(Default::default())
+        .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);
@@ -224,6 +229,7 @@ fn trim_docs_with_code() {
             " ```",
         ])
         .payable(Default::default())
+        .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);

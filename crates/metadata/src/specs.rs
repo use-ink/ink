@@ -221,8 +221,9 @@ impl ContractSpec {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
-    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned",
 ))]
+#[serde(rename_all = "camelCase")]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The label of the constructor.
     ///
@@ -234,6 +235,8 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub payable: bool,
     /// The parameters of the deployment handler.
     pub args: Vec<MessageParamSpec<F>>,
+    /// The return type of the constructor..
+    pub return_type: ReturnTypeSpec<F>,
     /// The deployment handler documentation.
     pub docs: Vec<F::String>,
 }
@@ -251,6 +254,7 @@ impl IntoPortable for ConstructorSpec {
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
+            return_type: self.return_type.into_portable(registry),
             docs: registry.map_into_portable(self.docs),
         }
     }
@@ -267,7 +271,7 @@ where
         &self.label
     }
 
-    /// Returns the selector hash of the message.
+    /// Returns the selector hash of the constructor.
     pub fn selector(&self) -> &Selector {
         &self.selector
     }
@@ -280,6 +284,11 @@ where
     /// Returns the parameters of the deployment handler.
     pub fn args(&self) -> &[MessageParamSpec<F>] {
         &self.args
+    }
+
+    /// Returns the return type of the constructor.
+    pub fn return_type(&self) -> &ReturnTypeSpec<F> {
+        &self.return_type
     }
 
     /// Returns the deployment handler documentation.
@@ -295,23 +304,29 @@ where
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
+#[allow(clippy::type_complexity)]
 #[must_use]
-pub struct ConstructorSpecBuilder<Selector, IsPayable> {
+pub struct ConstructorSpecBuilder<Selector, IsPayable, Returns> {
     spec: ConstructorSpec,
-    marker: PhantomData<fn() -> (Selector, IsPayable)>,
+    marker: PhantomData<fn() -> (Selector, IsPayable, Returns)>,
 }
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
     pub fn from_label(
         label: &'static str,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>, Missing<state::IsPayable>> {
+    ) -> ConstructorSpecBuilder<
+        Missing<state::Selector>,
+        Missing<state::IsPayable>,
+        Missing<state::Returns>,
+    > {
         ConstructorSpecBuilder {
             spec: Self {
                 label,
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
+                return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -319,12 +334,12 @@ impl ConstructorSpec {
     }
 }
 
-impl<P> ConstructorSpecBuilder<Missing<state::Selector>, P> {
+impl<P, R> ConstructorSpecBuilder<Missing<state::Selector>, P, R> {
     /// Sets the function selector of the message.
     pub fn selector(
         self,
         selector: [u8; 4],
-    ) -> ConstructorSpecBuilder<state::Selector, P> {
+    ) -> ConstructorSpecBuilder<state::Selector, P, R> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 selector: selector.into(),
@@ -335,12 +350,12 @@ impl<P> ConstructorSpecBuilder<Missing<state::Selector>, P> {
     }
 }
 
-impl<S> ConstructorSpecBuilder<S, Missing<state::IsPayable>> {
+impl<S, R> ConstructorSpecBuilder<S, Missing<state::IsPayable>, R> {
     /// Sets if the constructor is payable, thus accepting value for the caller.
     pub fn payable(
         self,
         is_payable: bool,
-    ) -> ConstructorSpecBuilder<S, state::IsPayable> {
+    ) -> ConstructorSpecBuilder<S, state::IsPayable, R> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 payable: is_payable,
@@ -351,7 +366,23 @@ impl<S> ConstructorSpecBuilder<S, Missing<state::IsPayable>> {
     }
 }
 
-impl<S, P> ConstructorSpecBuilder<S, P> {
+impl<S, P> ConstructorSpecBuilder<S, P, Missing<state::Returns>> {
+    /// Sets the return type of the message.
+    pub fn returns(
+        self,
+        return_type: ReturnTypeSpec,
+    ) -> ConstructorSpecBuilder<S, P, state::Returns> {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                return_type,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<S, P, R> ConstructorSpecBuilder<S, P, R> {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
     where
@@ -378,7 +409,7 @@ impl<S, P> ConstructorSpecBuilder<S, P> {
     }
 }
 
-impl ConstructorSpecBuilder<state::Selector, state::IsPayable> {
+impl ConstructorSpecBuilder<state::Selector, state::IsPayable, state::Returns> {
     /// Finishes construction of the constructor.
     pub fn done(self) -> ConstructorSpec {
         self.spec
