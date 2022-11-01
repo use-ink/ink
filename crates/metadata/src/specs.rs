@@ -924,6 +924,13 @@ where
     }
 }
 
+/// This is wrapper for [TypeSpec] which acts as a factory.
+/// The whole purpose of the factory is to take replace the type of
+/// `Ok` variant of `Result` with `()` because constructors do not return
+/// any data upon successful instantiation.
+///
+/// # Important Note
+/// Only use this factory with constructors!
 pub struct TransformResult<T> {
     marker: core::marker::PhantomData<fn() -> T>,
 }

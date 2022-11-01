@@ -195,17 +195,19 @@ impl Metadata<'_> {
 
     /// Generates the ink! metadata for the given type.
     fn generate_constructor_type_spec(ty: &syn::Type) -> TokenStream2 {
-        fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+        fn without_display_name(ty: TokenStream2) -> TokenStream2 {
             quote! {
                 ::ink::metadata::TransformResult::<#ty>::new_type_spec(None)
             }
         }
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
+                let ty = Self::replace_self_with_unit(ty);
                 return without_display_name(ty)
             }
             let path = &type_path.path;
             if path.segments.is_empty() {
+                let ty = Self::replace_self_with_unit(ty);
                 return without_display_name(ty)
             }
             let segs = path
@@ -213,6 +215,7 @@ impl Metadata<'_> {
                 .iter()
                 .map(|seg| &seg.ident)
                 .collect::<Vec<_>>();
+            let ty = Self::replace_self_with_unit(ty);
             quote! {
                  ::ink::metadata::TransformResult::<#ty>::new_type_spec(
                     Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
@@ -220,6 +223,7 @@ impl Metadata<'_> {
                     ))
             }
         } else {
+            let ty = Self::replace_self_with_unit(ty);
             without_display_name(ty)
         }
     }
@@ -371,7 +375,7 @@ impl Metadata<'_> {
                     return quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
                 }
                 let type_spec = Self::generate_constructor_type_spec(ty);
-                let type_token = ty.to_token_stream();
+                let type_token = Self::replace_self_with_unit(ty);
                 quote! {
                     if !::ink::is_result_type!(#type_token) {
                         ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
@@ -380,6 +384,15 @@ impl Metadata<'_> {
                     }
                 }
             }
+        }
+    }
+
+    fn replace_self_with_unit(ty: &syn::Type) -> TokenStream2 {
+        if ty.to_token_stream().to_string().contains("< Self") {
+            let s = ty.to_token_stream().to_string().replace("< Self", "< ()");
+            s.parse().unwrap()
+        } else {
+            ty.to_token_stream()
         }
     }
 
