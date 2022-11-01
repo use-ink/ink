@@ -185,7 +185,7 @@ pub struct LeafLayout<F: Form = MetaForm> {
 
 impl LeafLayout {
     /// Creates a new cell layout.
-    pub fn new<T>(key: LayoutKey) -> Self
+    pub fn from_key<T>(key: LayoutKey) -> Self
     where
         T: TypeInfo + 'static,
     {
@@ -248,7 +248,7 @@ where
         &self.ty
     }
 
-    pub fn new_from_ty(key: LayoutKey, ty: <F as Form>::Type) -> Self {
+    pub fn new(key: LayoutKey, ty: <F as Form>::Type) -> Self {
         Self { key, ty }
     }
 }
@@ -515,26 +515,12 @@ pub struct FieldLayout<F: Form = MetaForm> {
     layout: Layout<F>,
 }
 
-impl FieldLayout {
-    /// Creates a new field layout.
-    pub fn new<N, L>(name: N, layout: L) -> Self
-    where
-        N: Into<<MetaForm as Form>::String>,
-        L: Into<Layout>,
-    {
-        Self {
-            name: name.into(),
-            layout: layout.into(),
-        }
-    }
-}
-
 impl<F> FieldLayout<F>
 where
     F: Form,
 {
     /// Creates a new custom field layout.
-    pub fn new_custom<N, L>(name: N, layout: L) -> Self
+    pub fn new<N, L>(name: N, layout: L) -> Self
     where
         N: Into<F::String>,
         L: Into<Layout<F>>,
@@ -544,6 +530,7 @@ where
             layout: layout.into(),
         }
     }
+
     /// Returns the name of the field.
     pub fn name(&self) -> &F::String {
         &self.name

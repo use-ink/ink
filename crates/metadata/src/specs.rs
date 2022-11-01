@@ -800,7 +800,7 @@ where
 
 /// The 4 byte selector to identify constructors and messages
 #[derive(Debug, Default, PartialEq, Eq, derive_more::From)]
-pub struct Selector(pub [u8; 4]);
+pub struct Selector([u8; 4]);
 
 impl serde::Serialize for Selector {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -1153,11 +1153,6 @@ where
         Self {
             opt_type: ty.into(),
         }
-    }
-
-    /// Create a new return type specification from a custom type.
-    pub fn new_custom(ty: Option<TypeSpec<F>>) -> Self {
-        Self { opt_type: ty }
     }
 
     /// Returns the optional return type
