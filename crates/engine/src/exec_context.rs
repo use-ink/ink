@@ -17,12 +17,11 @@ use super::types::{
     Balance,
     BlockNumber,
     BlockTimestamp,
-    Hash,
 };
-use rand::Rng;
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
+#[derive(Default)]
 pub struct ExecContext {
     /// The caller of the contract execution. Might be user or another contract.
     ///
@@ -44,23 +43,6 @@ pub struct ExecContext {
     pub block_number: BlockNumber,
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
-    /// The randomization entropy for a block.
-    pub entropy: Hash,
-}
-
-impl Default for ExecContext {
-    fn default() -> Self {
-        let mut entropy: [u8; 32] = Default::default();
-        rand::thread_rng().fill(entropy.as_mut());
-        Self {
-            caller: None,
-            callee: None,
-            value_transferred: 0,
-            block_number: 0,
-            block_timestamp: 0,
-            entropy,
-        }
-    }
 }
 
 impl ExecContext {
@@ -101,10 +83,8 @@ mod tests {
         assert_eq!(exec_cont.callee(), vec![13]);
 
         exec_cont.reset();
-        exec_cont.entropy = Default::default();
 
-        let mut new_exec_cont = ExecContext::new();
-        new_exec_cont.entropy = Default::default();
+        let new_exec_cont = ExecContext::new();
         assert_eq!(exec_cont, new_exec_cont);
     }
 }

@@ -674,40 +674,6 @@ where
         ink_env::transfer::<E>(destination, value)
     }
 
-    /// Returns a random hash seed.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// #[ink(message)]
-    /// pub fn random_bool(&self) -> bool {
-    ///     let additional_randomness = b"seed";
-    ///     let (hash, _block_number) = self.env().random(additional_randomness);
-    ///     hash.as_ref()[0] != 0
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::random`]
-    pub fn random(self, subject: &[u8]) -> (E::Hash, E::BlockNumber) {
-        ink_env::random::<E>(subject).expect("couldn't decode randomized hash")
-    }
-
     /// Computes the hash of the given bytes using the cryptographic hash `H`.
     ///
     /// # Example

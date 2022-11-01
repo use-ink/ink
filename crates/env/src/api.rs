@@ -405,34 +405,6 @@ where
     })
 }
 
-/// Returns a random hash seed and the block number since which it was determinable
-/// by chain observers.
-///
-/// # Note
-///
-/// - The subject buffer can be used to further randomize the hash.
-/// - Within the same execution returns the same random hash for the same subject.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-///
-/// # Important
-///
-/// The returned seed should only be used to distinguish commitments made before
-/// the returned block number. If the block number is too early (i.e. commitments were
-/// made afterwards), then ensure no further commitments may be made and repeatedly
-/// call this on later blocks until the block number returned is later than the latest
-/// commitment.
-pub fn random<E>(subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::random::<E>(instance, subject)
-    })
-}
-
 /// Appends the given message to the debug message buffer.
 pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {

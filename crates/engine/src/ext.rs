@@ -31,10 +31,6 @@ use crate::{
         BlockTimestamp,
     },
 };
-use rand::{
-    Rng,
-    SeedableRng,
-};
 use scale::Encode;
 use std::panic::panic_any;
 
@@ -429,34 +425,6 @@ impl Engine {
         let fee = self.chain_spec.gas_price.saturating_mul(gas.into());
         let fee: Vec<u8> = scale::Encode::encode(&fee);
         set_output(output, &fee[..])
-    }
-
-    /// Returns a randomized hash.
-    ///
-    /// # Note
-    ///
-    /// - This is the off-chain environment implementation of `random`.
-    ///   It provides the same behavior in that it will likely yield the
-    ///   same hash for the same subjects within the same block (or
-    ///   execution context).
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    ///    let engine = ink_engine::ext::Engine::default();
-    ///    let subject = [0u8; 32];
-    ///    let mut output = [0u8; 32];
-    ///    engine.random(&subject, &mut output.as_mut_slice());
-    /// ```
-    pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
-        let seed = (self.exec_context.entropy, subject).encode();
-        let mut digest = [0u8; 32];
-        Engine::hash_blake2_256(&seed, &mut digest);
-
-        let mut rng = rand::rngs::StdRng::from_seed(digest);
-        let mut rng_bytes: [u8; 32] = Default::default();
-        rng.fill(&mut rng_bytes);
-        set_output(output, &rng_bytes[..])
     }
 
     /// Calls the chain extension method registered at `func_id` with `input`.
