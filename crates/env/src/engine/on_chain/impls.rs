@@ -537,17 +537,6 @@ impl TypedEnvBackend for EnvInstance {
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_subject = scope.take_bytes(subject);
-        let output = &mut scope.take_rest();
-        ext::random(enc_subject, output);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
-    }
-
     fn is_contract<E>(&mut self, account_id: &E::AccountId) -> bool
     where
         E: Environment,

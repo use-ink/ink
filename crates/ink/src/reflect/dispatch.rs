@@ -330,9 +330,11 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     type Input;
     /// The ink! storage struct type.
     type Storage;
+    /// Reflects the output type of the dispatchable ink! message.
+    type Output;
 
     /// The closure that can be used to dispatch into the dispatchable ink! constructor.
-    const CALLABLE: fn(Self::Input) -> Self::Storage;
+    const CALLABLE: fn(Self::Input) -> Self::Output;
 
     /// Yields `true` if the dispatchable ink! constructor is payable.
     const PAYABLE: bool;

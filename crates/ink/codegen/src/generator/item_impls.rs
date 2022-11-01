@@ -239,10 +239,11 @@ impl ItemImpls<'_> {
         let ident = constructor.ident();
         let inputs = constructor.inputs();
         let statements = constructor.statements();
+        let output = constructor.output();
         quote_spanned!(span =>
             #( #attrs )*
             #[cfg(not(feature = "__ink_dylint_Constructor"))]
-            #vis fn #ident( #( #inputs ),* ) -> Self {
+            #vis fn #ident( #( #inputs ),* ) -> #output {
                 #( #statements )*
             }
         )
