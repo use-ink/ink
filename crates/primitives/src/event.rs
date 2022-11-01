@@ -15,16 +15,12 @@
 use xxhash_rust::const_xxh3::xxh3_128;
 
 // todo: docs
-pub const fn path_unique_bytes(
-    path: &'static str,
-) -> [u8; 16] {
+pub const fn path_unique_bytes(path: &'static str) -> [u8; 16] {
     xxh3_128(path.as_bytes()).to_be_bytes()
 }
 
 // todo: docs
-pub const fn path_unique_id(
-    path: &'static str,
-) -> u128 {
+pub const fn path_unique_id(path: &'static str) -> u128 {
     u128::from_be_bytes(path_unique_bytes(path))
 }
 

@@ -76,10 +76,6 @@ impl GenerateCode for EventMetadata<'_> {
             )
         });
 
-        let unique_id = self.event_def.unique_id();
-        let hex = impl_serde::serialize::to_hex(&unique_id, true);
-        let event_metadata_fn = quote::format_ident!("__ink_event_metadata_{}", hex);
-
         quote_spanned!(span=>
             /// This adds the unique id of the event definition into a custom section, which can
             /// be used by `cargo-contract` to identify and extract metadata for all imported event

@@ -33,6 +33,4 @@ pub trait EventDefinition<const ID: u128> {
 }
 
 /// todo: docs
-pub enum EventDefinitionRegistry;
-
-
+pub enum EventDefinitionRegistry {}
