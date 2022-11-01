@@ -292,24 +292,22 @@ impl Message {
     }
 
     // TODO: Maybe get rid of `Option` here, only keeping for initial compatibility
-    pub fn map_result(&self) -> Option<syn::Type> {
-        let o = match &self.item.sig.output {
+    pub fn wrapped_output(&self) -> Option<syn::Type> {
+        let return_type = match &self.item.sig.output {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_, return_type) => Some(return_type),
-        };
+        }
+        .map(quote::ToTokens::to_token_stream)
+        .unwrap_or_else(|| quote::quote! { () });
 
-        let return_type = o
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote::quote! { () });
-
-        let result = quote::quote! {
+        let wrapped_return = quote::quote! {
             ::core::result::Result<#return_type, ::ink::LangError>
         };
 
-        let return_type: syn::Type =
-            syn::parse2::<syn::Type>(result).expect("Failed to parse into Type");
+        let wrapped_return = syn::parse2::<syn::Type>(wrapped_return)
+            .expect("TODO: Failed to parse into Type");
 
-        Some(return_type)
+        Some(wrapped_return)
     }
 
     /// Returns a local ID unique to the ink! message with respect to its implementation block.

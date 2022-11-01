@@ -299,7 +299,7 @@ impl Dispatch<'_> {
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
 
-                let output_tuple_type = message.map_result()
+                let output_tuple_type = message.wrapped_output()
                     .map(|ty| quote::ToTokens::to_token_stream(&ty))
                     .unwrap_or_else(|| quote! { () });
                 // let output_tuple_type = message
@@ -455,12 +455,12 @@ impl Dispatch<'_> {
                             ::ink::LangError::CouldNotReadInput
                         );
 
-                        // TODO: We'll need to get the correct output type here, e.g
-                        // #message_output
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // message output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
                         //
-                        // Don't think we can get the value for `T` here, since  if there's no
-                        // dispatchable we don't know what it should be We always return an `Err`
-                        // here anyways, so maybe it's okay?
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
                         ::ink::env::return_value::<::core::result::Result<(), ::ink::LangError>>(
                             ::ink::env::ReturnFlags::default().set_reverted(true), &error
                         );
@@ -469,7 +469,6 @@ impl Dispatch<'_> {
 
                 <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
                     as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
-
                 .unwrap_or_else(|error| {
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
@@ -801,15 +800,6 @@ impl Dispatch<'_> {
 
                     push_contract(contract, #mutates_storage);
 
-                    // if ::core::any::TypeId::of::<#message_output>() != ::core::any::TypeId::of::<()>() {
-                    //     // In case the return type is `()` we do not return a value.
-                    //     ::ink::env::return_value::<#message_output>(
-                    //         ::ink::env::ReturnFlags::default(), &result
-                    //     )
-                    // }
-
-                    // We manually wrap the message output in a `Result` since that's what the
-                    // `CallBuilder` is expecting, otherwise we can't decode the output correctly
                     ::ink::env::return_value::<#message_output>(
                         ::ink::env::ReturnFlags::default(), &result
                     )

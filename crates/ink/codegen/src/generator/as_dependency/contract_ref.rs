@@ -344,7 +344,9 @@ impl ContractRef<'_> {
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         // let output_type = message.output().map(|ty| quote! { -> #ty });
-        let output_type = message.map_result().expect("This always returns Some atm");
+        let output_type = message
+            .wrapped_output()
+            .expect("This always returns Some atm");
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]

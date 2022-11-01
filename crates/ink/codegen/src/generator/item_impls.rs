@@ -256,29 +256,19 @@ impl ItemImpls<'_> {
         let receiver = message.receiver();
         let ident = message.ident();
         let inputs = message.inputs();
-        // let output_arrow = message.output().map(|_| quote! { -> });
-        // let output = message.output();
 
         let output = message
-            .map_result()
+            .wrapped_output()
             .map(|ty| quote::ToTokens::to_token_stream(&ty))
-            .unwrap_or_else(|| quote! { () });
+            .expect("This should always be Some atm");
 
-        // let output = message
-        //     .output()
-        //     .map(quote::ToTokens::to_token_stream)
-        //     .unwrap_or_else(|| quote! { () });
-        // let output = quote! {
-        //     ::core::result::Result<#output, u8>
-        // };
-
+        // TODO: May need to change the `mut` of the function based on the original `receiver`
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
             #vis fn #ident(#receiver #( , #inputs )* ) -> #output {
-                let mut f = || { #( #statements )* };
-                let o = f();
-                ::core::result::Result::Ok(o)
+                let mut message_body = || { #( #statements )* };
+                ::core::result::Result::Ok(message_body())
 
             }
         )
