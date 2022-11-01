@@ -13,13 +13,14 @@
 // limitations under the License.
 
 use super::{
+    any_cfg_predicates_true,
     CallableWithSelector,
     ImplItem,
     ItemImpl,
 };
 use crate::ir;
 
-/// Iterator yielding all ink! constructor within a source ink!
+/// Iterator yielding all ink! constructors within a source ink!
 /// [`ir::ItemImpl`](`crate::ir::ItemImpl`).
 pub struct IterConstructors<'a> {
     item_impl: &'a ir::ItemImpl,
@@ -45,10 +46,12 @@ impl<'a> Iterator for IterConstructors<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(constructor) = impl_item.filter_map_constructor() {
-                        return Some(CallableWithSelector::new(
-                            self.item_impl,
-                            constructor,
-                        ))
+                        if any_cfg_predicates_true(constructor.attrs()) {
+                            return Some(CallableWithSelector::new(
+                                self.item_impl,
+                                constructor,
+                            ))
+                        }
                     }
                     continue 'repeat
                 }
@@ -83,7 +86,12 @@ impl<'a> Iterator for IterMessages<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(message) = impl_item.filter_map_message() {
-                        return Some(CallableWithSelector::new(self.item_impl, message))
+                        if any_cfg_predicates_true(message.attrs()) {
+                            return Some(CallableWithSelector::new(
+                                self.item_impl,
+                                message,
+                            ))
+                        }
                     }
                     continue 'repeat
                 }

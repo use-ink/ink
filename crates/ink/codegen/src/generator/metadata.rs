@@ -27,8 +27,6 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
-use super::is_conditionally_excluded;
-
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
 pub struct Metadata<'a> {
@@ -116,7 +114,6 @@ impl Metadata<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
-            .filter(|constructor| !is_conditionally_excluded(constructor.attrs()))
             .map(|constructor| Self::generate_constructor(constructor))
     }
 
@@ -210,7 +207,6 @@ impl Metadata<'_> {
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
             .flat_map(|item_impl| item_impl.iter_messages())
-            .filter(|message| !is_conditionally_excluded(message.attrs()))
             .map(|message| {
                 let span = message.span();
                 let docs = message
@@ -261,7 +257,6 @@ impl Metadata<'_> {
                     })
             })
             .flatten()
-            .filter(|(_, message)| !is_conditionally_excluded(message.attrs()))
             .map(|((trait_ident, trait_path), message)| {
                 let message_span = message.span();
                 let message_ident = message.ident();
@@ -323,26 +318,22 @@ impl Metadata<'_> {
 
     /// Generates ink! metadata for all user provided ink! event definitions.
     fn generate_events(&self) -> impl Iterator<Item = TokenStream2> + '_ {
-        self.contract
-            .module()
-            .events()
-            .filter(|event| !is_conditionally_excluded(event.attrs()))
-            .map(|event| {
-                let span = event.span();
-                let ident = event.ident();
-                let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
-                let args = Self::generate_event_args(event);
-                quote_spanned!(span =>
-                    ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
-                        .args([
-                            #( #args ),*
-                        ])
-                        .docs([
-                            #( #docs ),*
-                        ])
-                        .done()
-                )
-            })
+        self.contract.module().events().map(|event| {
+            let span = event.span();
+            let ident = event.ident();
+            let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
+            let args = Self::generate_event_args(event);
+            quote_spanned!(span =>
+                ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
+                    .args([
+                        #( #args ),*
+                    ])
+                    .docs([
+                        #( #docs ),*
+                    ])
+                    .done()
+            )
+        })
     }
 
     /// Generate ink! metadata for a single argument of an ink! event definition.

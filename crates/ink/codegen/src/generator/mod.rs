@@ -42,9 +42,6 @@ mod storage;
 mod storage_item;
 mod trait_def;
 
-use quote::ToTokens;
-use syn::Attribute;
-
 pub use self::{
     arg_list::{
         generate_argument_list,
@@ -73,32 +70,3 @@ pub use self::{
     storage_item::StorageItem,
     trait_def::TraitDefinition,
 };
-
-/// Check if the the conditional compilation expression
-/// for any `cfg` attributes is satisfied.
-///
-/// # Example
-/// If we have an annotated item (e.g. message)
-/// ```ignore
-/// #[ink(message)]
-/// #[cfg(feature = "foo")]
-/// #[cfg(feature = "baz")]
-/// pub fn get(&self) -> String {
-///     self.value.clone()
-/// }
-/// ```
-/// The function would would iterate over the `cfg` attributes
-/// and return `true` if any of the feature flags are set
-pub fn is_conditionally_excluded(attrs: &[Attribute]) -> bool {
-    for attr_tokens in attrs
-        .iter()
-        .filter(|a| a.path.is_ident("cfg"))
-        .map(|a| &a.tokens)
-    {
-        let _s = attr_tokens.to_token_stream();
-        if !cfg!(_s) {
-            return true
-        }
-    }
-    false
-}
