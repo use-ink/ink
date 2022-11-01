@@ -454,6 +454,13 @@ impl Dispatch<'_> {
                         let error = ::core::result::Result::Err(
                             ::ink::reflect::DispatchError::CouldNotReadInput
                         );
+
+                        // TODO: We'll need to get the correct output type here, e.g
+                        // #message_output
+                        //
+                        // Don't think we can get the value for `T` here, since  if there's no
+                        // dispatchable we don't know what it should be We always return an `Err`
+                        // here anyways, so maybe it's okay?
                         ::ink::env::return_value::<::core::result::Result<(), ::ink::reflect::DispatchError>>(
                             ::ink::env::ReturnFlags::default().set_reverted(true), &error
                         );
@@ -462,6 +469,7 @@ impl Dispatch<'_> {
 
                 <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
                     as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+
                 .unwrap_or_else(|error| {
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
@@ -802,8 +810,8 @@ impl Dispatch<'_> {
 
                     // We manually wrap the message output in a `Result` since that's what the
                     // `CallBuilder` is expecting, otherwise we can't decode the output correctly
-                    ::ink::env::return_value::<::core::result::Result<#message_output, u8>>(
-                        ::ink::env::ReturnFlags::default(), &Ok(result)
+                    ::ink::env::return_value::<#message_output>(
+                        ::ink::env::ReturnFlags::default(), &result
                     )
 
                 }
