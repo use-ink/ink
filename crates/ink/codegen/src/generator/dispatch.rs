@@ -304,14 +304,7 @@ impl Dispatch<'_> {
 
                 let output_tuple_type = message.wrapped_output()
                     .map(|ty| quote::ToTokens::to_token_stream(&ty))
-                    .unwrap_or_else(|| quote! { () });
-                // let output_tuple_type = message
-                //     .output()
-                //     .map(quote::ToTokens::to_token_stream)
-                //     .unwrap_or_else(|| quote! { () });
-                // let output_tuple_type = quote! {
-                //     ::core::result::Result<#output_tuple_type, u8>
-                // };
+                    .expect("TODO: Always returns Some atm");
 
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
