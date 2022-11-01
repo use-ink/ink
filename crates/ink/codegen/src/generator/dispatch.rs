@@ -452,7 +452,7 @@ impl Dispatch<'_> {
                         // TODO: Here will pick out the `Dispatch` error we're interested in telling the
                         // user about and encode it correctly
                         let error = ::core::result::Result::Err(
-                            ::ink::reflect::DispatchError::CouldNotReadInput
+                            ::ink::LangError::CouldNotReadInput
                         );
 
                         // TODO: We'll need to get the correct output type here, e.g
@@ -461,7 +461,7 @@ impl Dispatch<'_> {
                         // Don't think we can get the value for `T` here, since  if there's no
                         // dispatchable we don't know what it should be We always return an `Err`
                         // here anyways, so maybe it's okay?
-                        ::ink::env::return_value::<::core::result::Result<(), ::ink::reflect::DispatchError>>(
+                        ::ink::env::return_value::<::core::result::Result<(), ::ink::LangError>>(
                             ::ink::env::ReturnFlags::default().set_reverted(true), &error
                         );
                     }

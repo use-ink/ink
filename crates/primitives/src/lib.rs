@@ -41,3 +41,14 @@ pub use self::{
         Hash,
     },
 };
+
+/// An error that comes from the smart contracting language, but not necessarily the smart contract
+/// itself nor the underlying execution environment.
+#[non_exhaustive]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, ::scale::Encode, ::scale::Decode)]
+#[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+pub enum LangError {
+    /// Failed to read execution input for the dispatchable.
+    CouldNotReadInput = 1,
+}

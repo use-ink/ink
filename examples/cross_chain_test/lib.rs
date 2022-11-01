@@ -22,7 +22,7 @@ mod cross_chain_test {
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<Result<(), ::ink::reflect::DispatchError>>()
+                .returns::<Result<(), ::ink::LangError>>()
                 // .returns::<()>()
                 .fire();
 

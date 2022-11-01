@@ -303,7 +303,7 @@ impl Message {
             .unwrap_or_else(|| quote::quote! { () });
 
         let result = quote::quote! {
-            ::core::result::Result<#return_type, u8>
+            ::core::result::Result<#return_type, ::ink::LangError>
         };
 
         let return_type: syn::Type =
