@@ -24,7 +24,10 @@ use alloc::{
     vec,
     vec::Vec,
 };
-use core::marker::PhantomData;
+use core::{
+    any::TypeId,
+    marker::PhantomData,
+};
 use scale_info::{
     form::{
         Form,
@@ -918,6 +921,26 @@ where
     /// Returns the compile-time known displayed representation of the type.
     pub fn display_name(&self) -> &DisplayName<F> {
         &self.display_name
+    }
+}
+
+pub struct TransformResult<T> {
+    marker: core::marker::PhantomData<fn() -> T>,
+}
+
+impl<O, E> TransformResult<core::result::Result<O, E>>
+where
+    E: TypeInfo + 'static,
+{
+    pub fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    where
+        S: IntoIterator<Item = &'static str>,
+    {
+        if let Some(segments) = segments_opt {
+            TypeSpec::with_name_segs::<core::result::Result<(), E>, S>(segments)
+        } else {
+            TypeSpec::new::<core::result::Result<(), E>>()
+        }
     }
 }
 

@@ -193,6 +193,37 @@ impl Metadata<'_> {
         }
     }
 
+    /// Generates the ink! metadata for the given type.
+    fn generate_constructor_type_spec(ty: &syn::Type) -> TokenStream2 {
+        fn without_display_name(ty: &syn::Type) -> TokenStream2 {
+            quote! {
+                ::ink::metadata::TransformResult::<#ty>::new_type_spec(None)
+            }
+        }
+        if let syn::Type::Path(type_path) = ty {
+            if type_path.qself.is_some() {
+                return without_display_name(ty)
+            }
+            let path = &type_path.path;
+            if path.segments.is_empty() {
+                return without_display_name(ty)
+            }
+            let segs = path
+                .segments
+                .iter()
+                .map(|seg| &seg.ident)
+                .collect::<Vec<_>>();
+            quote! {
+                 ::ink::metadata::TransformResult::<#ty>::new_type_spec(
+                    Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
+                        .map(::core::convert::AsRef::as_ref)
+                    ))
+            }
+        } else {
+            without_display_name(ty)
+        }
+    }
+
     /// Generates the ink! metadata for all ink! smart contract messages.
     fn generate_messages(&self) -> Vec<TokenStream2> {
         let mut messages = Vec::new();
@@ -339,7 +370,7 @@ impl Metadata<'_> {
                 if type_is_self_val(ty) {
                     return quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
                 }
-                let type_spec = Self::generate_type_spec(ty);
+                let type_spec = Self::generate_constructor_type_spec(ty);
                 let type_token = ty.to_token_stream();
                 quote! {
                     if !::ink::is_result_type!(#type_token) {

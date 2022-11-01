@@ -44,6 +44,7 @@ pub use self::specs::{
     MessageSpecBuilder,
     ReturnTypeSpec,
     Selector,
+    TransformResult,
     TypeSpec,
 };
 
