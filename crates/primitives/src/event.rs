@@ -14,6 +14,20 @@
 
 use xxhash_rust::const_xxh3::xxh3_128;
 
+// todo: docs
+pub const fn path_unique_bytes(
+    path: &'static str,
+) -> [u8; 16] {
+    xxh3_128(path.as_bytes()).to_be_bytes()
+}
+
+// todo: docs
+pub const fn path_unique_id(
+    path: &'static str,
+) -> u128 {
+    u128::from_be_bytes(path_unique_bytes(path))
+}
+
 /// Generate the topic for the event signature.
 ///
 /// xxh3_128(path) ++ xxh3_128(event_variant) todo: + fields?
@@ -21,7 +35,7 @@ pub const fn event_signature_topic(
     path: &'static str,
     event_variant: &'static str,
 ) -> [u8; 32] {
-    let p = xxh3_128(path.as_bytes()).to_be_bytes();
+    let p = path_unique_bytes(path);
     // todo: add fields to signature?
     let s = xxh3_128(event_variant.as_bytes()).to_be_bytes();
     [

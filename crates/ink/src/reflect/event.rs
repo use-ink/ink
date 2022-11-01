@@ -26,3 +26,13 @@ pub trait EventVariantInfo<const ID: usize> {
     /// Should be able to compute up front
     const SIGNATURE_TOPIC: [u8; 32];
 }
+
+/// todo: docs
+pub trait EventDefinition<const ID: u128> {
+    type Type: EventInfo;
+}
+
+/// todo: docs
+pub enum EventDefinitionRegistry;
+
+

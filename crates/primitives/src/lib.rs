@@ -32,7 +32,10 @@ mod key;
 mod types;
 
 pub use self::{
-    event::event_signature_topic,
+    event::{
+        event_signature_topic,
+        path_unique_id,
+    },
     key::{
         Key,
         KeyComposer,

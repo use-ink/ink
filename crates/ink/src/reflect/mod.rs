@@ -47,6 +47,8 @@ pub use self::{
         ExecuteDispatchable,
     },
     event::{
+        EventDefinition,
+        EventDefinitionRegistry,
         EventInfo,
         EventVariantInfo,
     },
