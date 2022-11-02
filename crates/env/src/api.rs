@@ -214,6 +214,21 @@ where
     })
 }
 
+/// Returns and removes the value stored under the given storage key in the contract's storage if any.
+///
+/// # Errors
+///
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
+where
+    K: scale::Encode,
+    R: Storable,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::take_contract_storage::<K, R>(instance, key)
+    })
+}
+
 /// Checks whether there is a value stored under the given storage key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.

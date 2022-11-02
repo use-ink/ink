@@ -180,6 +180,16 @@ pub trait EnvBackend {
         K: scale::Encode,
         R: Storable;
 
+    /// Returns and removes the value stored under the given storage key in the contract's storage if any.
+    ///
+    /// # Errors
+    ///
+    /// - If the decoding of the typed value failed
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable;
+
     /// Returns the size of a value stored under the given storage key is returned if any.
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
