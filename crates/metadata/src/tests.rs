@@ -264,7 +264,8 @@ fn trim_events_in_specification() {
 
     // WHEN
     let json = serde_json::to_value(&compact_spec).unwrap();
-    let deserialized: ConstructorSpec<PortableForm> = serde_json::from_value(json.clone()).unwrap();
+    let deserialized: ConstructorSpec<PortableForm> =
+        serde_json::from_value(json.clone()).unwrap();
 
     // THEN
     assert_eq!(
