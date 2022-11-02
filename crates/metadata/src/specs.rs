@@ -887,6 +887,21 @@ pub struct TypeSpec<F: Form = MetaForm> {
     display_name: DisplayName<F>,
 }
 
+impl Default for TypeSpec<MetaForm> {
+    fn default() -> Self {
+        TypeSpec::of_type::<()>()
+    }
+}
+
+impl Default for TypeSpec<PortableForm> {
+    fn default() -> Self {
+        Self {
+            ty: u32::default().into(),
+            display_name: Default::default(),
+        }
+    }
+}
+
 impl IntoPortable for TypeSpec {
     type Output = TypeSpec<PortableForm>;
 
@@ -942,7 +957,13 @@ impl TypeSpec {
     }
 
     /// Creates a new type specification without a display name.
-    pub fn new<T>() -> Self
+    ///
+    /// Example:
+    /// ```no_run
+    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
+    /// ReturnTypeSpec::new(TypeSpec::of_type::<i32>()); // return type of `i32`
+    /// ```
+    pub fn of_type<T>() -> Self
     where
         T: TypeInfo + 'static,
     {
@@ -967,7 +988,8 @@ where
         &self.display_name
     }
 
-    pub fn new_from_ty(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
+    /// Creates a new type specification for a given type and display name.
+    pub fn new(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
         Self { ty, display_name }
     }
 }
@@ -1003,42 +1025,25 @@ impl IntoPortable for EventParamSpec {
     }
 }
 
-impl EventParamSpec {
-    /// Creates a new event parameter specification builder.
-    pub fn new(label: <MetaForm as Form>::String) -> EventParamSpecBuilder<MetaForm> {
-        EventParamSpecBuilder {
-            spec: Self {
-                label,
-                // By default event parameters are not indexed.
-                indexed: false,
-                // We initialize every parameter type as `()`.
-                ty: TypeSpec::new::<()>(),
-                // We start with empty docs.
-                docs: vec![],
-            },
-        }
-    }
-}
-
 impl<F> EventParamSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
-    /// Creates a new event paramater specification builder from a custom type.
-    pub fn new_custom(label: F::String, ty: TypeSpec<F>) -> EventParamSpecBuilder<F> {
+    /// Creates a new event parameter specification builder.
+    pub fn new(label: F::String) -> EventParamSpecBuilder<F> {
         EventParamSpecBuilder {
             spec: Self {
                 label,
                 // By default event parameters are not indexed.
                 indexed: false,
                 // We initialize every parameter type as `()`.
-                ty,
+                ty: Default::default(),
                 // We start with empty docs.
                 docs: vec![],
             },
         }
     }
-
     /// Returns the label of the parameter.
     pub fn label(&self) -> &F::String {
         &self.label
@@ -1144,7 +1149,6 @@ where
     /// ```no_run
     /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
     /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(None); // no return type;
-    /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
     pub fn new<T>(ty: T) -> Self
     where
@@ -1186,29 +1190,19 @@ impl IntoPortable for MessageParamSpec {
     }
 }
 
-impl MessageParamSpec {
+impl<F> MessageParamSpec<F>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+{
     /// Constructs a new message parameter specification via builder.
-    pub fn new(label: <MetaForm as Form>::String) -> MessageParamSpecBuilder {
+    pub fn new(label: F::String) -> MessageParamSpecBuilder<F> {
         MessageParamSpecBuilder {
             spec: Self {
                 label,
                 // Uses `()` type by default.
-                ty: TypeSpec::new::<()>(),
+                ty: TypeSpec::default(),
             },
-        }
-    }
-}
-
-impl<F> MessageParamSpec<F>
-where
-    F: Form,
-{
-    /// Constructs a new message parameter specification via builder.
-    pub fn new_custom(label: F::String, ty: TypeSpec<F>) -> Self {
-        Self {
-            label,
-            // Uses `()` type by default.
-            ty,
         }
     }
 
@@ -1225,21 +1219,24 @@ where
 
 /// Used to construct a message parameter specification.
 #[must_use]
-pub struct MessageParamSpecBuilder {
+pub struct MessageParamSpecBuilder<F: Form> {
     /// The to-be-constructed message parameter specification.
-    spec: MessageParamSpec,
+    spec: MessageParamSpec<F>,
 }
 
-impl MessageParamSpecBuilder {
+impl<F> MessageParamSpecBuilder<F>
+where
+    F: Form,
+{
     /// Sets the type of the message parameter.
-    pub fn of_type(self, ty: TypeSpec) -> Self {
+    pub fn of_type(self, ty: TypeSpec<F>) -> Self {
         let mut this = self;
         this.spec.ty = ty;
         this
     }
 
     /// Finishes construction of the message parameter.
-    pub fn done(self) -> MessageParamSpec {
+    pub fn done(self) -> MessageParamSpec<F> {
         self.spec
     }
 }
