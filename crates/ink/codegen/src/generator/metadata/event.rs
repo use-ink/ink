@@ -76,25 +76,24 @@ impl GenerateCode for EventMetadata<'_> {
             )
         });
 
+        let unique_id = self.event_def.unique_id();
+        let hex = impl_serde::serialize::to_hex(&unique_id, true);
+        let event_metadata_fn = quote::format_ident!("__ink_event_metadata_{}", hex);
+
         quote_spanned!(span=>
-            /// This adds the unique id of the event definition into a custom section, which can
-            /// be used by `cargo-contract` to identify and extract metadata for all imported event
-            /// definitions in the Wasm binary.
             #[cfg(not(feature = "std"))]
-            #[link_section = "__ink_event_definition_ids"]
-            pub static __INK_EVENT_METADATA: u128 = ::ink::primitives::path_unique_id(
-                <#event_ident as ::ink::reflect::EventInfo>::PATH
-            );
+            #[link_section = stringify!(#event_metadata_fn)]
+            /// This adds a custom section to the unoptimized Wasm, the name of which
+            /// is used by `cargo-contract` to discover the extern function to get this
+            /// events metadata.
+            pub static __INK_EVENT_METADATA: u32 = 0;
 
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                const EVENT_DEF_ID: u128 = ::ink::primitives::path_unique_id(
-                    <#event_ident as ::ink::reflect::EventInfo>::PATH
-                );
-
-                impl ::ink::reflect::EventDefinition<{ EVENT_DEF_ID }> for ::ink::reflect::EventDefinitionRegistry {
-                    type Type = #event_ident;
+                #[no_mangle]
+                pub fn #event_metadata_fn () -> ::ink::metadata::EventSpec  {
+                    < #event_ident as ::ink::metadata::EventMetadata >::event_spec()
                 }
 
                 impl ::ink::metadata::EventMetadata for #event_ident {
