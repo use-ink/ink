@@ -870,8 +870,6 @@ impl Dispatch<'_> {
                         match self {
                             #( #message_execute ),*
                         };
-
-                        ::core::result::Result::Ok(())
                     }
                 }
 
