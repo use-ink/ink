@@ -311,7 +311,7 @@
         $(
             <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
                 <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
-                    <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+                    <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
                 }
             }
         )<span class="op">*</span>
@@ -491,7 +491,7 @@
     <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
 {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
     }
 }
 
@@ -501,7 +501,7 @@
     <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
 {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
     }
 }
 
@@ -510,7 +510,7 @@
     <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
 {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
     }
 }
 
@@ -519,7 +519,7 @@
     <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Packed</span>,
 {
     <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">Layout</span> {
-        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
+        <span class="ident">Layout::Leaf</span>(<span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key</span>)))
     }
 }
 </code></pre></div>
