@@ -669,7 +669,10 @@ impl EventSpecBuilder {
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().map(trim_extra_whitespace).collect::<Vec<_>>();
+        this.spec.docs = docs
+            .into_iter()
+            .map(trim_extra_whitespace)
+            .collect::<Vec<_>>();
         this
     }
 
@@ -993,7 +996,10 @@ impl EventParamSpecBuilder {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: EventParamSpec {
-                docs: docs.into_iter().map(trim_extra_whitespace).collect::<Vec<_>>(),
+                docs: docs
+                    .into_iter()
+                    .map(trim_extra_whitespace)
+                    .collect::<Vec<_>>(),
                 ..self.spec
             },
         }
