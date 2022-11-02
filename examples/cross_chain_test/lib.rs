@@ -15,7 +15,12 @@ mod cross_chain_test {
         #[ink(message)]
         pub fn call(&mut self, address: AccountId, selector: [u8; 4]) {
             use ink::env::{
-                call::{build_call, Call, ExecutionInput, Selector},
+                call::{
+                    build_call,
+                    Call,
+                    ExecutionInput,
+                    Selector,
+                },
                 DefaultEnvironment,
             };
 
