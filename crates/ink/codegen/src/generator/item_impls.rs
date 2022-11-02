@@ -255,20 +255,18 @@ impl ItemImpls<'_> {
         let attrs = message.attrs();
         let vis = message.visibility();
         let receiver = message.receiver();
+        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let ident = message.ident();
         let inputs = message.inputs();
-
         let output = message
             .wrapped_output()
             .map(|ty| quote::ToTokens::to_token_stream(&ty))
             .expect("This should always be Some atm");
-
-        // TODO: May need to change the `mut` of the function based on the original `receiver`
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
             #vis fn #ident(#receiver #( , #inputs )* ) -> #output {
-                let mut message_body = || { #( #statements )* };
+                let #mut_token  message_body = || { #( #statements )* };
                 ::core::result::Result::Ok(message_body())
 
             }
