@@ -50,5 +50,5 @@ pub use self::{
 #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
 pub enum LangError {
     /// Failed to read execution input for the dispatchable.
-    CouldNotReadInput = 1,
+    CouldNotReadInput = 1u32,
 }
