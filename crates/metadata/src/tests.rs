@@ -54,6 +54,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
 #[test]
 fn spec_contract_json() {
+    let seg = ["core", "result", "Result"].iter().map(AsRef::as_ref);
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -73,6 +74,15 @@ fn spec_contract_json() {
                 .payable(Default::default())
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(None))
+                .docs(Vec::new())
+                .done(),
+            ConstructorSpec::from_label("result_new")
+                .selector([6u8, 3u8, 55u8, 123u8])
+                .payable(Default::default())
+                .args(Vec::new())
+                .returns(ReturnTypeSpec::new(
+                    TransformResult::<Result<u8, ()>>::new_type_spec(Some(seg)),
+                ))
                 .docs(Vec::new())
                 .done(),
         ])
@@ -129,6 +139,7 @@ fn spec_contract_json() {
                     "docs": [],
                     "label": "new",
                     "payable": true,
+                    "returnType": null,
                     "selector": "0x5ebd88d6"
                 },
                 {
@@ -136,7 +147,23 @@ fn spec_contract_json() {
                     "docs": [],
                     "label": "default",
                     "payable": false,
+                    "returnType": null,
                     "selector": "0x0222ff18"
+                },
+                {
+                    "args": [],
+                    "docs": [],
+                    "label": "result_new",
+                    "payable": false,
+                    "returnType": {
+                        "displayName": [
+                            "core",
+                            "result",
+                            "Result"
+                        ],
+                        "type": 1
+                    },
+                    "selector": "0x0603377b"
                 }
             ],
             "docs": [],

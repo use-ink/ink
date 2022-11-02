@@ -193,7 +193,7 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates the ink! metadata for the given type.
+    /// Generates the ink! metadata specs for the given type of a constructor.
     fn generate_constructor_type_spec(ty: &syn::Type) -> TokenStream2 {
         fn without_display_name(ty: TokenStream2) -> TokenStream2 {
             quote! {
@@ -355,6 +355,9 @@ impl Metadata<'_> {
     }
 
     /// Generates ink! metadata for the given return type of a constructor.
+    /// If constructor result type is not `Result`,
+    /// the metadata will not display any metadata for return type.
+    /// Otherwise, the return type is `Result<(), E>`.
     fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
         /// Returns `true` if the given type is `Self`.
         fn type_is_self_val(ty: &syn::Type) -> bool {
@@ -387,6 +390,8 @@ impl Metadata<'_> {
         }
     }
 
+    /// Helper function which replace all occurrences of `Self`
+    /// with `()`.
     fn replace_self_with_unit(ty: &syn::Type) -> TokenStream2 {
         if ty.to_token_stream().to_string().contains("< Self") {
             let s = ty.to_token_stream().to_string().replace("< Self", "< ()");

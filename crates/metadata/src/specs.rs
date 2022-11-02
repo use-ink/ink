@@ -24,10 +24,7 @@ use alloc::{
     vec,
     vec::Vec,
 };
-use core::{
-    any::TypeId,
-    marker::PhantomData,
-};
+use core::marker::PhantomData;
 use scale_info::{
     form::{
         Form,
@@ -924,8 +921,8 @@ where
     }
 }
 
-/// This is wrapper for [TypeSpec] which acts as a factory.
-/// The whole purpose of the factory is to take replace the type of
+/// This is wrapper for [`TypeSpec`] which acts as a factory.
+/// The whole purpose of the factory is to replace the type of
 /// `Ok` variant of `Result` with `()` because constructors do not return
 /// any data upon successful instantiation.
 ///
@@ -939,6 +936,7 @@ impl<O, E> TransformResult<core::result::Result<O, E>>
 where
     E: TypeInfo + 'static,
 {
+    /// Produces [`TypeSpec`] for a `Result<(), E>`.
     pub fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
     where
         S: IntoIterator<Item = &'static str>,
