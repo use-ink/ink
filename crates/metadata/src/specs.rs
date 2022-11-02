@@ -42,6 +42,10 @@ use serde::{
     Serialize,
 };
 
+// todo: [hc] add docs and impl.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, TypeInfo)] // ::scale::Encode, ::scale::Decode)]
+pub enum DispatchError {}
+
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
@@ -49,6 +53,8 @@ use serde::{
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ContractSpec<F: Form = MetaForm> {
+    /// todo: [hc] better name? + docs
+    dispatch_error: F::Type,
     /// The set of constructors of the contract.
     constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
@@ -64,6 +70,7 @@ impl IntoPortable for ContractSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
+            dispatch_error: registry.register_type(&self.dispatch_error),
             constructors: self
                 .constructors
                 .into_iter()
@@ -207,6 +214,7 @@ impl ContractSpec {
     pub fn new() -> ContractSpecBuilder {
         ContractSpecBuilder {
             spec: Self {
+                dispatch_error: meta_type::<DispatchError>(),
                 constructors: Vec::new(),
                 messages: Vec::new(),
                 events: Vec::new(),
