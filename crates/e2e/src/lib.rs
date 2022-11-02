@@ -72,7 +72,6 @@ impl subxt::Config for SubstrateConfig {
     type Header =
         sp_runtime::generic::Header<Self::BlockNumber, sp_runtime::traits::BlakeTwo256>;
     type Signature = sp_runtime::MultiSignature;
-    type Extrinsic = sp_runtime::OpaqueExtrinsic;
     type ExtrinsicParams = subxt::tx::SubstrateExtrinsicParams<Self>;
 }
 
