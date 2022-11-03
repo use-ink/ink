@@ -175,8 +175,7 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
-            self.allowances
-                .insert_return_size((&from, &caller), &(allowance - value));
+            self.allowances.insert_return_size((&from, &caller), &(allowance - value));
             Ok(())
         }
 

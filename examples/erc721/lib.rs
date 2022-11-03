@@ -331,7 +331,8 @@ mod erc721 {
             });
 
             if approved {
-                self.operator_approvals.insert_return_size((&caller, &to), &());
+                self.operator_approvals
+                    .insert_return_size((&caller, &to), &());
             } else {
                 self.operator_approvals.remove((&caller, &to));
             }
