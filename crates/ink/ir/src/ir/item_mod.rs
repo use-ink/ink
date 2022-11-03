@@ -28,7 +28,7 @@ use syn::{
     token,
 };
 
-use super::item_impl::any_cfg_predicates_true;
+use super::item_impl::is_code_span_enabled;
 
 /// The ink! module.
 ///
@@ -545,7 +545,7 @@ impl<'a> Iterator for IterEvents<'a> {
                 None => return None,
                 Some(ink_item) => {
                     if let Some(event) = ink_item.filter_map_event_item() {
-                        if any_cfg_predicates_true(event.attrs()) {
+                        if is_code_span_enabled(event.attrs()) {
                             return Some(event)
                         }
                     }

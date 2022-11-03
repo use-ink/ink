@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::{
-    any_cfg_predicates_true,
+    is_code_span_enabled,
     CallableWithSelector,
     ImplItem,
     ItemImpl,
@@ -46,7 +46,7 @@ impl<'a> Iterator for IterConstructors<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(constructor) = impl_item.filter_map_constructor() {
-                        if any_cfg_predicates_true(constructor.attrs()) {
+                        if is_code_span_enabled(constructor.attrs()) {
                             return Some(CallableWithSelector::new(
                                 self.item_impl,
                                 constructor,
@@ -86,7 +86,7 @@ impl<'a> Iterator for IterMessages<'a> {
                 None => return None,
                 Some(impl_item) => {
                     if let Some(message) = impl_item.filter_map_message() {
-                        if any_cfg_predicates_true(message.attrs()) {
+                        if is_code_span_enabled(message.attrs()) {
                             return Some(CallableWithSelector::new(
                                 self.item_impl,
                                 message,

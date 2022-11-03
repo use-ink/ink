@@ -395,7 +395,7 @@ impl ItemImpl {
 /// ```
 /// The function would would iterate over the `cfg` attributes
 /// and return `true` if any of the feature flags are set
-pub fn any_cfg_predicates_true(attrs: &[Attribute]) -> bool {
+pub fn is_code_span_enabled(attrs: &[Attribute]) -> bool {
     let cfg_attrs = attrs
         .iter()
         .filter(|a| a.path.is_ident("cfg"))
