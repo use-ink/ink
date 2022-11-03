@@ -332,8 +332,12 @@ where
     /// Creates a new constructor spec builder.
     pub fn from_label(
         label: <F as Form>::String,
-    ) -> ConstructorSpecBuilder<F, Missing<state::Selector>, Missing<state::IsPayable>, Missing<state::Returns>>
-    {
+    ) -> ConstructorSpecBuilder<
+        F,
+        Missing<state::Selector>,
+        Missing<state::IsPayable>,
+        Missing<state::Returns>,
+    > {
         ConstructorSpecBuilder {
             spec: Self {
                 label,
@@ -387,7 +391,8 @@ where
 }
 
 impl<F, S, P> ConstructorSpecBuilder<F, S, P, Missing<state::Returns>>
-where F: Form
+where
+    F: Form,
 {
     /// Sets the return type of the message.
     pub fn returns(
@@ -405,7 +410,8 @@ where F: Form
 }
 
 impl<F, S, P, R> ConstructorSpecBuilder<F, S, P, R>
-where F: Form
+where
+    F: Form,
 {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
