@@ -298,7 +298,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .done()
 }
 
-/// Tests construction of constructors at runtime
+/// Ensures constructing a `PortableForm` contract spec works at runtime
 #[test]
 fn construct_runtime_contract_spec() {
     let spec = ContractSpec::new()
