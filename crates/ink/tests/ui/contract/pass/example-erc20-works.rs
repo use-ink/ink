@@ -139,7 +139,8 @@ mod erc20 {
         #[ink(message)]
         pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
-            self.allowances.insert_return_size((&owner, &spender), &value);
+            self.allowances
+                .insert_return_size((&owner, &spender), &value);
             self.env().emit_event(Approval {
                 owner,
                 spender,
@@ -175,7 +176,8 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(&from, &to, value)?;
-            self.allowances.insert_return_size((&from, &caller), &(allowance - value));
+            self.allowances
+                .insert_return_size((&from, &caller), &(allowance - value));
             Ok(())
         }
 
@@ -198,7 +200,8 @@ mod erc20 {
                 return Err(Error::InsufficientBalance)
             }
 
-            self.balances.insert_return_size(from, &(from_balance - value));
+            self.balances
+                .insert_return_size(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
             self.balances.insert_return_size(to, &(to_balance + value));
             self.env().emit_event(Transfer {
