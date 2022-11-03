@@ -155,7 +155,7 @@ impl InkE2ETest {
                     return ::ink_e2e::tokio::runtime::Builder::new_current_thread()
                         .enable_all()
                         .build()
-                        .expect("Failed building the Runtime")
+                        .unwrap_or_else(|err| panic!("Failed building the Runtime: {}", err))
                         .block_on(run);
                 }
             }
@@ -181,7 +181,9 @@ fn build_contract(manifest_path: &str) -> String {
         .env("RUST_LOG", "")
         .stderr(Stdio::inherit())
         .output()
-        .expect("failed to execute `cargo-contract` build process");
+        .unwrap_or_else(|err| {
+            panic!("failed to execute `cargo-contract` build process: {}", err)
+        });
 
     log::info!("`cargo-contract` returned status: {}", output.status);
     log::info!(
@@ -202,8 +204,8 @@ fn build_contract(manifest_path: &str) -> String {
     );
 
     let json = String::from_utf8_lossy(&output.stdout);
-    let metadata: serde_json::Value =
-        serde_json::from_str(&json).expect("cannot convert json to utf8");
+    let metadata: serde_json::Value = serde_json::from_str(&json)
+        .unwrap_or_else(|err| panic!("cannot convert json to utf8: {}", err));
     let dest_metadata = metadata["metadata_result"]["dest_bundle"].to_string();
     dest_metadata.trim_matches('"').to_string()
 }

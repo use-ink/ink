@@ -209,7 +209,9 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_instantiate`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+            panic!("decoding ContractInstantiateResult failed: {}", err)
+        })
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
@@ -292,7 +294,8 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `upload_code`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {}", err))
     }
 
     /// Submits an extrinsic to upload a given code.
@@ -370,7 +373,8 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {}", err))
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
