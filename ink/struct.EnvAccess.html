@@ -189,7 +189,7 @@ defined by the chain environment on which this contract runs.</p>
             )
         .<span class="ident">salt_bytes</span>(<span class="kw-2">&amp;</span>[<span class="number">0xCA</span>, <span class="number">0xFE</span>, <span class="number">0xBA</span>, <span class="number">0xBE</span>])
         .<span class="ident">params</span>();
-    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">instantiate_contract</span>(<span class="kw-2">&amp;</span><span class="ident">create_params</span>).<span class="ident">expect</span>(<span class="string">&quot;instantiation must succeed&quot;</span>)
+    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">instantiate_contract</span>(<span class="kw-2">&amp;</span><span class="ident">create_params</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;instantiation must succeed: {:?}&quot;</span>, <span class="ident">err</span>))
 }</code></pre></div>
 <p>See <a href="https://github.com/paritytech/ink/tree/master/examples/delegator">our <code>delegator</code> example</a>
 for a complete contract example.</p>
@@ -219,7 +219,7 @@ for a complete contract example.</p>
     )
     .<span class="ident">returns</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>()
     .<span class="ident">params</span>();
-    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">invoke_contract</span>(<span class="kw-2">&amp;</span><span class="ident">call_params</span>).<span class="ident">expect</span>(<span class="string">&quot;call invocation must succeed&quot;</span>)
+    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">invoke_contract</span>(<span class="kw-2">&amp;</span><span class="ident">call_params</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;call invocation must succeed: {:?}&quot;</span>, <span class="ident">err</span>))
 }</code></pre></div>
 <h5 id="note-10"><a href="#note-10">Note</a></h5>
 <p>For more details visit: <a href="../ink_env/api/fn.invoke_contract.html" title="ink_env::invoke_contract"><code>ink_env::invoke_contract</code></a></p>
@@ -246,7 +246,7 @@ for a complete contract example.</p>
         )
         .<span class="ident">returns</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>()
         .<span class="ident">params</span>();
-    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">invoke_contract_delegate</span>(<span class="kw-2">&amp;</span><span class="ident">call_params</span>).<span class="ident">expect</span>(<span class="string">&quot;call delegate invocation must succeed&quot;</span>)
+    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">invoke_contract_delegate</span>(<span class="kw-2">&amp;</span><span class="ident">call_params</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;call delegate invocation must succeed: {:?}&quot;</span>, <span class="ident">err</span>))
 }</code></pre></div>
 <h5 id="note-11"><a href="#note-11">Note</a></h5>
 <p>For more details visit: <a href="../ink_env/api/fn.invoke_contract_delegate.html" title="ink_env::invoke_contract_delegate"><code>ink_env::invoke_contract_delegate</code></a></p>
@@ -265,7 +265,7 @@ for a complete contract example.</p>
 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">give_me_ten</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
     <span class="kw">let</span> <span class="ident">value</span>: <span class="ident">Balance</span> <span class="op">=</span> <span class="number">10</span>;
-    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">transfer</span>(<span class="self">self</span>.<span class="ident">env</span>().<span class="ident">caller</span>(), <span class="ident">value</span>).<span class="ident">expect</span>(<span class="string">&quot;transfer failed&quot;</span>);
+    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">transfer</span>(<span class="self">self</span>.<span class="ident">env</span>().<span class="ident">caller</span>(), <span class="ident">value</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;transfer failed: {:?}&quot;</span>, <span class="ident">err</span>));
 }</code></pre></div>
 <h5 id="note-13"><a href="#note-13">Note</a></h5>
 <p>For more details visit: <a href="../ink_env/api/fn.transfer.html" title="ink_env::transfer"><code>ink_env::transfer</code></a></p>
@@ -339,7 +339,7 @@ and stores the result in <code>output</code>.</p>
     <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="self">self</span>
         .<span class="ident">env</span>()
         .<span class="ident">ecdsa_to_eth_address</span>(<span class="kw-2">&amp;</span><span class="ident">pub_key</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;must return an Ethereum address for the compressed public key&quot;</span>);
+        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;must return an Ethereum address for the compressed public key: {:?}&quot;</span>, <span class="ident">err</span>));
     <span class="macro">assert_eq!</span>(<span class="ident">output</span>, <span class="ident">EXPECTED_ETH_ADDRESS</span>);
 }</code></pre></div>
 <h5 id="note-16"><a href="#note-16">Note</a></h5>
@@ -372,7 +372,7 @@ and stores the result in <code>output</code>.</p>
 <h5 id="example-21"><a href="#example-21">Example</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">own_code_hash</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Hash</span> {
-    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">own_code_hash</span>().<span class="ident">expect</span>(<span class="string">&quot;contract should have a code hash&quot;</span>)
+    <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">own_code_hash</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;contract should have a code hash: {:?}&quot;</span>, <span class="ident">err</span>))
 }</code></pre></div>
 <h5 id="note-20"><a href="#note-20">Note</a></h5>
 <p>For more details visit: <a href="../ink_env/api/fn.own_code_hash.html" title="ink_env::own_code_hash"><code>ink_env::own_code_hash</code></a></p>

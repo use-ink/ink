@@ -2196,7 +2196,7 @@
         <span class="self">Self</span> {
             <span class="ident">ty</span>: <span class="ident">meta_type</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
             <span class="ident">display_name</span>: <span class="ident">DisplayName::from_segments</span>(<span class="ident">segments</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;display name is invalid&quot;</span>),
+                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;display name is invalid: {:?}&quot;</span>, <span class="ident">err</span>)),
         }
     }
 

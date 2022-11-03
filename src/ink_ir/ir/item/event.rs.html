@@ -479,6 +479,8 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -650,7 +652,9 @@
     <span class="doccomment">/// Returns all non-ink! attributes of the event field.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">non_ink_attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">field</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>())
-            .<span class="ident">expect</span>(<span class="string">&quot;encountered invalid event field attributes&quot;</span>);
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                <span class="macro">panic!</span>(<span class="string">&quot;encountered invalid event field attributes: {}&quot;</span>, <span class="ident">err</span>)
+            });
         <span class="ident">non_ink_attrs</span>
     }
 

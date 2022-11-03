@@ -1022,7 +1022,7 @@
     <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>())
-            .<span class="ident">expect</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension&quot;</span>);
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension: {}&quot;</span>, <span class="ident">err</span>));
         <span class="ident">attrs</span>
     }
 
