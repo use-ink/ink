@@ -14,7 +14,7 @@ First of all, thank you for taking your time to contribute to ink!
 * [Issues and Pull Requests](#issues-and-pull-requests)
     * [Issues](#issues)
     * [Pull Requests](#pull-requests)
-* [Questions](I-dont-want-to-contribute-I-just-have-some-questions)
+* [Questions](#I-dont-want-to-contribute-I-just-have-some-questions)
 
 ## Code of Conduct
 
