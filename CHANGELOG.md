@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
+- Add `Mapping::take()` function allowing to get a value removing it from storage - [#1461](https://github.com/paritytech/ink/pull/1461)
 
 - Remove random function from ink!.
 

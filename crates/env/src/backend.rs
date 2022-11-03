@@ -180,8 +180,9 @@ pub trait EnvBackend {
         K: scale::Encode,
         R: Storable;
 
-    /// Returns and removes the value stored under the given storage key in the contract's storage if any.
-    ///
+    /// Removes the `value` at `key`,
+    /// returning the previous `value` at `key` from storage
+    /// if any
     /// # Errors
     ///
     /// - If the decoding of the typed value failed

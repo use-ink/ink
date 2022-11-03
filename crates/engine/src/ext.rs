@@ -253,8 +253,8 @@ impl Engine {
         }
     }
 
-    /// Removes the storage entries at the given key.
-    /// Returns previously stored value at the key if any.
+    /// Removes the storage entries at the given key,
+    /// returning previously stored value at the key if any.
     pub fn take_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);

@@ -164,7 +164,7 @@ where
             .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {:?}", error))
     }
 
-    /// Get and remove the `value` at `key` from the contract storage.
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
@@ -172,8 +172,9 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::take_contract_storage(&(&KeyType::KEY, key))
-            .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {:?}", error))
+        ink_env::take_contract_storage(&(&KeyType::KEY, key)).unwrap_or_else(|error| {
+            panic!("Failed to take value in Mapping: {:?}", error)
+        })
     }
 
     /// Get the size of a value stored at `key` in the contract storage.
@@ -282,18 +283,6 @@ mod tests {
     }
 
     #[test]
-    fn insert_and_take_work() {
-        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert(&1, &2);
-            assert_eq!(mapping.take(&1), Some(2));
-            assert!(mapping.get(&1).is_none());
-            Ok(())
-        })
-        .unwrap()
-    }
-
-    #[test]
     fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
@@ -312,6 +301,30 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new();
             assert_eq!(mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn insert_and_take_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, _> = Mapping::new();
+            mapping.insert(&1, &2);
+            assert_eq!(mapping.take(&1), Some(2));
+            assert!(mapping.get(&1).is_none());
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn take_empty_value_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mapping: Mapping<u8, u8> = Mapping::new();
+            assert_eq!(mapping.take(&1), None);
 
             Ok(())
         })
