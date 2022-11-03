@@ -96,6 +96,7 @@ pub struct InkProject {
 }
 
 impl InkProject {
+    /// Create a new ink! project from a layout and a spec.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<layout::Layout>,
@@ -110,9 +111,23 @@ impl InkProject {
             registry: registry.into(),
         }
     }
-}
 
-impl InkProject {
+    /// Create a new portable ink! project.
+    ///
+    /// The caller is responsible to register all types into the supplied registry.
+    pub fn new_portable(
+        layout: layout::Layout<PortableForm>,
+        spec: ContractSpec<PortableForm>,
+        registry: PortableRegistry,
+    ) -> Self {
+        Self {
+            version: Default::default(),
+            layout,
+            spec,
+            registry,
+        }
+    }
+
     /// Returns the metadata version used by the contract.
     pub fn version(&self) -> &MetadataVersion {
         &self.version

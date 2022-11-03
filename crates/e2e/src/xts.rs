@@ -41,10 +41,8 @@ use sp_core::{
     H256,
 };
 use subxt::{
-    tx::{
-        ExtrinsicParams,
-        TxEvents,
-    },
+    blocks::ExtrinsicEvents,
+    tx::ExtrinsicParams,
     OnlineClient,
 };
 
@@ -228,7 +226,7 @@ where
         data: Vec<u8>,
         salt: Vec<u8>,
         signer: &Signer<C>,
-    ) -> TxEvents<C> {
+    ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "instantiate_with_code",
@@ -306,7 +304,7 @@ where
         signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> TxEvents<C> {
+    ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "upload_code",
@@ -387,7 +385,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,
-    ) -> TxEvents<C> {
+    ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "call",
