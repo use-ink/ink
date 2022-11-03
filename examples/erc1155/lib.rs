@@ -260,7 +260,7 @@ mod erc1155 {
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
-            self.balances.insert(&(caller, self.token_id_nonce), &value);
+            self.balances.insert_return_size(&(caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -287,7 +287,7 @@ mod erc1155 {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
-            self.balances.insert(&(caller, token_id), &value);
+            self.balances.insert_return_size(&(caller, token_id), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -321,11 +321,11 @@ mod erc1155 {
                 .get(&(from, token_id))
                 .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
-            self.balances.insert(&(from, token_id), &sender_balance);
+            self.balances.insert_return_size(&(from, token_id), &sender_balance);
 
             let mut recipient_balance = self.balances.get(&(to, token_id)).unwrap_or(0);
             recipient_balance += value;
-            self.balances.insert(&(to, token_id), &recipient_balance);
+            self.balances.insert_return_size(&(to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
@@ -517,7 +517,7 @@ mod erc1155 {
             ensure!(operator != caller, Error::SelfApproval);
 
             if approved {
-                self.approvals.insert((&caller, &operator), &());
+                self.approvals.insert_return_size((&caller, &operator), &());
             } else {
                 self.approvals.remove((&caller, &operator));
             }
@@ -607,9 +607,9 @@ mod erc1155 {
 
         fn init_contract() -> Contract {
             let mut erc = Contract::new();
-            erc.balances.insert((alice(), 1), &10);
-            erc.balances.insert((alice(), 2), &20);
-            erc.balances.insert((bob(), 1), &10);
+            erc.balances.insert_return_size((alice(), 1), &10);
+            erc.balances.insert_return_size((alice(), 2), &20);
+            erc.balances.insert_return_size((bob(), 1), &10);
 
             erc
         }

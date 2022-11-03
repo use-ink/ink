@@ -69,7 +69,7 @@ use scale::{
 ///         let mut instance = Self::default();
 ///         let caller = Self::env().caller();
 ///         let value: Balance = Default::default();
-///         instance.balances.insert(&caller, &value);
+///         instance.balances.insert_return_size(&caller, &value);
 ///         instance
 ///     }
 ///
@@ -130,16 +130,6 @@ where
     V: Packed,
     KeyType: StorageKey,
 {
-    /// Insert the given `value` to the contract storage.
-    #[inline]
-    pub fn insert<Q, R>(&mut self, key: Q, value: &R)
-    where
-        Q: scale::EncodeLike<K>,
-        R: Storable + scale::EncodeLike<V>,
-    {
-        ink_env::set_contract_storage(&(&KeyType::KEY, key), value);
-    }
-
     /// Insert the given `value` to the contract storage.
     ///
     /// Returns the size of the pre-existing value at the specified key if any.
@@ -261,7 +251,7 @@ mod tests {
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert(&1, &2);
+            mapping.insert_return_size(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
             Ok(())
@@ -273,7 +263,7 @@ mod tests {
     fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
-            mapping.insert(&1, &2);
+            mapping.insert_return_size(&1, &2);
 
             let mapping2: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
             assert_eq!(mapping2.get(&1), Some(2));
@@ -300,7 +290,7 @@ mod tests {
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new();
 
-            mapping.insert(&1, &2);
+            mapping.insert_return_size(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
             // When

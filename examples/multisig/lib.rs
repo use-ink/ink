@@ -285,7 +285,7 @@ mod multisig {
             ensure_requirement_is_valid(owners.len() as u32, requirement);
 
             for owner in &owners {
-                contract.is_owner.insert(owner, &());
+                contract.is_owner.insert_return_size(owner, &());
             }
 
             contract.owners = owners;
@@ -370,7 +370,7 @@ mod multisig {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
             ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
-            self.is_owner.insert(new_owner, &());
+            self.is_owner.insert_return_size(new_owner, &());
             self.owners.push(new_owner);
             self.env().emit_event(OwnerAddition { owner: new_owner });
         }
@@ -414,7 +414,7 @@ mod multisig {
             let owner_index = self.owner_index(&old_owner);
             self.owners[owner_index as usize] = new_owner;
             self.is_owner.remove(&old_owner);
-            self.is_owner.insert(new_owner, &());
+            self.is_owner.insert_return_size(new_owner, &());
             self.clean_owner_confirmations(&old_owner);
             self.env().emit_event(OwnerRemoval { owner: old_owner });
             self.env().emit_event(OwnerAddition { owner: new_owner });
@@ -447,7 +447,7 @@ mod multisig {
             let trans_id = self.transaction_list.next_id;
             self.transaction_list.next_id =
                 trans_id.checked_add(1).expect("Transaction ids exhausted.");
-            self.transactions.insert(trans_id, &transaction);
+            self.transactions.insert_return_size(trans_id, &transaction);
             self.transaction_list.transactions.push(trans_id);
             self.env().emit_event(Submission {
                 transaction: trans_id,
@@ -513,7 +513,7 @@ mod multisig {
                 // Will not underflow as there is at least one confirmation
                 confirmation_count -= 1;
                 self.confirmation_count
-                    .insert(&trans_id, &confirmation_count);
+                    .insert_return_size(&trans_id, &confirmation_count);
                 self.env().emit_event(Revocation {
                     transaction: trans_id,
                     from: caller,
@@ -604,8 +604,8 @@ mod multisig {
             let new_confirmation = !self.confirmations.contains(&key);
             if new_confirmation {
                 count += 1;
-                self.confirmations.insert(&key, &());
-                self.confirmation_count.insert(&transaction, &count);
+                self.confirmations.insert_return_size(&key, &());
+                self.confirmation_count.insert_return_size(&transaction, &count);
             }
             let status = {
                 if count >= self.requirement {
@@ -663,7 +663,7 @@ mod multisig {
                     self.confirmations.remove(&key);
                     let mut count = self.confirmation_count.get(&trans_id).unwrap_or(0);
                     count -= 1;
-                    self.confirmation_count.insert(&trans_id, &count);
+                    self.confirmation_count.insert_return_size(&trans_id, &count);
                 }
             }
         }
