@@ -923,6 +923,10 @@
 <span id="921">921</span>
 <span id="922">922</span>
 <span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -952,6 +956,8 @@
     <span class="ident">spanned::Spanned</span>,
     <span class="ident">token</span>,
 };
+
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::item_impl::is_code_span_enabled</span>;
 
 <span class="doccomment">/// The ink! module.</span>
 <span class="doccomment">///</span>
@@ -1188,7 +1194,7 @@
                         .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
                             <span class="ident">overlap</span>.<span class="ident">span</span>(),
                             <span class="string">&quot;first ink! message with overlapping wildcard selector here&quot;</span>,
-                        )))
+                        )));
                     }
                 }
             }
@@ -1208,7 +1214,7 @@
                             .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
                             <span class="ident">overlap</span>.<span class="ident">span</span>(),
                             <span class="string">&quot;first ink! constructor with overlapping wildcard selector here&quot;</span>,
-                        )))
+                        )));
                     }
                 }
             }
@@ -1468,7 +1474,9 @@
                 <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
                 <span class="prelude-val">Some</span>(<span class="ident">ink_item</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">ink_item</span>.<span class="ident">filter_map_event_item</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>)
+                        <span class="kw">if</span> <span class="ident">is_code_span_enabled</span>(<span class="ident">event</span>.<span class="ident">attrs</span>()) {
+                            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>)
+                        }
                     }
                     <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>
                 }

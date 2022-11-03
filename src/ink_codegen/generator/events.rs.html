@@ -284,6 +284,7 @@
 <span id="282">282</span>
 <span id="283">283</span>
 <span id="284">284</span>
+<span id="285">285</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -470,7 +471,8 @@
     <span class="doccomment">/// Generates the `Topics` trait implementations for the user defined events.</span>
     <span class="kw">fn</span> <span class="ident">generate_topics_impls</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
         <span class="kw">let</span> <span class="ident">contract_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>()
+            .<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
             <span class="kw">let</span> <span class="ident">event_ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
             <span class="kw">let</span> <span class="ident">event_signature</span> <span class="op">=</span> <span class="ident">syn::LitByteStr::new</span>(
