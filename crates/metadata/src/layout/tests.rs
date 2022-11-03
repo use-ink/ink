@@ -350,6 +350,4 @@ fn runtime_storage_layout_works() {
         }
     );
     assert_eq!(json, expected);
-
-    println!("{}", json);
 }
