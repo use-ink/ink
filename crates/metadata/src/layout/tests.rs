@@ -320,7 +320,6 @@ fn unbounded_layout_works() {
     assert_eq!(json, expected);
 }
 
-// Construct a storage layout at runtime.
 #[test]
 fn runtime_storage_layout_works() {
     let key = LayoutKey::new(0u32);
