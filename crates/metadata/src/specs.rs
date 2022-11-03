@@ -1001,14 +1001,14 @@ impl Default for TypeSpec<MetaForm> {
     }
 }
 
-impl Default for TypeSpec<PortableForm> {
-    fn default() -> Self {
-        Self {
-            ty: u32::default().into(),
-            display_name: Default::default(),
-        }
-    }
-}
+// impl Default for TypeSpec<PortableForm> {
+//     fn default() -> Self {
+//         Self {
+//             ty: u32::default().into(),
+//             display_name: Default::default(),
+//         }
+//     }
+// }
 
 impl IntoPortable for TypeSpec {
     type Output = TypeSpec<PortableForm>;
