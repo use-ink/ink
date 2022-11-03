@@ -719,7 +719,7 @@ where
     F: Form,
 {
     /// Sets the fully qualified path of the event.
-    pub fn path(self, path: &'static str) -> Self {
+    pub fn path(self, path: F::String) -> Self {
         let mut this = self;
         this.spec.path = path;
         this
@@ -728,7 +728,7 @@ where
     /// Sets the variants of the event specification.
     pub fn variants<A>(self, variants: A) -> Self
         where
-            A: IntoIterator<Item = EventVariantSpec>,
+            A: IntoIterator<Item = EventVariantSpec<F>>,
     {
         let mut this = self;
         debug_assert!(this.spec.variants.is_empty());
@@ -774,7 +774,7 @@ where
     F: Form,
 {
     /// Creates a new event specification builder.
-    pub fn new(label: <F as Form>::String) -> EventSpecBuilder<F> {
+    pub fn new(path: <F as Form>::String) -> EventSpecBuilder<F> {
         EventSpecBuilder {
             spec: Self {
                 path,
