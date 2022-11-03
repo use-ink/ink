@@ -164,6 +164,18 @@ where
             .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {:?}", error))
     }
 
+    /// Get and remove the `value` at `key` from the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
+    #[inline]
+    pub fn take<Q>(&self, key: Q) -> Option<V>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        ink_env::take_contract_storage(&(&KeyType::KEY, key))
+            .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {:?}", error))
+    }
+
     /// Get the size of a value stored at `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
@@ -264,6 +276,18 @@ mod tests {
             mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn insert_and_take_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, _> = Mapping::new();
+            mapping.insert(&1, &2);
+            assert_eq!(mapping.take(&1), Some(2));
+            assert!(mapping.get(&1).is_none());
             Ok(())
         })
         .unwrap()
