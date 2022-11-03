@@ -167,7 +167,7 @@ impl Metadata<'_> {
     /// Generates the ink! metadata for the given type.
     fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
         fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ::ink::metadata::TypeSpec::new::<#ty>() }
+            quote! { ::ink::metadata::TypeSpec::of_type::<#ty>() }
         }
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {

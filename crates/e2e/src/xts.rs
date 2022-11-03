@@ -41,10 +41,8 @@ use sp_core::{
     H256,
 };
 use subxt::{
-    tx::{
-        ExtrinsicParams,
-        TxEvents,
-    },
+    blocks::ExtrinsicEvents,
+    tx::ExtrinsicParams,
     OnlineClient,
 };
 
@@ -211,7 +209,9 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_instantiate`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+            panic!("decoding ContractInstantiateResult failed: {}", err)
+        })
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
@@ -228,7 +228,7 @@ where
         data: Vec<u8>,
         salt: Vec<u8>,
         signer: &Signer<C>,
-    ) -> TxEvents<C> {
+    ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "instantiate_with_code",
@@ -294,7 +294,8 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `upload_code`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {}", err))
     }
 
     /// Submits an extrinsic to upload a given code.
@@ -306,7 +307,7 @@ where
         signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> TxEvents<C> {
+    ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "upload_code",
@@ -372,7 +373,8 @@ where
             .unwrap_or_else(|err| {
                 panic!("error on ws request `contracts_call`: {:?}", err);
             });
-        scale::Decode::decode(&mut bytes.as_ref()).expect("decoding failed")
+        scale::Decode::decode(&mut bytes.as_ref())
+            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {}", err))
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
@@ -387,7 +389,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,
-    ) -> TxEvents<C> {
+    ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "call",

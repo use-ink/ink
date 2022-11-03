@@ -41,6 +41,7 @@ use sp_runtime::traits::{
     Verify,
 };
 use subxt::{
+    blocks::ExtrinsicEvents,
     ext::bitvec::macros::internal::funty::Fundamental,
     metadata::DecodeStaticType,
     storage::address::{
@@ -48,10 +49,7 @@ use subxt::{
         StorageMapKey,
         Yes,
     },
-    tx::{
-        ExtrinsicParams,
-        TxEvents,
-    },
+    tx::ExtrinsicParams,
 };
 
 /// An encoded `#[ink(message)]`.
@@ -83,7 +81,7 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
     /// Events that happened with the contract instantiation.
-    pub events: TxEvents<C>,
+    pub events: ExtrinsicEvents<C>,
 }
 
 /// Result of a contract upload.
@@ -94,7 +92,7 @@ pub struct UploadResult<C: subxt::Config, E: Environment> {
     /// if there were any.
     pub dry_run: CodeUploadResult<C::Hash, E::Balance>,
     /// Events that happened with the contract instantiation.
-    pub events: TxEvents<C>,
+    pub events: ExtrinsicEvents<C>,
 }
 
 /// We implement a custom `Debug` here, to avoid requiring the trait
@@ -137,7 +135,7 @@ pub struct CallResult<C: subxt::Config, E: Environment, V> {
     /// if there were any.
     pub dry_run: ContractExecResult<E::Balance>,
     /// Events that happened with the contract instantiation.
-    pub events: TxEvents<C>,
+    pub events: ExtrinsicEvents<C>,
     /// Contains the return value of the called function.
     ///
     /// This field contains the decoded `data` from the dry-run,
@@ -336,7 +334,7 @@ where
 
         let salt = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .expect("unable to get unix time")
+            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
             .as_millis()
             .as_u128()
             .to_le_bytes()
@@ -510,7 +508,12 @@ where
         // the dry-run.
         let code_hash = match hash {
             Some(hash) => hash,
-            None => dry_run.as_ref().expect("must have worked").code_hash,
+            None => {
+                dry_run
+                    .as_ref()
+                    .unwrap_or_else(|err| panic!("must have worked: {:?}", err))
+                    .code_hash
+            }
         };
 
         Ok(UploadResult {
@@ -588,8 +591,12 @@ where
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
         let value: <M as InkMessage>::ReturnType =
-            scale::Decode::decode(&mut bytes.as_ref())
-                .expect("decoding dry run result to ink! message return type failed");
+            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+                panic!(
+                    "decoding dry run result to ink! message return type failed: {}",
+                    err
+                )
+            });
 
         Ok(CallResult {
             value,

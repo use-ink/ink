@@ -96,7 +96,6 @@ fn spec_contract_json() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
-                .docs(Vec::new())
                 .returns(ReturnTypeSpec::new(None))
                 .done(),
             MessageSpec::from_label("get")
@@ -104,14 +103,12 @@ fn spec_contract_json() {
                 .mutates(false)
                 .payable(false)
                 .args(Vec::new())
-                .docs(Vec::new())
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_segs::<i32, _>(
                     vec!["i32"].into_iter().map(AsRef::as_ref),
                 )))
                 .done(),
         ])
         .events(Vec::new())
-        .docs(Vec::new())
         .done();
 
     let mut registry = Registry::new();

@@ -22,6 +22,7 @@ crate-type = [
 
 [features]
 default = ["std"]
+foo = []
 std = [
     "ink/std",
     "scale/std",

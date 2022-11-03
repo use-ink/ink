@@ -112,7 +112,7 @@ mod tests {
             0.into(),
             RootLayout::new(
                 1.into(),
-                RootLayout::new(2.into(), LeafLayout::new::<u32>(2.into())),
+                RootLayout::new(2.into(), LeafLayout::from_key::<u32>(2.into())),
             ),
         );
 
@@ -159,7 +159,7 @@ mod tests {
                         StructLayout::new(
                             "Struct0",
                             vec![
-                                FieldLayout::new("d", LeafLayout::new::<u128>(root_0)),
+                                FieldLayout::new("d", LeafLayout::from_key::<u128>(root_0)),
                                 FieldLayout::new(
                                     "f",
                                     RootLayout::new(
@@ -180,7 +180,7 @@ mod tests {
                                                                     "g",
                                                                     RootLayout::new(
                                                                         root_4,
-                                                                        LeafLayout::new::<
+                                                                        LeafLayout::from_key::<
                                                                             BTreeSet<u64>,
                                                                         >(
                                                                             root_4
@@ -197,7 +197,7 @@ mod tests {
                                                         "Second",
                                                         vec![FieldLayout::new(
                                                             "0",
-                                                            LeafLayout::new::<u8>(root_2),
+                                                            LeafLayout::from_key::<u8>(root_2),
                                                         )],
                                                     ),
                                                 ),
@@ -209,7 +209,7 @@ mod tests {
                                                             "0",
                                                             RootLayout::new(
                                                                 root_3,
-                                                                LeafLayout::new::<String>(
+                                                                LeafLayout::from_key::<String>(
                                                                     root_3,
                                                                 ),
                                                             ),
@@ -223,10 +223,10 @@ mod tests {
                             ],
                         ),
                     ),
-                    FieldLayout::new("b", LeafLayout::new::<u32>(root_0)),
+                    FieldLayout::new("b", LeafLayout::from_key::<u32>(root_0)),
                     FieldLayout::new(
                         "c",
-                        RootLayout::new(root_1, LeafLayout::new::<Vec<u8>>(root_1)),
+                        RootLayout::new(root_1, LeafLayout::from_key::<Vec<u8>>(root_1)),
                     ),
                 ],
             ),
