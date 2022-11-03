@@ -14,6 +14,7 @@
 
 use super::*;
 use ink_primitives::Key;
+use scale_info::Path;
 
 #[test]
 fn layout_key_works() {
@@ -317,4 +318,39 @@ fn unbounded_layout_works() {
         }
     };
     assert_eq!(json, expected);
+}
+
+// Construct a storage layout at runtime.
+#[test]
+fn runtime_storage_layout_works() {
+    let key = LayoutKey::new(0u32);
+    let leaf: LeafLayout<PortableForm> = LeafLayout::new(key, 123.into());
+    let path: Path<PortableForm> = Path::from_segments_unchecked(["Storage".to_string()]);
+    let root_layout = Layout::Struct(StructLayout::new(
+        path.ident().unwrap(),
+        [FieldLayout::new("Field", leaf)],
+    ));
+
+    let json = serde_json::to_value(&root_layout).unwrap();
+    let expected = serde_json::json!(
+        {
+            "struct": {
+                "name": "Storage",
+                "fields": [
+                    {
+                    "name": "Field",
+                    "layout": {
+                      "leaf": {
+                        "key": "0x00000000",
+                        "ty": 123
+                      }
+                    }
+                    }
+                ]
+            }
+        }
+    );
+    assert_eq!(json, expected);
+
+    println!("{}", json);
 }
