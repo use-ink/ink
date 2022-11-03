@@ -48,7 +48,7 @@ macro_rules! impl_storage_layout_for_primitives {
         $(
             impl StorageLayout for $name {
                 fn layout(key: &Key) -> Layout {
-                    Layout::Leaf(LeafLayout::new::<$name>(LayoutKey::from(key)))
+                    Layout::Leaf(LeafLayout::from_key::<$name>(LayoutKey::from(key)))
                 }
             }
         )*
@@ -228,7 +228,7 @@ where
     T: TypeInfo + 'static + Packed,
 {
     fn layout(key: &Key) -> Layout {
-        Layout::Leaf(LeafLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(LeafLayout::from_key::<Self>(LayoutKey::from(key)))
     }
 }
 
@@ -238,7 +238,7 @@ where
     V: TypeInfo + 'static + Packed,
 {
     fn layout(key: &Key) -> Layout {
-        Layout::Leaf(LeafLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(LeafLayout::from_key::<Self>(LayoutKey::from(key)))
     }
 }
 
@@ -247,7 +247,7 @@ where
     T: TypeInfo + 'static + Packed,
 {
     fn layout(key: &Key) -> Layout {
-        Layout::Leaf(LeafLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(LeafLayout::from_key::<Self>(LayoutKey::from(key)))
     }
 }
 
@@ -256,6 +256,6 @@ where
     T: TypeInfo + 'static + Packed,
 {
     fn layout(key: &Key) -> Layout {
-        Layout::Leaf(LeafLayout::new::<Self>(LayoutKey::from(key)))
+        Layout::Leaf(LeafLayout::from_key::<Self>(LayoutKey::from(key)))
     }
 }

@@ -106,6 +106,14 @@ impl<'a> From<&'a Key> for LayoutKey {
 }
 
 impl LayoutKey {
+    /// Construct a custom layout key.
+    pub fn new<T>(key: T) -> Self
+    where
+        T: Into<u32>,
+    {
+        Self { key: key.into() }
+    }
+
     /// Returns the key of the layout key.
     pub fn key(&self) -> &Key {
         &self.key
@@ -125,19 +133,6 @@ pub struct RootLayout<F: Form = MetaForm> {
     layout: Box<Layout<F>>,
 }
 
-impl RootLayout {
-    /// Creates a new root layout.
-    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
-    where
-        L: Into<Layout>,
-    {
-        Self {
-            root_key,
-            layout: Box::new(layout.into()),
-        }
-    }
-}
-
 impl IntoPortable for RootLayout {
     type Output = RootLayout<PortableForm>;
 
@@ -153,6 +148,17 @@ impl<F> RootLayout<F>
 where
     F: Form,
 {
+    /// Creates a new root layout.
+    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
+    where
+        L: Into<Layout<F>>,
+    {
+        Self {
+            root_key,
+            layout: Box::new(layout.into()),
+        }
+    }
+
     /// Returns the root key of the sub-tree.
     pub fn root_key(&self) -> &LayoutKey {
         &self.root_key
@@ -179,7 +185,7 @@ pub struct LeafLayout<F: Form = MetaForm> {
 
 impl LeafLayout {
     /// Creates a new cell layout.
-    pub fn new<T>(key: LayoutKey) -> Self
+    pub fn from_key<T>(key: LayoutKey) -> Self
     where
         T: TypeInfo + 'static,
     {
@@ -240,6 +246,10 @@ where
     /// Returns the type of the encoded entity.
     pub fn ty(&self) -> &F::Type {
         &self.ty
+    }
+
+    pub fn new(key: LayoutKey, ty: <F as Form>::Type) -> Self {
+        Self { key, ty }
     }
 }
 
@@ -448,24 +458,22 @@ pub struct StructLayout<F: Form = MetaForm> {
     fields: Vec<FieldLayout<F>>,
 }
 
-impl StructLayout {
+impl<F> StructLayout<F>
+where
+    F: Form,
+{
     /// Creates a new struct layout.
-    pub fn new<N, F>(name: N, fields: F) -> Self
+    pub fn new<N, T>(name: N, fields: T) -> Self
     where
-        N: Into<&'static str>,
-        F: IntoIterator<Item = FieldLayout>,
+        N: Into<F::String>,
+        T: IntoIterator<Item = FieldLayout<F>>,
     {
         Self {
             name: name.into(),
             fields: fields.into_iter().collect(),
         }
     }
-}
 
-impl<F> StructLayout<F>
-where
-    F: Form,
-{
     /// Returns the name of the struct.
     pub fn name(&self) -> &F::String {
         &self.name
@@ -481,7 +489,7 @@ impl IntoPortable for StructLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         StructLayout {
-            name: self.name.into(),
+            name: self.name.to_string(),
             fields: self
                 .fields
                 .into_iter()
@@ -507,24 +515,22 @@ pub struct FieldLayout<F: Form = MetaForm> {
     layout: Layout<F>,
 }
 
-impl FieldLayout {
-    /// Creates a new field layout.
+impl<F> FieldLayout<F>
+where
+    F: Form,
+{
+    /// Creates a new custom field layout.
     pub fn new<N, L>(name: N, layout: L) -> Self
     where
-        N: Into<&'static str>,
-        L: Into<Layout>,
+        N: Into<F::String>,
+        L: Into<Layout<F>>,
     {
         Self {
             name: name.into(),
             layout: layout.into(),
         }
     }
-}
 
-impl<F> FieldLayout<F>
-where
-    F: Form,
-{
     /// Returns the name of the field.
     pub fn name(&self) -> &F::String {
         &self.name
@@ -544,7 +550,7 @@ impl IntoPortable for FieldLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name.into_portable(registry),
+            name: self.name.to_string(),
             layout: self.layout.into_portable(registry),
         }
     }
@@ -587,7 +593,7 @@ impl EnumLayout {
     /// Creates a new enum layout.
     pub fn new<N, K, V>(name: N, dispatch_key: K, variants: V) -> Self
     where
-        N: Into<&'static str>,
+        N: Into<<MetaForm as Form>::String>,
         K: Into<LayoutKey>,
         V: IntoIterator<Item = (Discriminant, StructLayout)>,
     {
@@ -624,7 +630,7 @@ impl IntoPortable for EnumLayout {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EnumLayout {
-            name: self.name.into(),
+            name: self.name.to_string(),
             dispatch_key: self.dispatch_key,
             variants: self
                 .variants

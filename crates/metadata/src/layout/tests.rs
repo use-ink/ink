@@ -26,8 +26,8 @@ fn named_fields_struct_layout(key: &Key) -> Layout {
     StructLayout::new(
         "Struct",
         vec![
-            FieldLayout::new("a", LeafLayout::new::<i32>(LayoutKey::from(key))),
-            FieldLayout::new("b", LeafLayout::new::<i64>(LayoutKey::from(key))),
+            FieldLayout::new("a", LeafLayout::from_key::<i32>(LayoutKey::from(key))),
+            FieldLayout::new("b", LeafLayout::from_key::<i64>(LayoutKey::from(key))),
         ],
     )
     .into()
@@ -73,8 +73,8 @@ fn tuple_struct_layout(key: &Key) -> Layout {
     StructLayout::new(
         "(A, B)",
         vec![
-            FieldLayout::new("0", LeafLayout::new::<i32>(LayoutKey::from(key))),
-            FieldLayout::new("1", LeafLayout::new::<i64>(LayoutKey::from(key))),
+            FieldLayout::new("0", LeafLayout::from_key::<i32>(LayoutKey::from(key))),
+            FieldLayout::new("1", LeafLayout::from_key::<i64>(LayoutKey::from(key))),
         ],
     )
     .into()
@@ -175,11 +175,11 @@ fn mixed_enum_layout(key: &Key) -> Layout {
                         vec![
                             FieldLayout::new(
                                 "0",
-                                LeafLayout::new::<i32>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i32>(LayoutKey::from(variant_key)),
                             ),
                             FieldLayout::new(
                                 "1",
-                                LeafLayout::new::<i64>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i64>(LayoutKey::from(variant_key)),
                             ),
                         ],
                     ),
@@ -194,11 +194,11 @@ fn mixed_enum_layout(key: &Key) -> Layout {
                         vec![
                             FieldLayout::new(
                                 "a",
-                                LeafLayout::new::<i32>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i32>(LayoutKey::from(variant_key)),
                             ),
                             FieldLayout::new(
                                 "b",
-                                LeafLayout::new::<i64>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i64>(LayoutKey::from(variant_key)),
                             ),
                         ],
                     ),
@@ -287,7 +287,7 @@ fn unbounded_hashing_layout(key: &Key) -> Layout {
             b"ink storage hashmap".to_vec(),
             Vec::new(),
         ),
-        LeafLayout::new::<(i32, bool)>(LayoutKey::from(root_key)),
+        LeafLayout::from_key::<(i32, bool)>(LayoutKey::from(root_key)),
     )
     .into()
 }

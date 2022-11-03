@@ -41,6 +41,7 @@ use sp_runtime::traits::{
     Verify,
 };
 use subxt::{
+    blocks::ExtrinsicEvents,
     ext::bitvec::macros::internal::funty::Fundamental,
     metadata::DecodeStaticType,
     storage::address::{
@@ -48,10 +49,7 @@ use subxt::{
         StorageMapKey,
         Yes,
     },
-    tx::{
-        ExtrinsicParams,
-        TxEvents,
-    },
+    tx::ExtrinsicParams,
 };
 
 /// An encoded `#[ink(message)]`.
@@ -83,7 +81,7 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
     /// Events that happened with the contract instantiation.
-    pub events: TxEvents<C>,
+    pub events: ExtrinsicEvents<C>,
 }
 
 /// Result of a contract upload.
@@ -94,7 +92,7 @@ pub struct UploadResult<C: subxt::Config, E: Environment> {
     /// if there were any.
     pub dry_run: CodeUploadResult<C::Hash, E::Balance>,
     /// Events that happened with the contract instantiation.
-    pub events: TxEvents<C>,
+    pub events: ExtrinsicEvents<C>,
 }
 
 /// We implement a custom `Debug` here, to avoid requiring the trait
@@ -137,7 +135,7 @@ pub struct CallResult<C: subxt::Config, E: Environment, V> {
     /// if there were any.
     pub dry_run: ContractExecResult<E::Balance>,
     /// Events that happened with the contract instantiation.
-    pub events: TxEvents<C>,
+    pub events: ExtrinsicEvents<C>,
     /// Contains the return value of the called function.
     ///
     /// This field contains the decoded `data` from the dry-run,
