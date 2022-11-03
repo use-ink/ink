@@ -30,7 +30,6 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
-
 /// Generates code for the message and constructor dispatcher.
 ///
 /// This code efficiently selects the dispatched ink! constructor or message
@@ -165,7 +164,6 @@ impl Dispatch<'_> {
             .map(|(trait_path, message)| {
                 let span = message.span();
                 message_spans.push(span);
-
                 if let Some(trait_path) = trait_path {
                     let local_id = message.local_id().hex_padded_suffixed();
                     quote_spanned!(span=>
@@ -313,7 +311,6 @@ impl Dispatch<'_> {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
-
                         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                             |storage, #input_tuple_bindings| {
                                 #storage_ident::#message_ident( storage #( , #input_bindings )* )
