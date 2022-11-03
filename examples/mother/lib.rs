@@ -128,6 +128,13 @@ mod mother {
         AuctionEchoed { auction: Auction },
     }
 
+    /// Event emitted when an auction being echoed.
+    #[ink(event)]
+    #[cfg(feature = "foo")]
+    pub struct FeaturedAuctionEchoed {
+        auction: Auction,
+    }
+
     /// Storage of the contract.
     #[ink(storage)]
     #[derive(Default)]
@@ -139,6 +146,15 @@ mod mother {
     impl Mother {
         #[ink(constructor)]
         pub fn new(auction: Auction) -> Self {
+            Self {
+                balances: Default::default(),
+                auction,
+            }
+        }
+
+        #[ink(constructor)]
+        #[cfg(feature = "foo")]
+        pub fn conditional_new(auction: Auction) -> Self {
             Self {
                 balances: Default::default(),
                 auction,
@@ -186,6 +202,13 @@ mod mother {
         /// Prints the specified string into node's debug log.
         #[ink(message)]
         pub fn debug_log(&mut self, _message: String) {
+            ink::env::debug_println!("debug_log: {}", _message);
+        }
+
+        /// Prints the specified string into node's debug log.
+        #[ink(message)]
+        #[cfg(feature = "foo")]
+        pub fn conditional_debug_log(&mut self, _message: String) {
             ink::env::debug_println!("debug_log: {}", _message);
         }
     }

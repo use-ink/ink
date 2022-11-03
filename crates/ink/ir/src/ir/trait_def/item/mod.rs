@@ -349,7 +349,12 @@ impl InkItemTrait {
                 }
             },
         )
-        .expect("encountered unexpected invalid attributes on ink! trait definition");
+        .unwrap_or_else(|err| {
+            panic!(
+                "encountered unexpected invalid attributes on ink! trait definition: {}",
+                err
+            )
+        });
         let namespace = config.namespace();
         let ident = &item_trait.ident;
         let trait_prefix = TraitPrefix::new(ident, namespace);
