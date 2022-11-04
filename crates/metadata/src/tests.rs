@@ -291,6 +291,7 @@ fn trim_docs_with_code() {
 fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
     let spec = TypeSpec::new(123.into(), path);
+    let ret_spec = ReturnTypeSpec::new(None);
     let args = [MessageParamSpec::new("foo_arg".to_string())
         .of_type(spec)
         .done()];
@@ -299,6 +300,7 @@ fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
         .payable(true)
         .args(args)
         .docs(vec!["foo", "bar"])
+        .returns(ret_spec)
         .done()
 }
 
@@ -351,6 +353,7 @@ fn construct_runtime_contract_spec() {
             "label": "foo",
             "selector": "0x00000000",
             "payable": true,
+            "returnType": null,
             "args": [
                 {
                     "label": "foo_arg",
