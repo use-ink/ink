@@ -229,6 +229,7 @@ fn trim_docs() {
         json!({
             "label": "foo",
             "payable": false,
+            "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
             "docs": ["foobar"]
@@ -269,6 +270,7 @@ fn trim_docs_with_code() {
         json!({
             "label": "foo",
             "payable": false,
+            "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
             "docs": [
