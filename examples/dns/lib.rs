@@ -154,9 +154,7 @@ mod dns {
 
         /// Returns the owner given the hash or the default address.
         fn get_owner_or_default(&self, name: Hash) -> AccountId {
-            self.name_to_owner
-                .get(name)
-                .unwrap_or(self.default_address)
+            self.name_to_owner.get(name).unwrap_or(self.default_address)
         }
 
         /// Returns the address given the hash or the default address.
