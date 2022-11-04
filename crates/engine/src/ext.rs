@@ -253,6 +253,22 @@ impl Engine {
         }
     }
 
+    /// Removes the storage entries at the given key,
+    /// returning previously stored value at the key if any.
+    pub fn take_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
+        let callee = self.get_callee();
+        let account_id = AccountId::from_bytes(&callee[..]);
+
+        self.debug_info.inc_writes(account_id);
+        match self.database.remove_contract_storage(&callee, key) {
+            Some(val) => {
+                set_output(output, &val);
+                Ok(())
+            }
+            None => Err(Error::KeyNotFound),
+        }
+    }
+
     /// Returns the size of the value stored in the contract storage at the key if any.
     pub fn contains_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
