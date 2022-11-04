@@ -249,34 +249,3 @@ fn trim_docs_with_code() {
     assert_eq!(deserialized.docs, compact_spec.docs);
 }
 
-/// Test for trimming in docs for event specification
-#[test]
-fn trim_events_in_specification() {
-    // GIVEN
-    let label = "foo";
-    let constructor_spec = ConstructorSpec::from_label(label)
-        .selector(123_456u32.to_be_bytes())
-        .docs(vec![" Foo event"])
-        .payable(Default::default())
-        .done();
-    let mut registry = Registry::new();
-    let compact_spec = constructor_spec.into_portable(&mut registry);
-
-    // WHEN
-    let json = serde_json::to_value(&compact_spec).unwrap();
-    let deserialized: ConstructorSpec<PortableForm> =
-        serde_json::from_value(json.clone()).unwrap();
-
-    // THEN
-    assert_eq!(
-        json,
-        json!({
-            "args": [],
-            "docs": ["Foo event"],
-            "label": "foo",
-            "payable": false,
-            "selector": "0x0001e240",
-        })
-    );
-    assert_eq!(deserialized.docs, compact_spec.docs);
-}
