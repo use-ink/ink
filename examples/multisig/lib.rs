@@ -605,8 +605,7 @@ mod multisig {
             if new_confirmation {
                 count += 1;
                 self.confirmations.insert(&key, &());
-                self.confirmation_count
-                    .insert(&transaction, &count);
+                self.confirmation_count.insert(&transaction, &count);
             }
             let status = {
                 if count >= self.requirement {
@@ -664,8 +663,7 @@ mod multisig {
                     self.confirmations.remove(&key);
                     let mut count = self.confirmation_count.get(&trans_id).unwrap_or(0);
                     count -= 1;
-                    self.confirmation_count
-                        .insert(&trans_id, &count);
+                    self.confirmation_count.insert(&trans_id, &count);
                 }
             }
         }

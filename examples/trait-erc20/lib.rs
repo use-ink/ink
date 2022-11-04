@@ -153,8 +153,7 @@ mod erc20 {
         #[ink(message)]
         fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
-            self.allowances
-                .insert((&owner, &spender), &value);
+            self.allowances.insert((&owner, &spender), &value);
             self.env().emit_event(Approval {
                 owner,
                 spender,
@@ -243,8 +242,7 @@ mod erc20 {
                 return Err(Error::InsufficientBalance)
             }
 
-            self.balances
-                .insert(from, &(from_balance - value));
+            self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
             self.balances.insert(to, &(to_balance + value));
             self.env().emit_event(Transfer {

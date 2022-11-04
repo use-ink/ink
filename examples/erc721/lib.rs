@@ -331,8 +331,7 @@ mod erc721 {
             });
 
             if approved {
-                self.operator_approvals
-                    .insert((&caller, &to), &());
+                self.operator_approvals.insert((&caller, &to), &());
             } else {
                 self.operator_approvals.remove((&caller, &to));
             }
