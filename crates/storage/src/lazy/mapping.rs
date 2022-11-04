@@ -261,8 +261,8 @@ mod tests {
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert(&1, &2);
-            assert_eq!(mapping.get(&1), Some(2));
+            mapping.insert(1, &2);
+            assert_eq!(mapping.get(1), Some(2));
 
             Ok(())
         })
@@ -273,10 +273,10 @@ mod tests {
     fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
-            mapping.insert(&1, &2);
+            mapping.insert(1, &2);
 
             let mapping2: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
-            assert_eq!(mapping2.get(&1), Some(2));
+            assert_eq!(mapping2.get(1), Some(2));
 
             Ok(())
         })
@@ -287,7 +287,7 @@ mod tests {
     fn gets_default_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new();
-            assert_eq!(mapping.get(&1), None);
+            assert_eq!(mapping.get(1), None);
 
             Ok(())
         })
@@ -300,14 +300,14 @@ mod tests {
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new();
 
-            mapping.insert(&1, &2);
-            assert_eq!(mapping.get(&1), Some(2));
+            mapping.insert(1, &2);
+            assert_eq!(mapping.get(1), Some(2));
 
             // When
-            mapping.remove(&1);
+            mapping.remove(1);
 
             // Then
-            assert_eq!(mapping.get(&1), None);
+            assert_eq!(mapping.get(1), None);
 
             Ok(())
         })
@@ -321,10 +321,10 @@ mod tests {
             let mapping: Mapping<u8, u8> = Mapping::new();
 
             // When
-            mapping.remove(&1);
+            mapping.remove(1);
 
             // Then
-            assert_eq!(mapping.get(&1), None);
+            assert_eq!(mapping.get(1), None);
 
             Ok(())
         })
