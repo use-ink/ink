@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
+- Introduces conditional compilation to messages, constructors and events - [#1458](https://github.com/paritytech/ink/pull/1458)
+- Update `scale-info` requirement to `2.3` - [#1467](https://github.com/paritytech/ink/pull/1467)
 
 - Remove random function from ink!.
 
