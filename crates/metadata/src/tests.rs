@@ -16,6 +16,7 @@ use super::*;
 use pretty_assertions::assert_eq;
 use scale_info::{
     IntoPortable,
+    Path,
     Registry,
 };
 use serde_json::json;
@@ -284,4 +285,144 @@ fn trim_docs_with_code() {
         })
     );
     assert_eq!(deserialized.docs, compact_spec.docs);
+}
+
+/// Helper for creating a constructor spec at runtime
+fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
+    let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
+    let spec = TypeSpec::new(123.into(), path);
+    let args = [MessageParamSpec::new("foo_arg".to_string())
+        .of_type(spec)
+        .done()];
+    ConstructorSpec::from_label("foo".to_string())
+        .selector(Default::default())
+        .payable(true)
+        .args(args)
+        .docs(vec!["foo", "bar"])
+        .done()
+}
+
+/// Helper for creating a message spec at runtime
+fn runtime_message_spec() -> MessageSpec<PortableForm> {
+    let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
+    let args = [MessageParamSpec::new("foo_arg".to_string())
+        .of_type(TypeSpec::new(123.into(), path.clone()))
+        .done()];
+    let ret_spec = ReturnTypeSpec::new(TypeSpec::new(123.into(), path));
+    MessageSpec::from_label("foo".to_string())
+        .selector(Default::default())
+        .mutates(false)
+        .payable(true)
+        .args(args)
+        .returns(ret_spec)
+        .docs(["foo".to_string(), "bar".to_string()])
+        .done()
+}
+
+/// Helper for creating an event spec at runtime
+fn runtime_event_spec() -> EventSpec<PortableForm> {
+    let path: Path<PortableForm> =
+        Path::from_segments_unchecked(["FooBarEvent".to_string()]);
+    let spec = TypeSpec::new(789.into(), path);
+    let args = [EventParamSpec::new("something".into())
+        .of_type(spec)
+        .indexed(true)
+        .docs(vec![])
+        .done()];
+    EventSpec::new("foobar".into())
+        .args(args)
+        .docs(["foobar event".into()])
+        .done()
+}
+
+/// Ensures constructing a `PortableForm` contract spec works at runtime
+#[test]
+fn construct_runtime_contract_spec() {
+    let spec = ContractSpec::new()
+        .constructors([runtime_constructor_spec()])
+        .messages([runtime_message_spec()])
+        .events([runtime_event_spec()])
+        .docs(["foo".into()])
+        .done();
+
+    let constructor_spec = serde_json::to_value(&spec.constructors()[0]).unwrap();
+    let expected_constructor_spec = serde_json::json!(
+        {
+            "label": "foo",
+            "selector": "0x00000000",
+            "payable": true,
+            "args": [
+                {
+                    "label": "foo_arg",
+                    "type": {
+                        "type": 123,
+                        "displayName": [
+                            "FooType"
+                        ]
+                    }
+                }
+            ],
+            "docs": [
+                "foo",
+                "bar"
+            ]
+        }
+    );
+    assert_eq!(constructor_spec, expected_constructor_spec);
+
+    let message_spec = serde_json::to_value(&spec.messages()[0]).unwrap();
+    let expected_message_spec = serde_json::json!(
+        {
+            "label": "foo",
+            "selector": "0x00000000",
+            "mutates": false,
+            "payable": true,
+            "args": [
+                {
+                    "label": "foo_arg",
+                    "type": {
+                        "type": 123,
+                        "displayName": [
+                            "FooType"
+                        ]
+                    }
+                }
+            ],
+            "returnType": {
+                "type": 123,
+                "displayName": [
+                    "FooType"
+                ]
+            },
+            "docs": [
+                "foo",
+                "bar"
+            ]
+        }
+    );
+    assert_eq!(message_spec, expected_message_spec);
+
+    let event_spec = serde_json::to_value(&spec.events()[0]).unwrap();
+    let expected_event_spec = serde_json::json!(
+        {
+            "label": "foobar",
+            "args": [
+                {
+                    "label": "something",
+                    "indexed": true,
+                    "type": {
+                        "type": 789,
+                        "displayName": [
+                            "FooBarEvent"
+                        ]
+                    },
+                    "docs": []
+                }
+            ],
+            "docs": [
+                "foobar event"
+            ]
+        }
+    );
+    assert_eq!(event_spec, expected_event_spec);
 }
