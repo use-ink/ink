@@ -85,11 +85,11 @@ mod dns {
         #[ink(message)]
         pub fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
-            if self.name_to_owner.contains(&name) {
+            if self.name_to_owner.contains(name) {
                 return Err(Error::NameAlreadyExists)
             }
 
-            self.name_to_owner.insert(&name, &caller);
+            self.name_to_owner.insert(name, &caller);
             self.env()
                 .emit_event(Event::Register { name, from: caller });
 
@@ -105,8 +105,8 @@ mod dns {
                 return Err(Error::CallerIsNotOwner)
             }
 
-            let old_address = self.name_to_address.get(&name);
-            self.name_to_address.insert(&name, &new_address);
+            let old_address = self.name_to_address.get(name);
+            self.name_to_address.insert(name, &new_address);
 
             self.env().emit_event(Event::SetAddress {
                 name,
@@ -126,8 +126,8 @@ mod dns {
                 return Err(Error::CallerIsNotOwner)
             }
 
-            let old_owner = self.name_to_owner.get(&name);
-            self.name_to_owner.insert(&name, &to);
+            let old_owner = self.name_to_owner.get(name);
+            self.name_to_owner.insert(name, &to);
 
             self.env().emit_event(Event::Transfer {
                 name,
@@ -153,15 +153,13 @@ mod dns {
 
         /// Returns the owner given the hash or the default address.
         fn get_owner_or_default(&self, name: Hash) -> AccountId {
-            self.name_to_owner
-                .get(&name)
-                .unwrap_or(self.default_address)
+            self.name_to_owner.get(name).unwrap_or(self.default_address)
         }
 
         /// Returns the address given the hash or the default address.
         fn get_address_or_default(&self, name: Hash) -> AccountId {
             self.name_to_address
-                .get(&name)
+                .get(name)
                 .unwrap_or(self.default_address)
         }
     }

@@ -136,13 +136,13 @@ mod erc721 {
         /// Returns the owner of the token.
         #[ink(message)]
         pub fn owner_of(&self, id: TokenId) -> Option<AccountId> {
-            self.token_owner.get(&id)
+            self.token_owner.get(id)
         }
 
         /// Returns the approved account ID for this token if any.
         #[ink(message)]
         pub fn get_approved(&self, id: TokenId) -> Option<AccountId> {
-            self.token_approvals.get(&id)
+            self.token_approvals.get(id)
         }
 
         /// Returns `true` if the operator is approved by the owner.
@@ -216,17 +216,17 @@ mod erc721 {
                 ..
             } = self;
 
-            let owner = token_owner.get(&id).ok_or(Error::TokenNotFound)?;
+            let owner = token_owner.get(id).ok_or(Error::TokenNotFound)?;
             if owner != caller {
                 return Err(Error::NotOwner)
             };
 
             let count = owned_tokens_count
-                .get(&caller)
+                .get(caller)
                 .map(|c| c - 1)
                 .ok_or(Error::CannotFetchValue)?;
-            owned_tokens_count.insert(&caller, &count);
-            token_owner.remove(&id);
+            owned_tokens_count.insert(caller, &count);
+            token_owner.remove(id);
 
             self.env().emit_event(Event::Transfer {
                 from: Some(caller),
@@ -274,16 +274,16 @@ mod erc721 {
                 ..
             } = self;
 
-            if !token_owner.contains(&id) {
+            if !token_owner.contains(id) {
                 return Err(Error::TokenNotFound)
             }
 
             let count = owned_tokens_count
-                .get(&from)
+                .get(from)
                 .map(|c| c - 1)
                 .ok_or(Error::CannotFetchValue)?;
-            owned_tokens_count.insert(&from, &count);
-            token_owner.remove(&id);
+            owned_tokens_count.insert(from, &count);
+            token_owner.remove(id);
 
             Ok(())
         }
@@ -296,7 +296,7 @@ mod erc721 {
                 ..
             } = self;
 
-            if token_owner.contains(&id) {
+            if token_owner.contains(id) {
                 return Err(Error::TokenExists)
             }
 
@@ -307,7 +307,7 @@ mod erc721 {
             let count = owned_tokens_count.get(to).map(|c| c + 1).unwrap_or(1);
 
             owned_tokens_count.insert(to, &count);
-            token_owner.insert(&id, to);
+            token_owner.insert(id, to);
 
             Ok(())
         }
@@ -351,10 +351,10 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            if self.token_approvals.contains(&id) {
+            if self.token_approvals.contains(id) {
                 return Err(Error::CannotInsert)
             } else {
-                self.token_approvals.insert(&id, to);
+                self.token_approvals.insert(id, to);
             }
 
             self.env().emit_event(Event::Approval {
@@ -368,7 +368,7 @@ mod erc721 {
 
         /// Removes existing approval from token `id`.
         fn clear_approval(&mut self, id: TokenId) {
-            self.token_approvals.remove(&id);
+            self.token_approvals.remove(id);
         }
 
         // Returns the total number of tokens from an account.
@@ -387,7 +387,7 @@ mod erc721 {
             let owner = self.owner_of(id);
             from != Some(AccountId::from([0x0; 32]))
                 && (from == owner
-                    || from == self.token_approvals.get(&id)
+                    || from == self.token_approvals.get(id)
                     || self.approved_for_all(
                         owner.expect("Error with AccountId"),
                         from.expect("Error with AccountId"),
@@ -396,7 +396,7 @@ mod erc721 {
 
         /// Returns true if token `id` exists or false if it does not.
         fn exists(&self, id: TokenId) -> bool {
-            self.token_owner.contains(&id)
+            self.token_owner.contains(id)
         }
     }
 
