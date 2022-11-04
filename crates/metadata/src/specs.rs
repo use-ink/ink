@@ -730,15 +730,16 @@ where
     }
 
     /// Sets the input arguments of the event specification.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = <F as Form>::String>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
         this.spec.docs = docs
             .into_iter()
-            .map(trim_extra_whitespace)
+            .map(|s| trim_extra_whitespace(s).into())
             .collect::<Vec<_>>();
         this
     }
@@ -1097,16 +1098,17 @@ where
     }
 
     /// Sets the documentation of the event parameter.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = <F as Form>::String>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: EventParamSpec {
                 docs: docs
                     .into_iter()
-                    .map(trim_extra_whitespace)
+                    .map(|s| trim_extra_whitespace(s).into())
                     .collect::<Vec<_>>(),
                 ..self.spec
             },
