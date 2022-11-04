@@ -28,6 +28,8 @@ use syn::{
     token,
 };
 
+use super::item_impl::is_code_span_enabled;
+
 /// The ink! module.
 ///
 /// This is the root of all ink! smart contracts and is defined similarly to
@@ -263,7 +265,7 @@ impl ItemMod {
                         .into_combine(format_err!(
                             overlap.span(),
                             "first ink! message with overlapping wildcard selector here",
-                        )))
+                        )));
                     }
                 }
             }
@@ -283,7 +285,7 @@ impl ItemMod {
                             .into_combine(format_err!(
                             overlap.span(),
                             "first ink! constructor with overlapping wildcard selector here",
-                        )))
+                        )));
                     }
                 }
             }
@@ -543,7 +545,9 @@ impl<'a> Iterator for IterEvents<'a> {
                 None => return None,
                 Some(ink_item) => {
                     if let Some(event) = ink_item.filter_map_event_item() {
-                        return Some(event)
+                        if is_code_span_enabled(event.attrs()) {
+                            return Some(event)
+                        }
                     }
                     continue 'repeat
                 }
