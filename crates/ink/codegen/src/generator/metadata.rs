@@ -40,11 +40,14 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
+        let type_transform = self.generate_storage_type_transform();
 
         quote! {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
+                #type_transform
+
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
                     let layout = #layout;
@@ -105,6 +108,14 @@ impl Metadata<'_> {
                     #( #docs ),*
                 ])
                 .done()
+        }
+    }
+
+    /// Generates a default implementation of `TransformType` for the storage type.
+    fn generate_storage_type_transform(&self) -> TokenStream2 {
+        let storage = self.contract.module().storage().ident();
+        quote! {
+            impl ::ink::metadata::TransformType for #storage { }
         }
     }
 
@@ -193,38 +204,31 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates the ink! metadata specs for the given type of a constructor.
-    fn generate_constructor_type_spec(ty: &syn::Type) -> TokenStream2 {
-        fn without_display_name(ty: TokenStream2) -> TokenStream2 {
-            quote! {
-                ::ink::metadata::TransformResult::<#ty>::new_type_spec(None)
-            }
+    /// Generates the ink! metadata segments iterator for the given type of a constructor.
+    fn generate_constructor_type_segments(ty: &syn::Type) -> TokenStream2 {
+        fn without_display_name() -> TokenStream2 {
+            quote! { None }
         }
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
-                let ty = Self::replace_self_with_unit(ty);
-                return without_display_name(ty)
+                return without_display_name()
             }
             let path = &type_path.path;
             if path.segments.is_empty() {
-                let ty = Self::replace_self_with_unit(ty);
-                return without_display_name(ty)
+                return without_display_name()
             }
             let segs = path
                 .segments
                 .iter()
                 .map(|seg| &seg.ident)
                 .collect::<Vec<_>>();
-            let ty = Self::replace_self_with_unit(ty);
             quote! {
-                 ::ink::metadata::TransformResult::<#ty>::new_type_spec(
-                    Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
+                Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
                         .map(::core::convert::AsRef::as_ref)
-                    ))
+                )
             }
         } else {
-            let ty = Self::replace_self_with_unit(ty);
-            without_display_name(ty)
+            without_display_name()
         }
     }
 
@@ -377,13 +381,15 @@ impl Metadata<'_> {
                 if type_is_self_val(ty) {
                     return quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
                 }
-                let type_spec = Self::generate_constructor_type_spec(ty);
+                let segments = Self::generate_constructor_type_segments(ty);
                 let type_token = Self::replace_self_with_unit(ty);
                 quote! {
                     if !::ink::is_result_type!(#type_token) {
                         ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
                     } else {
-                       ::ink::metadata::ReturnTypeSpec::new(#type_spec)
+                       ::ink::metadata::ReturnTypeSpec::new(
+                        <#type_token as ::ink::metadata::TransformType>::new_type_spec(#segments)
+                       )
                     }
                 }
             }

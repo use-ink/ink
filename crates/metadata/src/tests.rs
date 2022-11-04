@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::specs::TransformType;
+
 use super::*;
 use pretty_assertions::assert_eq;
 use scale_info::{
@@ -56,6 +58,8 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 #[test]
 fn spec_contract_json() {
     let seg = ["core", "result", "Result"].iter().map(AsRef::as_ref);
+    let spec = <Result<u8, ()> as TransformType>::new_type_spec(Some(seg.clone()));
+
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -81,9 +85,7 @@ fn spec_contract_json() {
                 .selector([6u8, 3u8, 55u8, 123u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(
-                    TransformResult::<Result<u8, ()>>::new_type_spec(Some(seg)),
-                ))
+                .returns(ReturnTypeSpec::new(spec))
                 .docs(Vec::new())
                 .done(),
         ])

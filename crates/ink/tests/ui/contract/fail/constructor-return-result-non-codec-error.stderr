@@ -20,3 +20,22 @@ note: required by a bound in `execute_constructor`
    |
    |     <private::Seal<R> as ConstructorReturnType<Contract>>::Error: Encode,
    |                                                                   ^^^^^^ required by this bound in `execute_constructor`
+
+error[E0277]: the trait bound `contract::Error: TypeInfo` is not satisfied
+ --> tests/ui/contract/fail/constructor-return-result-non-codec-error.rs:1:1
+  |
+1 | #[ink::contract]
+  | ^^^^^^^^^^^^^^^^ the trait `TypeInfo` is not implemented for `contract::Error`
+  |
+  = help: the following other types implement trait `TypeInfo`:
+            &T
+            &mut T
+            ()
+            (A, B)
+            (A, B, C)
+            (A, B, C, D)
+            (A, B, C, D, E)
+            (A, B, C, D, E, F)
+          and $N others
+  = note: required because of the requirements on the impl of `TransformType` for `Result<(), contract::Error>`
+  = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)

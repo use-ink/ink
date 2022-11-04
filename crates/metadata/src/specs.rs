@@ -1035,16 +1035,28 @@ where
 ///
 /// # Important Note
 /// Only use this factory with constructors!
-pub struct TransformResult<T> {
-    marker: core::marker::PhantomData<fn() -> T>,
+pub trait TransformType {
+    /// Generates [`TypeSpec`] for the type
+    /// that implements the trait.
+    ///
+    /// Default implementation generates [`TypeSpec`] for `()`
+    fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    where
+        S: IntoIterator<Item = &'static str>,
+    {
+        if let Some(segments) = segments_opt {
+            TypeSpec::with_name_segs::<(), S>(segments)
+        } else {
+            TypeSpec::of_type::<()>()
+        }
+    }
 }
 
-impl<O, E> TransformResult<core::result::Result<O, E>>
+impl<O, E> TransformType for Result<O, E>
 where
     E: TypeInfo + 'static,
 {
-    /// Produces [`TypeSpec`] for a `Result<(), E>`.
-    pub fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
     where
         S: IntoIterator<Item = &'static str>,
     {
