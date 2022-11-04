@@ -69,7 +69,7 @@ use scale::{
 ///         let mut instance = Self::default();
 ///         let caller = Self::env().caller();
 ///         let value: Balance = Default::default();
-///         instance.balances.insert_return_size(&caller, &value);
+///         instance.balances.insert(&caller, &value);
 ///         instance
 ///     }
 ///
@@ -134,7 +134,7 @@ where
     ///
     /// Returns the size of the pre-existing value at the specified key if any.
     #[inline]
-    pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
         R: Storable + scale::EncodeLike<V>,
@@ -251,7 +251,7 @@ mod tests {
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert_return_size(&1, &2);
+            mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
             Ok(())
@@ -263,7 +263,7 @@ mod tests {
     fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
-            mapping.insert_return_size(&1, &2);
+            mapping.insert(&1, &2);
 
             let mapping2: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
             assert_eq!(mapping2.get(&1), Some(2));
@@ -290,7 +290,7 @@ mod tests {
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new();
 
-            mapping.insert_return_size(&1, &2);
+            mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
             // When

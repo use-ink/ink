@@ -175,7 +175,7 @@ mod erc721 {
                 .get(&caller)
                 .map(|c| c - 1)
                 .ok_or(Error::CannotFetchValue)?;
-            owned_tokens_count.insert_return_size(&caller, &count);
+            owned_tokens_count.insert(&caller, &count);
             token_owner.remove(&id);
 
             self.env().emit_event(Transfer {
@@ -232,7 +232,7 @@ mod erc721 {
                 .get(&from)
                 .map(|c| c - 1)
                 .ok_or(Error::CannotFetchValue)?;
-            owned_tokens_count.insert_return_size(&from, &count);
+            owned_tokens_count.insert(&from, &count);
             token_owner.remove(&id);
 
             Ok(())
@@ -256,8 +256,8 @@ mod erc721 {
 
             let count = owned_tokens_count.get(to).map(|c| c + 1).unwrap_or(1);
 
-            owned_tokens_count.insert_return_size(to, &count);
-            token_owner.insert_return_size(&id, to);
+            owned_tokens_count.insert(to, &count);
+            token_owner.insert(&id, to);
 
             Ok(())
         }
@@ -279,8 +279,7 @@ mod erc721 {
             });
 
             if approved {
-                self.operator_approvals
-                    .insert_return_size((&caller, &to), &());
+                self.operator_approvals.insert((&caller, &to), &());
             } else {
                 self.operator_approvals.remove((&caller, &to));
             }
@@ -305,7 +304,7 @@ mod erc721 {
             if self.token_approvals.get(&id).is_some() {
                 return Err(Error::CannotInsert)
             } else {
-                self.token_approvals.insert_return_size(&id, to);
+                self.token_approvals.insert(&id, to);
             }
 
             self.env().emit_event(Approval {

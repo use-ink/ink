@@ -55,7 +55,7 @@ mod erc20 {
         pub fn new(total_supply: Balance) -> Self {
             let mut balances = Mapping::default();
             let caller = Self::env().caller();
-            balances.insert_return_size(&caller, &total_supply);
+            balances.insert(&caller, &total_supply);
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
@@ -139,8 +139,7 @@ mod erc20 {
         #[ink(message)]
         pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
-            self.allowances
-                .insert_return_size((&owner, &spender), &value);
+            self.allowances.insert((&owner, &spender), &value);
             self.env().emit_event(Approval {
                 owner,
                 spender,
@@ -177,7 +176,7 @@ mod erc20 {
             }
             self.transfer_from_to(&from, &to, value)?;
             self.allowances
-                .insert_return_size((&from, &caller), &(allowance - value));
+                .insert((&from, &caller), &(allowance - value));
             Ok(())
         }
 
@@ -200,10 +199,9 @@ mod erc20 {
                 return Err(Error::InsufficientBalance)
             }
 
-            self.balances
-                .insert_return_size(from, &(from_balance - value));
+            self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
-            self.balances.insert_return_size(to, &(to_balance + value));
+            self.balances.insert(to, &(to_balance + value));
             self.env().emit_event(Transfer {
                 from: Some(*from),
                 to: Some(*to),

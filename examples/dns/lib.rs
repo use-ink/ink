@@ -91,7 +91,7 @@ mod dns {
                 return Err(Error::NameAlreadyExists)
             }
 
-            self.name_to_owner.insert_return_size(&name, &caller);
+            self.name_to_owner.insert(&name, &caller);
             self.env().emit_event(Register { name, from: caller });
 
             Ok(())
@@ -107,7 +107,7 @@ mod dns {
             }
 
             let old_address = self.name_to_address.get(&name);
-            self.name_to_address.insert_return_size(&name, &new_address);
+            self.name_to_address.insert(&name, &new_address);
 
             self.env().emit_event(SetAddress {
                 name,
@@ -128,7 +128,7 @@ mod dns {
             }
 
             let old_owner = self.name_to_owner.get(&name);
-            self.name_to_owner.insert_return_size(&name, &to);
+            self.name_to_owner.insert(&name, &to);
 
             self.env().emit_event(Transfer {
                 name,
