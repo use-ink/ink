@@ -214,8 +214,8 @@ where
     })
 }
 
-/// Removes the `value` at `key`,
-/// returning the previous `value` at `key` from storage
+/// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+///
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
