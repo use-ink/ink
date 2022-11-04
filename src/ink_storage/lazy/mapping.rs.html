@@ -596,8 +596,8 @@
     <span class="kw">fn</span> <span class="ident">insert_and_get_work</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
-            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
 
             <span class="prelude-val">Ok</span>(())
         })
@@ -608,10 +608,10 @@
     <span class="kw">fn</span> <span class="ident">insert_and_get_work_for_two_mapping_with_same_manual_key</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="number">123</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
-            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
+            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
 
             <span class="kw">let</span> <span class="ident">mapping2</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="number">123</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">mapping2</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping2</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
 
             <span class="prelude-val">Ok</span>(())
         })
@@ -622,7 +622,7 @@
     <span class="kw">fn</span> <span class="ident">gets_default_if_no_key_set</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
 
             <span class="prelude-val">Ok</span>(())
         })
@@ -635,14 +635,14 @@
             <span class="comment">// Given</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
 
-            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
+            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">2</span>));
 
             <span class="comment">// When</span>
-            <span class="ident">mapping</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="number">1</span>);
+            <span class="ident">mapping</span>.<span class="ident">remove</span>(<span class="number">1</span>);
 
             <span class="comment">// Then</span>
-            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
 
             <span class="prelude-val">Ok</span>(())
         })
@@ -656,10 +656,10 @@
             <span class="kw">let</span> <span class="ident">mapping</span>: <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mapping::new</span>();
 
             <span class="comment">// When</span>
-            <span class="ident">mapping</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="number">1</span>);
+            <span class="ident">mapping</span>.<span class="ident">remove</span>(<span class="number">1</span>);
 
             <span class="comment">// Then</span>
-            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">1</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">mapping</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
 
             <span class="prelude-val">Ok</span>(())
         })
