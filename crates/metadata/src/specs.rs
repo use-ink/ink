@@ -1035,12 +1035,12 @@ where
 ///
 /// # Important Note
 /// Only use this factory with constructors!
-pub trait TransformType {
+pub trait ConstructorReturnType {
     /// Generates [`TypeSpec`] for the type
     /// that implements the trait.
     ///
     /// Default implementation generates [`TypeSpec`] for `()`
-    fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    fn spec<S>(segments_opt: Option<S>) -> TypeSpec
     where
         S: IntoIterator<Item = &'static str>,
     {
@@ -1052,11 +1052,11 @@ pub trait TransformType {
     }
 }
 
-impl<O, E> TransformType for Result<O, E>
+impl<O, E> ConstructorReturnType for Result<O, E>
 where
     E: TypeInfo + 'static,
 {
-    fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    fn spec<S>(segments_opt: Option<S>) -> TypeSpec
     where
         S: IntoIterator<Item = &'static str>,
     {

@@ -111,11 +111,11 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates a default implementation of `TransformType` for the storage type.
+    /// Generates a default implementation of `ConstructorReturnType` for the storage type.
     fn generate_storage_type_transform(&self) -> TokenStream2 {
         let storage = self.contract.module().storage().ident();
         quote! {
-            impl ::ink::metadata::TransformType for #storage { }
+            impl ::ink::metadata::ConstructorReturnType for #storage { }
         }
     }
 
@@ -363,34 +363,24 @@ impl Metadata<'_> {
     /// the metadata will not display any metadata for return type.
     /// Otherwise, the return type is `Result<(), E>`.
     fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
-        /// Returns `true` if the given type is `Self`.
-        fn type_is_self_val(ty: &syn::Type) -> bool {
-            matches!(ty, syn::Type::Path(syn::TypePath {
-            qself: None,
-            path
-        }) if path.is_ident("Self"))
-        }
-
         match ret_ty {
             None => {
                 quote! {
                     ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
                 }
             }
+            Some(syn::Type::Path(syn::TypePath { qself: None, path }))
+                if path.is_ident("Self") =>
+            {
+                quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
+            }
             Some(ty) => {
-                if type_is_self_val(ty) {
-                    return quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
-                }
-                let segments = Self::generate_constructor_type_segments(ty);
                 let type_token = Self::replace_self_with_unit(ty);
-                quote! {
-                    if !::ink::is_result_type!(#type_token) {
-                        ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
-                    } else {
-                       ::ink::metadata::ReturnTypeSpec::new(
-                        <#type_token as ::ink::metadata::TransformType>::new_type_spec(#segments)
-                       )
-                    }
+                let segments = Self::generate_constructor_type_segments(ty);
+                quote! { ::ink::metadata::ReturnTypeSpec::new(
+                                <#type_token as ::ink::metadata::ConstructorReturnType>::spec(#segments)
+
+                    )
                 }
             }
         }
