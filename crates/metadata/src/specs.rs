@@ -1028,19 +1028,15 @@ where
     }
 }
 
-/// This is wrapper for [`TypeSpec`] which acts as a factory.
-/// The whole purpose of the factory is to replace the type of
-/// `Ok` variant of `Result` with `()` because constructors do not return
-/// any data upon successful instantiation.
-///
-/// # Important Note
-/// Only use this factory with constructors!
-pub trait TransformType {
-    /// Generates [`TypeSpec`] for the type
-    /// that implements the trait.
+/// Implementing this trait for some type `T` indicates what the return spec of
+/// `T` will be in the metadata, given `T` is used as the result of a constructor.
+pub trait ConstructorReturnSpec {
+    /// Generates the type spec.
     ///
-    /// Default implementation generates [`TypeSpec`] for `()`
-    fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    /// Note:
+    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
+    /// be used directly for constructor returning `Self`.
+    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
     where
         S: IntoIterator<Item = &'static str>,
     {
@@ -1052,11 +1048,11 @@ pub trait TransformType {
     }
 }
 
-impl<O, E> TransformType for Result<O, E>
+impl<O, E> ConstructorReturnSpec for Result<O, E>
 where
     E: TypeInfo + 'static,
 {
-    fn new_type_spec<S>(segments_opt: Option<S>) -> TypeSpec
+    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
     where
         S: IntoIterator<Item = &'static str>,
     {

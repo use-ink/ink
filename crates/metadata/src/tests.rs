@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::specs::TransformType;
+use crate::specs::ConstructorReturnSpec;
 
 use super::*;
 use pretty_assertions::assert_eq;
@@ -58,7 +58,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 #[test]
 fn spec_contract_json() {
     let seg = ["core", "result", "Result"].iter().map(AsRef::as_ref);
-    let spec = <Result<u8, ()> as TransformType>::new_type_spec(Some(seg.clone()));
+    let spec = <Result<u8, ()> as ConstructorReturnSpec>::generate(Some(seg.clone()));
 
     // given
     let contract: ContractSpec = ContractSpec::new()
