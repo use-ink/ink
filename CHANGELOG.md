@@ -26,6 +26,10 @@ protocol for future versions of Polkadot.
 ### Added
 - Allow using `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
 - Introduce conditional compilation for messages, constructors and events - [#1458](https://github.com/paritytech/ink/pull/1458)
+- Add `Mapping::take()` function allowing to get a value removing it from storage - [#1461](https://github.com/paritytech/ink/pull/1461)
+
+### Changed
+- Update `scale-info` requirement to `2.3` - [#1467](https://github.com/paritytech/ink/pull/1467)
 
 ### Removed
 - Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
