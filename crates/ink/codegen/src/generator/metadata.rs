@@ -111,11 +111,11 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates a default implementation of `ConstructorReturnType` for the storage type.
+    /// Generates a default implementation of `ConstructorReturnSpec` for the storage type.
     fn generate_storage_type_transform(&self) -> TokenStream2 {
         let storage = self.contract.module().storage().ident();
         quote! {
-            impl ::ink::metadata::ConstructorReturnType for #storage { }
+            impl ::ink::metadata::ConstructorReturnSpec for #storage {}
         }
     }
 
@@ -377,9 +377,9 @@ impl Metadata<'_> {
             Some(ty) => {
                 let type_token = Self::replace_self_with_unit(ty);
                 let segments = Self::generate_constructor_type_segments(ty);
-                quote! { ::ink::metadata::ReturnTypeSpec::new(
-                                <#type_token as ::ink::metadata::ConstructorReturnType>::spec(#segments)
-
+                quote! {
+                    ::ink::metadata::ReturnTypeSpec::new(
+                        <#type_token as ::ink::metadata::ConstructorReturnSpec>::generate(#segments)
                     )
                 }
             }
