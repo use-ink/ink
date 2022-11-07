@@ -295,6 +295,7 @@ impl Dispatch<'_> {
             .map(|message| {
                 let message_span = message.span();
                 let message_ident = message.ident();
+                let checked_message_ident = format_ident!("{}_checked", message_ident);
                 let payable = message.is_payable();
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
@@ -310,7 +311,7 @@ impl Dispatch<'_> {
                         type Storage = #storage_ident;
                         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                             |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                #storage_ident::#checked_message_ident( storage #( , #input_bindings )* )
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const PAYABLE: ::core::primitive::bool = #payable;

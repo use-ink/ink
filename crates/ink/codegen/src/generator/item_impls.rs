@@ -257,13 +257,23 @@ impl ItemImpls<'_> {
         let receiver = message.receiver();
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let ident = message.ident();
+        let checked_ident = format_ident!("{}_checked", ident);
         let inputs = message.inputs();
-        let output = message.wrapped_output();
+        let wrapped_inputs = message.inputs();
+        let output_arrow = message.output().map(|_| quote! { -> });
+        let output = message.output();
+        let wrapped_output = message.wrapped_output();
         let statements = message.statements();
+
         quote_spanned!(span =>
             #( #attrs )*
-            #vis fn #ident(#receiver #( , #inputs )* ) -> #output {
-                let #mut_token  message_body = || { #( #statements )* };
+            #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
+                #( #statements )*
+            }
+
+            #( #attrs )*
+            #vis fn #checked_ident(#receiver #( , #wrapped_inputs )* ) -> #wrapped_output {
+                let #mut_token message_body = || { #( #statements )* };
                 ::core::result::Result::Ok(message_body())
 
             }
