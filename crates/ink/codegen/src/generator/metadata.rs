@@ -24,7 +24,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
-    ToTokens,
 };
 use syn::spanned::Spanned as _;
 
@@ -40,14 +39,11 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let storage_ident = self.contract.module().storage().ident();
 
         quote! {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                impl ::ink::metadata::ConstructorReturnSpec for #storage_ident {}
-
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
                     let layout = #layout;
@@ -135,7 +131,6 @@ impl Metadata<'_> {
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
-        let ret_ty = Self::generate_constructor_return_type(constructor.output());
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
@@ -145,7 +140,6 @@ impl Metadata<'_> {
                     #( #args ),*
                 ])
                 .payable(#is_payable)
-                .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
                 ])
@@ -193,34 +187,6 @@ impl Metadata<'_> {
             }
         } else {
             without_display_name(ty)
-        }
-    }
-
-    /// Generates the ink! metadata segments iterator for the given type of a constructor.
-    fn generate_constructor_type_segments(ty: &syn::Type) -> TokenStream2 {
-        fn without_display_name() -> TokenStream2 {
-            quote! { None }
-        }
-        if let syn::Type::Path(type_path) = ty {
-            if type_path.qself.is_some() {
-                return without_display_name()
-            }
-            let path = &type_path.path;
-            if path.segments.is_empty() {
-                return without_display_name()
-            }
-            let segs = path
-                .segments
-                .iter()
-                .map(|seg| &seg.ident)
-                .collect::<Vec<_>>();
-            quote! {
-                Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
-                )
-            }
-        } else {
-            without_display_name()
         }
     }
 
@@ -350,44 +316,6 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates ink! metadata for the given return type of a constructor.
-    /// If the constructor return type is not `Result`,
-    /// the metadata will not display any type spec for the return type.
-    /// Otherwise, the return type spec is `Result<(), E>`.
-    fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
-        match ret_ty {
-            None => {
-                quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
-                }
-            }
-            Some(syn::Type::Path(syn::TypePath { qself: None, path }))
-                if path.is_ident("Self") =>
-            {
-                quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
-            }
-            Some(ty) => {
-                let type_token = Self::replace_self_with_unit(ty);
-                let segments = Self::generate_constructor_type_segments(ty);
-                quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(
-                        <#type_token as ::ink::metadata::ConstructorReturnSpec>::generate(#segments)
-                    )
-                }
-            }
-        }
-    }
-
-    /// Helper function to replace all occurrences of `Self` with `()`.
-    fn replace_self_with_unit(ty: &syn::Type) -> TokenStream2 {
-        if ty.to_token_stream().to_string().contains("< Self") {
-            let s = ty.to_token_stream().to_string().replace("< Self", "< ()");
-            s.parse().unwrap()
-        } else {
-            ty.to_token_stream()
-        }
-    }
-
     /// Generates ink! metadata for all user provided ink! event definitions.
     fn generate_events(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract.module().events().map(|event| {
@@ -513,30 +441,5 @@ mod tests {
                 "e".to_string(),
             ],
         )
-    }
-
-    #[test]
-    fn constructor_return_type_works() {
-        let expected_no_ret_type_spec = ":: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)";
-
-        let actual = Metadata::generate_constructor_return_type(None);
-        assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
-
-        match syn::parse_quote!( -> Self ) {
-            syn::ReturnType::Type(_, t) => {
-                let actual = Metadata::generate_constructor_return_type(Some(&t));
-                assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
-            }
-            _ => unreachable!(),
-        }
-
-        match syn::parse_quote!( -> Result<Self, ()> ) {
-            syn::ReturnType::Type(_, t) => {
-                let actual = Metadata::generate_constructor_return_type(Some(&t));
-                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))";
-                assert_eq!(&actual.to_string(), expected);
-            }
-            _ => unreachable!(),
-        }
     }
 }
