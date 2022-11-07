@@ -824,15 +824,18 @@ pub struct EventVariantSpec<F: Form = MetaForm> {
 
 /// An event variant specification builder.
 #[must_use]
-pub struct EventVariantSpecBuilder {
-    spec: EventVariantSpec,
+pub struct EventVariantSpecBuilder<F: Form> {
+    spec: EventVariantSpec<F>,
 }
 
-impl EventVariantSpecBuilder {
+impl<F> EventVariantSpecBuilder<F>
+where
+    F: Form,
+{
     /// Sets the input arguments of the event variant specification.
     pub fn args<A>(self, args: A) -> Self
     where
-        A: IntoIterator<Item = EventParamSpec>,
+        A: IntoIterator<Item = EventParamSpec<F>>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -841,18 +844,22 @@ impl EventVariantSpecBuilder {
     }
 
     /// Sets the documentation of the event variant specification.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this.spec.docs = docs
+            .into_iter()
+            .map(|s| trim_extra_whitespace(s).into())
+            .collect::<Vec<_>>();
         this
     }
 
     /// Finalizes building the event specification.
-    pub fn done(self) -> EventVariantSpec {
+    pub fn done(self) -> EventVariantSpec<F> {
         self.spec
     }
 }
@@ -873,9 +880,12 @@ impl IntoPortable for EventVariantSpec {
     }
 }
 
-impl EventVariantSpec {
+impl<F> EventVariantSpec<F>
+where
+    F: Form,
+{
     /// Creates a new event variant specification builder.
-    pub fn new(label: &'static str) -> EventVariantSpecBuilder {
+    pub fn new(label: F::String) -> EventVariantSpecBuilder<F> {
         EventVariantSpecBuilder {
             spec: Self {
                 label,
@@ -884,12 +894,7 @@ impl EventVariantSpec {
             },
         }
     }
-}
 
-impl<F> EventVariantSpec<F>
-where
-    F: Form,
-{
     /// Returns the label of the event variant.
     pub fn label(&self) -> &F::String {
         &self.label
@@ -1001,14 +1006,14 @@ impl Default for TypeSpec<MetaForm> {
     }
 }
 
-// impl Default for TypeSpec<PortableForm> {
-//     fn default() -> Self {
-//         Self {
-//             ty: u32::default().into(),
-//             display_name: Default::default(),
-//         }
-//     }
-// }
+impl Default for TypeSpec<PortableForm> {
+    fn default() -> Self {
+        Self {
+            ty: u32::default().into(),
+            display_name: Default::default(),
+        }
+    }
+}
 
 impl IntoPortable for TypeSpec {
     type Output = TypeSpec<PortableForm>;

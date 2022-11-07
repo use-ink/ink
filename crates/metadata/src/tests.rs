@@ -292,8 +292,11 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .indexed(true)
         .docs(vec![])
         .done()];
-    EventSpec::new("foobar".into())
+    let variants = [EventVariantSpec::new("EventVariant".to_string())
         .args(args)
+        .done()];
+    EventSpec::new("foobar".into())
+        .variants(variants)
         .docs(["foobar event".into()])
         .done()
 }
