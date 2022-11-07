@@ -40,13 +40,13 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let type_transform = self.generate_storage_type_transform();
+        let storage_ident = self.contract.module().storage().ident();
 
         quote! {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                #type_transform
+                impl ::ink::metadata::ConstructorReturnSpec for #storage_ident {}
 
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
@@ -108,14 +108,6 @@ impl Metadata<'_> {
                     #( #docs ),*
                 ])
                 .done()
-        }
-    }
-
-    /// Generates a default implementation of `ConstructorReturnSpec` for the storage type.
-    fn generate_storage_type_transform(&self) -> TokenStream2 {
-        let storage = self.contract.module().storage().ident();
-        quote! {
-            impl ::ink::metadata::ConstructorReturnSpec for #storage {}
         }
     }
 
@@ -359,9 +351,9 @@ impl Metadata<'_> {
     }
 
     /// Generates ink! metadata for the given return type of a constructor.
-    /// If constructor result type is not `Result`,
+    /// If the constructor return type is not `Result`,
     /// the metadata will not display any metadata for return type.
-    /// Otherwise, the return type is `Result<(), E>`.
+    /// Otherwise, the return type spec is `Result<(), E>`.
     fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
         match ret_ty {
             None => {
@@ -386,8 +378,7 @@ impl Metadata<'_> {
         }
     }
 
-    /// Helper function which replace all occurrences of `Self`
-    /// with `()`.
+    /// Helper function to replace all occurrences of `Self` with `()`.
     fn replace_self_with_unit(ty: &syn::Type) -> TokenStream2 {
         if ty.to_token_stream().to_string().contains("< Self") {
             let s = ty.to_token_stream().to_string().replace("< Self", "< ()");
