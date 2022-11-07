@@ -300,40 +300,6 @@ mod tests {
     }
 
     #[test]
-    fn wrong_first_struct_attribute_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                #[ink(storage)]
-                #[ink::event_definition]
-                pub enum MyEvent {
-                    Event {
-                        #[ink(topic)]
-                        field_1: i32,
-                        field_2: bool,
-                    }
-                }
-            },
-            "unexpected first ink! attribute argument",
-        )
-    }
-
-    #[test]
-    fn missing_event_attribute_fails() {
-        assert_try_from_fails(
-            syn::parse_quote! {
-                pub enum MyEvent {
-                    Event {
-                        #[ink(topic)]
-                        field_1: i32,
-                        field_2: bool,
-                    }
-                }
-            },
-            "encountered unexpected empty expanded ink! attribute arguments",
-        )
-    }
-
-    #[test]
     fn non_pub_event_struct() {
         assert_try_from_fails(
             syn::parse_quote! {
@@ -381,7 +347,7 @@ mod tests {
                     }
                 }
             },
-            "first optional ink! attribute of an event field must be #[ink(topic)]",
+            "only the #[ink(topic)] attribute is supported for event fields",
         )
     }
 
@@ -399,7 +365,7 @@ mod tests {
                     }
                 }
             },
-            "encountered conflicting ink! attribute argument",
+            "only the #[ink(topic)] attribute is supported for event fields",
         )
     }
 
