@@ -300,12 +300,9 @@ impl Message {
         .map(quote::ToTokens::to_token_stream)
         .unwrap_or_else(|| quote::quote! { () });
 
-        let wrapped_return = quote::quote! {
+        let wrapped_return = syn::parse_quote! {
             ::core::result::Result<#return_type, ::ink::LangError>
         };
-
-        let wrapped_return = syn::parse2::<syn::Type>(wrapped_return)
-            .expect("TODO: Failed to parse into Type");
 
         Some(wrapped_return)
     }
