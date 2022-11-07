@@ -352,7 +352,7 @@ impl Metadata<'_> {
 
     /// Generates ink! metadata for the given return type of a constructor.
     /// If the constructor return type is not `Result`,
-    /// the metadata will not display any metadata for return type.
+    /// the metadata will not display any type spec for the return type.
     /// Otherwise, the return type spec is `Result<(), E>`.
     fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
         match ret_ty {
