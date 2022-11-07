@@ -299,11 +299,7 @@ impl Dispatch<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
-
-                let output_tuple_type = message.wrapped_output()
-                    .map(|ty| quote::ToTokens::to_token_stream(&ty))
-                    .expect("TODO: Always returns Some atm");
-
+                let output_tuple_type = message.wrapped_output();
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());

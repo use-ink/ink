@@ -258,10 +258,7 @@ impl ItemImpls<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let ident = message.ident();
         let inputs = message.inputs();
-        let output = message
-            .wrapped_output()
-            .map(|ty| quote::ToTokens::to_token_stream(&ty))
-            .expect("This should always be Some atm");
+        let output = message.wrapped_output();
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*

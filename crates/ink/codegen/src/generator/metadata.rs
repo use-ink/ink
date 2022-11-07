@@ -227,8 +227,7 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
-                let ret_ty =
-                    Self::generate_return_type(message.wrapped_output().as_ref());
+                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 quote_spanned!(span =>
                     ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([

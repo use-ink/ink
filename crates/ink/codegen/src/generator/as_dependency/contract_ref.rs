@@ -343,9 +343,7 @@ impl ContractRef<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        let output_type = message
-            .wrapped_output()
-            .expect("TODO: This always returns Some atm");
+        let output_type = message.wrapped_output();
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]

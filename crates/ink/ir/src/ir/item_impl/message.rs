@@ -291,20 +291,19 @@ impl Message {
         }
     }
 
-    // TODO: Maybe get rid of `Option` here, only keeping for initial compatibility
-    pub fn wrapped_output(&self) -> Option<syn::Type> {
-        let return_type = match &self.item.sig.output {
-            syn::ReturnType::Default => None,
-            syn::ReturnType::Type(_, return_type) => Some(return_type),
-        }
-        .map(quote::ToTokens::to_token_stream)
-        .unwrap_or_else(|| quote::quote! { () });
+    /// Returns the return type of the message, but wrapped within a `Result`.
+    ///
+    /// This is used to to allow callers to handle certain types of errors which are not exposed
+    /// by messages.
+    pub fn wrapped_output(&self) -> syn::Type {
+        let return_type = self
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote::quote! { () });
 
-        let wrapped_return = syn::parse_quote! {
+        syn::parse_quote! {
             ::core::result::Result<#return_type, ::ink::LangError>
-        };
-
-        Some(wrapped_return)
+        }
     }
 
     /// Returns a local ID unique to the ink! message with respect to its implementation block.
