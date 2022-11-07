@@ -255,10 +255,10 @@ impl ItemImpls<'_> {
         let attrs = message.attrs();
         let vis = message.visibility();
         let receiver = message.receiver();
-        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let ident = message.ident();
         let checked_ident = format_ident!("{}_checked", ident);
         let inputs = message.inputs();
+        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let wrapped_inputs = message.inputs();
         let output_arrow = message.output().map(|_| quote! { -> });
         let output = message.output();
@@ -273,8 +273,7 @@ impl ItemImpls<'_> {
 
             #( #attrs )*
             #vis fn #checked_ident(#receiver #( , #wrapped_inputs )* ) -> #wrapped_output {
-                let #mut_token message_body = || { #( #statements )* };
-                ::core::result::Result::Ok(message_body())
+                ::core::result::Result::Ok(self.#ident( #( #input_bindings , )* ))
 
             }
         )
