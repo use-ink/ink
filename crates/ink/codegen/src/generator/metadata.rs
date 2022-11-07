@@ -514,7 +514,7 @@ mod tests {
             ],
         )
     }
-    
+
     #[test]
     fn constructor_return_type_works() {
         let expected_no_ret_type_spec = ":: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)";
