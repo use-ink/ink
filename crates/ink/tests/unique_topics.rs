@@ -68,7 +68,7 @@ mod my_contract {
             let my_contract = MyContract::new();
 
             // when
-            MyContract::emit_my_event(&my_contract);
+            MyContract::emit_my_event(&my_contract).expect("TODO");
 
             // then
             // all topics must be unique
