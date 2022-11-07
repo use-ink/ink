@@ -514,4 +514,29 @@ mod tests {
             ],
         )
     }
+
+    #[test]
+    fn constructor_return_type_works() {
+        let expected_no_ret_type_spec = ":: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)";
+
+        let actual = Metadata::generate_constructor_return_type(None);
+        assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
+
+        match syn::parse_quote!( -> Self ) {
+            syn::ReturnType::Type(_, t) => {
+                let actual = Metadata::generate_constructor_return_type(Some(&t));
+                assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
+            }
+            _ => unreachable!(),
+        }
+
+        match syn::parse_quote!( -> Result<Self, ()> ) {
+            syn::ReturnType::Type(_, t) => {
+                let actual = Metadata::generate_constructor_return_type(Some(&t));
+                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))";
+                assert_eq!(&actual.to_string(), expected);
+            }
+            _ => unreachable!(),
+        }
+    }
 }
