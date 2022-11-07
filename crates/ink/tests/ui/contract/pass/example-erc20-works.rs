@@ -15,25 +15,25 @@ mod erc20 {
         allowances: Mapping<(AccountId, AccountId), Balance>,
     }
 
-    /// Event emitted when a token transfer occurs.
-    #[ink(event)]
-    pub struct Transfer {
-        #[ink(topic)]
-        from: Option<AccountId>,
-        #[ink(topic)]
-        to: Option<AccountId>,
-        value: Balance,
-    }
-
-    /// Event emitted when an approval occurs that `spender` is allowed to withdraw
-    /// up to the amount of `value` tokens from `owner`.
-    #[ink(event)]
-    pub struct Approval {
-        #[ink(topic)]
-        owner: AccountId,
-        #[ink(topic)]
-        spender: AccountId,
-        value: Balance,
+    #[ink::event_definition]
+    pub enum Event {
+        /// Event emitted when a token transfer occurs.
+        Transfer {
+            #[ink(topic)]
+            from: Option<AccountId>,
+            #[ink(topic)]
+            to: Option<AccountId>,
+            value: Balance,
+        },
+        /// Event emitted when an approval occurs that `spender` is allowed to withdraw
+        /// up to the amount of `value` tokens from `owner`.
+        Approval {
+            #[ink(topic)]
+            owner: AccountId,
+            #[ink(topic)]
+            spender: AccountId,
+            value: Balance,
+        },
     }
 
     /// The ERC-20 error types.
