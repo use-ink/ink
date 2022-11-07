@@ -14,15 +14,33 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::{serde_hex, utils::trim_extra_whitespace};
+use crate::{
+    serde_hex,
+    utils::trim_extra_whitespace,
+};
 #[cfg(not(feature = "std"))]
-use alloc::{format, vec, vec::Vec};
+use alloc::{
+    format,
+    vec,
+    vec::Vec,
+};
 use core::marker::PhantomData;
 use scale_info::{
-    form::{Form, MetaForm, PortableForm},
-    meta_type, IntoPortable, Registry, TypeInfo,
+    form::{
+        Form,
+        MetaForm,
+        PortableForm,
+    },
+    meta_type,
+    IntoPortable,
+    Registry,
+    TypeInfo,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
