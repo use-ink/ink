@@ -311,9 +311,9 @@ mod tests {
     fn insert_and_take_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert(&1, &2);
-            assert_eq!(mapping.take(&1), Some(2));
-            assert!(mapping.get(&1).is_none());
+            mapping.insert(1, &2);
+            assert_eq!(mapping.take(1), Some(2));
+            assert!(mapping.get(1).is_none());
 
             Ok(())
         })
@@ -324,7 +324,7 @@ mod tests {
     fn take_empty_value_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new();
-            assert_eq!(mapping.take(&1), None);
+            assert_eq!(mapping.take(1), None);
 
             Ok(())
         })
