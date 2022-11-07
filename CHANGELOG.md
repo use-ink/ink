@@ -31,10 +31,10 @@ protocol for future versions of Polkadot.
 
 ### Changed
 - Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
+- Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
 
 ### Removed
 - Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
-- Remove previous insert `Mapping::insert(key, val)` method and replace by `Mapping::insert_return_size(key, val)` behaviour but under the same method name insert - [#1463](https://github.com/paritytech/ink/pull/1463)
 
 ## Version 4.0.0-alpha.3
 
