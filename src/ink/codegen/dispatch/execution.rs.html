@@ -246,7 +246,7 @@
                 <span class="kw-2">&amp;</span><span class="ident">Contract::KEY</span>,
                 <span class="ident">contract</span>,
             );
-            <span class="prelude-val">Ok</span>(())
+            <span class="ident">ink_env::return_value</span>(<span class="ident">ReturnFlags::default</span>().<span class="ident">set_reverted</span>(<span class="bool-val">false</span>), <span class="kw-2">&amp;</span>());
         }
         <span class="prelude-val">Err</span>(<span class="ident">error</span>) =&gt; {
             <span class="comment">// Constructor is fallible and failed.</span>

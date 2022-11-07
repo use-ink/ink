@@ -445,6 +445,103 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -471,6 +568,7 @@
 <span class="kw">use</span> <span class="ident">quote</span>::{
     <span class="ident">quote</span>,
     <span class="ident">quote_spanned</span>,
+    <span class="ident">ToTokens</span>,
 };
 <span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
@@ -486,11 +584,14 @@
     <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">contract</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract</span>();
         <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_layout</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
 
         <span class="macro">quote!</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-as-dependency&quot;</span>))]</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="kw">impl</span> <span class="ident">::ink::metadata::ConstructorReturnSpec</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {}
+
                 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__ink_generate_metadata</span>() -&gt; <span class="ident">::ink::metadata::InkProject</span>  {
                     <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> #<span class="ident">layout</span>;
@@ -578,6 +679,7 @@
         <span class="kw">let</span> <span class="ident">constructor</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">callable</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
+        <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_constructor_return_type</span>(<span class="ident">constructor</span>.<span class="ident">output</span>());
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
             <span class="ident">::ink::metadata::ConstructorSpec::from_label</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
                 .<span class="ident">selector</span>([
@@ -587,6 +689,7 @@
                     #( #<span class="ident">args</span> ),<span class="op">*</span>
                 ])
                 .<span class="ident">payable</span>(#<span class="ident">is_payable</span>)
+                .<span class="ident">returns</span>(#<span class="ident">ret_ty</span>)
                 .<span class="ident">docs</span>([
                     #( #<span class="ident">docs</span> ),<span class="op">*</span>
                 ])
@@ -634,6 +737,34 @@
             }
         } <span class="kw">else</span> {
             <span class="ident">without_display_name</span>(<span class="ident">ty</span>)
+        }
+    }
+
+    <span class="doccomment">/// Generates the ink! metadata segments iterator for the given type of a constructor.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructor_type_segments</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">fn</span> <span class="ident">without_display_name</span>() -&gt; <span class="ident">TokenStream2</span> {
+            <span class="macro">quote!</span> { <span class="prelude-val">None</span> }
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Type::Path</span>(<span class="ident">type_path</span>) <span class="op">=</span> <span class="ident">ty</span> {
+            <span class="kw">if</span> <span class="ident">type_path</span>.<span class="ident">qself</span>.<span class="ident">is_some</span>() {
+                <span class="kw">return</span> <span class="ident">without_display_name</span>()
+            }
+            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">type_path</span>.<span class="ident">path</span>;
+            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">return</span> <span class="ident">without_display_name</span>()
+            }
+            <span class="kw">let</span> <span class="ident">segs</span> <span class="op">=</span> <span class="ident">path</span>
+                .<span class="ident">segments</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">seg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">seg</span>.<span class="ident">ident</span>)
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+            <span class="macro">quote!</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">::core::iter::IntoIterator::into_iter</span>([ #( <span class="macro">::core::stringify!</span>(#<span class="ident">segs</span>) ),<span class="op">*</span> ])
+                        .<span class="ident">map</span>(<span class="ident">::core::convert::AsRef::as_ref</span>)
+                )
+            }
+        } <span class="kw">else</span> {
+            <span class="ident">without_display_name</span>()
         }
     }
 
@@ -763,6 +894,44 @@
         }
     }
 
+    <span class="doccomment">/// Generates ink! metadata for the given return type of a constructor.</span>
+    <span class="doccomment">/// If the constructor return type is not `Result`,</span>
+    <span class="doccomment">/// the metadata will not display any type spec for the return type.</span>
+    <span class="doccomment">/// Otherwise, the return type spec is `Result&lt;(), E&gt;`.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructor_return_type</span>(<span class="ident">ret_ty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">match</span> <span class="ident">ret_ty</span> {
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(<span class="ident">::core::option::Option::None</span>)
+                }
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">syn::Type::Path</span>(<span class="ident">syn::TypePath</span> { <span class="ident">qself</span>: <span class="prelude-val">None</span>, <span class="ident">path</span> }))
+                <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;Self&quot;</span>) =&gt;
+            {
+                <span class="macro">quote!</span> { <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(<span class="ident">::core::option::Option::None</span>)}
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">ty</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">type_token</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::replace_self_with_unit</span>(<span class="ident">ty</span>);
+                <span class="kw">let</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_constructor_type_segments</span>(<span class="ident">ty</span>);
+                <span class="macro">quote!</span> {
+                    <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(
+                        <span class="op">&lt;</span>#<span class="ident">type_token</span> <span class="kw">as</span> <span class="ident">::ink::metadata::ConstructorReturnSpec</span><span class="op">&gt;</span><span class="ident">::generate</span>(#<span class="ident">segments</span>)
+                    )
+                }
+            }
+        }
+    }
+
+    <span class="doccomment">/// Helper function to replace all occurrences of `Self` with `()`.</span>
+    <span class="kw">fn</span> <span class="ident">replace_self_with_unit</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">if</span> <span class="ident">ty</span>.<span class="ident">to_token_stream</span>().<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="string">&quot;&lt; Self&quot;</span>) {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">to_token_stream</span>().<span class="ident">to_string</span>().<span class="ident">replace</span>(<span class="string">&quot;&lt; Self&quot;</span>, <span class="string">&quot;&lt; ()&quot;</span>);
+            <span class="ident">s</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">ty</span>.<span class="ident">to_token_stream</span>()
+        }
+    }
+
     <span class="doccomment">/// Generates ink! metadata for all user provided ink! event definitions.</span>
     <span class="kw">fn</span> <span class="ident">generate_events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
         <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
@@ -888,6 +1057,31 @@
                 <span class="string">&quot;e&quot;</span>.<span class="ident">to_string</span>(),
             ],
         )
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">constructor_return_type_works</span>() {
+        <span class="kw">let</span> <span class="ident">expected_no_ret_type_spec</span> <span class="op">=</span> <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)&quot;</span>;
+
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">Metadata::generate_constructor_return_type</span>(<span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">to_string</span>(), <span class="ident">expected_no_ret_type_spec</span>);
+
+        <span class="kw">match</span> <span class="macro">syn::parse_quote!</span>( -&gt; <span class="self">Self</span> ) {
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">t</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">Metadata::generate_constructor_return_type</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">to_string</span>(), <span class="ident">expected_no_ret_type_spec</span>);
+            }
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        }
+
+        <span class="kw">match</span> <span class="macro">syn::parse_quote!</span>( -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ()<span class="op">&gt;</span> ) {
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">t</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">Metadata::generate_constructor_return_type</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (&lt; Result &lt; () , () &gt; as :: ink :: metadata :: ConstructorReturnSpec &gt; :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))&quot;</span>;
+                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">to_string</span>(), <span class="ident">expected</span>);
+            }
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        }
     }
 }
 </code></pre></div>
