@@ -5,12 +5,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
-- Add `Mapping::take()` function allowing to get a value removing it from storage - [#1461](https://github.com/paritytech/ink/pull/1461)
-- Introduces conditional compilation to messages, constructors and events - [#1458](https://github.com/paritytech/ink/pull/1458)
-- Update `scale-info` requirement to `2.3` - [#1467](https://github.com/paritytech/ink/pull/1467)
 
-- Remove random function from ink!.
+### Breaking Changes
+
+We had to remove [`ink_env::random`](https://docs.rs/ink_env/3.3.1/ink_env/fn.random.html)
+with [#1442](https://github.com/paritytech/ink/pull/1442).
+This function allowed contract developers getting random entropy.
+There is unfortunately no way how this can be done safely enough
+with built-in Substrate primitives on-chain currently. We're
+following the recommendation of our auditors to remove it.
+
+The alternative right now is to provide random entropy off-chain to
+the contract, to use a random entropy oracle, or to have a chain-extension
+that does this, in case the chain has a possibility to do so.
+
+We hope to bring this function back in a future release of ink!, the
+best hope right now is that it could come back with [Sassafras](https://wiki.polkadot.network/docs/learn-consensus#badass-babe-sassafras), a block production
+protocol for future versions of Polkadot.
+
+### Added
+- Allow using `Result<Self, Error>` as a return type in constructors ‒ [#1446](https://github.com/paritytech/ink/pull/1446)
+- Introduce conditional compilation for messages, constructors and events ‒ [#1458](https://github.com/paritytech/ink/pull/1458)
+- Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
+
+### Changed
+- Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
+
+### Removed
+- Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
 
 ## Version 4.0.0-alpha.3
 
