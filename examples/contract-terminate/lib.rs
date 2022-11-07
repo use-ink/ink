@@ -42,7 +42,7 @@ pub mod just_terminates {
             let mut contract = JustTerminate::new();
 
             // when
-            let should_terminate = move || contract.terminate_me();
+            let should_terminate = move || contract.terminate_me().expect("TODO");
 
             // then
             ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
