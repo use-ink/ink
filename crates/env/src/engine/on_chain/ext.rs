@@ -397,6 +397,26 @@ mod sys {
             out_ptr: Ptr32Mut<[u8]>,
             out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
+        /// Retrieve and remove the value under the given key from storage.
+        ///
+        /// # Parameters
+        ///
+        /// - `key_ptr`: pointer into the linear memory where the key of the requested value is placed.
+        /// - `key_len`: the length of the key in bytes.
+        /// - `out_ptr`: pointer to the linear memory where the value is written to.
+        /// - `out_len_ptr`: in-out pointer into linear memory where the buffer length is read from and
+        ///   the value length is written to.
+        ///
+        /// # Errors
+        ///
+        /// `ReturnCode::KeyNotFound`
+        pub fn seal_take_storage(
+            key_ptr: Ptr32<[u8]>,
+            key_len: u32,
+            out_ptr: Ptr32Mut<[u8]>,
+            out_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal2")]
@@ -561,6 +581,23 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     let ret_code = {
         unsafe {
             sys::seal_get_storage(
+                Ptr32::from_slice(key),
+                key.len() as u32,
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        }
+    };
+    extract_from_slice(output, output_len as usize);
+    ret_code.into()
+}
+
+#[inline(always)]
+pub fn take_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
+    let mut output_len = output.len() as u32;
+    let ret_code = {
+        unsafe {
+            sys::seal_take_storage(
                 Ptr32::from_slice(key),
                 key.len() as u32,
                 Ptr32Mut::from_slice(output),
