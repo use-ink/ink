@@ -40,13 +40,13 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let storage = self.contract.module().storage().ident();
+        let storage_ident = self.contract.module().storage().ident();
 
         quote! {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                impl ::ink::metadata::ConstructorReturnSpec for #storage {}
+                impl ::ink::metadata::ConstructorReturnSpec for #storage_ident {}
 
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
