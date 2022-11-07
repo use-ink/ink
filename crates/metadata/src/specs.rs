@@ -81,7 +81,7 @@ impl IntoPortable for ContractSpec {
                 .into_iter()
                 .map(|event| event.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs.into_iter().map(|s| s.into()).collect(),
+            docs: registry.map_into_portable(self.docs),
             lang_error: self.lang_error.into_portable(registry),
         }
     }
@@ -109,6 +109,11 @@ where
     /// Returns the contract documentation.
     pub fn docs(&self) -> &[F::String] {
         &self.docs
+    }
+
+    /// Returns the contract error type.
+    pub fn lang_error(&self) -> &TypeSpec<F> {
+        &self.lang_error
     }
 }
 
@@ -199,7 +204,6 @@ where
 
     /// Sets the language error of the contract specification
     pub fn lang_error(self, lang_error: TypeSpec<F>) -> Self {
-        debug_assert!(self.spec.docs.is_empty());
         Self {
             spec: ContractSpec {
                 lang_error,

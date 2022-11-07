@@ -89,6 +89,10 @@ impl Metadata<'_> {
             .attrs()
             .iter()
             .filter_map(|attr| attr.extract_docs());
+        let error_ty = syn::parse_quote! {
+            ::ink::LangError
+        };
+        let error = Self::generate_type_spec(&error_ty);
         quote! {
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -103,6 +107,9 @@ impl Metadata<'_> {
                 .docs([
                     #( #docs ),*
                 ])
+                .lang_error(
+                     #error
+                )
                 .done()
         }
     }
