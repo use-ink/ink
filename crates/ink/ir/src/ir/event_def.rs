@@ -38,6 +38,13 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
     type Error = syn::Error;
 
     fn try_from(mut item_enum: syn::ItemEnum) -> Result<Self> {
+        if !matches!(item_enum.vis, syn::Visibility::Public(_)) {
+            return Err(format_err_spanned!(
+                item_enum.vis,
+                "ink! event enum definitions must be declared as `pub`"
+            ))
+        }
+
         let mut variants = Vec::new();
         for (index, variant) in item_enum.variants.iter_mut().enumerate() {
             let mut fields = Vec::new();
@@ -312,7 +319,7 @@ mod tests {
                     }
                 }
             },
-            "non `pub` ink! event structs are not supported",
+            "ink! event enum definitions must be declared as `pub`",
         )
     }
 

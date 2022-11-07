@@ -727,8 +727,8 @@ where
 
     /// Sets the variants of the event specification.
     pub fn variants<A>(self, variants: A) -> Self
-        where
-            A: IntoIterator<Item = EventVariantSpec<F>>,
+    where
+        A: IntoIterator<Item = EventVariantSpec<F>>,
     {
         let mut this = self;
         debug_assert!(this.spec.variants.is_empty());
