@@ -17,7 +17,7 @@ use super::log_info;
 /// Extracts the Wasm blob from a contract bundle.
 pub fn extract_wasm(contract_path: &str) -> Vec<u8> {
     log_info(&format!("opening {:?}", contract_path));
-    let reader = std::fs::File::open(&contract_path).unwrap_or_else(|err| {
+    let reader = std::fs::File::open(contract_path).unwrap_or_else(|err| {
         panic!("contract path cannot be opened: {:?}", err);
     });
     let contract: contract_metadata::ContractMetadata = serde_json::from_reader(reader)

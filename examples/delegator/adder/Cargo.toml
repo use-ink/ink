@@ -10,7 +10,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 accumulator = { path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "adder"
