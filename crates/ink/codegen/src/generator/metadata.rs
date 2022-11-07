@@ -40,13 +40,13 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let type_transform = self.generate_storage_type_transform();
+        let storage = self.contract.module().storage().ident();
 
         quote! {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                #type_transform
+                impl ::ink::metadata::ConstructorReturnSpec for #storage {}
 
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
@@ -108,14 +108,6 @@ impl Metadata<'_> {
                     #( #docs ),*
                 ])
                 .done()
-        }
-    }
-
-    /// Generates a default implementation of `ConstructorReturnSpec` for the storage type.
-    fn generate_storage_type_transform(&self) -> TokenStream2 {
-        let storage = self.contract.module().storage().ident();
-        quote! {
-            impl ::ink::metadata::ConstructorReturnSpec for #storage {}
         }
     }
 
