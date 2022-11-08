@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/chain_extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/chain_extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -440,445 +440,445 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="doccomment">//! Definitions and utilities for calling chain extension methods.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Users should not use these types and definitions directly but rather use the provided</span>
-<span class="doccomment">//! `#[ink::chain_extension]` procedural macro defined in the `ink` crate.</span>
+</span><span class="doccomment">//! Definitions and utilities for calling chain extension methods.
+//!
+//! Users should not use these types and definitions directly but rather use the provided
+//! `#[ink::chain_extension]` procedural macro defined in the `ink` crate.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">backend::EnvBackend</span>,
-    <span class="ident">engine</span>::{
-        <span class="ident">EnvInstance</span>,
-        <span class="ident">OnInstance</span>,
+</span><span class="kw">use crate</span>::{
+    backend::EnvBackend,
+    engine::{
+        EnvInstance,
+        OnInstance,
     },
 };
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
+<span class="kw">use </span>core::marker::PhantomData;
 
-<span class="doccomment">/// Implemented by error codes in order to construct them from status codes.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A status code is returned by calling an ink! chain extension method.</span>
-<span class="doccomment">/// It is the `u32` return value.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The purpose of an `ErrorCode` type that implements this trait is to provide</span>
-<span class="doccomment">/// more context information about the status of an ink! chain extension method call.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromStatusCode</span>: <span class="ident">Sized</span> {
-    <span class="doccomment">/// Returns `Ok` if the status code for the called chain extension method is valid.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returning `Ok` will query the output buffer of the call if the chain extension</span>
-    <span class="doccomment">/// method definition has a return value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The convention is to use `0` as the only `raw` value that yields `Ok` whereas</span>
-    <span class="doccomment">/// every other value represents one error code. By convention this mapping should</span>
-    <span class="doccomment">/// never panic and therefore every `raw` value must map to either `Ok` or to a proper</span>
-    <span class="doccomment">/// `ErrorCode` variant.</span>
-    <span class="kw">fn</span> <span class="ident">from_status_code</span>(<span class="ident">status_code</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Implemented by error codes in order to construct them from status codes.
+///
+/// A status code is returned by calling an ink! chain extension method.
+/// It is the `u32` return value.
+///
+/// The purpose of an `ErrorCode` type that implements this trait is to provide
+/// more context information about the status of an ink! chain extension method call.
+</span><span class="kw">pub trait </span>FromStatusCode: Sized {
+    <span class="doccomment">/// Returns `Ok` if the status code for the called chain extension method is valid.
+    ///
+    /// Returning `Ok` will query the output buffer of the call if the chain extension
+    /// method definition has a return value.
+    ///
+    /// # Note
+    ///
+    /// The convention is to use `0` as the only `raw` value that yields `Ok` whereas
+    /// every other value represents one error code. By convention this mapping should
+    /// never panic and therefore every `raw` value must map to either `Ok` or to a proper
+    /// `ErrorCode` variant.
+    </span><span class="kw">fn </span>from_status_code(status_code: u32) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>&gt;;
 }
 
-<span class="doccomment">/// A concrete instance of a chain extension method.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a utility type used to drive the execution of a chain extension method call.</span>
-<span class="doccomment">/// It has several specializations of its `call` method for different ways to manage</span>
-<span class="doccomment">/// error handling when calling a predefined chain extension method.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `I` represents the input type of the chain extension method.</span>
-<span class="doccomment">///   All tuple types that may act as input parameters for the chain extension method are valid.</span>
-<span class="doccomment">///   Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.</span>
-<span class="doccomment">/// - `O` represents the return (or output) type of the chain extension method.</span>
-<span class="doccomment">///   Only `Result&lt;T, E&gt;` or `NoResult&lt;O&gt;` generic types are allowed for `O`.</span>
-<span class="doccomment">///   The `Result&lt;T, E&gt;` type says that the chain extension method returns a `Result` type</span>
-<span class="doccomment">///   whereas the `NoResult&lt;O&gt;` type says that the chain extension method returns a non-`Result` value</span>
-<span class="doccomment">///   of type `O`.</span>
-<span class="doccomment">/// - `ErrorCode` represents how the chain extension method handles the chain extension&#39;s error code.</span>
-<span class="doccomment">///   Only `HandleErrorCode&lt;E&gt;` and `IgnoreErrorCode` types are allowed that each say to either properly</span>
-<span class="doccomment">///   handle or ignore the chain extension&#39;s error code respectively.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The type states for type parameter `O` and `ErrorCode` represent 4 different states:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// 1. The chain extension method makes use of the chain extension&#39;s error code: `HandleErrorCode(E)`</span>
-<span class="doccomment">///     - **A:** The chain extension method returns a `Result&lt;T, E&gt;` type.</span>
-<span class="doccomment">///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult&lt;T&gt;`</span>
-<span class="doccomment">/// 2. The chain extension ignores the chain extension&#39;s error code: `IgnoreErrorCode`</span>
-<span class="doccomment">///     - **A:** The chain extension method returns a `Result&lt;T, E&gt;` type.</span>
-<span class="doccomment">///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult&lt;T&gt;`</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
-    <span class="ident">func_id</span>: <span class="ident">u32</span>,
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-    <span class="ident">state</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// A concrete instance of a chain extension method.
+///
+/// This is a utility type used to drive the execution of a chain extension method call.
+/// It has several specializations of its `call` method for different ways to manage
+/// error handling when calling a predefined chain extension method.
+///
+/// - `I` represents the input type of the chain extension method.
+///   All tuple types that may act as input parameters for the chain extension method are valid.
+///   Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
+/// - `O` represents the return (or output) type of the chain extension method.
+///   Only `Result&lt;T, E&gt;` or `NoResult&lt;O&gt;` generic types are allowed for `O`.
+///   The `Result&lt;T, E&gt;` type says that the chain extension method returns a `Result` type
+///   whereas the `NoResult&lt;O&gt;` type says that the chain extension method returns a non-`Result` value
+///   of type `O`.
+/// - `ErrorCode` represents how the chain extension method handles the chain extension&#39;s error code.
+///   Only `HandleErrorCode&lt;E&gt;` and `IgnoreErrorCode` types are allowed that each say to either properly
+///   handle or ignore the chain extension&#39;s error code respectively.
+///
+/// The type states for type parameter `O` and `ErrorCode` represent 4 different states:
+///
+/// 1. The chain extension method makes use of the chain extension&#39;s error code: `HandleErrorCode(E)`
+///     - **A:** The chain extension method returns a `Result&lt;T, E&gt;` type.
+///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult&lt;T&gt;`
+/// 2. The chain extension ignores the chain extension&#39;s error code: `IgnoreErrorCode`
+///     - **A:** The chain extension method returns a `Result&lt;T, E&gt;` type.
+///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult&lt;T&gt;`
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>ChainExtensionMethod&lt;I, O, ErrorCode&gt; {
+    func_id: u32,
+    <span class="attribute">#[allow(clippy::type_complexity)]
+    </span>state: PhantomData&lt;<span class="kw">fn</span>() -&gt; (I, O, ErrorCode)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span>(), (), ()<span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new chain extension method instance.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">func_id</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">func_id</span>,
-            <span class="ident">state</span>: <span class="ident">Default::default</span>(),
+<span class="kw">impl </span>ChainExtensionMethod&lt;(), (), ()&gt; {
+    <span class="doccomment">/// Creates a new chain extension method instance.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>build(func_id: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            func_id,
+            state: Default::default(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span>(), <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Sets the input types of the chain extension method call to `I`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `I` represents the input type of the chain extension method.</span>
-    <span class="doccomment">/// All tuple types that may act as input parameters for the chain extension method are valid.</span>
-    <span class="doccomment">/// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
+<span class="kw">impl</span>&lt;O, ErrorCode&gt; ChainExtensionMethod&lt;(), O, ErrorCode&gt; {
+    <span class="doccomment">/// Sets the input types of the chain extension method call to `I`.
+    ///
+    /// # Note
+    ///
+    /// `I` represents the input type of the chain extension method.
+    /// All tuple types that may act as input parameters for the chain extension method are valid.
+    /// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>input&lt;I&gt;(<span class="self">self</span>) -&gt; ChainExtensionMethod&lt;I, O, ErrorCode&gt;
+    <span class="kw">where
+        </span>I: scale::Encode,
     {
-        <span class="ident">ChainExtensionMethod</span> {
-            <span class="ident">func_id</span>: <span class="self">self</span>.<span class="ident">func_id</span>,
-            <span class="ident">state</span>: <span class="ident">Default::default</span>(),
+        ChainExtensionMethod {
+            func_id: <span class="self">self</span>.func_id,
+            state: Default::default(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, (), <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Sets the output type of the chain extension method call to `Result&lt;T, E&gt;`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This indicates that the chain extension method return value might represent a failure.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output_result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>: <span class="ident">scale::Decode</span>,
-        <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">scale::Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;I, ErrorCode&gt; ChainExtensionMethod&lt;I, (), ErrorCode&gt; {
+    <span class="doccomment">/// Sets the output type of the chain extension method call to `Result&lt;T, E&gt;`.
+    ///
+    /// # Note
+    ///
+    /// This indicates that the chain extension method return value might represent a failure.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>output_result&lt;T, E&gt;(<span class="self">self</span>) -&gt; ChainExtensionMethod&lt;I, <span class="prelude-ty">Result</span>&lt;T, E&gt;, ErrorCode&gt;
+    <span class="kw">where
+        </span><span class="prelude-ty">Result</span>&lt;T, E&gt;: scale::Decode,
+        E: From&lt;scale::Error&gt;,
     {
-        <span class="ident">ChainExtensionMethod</span> {
-            <span class="ident">func_id</span>: <span class="self">self</span>.<span class="ident">func_id</span>,
-            <span class="ident">state</span>: <span class="ident">Default::default</span>(),
+        ChainExtensionMethod {
+            func_id: <span class="self">self</span>.func_id,
+            state: Default::default(),
         }
     }
 
-    <span class="doccomment">/// Sets the output type of the chain extension method call to `O`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The set returned type `O` must not be of type `Result&lt;T, E&gt;`.</span>
-    <span class="doccomment">/// When using the `#[ink::chain_extension]` procedural macro to define</span>
-    <span class="doccomment">/// this chain extension method the above constraint is enforced at</span>
-    <span class="doccomment">/// compile time.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">state::NoResult</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">O</span>: <span class="ident">scale::Decode</span>,
+    <span class="doccomment">/// Sets the output type of the chain extension method call to `O`.
+    ///
+    /// # Note
+    ///
+    /// The set returned type `O` must not be of type `Result&lt;T, E&gt;`.
+    /// When using the `#[ink::chain_extension]` procedural macro to define
+    /// this chain extension method the above constraint is enforced at
+    /// compile time.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>output&lt;O&gt;(<span class="self">self</span>) -&gt; ChainExtensionMethod&lt;I, state::NoResult&lt;O&gt;, ErrorCode&gt;
+    <span class="kw">where
+        </span>O: scale::Decode,
     {
-        <span class="ident">ChainExtensionMethod</span> {
-            <span class="ident">func_id</span>: <span class="self">self</span>.<span class="ident">func_id</span>,
-            <span class="ident">state</span>: <span class="ident">Default::default</span>(),
+        ChainExtensionMethod {
+            func_id: <span class="self">self</span>.func_id,
+            state: Default::default(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, ()<span class="op">&gt;</span> {
-    <span class="doccomment">/// Makes the chain extension method call assume that the returned status code is always success.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will avoid handling of failure status codes returned by the chain extension method call.</span>
-    <span class="doccomment">/// Use this only if you are sure that the chain extension method call will never return an error</span>
-    <span class="doccomment">/// code that represents failure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The output of the chain extension method call is always decoded and returned in this case.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ignore_error_code</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">state::IgnoreErrorCode</span><span class="op">&gt;</span> {
-        <span class="ident">ChainExtensionMethod</span> {
-            <span class="ident">func_id</span>: <span class="self">self</span>.<span class="ident">func_id</span>,
-            <span class="ident">state</span>: <span class="ident">Default::default</span>(),
+<span class="kw">impl</span>&lt;I, O&gt; ChainExtensionMethod&lt;I, O, ()&gt; {
+    <span class="doccomment">/// Makes the chain extension method call assume that the returned status code is always success.
+    ///
+    /// # Note
+    ///
+    /// This will avoid handling of failure status codes returned by the chain extension method call.
+    /// Use this only if you are sure that the chain extension method call will never return an error
+    /// code that represents failure.
+    ///
+    /// The output of the chain extension method call is always decoded and returned in this case.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>ignore_error_code(<span class="self">self</span>) -&gt; ChainExtensionMethod&lt;I, O, state::IgnoreErrorCode&gt; {
+        ChainExtensionMethod {
+            func_id: <span class="self">self</span>.func_id,
+            state: Default::default(),
         }
     }
 
-    <span class="doccomment">/// Makes the chain extension method call handle the returned status code.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will handle the returned status code and only loads and decodes the value</span>
-    <span class="doccomment">/// returned as the output of the chain extension method call in case of success.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_error_code</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Makes the chain extension method call handle the returned status code.
+    ///
+    /// # Note
+    ///
+    /// This will handle the returned status code and only loads and decodes the value
+    /// returned as the output of the chain extension method call in case of success.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>handle_error_code&lt;ErrorCode&gt;(
         <span class="self">self</span>,
-    ) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">state::HandleErrorCode</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">ErrorCode</span>: <span class="ident">FromStatusCode</span>,
+    ) -&gt; ChainExtensionMethod&lt;I, O, state::HandleErrorCode&lt;ErrorCode&gt;&gt;
+    <span class="kw">where
+        </span>ErrorCode: FromStatusCode,
     {
-        <span class="ident">ChainExtensionMethod</span> {
-            <span class="ident">func_id</span>: <span class="self">self</span>.<span class="ident">func_id</span>,
-            <span class="ident">state</span>: <span class="ident">Default::default</span>(),
+        ChainExtensionMethod {
+            func_id: <span class="self">self</span>.func_id,
+            state: Default::default(),
         }
     }
 }
 
-<span class="doccomment">/// Type states of the chain extension method instance.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">state</span> {
-    <span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
+<span class="doccomment">/// Type states of the chain extension method instance.
+</span><span class="kw">pub mod </span>state {
+    <span class="kw">use </span>core::marker::PhantomData;
 
-    <span class="doccomment">/// Type state meaning that the chain extension method ignores the chain extension&#39;s error code.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IgnoreErrorCode</span> {}
+    <span class="doccomment">/// Type state meaning that the chain extension method ignores the chain extension&#39;s error code.
+    </span><span class="attribute">#[derive(Debug)]
+    </span><span class="kw">pub enum </span>IgnoreErrorCode {}
 
-    <span class="doccomment">/// Type state meaning that the chain extension method uses the chain extension&#39;s error code.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HandleErrorCode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">error_code</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Type state meaning that the chain extension method uses the chain extension&#39;s error code.
+    </span><span class="attribute">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>HandleErrorCode&lt;T&gt; {
+        error_code: PhantomData&lt;<span class="kw">fn</span>() -&gt; T&gt;,
     }
 
-    <span class="doccomment">/// Type state meaning that the chain extension method deliberately does not return a `Result` type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NoResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">no_result</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Type state meaning that the chain extension method deliberately does not return a `Result` type.
+    ///
+    /// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.
+    </span><span class="attribute">#[derive(Debug)]
+    </span><span class="kw">pub struct </span>NoResult&lt;T&gt; {
+        no_result: PhantomData&lt;<span class="kw">fn</span>() -&gt; T&gt;,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
-    <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">state::HandleErrorCode</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
-    <span class="ident">E</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">scale::Error</span><span class="op">&gt;</span>,
-    <span class="ident">ErrorCode</span>: <span class="ident">FromStatusCode</span>,
+<span class="kw">impl</span>&lt;I, T, E, ErrorCode&gt;
+    ChainExtensionMethod&lt;I, <span class="prelude-ty">Result</span>&lt;T, E&gt;, state::HandleErrorCode&lt;ErrorCode&gt;&gt;
+<span class="kw">where
+    </span>I: scale::Encode,
+    T: scale::Decode,
+    E: scale::Decode + From&lt;ErrorCode&gt; + From&lt;scale::Error&gt;,
+    ErrorCode: FromStatusCode,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 1.A described [here].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the called chain extension method returns a non-successful error code.</span>
-    <span class="doccomment">/// - If the `Result` return value of the called chain extension represents an error.</span>
-    <span class="doccomment">/// - If the `Result` return value cannot be SCALE decoded properly.</span>
-    <span class="doccomment">/// - If custom constraints specified by the called chain extension method are violated.</span>
-    <span class="doccomment">///     - These constraints are determined and defined by the author of the chain extension method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`</span>
-    <span class="doccomment">/// as input parameters and returns a `Result&lt;i32, MyError&gt;` upon completion.</span>
-    <span class="doccomment">/// It will handle the shared error code from the chain extension.</span>
-    <span class="doccomment">/// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input</span>
-    <span class="doccomment">/// parameter respectively.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```should_panic</span>
-    <span class="doccomment">/// # // Panics because the off-chain environment has not</span>
-    <span class="doccomment">/// # // registered a chain extension method for the ID.</span>
-    <span class="doccomment">/// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};</span>
-    <span class="doccomment">/// let result = ChainExtensionMethod::build(5)</span>
-    <span class="doccomment">///     .input::&lt;(bool, i32)&gt;()</span>
-    <span class="doccomment">///     .output_result::&lt;i32, MyError&gt;()</span>
-    <span class="doccomment">///     .handle_error_code::&lt;MyErrorCode&gt;()</span>
-    <span class="doccomment">///     .call(&amp;(true, 42));</span>
-    <span class="doccomment">/// # #[derive(scale::Encode, scale::Decode)]</span>
-    <span class="doccomment">/// # pub struct MyError {}</span>
-    <span class="doccomment">/// # impl From&lt;scale::Error&gt; for MyError {</span>
-    <span class="doccomment">/// #     fn from(_error: scale::Error) -&gt; Self { Self {} }</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// # impl From&lt;MyErrorCode&gt; for MyError {</span>
-    <span class="doccomment">/// #     fn from(_error: MyErrorCode) -&gt; Self { Self {} }</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// # pub struct MyErrorCode {}</span>
-    <span class="doccomment">/// # impl FromStatusCode for MyErrorCode {</span>
-    <span class="doccomment">/// #     fn from_status_code(status_code: u32) -&gt; Result&lt;(), Self&gt; { Ok(()) }</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-        <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-            <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
-                <span class="ident">instance</span>,
-                <span class="self">self</span>.<span class="ident">func_id</span>,
-                <span class="ident">input</span>,
-                <span class="ident">ErrorCode::from_status_code</span>,
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
+    <span class="doccomment">/// Calls the chain extension method for case 1.A described [here].
+    ///
+    /// [here]: [`ChainExtensionMethod`]
+    ///
+    /// # Errors
+    ///
+    /// - If the called chain extension method returns a non-successful error code.
+    /// - If the `Result` return value of the called chain extension represents an error.
+    /// - If the `Result` return value cannot be SCALE decoded properly.
+    /// - If custom constraints specified by the called chain extension method are violated.
+    ///     - These constraints are determined and defined by the author of the chain extension method.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result&lt;i32, MyError&gt;` upon completion.
+    /// It will handle the shared error code from the chain extension.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::&lt;(bool, i32)&gt;()
+    ///     .output_result::&lt;i32, MyError&gt;()
+    ///     .handle_error_code::&lt;MyErrorCode&gt;()
+    ///     .call(&amp;(true, 42));
+    /// # #[derive(scale::Encode, scale::Decode)]
+    /// # pub struct MyError {}
+    /// # impl From&lt;scale::Error&gt; for MyError {
+    /// #     fn from(_error: scale::Error) -&gt; Self { Self {} }
+    /// # }
+    /// # impl From&lt;MyErrorCode&gt; for MyError {
+    /// #     fn from(_error: MyErrorCode) -&gt; Self { Self {} }
+    /// # }
+    /// # pub struct MyErrorCode {}
+    /// # impl FromStatusCode for MyErrorCode {
+    /// #     fn from_status_code(status_code: u32) -&gt; Result&lt;(), Self&gt; { Ok(()) }
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>call(<span class="self">self</span>, input: <span class="kw-2">&amp;</span>I) -&gt; <span class="prelude-ty">Result</span>&lt;T, E&gt; {
+        &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+            EnvBackend::call_chain_extension::&lt;I, T, E, ErrorCode, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
+                instance,
+                <span class="self">self</span>.func_id,
+                input,
+                ErrorCode::from_status_code,
+                |<span class="kw-2">mut </span>output| scale::Decode::decode(<span class="kw-2">&amp;mut </span>output).map_err(Into::into),
             )
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">state::IgnoreErrorCode</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
-    <span class="ident">E</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">scale::Error</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;I, T, E&gt; ChainExtensionMethod&lt;I, <span class="prelude-ty">Result</span>&lt;T, E&gt;, state::IgnoreErrorCode&gt;
+<span class="kw">where
+    </span>I: scale::Encode,
+    T: scale::Decode,
+    E: scale::Decode + From&lt;scale::Error&gt;,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 2.A described [here].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the `Result` return value of the called chain extension represents an error.</span>
-    <span class="doccomment">/// - If the `Result` return value cannot be SCALE decoded properly.</span>
-    <span class="doccomment">/// - If custom constraints specified by the called chain extension method are violated.</span>
-    <span class="doccomment">///     - These constraints are determined and defined by the author of the chain extension method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`</span>
-    <span class="doccomment">/// as input parameters and returns a `Result&lt;i32, MyError&gt;` upon completion.</span>
-    <span class="doccomment">/// It will ignore the shared error code from the chain extension and assumes that the call succeeds.</span>
-    <span class="doccomment">/// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input</span>
-    <span class="doccomment">/// parameter respectively.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```should_panic</span>
-    <span class="doccomment">/// # // Panics because the off-chain environment has not</span>
-    <span class="doccomment">/// # // registered a chain extension method for the ID.</span>
-    <span class="doccomment">/// # use ink_env::chain_extension::{ChainExtensionMethod};</span>
-    <span class="doccomment">/// let result = ChainExtensionMethod::build(5)</span>
-    <span class="doccomment">///     .input::&lt;(bool, i32)&gt;()</span>
-    <span class="doccomment">///     .output_result::&lt;i32, MyError&gt;()</span>
-    <span class="doccomment">///     .ignore_error_code()</span>
-    <span class="doccomment">///     .call(&amp;(true, 42));</span>
-    <span class="doccomment">/// # #[derive(scale::Encode, scale::Decode)]</span>
-    <span class="doccomment">/// # pub struct MyError {}</span>
-    <span class="doccomment">/// # impl From&lt;scale::Error&gt; for MyError {</span>
-    <span class="doccomment">/// #     fn from(_error: scale::Error) -&gt; Self { Self {} }</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-        <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-            <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">E</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
-                <span class="ident">instance</span>,
-                <span class="self">self</span>.<span class="ident">func_id</span>,
-                <span class="ident">input</span>,
-                <span class="op">|</span><span class="ident">_status_code</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()),
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
+    <span class="doccomment">/// Calls the chain extension method for case 2.A described [here].
+    ///
+    /// [here]: [`ChainExtensionMethod`]
+    ///
+    /// # Errors
+    ///
+    /// - If the `Result` return value of the called chain extension represents an error.
+    /// - If the `Result` return value cannot be SCALE decoded properly.
+    /// - If custom constraints specified by the called chain extension method are violated.
+    ///     - These constraints are determined and defined by the author of the chain extension method.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result&lt;i32, MyError&gt;` upon completion.
+    /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::{ChainExtensionMethod};
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::&lt;(bool, i32)&gt;()
+    ///     .output_result::&lt;i32, MyError&gt;()
+    ///     .ignore_error_code()
+    ///     .call(&amp;(true, 42));
+    /// # #[derive(scale::Encode, scale::Decode)]
+    /// # pub struct MyError {}
+    /// # impl From&lt;scale::Error&gt; for MyError {
+    /// #     fn from(_error: scale::Error) -&gt; Self { Self {} }
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>call(<span class="self">self</span>, input: <span class="kw-2">&amp;</span>I) -&gt; <span class="prelude-ty">Result</span>&lt;T, E&gt; {
+        &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+            EnvBackend::call_chain_extension::&lt;I, T, E, E, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
+                instance,
+                <span class="self">self</span>.func_id,
+                input,
+                |_status_code| <span class="prelude-val">Ok</span>(()),
+                |<span class="kw-2">mut </span>output| scale::Decode::decode(<span class="kw-2">&amp;mut </span>output).map_err(Into::into),
             )
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
-    <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">state::NoResult</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">state::HandleErrorCode</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">O</span>: <span class="ident">scale::Decode</span>,
-    <span class="ident">ErrorCode</span>: <span class="ident">FromStatusCode</span>,
+<span class="kw">impl</span>&lt;I, O, ErrorCode&gt;
+    ChainExtensionMethod&lt;I, state::NoResult&lt;O&gt;, state::HandleErrorCode&lt;ErrorCode&gt;&gt;
+<span class="kw">where
+    </span>I: scale::Encode,
+    O: scale::Decode,
+    ErrorCode: FromStatusCode,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 1.B described [here].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the called chain extension method returns a non-successful error code.</span>
-    <span class="doccomment">/// - If custom constraints specified by the called chain extension method are violated.</span>
-    <span class="doccomment">///     - These constraints are determined and defined by the author of the chain extension method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the return value cannot be SCALE decoded properly.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`</span>
-    <span class="doccomment">/// as input parameters and returns a `Result&lt;i32, MyErrorCode&gt;` upon completion.</span>
-    <span class="doccomment">/// It will handle the shared error code from the chain extension.</span>
-    <span class="doccomment">/// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input</span>
-    <span class="doccomment">/// parameter respectively.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```should_panic</span>
-    <span class="doccomment">/// # // Panics because the off-chain environment has not</span>
-    <span class="doccomment">/// # // registered a chain extension method for the ID.</span>
-    <span class="doccomment">/// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};</span>
-    <span class="doccomment">/// let result = ChainExtensionMethod::build(5)</span>
-    <span class="doccomment">///     .input::&lt;(bool, i32)&gt;()</span>
-    <span class="doccomment">///     .output::&lt;i32&gt;()</span>
-    <span class="doccomment">///     .handle_error_code::&lt;MyErrorCode&gt;()</span>
-    <span class="doccomment">///     .call(&amp;(true, 42));</span>
-    <span class="doccomment">/// # pub struct MyErrorCode {}</span>
-    <span class="doccomment">/// # impl FromStatusCode for MyErrorCode {</span>
-    <span class="doccomment">/// #     fn from_status_code(status_code: u32) -&gt; Result&lt;(), Self&gt; { Ok(()) }</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
-        <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-            <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span>, <span class="ident">ErrorCode</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
-                <span class="ident">instance</span>,
-                <span class="self">self</span>.<span class="ident">func_id</span>,
-                <span class="ident">input</span>,
-                <span class="ident">ErrorCode::from_status_code</span>,
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">O</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>)
-                        .<span class="ident">expect</span>(<span class="string">&quot;encountered error while decoding chain extension method call return value&quot;</span>);
-                    <span class="prelude-val">Ok</span>(<span class="ident">decoded</span>)
+    <span class="doccomment">/// Calls the chain extension method for case 1.B described [here].
+    ///
+    /// [here]: [`ChainExtensionMethod`]
+    ///
+    /// # Errors
+    ///
+    /// - If the called chain extension method returns a non-successful error code.
+    /// - If custom constraints specified by the called chain extension method are violated.
+    ///     - These constraints are determined and defined by the author of the chain extension method.
+    ///
+    /// # Panics
+    ///
+    /// - If the return value cannot be SCALE decoded properly.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result&lt;i32, MyErrorCode&gt;` upon completion.
+    /// It will handle the shared error code from the chain extension.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::&lt;(bool, i32)&gt;()
+    ///     .output::&lt;i32&gt;()
+    ///     .handle_error_code::&lt;MyErrorCode&gt;()
+    ///     .call(&amp;(true, 42));
+    /// # pub struct MyErrorCode {}
+    /// # impl FromStatusCode for MyErrorCode {
+    /// #     fn from_status_code(status_code: u32) -&gt; Result&lt;(), Self&gt; { Ok(()) }
+    /// # }
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>call(<span class="self">self</span>, input: <span class="kw-2">&amp;</span>I) -&gt; <span class="prelude-ty">Result</span>&lt;O, ErrorCode&gt; {
+        &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+            EnvBackend::call_chain_extension::&lt;I, O, ErrorCode, ErrorCode, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
+                instance,
+                <span class="self">self</span>.func_id,
+                input,
+                ErrorCode::from_status_code,
+                |<span class="kw-2">mut </span>output| {
+                    <span class="kw">let </span>decoded = &lt;O <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut </span>output)
+                        .expect(<span class="string">&quot;encountered error while decoding chain extension method call return value&quot;</span>);
+                    <span class="prelude-val">Ok</span>(decoded)
                 },
             )
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">state::NoResult</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">state::IgnoreErrorCode</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">O</span>: <span class="ident">scale::Decode</span>,
+<span class="kw">impl</span>&lt;I, O&gt; ChainExtensionMethod&lt;I, state::NoResult&lt;O&gt;, state::IgnoreErrorCode&gt;
+<span class="kw">where
+    </span>I: scale::Encode,
+    O: scale::Decode,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 2.B described [here].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the return value cannot be SCALE decoded properly.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`</span>
-    <span class="doccomment">/// as input parameters and returns a `Result&lt;i32, MyErrorCode&gt;` upon completion.</span>
-    <span class="doccomment">/// It will ignore the shared error code from the chain extension and assumes that the call succeeds.</span>
-    <span class="doccomment">/// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input</span>
-    <span class="doccomment">/// parameter respectively.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```should_panic</span>
-    <span class="doccomment">/// # // Panics because the off-chain environment has not</span>
-    <span class="doccomment">/// # // registered a chain extension method for the ID.</span>
-    <span class="doccomment">/// # use ink_env::chain_extension::ChainExtensionMethod;</span>
-    <span class="doccomment">/// let result = ChainExtensionMethod::build(5)</span>
-    <span class="doccomment">///     .input::&lt;(bool, i32)&gt;()</span>
-    <span class="doccomment">///     .output::&lt;i32&gt;()</span>
-    <span class="doccomment">///     .ignore_error_code()</span>
-    <span class="doccomment">///     .call(&amp;(true, 42));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="ident">O</span> {
-        <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-            <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, (), (), <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
-                <span class="ident">instance</span>,
-                <span class="self">self</span>.<span class="ident">func_id</span>,
-                <span class="ident">input</span>,
-                <span class="op">|</span><span class="ident">_status_code</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()),
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">O</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>)
-                        .<span class="ident">expect</span>(<span class="string">&quot;encountered error while decoding chain extension method call return value&quot;</span>);
-                    <span class="prelude-val">Ok</span>(<span class="ident">decoded</span>)
+    <span class="doccomment">/// Calls the chain extension method for case 2.B described [here].
+    ///
+    /// [here]: [`ChainExtensionMethod`]
+    ///
+    /// # Panics
+    ///
+    /// - If the return value cannot be SCALE decoded properly.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result&lt;i32, MyErrorCode&gt;` upon completion.
+    /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::ChainExtensionMethod;
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::&lt;(bool, i32)&gt;()
+    ///     .output::&lt;i32&gt;()
+    ///     .ignore_error_code()
+    ///     .call(&amp;(true, 42));
+    /// ```
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub fn </span>call(<span class="self">self</span>, input: <span class="kw-2">&amp;</span>I) -&gt; O {
+        &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+            EnvBackend::call_chain_extension::&lt;I, O, (), (), <span class="kw">_</span>, <span class="kw">_</span>&gt;(
+                instance,
+                <span class="self">self</span>.func_id,
+                input,
+                |_status_code| <span class="prelude-val">Ok</span>(()),
+                |<span class="kw-2">mut </span>output| {
+                    <span class="kw">let </span>decoded = &lt;O <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut </span>output)
+                        .expect(<span class="string">&quot;encountered error while decoding chain extension method call return value&quot;</span>);
+                    <span class="prelude-val">Ok</span>(decoded)
                 },
-            ).<span class="ident">expect</span>(<span class="string">&quot;assume the chain extension method never fails&quot;</span>)
+            ).expect(<span class="string">&quot;assume the chain extension method never fails&quot;</span>)
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/storage.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>storage.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/storage.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>storage.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -115,120 +115,120 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
-<span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
-<span class="kw">use</span> <span class="ident">quote</span>::{
-    <span class="ident">quote</span>,
-    <span class="ident">quote_spanned</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
+<span class="kw">use </span>derive_more::From;
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
+<span class="kw">use </span>quote::{
+    quote,
+    quote_spanned,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// Generator to create the ink! storage struct and important trait implementations.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
+<span class="doccomment">/// Generator to create the ink! storage struct and important trait implementations.
+</span><span class="attribute">#[derive(From)]
+</span><span class="kw">pub struct </span>Storage&lt;<span class="lifetime">&#39;a</span>&gt; {
+    contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
 }
-<span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">Storage</span>);
+<span class="macro">impl_as_ref_for_generator!</span>(Storage);
 
-<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">access_env_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_access_env_trait_impls</span>();
-        <span class="kw">let</span> <span class="ident">storage_struct</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_storage_struct</span>();
-        <span class="kw">let</span> <span class="ident">use_emit_event</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">next</span>().<span class="ident">is_some</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="comment">// Required to allow for `self.env().emit_event(...)` in messages and constructors.</span>
-                <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink::codegen::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>Storage&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage_span = <span class="self">self</span>.contract.module().storage().span();
+        <span class="kw">let </span>access_env_impls = <span class="self">self</span>.generate_access_env_trait_impls();
+        <span class="kw">let </span>storage_struct = <span class="self">self</span>.generate_storage_struct();
+        <span class="kw">let </span>use_emit_event =
+            <span class="self">self</span>.contract.module().events().next().is_some().then(|| {
+                <span class="comment">// Required to allow for `self.env().emit_event(...)` in messages and constructors.
+                </span><span class="macro">quote! </span>{ <span class="kw">use </span>::ink::codegen::EmitEvent <span class="kw">as _</span>; }
             });
-        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span> =&gt;
-            #<span class="ident">storage_struct</span>
-            #<span class="ident">access_env_impls</span>
+        <span class="macro">quote_spanned!</span>(storage_span =&gt;
+            #storage_struct
+            #access_env_impls
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="comment">// Used to make `self.env()` and `Self::env()` available in message code.</span>
-                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-                <span class="kw">use</span> <span class="ident">::ink::codegen</span>::{
-                    <span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>,
-                    <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>,
+            <span class="kw">const _</span>: () = {
+                <span class="comment">// Used to make `self.env()` and `Self::env()` available in message code.
+                </span><span class="attribute">#[allow(unused_imports)]
+                </span><span class="kw">use </span>::ink::codegen::{
+                    Env <span class="kw">as _</span>,
+                    StaticEnv <span class="kw">as _</span>,
                 };
-                #<span class="ident">use_emit_event</span>
+                #use_emit_event
             };
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_access_env_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="macro">quote!</span> {
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink::codegen::Env</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">storage_ident</span> {
-                    <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">::ink::EnvAccess</span><span class="op">&lt;</span>
-                        <span class="lifetime">&#39;a</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>Storage&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_access_env_trait_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage_ident = <span class="kw-2">&amp;</span><span class="self">self</span>.contract.module().storage().ident();
+        <span class="macro">quote! </span>{
+            <span class="kw">const _</span>: () = {
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::Env <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>#storage_ident {
+                    <span class="kw">type </span>EnvAccess = ::ink::EnvAccess&lt;
+                        <span class="lifetime">&#39;a</span>, &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;;
 
-                    <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
-                        <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::Env</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
-                            <span class="kw">as</span> <span class="ident">::core::default::Default</span><span class="op">&gt;</span><span class="ident">::default</span>()
+                    <span class="kw">fn </span>env(<span class="self">self</span>) -&gt; <span class="self">Self</span>::EnvAccess {
+                        &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::Env&gt;::EnvAccess
+                            <span class="kw">as </span>::core::default::Default&gt;::default()
                     }
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink::codegen::StaticEnv</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
-                    <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">::ink::EnvAccess</span><span class="op">&lt;</span>
-                        <span class="lifetime">&#39;static</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::StaticEnv <span class="kw">for </span>#storage_ident {
+                    <span class="kw">type </span>EnvAccess = ::ink::EnvAccess&lt;
+                        <span class="lifetime">&#39;static</span>, &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;;
 
-                    <span class="kw">fn</span> <span class="ident">env</span>() -&gt; <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
-                        <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::StaticEnv</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
-                            <span class="kw">as</span> <span class="ident">::core::default::Default</span><span class="op">&gt;</span><span class="ident">::default</span>()
+                    <span class="kw">fn </span>env() -&gt; <span class="self">Self</span>::EnvAccess {
+                        &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::StaticEnv&gt;::EnvAccess
+                            <span class="kw">as </span>::core::default::Default&gt;::default()
                     }
                 }
             };
         }
     }
 
-    <span class="doccomment">/// Generates the storage struct definition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Developer Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `__ink_dylint_Storage` config attribute is used here to convey the</span>
-    <span class="doccomment">/// information that the generated struct is an ink! storage struct to `dylint`.</span>
-    <span class="kw">fn</span> <span class="ident">generate_storage_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>();
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">generics</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">fields</span>();
-        <span class="macro">quote_spanned!</span>( <span class="ident">span</span> =&gt;
-            #(#<span class="ident">attrs</span>)<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">::ink::storage_item</span>]</span>
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">::core::fmt::Debug</span>))]</span>
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__ink_dylint_Storage&quot;</span>))]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ident</span> #<span class="ident">generics</span> {
-                #( #<span class="ident">fields</span> ),<span class="op">*</span>
+    <span class="doccomment">/// Generates the storage struct definition.
+    ///
+    /// # Developer Note
+    ///
+    /// The `__ink_dylint_Storage` config attribute is used here to convey the
+    /// information that the generated struct is an ink! storage struct to `dylint`.
+    </span><span class="kw">fn </span>generate_storage_struct(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage = <span class="self">self</span>.contract.module().storage();
+        <span class="kw">let </span>span = storage.span();
+        <span class="kw">let </span>ident = storage.ident();
+        <span class="kw">let </span>generics = storage.generics();
+        <span class="kw">let </span>attrs = storage.attrs();
+        <span class="kw">let </span>fields = storage.fields();
+        <span class="macro">quote_spanned!</span>( span =&gt;
+            #(#attrs)*
+            <span class="attribute">#[::ink::storage_item]
+            #[cfg_attr(test, derive(::core::fmt::Debug))]
+            #[cfg(not(feature = <span class="string">&quot;__ink_dylint_Storage&quot;</span>))]
+            </span><span class="kw">pub struct </span>#ident #generics {
+                #( #fields ),*
             }
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractName</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                    <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>);
+            <span class="kw">const _</span>: () = {
+                <span class="kw">impl </span>::ink::reflect::ContractName <span class="kw">for </span>#ident {
+                    <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="macro">::core::stringify!</span>(#ident);
                 }
             };
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

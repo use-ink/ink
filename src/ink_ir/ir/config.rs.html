@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -192,197 +192,197 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ast</span>,
-    <span class="ident">utils</span>::{
-        <span class="ident">duplicate_config_err</span>,
-        <span class="ident">WhitelistedAttributes</span>,
+</span><span class="kw">use crate</span>::{
+    ast,
+    utils::{
+        duplicate_config_err,
+        WhitelistedAttributes,
     },
 };
 
-<span class="doccomment">/// The ink! configuration.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Config</span> {
-    <span class="doccomment">/// The environmental types definition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This must be a type that implements `ink_env::Environment` and can</span>
-    <span class="doccomment">/// be used to change the underlying environmental types of an ink! smart</span>
-    <span class="doccomment">/// contract.</span>
-    <span class="ident">env</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The set of attributes that can be passed to call builder in the codegen.</span>
-    <span class="ident">whitelisted_attributes</span>: <span class="ident">WhitelistedAttributes</span>,
+<span class="doccomment">/// The ink! configuration.
+</span><span class="attribute">#[derive(Debug, Default, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Config {
+    <span class="doccomment">/// The environmental types definition.
+    ///
+    /// This must be a type that implements `ink_env::Environment` and can
+    /// be used to change the underlying environmental types of an ink! smart
+    /// contract.
+    </span>env: <span class="prelude-ty">Option</span>&lt;Environment&gt;,
+    <span class="doccomment">/// The set of attributes that can be passed to call builder in the codegen.
+    </span>whitelisted_attributes: WhitelistedAttributes,
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ast::AttributeArgs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Config</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="kw">impl </span>TryFrom&lt;ast::AttributeArgs&gt; <span class="kw">for </span>Config {
+    <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">args</span>: <span class="ident">ast::AttributeArgs</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">env</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Environment</span>, <span class="ident">ast::MetaNameValue</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">whitelisted_attributes</span> <span class="op">=</span> <span class="ident">WhitelistedAttributes::default</span>();
+    <span class="kw">fn </span>try_from(args: ast::AttributeArgs) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>env: <span class="prelude-ty">Option</span>&lt;(Environment, ast::MetaNameValue)&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>whitelisted_attributes = WhitelistedAttributes::default();
 
-        <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span>.<span class="ident">into_iter</span>() {
-            <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">name</span>.<span class="ident">is_ident</span>(<span class="string">&quot;env&quot;</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">ast</span>)) <span class="op">=</span> <span class="ident">env</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">duplicate_config_err</span>(<span class="ident">ast</span>, <span class="ident">arg</span>, <span class="string">&quot;env&quot;</span>, <span class="string">&quot;contract&quot;</span>))
+        <span class="kw">for </span>arg <span class="kw">in </span>args.into_iter() {
+            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;env&quot;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, ast)) = env {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(ast, arg, <span class="string">&quot;env&quot;</span>, <span class="string">&quot;contract&quot;</span>))
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ast::PathOrLit::Path</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arg</span>.<span class="ident">value</span> {
-                    <span class="ident">env</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">Environment</span> { <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">clone</span>() }, <span class="ident">arg</span>))
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        <span class="ident">arg</span>,
+                <span class="kw">if let </span>ast::PathOrLit::Path(path) = <span class="kw-2">&amp;</span>arg.value {
+                    env = <span class="prelude-val">Some</span>((Environment { path: path.clone() }, arg))
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        arg,
                         <span class="string">&quot;expected a path for `env` ink! configuration argument&quot;</span>,
                     ))
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">name</span>.<span class="ident">is_ident</span>(<span class="string">&quot;keep_attr&quot;</span>) {
-                <span class="ident">whitelisted_attributes</span>.<span class="ident">parse_arg_value</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>)<span class="question-mark">?</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">arg</span>,
+            } <span class="kw">else if </span>arg.name.is_ident(<span class="string">&quot;keep_attr&quot;</span>) {
+                whitelisted_attributes.parse_arg_value(<span class="kw-2">&amp;</span>arg)<span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    arg,
                     <span class="string">&quot;encountered unknown or unsupported ink! configuration argument&quot;</span>,
                 ))
             }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Config</span> {
-            <span class="ident">env</span>: <span class="ident">env</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">value</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">value</span>),
-            <span class="ident">whitelisted_attributes</span>,
+        <span class="prelude-val">Ok</span>(Config {
+            env: env.map(|(value, <span class="kw">_</span>)| value),
+            whitelisted_attributes,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Config</span> {
-    <span class="doccomment">/// Returns the environmental types definition if specified.</span>
-    <span class="doccomment">/// Otherwise returns the default environmental types definition provided</span>
-    <span class="doccomment">/// by ink!.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">env</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::Path</span> {
-        <span class="self">self</span>.<span class="ident">env</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">env</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">env</span>.<span class="ident">path</span>)
-            .<span class="ident">cloned</span>()
-            .<span class="ident">unwrap_or</span>(<span class="ident">Environment::default</span>().<span class="ident">path</span>)
+<span class="kw">impl </span>Config {
+    <span class="doccomment">/// Returns the environmental types definition if specified.
+    /// Otherwise returns the default environmental types definition provided
+    /// by ink!.
+    </span><span class="kw">pub fn </span>env(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Path {
+        <span class="self">self</span>.env
+            .as_ref()
+            .map(|env| <span class="kw-2">&amp;</span>env.path)
+            .cloned()
+            .unwrap_or(Environment::default().path)
     }
 
-    <span class="doccomment">/// Return set of attributes that can be passed to call builder in the codegen.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">whitelisted_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">WhitelistedAttributes</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">whitelisted_attributes</span>
+    <span class="doccomment">/// Return set of attributes that can be passed to call builder in the codegen.
+    </span><span class="kw">pub fn </span>whitelisted_attributes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>WhitelistedAttributes {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.whitelisted_attributes
     }
 }
 
-<span class="doccomment">/// The environmental types definition.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Environment</span> {
-    <span class="doccomment">/// The underlying Rust type.</span>
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">syn::Path</span>,
+<span class="doccomment">/// The environmental types definition.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Environment {
+    <span class="doccomment">/// The underlying Rust type.
+    </span><span class="kw">pub </span>path: syn::Path,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Environment</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">path</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">::ink::env::DefaultEnvironment</span> },
+<span class="kw">impl </span>Default <span class="kw">for </span>Environment {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            path: <span class="macro">syn::parse_quote! </span>{ ::ink::env::DefaultEnvironment },
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Asserts that the given input configuration attribute argument are converted</span>
-    <span class="doccomment">/// into the expected ink! configuration or yields the expected error message.</span>
-    <span class="kw">fn</span> <span class="ident">assert_try_from</span>(
-        <span class="ident">input</span>: <span class="ident">ast::AttributeArgs</span>,
-        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Config</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Asserts that the given input configuration attribute argument are converted
+    /// into the expected ink! configuration or yields the expected error message.
+    </span><span class="kw">fn </span>assert_try_from(
+        input: ast::AttributeArgs,
+        expected: <span class="prelude-ty">Result</span>&lt;Config, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
     ) {
         <span class="macro">assert_eq!</span>(
-            <span class="op">&lt;</span><span class="ident">Config</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ast::AttributeArgs</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">input</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString::to_string</span>),
+            &lt;Config <span class="kw">as </span>TryFrom&lt;ast::AttributeArgs&gt;&gt;::try_from(input)
+                .map_err(|err| err.to_string()),
+            expected.map_err(ToString::to_string),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">empty_config_works</span>() {
-        <span class="ident">assert_try_from</span>(<span class="macro">syn::parse_quote!</span> {}, <span class="prelude-val">Ok</span>(<span class="ident">Config::default</span>()))
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>empty_config_works() {
+        assert_try_from(<span class="macro">syn::parse_quote! </span>{}, <span class="prelude-val">Ok</span>(Config::default()))
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">env_works</span>() {
-        <span class="ident">assert_try_from</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="ident">env</span> <span class="op">=</span> <span class="ident">::my::env::Types</span>
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>env_works() {
+        assert_try_from(
+            <span class="macro">syn::parse_quote! </span>{
+                env = ::my::env::Types
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">Config</span> {
-                <span class="ident">env</span>: <span class="prelude-val">Some</span>(<span class="ident">Environment</span> {
-                    <span class="ident">path</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">::my::env::Types</span> },
+            <span class="prelude-val">Ok</span>(Config {
+                env: <span class="prelude-val">Some</span>(Environment {
+                    path: <span class="macro">syn::parse_quote! </span>{ ::my::env::Types },
                 }),
-                <span class="ident">whitelisted_attributes</span>: <span class="ident">Default::default</span>(),
+                whitelisted_attributes: Default::default(),
             }),
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">env_invalid_value_fails</span>() {
-        <span class="ident">assert_try_from</span>(
-            <span class="macro">syn::parse_quote!</span> { <span class="ident">env</span> <span class="op">=</span> <span class="string">&quot;invalid&quot;</span> },
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>env_invalid_value_fails() {
+        assert_try_from(
+            <span class="macro">syn::parse_quote! </span>{ env = <span class="string">&quot;invalid&quot; </span>},
             <span class="prelude-val">Err</span>(<span class="string">&quot;expected a path for `env` ink! configuration argument&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">unknown_arg_fails</span>() {
-        <span class="ident">assert_try_from</span>(
-            <span class="macro">syn::parse_quote!</span> { <span class="ident">unknown</span> <span class="op">=</span> <span class="ident">argument</span> },
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>unknown_arg_fails() {
+        assert_try_from(
+            <span class="macro">syn::parse_quote! </span>{ unknown = argument },
             <span class="prelude-val">Err</span>(<span class="string">&quot;encountered unknown or unsupported ink! configuration argument&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">duplicate_args_fails</span>() {
-        <span class="ident">assert_try_from</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="ident">env</span> <span class="op">=</span> <span class="ident">::my::env::Types</span>,
-                <span class="ident">env</span> <span class="op">=</span> <span class="ident">::my::other::env::Types</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>duplicate_args_fails() {
+        assert_try_from(
+            <span class="macro">syn::parse_quote! </span>{
+                env = ::my::env::Types,
+                env = ::my::other::env::Types,
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;encountered duplicate ink! contract `env` configuration argument&quot;</span>),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">keep_attr_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">WhitelistedAttributes::default</span>();
-        <span class="ident">attrs</span>.<span class="number">0</span>.<span class="ident">insert</span>(<span class="string">&quot;foo&quot;</span>.<span class="ident">to_string</span>(), ());
-        <span class="ident">attrs</span>.<span class="number">0</span>.<span class="ident">insert</span>(<span class="string">&quot;bar&quot;</span>.<span class="ident">to_string</span>(), ());
-        <span class="ident">assert_try_from</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="ident">keep_attr</span> <span class="op">=</span> <span class="string">&quot;foo, bar&quot;</span>
-            },
-            <span class="prelude-val">Ok</span>(<span class="ident">Config</span> {
-                <span class="ident">env</span>: <span class="prelude-val">None</span>,
-                <span class="ident">whitelisted_attributes</span>: <span class="ident">attrs</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>keep_attr_works() {
+        <span class="kw">let </span><span class="kw-2">mut </span>attrs = WhitelistedAttributes::default();
+        attrs.<span class="number">0</span>.insert(<span class="string">&quot;foo&quot;</span>.to_string(), ());
+        attrs.<span class="number">0</span>.insert(<span class="string">&quot;bar&quot;</span>.to_string(), ());
+        assert_try_from(
+            <span class="macro">syn::parse_quote! </span>{
+                keep_attr = <span class="string">&quot;foo, bar&quot;
+            </span>},
+            <span class="prelude-val">Ok</span>(Config {
+                env: <span class="prelude-val">None</span>,
+                whitelisted_attributes: attrs,
             }),
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">keep_attr_invalid_value_fails</span>() {
-        <span class="ident">assert_try_from</span>(
-            <span class="macro">syn::parse_quote!</span> { <span class="ident">keep_attr</span> <span class="op">=</span> <span class="number">1u16</span> },
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>keep_attr_invalid_value_fails() {
+        assert_try_from(
+            <span class="macro">syn::parse_quote! </span>{ keep_attr = <span class="number">1u16 </span>},
             <span class="prelude-val">Err</span>(<span class="string">&quot;expected a string with attributes separated by `,`&quot;</span>),
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

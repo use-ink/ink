@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_metadata/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -151,156 +151,156 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;</span>
-)]</span>
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+</span><span class="attribute">#![doc(
+    html_logo_url = <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
+    html_favicon_url = <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;
+</span>)]
+#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">extern crate </span>alloc;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">layout</span>;
-<span class="kw">mod</span> <span class="ident">specs</span>;
-<span class="kw">mod</span> <span class="ident">utils</span>;
+<span class="kw">pub mod </span>layout;
+<span class="kw">mod </span>specs;
+<span class="kw">mod </span>utils;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::specs</span>::{
-    <span class="ident">ConstructorReturnSpec</span>,
-    <span class="ident">ConstructorSpec</span>,
-    <span class="ident">ConstructorSpecBuilder</span>,
-    <span class="ident">ContractSpec</span>,
-    <span class="ident">ContractSpecBuilder</span>,
-    <span class="ident">DisplayName</span>,
-    <span class="ident">EventParamSpec</span>,
-    <span class="ident">EventParamSpecBuilder</span>,
-    <span class="ident">EventSpec</span>,
-    <span class="ident">EventSpecBuilder</span>,
-    <span class="ident">MessageParamSpec</span>,
-    <span class="ident">MessageParamSpecBuilder</span>,
-    <span class="ident">MessageSpec</span>,
-    <span class="ident">MessageSpecBuilder</span>,
-    <span class="ident">ReturnTypeSpec</span>,
-    <span class="ident">Selector</span>,
-    <span class="ident">TypeSpec</span>,
+<span class="kw">pub use </span><span class="self">self</span>::specs::{
+    ConstructorReturnSpec,
+    ConstructorSpec,
+    ConstructorSpecBuilder,
+    ContractSpec,
+    ContractSpecBuilder,
+    DisplayName,
+    EventParamSpec,
+    EventParamSpecBuilder,
+    EventSpec,
+    EventSpecBuilder,
+    MessageParamSpec,
+    MessageParamSpecBuilder,
+    MessageSpec,
+    MessageSpecBuilder,
+    ReturnTypeSpec,
+    Selector,
+    TypeSpec,
 };
 
-<span class="kw">use</span> <span class="ident">impl_serde::serialize</span> <span class="kw">as</span> <span class="ident">serde_hex</span>;
+<span class="kw">use </span>impl_serde::serialize <span class="kw">as </span>serde_hex;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">scale_info</span>::{
-    <span class="ident">form::PortableForm</span>,
-    <span class="ident">IntoPortable</span> <span class="kw">as</span> <span class="kw">_</span>,
-    <span class="ident">PortableRegistry</span>,
-    <span class="ident">Registry</span>,
+<span class="attribute">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
+</span><span class="kw">use </span>scale_info::{
+    form::PortableForm,
+    IntoPortable <span class="kw">as _</span>,
+    PortableRegistry,
+    Registry,
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{
-    <span class="ident">Deserialize</span>,
-    <span class="ident">Serialize</span>,
+<span class="kw">use </span>serde::{
+    Deserialize,
+    Serialize,
 };
 
-<span class="doccomment">/// The metadata version of the generated ink! contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The serialized metadata format (which this represents) is different from the</span>
-<span class="doccomment">/// version of this crate or the contract for Rust semantic versioning purposes.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Versions other than the `Default` are considered deprecated. If you want to</span>
-<span class="doccomment">/// deserialize legacy metadata versions you will need to use an old version of</span>
-<span class="doccomment">/// this crate.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MetadataVersion</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;4&quot;</span>)]</span>
-    <span class="ident">V4</span>,
+<span class="doccomment">/// The metadata version of the generated ink! contract.
+///
+/// The serialized metadata format (which this represents) is different from the
+/// version of this crate or the contract for Rust semantic versioning purposes.
+///
+/// # Note
+///
+/// Versions other than the `Default` are considered deprecated. If you want to
+/// deserialize legacy metadata versions you will need to use an old version of
+/// this crate.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>MetadataVersion {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;4&quot;</span>)]
+    </span>V4,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MetadataVersion</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::V4</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>MetadataVersion {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::V4
     }
 }
 
-<span class="doccomment">/// An entire ink! project for metadata file generation purposes.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InkProject</span> {
-    <span class="ident">version</span>: <span class="ident">MetadataVersion</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">flatten</span>)]</span>
-    <span class="ident">registry</span>: <span class="ident">PortableRegistry</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;storage&quot;</span>)]</span>
-    <span class="doccomment">/// The layout of the storage data structure</span>
-    <span class="ident">layout</span>: <span class="ident">layout::Layout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>,
-    <span class="ident">spec</span>: <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An entire ink! project for metadata file generation purposes.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>InkProject {
+    version: MetadataVersion,
+    <span class="attribute">#[serde(flatten)]
+    </span>registry: PortableRegistry,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;storage&quot;</span>)]
+    </span><span class="doccomment">/// The layout of the storage data structure
+    </span>layout: layout::Layout&lt;PortableForm&gt;,
+    spec: ContractSpec&lt;PortableForm&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">InkProject</span> {
-    <span class="doccomment">/// Create a new ink! project from a layout and a spec.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">layout</span>: <span class="ident">L</span>, <span class="ident">spec</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">L</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">layout::Layout</span><span class="op">&gt;</span>,
-        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ContractSpec</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>InkProject {
+    <span class="doccomment">/// Create a new ink! project from a layout and a spec.
+    </span><span class="kw">pub fn </span>new&lt;L, S&gt;(layout: L, spec: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>L: Into&lt;layout::Layout&gt;,
+        S: Into&lt;ContractSpec&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>registry = Registry::new();
 
-        <span class="self">Self</span> {
-            <span class="ident">version</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">layout</span>: <span class="ident">layout</span>.<span class="ident">into</span>().<span class="ident">into_portable</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registry</span>),
-            <span class="ident">spec</span>: <span class="ident">spec</span>.<span class="ident">into</span>().<span class="ident">into_portable</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registry</span>),
-            <span class="ident">registry</span>: <span class="ident">registry</span>.<span class="ident">into</span>(),
+        <span class="self">Self </span>{
+            version: Default::default(),
+            layout: layout.into().into_portable(<span class="kw-2">&amp;mut </span>registry),
+            spec: spec.into().into_portable(<span class="kw-2">&amp;mut </span>registry),
+            registry: registry.into(),
         }
     }
 
-    <span class="doccomment">/// Create a new portable ink! project.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The caller is responsible to register all types into the supplied registry.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_portable</span>(
-        <span class="ident">layout</span>: <span class="ident">layout::Layout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>,
-        <span class="ident">spec</span>: <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>,
-        <span class="ident">registry</span>: <span class="ident">PortableRegistry</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">version</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">layout</span>,
-            <span class="ident">spec</span>,
-            <span class="ident">registry</span>,
+    <span class="doccomment">/// Create a new portable ink! project.
+    ///
+    /// The caller is responsible to register all types into the supplied registry.
+    </span><span class="kw">pub fn </span>new_portable(
+        layout: layout::Layout&lt;PortableForm&gt;,
+        spec: ContractSpec&lt;PortableForm&gt;,
+        registry: PortableRegistry,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            version: Default::default(),
+            layout,
+            spec,
+            registry,
         }
     }
 
-    <span class="doccomment">/// Returns the metadata version used by the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">MetadataVersion</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">version</span>
+    <span class="doccomment">/// Returns the metadata version used by the contract.
+    </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>MetadataVersion {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.version
     }
 
-    <span class="doccomment">/// Returns a read-only registry of types in the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">registry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PortableRegistry</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">registry</span>
+    <span class="doccomment">/// Returns a read-only registry of types in the contract.
+    </span><span class="kw">pub fn </span>registry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PortableRegistry {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.registry
     }
 
-    <span class="doccomment">/// Returns the storage layout of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">layout::Layout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">layout</span>
+    <span class="doccomment">/// Returns the storage layout of the contract.
+    </span><span class="kw">pub fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>layout::Layout&lt;PortableForm&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.layout
     }
 
-    <span class="doccomment">/// Returns the specification of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">spec</span>
+    <span class="doccomment">/// Returns the specification of the contract.
+    </span><span class="kw">pub fn </span>spec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ContractSpec&lt;PortableForm&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.spec
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_metadata" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_metadata" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

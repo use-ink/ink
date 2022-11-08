@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/selector.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>selector.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/selector.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>selector.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -229,234 +229,234 @@
 <span id="227">227</span>
 <span id="228">228</span>
 <span id="229">229</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::blake2::blake2b_256</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literal::HexLiteral</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+</span><span class="kw">use </span><span class="kw">super</span>::blake2::blake2b_256;
+<span class="kw">use </span><span class="kw">crate</span>::literal::HexLiteral;
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
+<span class="kw">use </span>std::marker::PhantomData;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// The selector of an ink! dispatchable.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is equal to the first four bytes of the SHA-3 hash of a function&#39;s name.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Selector</span> {
-    <span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>],
+<span class="doccomment">/// The selector of an ink! dispatchable.
+///
+/// # Note
+///
+/// This is equal to the first four bytes of the SHA-3 hash of a function&#39;s name.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">pub struct </span>Selector {
+    bytes: [u8; <span class="number">4</span>],
 }
 
-<span class="doccomment">/// The trait prefix to compute a composed selector for trait implementation blocks.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TraitPrefix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The namespace of the ink! trait definition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// By default this is equal to the `module_path!` at the ink! trait definition site.</span>
-    <span class="doccomment">/// It can be customized by the ink! trait definition author using `#[ink(namespace = N)]`</span>
-    <span class="doccomment">/// ink! attribute.</span>
-    <span class="ident">namespace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::LitStr</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The Rust identifier of the ink! trait definition.</span>
-    <span class="ident">trait_ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span>,
+<span class="doccomment">/// The trait prefix to compute a composed selector for trait implementation blocks.
+</span><span class="attribute">#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub struct </span>TraitPrefix&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// The namespace of the ink! trait definition.
+    ///
+    /// By default this is equal to the `module_path!` at the ink! trait definition site.
+    /// It can be customized by the ink! trait definition author using `#[ink(namespace = N)]`
+    /// ink! attribute.
+    </span>namespace: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::LitStr&gt;,
+    <span class="doccomment">/// The Rust identifier of the ink! trait definition.
+    </span>trait_ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Ident,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TraitPrefix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new trait prefix.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">trait_ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span>, <span class="ident">namespace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::LitStr</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">namespace</span>,
-            <span class="ident">trait_ident</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TraitPrefix&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new trait prefix.
+    </span><span class="kw">pub fn </span>new(trait_ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Ident, namespace: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::LitStr&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            namespace,
+            trait_ident,
         }
     }
 
-    <span class="doccomment">/// Returns a vector over the bytes of the namespace.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">namespace_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">namespace</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">namespace</span><span class="op">|</span> <span class="ident">namespace</span>.<span class="ident">value</span>().<span class="ident">into_bytes</span>())
-            .<span class="ident">unwrap_or_default</span>()
+    <span class="doccomment">/// Returns a vector over the bytes of the namespace.
+    </span><span class="kw">pub fn </span>namespace_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;u8&gt; {
+        <span class="self">self</span>.namespace
+            .map(|namespace| namespace.value().into_bytes())
+            .unwrap_or_default()
     }
 
-    <span class="doccomment">/// Returns a shared reference to the Rust identifier of the trait.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trait_ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span> {
-        <span class="self">self</span>.<span class="ident">trait_ident</span>
+    <span class="doccomment">/// Returns a shared reference to the Rust identifier of the trait.
+    </span><span class="kw">pub fn </span>trait_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Ident {
+        <span class="self">self</span>.trait_ident
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Selector</span> {
-    <span class="doccomment">/// Computes the BLAKE-2 256-bit based selector from the given input bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compute</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">32</span>];
-        <span class="ident">blake2b_256</span>(<span class="ident">input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
-        <span class="ident"><span class="self">Self</span>::from</span>([<span class="ident">output</span>[<span class="number">0</span>], <span class="ident">output</span>[<span class="number">1</span>], <span class="ident">output</span>[<span class="number">2</span>], <span class="ident">output</span>[<span class="number">3</span>]])
+<span class="kw">impl </span>Selector {
+    <span class="doccomment">/// Computes the BLAKE-2 256-bit based selector from the given input bytes.
+    </span><span class="kw">pub fn </span>compute(input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>output = [<span class="number">0</span>; <span class="number">32</span>];
+        blake2b_256(input, <span class="kw-2">&amp;mut </span>output);
+        <span class="self">Self</span>::from([output[<span class="number">0</span>], output[<span class="number">1</span>], output[<span class="number">2</span>], output[<span class="number">3</span>]])
     }
 
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - `trait_prefix` is `None` when computing the selector of ink! constructors</span>
-    <span class="doccomment">///   and messages in inherent implementation blocks.</span>
-    <span class="doccomment">/// - `trait_prefix` is `Some` when computing the selector of ink! constructors</span>
-    <span class="doccomment">///   and messages in trait implementation blocks. In this case the `namespace`</span>
-    <span class="doccomment">///   is either the full path of the trait definition gained by Rust&#39;s</span>
-    <span class="doccomment">///   `module_path!` macro by default or it is customized by manual application</span>
-    <span class="doccomment">///   of the `#[ink(namespace = &quot;my_namespace&quot;)]` ink! attribute. In the</span>
-    <span class="doccomment">///   example `my_namespace` concatenated with `::` and the identifier of the</span>
-    <span class="doccomment">///   trait definition would then be part of the provided `trait_prefix` parameter.</span>
-    <span class="doccomment">/// - `fn_ident` refers to the ink! constructor or message identifier.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Inherent Implementation Blocks</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For inherent implementation blocks, when `trait_prefix` is `None` the composed</span>
-    <span class="doccomment">/// selector is computed as follows:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// 1. Apply `BLAKE2` 256-bit hash `H` on the bytes of the ASCII representation of</span>
-    <span class="doccomment">///   the `fn_ident` identifier.</span>
-    <span class="doccomment">/// 1. The first 4 bytes of `H` make up the selector.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Trait Implementation Blocks</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For trait implementation blocks, when `trait_prefix` is</span>
-    <span class="doccomment">/// `Some((namespace, trait_ident))` the composed selector is computed as follows:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// 1. Compute the ASCII byte representation of `fn_ident` and call it `F`.</span>
-    <span class="doccomment">/// 1. Compute the ASCII byte representation of `namespace` and call it `N`.</span>
-    <span class="doccomment">/// 1. Compute the ASCII byte representation of `trait_ident` and call it `T`.</span>
-    <span class="doccomment">/// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.</span>
-    <span class="doccomment">/// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.</span>
-    <span class="doccomment">/// 1. The first 4 bytes of `H` make up the selector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compose</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">trait_prefix</span>: <span class="ident">T</span>, <span class="ident">fn_ident</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TraitPrefix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// # Note
+    ///
+    /// - `trait_prefix` is `None` when computing the selector of ink! constructors
+    ///   and messages in inherent implementation blocks.
+    /// - `trait_prefix` is `Some` when computing the selector of ink! constructors
+    ///   and messages in trait implementation blocks. In this case the `namespace`
+    ///   is either the full path of the trait definition gained by Rust&#39;s
+    ///   `module_path!` macro by default or it is customized by manual application
+    ///   of the `#[ink(namespace = &quot;my_namespace&quot;)]` ink! attribute. In the
+    ///   example `my_namespace` concatenated with `::` and the identifier of the
+    ///   trait definition would then be part of the provided `trait_prefix` parameter.
+    /// - `fn_ident` refers to the ink! constructor or message identifier.
+    ///
+    /// # Inherent Implementation Blocks
+    ///
+    /// For inherent implementation blocks, when `trait_prefix` is `None` the composed
+    /// selector is computed as follows:
+    ///
+    /// 1. Apply `BLAKE2` 256-bit hash `H` on the bytes of the ASCII representation of
+    ///   the `fn_ident` identifier.
+    /// 1. The first 4 bytes of `H` make up the selector.
+    ///
+    /// # Trait Implementation Blocks
+    ///
+    /// For trait implementation blocks, when `trait_prefix` is
+    /// `Some((namespace, trait_ident))` the composed selector is computed as follows:
+    ///
+    /// 1. Compute the ASCII byte representation of `fn_ident` and call it `F`.
+    /// 1. Compute the ASCII byte representation of `namespace` and call it `N`.
+    /// 1. Compute the ASCII byte representation of `trait_ident` and call it `T`.
+    /// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.
+    /// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
+    /// 1. The first 4 bytes of `H` make up the selector.
+    </span><span class="kw">pub fn </span>compose&lt;<span class="lifetime">&#39;a</span>, T&gt;(trait_prefix: T, fn_ident: <span class="kw-2">&amp;</span>syn::Ident) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;TraitPrefix&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt;,
     {
-        <span class="kw">let</span> <span class="ident">fn_ident</span> <span class="op">=</span> <span class="ident">fn_ident</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>();
-        <span class="kw">let</span> <span class="ident">input_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trait_prefix</span>.<span class="ident">into</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">trait_prefix</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="ident">trait_prefix</span>.<span class="ident">namespace_bytes</span>();
-                <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">trait_prefix</span>.<span class="ident">trait_ident</span>().<span class="ident">to_string</span>().<span class="ident">into_bytes</span>();
-                <span class="kw">let</span> <span class="ident">separator</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
-                <span class="kw">if</span> <span class="ident">namespace</span>.<span class="ident">is_empty</span>() {
-                    [<span class="kw-2">&amp;</span><span class="ident">trait_ident</span>[..], <span class="kw-2">&amp;</span><span class="ident">fn_ident</span>[..]].<span class="ident">join</span>(<span class="ident">separator</span>)
-                } <span class="kw">else</span> {
-                    [<span class="kw-2">&amp;</span><span class="ident">namespace</span>[..], <span class="kw-2">&amp;</span><span class="ident">trait_ident</span>[..], <span class="kw-2">&amp;</span><span class="ident">fn_ident</span>[..]].<span class="ident">join</span>(<span class="ident">separator</span>)
+        <span class="kw">let </span>fn_ident = fn_ident.to_string().into_bytes();
+        <span class="kw">let </span>input_bytes: Vec&lt;u8&gt; = <span class="kw">match </span>trait_prefix.into() {
+            <span class="prelude-val">Some</span>(trait_prefix) =&gt; {
+                <span class="kw">let </span>namespace = trait_prefix.namespace_bytes();
+                <span class="kw">let </span>trait_ident = trait_prefix.trait_ident().to_string().into_bytes();
+                <span class="kw">let </span>separator = <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
+                <span class="kw">if </span>namespace.is_empty() {
+                    [<span class="kw-2">&amp;</span>trait_ident[..], <span class="kw-2">&amp;</span>fn_ident[..]].join(separator)
+                } <span class="kw">else </span>{
+                    [<span class="kw-2">&amp;</span>namespace[..], <span class="kw-2">&amp;</span>trait_ident[..], <span class="kw-2">&amp;</span>fn_ident[..]].join(separator)
                 }
             }
-            <span class="prelude-val">None</span> =&gt; <span class="ident">fn_ident</span>.<span class="ident">to_vec</span>(),
+            <span class="prelude-val">None </span>=&gt; fn_ident.to_vec(),
         };
-        <span class="ident"><span class="self">Self</span>::compute</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>)
+        <span class="self">Self</span>::compute(<span class="kw-2">&amp;</span>input_bytes)
     }
 
-    <span class="doccomment">/// Returns the underlying four bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="ident">u8</span>; <span class="number">4</span>] {
-        <span class="self">self</span>.<span class="ident">bytes</span>
+    <span class="doccomment">/// Returns the underlying four bytes.
+    </span><span class="kw">pub fn </span>to_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [u8; <span class="number">4</span>] {
+        <span class="self">self</span>.bytes
     }
 
-    <span class="doccomment">/// Returns the big-endian `u32` representation of the selector bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_be_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="ident">u32::from_be_bytes</span>(<span class="self">self</span>.<span class="ident">bytes</span>)
+    <span class="doccomment">/// Returns the big-endian `u32` representation of the selector bytes.
+    </span><span class="kw">pub fn </span>into_be_u32(<span class="self">self</span>) -&gt; u32 {
+        u32::from_be_bytes(<span class="self">self</span>.bytes)
     }
 
-    <span class="doccomment">/// Returns the 4 bytes that make up the selector as hex encoded bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hex_lits</span>(<span class="self">self</span>) -&gt; [<span class="ident">syn::LitInt</span>; <span class="number">4</span>] {
-        <span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">map</span>(<span class="op">&lt;</span><span class="ident">u8</span> <span class="kw">as</span> <span class="ident">HexLiteral</span><span class="op">&gt;</span><span class="ident">::hex_padded_suffixed</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Selector</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">bytes</span> }
+    <span class="doccomment">/// Returns the 4 bytes that make up the selector as hex encoded bytes.
+    </span><span class="kw">pub fn </span>hex_lits(<span class="self">self</span>) -&gt; [syn::LitInt; <span class="number">4</span>] {
+        <span class="self">self</span>.bytes.map(&lt;u8 <span class="kw">as </span>HexLiteral&gt;::hex_padded_suffixed)
     }
 }
 
-<span class="doccomment">/// Used as generic parameter for the `selector_id!` macro.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SelectorId</span> {}
-
-<span class="doccomment">/// Used as generic parameter for the `selector_bytes!` macro.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SelectorBytes</span> {}
-
-<span class="doccomment">/// The selector ID of an ink! dispatchable.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is mainly used for analysis and codegen of the `selector_id!` macro.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectorMacro</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">selector</span>: <span class="ident">Selector</span>,
-    <span class="ident">input</span>: <span class="ident">syn::Lit</span>,
-    <span class="ident">_marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SelectorMacro</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the underlying selector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Selector</span> {
-        <span class="self">self</span>.<span class="ident">selector</span>
-    }
-
-    <span class="doccomment">/// Returns the literal input of the selector ID.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Lit</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>
+<span class="kw">impl </span>From&lt;[u8; <span class="number">4</span>]&gt; <span class="kw">for </span>Selector {
+    <span class="kw">fn </span>from(bytes: [u8; <span class="number">4</span>]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ bytes }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SelectorMacro</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="doccomment">/// Used as generic parameter for the `selector_id!` macro.
+</span><span class="kw">pub enum </span>SelectorId {}
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: <span class="ident">TokenStream2</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">input_span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">lit</span> <span class="op">=</span> <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">syn::Lit</span><span class="op">&gt;</span>(<span class="ident">input</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+<span class="doccomment">/// Used as generic parameter for the `selector_bytes!` macro.
+</span><span class="kw">pub enum </span>SelectorBytes {}
+
+<span class="doccomment">/// The selector ID of an ink! dispatchable.
+///
+/// # Note
+///
+/// This is mainly used for analysis and codegen of the `selector_id!` macro.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>SelectorMacro&lt;T&gt; {
+    selector: Selector,
+    input: syn::Lit,
+    _marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; T&gt;,
+}
+
+<span class="kw">impl</span>&lt;T&gt; SelectorMacro&lt;T&gt; {
+    <span class="doccomment">/// Returns the underlying selector.
+    </span><span class="kw">pub fn </span>selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Selector {
+        <span class="self">self</span>.selector
+    }
+
+    <span class="doccomment">/// Returns the literal input of the selector ID.
+    </span><span class="kw">pub fn </span>input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Lit {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.input
+    }
+}
+
+<span class="kw">impl</span>&lt;T&gt; TryFrom&lt;TokenStream2&gt; <span class="kw">for </span>SelectorMacro&lt;T&gt; {
+    <span class="kw">type </span>Error = syn::Error;
+
+    <span class="kw">fn </span>try_from(input: TokenStream2) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>input_span = input.span();
+        <span class="kw">let </span>lit = syn::parse2::&lt;syn::Lit&gt;(input).map_err(|error| {
             <span class="macro">format_err!</span>(
-                <span class="ident">input_span</span>,
+                input_span,
                 <span class="string">&quot;expected string or byte string literal as input: {}&quot;</span>,
-                <span class="ident">error</span>
+                error
             )
         })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">input_bytes</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lit</span> {
-            <span class="ident">syn::Lit::Str</span>(<span class="kw-2">ref</span> <span class="ident">lit_str</span>) =&gt; <span class="ident">lit_str</span>.<span class="ident">value</span>().<span class="ident">into_bytes</span>(),
-            <span class="ident">syn::Lit::ByteStr</span>(<span class="kw-2">ref</span> <span class="ident">byte_str</span>) =&gt; <span class="ident">byte_str</span>.<span class="ident">value</span>(),
-            <span class="ident">invalid</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                    <span class="ident">invalid</span>.<span class="ident">span</span>(),
+        <span class="kw">let </span>input_bytes = <span class="kw">match </span>lit {
+            syn::Lit::Str(<span class="kw-2">ref </span>lit_str) =&gt; lit_str.value().into_bytes(),
+            syn::Lit::ByteStr(<span class="kw-2">ref </span>byte_str) =&gt; byte_str.value(),
+            invalid =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                    invalid.span(),
                     <span class="string">&quot;expected string or byte string literal as input. found {:?}&quot;</span>,
-                    <span class="ident">invalid</span>,
+                    invalid,
                 ))
             }
         };
-        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">Selector::compute</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>);
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">selector</span>,
-            <span class="ident">input</span>: <span class="ident">lit</span>,
-            <span class="ident">_marker</span>: <span class="ident">PhantomData</span>,
+        <span class="kw">let </span>selector = Selector::compute(<span class="kw-2">&amp;</span>input_bytes);
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            selector,
+            input: lit,
+            _marker: PhantomData,
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">hex_lits_works</span>() {
-        <span class="kw">let</span> <span class="ident">hex_lits</span> <span class="op">=</span> <span class="ident">Selector::from</span>([<span class="number">0xC0</span>, <span class="number">0xDE</span>, <span class="number">0xCA</span>, <span class="number">0xFE</span>]).<span class="ident">hex_lits</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>hex_lits_works() {
+        <span class="kw">let </span>hex_lits = Selector::from([<span class="number">0xC0</span>, <span class="number">0xDE</span>, <span class="number">0xCA</span>, <span class="number">0xFE</span>]).hex_lits();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">hex_lits</span>,
+            hex_lits,
             [
-                <span class="macro">syn::parse_quote!</span> { <span class="number">0xC0_u8</span> },
-                <span class="macro">syn::parse_quote!</span> { <span class="number">0xDE_u8</span> },
-                <span class="macro">syn::parse_quote!</span> { <span class="number">0xCA_u8</span> },
-                <span class="macro">syn::parse_quote!</span> { <span class="number">0xFE_u8</span> },
+                <span class="macro">syn::parse_quote! </span>{ <span class="number">0xC0_u8 </span>},
+                <span class="macro">syn::parse_quote! </span>{ <span class="number">0xDE_u8 </span>},
+                <span class="macro">syn::parse_quote! </span>{ <span class="number">0xCA_u8 </span>},
+                <span class="macro">syn::parse_quote! </span>{ <span class="number">0xFE_u8 </span>},
             ]
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

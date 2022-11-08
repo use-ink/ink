@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/events.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>events.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/events.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>events.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -285,147 +285,147 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
-<span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
-    <span class="ident">Span</span>,
-    <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
+<span class="kw">use </span>derive_more::From;
+<span class="kw">use </span>proc_macro2::{
+    Span,
+    TokenStream <span class="kw">as </span>TokenStream2,
 };
-<span class="kw">use</span> <span class="ident">quote</span>::{
-    <span class="ident">quote</span>,
-    <span class="ident">quote_spanned</span>,
+<span class="kw">use </span>quote::{
+    quote,
+    quote_spanned,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// Generates code for the ink! event structs of the contract.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Events</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
+<span class="doccomment">/// Generates code for the ink! event structs of the contract.
+</span><span class="attribute">#[derive(From)]
+</span><span class="kw">pub struct </span>Events&lt;<span class="lifetime">&#39;a</span>&gt; {
+    contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
 }
-<span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">Events</span>);
+<span class="macro">impl_as_ref_for_generator!</span>(Events);
 
-<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">Events</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">next</span>().<span class="ident">is_none</span>() {
-            <span class="comment">// Generate no code in case there are no event definitions.</span>
-            <span class="kw">return</span> <span class="ident">TokenStream2::new</span>()
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>Events&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">if </span><span class="self">self</span>.contract.module().events().next().is_none() {
+            <span class="comment">// Generate no code in case there are no event definitions.
+            </span><span class="kw">return </span>TokenStream2::new()
         }
-        <span class="kw">let</span> <span class="ident">emit_event_trait_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_emit_event_trait_impl</span>();
-        <span class="kw">let</span> <span class="ident">event_base</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_event_base</span>();
-        <span class="kw">let</span> <span class="ident">topic_guards</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_topic_guards</span>();
-        <span class="kw">let</span> <span class="ident">topics_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_topics_impls</span>();
-        <span class="kw">let</span> <span class="ident">event_structs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_event_structs</span>();
-        <span class="macro">quote!</span> {
-            #<span class="ident">emit_event_trait_impl</span>
-            #<span class="ident">event_base</span>
-            #( #<span class="ident">topic_guards</span> )<span class="op">*</span>
-            #( #<span class="ident">event_structs</span> )<span class="op">*</span>
-            #( #<span class="ident">topics_impls</span> )<span class="op">*</span>
+        <span class="kw">let </span>emit_event_trait_impl = <span class="self">self</span>.generate_emit_event_trait_impl();
+        <span class="kw">let </span>event_base = <span class="self">self</span>.generate_event_base();
+        <span class="kw">let </span>topic_guards = <span class="self">self</span>.generate_topic_guards();
+        <span class="kw">let </span>topics_impls = <span class="self">self</span>.generate_topics_impls();
+        <span class="kw">let </span>event_structs = <span class="self">self</span>.generate_event_structs();
+        <span class="macro">quote! </span>{
+            #emit_event_trait_impl
+            #event_base
+            #( #topic_guards )*
+            #( #event_structs )*
+            #( #topics_impls )*
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Events</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Used to allow emitting user defined events directly instead of converting</span>
-    <span class="doccomment">/// them first into the automatically generated base trait of the contract.</span>
-    <span class="kw">fn</span> <span class="ident">generate_emit_event_trait_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="macro">quote!</span> {
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink::codegen::EmitEvent</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">::ink::EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Environment</span><span class="op">&gt;</span> {
-                    <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">event</span>: <span class="ident">E</span>)
-                    <span class="kw">where</span>
-                        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEventBase</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Events&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Used to allow emitting user defined events directly instead of converting
+    /// them first into the automatically generated base trait of the contract.
+    </span><span class="kw">fn </span>generate_emit_event_trait_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage_ident = <span class="kw-2">&amp;</span><span class="self">self</span>.contract.module().storage().ident();
+        <span class="macro">quote! </span>{
+            <span class="kw">const _</span>: () = {
+                <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::EmitEvent&lt;#storage_ident&gt; <span class="kw">for </span>::ink::EnvAccess&lt;<span class="lifetime">&#39;a</span>, Environment&gt; {
+                    <span class="kw">fn </span>emit_event&lt;E&gt;(<span class="self">self</span>, event: E)
+                    <span class="kw">where
+                        </span>E: Into&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEventBase&gt;::Type&gt;,
                     {
-                        <span class="ident">::ink::env::emit_event</span>::<span class="op">&lt;</span>
-                            <span class="ident">Environment</span>,
-                            <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEventBase</span><span class="op">&gt;</span><span class="ident">::Type</span>
-                        <span class="op">&gt;</span>(<span class="ident">event</span>.<span class="ident">into</span>());
+                        ::ink::env::emit_event::&lt;
+                            Environment,
+                            &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEventBase&gt;::Type
+                        &gt;(event.into());
                     }
                 }
             };
         }
     }
 
-    <span class="doccomment">/// Generates the base event enum that comprises all user defined events.</span>
-    <span class="doccomment">/// All emitted events are converted into a variant of this enum before being</span>
-    <span class="doccomment">/// serialized and emitted to apply their unique event discriminant (ID).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Developer Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `__ink_dylint_EventBase` config attribute is used here to convey the</span>
-    <span class="doccomment">/// information that the generated enum is an ink! event to `dylint`.</span>
-    <span class="kw">fn</span> <span class="ident">generate_event_base</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">event_idents</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">events</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">event</span><span class="op">|</span> <span class="ident">event</span>.<span class="ident">ident</span>())
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">base_event_ident</span> <span class="op">=</span>
-            <span class="ident">proc_macro2::Ident::new</span>(<span class="string">&quot;__ink_EventBase&quot;</span>, <span class="ident">Span::call_site</span>());
-        <span class="macro">quote!</span> {
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-            <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::scale::Encode</span>, <span class="ident">::scale::Decode</span>)]</span>
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__ink_dylint_EventBase&quot;</span>))]</span>
-            <span class="kw">pub</span> <span class="kw">enum</span> #<span class="ident">base_event_ident</span> {
-                #( #<span class="ident">event_idents</span>(#<span class="ident">event_idents</span>), )<span class="op">*</span>
+    <span class="doccomment">/// Generates the base event enum that comprises all user defined events.
+    /// All emitted events are converted into a variant of this enum before being
+    /// serialized and emitted to apply their unique event discriminant (ID).
+    ///
+    /// # Developer Note
+    ///
+    /// The `__ink_dylint_EventBase` config attribute is used here to convey the
+    /// information that the generated enum is an ink! event to `dylint`.
+    </span><span class="kw">fn </span>generate_event_base(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage_ident = <span class="kw-2">&amp;</span><span class="self">self</span>.contract.module().storage().ident();
+        <span class="kw">let </span>event_idents = <span class="self">self
+            </span>.contract
+            .module()
+            .events()
+            .map(|event| event.ident())
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>base_event_ident =
+            proc_macro2::Ident::new(<span class="string">&quot;__ink_EventBase&quot;</span>, Span::call_site());
+        <span class="macro">quote! </span>{
+            <span class="attribute">#[allow(non_camel_case_types)]
+            #[derive(::scale::Encode, ::scale::Decode)]
+            #[cfg(not(feature = <span class="string">&quot;__ink_dylint_EventBase&quot;</span>))]
+            </span><span class="kw">pub enum </span>#base_event_ident {
+                #( #event_idents(#event_idents), )*
             }
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractEventBase</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
-                    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> #<span class="ident">base_event_ident</span>;
+            <span class="kw">const _</span>: () = {
+                <span class="kw">impl </span>::ink::reflect::ContractEventBase <span class="kw">for </span>#storage_ident {
+                    <span class="kw">type </span>Type = #base_event_ident;
                 }
             };
 
             #(
-                <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>#<span class="ident">event_idents</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">base_event_ident</span> {
-                        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">event</span>: #<span class="ident">event_idents</span>) -&gt; <span class="self">Self</span> {
-                            <span class="self">Self</span>::#<span class="ident">event_idents</span>(<span class="ident">event</span>)
+                <span class="kw">const _</span>: () = {
+                    <span class="kw">impl </span>From&lt;#event_idents&gt; <span class="kw">for </span>#base_event_ident {
+                        <span class="kw">fn </span>from(event: #event_idents) -&gt; <span class="self">Self </span>{
+                            <span class="self">Self</span>::#event_idents(event)
                         }
                     }
                 };
-            )<span class="op">*</span>
+            )*
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">__ink_UndefinedAmountOfTopics</span> {}
-                <span class="kw">impl</span> <span class="ident">::ink::env::topics::EventTopicsAmount</span> <span class="kw">for</span> <span class="ident">__ink_UndefinedAmountOfTopics</span> {
-                    <span class="kw">const</span> <span class="ident">AMOUNT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+            <span class="kw">const _</span>: () = {
+                <span class="kw">pub enum </span>__ink_UndefinedAmountOfTopics {}
+                <span class="kw">impl </span>::ink::env::topics::EventTopicsAmount <span class="kw">for </span>__ink_UndefinedAmountOfTopics {
+                    <span class="kw">const </span>AMOUNT: usize = <span class="number">0</span>;
                 }
 
-                <span class="kw">impl</span> <span class="ident">::ink::env::Topics</span> <span class="kw">for</span> #<span class="ident">base_event_ident</span> {
-                    <span class="kw">type</span> <span class="ident">RemainingTopics</span> <span class="op">=</span> <span class="ident">__ink_UndefinedAmountOfTopics</span>;
+                <span class="kw">impl </span>::ink::env::Topics <span class="kw">for </span>#base_event_ident {
+                    <span class="kw">type </span>RemainingTopics = __ink_UndefinedAmountOfTopics;
 
-                    <span class="kw">fn</span> <span class="ident">topics</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>(
+                    <span class="kw">fn </span>topics&lt;E, B&gt;(
                         <span class="kw-2">&amp;</span><span class="self">self</span>,
-                        <span class="ident">builder</span>: <span class="ident">::ink::env::topics::TopicsBuilder</span><span class="op">&lt;</span><span class="ident">::ink::env::topics::state::Uninit</span>, <span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>,
-                    ) -&gt; <span class="op">&lt;</span><span class="ident">B</span> <span class="kw">as</span> <span class="ident">::ink::env::topics::TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Output</span>
-                    <span class="kw">where</span>
-                        <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-                        <span class="ident">B</span>: <span class="ident">::ink::env::topics::TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+                        builder: ::ink::env::topics::TopicsBuilder&lt;::ink::env::topics::state::Uninit, E, B&gt;,
+                    ) -&gt; &lt;B <span class="kw">as </span>::ink::env::topics::TopicsBuilderBackend&lt;E&gt;&gt;::Output
+                    <span class="kw">where
+                        </span>E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend&lt;E&gt;,
                     {
-                        <span class="kw">match</span> <span class="self">self</span> {
+                        <span class="kw">match </span><span class="self">self </span>{
                             #(
-                                <span class="self">Self</span>::#<span class="ident">event_idents</span>(<span class="ident">event</span>) =&gt; {
-                                    <span class="op">&lt;</span>#<span class="ident">event_idents</span> <span class="kw">as</span> <span class="ident">::ink::env::Topics</span><span class="op">&gt;</span><span class="ident">::topics</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">event</span>, <span class="ident">builder</span>)
+                                <span class="self">Self</span>::#event_idents(event) =&gt; {
+                                    &lt;#event_idents <span class="kw">as </span>::ink::env::Topics&gt;::topics::&lt;E, B&gt;(event, builder)
                                 }
-                            )<span class="op">*</span>
+                            )*
                         }
                     }
                 }
@@ -433,109 +433,109 @@
         }
     }
 
-    <span class="doccomment">/// Generate checks to guard against too many topics in event definitions.</span>
-    <span class="kw">fn</span> <span class="ident">generate_topics_guard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Event</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">event_ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">len_topics</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">fields</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">event</span><span class="op">|</span> <span class="ident">event</span>.<span class="ident">is_topic</span>).<span class="ident">count</span>();
-        <span class="kw">let</span> <span class="ident">max_len_topics</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span>
-                <span class="kw">as</span> <span class="ident">::ink::env::Environment</span><span class="op">&gt;</span><span class="ident">::MAX_EVENT_TOPICS</span>
+    <span class="doccomment">/// Generate checks to guard against too many topics in event definitions.
+    </span><span class="kw">fn </span>generate_topics_guard(<span class="kw-2">&amp;</span><span class="self">self</span>, event: <span class="kw-2">&amp;</span>ir::Event) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = event.span();
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="kw">let </span>event_ident = event.ident();
+        <span class="kw">let </span>len_topics = event.fields().filter(|event| event.is_topic).count();
+        <span class="kw">let </span>max_len_topics = <span class="macro">quote_spanned!</span>(span=&gt;
+            &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env
+                <span class="kw">as </span>::ink::env::Environment&gt;::MAX_EVENT_TOPICS
         );
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">impl</span> <span class="ident">::ink::codegen::EventLenTopics</span> <span class="kw">for</span> #<span class="ident">event_ident</span> {
-                <span class="kw">type</span> <span class="ident">LenTopics</span> <span class="op">=</span> <span class="ident">::ink::codegen::EventTopics</span><span class="op">&lt;</span>#<span class="ident">len_topics</span><span class="op">&gt;</span>;
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">impl </span>::ink::codegen::EventLenTopics <span class="kw">for </span>#event_ident {
+                <span class="kw">type </span>LenTopics = ::ink::codegen::EventTopics&lt;#len_topics&gt;;
             }
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">::ink::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
-                <span class="ident">::ink::codegen::EventRespectsTopicLimit</span><span class="op">&lt;</span>
-                    #<span class="ident">event_ident</span>,
-                    { #<span class="ident">max_len_topics</span> },
-                <span class="op">&gt;</span>
-            <span class="op">&gt;</span>();
+            <span class="kw">const _</span>: () = ::ink::codegen::utils::consume_type::&lt;
+                ::ink::codegen::EventRespectsTopicLimit&lt;
+                    #event_ident,
+                    { #max_len_topics },
+                &gt;
+            &gt;();
         )
     }
 
-    <span class="doccomment">/// Generates the guard code that protects against having too many topics defined on an ink! event.</span>
-    <span class="kw">fn</span> <span class="ident">generate_topic_guards</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
-        <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
-            <span class="kw">let</span> <span class="ident">topics_guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_topics_guard</span>(<span class="ident">event</span>);
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                #<span class="ident">topics_guard</span>
+    <span class="doccomment">/// Generates the guard code that protects against having too many topics defined on an ink! event.
+    </span><span class="kw">fn </span>generate_topic_guards(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;a </span>{
+        <span class="self">self</span>.contract.module().events().map(<span class="kw">move </span>|event| {
+            <span class="kw">let </span>span = event.span();
+            <span class="kw">let </span>topics_guard = <span class="self">self</span>.generate_topics_guard(event);
+            <span class="macro">quote_spanned!</span>(span =&gt;
+                #topics_guard
             )
         })
     }
 
-    <span class="doccomment">/// Generates the `Topics` trait implementations for the user defined events.</span>
-    <span class="kw">fn</span> <span class="ident">generate_topics_impls</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
-        <span class="kw">let</span> <span class="ident">contract_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>()
-            .<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
-            <span class="kw">let</span> <span class="ident">event_ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
-            <span class="kw">let</span> <span class="ident">event_signature</span> <span class="op">=</span> <span class="ident">syn::LitByteStr::new</span>(
-                <span class="macro">format!</span>(<span class="string">&quot;{}::{}&quot;</span>, <span class="ident">contract_ident</span>, <span class="ident">event_ident</span>
-            ).<span class="ident">as_bytes</span>(), <span class="ident">span</span>);
-            <span class="kw">let</span> <span class="ident">len_event_signature</span> <span class="op">=</span> <span class="ident">event_signature</span>.<span class="ident">value</span>().<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="ident">len_topics</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">fields</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> <span class="ident">field</span>.<span class="ident">is_topic</span>).<span class="ident">count</span>();
-            <span class="kw">let</span> <span class="ident">topic_impls</span> <span class="op">=</span> <span class="ident">event</span>
-                .<span class="ident">fields</span>()
-                .<span class="ident">enumerate</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">field</span>)<span class="op">|</span> <span class="ident">field</span>.<span class="ident">is_topic</span>)
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="ident">topic_field</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">topic_field</span>.<span class="ident">span</span>();
-                    <span class="kw">let</span> <span class="ident">field_ident</span> <span class="op">=</span> <span class="ident">topic_field</span>
-                        .<span class="ident">ident</span>()
-                        .<span class="ident">map</span>(<span class="ident">quote::ToTokens::into_token_stream</span>)
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt; #<span class="ident">n</span>));
-                    <span class="kw">let</span> <span class="ident">field_type</span> <span class="op">=</span> <span class="ident">topic_field</span>.<span class="ident">ty</span>();
-                    <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">syn::LitByteStr::new</span>(
-                        <span class="macro">format!</span>(<span class="string">&quot;{}::{}::{}&quot;</span>, <span class="ident">contract_ident</span>, <span class="ident">event_ident</span>,
-                            <span class="ident">field_ident</span>
-                        ).<span class="ident">as_bytes</span>(), <span class="ident">span</span>);
-                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                        .<span class="ident">push_topic</span>::<span class="op">&lt;</span><span class="ident">::ink::env::topics::PrefixedValue</span><span class="op">&lt;</span>#<span class="ident">field_type</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">::ink::env::topics::PrefixedValue</span> { <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.#<span class="ident">field_ident</span>, <span class="ident">prefix</span>: #<span class="ident">signature</span> }
+    <span class="doccomment">/// Generates the `Topics` trait implementations for the user defined events.
+    </span><span class="kw">fn </span>generate_topics_impls(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;a </span>{
+        <span class="kw">let </span>contract_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="self">self</span>.contract.module().events()
+            .map(<span class="kw">move </span>|event| {
+            <span class="kw">let </span>span = event.span();
+            <span class="kw">let </span>event_ident = event.ident();
+            <span class="kw">let </span>event_signature = syn::LitByteStr::new(
+                <span class="macro">format!</span>(<span class="string">&quot;{}::{}&quot;</span>, contract_ident, event_ident
+            ).as_bytes(), span);
+            <span class="kw">let </span>len_event_signature = event_signature.value().len();
+            <span class="kw">let </span>len_topics = event.fields().filter(|field| field.is_topic).count();
+            <span class="kw">let </span>topic_impls = event
+                .fields()
+                .enumerate()
+                .filter(|(<span class="kw">_</span>, field)| field.is_topic)
+                .map(|(n, topic_field)| {
+                    <span class="kw">let </span>span = topic_field.span();
+                    <span class="kw">let </span>field_ident = topic_field
+                        .ident()
+                        .map(quote::ToTokens::into_token_stream)
+                        .unwrap_or_else(|| <span class="macro">quote_spanned!</span>(span =&gt; #n));
+                    <span class="kw">let </span>field_type = topic_field.ty();
+                    <span class="kw">let </span>signature = syn::LitByteStr::new(
+                        <span class="macro">format!</span>(<span class="string">&quot;{}::{}::{}&quot;</span>, contract_ident, event_ident,
+                            field_ident
+                        ).as_bytes(), span);
+                    <span class="macro">quote_spanned!</span>(span =&gt;
+                        .push_topic::&lt;::ink::env::topics::PrefixedValue&lt;#field_type&gt;&gt;(
+                            <span class="kw-2">&amp;</span>::ink::env::topics::PrefixedValue { value: <span class="kw-2">&amp;</span><span class="self">self</span>.#field_ident, prefix: #signature }
                         )
                     )
                 });
-            <span class="comment">// Only include topic for event signature in case of non-anonymous event.</span>
-            <span class="kw">let</span> <span class="ident">event_signature_topic</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">anonymous</span> {
-                <span class="bool-val">true</span> =&gt; <span class="prelude-val">None</span>,
-                <span class="bool-val">false</span> =&gt; <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                    .<span class="ident">push_topic</span>::<span class="op">&lt;</span><span class="ident">::ink::env::topics::PrefixedValue</span><span class="op">&lt;</span>[<span class="ident">u8</span>; #<span class="ident">len_event_signature</span>]<span class="op">&gt;</span><span class="op">&gt;</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">::ink::env::topics::PrefixedValue</span> { <span class="ident">value</span>: #<span class="ident">event_signature</span>, <span class="ident">prefix</span>: <span class="string">b&quot;&quot;</span> }
+            <span class="comment">// Only include topic for event signature in case of non-anonymous event.
+            </span><span class="kw">let </span>event_signature_topic = <span class="kw">match </span>event.anonymous {
+                <span class="bool-val">true </span>=&gt; <span class="prelude-val">None</span>,
+                <span class="bool-val">false </span>=&gt; <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(span=&gt;
+                    .push_topic::&lt;::ink::env::topics::PrefixedValue&lt;[u8; #len_event_signature]&gt;&gt;(
+                        <span class="kw-2">&amp;</span>::ink::env::topics::PrefixedValue { value: #event_signature, prefix: <span class="string">b&quot;&quot; </span>}
                     )
                 ))
             };
-            <span class="comment">// Anonymous events require 1 fewer topics since they do not include their signature.</span>
-            <span class="kw">let</span> <span class="ident">anonymous_topics_offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">event</span>.<span class="ident">anonymous</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">1</span> };
-            <span class="kw">let</span> <span class="ident">remaining_topics_ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">len_topics</span> <span class="op">+</span> <span class="ident">anonymous_topics_offset</span> {
-                <span class="number">0</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; <span class="ident">::ink::env::topics::state::NoRemainingTopics</span>),
-                <span class="ident">n</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; [<span class="ident">::ink::env::topics::state::HasRemainingTopics</span>; #<span class="ident">n</span>]),
+            <span class="comment">// Anonymous events require 1 fewer topics since they do not include their signature.
+            </span><span class="kw">let </span>anonymous_topics_offset = <span class="kw">if </span>event.anonymous { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>};
+            <span class="kw">let </span>remaining_topics_ty = <span class="kw">match </span>len_topics + anonymous_topics_offset {
+                <span class="number">0 </span>=&gt; <span class="macro">quote_spanned!</span>(span=&gt; ::ink::env::topics::state::NoRemainingTopics),
+                n =&gt; <span class="macro">quote_spanned!</span>(span=&gt; [::ink::env::topics::state::HasRemainingTopics; #n]),
             };
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                    <span class="kw">impl</span> <span class="ident">::ink::env::Topics</span> <span class="kw">for</span> #<span class="ident">event_ident</span> {
-                        <span class="kw">type</span> <span class="ident">RemainingTopics</span> <span class="op">=</span> #<span class="ident">remaining_topics_ty</span>;
+            <span class="macro">quote_spanned!</span>(span =&gt;
+                <span class="kw">const _</span>: () = {
+                    <span class="kw">impl </span>::ink::env::Topics <span class="kw">for </span>#event_ident {
+                        <span class="kw">type </span>RemainingTopics = #remaining_topics_ty;
 
-                        <span class="kw">fn</span> <span class="ident">topics</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>(
+                        <span class="kw">fn </span>topics&lt;E, B&gt;(
                             <span class="kw-2">&amp;</span><span class="self">self</span>,
-                            <span class="ident">builder</span>: <span class="ident">::ink::env::topics::TopicsBuilder</span><span class="op">&lt;</span><span class="ident">::ink::env::topics::state::Uninit</span>, <span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>,
-                        ) -&gt; <span class="op">&lt;</span><span class="ident">B</span> <span class="kw">as</span> <span class="ident">::ink::env::topics::TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Output</span>
-                        <span class="kw">where</span>
-                            <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-                            <span class="ident">B</span>: <span class="ident">::ink::env::topics::TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+                            builder: ::ink::env::topics::TopicsBuilder&lt;::ink::env::topics::state::Uninit, E, B&gt;,
+                        ) -&gt; &lt;B <span class="kw">as </span>::ink::env::topics::TopicsBuilderBackend&lt;E&gt;&gt;::Output
+                        <span class="kw">where
+                            </span>E: ::ink::env::Environment,
+                            B: ::ink::env::topics::TopicsBuilderBackend&lt;E&gt;,
                         {
-                            <span class="ident">builder</span>
-                                .<span class="ident">build</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
-                                #<span class="ident">event_signature_topic</span>
+                            builder
+                                .build::&lt;<span class="self">Self</span>&gt;()
+                                #event_signature_topic
                                 #(
-                                    #<span class="ident">topic_impls</span>
-                                )<span class="op">*</span>
-                                .<span class="ident">finish</span>()
+                                    #topic_impls
+                                )*
+                                .finish()
                         }
                     }
                 };
@@ -543,32 +543,32 @@
         })
     }
 
-    <span class="doccomment">/// Generates all the user defined event struct definitions.</span>
-    <span class="kw">fn</span> <span class="ident">generate_event_structs</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
-        <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
-            <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">attrs</span>();
-            <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">fields</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">event_field</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">span</span>();
-                <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">attrs</span>();
-                <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">vis</span>();
-                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">ident</span>();
-                <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">ty</span>();
-                <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                    #( #<span class="ident">attrs</span> )<span class="op">*</span>
-                    #<span class="ident">vis</span> #<span class="ident">ident</span> : #<span class="ident">ty</span>
+    <span class="doccomment">/// Generates all the user defined event struct definitions.
+    </span><span class="kw">fn </span>generate_event_structs(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;a </span>{
+        <span class="self">self</span>.contract.module().events().map(<span class="kw">move </span>|event| {
+            <span class="kw">let </span>span = event.span();
+            <span class="kw">let </span>ident = event.ident();
+            <span class="kw">let </span>attrs = event.attrs();
+            <span class="kw">let </span>fields = event.fields().map(|event_field| {
+                <span class="kw">let </span>span = event_field.span();
+                <span class="kw">let </span>attrs = event_field.attrs();
+                <span class="kw">let </span>vis = event_field.vis();
+                <span class="kw">let </span>ident = event_field.ident();
+                <span class="kw">let </span>ty = event_field.ty();
+                <span class="macro">quote_spanned!</span>(span=&gt;
+                    #( #attrs )*
+                    #vis #ident : #ty
                 )
             });
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                #( #<span class="ident">attrs</span> )<span class="op">*</span>
-                <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ident</span> {
-                    #( #<span class="ident">fields</span> ),<span class="op">*</span>
+            <span class="macro">quote_spanned!</span>(span =&gt;
+                #( #attrs )*
+                <span class="attribute">#[derive(scale::Encode, scale::Decode)]
+                </span><span class="kw">pub struct </span>#ident {
+                    #( #fields ),*
                 }
             )
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

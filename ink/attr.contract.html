@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><meta name="keywords" content="rust, rustlang, rust-lang, contract"><title>contract in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><meta name="keywords" content="rust, rustlang, rust-lang, contract"><title>contract in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In ink</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink</a>::<wbr><a class="attr" href="#">contract</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[contract]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
 <p>If you are a beginner trying to learn ink! we recommend you to check out
@@ -26,12 +26,12 @@ Call builders are used to doing cross-contract calls and are automatically
 generated for contracts.</p>
 <p><strong>Usage Example:</strong></p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">keep_attr</span> <span class="op">=</span> <span class="string">&quot;foo, bar&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">my_contract</span> {
-    <span class="comment">//    #[bar]</span>
-    <span class="comment">//    #[foo]</span>
-    <span class="comment">// ...</span>
-}</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract(keep_attr = <span class="string">&quot;foo, bar&quot;</span>)]
+</span><span class="kw">mod </span>my_contract {
+    <span class="comment">//    #[bar]
+    //    #[foo]
+    // ...
+</span>}</code></pre></div>
 <p><strong>Allowed attributes by default:</strong> <code>cfg</code>, <code>cfg_attr</code>, <code>allow</code>, <code>warn</code>, <code>deny</code>, <code>forbid</code>,
 <code>deprecated</code>, <code>must_use</code>, <code>doc</code>, <code>rustfmt</code>.</p>
 </li>
@@ -46,24 +46,24 @@ must be aligned with respect to SCALE encoding and semantics.</p>
 <p><strong>Usage Example:</strong></p>
 <p>Given a custom <code>Environment</code> implementation:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEnvironment</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">pub struct </span>MyEnvironment;
 
-<span class="kw">impl</span> <span class="ident">ink_env::Environment</span> <span class="kw">for</span> <span class="ident">MyEnvironment</span> {
-    <span class="kw">const</span> <span class="ident">MAX_EVENT_TOPICS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
-    <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">16</span>];
-    <span class="kw">type</span> <span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span>;
-    <span class="kw">type</span> <span class="ident">Hash</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
-    <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="ident">u64</span>;
-    <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">u32</span>;
-    <span class="kw">type</span> <span class="ident">ChainExtension</span> <span class="op">=</span> <span class="ident">::ink::env::NoChainExtension</span>;
+<span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>MyEnvironment {
+    <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">3</span>;
+    <span class="kw">type </span>AccountId = [u8; <span class="number">16</span>];
+    <span class="kw">type </span>Balance = u128;
+    <span class="kw">type </span>Hash = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Timestamp = u64;
+    <span class="kw">type </span>BlockNumber = u32;
+    <span class="kw">type </span>ChainExtension = ::ink::env::NoChainExtension;
 }</code></pre></div>
 <p>A user might implement their ink! smart contract using the above custom <code>Environment</code>
 implementation as demonstrated below:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">env</span> <span class="op">=</span> <span class="ident">MyEnvironment</span>)]</span>
-<span class="kw">mod</span> <span class="ident">my_contract</span> {
-    <span class="comment">// ...</span>
-}</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract(env = MyEnvironment)]
+</span><span class="kw">mod </span>my_contract {
+    <span class="comment">// ...
+</span>}</code></pre></div>
 <p><strong>Default value:</strong> <code>DefaultEnvironment</code> defined in <code>ink_env</code> crate.</p>
 </li>
 </ul>
@@ -80,11 +80,11 @@ or even provide their own implementations of storage data structures.</p>
 <p>For more information visit the <code>ink::storage</code> crate documentation.</p>
 <p><strong>Example:</strong></p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>]</span>
-<span class="kw">mod</span> <span class="ident">flipper</span> {
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flipper</span> {
-        <span class="ident">value</span>: <span class="ident">bool</span>,
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract]
+</span><span class="kw">mod </span>flipper {
+    <span class="attribute">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Flipper {
+        value: bool,
     }
 }</code></pre></div>
 </li>
@@ -97,10 +97,10 @@ allow users of the contract to instantiate a contract in multiple different ways
 <p>Given the <code>Flipper</code> contract definition above we add an <code>#[ink(constructor)]</code>
 as follows:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Flipper</span> {
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Flipper</span> { <span class="ident">value</span>: <span class="bool-val">false</span> }
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="attribute">#[ink(constructor)]
+    </span><span class="kw">pub fn </span>new(initial_value: bool) -&gt; <span class="self">Self </span>{
+        Flipper { value: <span class="bool-val">false </span>}
     }
 }</code></pre></div>
 </li>
@@ -119,17 +119,17 @@ with a <code>&amp;mut self</code> receiver may mutate the contract’s storage.<
 <p>Given the <code>Flipper</code> contract definition above we add some <code>#[ink(message)]</code> definitions
 as follows:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Flipper</span> {
-    <span class="doccomment">/// Flips the current value.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">value</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attribute">#[ink(message)]
+    </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
     }
 
-    <span class="doccomment">/// Returns the current value.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">value</span>
+    <span class="doccomment">/// Returns the current value.
+    </span><span class="attribute">#[ink(message)]
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.value
     }
 }</code></pre></div>
 <p><strong>Payable Messages:</strong></p>
@@ -139,18 +139,18 @@ flag to it. An example below:</p>
 <p>Note that ink! constructors are always implicitly payable and thus cannot be flagged
 as such.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Flipper</span> {
-    <span class="doccomment">/// Flips the current value.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">payable</span>)]</span> <span class="comment">// You can either specify payable out-of-line.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">value</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attribute">#[ink(message)]
+    #[ink(payable)] </span><span class="comment">// You can either specify payable out-of-line.
+    </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
     }
 
-    <span class="doccomment">/// Returns the current value.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span> <span class="comment">// ...or specify payable inline.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">value</span>
+    <span class="doccomment">/// Returns the current value.
+    </span><span class="attribute">#[ink(message, payable)] </span><span class="comment">// ...or specify payable inline.
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.value
     }
 }</code></pre></div>
 <p><strong>Controlling the messages selector:</strong></p>
@@ -160,17 +160,17 @@ These selectors are mainly used to drive the contract’s dispatch upon calling 
 <p>An ink! smart contract author can control the selector of an ink! message or ink!
 constructor using the <code>selector</code> flag. An example is shown below:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Flipper</span> {
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span> <span class="comment">// Works on constructors as well.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Flipper</span> { <span class="ident">value</span>: <span class="bool-val">false</span> }
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
+    <span class="attribute">#[ink(constructor)]
+    #[ink(selector = <span class="number">0xDEADBEEF</span>)] </span><span class="comment">// Works on constructors as well.
+    </span><span class="kw">pub fn </span>new(initial_value: bool) -&gt; <span class="self">Self </span>{
+        Flipper { value: <span class="bool-val">false </span>}
     }
 
-    <span class="doccomment">/// Returns the current value.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xFEEDBEEF</span>)]</span> <span class="comment">// ...or specify selector inline.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">value</span>
+    <span class="doccomment">/// Returns the current value.
+    </span><span class="attribute">#[ink(message, selector = <span class="number">0xFEEDBEEF</span>)] </span><span class="comment">// ...or specify selector inline.
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.value
     }
 }</code></pre></div>
 </li>
@@ -180,30 +180,30 @@ constructor using the <code>selector</code> flag. An example is shown below:</p>
 connects ink! smart contracts with the outer world.</p>
 <p>For example it is possible to query the current call’s caller via:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">ink_env::caller</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span><span class="op">&gt;</span>();</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>caller = ink_env::caller::&lt;ink_env::DefaultEnvironment&gt;();</code></pre></div>
 <p>However, ink! provides a much simpler way to interact with the contract executor
 via its environment accessor. An example below:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>]</span>
-<span class="kw">mod</span> <span class="ident">greeter</span> {
-    <span class="kw">use</span> <span class="ident">ink_env::debug_println</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract]
+</span><span class="kw">mod </span>greeter {
+    <span class="kw">use </span>ink_env::debug_println;
 
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Greeter</span>;
+    <span class="attribute">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Greeter;
 
-    <span class="kw">impl</span> <span class="ident">Greeter</span> {
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::env</span>().<span class="ident">caller</span>();
-            <span class="macro">debug_println!</span>(<span class="string">&quot;thanks for instantiation {:?}&quot;</span>, <span class="ident">caller</span>);
-            <span class="ident">Greeter</span> {}
+    <span class="kw">impl </span>Greeter {
+        <span class="attribute">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>caller = <span class="self">Self</span>::env().caller();
+            <span class="macro">debug_println!</span>(<span class="string">&quot;thanks for instantiation {:?}&quot;</span>, caller);
+            Greeter {}
         }
 
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fund</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">caller</span>();
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">transferred_value</span>();
-            <span class="macro">debug_println!</span>(<span class="string">&quot;thanks for the funding of {:?} from {:?}&quot;</span>, <span class="ident">value</span>, <span class="ident">caller</span>);
+        <span class="attribute">#[ink(message, payable)]
+        </span><span class="kw">pub fn </span>fund(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+            <span class="kw">let </span>caller = <span class="self">self</span>.env().caller();
+            <span class="kw">let </span>value = <span class="self">self</span>.env().transferred_value();
+            <span class="macro">debug_println!</span>(<span class="string">&quot;thanks for the funding of {:?} from {:?}&quot;</span>, value, caller);
         }
     }
 }</code></pre></div>
@@ -214,37 +214,37 @@ execution and state.</p>
 <p>The following example ink! contract shows how an event <code>Transferred</code> is defined and
 emitted in the <code>#[ink(constructor)]</code>.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>]</span>
-<span class="kw">mod</span> <span class="ident">erc20</span> {
-    <span class="doccomment">/// Defines an event that is emitted every time value is transferred.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Transferred</span> {
-        <span class="ident">from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AccountId</span><span class="op">&gt;</span>,
-        <span class="ident">to</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AccountId</span><span class="op">&gt;</span>,
-        <span class="ident">value</span>: <span class="ident">Balance</span>,
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract]
+</span><span class="kw">mod </span>erc20 {
+    <span class="doccomment">/// Defines an event that is emitted every time value is transferred.
+    </span><span class="attribute">#[ink(event)]
+    </span><span class="kw">pub struct </span>Transferred {
+        from: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
+        to: <span class="prelude-ty">Option</span>&lt;AccountId&gt;,
+        value: Balance,
     }
 
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Erc20</span> {
-        <span class="ident">total_supply</span>: <span class="ident">Balance</span>,
-        <span class="comment">// more fields...</span>
-    }
+    <span class="attribute">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Erc20 {
+        total_supply: Balance,
+        <span class="comment">// more fields...
+    </span>}
 
-    <span class="kw">impl</span> <span class="ident">Erc20</span> {
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_supply</span>: <span class="ident">Balance</span>) -&gt; <span class="self">Self</span> {
-            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::env</span>().<span class="ident">caller</span>();
-            <span class="ident"><span class="self">Self</span>::env</span>().<span class="ident">emit_event</span>(<span class="ident">Transferred</span> {
-                <span class="ident">from</span>: <span class="prelude-val">None</span>,
-                <span class="ident">to</span>: <span class="prelude-val">Some</span>(<span class="ident">caller</span>),
-                <span class="ident">value</span>: <span class="ident">initial_supply</span>,
+    <span class="kw">impl </span>Erc20 {
+        <span class="attribute">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new(initial_supply: Balance) -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>caller = <span class="self">Self</span>::env().caller();
+            <span class="self">Self</span>::env().emit_event(Transferred {
+                from: <span class="prelude-val">None</span>,
+                to: <span class="prelude-val">Some</span>(caller),
+                value: initial_supply,
             });
-            <span class="self">Self</span> { <span class="ident">total_supply</span>: <span class="ident">initial_supply</span> }
+            <span class="self">Self </span>{ total_supply: initial_supply }
         }
 
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_supply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Balance</span> {
-            <span class="self">self</span>.<span class="ident">total_supply</span>
+        <span class="attribute">#[ink(message)]
+        </span><span class="kw">pub fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Balance {
+            <span class="self">self</span>.total_supply
         }
     }
 }</code></pre></div>
@@ -257,31 +257,31 @@ it is minimal while still providing some more or less useful functionality.</p>
 and allows the user to flip this value using the <code>Flipper::flip</code> message
 or retrieve the current value using <code>Flipper::get</code>.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">flipper</span> {
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flipper</span> {
-        <span class="ident">value</span>: <span class="ident">bool</span>,
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract]
+</span><span class="kw">pub mod </span>flipper {
+    <span class="attribute">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Flipper {
+        value: bool,
     }
 
-    <span class="kw">impl</span> <span class="ident">Flipper</span> {
-        <span class="doccomment">/// Creates a new flipper smart contract initialized with the given value.</span>
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">init_value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-            <span class="self">Self</span> { <span class="ident">value</span>: <span class="ident">init_value</span> }
+    <span class="kw">impl </span>Flipper {
+        <span class="doccomment">/// Creates a new flipper smart contract initialized with the given value.
+        </span><span class="attribute">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new(init_value: bool) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{ value: init_value }
         }
 
-        <span class="doccomment">/// Flips the current value of the Flipper&#39;s boolean.</span>
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-            <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">value</span>;
+        <span class="doccomment">/// Flips the current value of the Flipper&#39;s boolean.
+        </span><span class="attribute">#[ink(message)]
+        </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="self">self</span>.value = !<span class="self">self</span>.value;
         }
 
-        <span class="doccomment">/// Returns the current value of the Flipper&#39;s boolean.</span>
-        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-            <span class="self">self</span>.<span class="ident">value</span>
+        <span class="doccomment">/// Returns the current value of the Flipper&#39;s boolean.
+        </span><span class="attribute">#[ink(message)]
+        </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.value
         }
     }
 }</code></pre></div>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

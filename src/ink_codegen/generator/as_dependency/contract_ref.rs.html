@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/as_dependency/contract_ref.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>contract_ref.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/as_dependency/contract_ref.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>contract_ref.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -416,421 +416,421 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">generator</span>,
-    <span class="ident">GenerateCode</span>,
+</span><span class="kw">use crate</span>::{
+    generator,
+    GenerateCode,
 };
-<span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">ir</span>::{
-    <span class="ident">Callable</span>,
-    <span class="ident">IsDocAttribute</span> <span class="kw">as</span> <span class="kw">_</span>,
+<span class="kw">use </span>derive_more::From;
+<span class="kw">use </span>ir::{
+    Callable,
+    IsDocAttribute <span class="kw">as _</span>,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
-<span class="kw">use</span> <span class="ident">quote</span>::{
-    <span class="ident">quote</span>,
-    <span class="ident">quote_spanned</span>,
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
+<span class="kw">use </span>quote::{
+    quote,
+    quote_spanned,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// Generates code for the contract reference of the ink! smart contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The call builder is the entity that builds up calls for calling of other</span>
-<span class="doccomment">/// smart contract on-chain in a type safe way.</span>
-<span class="doccomment">/// It implements all ink! traits that the associated ink! smart contract implements</span>
-<span class="doccomment">/// so that their underlying implementation directly calls the respective ink!</span>
-<span class="doccomment">/// trait implementation on-chain.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The ink! call builder of a smart contract is directly used by the storage</span>
-<span class="doccomment">/// type of the smart contract itself as well by other entities that use the</span>
-<span class="doccomment">/// smart contract via long-hand calling notation to incrementally build up calls.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContractRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
+<span class="doccomment">/// Generates code for the contract reference of the ink! smart contract.
+///
+/// The call builder is the entity that builds up calls for calling of other
+/// smart contract on-chain in a type safe way.
+/// It implements all ink! traits that the associated ink! smart contract implements
+/// so that their underlying implementation directly calls the respective ink!
+/// trait implementation on-chain.
+///
+/// The ink! call builder of a smart contract is directly used by the storage
+/// type of the smart contract itself as well by other entities that use the
+/// smart contract via long-hand calling notation to incrementally build up calls.
+</span><span class="attribute">#[derive(From)]
+</span><span class="kw">pub struct </span>ContractRef&lt;<span class="lifetime">&#39;a</span>&gt; {
+    contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
 }
 
-<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">ContractRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">contract_ref</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_struct</span>();
-        <span class="kw">let</span> <span class="ident">contract_ref_trait_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_trait_impls</span>();
-        <span class="kw">let</span> <span class="ident">contract_ref_inherent_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_inherent_impls</span>();
-        <span class="kw">let</span> <span class="ident">call_builder_trait_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_call_builder_trait_impl</span>();
-        <span class="kw">let</span> <span class="ident">auxiliary_trait_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_auxiliary_trait_impls</span>();
-        <span class="macro">quote!</span> {
-            #<span class="ident">contract_ref</span>
-            #<span class="ident">contract_ref_trait_impls</span>
-            #<span class="ident">contract_ref_inherent_impls</span>
-            #<span class="ident">call_builder_trait_impl</span>
-            #<span class="ident">auxiliary_trait_impls</span>
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>ContractRef&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>contract_ref = <span class="self">self</span>.generate_struct();
+        <span class="kw">let </span>contract_ref_trait_impls = <span class="self">self</span>.generate_contract_trait_impls();
+        <span class="kw">let </span>contract_ref_inherent_impls = <span class="self">self</span>.generate_contract_inherent_impls();
+        <span class="kw">let </span>call_builder_trait_impl = <span class="self">self</span>.generate_call_builder_trait_impl();
+        <span class="kw">let </span>auxiliary_trait_impls = <span class="self">self</span>.generate_auxiliary_trait_impls();
+        <span class="macro">quote! </span>{
+            #contract_ref
+            #contract_ref_trait_impls
+            #contract_ref_inherent_impls
+            #call_builder_trait_impl
+            #auxiliary_trait_impls
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ContractRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Generates the identifier of the contract reference struct.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_ref_ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::Ident</span> {
-        <span class="macro">quote::format_ident!</span>(<span class="string">&quot;{}Ref&quot;</span>, <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>())
+<span class="kw">impl </span>ContractRef&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// Generates the identifier of the contract reference struct.
+    </span><span class="kw">fn </span>generate_contract_ref_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Ident {
+        <span class="macro">quote::format_ident!</span>(<span class="string">&quot;{}Ref&quot;</span>, <span class="self">self</span>.contract.module().storage().ident())
     }
 
-    <span class="doccomment">/// Generates the code for the struct representing the contract reference.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The generated struct is the type onto which everything is implemented.</span>
-    <span class="doccomment">/// It is also the type that is going to be used by other smart contract</span>
-    <span class="doccomment">/// dynamically depending on the smart contract. It mirrors the smart contract</span>
-    <span class="doccomment">/// API but is just a typed thin-wrapper around an `AccountId`.</span>
-    <span class="kw">fn</span> <span class="ident">generate_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">doc_attrs</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">storage</span>()
-            .<span class="ident">attrs</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">cloned</span>()
-            .<span class="ident">filter</span>(<span class="ident">syn::Attribute::is_doc_attribute</span>);
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">ref_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_ref_ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(
-                <span class="ident">::scale_info::TypeInfo</span>,
-                <span class="ident">::ink::storage::traits::StorageLayout</span>,
-            ))]</span>
-            <span class="attribute">#[<span class="ident">derive</span>(
-                <span class="ident">::core::fmt::Debug</span>,
-                <span class="ident">::scale::Encode</span>,
-                <span class="ident">::scale::Decode</span>,
-                <span class="ident">::core::hash::Hash</span>,
-                <span class="ident">::core::cmp::PartialEq</span>,
-                <span class="ident">::core::cmp::Eq</span>,
-                <span class="ident">::core::clone::Clone</span>,
-            )]</span>
-            #( #<span class="ident">doc_attrs</span> )<span class="op">*</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ref_ident</span> {
-                <span class="ident">inner</span>: <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::codegen::ContractCallBuilder</span><span class="op">&gt;</span><span class="ident">::Type</span>,
+    <span class="doccomment">/// Generates the code for the struct representing the contract reference.
+    ///
+    /// The generated struct is the type onto which everything is implemented.
+    /// It is also the type that is going to be used by other smart contract
+    /// dynamically depending on the smart contract. It mirrors the smart contract
+    /// API but is just a typed thin-wrapper around an `AccountId`.
+    </span><span class="kw">fn </span>generate_struct(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
+        <span class="kw">let </span>doc_attrs = <span class="self">self
+            </span>.contract
+            .module()
+            .storage()
+            .attrs()
+            .iter()
+            .cloned()
+            .filter(syn::Attribute::is_doc_attribute);
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="kw">let </span>ref_ident = <span class="self">self</span>.generate_contract_ref_ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(
+                ::scale_info::TypeInfo,
+                ::ink::storage::traits::StorageLayout,
+            ))]
+            #[derive(
+                ::core::fmt::Debug,
+                ::scale::Encode,
+                ::scale::Decode,
+                ::core::hash::Hash,
+                ::core::cmp::PartialEq,
+                ::core::cmp::Eq,
+                ::core::clone::Clone,
+            )]
+            </span>#( #doc_attrs )*
+            <span class="kw">pub struct </span>#ref_ident {
+                inner: &lt;#storage_ident <span class="kw">as </span>::ink::codegen::ContractCallBuilder&gt;::Type,
             }
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractReference</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
-                    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> #<span class="ident">ref_ident</span>;
+            <span class="kw">const _</span>: () = {
+                <span class="kw">impl </span>::ink::reflect::ContractReference <span class="kw">for </span>#storage_ident {
+                    <span class="kw">type </span>Type = #ref_ident;
                 }
 
-                <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractEnv</span> <span class="kw">for</span> #<span class="ident">ref_ident</span> {
-                    <span class="kw">type</span> <span class="ident">Env</span> <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span>;
+                <span class="kw">impl </span>::ink::reflect::ContractEnv <span class="kw">for </span>#ref_ident {
+                    <span class="kw">type </span>Env = &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env;
                 }
             };
         )
     }
 
-    <span class="doccomment">/// Generates some ink! specific auxiliary trait implementations for the</span>
-    <span class="doccomment">/// smart contract reference type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// These are required to properly interoperate with the contract reference.</span>
-    <span class="kw">fn</span> <span class="ident">generate_auxiliary_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">ref_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_ref_ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">impl</span> <span class="ident">::ink::env::call::FromAccountId</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ref_ident</span> {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="ident">AccountId</span>) -&gt; <span class="self">Self</span> {
-                    <span class="self">Self</span> { <span class="ident">inner</span>: <span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span>
-                        <span class="kw">as</span> <span class="ident">::ink::codegen::ContractCallBuilder</span><span class="op">&gt;</span><span class="ident">::Type</span>
-                        <span class="kw">as</span> <span class="ident">::ink::env::call::FromAccountId</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_account_id</span>(<span class="ident">account_id</span>)
+    <span class="doccomment">/// Generates some ink! specific auxiliary trait implementations for the
+    /// smart contract reference type.
+    ///
+    /// These are required to properly interoperate with the contract reference.
+    </span><span class="kw">fn </span>generate_auxiliary_trait_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="kw">let </span>ref_ident = <span class="self">self</span>.generate_contract_ref_ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">impl </span>::ink::env::call::FromAccountId&lt;Environment&gt; <span class="kw">for </span>#ref_ident {
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>from_account_id(account_id: AccountId) -&gt; <span class="self">Self </span>{
+                    <span class="self">Self </span>{ inner: &lt;&lt;#storage_ident
+                        <span class="kw">as </span>::ink::codegen::ContractCallBuilder&gt;::Type
+                        <span class="kw">as </span>::ink::env::call::FromAccountId&lt;Environment&gt;&gt;::from_account_id(account_id)
                     }
                 }
             }
 
-            <span class="kw">impl</span> <span class="ident">::ink::ToAccountId</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ref_ident</span> {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">AccountId</span> {
-                    <span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::codegen::ContractCallBuilder</span><span class="op">&gt;</span><span class="ident">::Type</span>
-                        <span class="kw">as</span> <span class="ident">::ink::ToAccountId</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>)
+            <span class="kw">impl </span>::ink::ToAccountId&lt;Environment&gt; <span class="kw">for </span>#ref_ident {
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AccountId {
+                    &lt;&lt;#storage_ident <span class="kw">as </span>::ink::codegen::ContractCallBuilder&gt;::Type
+                        <span class="kw">as </span>::ink::ToAccountId&lt;Environment&gt;&gt;::to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>.inner)
                 }
             }
         )
     }
 
-    <span class="doccomment">/// Generates the `CallBuilder` trait implementation for the contract reference.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This creates the bridge between the ink! smart contract type and the</span>
-    <span class="doccomment">/// associated call builder.</span>
-    <span class="kw">fn</span> <span class="ident">generate_call_builder_trait_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">ref_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_ref_ident</span>();
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span> <span class="ident">::ink::codegen::TraitCallBuilder</span> <span class="kw">for</span> #<span class="ident">ref_ident</span> {
-                    <span class="kw">type</span> <span class="ident">Builder</span> <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::codegen::ContractCallBuilder</span><span class="op">&gt;</span><span class="ident">::Type</span>;
+    <span class="doccomment">/// Generates the `CallBuilder` trait implementation for the contract reference.
+    ///
+    /// This creates the bridge between the ink! smart contract type and the
+    /// associated call builder.
+    </span><span class="kw">fn </span>generate_call_builder_trait_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
+        <span class="kw">let </span>ref_ident = <span class="self">self</span>.generate_contract_ref_ident();
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">const _</span>: () = {
+                <span class="kw">impl </span>::ink::codegen::TraitCallBuilder <span class="kw">for </span>#ref_ident {
+                    <span class="kw">type </span>Builder = &lt;#storage_ident <span class="kw">as </span>::ink::codegen::ContractCallBuilder&gt;::Type;
 
-                    <span class="attribute">#[<span class="ident">inline</span>]</span>
-                    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Builder</span> {
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
+                    <span class="attribute">#[inline]
+                    </span><span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Builder {
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
                     }
 
-                    <span class="attribute">#[<span class="ident">inline</span>]</span>
-                    <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Builder</span> {
-                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>
+                    <span class="attribute">#[inline]
+                    </span><span class="kw">fn </span>call_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Builder {
+                        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
                     }
                 }
             };
         )
     }
 
-    <span class="doccomment">/// Generates the code for all ink! trait implementations of the contract itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The generated implementations must live outside of an artificial `const` block</span>
-    <span class="doccomment">/// in order to properly show their documentation using `rustdoc`.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="self">self</span>.<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">impls</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">impl_block</span><span class="op">|</span> {
-                <span class="comment">// We are only interested in ink! trait implementation block.</span>
-                <span class="ident">impl_block</span>.<span class="ident">trait_path</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
-                    <span class="self">self</span>.<span class="ident">generate_contract_trait_impl</span>(<span class="ident">trait_path</span>, <span class="ident">impl_block</span>)
+    <span class="doccomment">/// Generates the code for all ink! trait implementations of the contract itself.
+    ///
+    /// # Note
+    ///
+    /// The generated implementations must live outside of an artificial `const` block
+    /// in order to properly show their documentation using `rustdoc`.
+    </span><span class="kw">fn </span>generate_contract_trait_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="self">self</span>.contract
+            .module()
+            .impls()
+            .filter_map(|impl_block| {
+                <span class="comment">// We are only interested in ink! trait implementation block.
+                </span>impl_block.trait_path().map(|trait_path| {
+                    <span class="self">self</span>.generate_contract_trait_impl(trait_path, impl_block)
                 })
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Generates the code for a single ink! trait implementation of the contract itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The generated implementation mainly forwards the calls to the previously generated</span>
-    <span class="doccomment">/// associated call builder that implements each respective ink! trait.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_trait_impl</span>(
+    <span class="doccomment">/// Generates the code for a single ink! trait implementation of the contract itself.
+    ///
+    /// The generated implementation mainly forwards the calls to the previously generated
+    /// associated call builder that implements each respective ink! trait.
+    </span><span class="kw">fn </span>generate_contract_trait_impl(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">trait_path</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Path</span>,
-        <span class="ident">impl_block</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">impl_block</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">impl_block</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_ref_ident</span>();
-        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_trait_impl_messages</span>(<span class="ident">trait_path</span>, <span class="ident">impl_block</span>);
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="kw">impl</span> #<span class="ident">trait_path</span> <span class="kw">for</span> #<span class="ident">forwarder_ident</span> {
-                <span class="kw">type</span> <span class="ident">__ink_TraitInfo</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>
-                    <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>;
+        trait_path: <span class="kw-2">&amp;</span>syn::Path,
+        impl_block: <span class="kw-2">&amp;</span>ir::ItemImpl,
+    ) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = impl_block.span();
+        <span class="kw">let </span>attrs = impl_block.attrs();
+        <span class="kw">let </span>forwarder_ident = <span class="self">self</span>.generate_contract_ref_ident();
+        <span class="kw">let </span>messages = <span class="self">self</span>.generate_contract_trait_impl_messages(trait_path, impl_block);
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #attrs )*
+            <span class="kw">impl </span>#trait_path <span class="kw">for </span>#forwarder_ident {
+                <span class="kw">type </span>__ink_TraitInfo = &lt;::ink::reflect::TraitDefinitionRegistry&lt;Environment&gt;
+                    <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo;
 
-                #<span class="ident">messages</span>
+                #messages
             }
         )
     }
 
-    <span class="doccomment">/// Generates the code for all messages of a single ink! trait implementation of</span>
-    <span class="doccomment">/// the ink! smart contract.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_trait_impl_messages</span>(
+    <span class="doccomment">/// Generates the code for all messages of a single ink! trait implementation of
+    /// the ink! smart contract.
+    </span><span class="kw">fn </span>generate_contract_trait_impl_messages(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">trait_path</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Path</span>,
-        <span class="ident">impl_block</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="ident">impl_block</span>
-            .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
-                <span class="self">self</span>.<span class="ident">generate_contract_trait_impl_for_message</span>(<span class="ident">trait_path</span>, <span class="ident">message</span>)
+        trait_path: <span class="kw-2">&amp;</span>syn::Path,
+        impl_block: <span class="kw-2">&amp;</span>ir::ItemImpl,
+    ) -&gt; TokenStream2 {
+        impl_block
+            .iter_messages()
+            .map(|message| {
+                <span class="self">self</span>.generate_contract_trait_impl_for_message(trait_path, message)
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Generates the code for a single message of a single ink! trait implementation</span>
-    <span class="doccomment">/// that is implemented by the ink! smart contract.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_trait_impl_for_message</span>(
+    <span class="doccomment">/// Generates the code for a single message of a single ink! trait implementation
+    /// that is implemented by the ink! smart contract.
+    </span><span class="kw">fn </span>generate_contract_trait_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">trait_path</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Path</span>,
-        <span class="ident">message</span>: <span class="ident">ir::CallableWithSelector</span><span class="op">&lt;</span><span class="ident">ir::Message</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">use</span> <span class="ident">ir::Callable</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">trait_info_id</span> <span class="op">=</span> <span class="ident">generator::generate_reference_to_trait_info</span>(<span class="ident">span</span>, <span class="ident">trait_path</span>);
-        <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">generator::output_ident</span>(<span class="ident">message_ident</span>);
-        <span class="kw">let</span> <span class="ident">call_operator</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">receiver</span>() {
-            <span class="ident">ir::Receiver::Ref</span> =&gt; <span class="macro">quote!</span> { <span class="ident">call</span> },
-            <span class="ident">ir::Receiver::RefMut</span> =&gt; <span class="macro">quote!</span> { <span class="ident">call_mut</span> },
+        trait_path: <span class="kw-2">&amp;</span>syn::Path,
+        message: ir::CallableWithSelector&lt;ir::Message&gt;,
+    ) -&gt; TokenStream2 {
+        <span class="kw">use </span>ir::Callable <span class="kw">as _</span>;
+        <span class="kw">let </span>span = message.span();
+        <span class="kw">let </span>trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
+        <span class="kw">let </span>message_ident = message.ident();
+        <span class="kw">let </span>output_ident = generator::output_ident(message_ident);
+        <span class="kw">let </span>call_operator = <span class="kw">match </span>message.receiver() {
+            ir::Receiver::Ref =&gt; <span class="macro">quote! </span>{ call },
+            ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ call_mut },
         };
-        <span class="kw">let</span> <span class="ident">forward_operator</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">receiver</span>() {
-            <span class="ident">ir::Receiver::Ref</span> =&gt; <span class="macro">quote!</span> { <span class="ident">forward</span> },
-            <span class="ident">ir::Receiver::RefMut</span> =&gt; <span class="macro">quote!</span> { <span class="ident">forward_mut</span> },
+        <span class="kw">let </span>forward_operator = <span class="kw">match </span>message.receiver() {
+            ir::Receiver::Ref =&gt; <span class="macro">quote! </span>{ forward },
+            ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ forward_mut },
         };
-        <span class="kw">let</span> <span class="ident">mut_token</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="kw-2">mut</span> });
-        <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">pat</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">input_types</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ty</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span>
-                <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::__ink_TraitInfo</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallForwarder</span><span class="op">&gt;</span><span class="ident">::Forwarder</span> <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span>::#<span class="ident">output_ident</span>;
+        <span class="kw">let </span>mut_token = message.receiver().is_ref_mut().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
+        <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">type </span>#output_ident =
+                &lt;&lt;<span class="self">Self</span>::__ink_TraitInfo <span class="kw">as </span>::ink::codegen::TraitCallForwarder&gt;::Forwarder <span class="kw">as </span>#trait_path&gt;::#output_ident;
 
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> #<span class="ident">message_ident</span>(
-                <span class="op">&amp;</span> #<span class="ident">mut_token</span> <span class="self">self</span>
-                #( , #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
-            ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                <span class="op">&lt;</span><span class="kw">_</span> <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span>::#<span class="ident">message_ident</span>(
-                    <span class="op">&lt;</span><span class="kw">_</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallForwarderFor</span><span class="op">&lt;</span>{#<span class="ident">trait_info_id</span>}<span class="op">&gt;</span><span class="op">&gt;</span>::#<span class="ident">forward_operator</span>(
-                        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span>::#<span class="ident">call_operator</span>(<span class="self">self</span>),
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>#message_ident(
+                &amp; #mut_token <span class="self">self
+                </span>#( , #input_bindings : #input_types )*
+            ) -&gt; <span class="self">Self</span>::#output_ident {
+                &lt;<span class="kw">_ as </span>#trait_path&gt;::#message_ident(
+                    &lt;<span class="kw">_ as </span>::ink::codegen::TraitCallForwarderFor&lt;{#trait_info_id}&gt;&gt;::#forward_operator(
+                        &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_operator(<span class="self">self</span>),
                     )
-                    #( , #<span class="ident">input_bindings</span> )<span class="op">*</span>
+                    #( , #input_bindings )*
                 )
             }
         )
     }
 
-    <span class="doccomment">/// Generates the code for all ink! inherent implementations of the contract itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The generated implementations must live outside of an artificial `const` block</span>
-    <span class="doccomment">/// in order to properly show their documentation using `rustdoc`.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_inherent_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="self">self</span>.<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">impls</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">impl_block</span><span class="op">|</span> {
-                <span class="comment">// We are only interested in ink! trait implementation block.</span>
-                <span class="ident">impl_block</span>
-                    .<span class="ident">trait_path</span>()
-                    .<span class="ident">is_none</span>()
-                    .<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_contract_inherent_impl</span>(<span class="ident">impl_block</span>))
+    <span class="doccomment">/// Generates the code for all ink! inherent implementations of the contract itself.
+    ///
+    /// # Note
+    ///
+    /// The generated implementations must live outside of an artificial `const` block
+    /// in order to properly show their documentation using `rustdoc`.
+    </span><span class="kw">fn </span>generate_contract_inherent_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="self">self</span>.contract
+            .module()
+            .impls()
+            .filter_map(|impl_block| {
+                <span class="comment">// We are only interested in ink! trait implementation block.
+                </span>impl_block
+                    .trait_path()
+                    .is_none()
+                    .then(|| <span class="self">self</span>.generate_contract_inherent_impl(impl_block))
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Generates the code for a single ink! inherent implementation of the contract itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This produces the short-hand calling notation for the inherent contract implementation.</span>
-    <span class="doccomment">/// The generated code simply forwards its calling logic to the associated call builder.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_inherent_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">impl_block</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">impl_block</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">impl_block</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract_ref_ident</span>();
-        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">impl_block</span>
-            .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_contract_inherent_impl_for_message</span>(<span class="ident">message</span>));
-        <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">impl_block</span>.<span class="ident">iter_constructors</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">generate_contract_inherent_impl_for_constructor</span>(<span class="ident">constructor</span>)
+    <span class="doccomment">/// Generates the code for a single ink! inherent implementation of the contract itself.
+    ///
+    /// # Note
+    ///
+    /// This produces the short-hand calling notation for the inherent contract implementation.
+    /// The generated code simply forwards its calling logic to the associated call builder.
+    </span><span class="kw">fn </span>generate_contract_inherent_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, impl_block: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = impl_block.span();
+        <span class="kw">let </span>attrs = impl_block.attrs();
+        <span class="kw">let </span>forwarder_ident = <span class="self">self</span>.generate_contract_ref_ident();
+        <span class="kw">let </span>messages = impl_block
+            .iter_messages()
+            .map(|message| <span class="self">self</span>.generate_contract_inherent_impl_for_message(message));
+        <span class="kw">let </span>constructors = impl_block.iter_constructors().map(|constructor| {
+            <span class="self">self</span>.generate_contract_inherent_impl_for_constructor(constructor)
         });
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="kw">impl</span> #<span class="ident">forwarder_ident</span> {
-                #( #<span class="ident">constructors</span> )<span class="op">*</span>
-                #( #<span class="ident">messages</span> )<span class="op">*</span>
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #attrs )*
+            <span class="kw">impl </span>#forwarder_ident {
+                #( #constructors )*
+                #( #messages )*
             }
         )
     }
 
-    <span class="doccomment">/// Generates the code for a single ink! inherent message of the contract itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This produces the short-hand calling notation for the inherent contract message.</span>
-    <span class="doccomment">/// The generated code simply forwards its calling logic to the associated call builder.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_inherent_impl_for_message</span>(
+    <span class="doccomment">/// Generates the code for a single ink! inherent message of the contract itself.
+    ///
+    /// # Note
+    ///
+    /// This produces the short-hand calling notation for the inherent contract message.
+    /// The generated code simply forwards its calling logic to the associated call builder.
+    </span><span class="kw">fn </span>generate_contract_inherent_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">message</span>: <span class="ident">ir::CallableWithSelector</span><span class="op">&lt;</span><span class="ident">ir::Message</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">use</span> <span class="ident">ir::Callable</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">config</span>()
-            .<span class="ident">whitelisted_attributes</span>()
-            .<span class="ident">filter_attr</span>(<span class="ident">message</span>.<span class="ident">attrs</span>().<span class="ident">to_vec</span>());
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">call_operator</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">receiver</span>() {
-            <span class="ident">ir::Receiver::Ref</span> =&gt; <span class="macro">quote!</span> { <span class="ident">call</span> },
-            <span class="ident">ir::Receiver::RefMut</span> =&gt; <span class="macro">quote!</span> { <span class="ident">call_mut</span> },
+        message: ir::CallableWithSelector&lt;ir::Message&gt;,
+    ) -&gt; TokenStream2 {
+        <span class="kw">use </span>ir::Callable <span class="kw">as _</span>;
+        <span class="kw">let </span>span = message.span();
+        <span class="kw">let </span>attrs = <span class="self">self
+            </span>.contract
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(message.attrs().to_vec());
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="kw">let </span>message_ident = message.ident();
+        <span class="kw">let </span>call_operator = <span class="kw">match </span>message.receiver() {
+            ir::Receiver::Ref =&gt; <span class="macro">quote! </span>{ call },
+            ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ call_mut },
         };
-        <span class="kw">let</span> <span class="ident">mut_token</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="kw-2">mut</span> });
-        <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">pat</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">input_types</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ty</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> <span class="macro">quote!</span> { -&gt; #<span class="ident">ty</span> });
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">message_ident</span>(
-                <span class="op">&amp;</span> #<span class="ident">mut_token</span> <span class="self">self</span>
-                #( , #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
-            ) #<span class="ident">output_type</span> {
-                <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span>::#<span class="ident">call_operator</span>(<span class="self">self</span>)
-                    .#<span class="ident">message_ident</span>( #( #<span class="ident">input_bindings</span> ),<span class="op">*</span> )
-                    .<span class="ident">fire</span>()
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">::core::panic!</span>(
+        <span class="kw">let </span>mut_token = message.receiver().is_ref_mut().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
+        <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>output_type = message.output().map(|ty| <span class="macro">quote! </span>{ -&gt; #ty });
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #attrs )*
+            <span class="attribute">#[inline]
+            </span><span class="kw">pub fn </span>#message_ident(
+                &amp; #mut_token <span class="self">self
+                </span>#( , #input_bindings : #input_types )*
+            ) #output_type {
+                &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_operator(<span class="self">self</span>)
+                    .#message_ident( #( #input_bindings ),* )
+                    .fire()
+                    .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(
                         <span class="string">&quot;encountered error while calling {}::{}: {:?}&quot;</span>,
-                        <span class="macro">::core::stringify!</span>(#<span class="ident">storage_ident</span>),
-                        <span class="macro">::core::stringify!</span>(#<span class="ident">message_ident</span>),
-                        <span class="ident">error</span>,
+                        <span class="macro">::core::stringify!</span>(#storage_ident),
+                        <span class="macro">::core::stringify!</span>(#message_ident),
+                        error,
                     ))
             }
         )
     }
 
-    <span class="doccomment">/// Generates the code for a single ink! inherent constructor of the contract itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike with ink! messages this does not forward to the call builder since constructor</span>
-    <span class="doccomment">/// calls in ink! do not have a short-hand notation and therefore this implements the</span>
-    <span class="doccomment">/// long-hand calling notation code directly.</span>
-    <span class="kw">fn</span> <span class="ident">generate_contract_inherent_impl_for_constructor</span>(
+    <span class="doccomment">/// Generates the code for a single ink! inherent constructor of the contract itself.
+    ///
+    /// # Note
+    ///
+    /// Unlike with ink! messages this does not forward to the call builder since constructor
+    /// calls in ink! do not have a short-hand notation and therefore this implements the
+    /// long-hand calling notation code directly.
+    </span><span class="kw">fn </span>generate_contract_inherent_impl_for_constructor(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">constructor</span>: <span class="ident">ir::CallableWithSelector</span><span class="op">&lt;</span><span class="ident">ir::Constructor</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">config</span>()
-            .<span class="ident">whitelisted_attributes</span>()
-            .<span class="ident">filter_attr</span>(<span class="ident">constructor</span>.<span class="ident">attrs</span>().<span class="ident">to_vec</span>());
-        <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
-        <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings</span>(<span class="ident">constructor</span>.<span class="ident">inputs</span>());
-        <span class="kw">let</span> <span class="ident">input_types</span> <span class="op">=</span> <span class="ident">generator::input_types</span>(<span class="ident">constructor</span>.<span class="ident">inputs</span>());
-        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="ident">generator::generate_argument_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">constructor_ident</span>(
-                #( #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> ),<span class="op">*</span>
-            ) -&gt; <span class="ident">::ink::env::call::CreateBuilder</span><span class="op">&lt;</span>
-                <span class="ident">Environment</span>,
-                <span class="ident">::ink::env::call::utils::Unset</span><span class="op">&lt;</span><span class="ident">Hash</span><span class="op">&gt;</span>,
-                <span class="ident">::ink::env::call::utils::Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-                <span class="ident">::ink::env::call::utils::Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
-                <span class="ident">::ink::env::call::utils::Set</span><span class="op">&lt;</span><span class="ident">::ink::env::call::ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-                <span class="ident">::ink::env::call::utils::Unset</span><span class="op">&lt;</span><span class="ident">::ink::env::call::state::Salt</span><span class="op">&gt;</span>,
+        constructor: ir::CallableWithSelector&lt;ir::Constructor&gt;,
+    ) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = constructor.span();
+        <span class="kw">let </span>attrs = <span class="self">self
+            </span>.contract
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(constructor.attrs().to_vec());
+        <span class="kw">let </span>constructor_ident = constructor.ident();
+        <span class="kw">let </span>selector_bytes = constructor.composed_selector().hex_lits();
+        <span class="kw">let </span>input_bindings = generator::input_bindings(constructor.inputs());
+        <span class="kw">let </span>input_types = generator::input_types(constructor.inputs());
+        <span class="kw">let </span>arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            #( #attrs )*
+            <span class="attribute">#[inline]
+            #[allow(clippy::type_complexity)]
+            </span><span class="kw">pub fn </span>#constructor_ident(
+                #( #input_bindings : #input_types ),*
+            ) -&gt; ::ink::env::call::CreateBuilder&lt;
+                Environment,
+                ::ink::env::call::utils::Unset&lt;Hash&gt;,
+                ::ink::env::call::utils::Unset&lt;u64&gt;,
+                ::ink::env::call::utils::Unset&lt;Balance&gt;,
+                ::ink::env::call::utils::Set&lt;::ink::env::call::ExecutionInput&lt;#arg_list&gt;&gt;,
+                ::ink::env::call::utils::Unset&lt;::ink::env::call::state::Salt&gt;,
                 <span class="self">Self</span>,
-            <span class="op">&gt;</span> {
-                <span class="ident">::ink::env::call::build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="self">Self</span><span class="op">&gt;</span>()
-                    .<span class="ident">exec_input</span>(
-                        <span class="ident">::ink::env::call::ExecutionInput::new</span>(
-                            <span class="ident">::ink::env::call::Selector::new</span>([ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ])
+            &gt; {
+                ::ink::env::call::build_create::&lt;Environment, <span class="self">Self</span>&gt;()
+                    .exec_input(
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
                         )
                         #(
-                            .<span class="ident">push_arg</span>(#<span class="ident">input_bindings</span>)
-                        )<span class="op">*</span>
+                            .push_arg(#input_bindings)
+                        )*
                     )
             }
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

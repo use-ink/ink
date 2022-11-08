@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/chain_extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/chain_extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -983,916 +983,916 @@
 <span id="981">981</span>
 <span id="982">982</span>
 <span id="983">983</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::ExtError</span>,
-    <span class="ident">ir</span>,
-    <span class="ident">ir::idents_lint</span>,
+</span><span class="kw">use crate</span>::{
+    error::ExtError,
+    ir,
+    ir::idents_lint,
 };
-<span class="kw">use</span> <span class="ident">core::slice::Iter</span> <span class="kw">as</span> <span class="ident">SliceIter</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>,
+<span class="kw">use </span>core::slice::Iter <span class="kw">as </span>SliceIter;
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>syn::{
+    spanned::Spanned <span class="kw">as _</span>,
     <span class="prelude-ty">Result</span>,
 };
 
-<span class="doccomment">/// An ink! chain extension.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChainExtension</span> {
-    <span class="ident">item</span>: <span class="ident">syn::ItemTrait</span>,
-    <span class="ident">error_code</span>: <span class="ident">syn::TraitItemType</span>,
-    <span class="ident">methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span>,
+<span class="doccomment">/// An ink! chain extension.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>ChainExtension {
+    item: syn::ItemTrait,
+    error_code: syn::TraitItemType,
+    methods: Vec&lt;ChainExtensionMethod&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ChainExtension</span> {
-    <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>())
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension: {}&quot;</span>, <span class="ident">err</span>));
-        <span class="ident">attrs</span>
+<span class="kw">impl </span>ChainExtension {
+    <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension.
+    </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
+        <span class="kw">let </span>(<span class="kw">_</span>, attrs) = ir::partition_attributes(<span class="self">self</span>.item.attrs.iter().cloned())
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension: {}&quot;</span>, err));
+        attrs
     }
 
-    <span class="doccomment">/// Returns the span of the ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">proc_macro2::Span</span> {
-        <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
+    <span class="doccomment">/// Returns the span of the ink! chain extension.
+    </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; proc_macro2::Span {
+        <span class="self">self</span>.item.span()
     }
 
-    <span class="doccomment">/// Returns the identifier of the ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">proc_macro2::Ident</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">ident</span>
+    <span class="doccomment">/// Returns the identifier of the ink! chain extension.
+    </span><span class="kw">pub fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>proc_macro2::Ident {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.ident
     }
 
-    <span class="doccomment">/// Returns a slice over all the chain extension methods.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_methods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SliceIter</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">methods</span>.<span class="ident">iter</span>()
+    <span class="doccomment">/// Returns a slice over all the chain extension methods.
+    </span><span class="kw">pub fn </span>iter_methods(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SliceIter&lt;ChainExtensionMethod&gt; {
+        <span class="self">self</span>.methods.iter()
     }
 
-    <span class="doccomment">/// Returns the type of the error code of the chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Type</span> {
-        <span class="self">self</span>.<span class="ident">error_code</span>
-            .<span class="ident">default</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_token</span>, <span class="ident">ty</span>)<span class="op">|</span> <span class="ident">ty</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;unexpected missing default type for error code&quot;</span>)
+    <span class="doccomment">/// Returns the type of the error code of the chain extension.
+    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Type {
+        <span class="self">self</span>.error_code
+            .default
+            .as_ref()
+            .map(|(_token, ty)| ty)
+            .expect(<span class="string">&quot;unexpected missing default type for error code&quot;</span>)
     }
 }
 
-<span class="doccomment">/// An ink! chain extension method.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChainExtensionMethod</span> {
-    <span class="doccomment">/// The underlying validated AST of the chain extension method.</span>
-    <span class="ident">item</span>: <span class="ident">syn::TraitItemMethod</span>,
-    <span class="doccomment">/// The unique identifier of the chain extension method.</span>
-    <span class="ident">id</span>: <span class="ident">ExtensionId</span>,
-    <span class="doccomment">/// If `false` the `u32` status code of the chain extension method call is going to be</span>
-    <span class="doccomment">/// ignored and assumed to be always successful. The output buffer in this case is going</span>
-    <span class="doccomment">/// to be queried and decoded into the chain extension method&#39;s output type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If `true` the returned `u32` status code `code` is queried and</span>
-    <span class="doccomment">/// `&lt;Self::ErrorCode as ink::FromStatusCode&gt;::from_status_code(code)` is called.</span>
-    <span class="doccomment">/// The call to `from_status_code` returns `Result&lt;(), Self::ErrorCode&gt;`. If `Ok(())`</span>
-    <span class="doccomment">/// the output buffer is queried and decoded as described above.</span>
-    <span class="doccomment">/// If `Err(Self::ErrorCode)` the `Self::ErrorCode` is converted into `E` of `Result&lt;T, E&gt;`</span>
-    <span class="doccomment">/// if the chain extension method returns a `Result` type.</span>
-    <span class="doccomment">/// In case the chain extension method does _NOT_ return a `Result` type the call returns</span>
-    <span class="doccomment">/// `Result&lt;T, Self::ErrorCode&gt;` where `T` is the chain extension method&#39;s return type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default for this flag is `true`.</span>
-    <span class="ident">handle_status</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If `false` the procedural macro no longer tries to enforce that the returned type encoded</span>
-    <span class="doccomment">/// into the output buffer of the chain extension method call is of type `Result&lt;T, E&gt;`.</span>
-    <span class="doccomment">/// Also `E` is no longer required to implement `From&lt;Self::ErrorCode&gt;` in case `handle_status`</span>
-    <span class="doccomment">/// flag does not exist.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The default for this flag is `true`.</span>
-    <span class="ident">returns_result</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// An ink! chain extension method.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>ChainExtensionMethod {
+    <span class="doccomment">/// The underlying validated AST of the chain extension method.
+    </span>item: syn::TraitItemMethod,
+    <span class="doccomment">/// The unique identifier of the chain extension method.
+    </span>id: ExtensionId,
+    <span class="doccomment">/// If `false` the `u32` status code of the chain extension method call is going to be
+    /// ignored and assumed to be always successful. The output buffer in this case is going
+    /// to be queried and decoded into the chain extension method&#39;s output type.
+    ///
+    /// If `true` the returned `u32` status code `code` is queried and
+    /// `&lt;Self::ErrorCode as ink::FromStatusCode&gt;::from_status_code(code)` is called.
+    /// The call to `from_status_code` returns `Result&lt;(), Self::ErrorCode&gt;`. If `Ok(())`
+    /// the output buffer is queried and decoded as described above.
+    /// If `Err(Self::ErrorCode)` the `Self::ErrorCode` is converted into `E` of `Result&lt;T, E&gt;`
+    /// if the chain extension method returns a `Result` type.
+    /// In case the chain extension method does _NOT_ return a `Result` type the call returns
+    /// `Result&lt;T, Self::ErrorCode&gt;` where `T` is the chain extension method&#39;s return type.
+    ///
+    /// The default for this flag is `true`.
+    </span>handle_status: bool,
+    <span class="doccomment">/// If `false` the procedural macro no longer tries to enforce that the returned type encoded
+    /// into the output buffer of the chain extension method call is of type `Result&lt;T, E&gt;`.
+    /// Also `E` is no longer required to implement `From&lt;Self::ErrorCode&gt;` in case `handle_status`
+    /// flag does not exist.
+    ///
+    /// The default for this flag is `true`.
+    </span>returns_result: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">ChainExtensionMethod</span> {
-    <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>())
-            .<span class="ident">expect</span>(
+<span class="kw">impl </span>ChainExtensionMethod {
+    <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension method.
+    </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
+        <span class="kw">let </span>(<span class="kw">_</span>, attrs) = ir::partition_attributes(<span class="self">self</span>.item.attrs.iter().cloned())
+            .expect(
             <span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension method&quot;</span>,
         );
-        <span class="ident">attrs</span>
+        attrs
     }
 
-    <span class="doccomment">/// Returns the span of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">proc_macro2::Span</span> {
-        <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
+    <span class="doccomment">/// Returns the span of the ink! chain extension method.
+    </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; proc_macro2::Span {
+        <span class="self">self</span>.item.span()
     }
 
-    <span class="doccomment">/// Returns the identifier of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">proc_macro2::Ident</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">ident</span>
+    <span class="doccomment">/// Returns the identifier of the ink! chain extension method.
+    </span><span class="kw">pub fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>proc_macro2::Ident {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.sig.ident
     }
 
-    <span class="doccomment">/// Returns the method signature of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>
+    <span class="doccomment">/// Returns the method signature of the ink! chain extension method.
+    </span><span class="kw">pub fn </span>sig(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Signature {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.sig
     }
 
-    <span class="doccomment">/// Returns the unique ID of the chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ExtensionId</span> {
-        <span class="self">self</span>.<span class="ident">id</span>
+    <span class="doccomment">/// Returns the unique ID of the chain extension method.
+    </span><span class="kw">pub fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ExtensionId {
+        <span class="self">self</span>.id
     }
 
-    <span class="doccomment">/// Returns an iterator over the inputs of the chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethodInputs</span> {
-        <span class="ident">ChainExtensionMethodInputs</span> {
-            <span class="ident">iter</span>: <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>(),
+    <span class="doccomment">/// Returns an iterator over the inputs of the chain extension method.
+    </span><span class="kw">pub fn </span>inputs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ChainExtensionMethodInputs {
+        ChainExtensionMethodInputs {
+            iter: <span class="self">self</span>.item.sig.inputs.iter(),
         }
     }
 
-    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">handle_status</span>
+    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.
+    </span><span class="kw">pub fn </span>handle_status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.handle_status
     }
 
-    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns_result</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">returns_result</span>
+    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.
+    </span><span class="kw">pub fn </span>returns_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.returns_result
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChainExtensionMethodInputs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">iter</span>: <span class="ident">syn::punctuated::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">syn::FnArg</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ChainExtensionMethodInputs&lt;<span class="lifetime">&#39;a</span>&gt; {
+    iter: syn::punctuated::Iter&lt;<span class="lifetime">&#39;a</span>, syn::FnArg&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ChainExtensionMethodInputs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::PatType</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>ChainExtensionMethodInputs&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::PatType;
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">size_hint</span>()
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.iter.size_hint()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>) =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected receiver in chain extension method input: {:?}&quot;</span>, <span class="ident">receiver</span>)
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">let </span>item = <span class="self">self</span>.iter.next()<span class="question-mark">?</span>;
+        <span class="kw">match </span>item {
+            syn::FnArg::Receiver(receiver) =&gt; {
+                <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected receiver in chain extension method input: {:?}&quot;</span>, receiver)
             }
-            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_type</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">pat_type</span>),
+            syn::FnArg::Typed(pat_type) =&gt; <span class="prelude-val">Some</span>(pat_type),
         }
     }
 }
 
-<span class="doccomment">/// The unique ID of an ink! chain extension method.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The ink! attribute `#[ink(extension = N: u32)]` for chain extension methods.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Has a `func_id` extension ID to identify the associated chain extension method.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExtensionId</span> {
-    <span class="ident">index</span>: <span class="ident">u32</span>,
+<span class="doccomment">/// The unique ID of an ink! chain extension method.
+///
+/// # Note
+///
+/// The ink! attribute `#[ink(extension = N: u32)]` for chain extension methods.
+///
+/// Has a `func_id` extension ID to identify the associated chain extension method.
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">pub struct </span>ExtensionId {
+    index: u32,
 }
 
-<span class="kw">impl</span> <span class="ident">ExtensionId</span> {
-    <span class="doccomment">/// Creates a new chain extension method ID from the given `u32`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">index</span> }
+<span class="kw">impl </span>ExtensionId {
+    <span class="doccomment">/// Creates a new chain extension method ID from the given `u32`.
+    </span><span class="kw">pub fn </span>from_u32(index: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ index }
     }
 
-    <span class="doccomment">/// Returns the underlying raw `u32` index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">index</span>
+    <span class="doccomment">/// Returns the underlying raw `u32` index.
+    </span><span class="kw">pub fn </span>into_u32(<span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.index
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChainExtension</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="kw">impl </span>TryFrom&lt;syn::ItemTrait&gt; <span class="kw">for </span>ChainExtension {
+    <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>) -&gt; <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident">idents_lint::ensure_no_ink_identifiers</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::analyse_properties</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">error_code</span>, <span class="ident">methods</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::analyse_items</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">item</span>: <span class="ident">item_trait</span>,
-            <span class="ident">error_code</span>,
-            <span class="ident">methods</span>,
+    <span class="kw">fn </span>try_from(item_trait: syn::ItemTrait) -&gt; core::result::Result&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        idents_lint::ensure_no_ink_identifiers(<span class="kw-2">&amp;</span>item_trait)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::analyse_properties(<span class="kw-2">&amp;</span>item_trait)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(error_code, methods) = <span class="self">Self</span>::analyse_items(<span class="kw-2">&amp;</span>item_trait)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            item: item_trait,
+            error_code,
+            methods,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ChainExtension</span> {
-    <span class="doccomment">/// Returns `Ok` if the trait matches all requirements for an ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr</span>: <span class="ident">TokenStream2</span>, <span class="ident">input</span>: <span class="ident">TokenStream2</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">attr</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">attr</span>,
-                <span class="string">&quot;unexpected attribute input for ink! chain extension&quot;</span>
-            ))
+<span class="kw">impl </span>ChainExtension {
+    <span class="doccomment">/// Returns `Ok` if the trait matches all requirements for an ink! chain extension.
+    </span><span class="kw">pub fn </span>new(attr: TokenStream2, input: TokenStream2) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if </span>!attr.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                attr,
+                <span class="string">&quot;unexpected attribute input for ink! chain extension&quot;
+            </span>))
         }
-        <span class="kw">let</span> <span class="ident">item_trait</span> <span class="op">=</span> <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
-        <span class="ident">ChainExtension::try_from</span>(<span class="ident">item_trait</span>)
+        <span class="kw">let </span>item_trait = syn::parse2::&lt;syn::ItemTrait&gt;(input)<span class="question-mark">?</span>;
+        ChainExtension::try_from(item_trait)
     }
 
-    <span class="doccomment">/// Analyses the properties of the ink! chain extension.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the input trait has been defined as `unsafe`.</span>
-    <span class="doccomment">/// - If the input trait is an automatically implemented trait (`auto trait`).</span>
-    <span class="doccomment">/// - If the input trait is generic over some set of types.</span>
-    <span class="doccomment">/// - If the input trait&#39;s visibility is not public (`pub`).</span>
-    <span class="doccomment">/// - If the input trait has super-traits.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_properties</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">unsafety</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">unsafety</span>,
-                <span class="string">&quot;ink! chain extensions cannot be unsafe&quot;</span>
-            ))
+    <span class="doccomment">/// Analyses the properties of the ink! chain extension.
+    ///
+    /// # Errors
+    ///
+    /// - If the input trait has been defined as `unsafe`.
+    /// - If the input trait is an automatically implemented trait (`auto trait`).
+    /// - If the input trait is generic over some set of types.
+    /// - If the input trait&#39;s visibility is not public (`pub`).
+    /// - If the input trait has super-traits.
+    </span><span class="kw">fn </span>analyse_properties(item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafety) = <span class="kw-2">&amp;</span>item_trait.unsafety {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                unsafety,
+                <span class="string">&quot;ink! chain extensions cannot be unsafe&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">auto</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">auto_token</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">auto</span>,
-                <span class="string">&quot;ink! chain extensions cannot be automatically implemented traits&quot;</span>
-            ))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(auto) = <span class="kw-2">&amp;</span>item_trait.auto_token {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                auto,
+                <span class="string">&quot;ink! chain extensions cannot be automatically implemented traits&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_trait</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_trait</span>.<span class="ident">generics</span>.<span class="ident">params</span>,
-                <span class="string">&quot;ink! chain extensions must not be generic&quot;</span>
-            ))
+        <span class="kw">if </span>!item_trait.generics.params.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_trait.generics.params,
+                <span class="string">&quot;ink! chain extensions must not be generic&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">item_trait</span>.<span class="ident">vis</span>, <span class="ident">syn::Visibility::Public</span>(<span class="kw">_</span>)) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_trait</span>.<span class="ident">vis</span>,
-                <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>
-            ))
+        <span class="kw">if </span>!<span class="macro">matches!</span>(item_trait.vis, syn::Visibility::Public(<span class="kw">_</span>)) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_trait.vis,
+                <span class="string">&quot;ink! chain extensions must have public visibility&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_trait</span>.<span class="ident">supertraits</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_trait</span>.<span class="ident">supertraits</span>,
-                <span class="string">&quot;ink! chain extensions with super-traits are not supported, yet&quot;</span>
-            ))
+        <span class="kw">if </span>!item_trait.supertraits.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_trait.supertraits,
+                <span class="string">&quot;ink! chain extensions with super-traits are not supported, yet&quot;
+            </span>))
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Checks if the associated trait item type is a proper chain extension error code.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the associated type is not called `ErrorCode`.</span>
-    <span class="doccomment">/// - If the associated type is generic, has where bounds or has a default type.</span>
-    <span class="doccomment">/// - If there are multiple associated `ErrorCode` types.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_error_code</span>(
-        <span class="ident">item_type</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemType</span>,
-        <span class="ident">previous</span>: <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::TraitItemType</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">item_type</span>.<span class="ident">ident</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;ErrorCode&quot;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_type</span>.<span class="ident">ident</span>,
+    <span class="doccomment">/// Checks if the associated trait item type is a proper chain extension error code.
+    ///
+    /// # Errors
+    ///
+    /// - If the associated type is not called `ErrorCode`.
+    /// - If the associated type is generic, has where bounds or has a default type.
+    /// - If there are multiple associated `ErrorCode` types.
+    </span><span class="kw">fn </span>analyse_error_code(
+        item_type: <span class="kw-2">&amp;</span>syn::TraitItemType,
+        previous: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;syn::TraitItemType&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span>item_type.ident != <span class="string">&quot;ErrorCode&quot; </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_type.ident,
                 <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found {}&quot;</span>,
-                <span class="ident">item_type</span>.<span class="ident">ident</span>,
+                item_type.ident,
             ))
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_type</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_type</span>.<span class="ident">generics</span>,
+        <span class="kw">if </span>!item_type.generics.params.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_type.generics,
                 <span class="string">&quot;generic chain extension `ErrorCode` types are not supported&quot;</span>,
             ))
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_type</span>.<span class="ident">bounds</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_type</span>.<span class="ident">bounds</span>,
+        <span class="kw">if </span>!item_type.bounds.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_type.bounds,
                 <span class="string">&quot;bounded chain extension `ErrorCode` types are not supported&quot;</span>,
             ))
         }
-        <span class="kw">if</span> <span class="ident">item_type</span>.<span class="ident">default</span>.<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_type</span>,
+        <span class="kw">if </span>item_type.default.is_none() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_type,
                 <span class="string">&quot;expected a default type for the ink! chain extension ErrorCode&quot;</span>,
             ))
         }
-        <span class="kw">match</span> <span class="ident">previous</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">previous_error_code</span>) =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">item_type</span>,
+        <span class="kw">match </span>previous {
+            <span class="prelude-val">Some</span>(previous_error_code) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    item_type,
                     <span class="string">&quot;encountered duplicate `ErrorCode` associated types for the chain extension&quot;</span>,
-                )).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">previous_error_code</span>,
+                )).map_err(|err| err.into_combine(<span class="macro">format_err_spanned!</span>(
+                    previous_error_code,
                     <span class="string">&quot;first `ErrorCode` associated type here&quot;</span>,
                 )))
             }
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw-2">*</span><span class="ident">previous</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">item_type</span>.<span class="ident">clone</span>());
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw-2">*</span>previous = <span class="prelude-val">Some</span>(item_type.clone());
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns `Ok` if all trait items respect the requirements for an ink! chain extension.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the trait contains an unsupported trait item such as</span>
-    <span class="doccomment">///     - associated constants (`const`)</span>
-    <span class="doccomment">///     - associated types (`type`)</span>
-    <span class="doccomment">///     - macros definitions or usages</span>
-    <span class="doccomment">///     - unknown token sequences (`Verbatim`s)</span>
-    <span class="doccomment">///     - methods with default implementations</span>
-    <span class="doccomment">/// - If the trait contains methods which do not respect the ink! trait definition requirements:</span>
-    <span class="doccomment">///     - All trait methods must not have a `self` receiver.</span>
-    <span class="doccomment">///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that is the ID that</span>
-    <span class="doccomment">///       corresponds with the function ID of the respective chain extension call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The input Rust trait item is going to be replaced with a concrete chain extension type definition</span>
-    <span class="doccomment">/// as a result of this procedural macro invocation.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_items</span>(
-        <span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">syn::TraitItemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_ids</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error_code</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">trait_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">items</span> {
-            <span class="kw">match</span> <span class="ident">trait_item</span> {
-                <span class="ident">syn::TraitItem::Const</span>(<span class="ident">const_trait_item</span>) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        <span class="ident">const_trait_item</span>,
-                        <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;</span>
-                    ))
+    <span class="doccomment">/// Returns `Ok` if all trait items respect the requirements for an ink! chain extension.
+    ///
+    /// # Errors
+    ///
+    /// - If the trait contains an unsupported trait item such as
+    ///     - associated constants (`const`)
+    ///     - associated types (`type`)
+    ///     - macros definitions or usages
+    ///     - unknown token sequences (`Verbatim`s)
+    ///     - methods with default implementations
+    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
+    ///     - All trait methods must not have a `self` receiver.
+    ///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that is the ID that
+    ///       corresponds with the function ID of the respective chain extension call.
+    ///
+    /// # Note
+    ///
+    /// The input Rust trait item is going to be replaced with a concrete chain extension type definition
+    /// as a result of this procedural macro invocation.
+    </span><span class="kw">fn </span>analyse_items(
+        item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(syn::TraitItemType, Vec&lt;ChainExtensionMethod&gt;)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>methods = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>seen_ids = HashMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>error_code = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>trait_item <span class="kw">in </span><span class="kw-2">&amp;</span>item_trait.items {
+            <span class="kw">match </span>trait_item {
+                syn::TraitItem::Const(const_trait_item) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        const_trait_item,
+                        <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;
+                    </span>))
                 }
-                <span class="ident">syn::TraitItem::Macro</span>(<span class="ident">macro_trait_item</span>) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        <span class="ident">macro_trait_item</span>,
-                        <span class="string">&quot;macros in ink! chain extensions are not supported&quot;</span>
-                    ))
+                syn::TraitItem::Macro(macro_trait_item) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        macro_trait_item,
+                        <span class="string">&quot;macros in ink! chain extensions are not supported&quot;
+                    </span>))
                 }
-                <span class="ident">syn::TraitItem::Type</span>(<span class="ident">type_trait_item</span>) =&gt; {
-                    <span class="ident"><span class="self">Self</span>::analyse_error_code</span>(<span class="ident">type_trait_item</span>, <span class="kw-2">&amp;mut</span> <span class="ident">error_code</span>)<span class="question-mark">?</span>;
+                syn::TraitItem::Type(type_trait_item) =&gt; {
+                    <span class="self">Self</span>::analyse_error_code(type_trait_item, <span class="kw-2">&amp;mut </span>error_code)<span class="question-mark">?</span>;
                 }
-                <span class="ident">syn::TraitItem::Verbatim</span>(<span class="ident">verbatim</span>) =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        <span class="ident">verbatim</span>,
-                        <span class="string">&quot;encountered unsupported item in ink! chain extensions&quot;</span>
-                    ))
+                syn::TraitItem::Verbatim(verbatim) =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        verbatim,
+                        <span class="string">&quot;encountered unsupported item in ink! chain extensions&quot;
+                    </span>))
                 }
-                <span class="ident">syn::TraitItem::Method</span>(<span class="ident">method_trait_item</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::analyse_methods</span>(<span class="ident">method_trait_item</span>)<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">method_id</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">id</span>();
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">previous</span>) <span class="op">=</span> <span class="ident">seen_ids</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">method_id</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                            <span class="ident">method</span>.<span class="ident">span</span>(),
+                syn::TraitItem::Method(method_trait_item) =&gt; {
+                    <span class="kw">let </span>method = <span class="self">Self</span>::analyse_methods(method_trait_item)<span class="question-mark">?</span>;
+                    <span class="kw">let </span>method_id = method.id();
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(previous) = seen_ids.get(<span class="kw-2">&amp;</span>method_id) {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                            method.span(),
                             <span class="string">&quot;encountered duplicate extension identifiers for the same chain extension&quot;</span>,
-                        ).<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
-                            <span class="kw-2">*</span><span class="ident">previous</span>,
+                        ).into_combine(<span class="macro">format_err!</span>(
+                            <span class="kw-2">*</span>previous,
                             <span class="string">&quot;previous duplicate extension identifier here&quot;</span>,
                         )))
                     }
-                    <span class="ident">seen_ids</span>.<span class="ident">insert</span>(<span class="ident">method_id</span>, <span class="ident">method</span>.<span class="ident">span</span>());
-                    <span class="ident">methods</span>.<span class="ident">push</span>(<span class="ident">method</span>);
+                    seen_ids.insert(method_id, method.span());
+                    methods.push(method);
                 }
-                <span class="ident">unknown</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        <span class="ident">unknown</span>,
-                        <span class="string">&quot;encountered unknown or unsupported item in ink! chain extensions&quot;</span>
-                    ))
+                unknown =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        unknown,
+                        <span class="string">&quot;encountered unknown or unsupported item in ink! chain extensions&quot;
+                    </span>))
                 }
             }
         }
-        <span class="kw">let</span> <span class="ident">error_code</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">error_code</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">error_code</span>) =&gt; <span class="ident">error_code</span>,
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">item_trait</span>,
+        <span class="kw">let </span>error_code = <span class="kw">match </span>error_code {
+            <span class="prelude-val">Some</span>(error_code) =&gt; error_code,
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    item_trait,
                     <span class="string">&quot;missing ErrorCode associated type from ink! chain extension&quot;</span>,
                 ))
             }
         };
-        <span class="prelude-val">Ok</span>((<span class="ident">error_code</span>, <span class="ident">methods</span>))
+        <span class="prelude-val">Ok</span>((error_code, methods))
     }
 
-    <span class="doccomment">/// Analyses a chain extension method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the method is missing the `#[ink(extension = N: u32)]` attribute.</span>
-    <span class="doccomment">/// - If the method has a `self` receiver.</span>
-    <span class="doccomment">/// - If the method declared as `unsafe`, `const` or `async`.</span>
-    <span class="doccomment">/// - If the method has some explicit API.</span>
-    <span class="doccomment">/// - If the method is variadic or has generic parameters.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_methods</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">default_impl</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">default</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">default_impl</span>,
-                <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;</span>
-            ))
+    <span class="doccomment">/// Analyses a chain extension method.
+    ///
+    /// # Errors
+    ///
+    /// - If the method is missing the `#[ink(extension = N: u32)]` attribute.
+    /// - If the method has a `self` receiver.
+    /// - If the method declared as `unsafe`, `const` or `async`.
+    /// - If the method has some explicit API.
+    /// - If the method is variadic or has generic parameters.
+    </span><span class="kw">fn </span>analyse_methods(method: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;ChainExtensionMethod&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(default_impl) = <span class="kw-2">&amp;</span>method.default {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                default_impl,
+                <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">constness</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">constness</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">constness</span>,
-                <span class="string">&quot;const ink! chain extension methods are not supported&quot;</span>
-            ))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(constness) = <span class="kw-2">&amp;</span>method.sig.constness {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                constness,
+                <span class="string">&quot;const ink! chain extension methods are not supported&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">asyncness</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">asyncness</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">asyncness</span>,
-                <span class="string">&quot;async ink! chain extension methods are not supported&quot;</span>
-            ))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(asyncness) = <span class="kw-2">&amp;</span>method.sig.asyncness {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                asyncness,
+                <span class="string">&quot;async ink! chain extension methods are not supported&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">unsafety</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">unsafety</span>,
-                <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;</span>
-            ))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafety) = <span class="kw-2">&amp;</span>method.sig.unsafety {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                unsafety,
+                <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">abi</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">abi</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">abi</span>,
-                <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;</span>
-            ))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(abi) = <span class="kw-2">&amp;</span>method.sig.abi {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                abi,
+                <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variadic</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">variadic</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">variadic</span>,
-                <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;</span>
-            ))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(variadic) = <span class="kw-2">&amp;</span>method.sig.variadic {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                variadic,
+                <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;
+            </span>))
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">params</span>,
-                <span class="string">&quot;generic ink! chain extension methods are not supported&quot;</span>
-            ))
+        <span class="kw">if </span>!method.sig.generics.params.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                method.sig.generics.params,
+                <span class="string">&quot;generic ink! chain extension methods are not supported&quot;
+            </span>))
         }
-        <span class="kw">match</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>().<span class="ident">clone</span>()) {
-            <span class="prelude-val">Some</span>(<span class="ident">ir::AttributeArg::Extension</span>(<span class="ident">extension</span>)) =&gt; {
-                <span class="ident"><span class="self">Self</span>::analyse_chain_extension_method</span>(<span class="ident">method</span>, <span class="ident">extension</span>)
+        <span class="kw">match </span>ir::first_ink_attribute(<span class="kw-2">&amp;</span>method.attrs)<span class="question-mark">?
+                </span>.map(|attr| attr.first().kind().clone()) {
+            <span class="prelude-val">Some</span>(ir::AttributeArg::Extension(extension)) =&gt; {
+                <span class="self">Self</span>::analyse_chain_extension_method(method, extension)
             }
-            <span class="prelude-val">Some</span>(<span class="ident">_unsupported</span>) =&gt; {
+            <span class="prelude-val">Some</span>(_unsupported) =&gt; {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">method</span>,
-                    <span class="string">&quot;encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(extension = N: u32)] attribute&quot;</span>
-                ))
+                    method,
+                    <span class="string">&quot;encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(extension = N: u32)] attribute&quot;
+                </span>))
             }
-            <span class="prelude-val">None</span> =&gt; {
+            <span class="prelude-val">None </span>=&gt; {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">method</span>,
-                    <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>
-                ))
+                    method,
+                    <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;
+                </span>))
             }
         }
     }
 
-    <span class="doccomment">/// Analyses the properties of an ink! chain extension method.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the chain extension method has a `self` receiver as first argument.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_chain_extension_method</span>(
-        <span class="ident">item_method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>,
-        <span class="ident">extension</span>: <span class="ident">ExtensionId</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ir::sanitize_attributes</span>(
-            <span class="ident">item_method</span>.<span class="ident">span</span>(),
-            <span class="ident">item_method</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Extension</span>,
-            <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
-                    <span class="ident">ir::AttributeArg::Extension</span>(<span class="kw">_</span>)
-                    <span class="op">|</span> <span class="ident">ir::AttributeArg::HandleStatus</span>(<span class="kw">_</span>)
-                    <span class="op">|</span> <span class="ident">ir::AttributeArg::ReturnsResult</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+    <span class="doccomment">/// Analyses the properties of an ink! chain extension method.
+    ///
+    /// # Errors
+    ///
+    /// - If the chain extension method has a `self` receiver as first argument.
+    </span><span class="kw">fn </span>analyse_chain_extension_method(
+        item_method: <span class="kw-2">&amp;</span>syn::TraitItemMethod,
+        extension: ExtensionId,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ChainExtensionMethod&gt; {
+        <span class="kw">let </span>(ink_attrs, <span class="kw">_</span>) = ir::sanitize_attributes(
+            item_method.span(),
+            item_method.attrs.clone(),
+            <span class="kw-2">&amp;</span>ir::AttributeArgKind::Extension,
+            |arg| {
+                <span class="kw">match </span>arg.kind() {
+                    ir::AttributeArg::Extension(<span class="kw">_</span>)
+                    | ir::AttributeArg::HandleStatus(<span class="kw">_</span>)
+                    | ir::AttributeArg::ReturnsResult(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">item_method</span>.<span class="ident">sig</span>.<span class="ident">receiver</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">receiver</span>,
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(receiver) = item_method.sig.receiver() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                receiver,
                 <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
             ))
         }
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ChainExtensionMethod</span> {
-            <span class="ident">id</span>: <span class="ident">extension</span>,
-            <span class="ident">item</span>: <span class="ident">item_method</span>.<span class="ident">clone</span>(),
-            <span class="ident">handle_status</span>: <span class="ident">ink_attrs</span>.<span class="ident">is_handle_status</span>(),
-            <span class="ident">returns_result</span>: <span class="ident">ink_attrs</span>.<span class="ident">is_returns_result</span>(),
+        <span class="kw">let </span>result = ChainExtensionMethod {
+            id: extension,
+            item: item_method.clone(),
+            handle_status: ink_attrs.is_handle_status(),
+            returns_result: ink_attrs.is_returns_result(),
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Ok</span>(result)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Checks if the token stream in `$chain_extension` results in the expected error message.</span>
-    <span class="macro">macro_rules!</span> <span class="ident">assert_ink_chain_extension_eq_err</span> {
-        ( <span class="ident">error</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err_str</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">chain_extension</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; {
+    <span class="doccomment">/// Checks if the token stream in `$chain_extension` results in the expected error message.
+    </span><span class="macro">macro_rules! </span>assert_ink_chain_extension_eq_err {
+        ( error: <span class="macro-nonterminal">$err_str</span>:literal, $(<span class="macro-nonterminal">$chain_extension</span>:tt)* ) =&gt; {
             <span class="macro">assert_eq!</span>(
-                <span class="op">&lt;</span><span class="ident">ChainExtension</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-                    $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">chain_extension</span> )<span class="op">*</span>
+                &lt;ChainExtension <span class="kw">as </span>TryFrom&lt;syn::ItemTrait&gt;&gt;::try_from(<span class="macro">syn::parse_quote! </span>{
+                    $( <span class="macro-nonterminal">$chain_extension </span>)*
                 })
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
+                .map_err(|err| err.to_string()),
                 <span class="prelude-val">Err</span>(
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err_str</span>.<span class="ident">to_string</span>()
+                    <span class="macro-nonterminal">$err_str</span>.to_string()
                 )
             )
         };
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">unsafe_chain_extension_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>unsafe_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extensions cannot be unsafe&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {}
+            error: <span class="string">&quot;ink! chain extensions cannot be unsafe&quot;</span>,
+            <span class="kw">pub unsafe trait </span>MyChainExtension {}
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">auto_chain_extension_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>auto_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extensions cannot be automatically implemented traits&quot;</span>,
-            <span class="kw">pub</span> <span class="ident">auto</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {}
+            error: <span class="string">&quot;ink! chain extensions cannot be automatically implemented traits&quot;</span>,
+            <span class="kw">pub </span>auto <span class="kw">trait </span>MyChainExtension {}
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">non_pub_chain_extension_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>non_pub_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>,
-            <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {}
+            error: <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>,
+            <span class="kw">trait </span>MyChainExtension {}
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>,
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {}
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">generic_chain_extension_is_denied</span>() {
-        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extensions must not be generic&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+            error: <span class="string">&quot;ink! chain extensions must have public visibility&quot;</span>,
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>MyChainExtension {}
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_with_supertraits_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>generic_chain_extension_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extensions with super-traits are not supported, yet&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span>: <span class="ident">SuperChainExtension</span> {}
+            error: <span class="string">&quot;ink! chain extensions must not be generic&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension&lt;T&gt; {}
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_const_item_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_with_supertraits_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">const</span> <span class="ident">T</span>: <span class="ident">i32</span>;
+            error: <span class="string">&quot;ink! chain extensions with super-traits are not supported, yet&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension: SuperChainExtension {}
+        );
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_const_item_is_denied() {
+        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
+            error: <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">const </span>T: i32;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_invalid_associated_type_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_invalid_associated_type_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found Type&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">Type</span>;
+            error: <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found Type&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>Type;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_with_invalid_error_code</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_with_invalid_error_code() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found IncorrectName&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">IncorrectName</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found IncorrectName&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>IncorrectName = ();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;generic chain extension `ErrorCode` types are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;generic chain extension `ErrorCode` types are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode&lt;T&gt; = ();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;bounded chain extension `ErrorCode` types are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span>: <span class="ident">Copy</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;bounded chain extension `ErrorCode` types are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode: Copy = ();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;expected a default type for the ink! chain extension ErrorCode&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span>;
+            error: <span class="string">&quot;expected a default type for the ink! chain extension ErrorCode&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered duplicate `ErrorCode` associated types for the chain extension&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;encountered duplicate `ErrorCode` associated types for the chain extension&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode = ();
+                <span class="kw">type </span>ErrorCode = ();
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_macro_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_macro_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;macros in ink! chain extensions are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
+            error: <span class="string">&quot;macros in ink! chain extensions are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
                 <span class="macro">my_macro_call!</span>();
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_non_flagged_method_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_non_flagged_method_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">fn</span> <span class="ident">non_flagged_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
+            error: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">fn </span>non_flagged_1(<span class="kw-2">&amp;</span><span class="self">self</span>);
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">fn</span> <span class="ident">non_flagged_2</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>);
+            error: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">fn </span>non_flagged_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">fn</span> <span class="ident">non_flagged_3</span>() -&gt; <span class="self">Self</span>;
-            }
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_default_implemented_methods_is_denied</span>() {
-        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">default_implemented</span>() -&gt; <span class="self">Self</span> {}
+            error: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">fn </span>non_flagged_3() -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_const_methods_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_default_implemented_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;const ink! chain extension methods are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(constructor)]
+                </span><span class="kw">fn </span>default_implemented() -&gt; <span class="self">Self </span>{}
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_async_methods_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_const_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;async ink! chain extension methods are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;const ink! chain extension methods are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">const fn </span>const_constructor() -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_unsafe_methods_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_async_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;async ink! chain extension methods are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">async fn </span>const_constructor() -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_methods_using_explicit_abi_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_unsafe_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">unsafe fn </span>const_constructor() -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_variadic_methods_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_methods_using_explicit_abi_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">const_constructor</span>(...) -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">extern fn </span>const_constructor() -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_generic_methods_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_variadic_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;generic ink! chain extension methods are not supported&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">const_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>const_constructor(...) -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_method_with_unsupported_ink_attribute_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_generic_methods_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;\
+            error: <span class="string">&quot;generic ink! chain extension methods are not supported&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>const_constructor&lt;T&gt;() -&gt; <span class="self">Self</span>;
+            }
+        );
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_method_with_unsupported_ink_attribute_is_denied() {
+        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
+            error: <span class="string">&quot;\
                 encountered unsupported ink! attribute for ink! chain extension method. \
                 expected #[ink(extension = N: u32)] attribute&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">unsupported_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>unsupported_ink_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>);
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;unknown ink! attribute (path)&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">unknown</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">unknown_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
+            error: <span class="string">&quot;unknown ink! attribute (path)&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(unknown)]
+                </span><span class="kw">fn </span>unknown_ink_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>);
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_method_with_invalid_marker</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_method_with_invalid_marker() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>();
+            error: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = -<span class="number">1</span>)]
+                </span><span class="kw">fn </span>has_self_receiver();
             }
         );
-        <span class="kw">let</span> <span class="ident">too_large</span> <span class="op">=</span> (<span class="ident">u32::MAX</span> <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">+</span> <span class="number">1</span>;
+        <span class="kw">let </span>too_large = (u32::MAX <span class="kw">as </span>u64) + <span class="number">1</span>;
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> #<span class="ident">too_large</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>();
-            }
-        );
-        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="string">&quot;Hello, World!&quot;</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>();
+            error: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = #too_large)]
+                </span><span class="kw">fn </span>has_self_receiver();
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
+            error: <span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="string">&quot;Hello, World!&quot;</span>)]
+                </span><span class="kw">fn </span>has_self_receiver();
+            }
+        );
+        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
+            error: <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
                     Did you mean #[ink(extension = id: u32)] ?&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>();
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension)]
+                </span><span class="kw">fn </span>has_self_receiver();
             }
         );
 
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered duplicate ink! attribute&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">42</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">42</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">duplicate_attributes</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;encountered duplicate ink! attribute&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">42</span>)]
+                #[ink(extension = <span class="number">42</span>)]
+                </span><span class="kw">fn </span>duplicate_attributes() -&gt; <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered ink! attribute arguments with equal kinds&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">duplicate_attributes</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;encountered ink! attribute arguments with equal kinds&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                #[ink(extension = <span class="number">2</span>)]
+                </span><span class="kw">fn </span>duplicate_attributes() -&gt; <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">conflicting_attributes</span>() -&gt; <span class="self">Self</span>;
+            error: <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                #[ink(message)]
+                </span><span class="kw">fn </span>conflicting_attributes() -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_containing_method_with_self_receiver_is_denied</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_containing_method_with_self_receiver_is_denied() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode = ();
 
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>has_self_receiver(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode = ();
 
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>has_self_receiver(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode = ();
 
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>has_self_receiver(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode = ();
 
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span>;
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>has_self_receiver(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+            error: <span class="string">&quot;ink! chain extension method must not have a `self` receiver&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="kw">type </span>ErrorCode = ();
 
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
-            }
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_with_overlapping_extension_ids</span>() {
-        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered duplicate extension identifiers for the same chain extension&quot;</span>,
-            <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">same_id_1</span>();
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">same_id_2</span>();
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>has_self_receiver(<span class="self">self</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
             }
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_is_ok</span>() {
-        <span class="kw">let</span> <span class="ident">chain_extension</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ChainExtension</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-                <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                    <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_with_overlapping_extension_ids() {
+        <span class="macro">assert_ink_chain_extension_eq_err!</span>(
+            error: <span class="string">&quot;encountered duplicate extension identifiers for the same chain extension&quot;</span>,
+            <span class="kw">pub trait </span>MyChainExtension {
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>same_id_1();
+                <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                </span><span class="kw">fn </span>same_id_2();
+            }
+        );
+    }
 
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_1</span>();
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_2</span>(<span class="ident">input</span>: <span class="ident">i32</span>);
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">3</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_3</span>() -&gt; <span class="ident">i32</span>;
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">4</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_4</span>(<span class="ident">input</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i32</span>;
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_5</span>(<span class="ident">in1</span>: <span class="ident">i8</span>, <span class="ident">in2</span>: <span class="ident">i16</span>, <span class="ident">in3</span>: <span class="ident">i32</span>, <span class="ident">in4</span>: <span class="ident">i64</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>, <span class="ident">u64</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_is_ok() {
+        <span class="kw">let </span>chain_extension = &lt;ChainExtension <span class="kw">as </span>TryFrom&lt;syn::ItemTrait&gt;&gt;::try_from(<span class="macro">syn::parse_quote! </span>{
+                <span class="kw">pub trait </span>MyChainExtension {
+                    <span class="kw">type </span>ErrorCode = ();
+
+                    <span class="attribute">#[ink(extension = <span class="number">1</span>)]
+                    </span><span class="kw">fn </span>extension_1();
+                    <span class="attribute">#[ink(extension = <span class="number">2</span>)]
+                    </span><span class="kw">fn </span>extension_2(input: i32);
+                    <span class="attribute">#[ink(extension = <span class="number">3</span>)]
+                    </span><span class="kw">fn </span>extension_3() -&gt; i32;
+                    <span class="attribute">#[ink(extension = <span class="number">4</span>)]
+                    </span><span class="kw">fn </span>extension_4(input: i32) -&gt; i32;
+                    <span class="attribute">#[ink(extension = <span class="number">5</span>)]
+                    </span><span class="kw">fn </span>extension_5(in1: i8, in2: i16, in3: i32, in4: i64) -&gt; (u8, u16, u32, u64);
                 }
-            }).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">chain_extension</span>.<span class="ident">methods</span>.<span class="ident">len</span>(), <span class="number">5</span>);
-        <span class="kw">for</span> (<span class="ident">actual</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="ident">chain_extension</span>
-            .<span class="ident">methods</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="ident">method</span>.<span class="ident">id</span>())
-            .<span class="ident">zip</span>(<span class="number">1</span>..<span class="op">=</span><span class="number">5u32</span>)
+            }).unwrap();
+        <span class="macro">assert_eq!</span>(chain_extension.methods.len(), <span class="number">5</span>);
+        <span class="kw">for </span>(actual, expected) <span class="kw">in </span>chain_extension
+            .methods
+            .iter()
+            .map(|method| method.id())
+            .zip(<span class="number">1</span>..=<span class="number">5u32</span>)
         {
-            <span class="macro">assert_eq!</span>(<span class="ident">actual</span>.<span class="ident">index</span>, <span class="ident">expected</span>);
+            <span class="macro">assert_eq!</span>(actual.index, expected);
         }
-        <span class="kw">for</span> (<span class="ident">actual</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="ident">chain_extension</span>
-            .<span class="ident">methods</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="ident">method</span>.<span class="ident">ident</span>().<span class="ident">to_string</span>())
-            .<span class="ident">zip</span>(
+        <span class="kw">for </span>(actual, expected) <span class="kw">in </span>chain_extension
+            .methods
+            .iter()
+            .map(|method| method.ident().to_string())
+            .zip(
                 [
                     <span class="string">&quot;extension_1&quot;</span>,
                     <span class="string">&quot;extension_2&quot;</span>,
@@ -1900,56 +1900,56 @@
                     <span class="string">&quot;extension_4&quot;</span>,
                     <span class="string">&quot;extension_5&quot;</span>,
                 ]
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>),
+                .iter()
+                .map(ToString::to_string),
             )
         {
-            <span class="macro">assert_eq!</span>(<span class="ident">actual</span>, <span class="ident">expected</span>);
+            <span class="macro">assert_eq!</span>(actual, expected);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">chain_extension_with_params_is_ok</span>() {
-        <span class="kw">let</span> <span class="ident">chain_extension</span> <span class="op">=</span>
-            <span class="op">&lt;</span><span class="ident">ChainExtension</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-                <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                    <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>chain_extension_with_params_is_ok() {
+        <span class="kw">let </span>chain_extension =
+            &lt;ChainExtension <span class="kw">as </span>TryFrom&lt;syn::ItemTrait&gt;&gt;::try_from(<span class="macro">syn::parse_quote! </span>{
+                <span class="kw">pub trait </span>MyChainExtension {
+                    <span class="kw">type </span>ErrorCode = ();
 
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_a</span>();
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_b</span>();
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">3</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_c</span>();
+                    <span class="attribute">#[ink(extension = <span class="number">1</span>, handle_status = <span class="bool-val">false</span>)]
+                    </span><span class="kw">fn </span>extension_a();
+                    <span class="attribute">#[ink(extension = <span class="number">2</span>, returns_result = <span class="bool-val">false</span>)]
+                    </span><span class="kw">fn </span>extension_b();
+                    <span class="attribute">#[ink(extension = <span class="number">3</span>, handle_status = <span class="bool-val">false</span>, returns_result = <span class="bool-val">false</span>)]
+                    </span><span class="kw">fn </span>extension_c();
 
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">4</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_d</span>();
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_e</span>();
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">6</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_f</span>();
+                    <span class="attribute">#[ink(extension = <span class="number">4</span>)]
+                    #[ink(handle_status = <span class="bool-val">false</span>)]
+                    </span><span class="kw">fn </span>extension_d();
+                    <span class="attribute">#[ink(extension = <span class="number">5</span>)]
+                    #[ink(returns_result = <span class="bool-val">false</span>)]
+                    </span><span class="kw">fn </span>extension_e();
+                    <span class="attribute">#[ink(extension = <span class="number">6</span>)]
+                    #[ink(handle_status = <span class="bool-val">false</span>)]
+                    #[ink(returns_result = <span class="bool-val">false</span>)]
+                    </span><span class="kw">fn </span>extension_f();
                 }
             })
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">expected_methods</span> <span class="op">=</span> <span class="number">6</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">chain_extension</span>.<span class="ident">methods</span>.<span class="ident">len</span>(), <span class="ident">expected_methods</span>);
-        <span class="kw">for</span> (<span class="ident">actual</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="ident">chain_extension</span>
-            .<span class="ident">methods</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="ident">method</span>.<span class="ident">id</span>())
-            .<span class="ident">zip</span>(<span class="number">1</span>..<span class="op">=</span><span class="ident">expected_methods</span> <span class="kw">as</span> <span class="ident">u32</span>)
+            .unwrap();
+        <span class="kw">let </span>expected_methods = <span class="number">6</span>;
+        <span class="macro">assert_eq!</span>(chain_extension.methods.len(), expected_methods);
+        <span class="kw">for </span>(actual, expected) <span class="kw">in </span>chain_extension
+            .methods
+            .iter()
+            .map(|method| method.id())
+            .zip(<span class="number">1</span>..=expected_methods <span class="kw">as </span>u32)
         {
-            <span class="macro">assert_eq!</span>(<span class="ident">actual</span>.<span class="ident">index</span>, <span class="ident">expected</span>);
+            <span class="macro">assert_eq!</span>(actual.index, expected);
         }
-        <span class="kw">for</span> (<span class="ident">actual</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="ident">chain_extension</span>
-            .<span class="ident">methods</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="ident">method</span>.<span class="ident">ident</span>().<span class="ident">to_string</span>())
-            .<span class="ident">zip</span>(
+        <span class="kw">for </span>(actual, expected) <span class="kw">in </span>chain_extension
+            .methods
+            .iter()
+            .map(|method| method.ident().to_string())
+            .zip(
                 [
                     <span class="string">&quot;extension_a&quot;</span>,
                     <span class="string">&quot;extension_b&quot;</span>,
@@ -1958,13 +1958,13 @@
                     <span class="string">&quot;extension_e&quot;</span>,
                     <span class="string">&quot;extension_f&quot;</span>,
                 ]
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="ident">ToString::to_string</span>),
+                .iter()
+                .map(ToString::to_string),
             )
         {
-            <span class="macro">assert_eq!</span>(<span class="ident">actual</span>, <span class="ident">expected</span>);
+            <span class="macro">assert_eq!</span>(actual, expected);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

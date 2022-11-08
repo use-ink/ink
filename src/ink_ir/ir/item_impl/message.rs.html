@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/message.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>message.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -782,172 +782,172 @@
 <span id="780">780</span>
 <span id="781">781</span>
 <span id="782">782</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">ensure_callable_invariants</span>,
-    <span class="ident">Callable</span>,
-    <span class="ident">CallableKind</span>,
-    <span class="ident">InputsIter</span>,
-    <span class="ident">Visibility</span>,
+</span><span class="kw">use super</span>::{
+    ensure_callable_invariants,
+    Callable,
+    CallableKind,
+    InputsIter,
+    Visibility,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ir</span>::{
+<span class="kw">use </span><span class="kw">crate</span>::ir::{
     <span class="self">self</span>,
-    <span class="ident">attrs::SelectorOrWildcard</span>,
-    <span class="ident">utils</span>,
+    attrs::SelectorOrWildcard,
+    utils,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
-    <span class="ident">Ident</span>,
-    <span class="ident">Span</span>,
+<span class="kw">use </span>proc_macro2::{
+    Ident,
+    Span,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// The receiver of an ink! message.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Receiver</span> {
-    <span class="doccomment">/// The `&amp;self` message receiver.</span>
-    <span class="ident">Ref</span>,
-    <span class="doccomment">/// The `&amp;mut self` message receiver.</span>
-    <span class="ident">RefMut</span>,
+<span class="doccomment">/// The receiver of an ink! message.
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Receiver {
+    <span class="doccomment">/// The `&amp;self` message receiver.
+    </span>Ref,
+    <span class="doccomment">/// The `&amp;mut self` message receiver.
+    </span>RefMut,
 }
 
-<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Receiver</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
-        <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Ref</span> =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;</span><span class="self">self</span> },
-            <span class="ident"><span class="self">Self</span>::RefMut</span> =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;mut</span> <span class="self">self</span> },
+<span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>Receiver {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
+        <span class="kw">let </span>receiver = <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Ref =&gt; <span class="macro">quote::quote! </span>{ <span class="kw-2">&amp;</span><span class="self">self </span>},
+            <span class="self">Self</span>::RefMut =&gt; <span class="macro">quote::quote! </span>{ <span class="kw-2">&amp;mut </span><span class="self">self </span>},
         };
-        <span class="ident">tokens</span>.<span class="ident">extend</span>(<span class="ident">receiver</span>);
+        tokens.extend(receiver);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Receiver</span> {
-    <span class="doccomment">/// Returns `true` if the receiver is `&amp;self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ref</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Ref</span>)
+<span class="kw">impl </span>Receiver {
+    <span class="doccomment">/// Returns `true` if the receiver is `&amp;self`.
+    </span><span class="kw">pub fn </span>is_ref(<span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Ref)
     }
 
-    <span class="doccomment">/// Returns `true` if the receiver is `&amp;mut self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ref_mut</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::RefMut</span>)
-    }
-}
-
-<span class="doccomment">/// An ink! message definition.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Inherent implementation message:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # &lt;ink_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {</span>
-<span class="doccomment">/// impl MyStorage {</span>
-<span class="doccomment">///     #[ink(message)]</span>
-<span class="doccomment">///     pub fn my_message(&amp;self, input: i32) -&gt; bool {</span>
-<span class="doccomment">///         /* message implementation goes here */</span>
-<span class="doccomment">/// #       unimplemented!()</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # }).unwrap();</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## Trait implementation message:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # let event = &lt;ink_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {</span>
-<span class="doccomment">/// impl MyTrait for MyStorage {</span>
-<span class="doccomment">///     #[ink(message)]</span>
-<span class="doccomment">///     fn my_message(&amp;mut self, input: bool) -&gt; i32 {</span>
-<span class="doccomment">///         /* message implementation goes here */</span>
-<span class="doccomment">/// #       unimplemented!()</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # }).unwrap();</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Message</span> {
-    <span class="doccomment">/// The underlying Rust method item.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">item</span>: <span class="ident">syn::ImplItemMethod</span>,
-    <span class="doccomment">/// If the ink! message can receive funds.</span>
-    <span class="ident">is_payable</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// An optional user provided selector.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This overrides the computed selector, even when using a manual namespace</span>
-    <span class="doccomment">/// for the parent implementation block.</span>
-    <span class="ident">selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SelectorOrWildcard</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Message</span> {
-    <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
-    <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
-        <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>)
+    <span class="doccomment">/// Returns `true` if the receiver is `&amp;mut self`.
+    </span><span class="kw">pub fn </span>is_ref_mut(<span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::RefMut)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Message</span> {
-    <span class="doccomment">/// Ensures that the given method inputs start with `&amp;self` or `&amp;mut self`</span>
-    <span class="doccomment">/// receivers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If not an appropriate error is returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - If the method inputs yields no elements.</span>
-    <span class="doccomment">/// - If the first method input is not `&amp;self` or `&amp;mut self`.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_receiver_is_self_ref</span>(
-        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fn_args</span> <span class="op">=</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>();
-        <span class="kw">fn</span> <span class="ident">bail</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="ident">syn::Error</span> {
+<span class="doccomment">/// An ink! message definition.
+///
+/// # Example
+///
+/// ## Inherent implementation message:
+///
+/// ```
+/// # &lt;ink_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {
+/// impl MyStorage {
+///     #[ink(message)]
+///     pub fn my_message(&amp;self, input: i32) -&gt; bool {
+///         /* message implementation goes here */
+/// #       unimplemented!()
+///     }
+/// }
+/// # }).unwrap();
+/// ```
+///
+/// ## Trait implementation message:
+///
+/// ```
+/// # let event = &lt;ink_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {
+/// impl MyTrait for MyStorage {
+///     #[ink(message)]
+///     fn my_message(&amp;mut self, input: bool) -&gt; i32 {
+///         /* message implementation goes here */
+/// #       unimplemented!()
+///     }
+/// }
+/// # }).unwrap();
+/// ```
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Message {
+    <span class="doccomment">/// The underlying Rust method item.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) item: syn::ImplItemMethod,
+    <span class="doccomment">/// If the ink! message can receive funds.
+    </span>is_payable: bool,
+    <span class="doccomment">/// An optional user provided selector.
+    ///
+    /// # Note
+    ///
+    /// This overrides the computed selector, even when using a manual namespace
+    /// for the parent implementation block.
+    </span>selector: <span class="prelude-ty">Option</span>&lt;SelectorOrWildcard&gt;,
+}
+
+<span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>Message {
+    <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    </span><span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
+        <span class="self">self</span>.item.to_tokens(tokens)
+    }
+}
+
+<span class="kw">impl </span>Message {
+    <span class="doccomment">/// Ensures that the given method inputs start with `&amp;self` or `&amp;mut self`
+    /// receivers.
+    ///
+    /// If not an appropriate error is returned.
+    ///
+    /// # Errors
+    ///
+    /// - If the method inputs yields no elements.
+    /// - If the first method input is not `&amp;self` or `&amp;mut self`.
+    </span><span class="kw">fn </span>ensure_receiver_is_self_ref(
+        method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>fn_args = method_item.sig.inputs.iter();
+        <span class="kw">fn </span>bail(span: Span) -&gt; syn::Error {
             <span class="macro">format_err!</span>(
-                <span class="ident">span</span>,
+                span,
                 <span class="string">&quot;ink! messages must have `&amp;self` or `&amp;mut self` receiver&quot;</span>,
             )
         }
-        <span class="kw">match</span> <span class="ident">fn_args</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">bail</span>(<span class="ident">method_item</span>.<span class="ident">span</span>())),
-            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_typed</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">bail</span>(<span class="ident">pat_typed</span>.<span class="ident">span</span>())),
-            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>)) =&gt; {
-                <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">reference</span>.<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">bail</span>(<span class="ident">receiver</span>.<span class="ident">span</span>()))
+        <span class="kw">match </span>fn_args.next() {
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(bail(method_item.span())),
+            <span class="prelude-val">Some</span>(syn::FnArg::Typed(pat_typed)) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(bail(pat_typed.span())),
+            <span class="prelude-val">Some</span>(syn::FnArg::Receiver(receiver)) =&gt; {
+                <span class="kw">if </span>receiver.reference.is_none() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(bail(receiver.span()))
                 }
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Ensures that the ink! message does not return `Self`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the given Rust method has a `Self` return type.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_not_return_self</span>(
-        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
-            <span class="ident">syn::ReturnType::Default</span> =&gt; (),
-            <span class="ident">syn::ReturnType::Type</span>(<span class="ident">_arrow</span>, <span class="ident">ret_type</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Type::Path</span>(<span class="ident">type_path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ret_type</span> {
-                    <span class="kw">if</span> <span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;Self&quot;</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                            <span class="ident">ret_type</span>,
-                            <span class="string">&quot;ink! messages must not return `Self`&quot;</span>
-                        ))
+    <span class="doccomment">/// Ensures that the ink! message does not return `Self`.
+    ///
+    /// # Errors
+    ///
+    /// If the given Rust method has a `Self` return type.
+    </span><span class="kw">fn </span>ensure_not_return_self(
+        method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>method_item.sig.output {
+            syn::ReturnType::Default =&gt; (),
+            syn::ReturnType::Type(_arrow, ret_type) =&gt; {
+                <span class="kw">if let </span>syn::Type::Path(type_path) = <span class="kw-2">&amp;**</span>ret_type {
+                    <span class="kw">if </span>type_path.path.is_ident(<span class="string">&quot;Self&quot;</span>) {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                            ret_type,
+                            <span class="string">&quot;ink! messages must not return `Self`&quot;
+                        </span>))
                     }
                 }
             }
@@ -955,614 +955,614 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Sanitizes the attributes for the ink! message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns a tuple of ink! attributes and non-ink! attributes.</span>
-    <span class="kw">fn</span> <span class="ident">sanitize_attributes</span>(
-        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ir::InkAttribute</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="ident">ir::sanitize_attributes</span>(
-            <span class="ident">method_item</span>.<span class="ident">span</span>(),
-            <span class="ident">method_item</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Message</span>,
-            <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
-                    <span class="ident">ir::AttributeArg::Message</span>
-                    <span class="op">|</span> <span class="ident">ir::AttributeArg::Payable</span>
-                    <span class="op">|</span> <span class="ident">ir::AttributeArg::Selector</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+    <span class="doccomment">/// Sanitizes the attributes for the ink! message.
+    ///
+    /// Returns a tuple of ink! attributes and non-ink! attributes.
+    </span><span class="kw">fn </span>sanitize_attributes(
+        method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(ir::InkAttribute, Vec&lt;syn::Attribute&gt;), syn::Error&gt; {
+        ir::sanitize_attributes(
+            method_item.span(),
+            method_item.attrs.clone(),
+            <span class="kw-2">&amp;</span>ir::AttributeArgKind::Message,
+            |arg| {
+                <span class="kw">match </span>arg.kind() {
+                    ir::AttributeArg::Message
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Message</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="kw">impl </span>TryFrom&lt;syn::ImplItemMethod&gt; <span class="kw">for </span>Message {
+    <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">method_item</span>: <span class="ident">syn::ImplItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident">ensure_callable_invariants</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>, <span class="ident">CallableKind::Message</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_receiver_is_self_ref</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_not_return_self</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::sanitize_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">ink_attrs</span>.<span class="ident">is_payable</span>();
-        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">ink_attrs</span>.<span class="ident">selector</span>();
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">is_payable</span>,
-            <span class="ident">selector</span>,
-            <span class="ident">item</span>: <span class="ident">syn::ImplItemMethod</span> {
-                <span class="ident">attrs</span>: <span class="ident">other_attrs</span>,
-                ..<span class="ident">method_item</span>
+    <span class="kw">fn </span>try_from(method_item: syn::ImplItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        ensure_callable_invariants(<span class="kw-2">&amp;</span>method_item, CallableKind::Message)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_receiver_is_self_ref(<span class="kw-2">&amp;</span>method_item)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_not_return_self(<span class="kw-2">&amp;</span>method_item)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(ink_attrs, other_attrs) = <span class="self">Self</span>::sanitize_attributes(<span class="kw-2">&amp;</span>method_item)<span class="question-mark">?</span>;
+        <span class="kw">let </span>is_payable = ink_attrs.is_payable();
+        <span class="kw">let </span>selector = ink_attrs.selector();
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            is_payable,
+            selector,
+            item: syn::ImplItemMethod {
+                attrs: other_attrs,
+                ..method_item
             },
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Callable</span> <span class="kw">for</span> <span class="ident">Message</span> {
-    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CallableKind</span> {
-        <span class="ident">CallableKind::Message</span>
+<span class="kw">impl </span>Callable <span class="kw">for </span>Message {
+    <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CallableKind {
+        CallableKind::Message
     }
 
-    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">ident</span>
+    <span class="kw">fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.sig.ident
     }
 
-    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SelectorOrWildcard::UserProvided</span>(<span class="ident">selector</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">as_ref</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">selector</span>)
+    <span class="kw">fn </span>user_provided_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ir::Selector&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(SelectorOrWildcard::UserProvided(selector)) = <span class="self">self</span>.selector.as_ref() {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(selector)
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>has_wildcard_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(SelectorOrWildcard::Wildcard) = <span class="self">self</span>.selector {
+            <span class="kw">return </span><span class="bool-val">true
+        </span>}
+        <span class="bool-val">false
+    </span>}
+
+    <span class="kw">fn </span>is_payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_payable
     }
 
-    <span class="kw">fn</span> <span class="ident">has_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SelectorOrWildcard::Wildcard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span> {
-            <span class="kw">return</span> <span class="bool-val">true</span>
+    <span class="kw">fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Visibility {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.item.vis {
+            syn::Visibility::Public(vis_public) =&gt; Visibility::Public(vis_public.clone()),
+            syn::Visibility::Inherited =&gt; Visibility::Inherited,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid visibility for ink! message&quot;</span>),
         }
-        <span class="bool-val">false</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_payable</span>
+    <span class="kw">fn </span>inputs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InputsIter {
+        InputsIter::from(<span class="self">self</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">vis</span> {
-            <span class="ident">syn::Visibility::Public</span>(<span class="ident">vis_public</span>) =&gt; <span class="ident">Visibility::Public</span>(<span class="ident">vis_public</span>.<span class="ident">clone</span>()),
-            <span class="ident">syn::Visibility::Inherited</span> =&gt; <span class="ident">Visibility::Inherited</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid visibility for ink! message&quot;</span>),
-        }
+    <span class="kw">fn </span>inputs_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+        <span class="self">self</span>.item.sig.inputs.span()
     }
 
-    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputsIter</span> {
-        <span class="ident">InputsIter::from</span>(<span class="self">self</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
-        <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">span</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">block</span>.<span class="ident">stmts</span>
+    <span class="kw">fn </span>statements(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Stmt] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.block.stmts
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Message</span> {
-    <span class="doccomment">/// Returns a slice of all non-ink! attributes of the ink! message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>
+<span class="kw">impl </span>Message {
+    <span class="doccomment">/// Returns a slice of all non-ink! attributes of the ink! message.
+    </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Attribute] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.attrs
     }
 
-    <span class="doccomment">/// Returns the `self` receiver of the ink! message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">receiver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Receiver</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">next</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>)) =&gt; {
-                <span class="macro">debug_assert!</span>(<span class="ident">receiver</span>.<span class="ident">reference</span>.<span class="ident">is_some</span>());
-                <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() {
-                    <span class="ident">Receiver::RefMut</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">Receiver::Ref</span>
+    <span class="doccomment">/// Returns the `self` receiver of the ink! message.
+    </span><span class="kw">pub fn </span>receiver(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Receiver {
+        <span class="kw">match </span><span class="self">self</span>.item.sig.inputs.iter().next() {
+            <span class="prelude-val">Some</span>(syn::FnArg::Receiver(receiver)) =&gt; {
+                <span class="macro">debug_assert!</span>(receiver.reference.is_some());
+                <span class="kw">if </span>receiver.mutability.is_some() {
+                    Receiver::RefMut
+                } <span class="kw">else </span>{
+                    Receiver::Ref
                 }
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid receiver argument for ink! message&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid receiver argument for ink! message&quot;</span>),
         }
     }
 
-    <span class="doccomment">/// Returns the return type of the ink! message if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Type</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
-            <span class="ident">syn::ReturnType::Default</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">return_type</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">return_type</span>),
+    <span class="doccomment">/// Returns the return type of the ink! message if any.
+    </span><span class="kw">pub fn </span>output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::Type&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.item.sig.output {
+            syn::ReturnType::Default =&gt; <span class="prelude-val">None</span>,
+            syn::ReturnType::Type(<span class="kw">_</span>, return_type) =&gt; <span class="prelude-val">Some</span>(return_type),
         }
     }
 
-    <span class="doccomment">/// Returns a local ID unique to the ink! message with respect to its implementation block.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is a compile error if two ink! trait messages share the same local ID.</span>
-    <span class="doccomment">/// Although the above scenario is very unlikely since the local ID is computed</span>
-    <span class="doccomment">/// solely by the identifier of the ink! message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="ident">utils::local_message_id</span>(<span class="self">self</span>.<span class="ident">ident</span>())
+    <span class="doccomment">/// Returns a local ID unique to the ink! message with respect to its implementation block.
+    ///
+    /// # Note
+    ///
+    /// It is a compile error if two ink! trait messages share the same local ID.
+    /// Although the above scenario is very unlikely since the local ID is computed
+    /// solely by the identifier of the ink! message.
+    </span><span class="kw">pub fn </span>local_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        utils::local_message_id(<span class="self">self</span>.ident())
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">output_works</span>() {
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>output_works() {
+        <span class="kw">let </span>test_inputs: Vec&lt;(<span class="prelude-ty">Option</span>&lt;syn::Type&gt;, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
             (
-                <span class="comment">// No output:</span>
-                <span class="prelude-val">None</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="comment">// No output:
+                </span><span class="prelude-val">None</span>,
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
             (
-                <span class="comment">// Single output:</span>
-                <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote!</span> { <span class="ident">i32</span> }),
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {}
+                <span class="comment">// Single output:
+                </span><span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ i32 }),
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {}
                 },
             ),
             (
-                <span class="comment">// Tuple output:</span>
-                <span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote!</span> { (<span class="ident">i32</span>, <span class="ident">u64</span>, <span class="ident">bool</span>) }),
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">i32</span>, <span class="ident">u64</span>, <span class="ident">bool</span>) {}
+                <span class="comment">// Tuple output:
+                </span><span class="prelude-val">Some</span>(<span class="macro">syn::parse_quote! </span>{ (i32, u64, bool) }),
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (i32, u64, bool) {}
                 },
             ),
         ];
-        <span class="kw">for</span> (<span class="ident">expected_output</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">actual_output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">output</span>()
-                .<span class="ident">cloned</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">actual_output</span>, <span class="ident">expected_output</span>);
+        <span class="kw">for </span>(expected_output, item_method) <span class="kw">in </span>test_inputs {
+            <span class="kw">let </span>actual_output = &lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
+                .unwrap()
+                .output()
+                .cloned();
+            <span class="macro">assert_eq!</span>(actual_output, expected_output);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">inputs_works</span>() {
-        <span class="macro">macro_rules!</span> <span class="ident">expected_inputs</span> {
-            ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span> ),<span class="op">*</span> ) =&gt; {{
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>inputs_works() {
+        <span class="macro">macro_rules! </span>expected_inputs {
+            ( $( <span class="macro-nonterminal">$name</span>:ident: <span class="macro-nonterminal">$ty</span>:ty ),* ) =&gt; {{
                 <span class="macro">vec!</span>[
                     $(
-                        <span class="macro">syn::parse_quote!</span> {
-                            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>
-                        }
-                    ),<span class="op">*</span>
+                        <span class="macro">syn::parse_quote! </span>{
+                            <span class="macro-nonterminal">$name</span>: <span class="macro-nonterminal">$ty
+                        </span>}
+                    ),*
                 ]
             }};
         }
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::FnArg</span><span class="op">&gt;</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="kw">let </span>test_inputs: Vec&lt;(Vec&lt;syn::FnArg&gt;, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
             (
-                <span class="comment">// No inputs:</span>
-                <span class="macro">expected_inputs!</span>(),
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="comment">// No inputs:
+                </span><span class="macro">expected_inputs!</span>(),
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
             (
-                <span class="comment">// Single input:</span>
-                <span class="macro">expected_inputs!</span>(<span class="ident">a</span>: <span class="ident">i32</span>),
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">i32</span>) {}
+                <span class="comment">// Single input:
+                </span><span class="macro">expected_inputs!</span>(a: i32),
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, a: i32) {}
                 },
             ),
             (
-                <span class="comment">// Some inputs:</span>
-                <span class="macro">expected_inputs!</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">u64</span>, <span class="ident">c</span>: [<span class="ident">u8</span>; <span class="number">32</span>]),
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">u64</span>, <span class="ident">c</span>: [<span class="ident">u8</span>; <span class="number">32</span>]) {}
+                <span class="comment">// Some inputs:
+                </span><span class="macro">expected_inputs!</span>(a: i32, b: u64, c: [u8; <span class="number">32</span>]),
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, a: i32, b: u64, c: [u8; <span class="number">32</span>]) {}
                 },
             ),
         ];
-        <span class="kw">for</span> (<span class="ident">expected_inputs</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">actual_inputs</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">inputs</span>()
-                .<span class="ident">cloned</span>()
-                .<span class="ident">map</span>(<span class="ident">syn::FnArg::Typed</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">actual_inputs</span>, <span class="ident">expected_inputs</span>);
+        <span class="kw">for </span>(expected_inputs, item_method) <span class="kw">in </span>test_inputs {
+            <span class="kw">let </span>actual_inputs = &lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
+                .unwrap()
+                .inputs()
+                .cloned()
+                .map(syn::FnArg::Typed)
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            <span class="macro">assert_eq!</span>(actual_inputs, expected_inputs);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_payable_works</span>() {
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// Not payable.</span>
-            (
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>is_payable_works() {
+        <span class="kw">let </span>test_inputs: Vec&lt;(bool, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// Not payable.
+            </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
-            <span class="comment">// Normalized ink! attribute.</span>
-            (
+            <span class="comment">// Normalized ink! attribute.
+            </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message, payable)]
+                    </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
-            <span class="comment">// Different ink! attributes.</span>
-            (
+            <span class="comment">// Different ink! attributes.
+            </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">payable</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    #[ink(payable)]
+                    </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
-            <span class="comment">// Another ink! attribute, separate and normalized attribute.</span>
-            (
+            <span class="comment">// Another ink! attribute, separate and normalized attribute.
+            </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>, <span class="ident">payable</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    #[ink(selector = <span class="number">0xDEADBEEF</span>, payable)]
+                    </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
         ];
-        <span class="kw">for</span> (<span class="ident">expect_payable</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">is_payable</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">is_payable</span>, <span class="ident">expect_payable</span>);
+        <span class="kw">for </span>(expect_payable, item_method) <span class="kw">in </span>test_inputs {
+            <span class="kw">let </span>is_payable = &lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
+                .unwrap()
+                .is_payable();
+            <span class="macro">assert_eq!</span>(is_payable, expect_payable);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">receiver_works</span>() {
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Receiver</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>receiver_works() {
+        <span class="kw">let </span>test_inputs: Vec&lt;(Receiver, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
             (
-                <span class="ident">Receiver::Ref</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                Receiver::Ref,
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
             (
-                <span class="ident">Receiver::RefMut</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+                Receiver::RefMut,
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message, payable)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
                 },
             ),
         ];
-        <span class="kw">for</span> (<span class="ident">expected_receiver</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">actual_receiver</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">receiver</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">actual_receiver</span>, <span class="ident">expected_receiver</span>);
+        <span class="kw">for </span>(expected_receiver, item_method) <span class="kw">in </span>test_inputs {
+            <span class="kw">let </span>actual_receiver = &lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
+                .unwrap()
+                .receiver();
+            <span class="macro">assert_eq!</span>(actual_receiver, expected_receiver);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">visibility_works</span>() {
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            (
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>visibility_works() {
+        <span class="kw">let </span>test_inputs: Vec&lt;(bool, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
-            <span class="comment">// &amp;self + pub</span>
-            (
+            <span class="comment">// &amp;self + pub
+            </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                 },
             ),
-            <span class="comment">// &amp;mut self</span>
-            (
+            <span class="comment">// &amp;mut self
+            </span>(
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
                 },
             ),
-            <span class="comment">// &amp;mut self + pub</span>
-            (
+            <span class="comment">// &amp;mut self + pub
+            </span>(
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+                <span class="macro">syn::parse_quote! </span>{
+                    <span class="attribute">#[ink(message)]
+                    </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
                 },
             ),
         ];
-        <span class="kw">for</span> (<span class="ident">is_pub</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">visibility</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">visibility</span>.<span class="ident">is_pub</span>(), <span class="ident">is_pub</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">visibility</span>.<span class="ident">is_inherited</span>(), <span class="op">!</span><span class="ident">is_pub</span>);
+        <span class="kw">for </span>(is_pub, item_method) <span class="kw">in </span>test_inputs {
+            <span class="kw">let </span>visibility = &lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
+                .unwrap()
+                .visibility();
+            <span class="macro">assert_eq!</span>(visibility.is_pub(), is_pub);
+            <span class="macro">assert_eq!</span>(visibility.is_inherited(), !is_pub);
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_works</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_works() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;self + pub</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="comment">// &amp;self + pub
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self + pub</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self + pub
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;self + payable</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="comment">// &amp;self + payable
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message, payable)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self + payable</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self + payable
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message, payable)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;self + many inputs + output works</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>, <span class="ident">input3</span>: <span class="ident">u32</span>, <span class="ident">input4</span>: <span class="ident">u64</span>) -&gt; <span class="ident">bool</span> {}
+            <span class="comment">// &amp;self + many inputs + output works
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, input1: i32, input2: i64, input3: u32, input4: u64) -&gt; bool {}
             },
-            <span class="comment">// &amp;mut self + many inputs + output works</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>, <span class="ident">input3</span>: <span class="ident">u32</span>, <span class="ident">input4</span>: <span class="ident">u64</span>) -&gt; <span class="ident">bool</span> {}
+            <span class="comment">// &amp;mut self + many inputs + output works
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input1: i32, input2: i64, input3: u32, input4: u64) -&gt; bool {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="macro">assert!</span>(<span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>).<span class="ident">is_ok</span>());
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            <span class="macro">assert!</span>(&lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method).is_ok());
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>: <span class="ident">syn::ImplItemMethod</span>, <span class="ident">expected_err</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="kw">fn </span>assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_eq!</span>(
-            <span class="op">&lt;</span><span class="ident">ir::Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="prelude-val">Err</span>(<span class="ident">expected_err</span>.<span class="ident">to_string</span>()),
+            &lt;ir::Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
+                .map_err(|err| err.to_string()),
+            <span class="prelude-val">Err</span>(expected_err.to_string()),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_generics_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_generics_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub fn </span>my_message&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not be generic&quot;</span>)
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be generic&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_receiver_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>() {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_receiver_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message() {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub fn </span>my_message(<span class="kw-2">mut </span><span class="self">self</span>) {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="ident">this</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(this: <span class="kw-2">&amp;</span><span class="self">Self</span>) {}
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="ident">this</span>: <span class="kw-2">&amp;mut</span> <span class="self">Self</span>) {}
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub fn </span>my_message(this: <span class="kw-2">&amp;mut </span><span class="self">Self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(
-                <span class="ident">item_method</span>,
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(
+                item_method,
                 <span class="string">&quot;ink! messages must have `&amp;self` or `&amp;mut self` receiver&quot;</span>,
             )
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_const_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_const_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">const fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">const fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not be const&quot;</span>)
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be const&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_async_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_async_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">async fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">async fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not be async&quot;</span>)
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be async&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_unsafe_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_unsafe_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">unsafe fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">unsafe fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not be unsafe&quot;</span>)
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be unsafe&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_explicit_abi_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_explicit_abi_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not have explicit ABI&quot;</span>)
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not have explicit ABI&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_variadic_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, ...) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_variadic_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>, ...) {}
             },
-            <span class="comment">// &amp;mut self</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, ...) {}
+            <span class="comment">// &amp;mut self
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ...) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not be variadic&quot;</span>)
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(item_method, <span class="string">&quot;ink! messages must not be variadic&quot;</span>)
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">try_from_visibility_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// &amp;self + crate visibility</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">crate</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>try_from_visibility_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// &amp;self + crate visibility
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">crate fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self + crate visibility</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">crate</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self + crate visibility
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">crate fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;self + pub restricted visibility</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">my::path</span>) <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="comment">// &amp;self + pub restricted visibility
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub</span>(<span class="kw">in </span>my::path) <span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// &amp;mut self + pub restricted visibility</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">my::path</span>) <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+            <span class="comment">// &amp;mut self + pub restricted visibility
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                </span><span class="kw">pub</span>(<span class="kw">in </span>my::path) <span class="kw">fn </span>my_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(
-                <span class="ident">item_method</span>,
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(
+                item_method,
                 <span class="string">&quot;ink! messages must have public or inherited visibility&quot;</span>,
             )
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflicting_attributes_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// storage</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">storage</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflicting_attributes_fails() {
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+            <span class="comment">// storage
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message, storage)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// namespace</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="comment">// namespace
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message, namespace = <span class="string">&quot;my_namespace&quot;</span>)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="comment">// event + multiple attributes</span>
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="comment">// event + multiple attributes
+            </span><span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(message)]
+                #[ink(event)]
+                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(
-                <span class="ident">item_method</span>,
+        <span class="kw">for </span>item_method <span class="kw">in </span>item_methods {
+            assert_try_from_fails(
+                item_method,
                 <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
             )
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
