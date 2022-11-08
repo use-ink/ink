@@ -29,8 +29,10 @@ protocol for future versions of Polkadot.
 - Introduce conditional compilation for messages, constructors and events ‒ [#1458](https://github.com/paritytech/ink/pull/1458)
 - Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
 
+
 ### Changed
 - Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
+- Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
 
 ### Removed
 - Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
