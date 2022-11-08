@@ -132,7 +132,7 @@ where
 {
     /// Insert the given `value` to the contract storage.
     ///
-    /// Returns the size of the pre-existing value at the specified key if any.
+    /// Returns the size in bytes of the pre-existing value at the specified key if any.
     #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
