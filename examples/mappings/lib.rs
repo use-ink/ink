@@ -8,49 +8,18 @@ mod mappings {
     #[ink(storage)]
     #[derive(Default)]
     pub struct Mappings {
-        /// Total token supply.
-        total_supply: Balance,
         /// Mapping from owner to number of owned token.
         balances: Mapping<AccountId, Balance>,
     }
 
-    /// Event emitted when a token transfer occurs.
-    #[ink(event)]
-    pub struct Transfer {
-        #[ink(topic)]
-        from: Option<AccountId>,
-        #[ink(topic)]
-        to: Option<AccountId>,
-        value: Balance,
-    }
-
-    /// Event emitted when an approval occurs that `spender` is allowed to withdraw
-    /// up to the amount of `value` tokens from `owner`.
-    #[ink(event)]
-    pub struct Approval {
-        #[ink(topic)]
-        owner: AccountId,
-        #[ink(topic)]
-        spender: AccountId,
-        value: Balance,
-    }
-
     impl Mappings {
-        /// Creates a new ERC-20 contract with the specified initial supply.
+        /// Demonstrates the usage of `Mappings::default()`
+        ///
+        /// Creates an empty mapping between accounts and balances.
         #[ink(constructor)]
-        pub fn new(total_supply: Balance) -> Self {
-            let mut balances = Mapping::default();
-            let caller = Self::env().caller();
-            balances.insert(caller, &total_supply);
-            Self::env().emit_event(Transfer {
-                from: None,
-                to: Some(caller),
-                value: total_supply,
-            });
-            Self {
-                total_supply,
-                balances,
-            }
+        pub fn new() -> Self {
+            let balances = Mapping::default();
+            Self { balances }
         }
 
         /// Demonstrates the usage of `Mapping::get()`.
@@ -58,8 +27,11 @@ mod mappings {
         ///
         /// Returns `None` if the account is non-existent.
         #[ink(message)]
-        pub fn get_balance(&self, owner: AccountId) -> Option<Balance> {
-            self.balances.get(owner)
+        pub fn get_balance(&self) -> Option<Balance> {
+            let caller = Self::env().caller();
+            let value = self.balances.get(caller);
+            ink::env::debug_println!("Balance: {:?}", value);
+            value
         }
 
         /// Demonstrates the usage of `Mappings::insert()`.
@@ -69,12 +41,9 @@ mod mappings {
         ///
         /// Returns `None` if the account was non-existent.
         #[ink(message)]
-        pub fn insert_return_size_balance(
-            &mut self,
-            value: Balance,
-            to: AccountId,
-        ) -> Option<u32> {
-            self.balances.insert(to, &value)
+        pub fn insert_balance(&mut self, value: Balance) -> Option<u32> {
+            let caller = Self::env().caller();
+            self.balances.insert(caller, &value)
         }
 
         /// Demonstrates the usage of `Mappings::size()`.
@@ -83,24 +52,27 @@ mod mappings {
         ///
         /// Returns `None` if the account was non-existent.
         #[ink(message)]
-        pub fn size_balance(&mut self, of: AccountId) -> Option<u32> {
-            self.balances.size(of)
+        pub fn size_balance(&mut self) -> Option<u32> {
+            let caller = Self::env().caller();
+            self.balances.size(caller)
         }
 
         /// Demonstrates the usage of `Mapping::contains()`.
         ///
         /// Returns `true` if the account has any balance assigned to it.
         #[ink(message)]
-        pub fn contains_balance(&self, of: AccountId) -> bool {
-            self.balances.contains(of)
+        pub fn contains_balance(&self) -> bool {
+            let caller = Self::env().caller();
+            self.balances.contains(caller)
         }
 
         /// Demonstrates the usage of `Mappings::remove()`.
         ///
         /// Removes the balance entry for a given account.
         #[ink(message)]
-        pub fn remove_balance(&mut self, of: AccountId) {
-            self.balances.remove(of);
+        pub fn remove_balance(&mut self) {
+            let caller = Self::env().caller();
+            self.balances.remove(caller);
         }
 
         /// Demonstrates the usage of `Mappings::take()`.
@@ -110,11 +82,57 @@ mod mappings {
         ///
         /// Returns `0` if the account is non-existent.
         #[ink(message)]
-        pub fn take_balance(&mut self, from: AccountId) -> Option<Balance> {
-            self.balances.take(from)
+        pub fn take_balance(&mut self) -> Option<Balance> {
+            let caller = Self::env().caller();
+            self.balances.take(caller)
         }
     }
 
     #[cfg(test)]
-    mod e2e_tests {}
+    mod e2e_tests {
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn insert_and_get_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            //given
+            let constructor = mappings::constructors::new();
+            let contract_id = client
+                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+
+            //when
+            let insert = mappings::messages::insert_balance(1_000_000);
+            let _ = client
+                .call(
+                    &mut ink_e2e::alice(),
+                    contract_id.clone(),
+                    insert,
+                    0,
+                    None
+                )
+                .await
+                .expect("call failed");
+
+            //then
+            let get = mappings::messages::get_balance();
+            let balance = client
+               .call(
+                    &mut ink_e2e::alice(),
+                    contract_id.clone(),
+                    get,
+                    0,
+                    None
+                )
+                .await
+                .expect("call failed")
+                .value;
+            println!("{:?}", balance);
+            assert_eq!(balance, None);
+
+            Ok(())
+        }
+    }
 }
