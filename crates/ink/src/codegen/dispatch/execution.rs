@@ -68,7 +68,7 @@ where
                 &Contract::KEY,
                 contract,
             );
-            Ok(())
+            ink_env::return_value(ReturnFlags::default().set_reverted(false), &());
         }
         Err(error) => {
             // Constructor is fallible and failed.

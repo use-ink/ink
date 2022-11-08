@@ -256,8 +256,9 @@ where
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
-    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned",
 ))]
+#[serde(rename_all = "camelCase")]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The label of the constructor.
     ///
@@ -269,6 +270,8 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub payable: bool,
     /// The parameters of the deployment handler.
     pub args: Vec<MessageParamSpec<F>>,
+    /// The return type of the constructor..
+    pub return_type: ReturnTypeSpec<F>,
     /// The deployment handler documentation.
     pub docs: Vec<F::String>,
 }
@@ -286,6 +289,7 @@ impl IntoPortable for ConstructorSpec {
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
+            return_type: self.return_type.into_portable(registry),
             docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
@@ -302,7 +306,7 @@ where
         &self.label
     }
 
-    /// Returns the selector hash of the message.
+    /// Returns the selector hash of the constructor.
     pub fn selector(&self) -> &Selector {
         &self.selector
     }
@@ -315,6 +319,11 @@ where
     /// Returns the parameters of the deployment handler.
     pub fn args(&self) -> &[MessageParamSpec<F>] {
         &self.args
+    }
+
+    /// Returns the return type of the constructor.
+    pub fn return_type(&self) -> &ReturnTypeSpec<F> {
+        &self.return_type
     }
 
     /// Returns the deployment handler documentation.
@@ -330,10 +339,11 @@ where
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
+#[allow(clippy::type_complexity)]
 #[must_use]
-pub struct ConstructorSpecBuilder<F: Form, Selector, IsPayable> {
+pub struct ConstructorSpecBuilder<F: Form, Selector, IsPayable, Returns> {
     spec: ConstructorSpec<F>,
-    marker: PhantomData<fn() -> (Selector, IsPayable)>,
+    marker: PhantomData<fn() -> (Selector, IsPayable, Returns)>,
 }
 
 impl<F> ConstructorSpec<F>
@@ -343,14 +353,19 @@ where
     /// Creates a new constructor spec builder.
     pub fn from_label(
         label: <F as Form>::String,
-    ) -> ConstructorSpecBuilder<F, Missing<state::Selector>, Missing<state::IsPayable>>
-    {
+    ) -> ConstructorSpecBuilder<
+        F,
+        Missing<state::Selector>,
+        Missing<state::IsPayable>,
+        Missing<state::Returns>,
+    > {
         ConstructorSpecBuilder {
             spec: Self {
                 label,
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
+                return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -358,7 +373,7 @@ where
     }
 }
 
-impl<F, P> ConstructorSpecBuilder<F, Missing<state::Selector>, P>
+impl<F, P, R> ConstructorSpecBuilder<F, Missing<state::Selector>, P, R>
 where
     F: Form,
 {
@@ -366,7 +381,7 @@ where
     pub fn selector(
         self,
         selector: [u8; 4],
-    ) -> ConstructorSpecBuilder<F, state::Selector, P> {
+    ) -> ConstructorSpecBuilder<F, state::Selector, P, R> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 selector: selector.into(),
@@ -377,7 +392,7 @@ where
     }
 }
 
-impl<F, S> ConstructorSpecBuilder<F, S, Missing<state::IsPayable>>
+impl<F, S, R> ConstructorSpecBuilder<F, S, Missing<state::IsPayable>, R>
 where
     F: Form,
 {
@@ -385,7 +400,7 @@ where
     pub fn payable(
         self,
         is_payable: bool,
-    ) -> ConstructorSpecBuilder<F, S, state::IsPayable> {
+    ) -> ConstructorSpecBuilder<F, S, state::IsPayable, R> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 payable: is_payable,
@@ -396,7 +411,26 @@ where
     }
 }
 
-impl<F, S, P> ConstructorSpecBuilder<F, S, P>
+impl<F, S, P> ConstructorSpecBuilder<F, S, P, Missing<state::Returns>>
+where
+    F: Form,
+{
+    /// Sets the return type of the message.
+    pub fn returns(
+        self,
+        return_type: ReturnTypeSpec<F>,
+    ) -> ConstructorSpecBuilder<F, S, P, state::Returns> {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                return_type,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, S, P, R> ConstructorSpecBuilder<F, S, P, R>
 where
     F: Form,
 {
@@ -427,7 +461,7 @@ where
     }
 }
 
-impl<F> ConstructorSpecBuilder<F, state::Selector, state::IsPayable>
+impl<F> ConstructorSpecBuilder<F, state::Selector, state::IsPayable, state::Returns>
 where
     F: Form,
 {
@@ -1012,6 +1046,42 @@ where
     /// Creates a new type specification for a given type and display name.
     pub fn new(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
         Self { ty, display_name }
+    }
+}
+
+/// Implementing this trait for some type `T` indicates what the return spec of
+/// `T` will be in the metadata, given `T` is used as the result of a constructor.
+pub trait ConstructorReturnSpec {
+    /// Generates the type spec.
+    ///
+    /// Note:
+    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
+    /// be used directly for constructor returning `Self`.
+    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
+    where
+        S: IntoIterator<Item = &'static str>,
+    {
+        if let Some(segments) = segments_opt {
+            TypeSpec::with_name_segs::<(), S>(segments)
+        } else {
+            TypeSpec::of_type::<()>()
+        }
+    }
+}
+
+impl<O, E> ConstructorReturnSpec for Result<O, E>
+where
+    E: TypeInfo + 'static,
+{
+    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
+    where
+        S: IntoIterator<Item = &'static str>,
+    {
+        if let Some(segments) = segments_opt {
+            TypeSpec::with_name_segs::<core::result::Result<(), E>, S>(segments)
+        } else {
+            TypeSpec::of_type::<core::result::Result<(), E>>()
+        }
     }
 }
 

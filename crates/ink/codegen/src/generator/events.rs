@@ -184,8 +184,7 @@ impl<'a> Events<'a> {
     /// Generates the `Topics` trait implementations for the user defined events.
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let contract_ident = self.contract.module().storage().ident();
-        self.contract.module().events()
-            .map(move |event| {
+        self.contract.module().events().map(move |event| {
             let span = event.span();
             let event_ident = event.ident();
             let event_signature = syn::LitByteStr::new(

@@ -418,9 +418,7 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-# Temporarily disabled until https://github.com/polkadot-js/api/issues/5193
-# is fixed.
-.ink-waterfall:
+ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
