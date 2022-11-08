@@ -65,14 +65,6 @@ mod mappings {
         /// Demonstrates the usage of `Mappings::insert()`.
         ///
         /// Assigns the value to a given account.
-        #[ink(message)]
-        pub fn insert_balance(&mut self, value: Balance, to: AccountId) {
-            self.balances.insert(to, &value);
-        }
-
-        /// Demonstrates the usage of `Mappings::insert_return_size()`.
-        ///
-        /// Assigns the value to a given account.
         /// Returns the size of the pre-existing balance at the specified key if any.
         ///
         /// Returns `None` if the account was non-existent.
@@ -82,7 +74,7 @@ mod mappings {
             value: Balance,
             to: AccountId,
         ) -> Option<u32> {
-            self.balances.insert_return_size(to, &value)
+            self.balances.insert(to, &value)
         }
 
         /// Demonstrates the usage of `Mappings::size()`.
