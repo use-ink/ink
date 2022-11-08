@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/item_impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>item_impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/item_impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>item_impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -321,326 +321,326 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident">core::iter</span>;
+</span><span class="kw">use </span>core::iter;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
-<span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">heck::ToLowerCamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
-<span class="kw">use</span> <span class="ident">ir</span>::{
-    <span class="ident">Callable</span> <span class="kw">as</span> <span class="kw">_</span>,
-    <span class="ident">HexLiteral</span>,
+<span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
+<span class="kw">use </span>derive_more::From;
+<span class="kw">use </span>heck::ToLowerCamelCase <span class="kw">as _</span>;
+<span class="kw">use </span>ir::{
+    Callable <span class="kw">as _</span>,
+    HexLiteral,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
-<span class="kw">use</span> <span class="ident">quote</span>::{
-    <span class="ident">format_ident</span>,
-    <span class="ident">quote</span>,
-    <span class="ident">quote_spanned</span>,
-    <span class="ident">ToTokens</span>,
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
+<span class="kw">use </span>quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+    ToTokens,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// Generates code for all ink! implementation blocks.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
+<span class="doccomment">/// Generates code for all ink! implementation blocks.
+</span><span class="attribute">#[derive(From)]
+</span><span class="kw">pub struct </span>ItemImpls&lt;<span class="lifetime">&#39;a</span>&gt; {
+    contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
 }
-<span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">ItemImpls</span>);
+<span class="macro">impl_as_ref_for_generator!</span>(ItemImpls);
 
-<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">item_impls</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_item_impl</span>(<span class="ident">item_impl</span>));
-        <span class="kw">let</span> <span class="ident">inout_guards</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_input_output_guards</span>();
-        <span class="kw">let</span> <span class="ident">trait_message_property_guards</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_message_property_guards</span>();
-        <span class="kw">let</span> <span class="ident">use_emit_event</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">next</span>().<span class="ident">is_some</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="comment">// Required to make `self.env().emit_event(...)` syntax available.</span>
-                <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink::codegen::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>ItemImpls&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>item_impls = <span class="self">self
+            </span>.contract
+            .module()
+            .impls()
+            .map(|item_impl| <span class="self">self</span>.generate_item_impl(item_impl));
+        <span class="kw">let </span>inout_guards = <span class="self">self</span>.generate_input_output_guards();
+        <span class="kw">let </span>trait_message_property_guards = <span class="self">self</span>.generate_trait_message_property_guards();
+        <span class="kw">let </span>use_emit_event =
+            <span class="self">self</span>.contract.module().events().next().is_some().then(|| {
+                <span class="comment">// Required to make `self.env().emit_event(...)` syntax available.
+                </span><span class="macro">quote! </span>{ <span class="kw">use </span>::ink::codegen::EmitEvent <span class="kw">as _</span>; }
             });
-        <span class="macro">quote!</span> {
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="comment">// Required to make `self.env()` and `Self::env()` syntax available.</span>
-                <span class="kw">use</span> <span class="ident">::ink::codegen</span>::{<span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>};
-                #<span class="ident">use_emit_event</span>
+        <span class="macro">quote! </span>{
+            <span class="kw">const _</span>: () = {
+                <span class="comment">// Required to make `self.env()` and `Self::env()` syntax available.
+                </span><span class="kw">use </span>::ink::codegen::{Env <span class="kw">as _</span>, StaticEnv <span class="kw">as _</span>};
+                #use_emit_event
 
-                #( #<span class="ident">item_impls</span> )<span class="op">*</span>
-                #<span class="ident">inout_guards</span>
-                #<span class="ident">trait_message_property_guards</span>
+                #( #item_impls )*
+                #inout_guards
+                #trait_message_property_guards
             };
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Generates code to guard annotated ink! trait message properties.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// These guarded properties include `selector` and `payable`.</span>
-    <span class="doccomment">/// If an ink! trait message is annotated with `#[ink(payable)]`</span>
-    <span class="doccomment">/// or `#[ink(selector = ..)]` then code is generated to guard that</span>
-    <span class="doccomment">/// the given argument to `payable` or `selector` is equal to</span>
-    <span class="doccomment">/// what the associated ink! trait definition defines for the same</span>
-    <span class="doccomment">/// ink! message.</span>
-    <span class="kw">fn</span> <span class="ident">generate_trait_message_property_guards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">trait_message_guards</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">impls</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
-                <span class="ident">iter::repeat</span>(<span class="ident">trait_path</span>).<span class="ident">zip</span>(<span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+<span class="kw">impl </span>ItemImpls&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// Generates code to guard annotated ink! trait message properties.
+    ///
+    /// These guarded properties include `selector` and `payable`.
+    /// If an ink! trait message is annotated with `#[ink(payable)]`
+    /// or `#[ink(selector = ..)]` then code is generated to guard that
+    /// the given argument to `payable` or `selector` is equal to
+    /// what the associated ink! trait definition defines for the same
+    /// ink! message.
+    </span><span class="kw">fn </span>generate_trait_message_property_guards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage_span = <span class="self">self</span>.contract.module().storage().span();
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="kw">let </span>trait_message_guards = <span class="self">self
+            </span>.contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| item_impl.trait_path().map(|trait_path| {
+                iter::repeat(trait_path).zip(item_impl.iter_messages())
             }))
-            .<span class="ident">flatten</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_path</span>, <span class="ident">message</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-                <span class="kw">let</span> <span class="ident">message_local_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">local_id</span>().<span class="ident">hex_padded_suffixed</span>();
-                <span class="kw">let</span> <span class="ident">message_guard_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
-                        <span class="kw">const</span> <span class="kw">_</span>: <span class="ident">::ink::codegen::TraitMessagePayable</span><span class="op">&lt;</span>{
-                            <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
-                                <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
-                                <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">message_local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
-                        }<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">::ink::codegen::TraitMessagePayable</span>::<span class="op">&lt;</span><span class="bool-val">true</span><span class="op">&gt;</span>;
+            .flatten()
+            .map(|(trait_path, message)| {
+                <span class="kw">let </span>message_span = message.span();
+                <span class="kw">let </span>message_local_id = message.local_id().hex_padded_suffixed();
+                <span class="kw">let </span>message_guard_payable = message.is_payable().then(|| {
+                    <span class="macro">quote_spanned!</span>(message_span=&gt;
+                        <span class="kw">const _</span>: ::ink::codegen::TraitMessagePayable&lt;{
+                            &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
+                                <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
+                                <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#message_local_id&gt;&gt;::PAYABLE
+                        }&gt; = ::ink::codegen::TraitMessagePayable::&lt;<span class="bool-val">true</span>&gt;;
                     )
                 });
-                <span class="kw">let</span> <span class="ident">message_guard_selector</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">user_provided_selector</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">selector</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">given_selector</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">into_be_u32</span>().<span class="ident">hex_padded_suffixed</span>();
-                    <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
-                        <span class="kw">const</span> <span class="kw">_</span>: <span class="ident">::ink::codegen::TraitMessageSelector</span><span class="op">&lt;</span>{
-                            <span class="ident">::core::primitive::u32::from_be_bytes</span>(
-                                <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
-                                    <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
-                                    <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">message_local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
+                <span class="kw">let </span>message_guard_selector = message.user_provided_selector().map(|selector| {
+                    <span class="kw">let </span>given_selector = selector.into_be_u32().hex_padded_suffixed();
+                    <span class="macro">quote_spanned!</span>(message_span=&gt;
+                        <span class="kw">const _</span>: ::ink::codegen::TraitMessageSelector&lt;{
+                            ::core::primitive::u32::from_be_bytes(
+                                &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
+                                    <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
+                                    <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#message_local_id&gt;&gt;::SELECTOR
                             )
-                        }<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">::ink::codegen::TraitMessageSelector</span>::<span class="op">&lt;</span>#<span class="ident">given_selector</span><span class="op">&gt;</span>;
+                        }&gt; = ::ink::codegen::TraitMessageSelector::&lt;#given_selector&gt;;
                     )
                 });
-                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
-                    #<span class="ident">message_guard_payable</span>
-                    #<span class="ident">message_guard_selector</span>
+                <span class="macro">quote_spanned!</span>(message_span=&gt;
+                    #message_guard_payable
+                    #message_guard_selector
                 )
             });
-        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span>=&gt;
-            #( #<span class="ident">trait_message_guards</span> )<span class="op">*</span>
+        <span class="macro">quote_spanned!</span>(storage_span=&gt;
+            #( #trait_message_guards )*
         )
     }
 
-    <span class="doccomment">/// Generates code to assert that ink! input and output types meet certain properties.</span>
-    <span class="kw">fn</span> <span class="ident">generate_input_output_guards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">constructor_input_guards</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">impls</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
-                <span class="kw">let</span> <span class="ident">constructor_inputs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
-                    <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">ty</span>;
-                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                        <span class="ident">::ink::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
-                            <span class="ident">::ink::codegen::DispatchInput</span><span class="op">&lt;</span>#<span class="ident">input_type</span><span class="op">&gt;</span>
-                        <span class="op">&gt;</span>();
+    <span class="doccomment">/// Generates code to assert that ink! input and output types meet certain properties.
+    </span><span class="kw">fn </span>generate_input_output_guards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>storage_span = <span class="self">self</span>.contract.module().storage().span();
+        <span class="kw">let </span>constructor_input_guards = <span class="self">self
+            </span>.contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| item_impl.iter_constructors())
+            .map(|constructor| {
+                <span class="kw">let </span>constructor_span = constructor.span();
+                <span class="kw">let </span>constructor_inputs = constructor.inputs().map(|input| {
+                    <span class="kw">let </span>span = input.span();
+                    <span class="kw">let </span>input_type = <span class="kw-2">&amp;*</span>input.ty;
+                    <span class="macro">quote_spanned!</span>(span=&gt;
+                        ::ink::codegen::utils::consume_type::&lt;
+                            ::ink::codegen::DispatchInput&lt;#input_type&gt;
+                        &gt;();
                     )
                 });
-                <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
-                    #( #<span class="ident">constructor_inputs</span> )<span class="op">*</span>
+                <span class="macro">quote_spanned!</span>(constructor_span=&gt;
+                    #( #constructor_inputs )*
                 )
             });
-        <span class="kw">let</span> <span class="ident">message_inout_guards</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">contract</span>
-            .<span class="ident">module</span>()
-            .<span class="ident">impls</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-                <span class="kw">let</span> <span class="ident">message_inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
-                    <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">ty</span>;
-                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                        <span class="ident">::ink::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
-                            <span class="ident">::ink::codegen::DispatchInput</span><span class="op">&lt;</span>#<span class="ident">input_type</span><span class="op">&gt;</span>
-                        <span class="op">&gt;</span>();
+        <span class="kw">let </span>message_inout_guards = <span class="self">self
+            </span>.contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| item_impl.iter_messages())
+            .map(|message| {
+                <span class="kw">let </span>message_span = message.span();
+                <span class="kw">let </span>message_inputs = message.inputs().map(|input| {
+                    <span class="kw">let </span>span = input.span();
+                    <span class="kw">let </span>input_type = <span class="kw-2">&amp;*</span>input.ty;
+                    <span class="macro">quote_spanned!</span>(span=&gt;
+                        ::ink::codegen::utils::consume_type::&lt;
+                            ::ink::codegen::DispatchInput&lt;#input_type&gt;
+                        &gt;();
                     )
                 });
-                <span class="kw">let</span> <span class="ident">message_output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output_type</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">output_type</span>.<span class="ident">span</span>();
-                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                        <span class="ident">::ink::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
-                            <span class="ident">::ink::codegen::DispatchOutput</span><span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span>
-                        <span class="op">&gt;</span>();
+                <span class="kw">let </span>message_output = message.output().map(|output_type| {
+                    <span class="kw">let </span>span = output_type.span();
+                    <span class="macro">quote_spanned!</span>(span=&gt;
+                        ::ink::codegen::utils::consume_type::&lt;
+                            ::ink::codegen::DispatchOutput&lt;#output_type&gt;
+                        &gt;();
                     )
                 });
-                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
-                    #( #<span class="ident">message_inputs</span> )<span class="op">*</span>
-                    #<span class="ident">message_output</span>
+                <span class="macro">quote_spanned!</span>(message_span=&gt;
+                    #( #message_inputs )*
+                    #message_output
                 )
             });
-        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span>=&gt;
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                #( #<span class="ident">constructor_input_guards</span> )<span class="op">*</span>
-                #( #<span class="ident">message_inout_guards</span> )<span class="op">*</span>
+        <span class="macro">quote_spanned!</span>(storage_span=&gt;
+            <span class="kw">const _</span>: () = {
+                #( #constructor_input_guards )*
+                #( #message_inout_guards )*
             };
         )
     }
 
-    <span class="doccomment">/// Generates the code for the given ink! message within a trait implementation block.</span>
-    <span class="kw">fn</span> <span class="ident">generate_trait_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Message</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">visibility</span>();
-        <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span>
-            <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_lower_camel_case</span>());
-        <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>();
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>
-            .<span class="ident">output</span>()
-            .<span class="ident">cloned</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">syn::parse_quote!</span> { () });
-        <span class="kw">let</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">statements</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> #<span class="ident">output</span>;
+    <span class="doccomment">/// Generates the code for the given ink! message within a trait implementation block.
+    </span><span class="kw">fn </span>generate_trait_message(message: <span class="kw-2">&amp;</span>ir::Message) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = message.span();
+        <span class="kw">let </span>attrs = message.attrs();
+        <span class="kw">let </span>vis = message.visibility();
+        <span class="kw">let </span>receiver = message.receiver();
+        <span class="kw">let </span>ident = message.ident();
+        <span class="kw">let </span>output_ident =
+            <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, ident.to_string().to_lower_camel_case());
+        <span class="kw">let </span>inputs = message.inputs();
+        <span class="kw">let </span>output = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| <span class="macro">syn::parse_quote! </span>{ () });
+        <span class="kw">let </span>statements = message.statements();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            <span class="kw">type </span>#output_ident = #output;
 
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            #<span class="ident">vis</span> <span class="kw">fn</span> #<span class="ident">ident</span>(#<span class="ident">receiver</span> #( , #<span class="ident">inputs</span> )<span class="op">*</span> ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                #( #<span class="ident">statements</span> )<span class="op">*</span>
+            #( #attrs )*
+            #vis <span class="kw">fn </span>#ident(#receiver #( , #inputs )* ) -&gt; <span class="self">Self</span>::#output_ident {
+                #( #statements )*
             }
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">generate_trait_item_impl</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="macro">assert!</span>(<span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_some</span>());
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_trait_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
-        <span class="kw">let</span> <span class="ident">trait_path</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">trait_path</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;encountered missing trait path for trait impl block&quot;</span>);
-        <span class="kw">let</span> <span class="ident">self_type</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">self_type</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="kw">impl</span> #<span class="ident">trait_path</span> <span class="kw">for</span> #<span class="ident">self_type</span> {
-                <span class="kw">type</span> <span class="ident">__ink_TraitInfo</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>
-                    <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>;
+    <span class="kw">fn </span>generate_trait_item_impl(item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
+        <span class="macro">assert!</span>(item_impl.trait_path().is_some());
+        <span class="kw">let </span>span = item_impl.span();
+        <span class="kw">let </span>attrs = item_impl.attrs();
+        <span class="kw">let </span>messages = item_impl
+            .iter_messages()
+            .map(|cws| <span class="self">Self</span>::generate_trait_message(cws.callable()));
+        <span class="kw">let </span>trait_path = item_impl
+            .trait_path()
+            .expect(<span class="string">&quot;encountered missing trait path for trait impl block&quot;</span>);
+        <span class="kw">let </span>self_type = item_impl.self_type();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            #( #attrs )*
+            <span class="kw">impl </span>#trait_path <span class="kw">for </span>#self_type {
+                <span class="kw">type </span>__ink_TraitInfo = &lt;::ink::reflect::TraitDefinitionRegistry&lt;Environment&gt;
+                    <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo;
 
-                #( #<span class="ident">messages</span> )<span class="op">*</span>
+                #( #messages )*
             }
         )
     }
 
-    <span class="doccomment">/// Generates the code for the given ink! constructor within an inherent implementation block.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Developer Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The `__ink_dylint_Constructor` config attribute is used here to convey the</span>
-    <span class="doccomment">/// information that the generated function is an ink! constructor to `dylint`.</span>
-    <span class="kw">fn</span> <span class="ident">generate_inherent_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Constructor</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">visibility</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>();
-        <span class="kw">let</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">statements</span>();
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">output</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__ink_dylint_Constructor&quot;</span>))]</span>
-            #<span class="ident">vis</span> <span class="kw">fn</span> #<span class="ident">ident</span>( #( #<span class="ident">inputs</span> ),<span class="op">*</span> ) -&gt; #<span class="ident">output</span> {
-                #( #<span class="ident">statements</span> )<span class="op">*</span>
+    <span class="doccomment">/// Generates the code for the given ink! constructor within an inherent implementation block.
+    ///
+    /// # Developer Note
+    ///
+    /// The `__ink_dylint_Constructor` config attribute is used here to convey the
+    /// information that the generated function is an ink! constructor to `dylint`.
+    </span><span class="kw">fn </span>generate_inherent_constructor(constructor: <span class="kw-2">&amp;</span>ir::Constructor) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = constructor.span();
+        <span class="kw">let </span>attrs = constructor.attrs();
+        <span class="kw">let </span>vis = constructor.visibility();
+        <span class="kw">let </span>ident = constructor.ident();
+        <span class="kw">let </span>inputs = constructor.inputs();
+        <span class="kw">let </span>statements = constructor.statements();
+        <span class="kw">let </span>output = constructor.output();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            #( #attrs )*
+            <span class="attribute">#[cfg(not(feature = <span class="string">&quot;__ink_dylint_Constructor&quot;</span>))]
+            </span>#vis <span class="kw">fn </span>#ident( #( #inputs ),* ) -&gt; #output {
+                #( #statements )*
             }
         )
     }
 
-    <span class="doccomment">/// Generates the code for the given ink! message within an inherent implementation block.</span>
-    <span class="kw">fn</span> <span class="ident">generate_inherent_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Message</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">visibility</span>();
-        <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>();
-        <span class="kw">let</span> <span class="ident">output_arrow</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">quote!</span> { -&gt; });
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>();
-        <span class="kw">let</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">statements</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            #<span class="ident">vis</span> <span class="kw">fn</span> #<span class="ident">ident</span>(#<span class="ident">receiver</span> #( , #<span class="ident">inputs</span> )<span class="op">*</span> ) #<span class="ident">output_arrow</span> #<span class="ident">output</span> {
-                #( #<span class="ident">statements</span> )<span class="op">*</span>
+    <span class="doccomment">/// Generates the code for the given ink! message within an inherent implementation block.
+    </span><span class="kw">fn </span>generate_inherent_message(message: <span class="kw-2">&amp;</span>ir::Message) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = message.span();
+        <span class="kw">let </span>attrs = message.attrs();
+        <span class="kw">let </span>vis = message.visibility();
+        <span class="kw">let </span>receiver = message.receiver();
+        <span class="kw">let </span>ident = message.ident();
+        <span class="kw">let </span>inputs = message.inputs();
+        <span class="kw">let </span>output_arrow = message.output().map(|<span class="kw">_</span>| <span class="macro">quote! </span>{ -&gt; });
+        <span class="kw">let </span>output = message.output();
+        <span class="kw">let </span>statements = message.statements();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            #( #attrs )*
+            #vis <span class="kw">fn </span>#ident(#receiver #( , #inputs )* ) #output_arrow #output {
+                #( #statements )*
             }
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">generate_inherent_item_impl</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="macro">assert!</span>(<span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>());
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_inherent_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
-        <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">iter_constructors</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_inherent_constructor</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
-        <span class="kw">let</span> <span class="ident">other_items</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">items</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="ident">ir::ImplItem::filter_map_other_item</span>)
-            .<span class="ident">map</span>(<span class="ident">ToTokens::to_token_stream</span>);
-        <span class="kw">let</span> <span class="ident">self_type</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">self_type</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="kw">impl</span> #<span class="ident">self_type</span> {
-                #( #<span class="ident">constructors</span> )<span class="op">*</span>
-                #( #<span class="ident">messages</span> )<span class="op">*</span>
-                #( #<span class="ident">other_items</span> )<span class="op">*</span>
+    <span class="kw">fn </span>generate_inherent_item_impl(item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
+        <span class="macro">assert!</span>(item_impl.trait_path().is_none());
+        <span class="kw">let </span>span = item_impl.span();
+        <span class="kw">let </span>attrs = item_impl.attrs();
+        <span class="kw">let </span>messages = item_impl
+            .iter_messages()
+            .map(|cws| <span class="self">Self</span>::generate_inherent_message(cws.callable()));
+        <span class="kw">let </span>constructors = item_impl
+            .iter_constructors()
+            .map(|cws| <span class="self">Self</span>::generate_inherent_constructor(cws.callable()));
+        <span class="kw">let </span>other_items = item_impl
+            .items()
+            .iter()
+            .filter_map(ir::ImplItem::filter_map_other_item)
+            .map(ToTokens::to_token_stream);
+        <span class="kw">let </span>self_type = item_impl.self_type();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            #( #attrs )*
+            <span class="kw">impl </span>#self_type {
+                #( #constructors )*
+                #( #messages )*
+                #( #other_items )*
             }
         )
     }
 
-    <span class="doccomment">/// Generates code to guard against ink! implementations that have not been implemented</span>
-    <span class="doccomment">/// for the ink! storage struct.</span>
-    <span class="kw">fn</span> <span class="ident">generate_item_impl_self_ty_guard</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">self_ty</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">self_type</span>();
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">self_ty</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="kw">const</span> <span class="kw">_</span>: <span class="ident">::ink::codegen::utils::IsSameType</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">::ink::codegen::utils::IsSameType</span>::<span class="op">&lt;</span>#<span class="ident">self_ty</span><span class="op">&gt;</span><span class="ident">::new</span>();
+    <span class="doccomment">/// Generates code to guard against ink! implementations that have not been implemented
+    /// for the ink! storage struct.
+    </span><span class="kw">fn </span>generate_item_impl_self_ty_guard(<span class="kw-2">&amp;</span><span class="self">self</span>, item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
+        <span class="kw">let </span>self_ty = item_impl.self_type();
+        <span class="kw">let </span>span = self_ty.span();
+        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            <span class="kw">const _</span>: ::ink::codegen::utils::IsSameType&lt;#storage_ident&gt; =
+                ::ink::codegen::utils::IsSameType::&lt;#self_ty&gt;::new();
         )
     }
 
-    <span class="doccomment">/// Generates code for the given ink! implementation block.</span>
-    <span class="kw">fn</span> <span class="ident">generate_item_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">self_ty_guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_item_impl_self_ty_guard</span>(<span class="ident">item_impl</span>);
-        <span class="kw">let</span> <span class="ident">impl_block</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::generate_trait_item_impl</span>(<span class="ident">item_impl</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="ident"><span class="self">Self</span>::generate_inherent_item_impl</span>(<span class="ident">item_impl</span>),
+    <span class="doccomment">/// Generates code for the given ink! implementation block.
+    </span><span class="kw">fn </span>generate_item_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
+        <span class="kw">let </span>self_ty_guard = <span class="self">self</span>.generate_item_impl_self_ty_guard(item_impl);
+        <span class="kw">let </span>impl_block = <span class="kw">match </span>item_impl.trait_path() {
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::generate_trait_item_impl(item_impl),
+            <span class="prelude-val">None </span>=&gt; <span class="self">Self</span>::generate_inherent_item_impl(item_impl),
         };
-        <span class="macro">quote!</span> {
-            #<span class="ident">self_ty_guard</span>
-            #<span class="ident">impl_block</span>
+        <span class="macro">quote! </span>{
+            #self_ty_guard
+            #impl_block
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

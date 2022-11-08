@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/specs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>specs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/specs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>specs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_metadata/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_metadata/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -1312,1317 +1312,1317 @@
 <span id="1310">1310</span>
 <span id="1311">1311</span>
 <span id="1312">1312</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_ret_no_self</span>)]</span>
+</span><span class="attribute">#![allow(clippy::new_ret_no_self)]
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">serde_hex</span>,
-    <span class="ident">utils::trim_extra_whitespace</span>,
+</span><span class="kw">use crate</span>::{
+    serde_hex,
+    utils::trim_extra_whitespace,
 };
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::{
-    <span class="ident">format</span>,
-    <span class="ident">vec</span>,
-    <span class="ident">vec::Vec</span>,
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">use </span>alloc::{
+    format,
+    vec,
+    vec::Vec,
 };
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
-<span class="kw">use</span> <span class="ident">scale_info</span>::{
-    <span class="ident">form</span>::{
-        <span class="ident">Form</span>,
-        <span class="ident">MetaForm</span>,
-        <span class="ident">PortableForm</span>,
+<span class="kw">use </span>core::marker::PhantomData;
+<span class="kw">use </span>scale_info::{
+    form::{
+        Form,
+        MetaForm,
+        PortableForm,
     },
-    <span class="ident">meta_type</span>,
-    <span class="ident">IntoPortable</span>,
-    <span class="ident">Registry</span>,
-    <span class="ident">TypeInfo</span>,
+    meta_type,
+    IntoPortable,
+    Registry,
+    TypeInfo,
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{
-    <span class="ident">de::DeserializeOwned</span>,
-    <span class="ident">Deserialize</span>,
-    <span class="ident">Serialize</span>,
+<span class="kw">use </span>serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
 };
 
-<span class="doccomment">/// Describes a contract.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The set of constructors of the contract.</span>
-    <span class="ident">constructors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The external messages of the contract.</span>
-    <span class="ident">messages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The events of the contract.</span>
-    <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The contract documentation.</span>
-    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F::String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Describes a contract.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+</span><span class="kw">pub struct </span>ContractSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The set of constructors of the contract.
+    </span>constructors: Vec&lt;ConstructorSpec&lt;F&gt;&gt;,
+    <span class="doccomment">/// The external messages of the contract.
+    </span>messages: Vec&lt;MessageSpec&lt;F&gt;&gt;,
+    <span class="doccomment">/// The events of the contract.
+    </span>events: Vec&lt;EventSpec&lt;F&gt;&gt;,
+    <span class="doccomment">/// The contract documentation.
+    </span>docs: Vec&lt;F::String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ContractSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>ContractSpec {
+    <span class="kw">type </span>Output = ContractSpec&lt;PortableForm&gt;;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">ContractSpec</span> {
-            <span class="ident">constructors</span>: <span class="self">self</span>
-                .<span class="ident">constructors</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> <span class="ident">constructor</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">messages</span>: <span class="self">self</span>
-                .<span class="ident">messages</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">msg</span><span class="op">|</span> <span class="ident">msg</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">events</span>: <span class="self">self</span>
-                .<span class="ident">events</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">event</span><span class="op">|</span> <span class="ident">event</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">docs</span>: <span class="self">self</span>.<span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        ContractSpec {
+            constructors: <span class="self">self
+                </span>.constructors
+                .into_iter()
+                .map(|constructor| constructor.into_portable(registry))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            messages: <span class="self">self
+                </span>.messages
+                .into_iter()
+                .map(|msg| msg.into_portable(registry))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            events: <span class="self">self
+                </span>.events
+                .into_iter()
+                .map(|event| event.into_portable(registry))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            docs: <span class="self">self</span>.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ContractSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Returns the set of constructors of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">constructors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">constructors</span>
+    <span class="doccomment">/// Returns the set of constructors of the contract.
+    </span><span class="kw">pub fn </span>constructors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[ConstructorSpec&lt;F&gt;] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.constructors
     }
 
-    <span class="doccomment">/// Returns the external messages of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">messages</span>
+    <span class="doccomment">/// Returns the external messages of the contract.
+    </span><span class="kw">pub fn </span>messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MessageSpec&lt;F&gt;] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.messages
     }
 
-    <span class="doccomment">/// Returns the events of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">events</span>
+    <span class="doccomment">/// Returns the events of the contract.
+    </span><span class="kw">pub fn </span>events(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[EventSpec&lt;F&gt;] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.events
     }
 
-    <span class="doccomment">/// Returns the contract documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
+    <span class="doccomment">/// Returns the contract documentation.
+    </span><span class="kw">pub fn </span>docs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[F::String] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.docs
     }
 }
 
-<span class="doccomment">/// The message builder is ready to finalize construction.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Valid</span> {}
-<span class="doccomment">/// The message builder is not ready to finalize construction.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Invalid</span> {}
+<span class="doccomment">/// The message builder is ready to finalize construction.
+</span><span class="kw">pub enum </span>Valid {}
+<span class="doccomment">/// The message builder is not ready to finalize construction.
+</span><span class="kw">pub enum </span>Invalid {}
 
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span> <span class="op">=</span> <span class="ident">Invalid</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="attribute">#[must_use]
+</span><span class="kw">pub struct </span>ContractSpecBuilder&lt;F, S = Invalid&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// The to-be-constructed contract specification.</span>
-    <span class="ident">spec</span>: <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Marker for compile-time checking of valid contract specifications.</span>
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The to-be-constructed contract specification.
+    </span>spec: ContractSpec&lt;F&gt;,
+    <span class="doccomment">/// Marker for compile-time checking of valid contract specifications.
+    </span>marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; S&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Invalid</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ContractSpecBuilder&lt;F, Invalid&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the constructors of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">constructors</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">constructors</span>: <span class="ident">C</span>) -&gt; <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Valid</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">C</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the constructors of the contract specification.
+    </span><span class="kw">pub fn </span>constructors&lt;C&gt;(<span class="self">self</span>, constructors: C) -&gt; ContractSpecBuilder&lt;F, Valid&gt;
+    <span class="kw">where
+        </span>C: IntoIterator&lt;Item = ConstructorSpec&lt;F&gt;&gt;,
     {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">constructors</span>.<span class="ident">is_empty</span>());
-        <span class="ident">ContractSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">ContractSpec</span> {
-                <span class="ident">constructors</span>: <span class="ident">constructors</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.spec.constructors.is_empty());
+        ContractSpecBuilder {
+            spec: ContractSpec {
+                constructors: constructors.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">Default::default</span>(),
+            marker: Default::default(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S&gt; ContractSpecBuilder&lt;F, S&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the messages of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">messages</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">messages</span>: <span class="ident">M</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">M</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the messages of the contract specification.
+    </span><span class="kw">pub fn </span>messages&lt;M&gt;(<span class="self">self</span>, messages: M) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>M: IntoIterator&lt;Item = MessageSpec&lt;F&gt;&gt;,
     {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">messages</span>.<span class="ident">is_empty</span>());
-        <span class="self">Self</span> {
-            <span class="ident">spec</span>: <span class="ident">ContractSpec</span> {
-                <span class="ident">messages</span>: <span class="ident">messages</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.spec.messages.is_empty());
+        <span class="self">Self </span>{
+            spec: ContractSpec {
+                messages: messages.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                ..<span class="self">self</span>.spec
             },
-            ..<span class="self">self</span>
-        }
+            ..<span class="self">self
+        </span>}
     }
 
-    <span class="doccomment">/// Sets the events of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">events</span>: <span class="ident">E</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the events of the contract specification.
+    </span><span class="kw">pub fn </span>events&lt;E&gt;(<span class="self">self</span>, events: E) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>E: IntoIterator&lt;Item = EventSpec&lt;F&gt;&gt;,
     {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">events</span>.<span class="ident">is_empty</span>());
-        <span class="self">Self</span> {
-            <span class="ident">spec</span>: <span class="ident">ContractSpec</span> {
-                <span class="ident">events</span>: <span class="ident">events</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.spec.events.is_empty());
+        <span class="self">Self </span>{
+            spec: ContractSpec {
+                events: events.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                ..<span class="self">self</span>.spec
             },
-            ..<span class="self">self</span>
-        }
+            ..<span class="self">self
+        </span>}
     }
 
-    <span class="doccomment">/// Sets the documentation of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the documentation of the contract specification.
+    </span><span class="kw">pub fn </span>docs&lt;D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>D: IntoIterator&lt;Item = &lt;F <span class="kw">as </span>Form&gt;::String&gt;,
     {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="self">Self</span> {
-            <span class="ident">spec</span>: <span class="ident">ContractSpec</span> {
-                <span class="ident">docs</span>: <span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.spec.docs.is_empty());
+        <span class="self">Self </span>{
+            spec: ContractSpec {
+                docs: docs.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                ..<span class="self">self</span>.spec
             },
-            ..<span class="self">self</span>
-        }
+            ..<span class="self">self
+        </span>}
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Valid</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ContractSpecBuilder&lt;F, Valid&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Finalizes construction of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Finalizes construction of the contract specification.
+    </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; ContractSpec&lt;F&gt; {
         <span class="macro">assert!</span>(
-            <span class="op">!</span><span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">constructors</span>.<span class="ident">is_empty</span>(),
-            <span class="string">&quot;must have at least one constructor&quot;</span>
-        );
+            !<span class="self">self</span>.spec.constructors.is_empty(),
+            <span class="string">&quot;must have at least one constructor&quot;
+        </span>);
         <span class="macro">assert!</span>(
-            <span class="op">!</span><span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">messages</span>.<span class="ident">is_empty</span>(),
-            <span class="string">&quot;must have at least one message&quot;</span>
-        );
-        <span class="self">self</span>.<span class="ident">spec</span>
+            !<span class="self">self</span>.spec.messages.is_empty(),
+            <span class="string">&quot;must have at least one message&quot;
+        </span>);
+        <span class="self">self</span>.spec
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ContractSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Creates a new contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Invalid</span><span class="op">&gt;</span> {
-        <span class="ident">ContractSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="self">Self</span> {
-                <span class="ident">constructors</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">messages</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">events</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">docs</span>: <span class="ident">Vec::new</span>(),
+    <span class="doccomment">/// Creates a new contract specification.
+    </span><span class="kw">pub fn </span>new() -&gt; ContractSpecBuilder&lt;F, Invalid&gt; {
+        ContractSpecBuilder {
+            spec: <span class="self">Self </span>{
+                constructors: Vec::new(),
+                messages: Vec::new(),
+                events: Vec::new(),
+                docs: Vec::new(),
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="doccomment">/// Describes a constructor of a contract.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>,
-))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The label of the constructor.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In case of a trait provided constructor the label is prefixed with the trait label.</span>
-    <span class="kw">pub</span> <span class="ident">label</span>: <span class="ident">F::String</span>,
-    <span class="doccomment">/// The selector hash of the message.</span>
-    <span class="kw">pub</span> <span class="ident">selector</span>: <span class="ident">Selector</span>,
-    <span class="doccomment">/// If the constructor accepts any `value` from the caller.</span>
-    <span class="kw">pub</span> <span class="ident">payable</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// The parameters of the deployment handler.</span>
-    <span class="kw">pub</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The return type of the constructor..</span>
-    <span class="kw">pub</span> <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The deployment handler documentation.</span>
-    <span class="kw">pub</span> <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F::String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Describes a constructor of a contract.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>,
+))]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>ConstructorSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The label of the constructor.
+    ///
+    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    </span><span class="kw">pub </span>label: F::String,
+    <span class="doccomment">/// The selector hash of the message.
+    </span><span class="kw">pub </span>selector: Selector,
+    <span class="doccomment">/// If the constructor accepts any `value` from the caller.
+    </span><span class="kw">pub </span>payable: bool,
+    <span class="doccomment">/// The parameters of the deployment handler.
+    </span><span class="kw">pub </span>args: Vec&lt;MessageParamSpec&lt;F&gt;&gt;,
+    <span class="doccomment">/// The return type of the constructor..
+    </span><span class="kw">pub </span>return_type: ReturnTypeSpec&lt;F&gt;,
+    <span class="doccomment">/// The deployment handler documentation.
+    </span><span class="kw">pub </span>docs: Vec&lt;F::String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ConstructorSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>ConstructorSpec {
+    <span class="kw">type </span>Output = ConstructorSpec&lt;PortableForm&gt;;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">ConstructorSpec</span> {
-            <span class="ident">label</span>: <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">selector</span>: <span class="self">self</span>.<span class="ident">selector</span>,
-            <span class="ident">payable</span>: <span class="self">self</span>.<span class="ident">payable</span>,
-            <span class="ident">args</span>: <span class="self">self</span>
-                .<span class="ident">args</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="ident">arg</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
-            <span class="ident">docs</span>: <span class="self">self</span>.<span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        ConstructorSpec {
+            label: <span class="self">self</span>.label.to_string(),
+            selector: <span class="self">self</span>.selector,
+            payable: <span class="self">self</span>.payable,
+            args: <span class="self">self
+                </span>.args
+                .into_iter()
+                .map(|arg| arg.into_portable(registry))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            return_type: <span class="self">self</span>.return_type.into_portable(registry),
+            docs: <span class="self">self</span>.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ConstructorSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Returns the label of the constructor.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In case of a trait provided constructor the label is prefixed with the trait label.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>
+    <span class="doccomment">/// Returns the label of the constructor.
+    ///
+    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::String {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.label
     }
 
-    <span class="doccomment">/// Returns the selector hash of the constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Selector</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>
+    <span class="doccomment">/// Returns the selector hash of the constructor.
+    </span><span class="kw">pub fn </span>selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Selector {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.selector
     }
 
-    <span class="doccomment">/// Returns if the constructor is payable by the caller.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">bool</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">payable</span>
+    <span class="doccomment">/// Returns if the constructor is payable by the caller.
+    </span><span class="kw">pub fn </span>payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>bool {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.payable
     }
 
-    <span class="doccomment">/// Returns the parameters of the deployment handler.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>
+    <span class="doccomment">/// Returns the parameters of the deployment handler.
+    </span><span class="kw">pub fn </span>args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MessageParamSpec&lt;F&gt;] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.args
     }
 
-    <span class="doccomment">/// Returns the return type of the constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">return_type</span>
+    <span class="doccomment">/// Returns the return type of the constructor.
+    </span><span class="kw">pub fn </span>return_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ReturnTypeSpec&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.return_type
     }
 
-    <span class="doccomment">/// Returns the deployment handler documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
+    <span class="doccomment">/// Returns the deployment handler documentation.
+    </span><span class="kw">pub fn </span>docs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[F::String] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.docs
     }
 }
 
-<span class="doccomment">/// A builder for constructors.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Developer Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Some fields are guarded by a type-state pattern to fail at</span>
-<span class="doccomment">/// compile-time instead of at run-time. This is useful to better</span>
-<span class="doccomment">/// debug code-gen macros.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span>, <span class="ident">Selector</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span><span class="op">&gt;</span> {
-    <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">Selector</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// A builder for constructors.
+///
+/// # Developer Note
+///
+/// Some fields are guarded by a type-state pattern to fail at
+/// compile-time instead of at run-time. This is useful to better
+/// debug code-gen macros.
+</span><span class="attribute">#[allow(clippy::type_complexity)]
+#[must_use]
+</span><span class="kw">pub struct </span>ConstructorSpecBuilder&lt;F: Form, Selector, IsPayable, Returns&gt; {
+    spec: ConstructorSpec&lt;F&gt;,
+    marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; (Selector, IsPayable, Returns)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ConstructorSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Creates a new constructor spec builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_label</span>(
-        <span class="ident">label</span>: <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span>,
-    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span>
-        <span class="ident">F</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Returns</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span> {
-        <span class="ident">ConstructorSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="self">Self</span> {
-                <span class="ident">label</span>,
-                <span class="ident">selector</span>: <span class="ident">Selector::default</span>(),
-                <span class="ident">payable</span>: <span class="ident">Default::default</span>(),
-                <span class="ident">args</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec::new</span>(<span class="prelude-val">None</span>),
-                <span class="ident">docs</span>: <span class="ident">Vec::new</span>(),
+    <span class="doccomment">/// Creates a new constructor spec builder.
+    </span><span class="kw">pub fn </span>from_label(
+        label: &lt;F <span class="kw">as </span>Form&gt;::String,
+    ) -&gt; ConstructorSpecBuilder&lt;
+        F,
+        Missing&lt;state::Selector&gt;,
+        Missing&lt;state::IsPayable&gt;,
+        Missing&lt;state::Returns&gt;,
+    &gt; {
+        ConstructorSpecBuilder {
+            spec: <span class="self">Self </span>{
+                label,
+                selector: Selector::default(),
+                payable: Default::default(),
+                args: Vec::new(),
+                return_type: ReturnTypeSpec::new(<span class="prelude-val">None</span>),
+                docs: Vec::new(),
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, P, R&gt; ConstructorSpecBuilder&lt;F, Missing&lt;state::Selector&gt;, P, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the function selector of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(
+    <span class="doccomment">/// Sets the function selector of the message.
+    </span><span class="kw">pub fn </span>selector(
         <span class="self">self</span>,
-        <span class="ident">selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>],
-    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">state::Selector</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">ConstructorSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span> {
-                <span class="ident">selector</span>: <span class="ident">selector</span>.<span class="ident">into</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        selector: [u8; <span class="number">4</span>],
+    ) -&gt; ConstructorSpecBuilder&lt;F, state::Selector, P, R&gt; {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                selector: selector.into(),
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S, R&gt; ConstructorSpecBuilder&lt;F, S, Missing&lt;state::IsPayable&gt;, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets if the constructor is payable, thus accepting value for the caller.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(
+    <span class="doccomment">/// Sets if the constructor is payable, thus accepting value for the caller.
+    </span><span class="kw">pub fn </span>payable(
         <span class="self">self</span>,
-        <span class="ident">is_payable</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">state::IsPayable</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">ConstructorSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span> {
-                <span class="ident">payable</span>: <span class="ident">is_payable</span>,
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        is_payable: bool,
+    ) -&gt; ConstructorSpecBuilder&lt;F, S, state::IsPayable, R&gt; {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                payable: is_payable,
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">P</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">P</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Returns</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S, P&gt; ConstructorSpecBuilder&lt;F, S, P, Missing&lt;state::Returns&gt;&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the return type of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns</span>(
+    <span class="doccomment">/// Sets the return type of the message.
+    </span><span class="kw">pub fn </span>returns(
         <span class="self">self</span>,
-        <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">P</span>, <span class="ident">state::Returns</span><span class="op">&gt;</span> {
-        <span class="ident">ConstructorSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span> {
-                <span class="ident">return_type</span>,
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        return_type: ReturnTypeSpec&lt;F&gt;,
+    ) -&gt; ConstructorSpecBuilder&lt;F, S, P, state::Returns&gt; {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                return_type,
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S, P, R&gt; ConstructorSpecBuilder&lt;F, S, P, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the input arguments of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the input arguments of the message specification.
+    </span><span class="kw">pub fn </span>args&lt;A&gt;(<span class="self">self</span>, args: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>A: IntoIterator&lt;Item = MessageParamSpec&lt;F&gt;&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">args</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">args</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">this</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        <span class="macro">debug_assert!</span>(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this
     }
 
-    <span class="doccomment">/// Sets the documentation of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
-        <span class="ident">F::String</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the documentation of the message specification.
+    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">&#39;a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">trim_extra_whitespace</span>(<span class="ident">s</span>).<span class="ident">into</span>())
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">this</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        <span class="macro">debug_assert!</span>(this.spec.docs.is_empty());
+        this.spec.docs = docs
+            .into_iter()
+            .map(|s| trim_extra_whitespace(s).into())
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">state::Selector</span>, <span class="ident">state::IsPayable</span>, <span class="ident">state::Returns</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; ConstructorSpecBuilder&lt;F, state::Selector, state::IsPayable, state::Returns&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Finishes construction of the constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">spec</span>
+    <span class="doccomment">/// Finishes construction of the constructor.
+    </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; ConstructorSpec&lt;F&gt; {
+        <span class="self">self</span>.spec
     }
 }
 
-<span class="doccomment">/// Describes a contract message.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The label of the message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In case of trait provided messages and constructors the prefix</span>
-    <span class="doccomment">/// by convention in ink! is the label of the trait.</span>
-    <span class="ident">label</span>: <span class="ident">F::String</span>,
-    <span class="doccomment">/// The selector hash of the message.</span>
-    <span class="ident">selector</span>: <span class="ident">Selector</span>,
-    <span class="doccomment">/// If the message is allowed to mutate the contract state.</span>
-    <span class="ident">mutates</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If the message accepts any `value` from the caller.</span>
-    <span class="ident">payable</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// The parameters of the message.</span>
-    <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The return type of the message.</span>
-    <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The message documentation.</span>
-    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F::String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Describes a contract message.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>MessageSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The label of the message.
+    ///
+    /// In case of trait provided messages and constructors the prefix
+    /// by convention in ink! is the label of the trait.
+    </span>label: F::String,
+    <span class="doccomment">/// The selector hash of the message.
+    </span>selector: Selector,
+    <span class="doccomment">/// If the message is allowed to mutate the contract state.
+    </span>mutates: bool,
+    <span class="doccomment">/// If the message accepts any `value` from the caller.
+    </span>payable: bool,
+    <span class="doccomment">/// The parameters of the message.
+    </span>args: Vec&lt;MessageParamSpec&lt;F&gt;&gt;,
+    <span class="doccomment">/// The return type of the message.
+    </span>return_type: ReturnTypeSpec&lt;F&gt;,
+    <span class="doccomment">/// The message documentation.
+    </span>docs: Vec&lt;F::String&gt;,
 }
 
-<span class="doccomment">/// Type state for builders to tell that some mandatory state has not yet been set</span>
-<span class="doccomment">/// yet or to fail upon setting the same state multiple times.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">S</span><span class="op">&gt;</span>);
+<span class="doccomment">/// Type state for builders to tell that some mandatory state has not yet been set
+/// yet or to fail upon setting the same state multiple times.
+</span><span class="kw">pub struct </span>Missing&lt;S&gt;(PhantomData&lt;<span class="kw">fn</span>() -&gt; S&gt;);
 
-<span class="kw">mod</span> <span class="ident">state</span> {
-    <span class="doccomment">//! Type states that tell what state of a message has not</span>
-    <span class="doccomment">//! yet been set properly for a valid construction.</span>
+<span class="kw">mod </span>state {
+    <span class="doccomment">//! Type states that tell what state of a message has not
+    //! yet been set properly for a valid construction.
 
-    <span class="doccomment">/// Type state for the message selector of a message.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Selector</span>;
-    <span class="doccomment">/// Type state for the mutability of a message.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mutates</span>;
-    <span class="doccomment">/// Type state for telling if the message is payable.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IsPayable</span>;
-    <span class="doccomment">/// Type state for the message return type.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Returns</span>;
+    /// Type state for the message selector of a message.
+    </span><span class="kw">pub struct </span>Selector;
+    <span class="doccomment">/// Type state for the mutability of a message.
+    </span><span class="kw">pub struct </span>Mutates;
+    <span class="doccomment">/// Type state for telling if the message is payable.
+    </span><span class="kw">pub struct </span>IsPayable;
+    <span class="doccomment">/// Type state for the message return type.
+    </span><span class="kw">pub struct </span>Returns;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; MessageSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Creates a new message spec builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_label</span>(
-        <span class="ident">label</span>: <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span>,
-    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
-        <span class="ident">F</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Mutates</span><span class="op">&gt;</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>,
-        <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Returns</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span> {
-        <span class="ident">MessageSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="self">Self</span> {
-                <span class="ident">label</span>,
-                <span class="ident">selector</span>: <span class="ident">Selector::default</span>(),
-                <span class="ident">mutates</span>: <span class="bool-val">false</span>,
-                <span class="ident">payable</span>: <span class="bool-val">false</span>,
-                <span class="ident">args</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec::new</span>(<span class="prelude-val">None</span>),
-                <span class="ident">docs</span>: <span class="ident">Vec::new</span>(),
+    <span class="doccomment">/// Creates a new message spec builder.
+    </span><span class="kw">pub fn </span>from_label(
+        label: &lt;F <span class="kw">as </span>Form&gt;::String,
+    ) -&gt; MessageSpecBuilder&lt;
+        F,
+        Missing&lt;state::Selector&gt;,
+        Missing&lt;state::Mutates&gt;,
+        Missing&lt;state::IsPayable&gt;,
+        Missing&lt;state::Returns&gt;,
+    &gt; {
+        MessageSpecBuilder {
+            spec: <span class="self">Self </span>{
+                label,
+                selector: Selector::default(),
+                mutates: <span class="bool-val">false</span>,
+                payable: <span class="bool-val">false</span>,
+                args: Vec::new(),
+                return_type: ReturnTypeSpec::new(<span class="prelude-val">None</span>),
+                docs: Vec::new(),
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; MessageSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Returns the label of the message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In case of trait provided messages and constructors the prefix</span>
-    <span class="doccomment">/// by convention in ink! is the label of the trait.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>
+    <span class="doccomment">/// Returns the label of the message.
+    ///
+    /// In case of trait provided messages and constructors the prefix
+    /// by convention in ink! is the label of the trait.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::String {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.label
     }
 
-    <span class="doccomment">/// Returns the selector hash of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Selector</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>
+    <span class="doccomment">/// Returns the selector hash of the message.
+    </span><span class="kw">pub fn </span>selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Selector {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.selector
     }
 
-    <span class="doccomment">/// Returns true if the message is allowed to mutate the contract state.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">mutates</span>
+    <span class="doccomment">/// Returns true if the message is allowed to mutate the contract state.
+    </span><span class="kw">pub fn </span>mutates(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.mutates
     }
 
-    <span class="doccomment">/// Returns true if the message is payable by the caller.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">payable</span>
+    <span class="doccomment">/// Returns true if the message is payable by the caller.
+    </span><span class="kw">pub fn </span>payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.payable
     }
 
-    <span class="doccomment">/// Returns the parameters of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>
+    <span class="doccomment">/// Returns the parameters of the message.
+    </span><span class="kw">pub fn </span>args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[MessageParamSpec&lt;F&gt;] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.args
     }
 
-    <span class="doccomment">/// Returns the return type of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">return_type</span>
+    <span class="doccomment">/// Returns the return type of the message.
+    </span><span class="kw">pub fn </span>return_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ReturnTypeSpec&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.return_type
     }
 
-    <span class="doccomment">/// Returns the message documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
+    <span class="doccomment">/// Returns the message documentation.
+    </span><span class="kw">pub fn </span>docs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[F::String] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.docs
     }
 }
 
-<span class="doccomment">/// A builder for messages.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Developer Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Some fields are guarded by a type-state pattern to fail at</span>
-<span class="doccomment">/// compile-time instead of at run-time. This is useful to better</span>
-<span class="doccomment">/// debug code-gen macros.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="doccomment">/// A builder for messages.
+///
+/// # Developer Note
+///
+/// Some fields are guarded by a type-state pattern to fail at
+/// compile-time instead of at run-time. This is useful to better
+/// debug code-gen macros.
+</span><span class="attribute">#[allow(clippy::type_complexity)]
+#[must_use]
+</span><span class="kw">pub struct </span>MessageSpecBuilder&lt;F, Selector, Mutates, IsPayable, Returns&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="ident">spec</span>: <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span>)<span class="op">&gt;</span>,
+    spec: MessageSpec&lt;F&gt;,
+    marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; (Selector, Mutates, IsPayable, Returns)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, M, P, R&gt; MessageSpecBuilder&lt;F, Missing&lt;state::Selector&gt;, M, P, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the function selector of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(
+    <span class="doccomment">/// Sets the function selector of the message.
+    </span><span class="kw">pub fn </span>selector(
         <span class="self">self</span>,
-        <span class="ident">selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>],
-    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">state::Selector</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">MessageSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
-                <span class="ident">selector</span>: <span class="ident">selector</span>.<span class="ident">into</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        selector: [u8; <span class="number">4</span>],
+    ) -&gt; MessageSpecBuilder&lt;F, state::Selector, M, P, R&gt; {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                selector: selector.into(),
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Mutates</span><span class="op">&gt;</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S, P, R&gt; MessageSpecBuilder&lt;F, S, Missing&lt;state::Mutates&gt;, P, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets if the message is mutable, thus taking `&amp;mut self` or not thus taking `&amp;self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(
+    <span class="doccomment">/// Sets if the message is mutable, thus taking `&amp;mut self` or not thus taking `&amp;self`.
+    </span><span class="kw">pub fn </span>mutates(
         <span class="self">self</span>,
-        <span class="ident">mutates</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">state::Mutates</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">MessageSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
-                <span class="ident">mutates</span>,
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        mutates: bool,
+    ) -&gt; MessageSpecBuilder&lt;F, S, state::Mutates, P, R&gt; {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                mutates,
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S, M, R&gt; MessageSpecBuilder&lt;F, S, M, Missing&lt;state::IsPayable&gt;, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets if the message is payable, thus accepting value for the caller.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(
+    <span class="doccomment">/// Sets if the message is payable, thus accepting value for the caller.
+    </span><span class="kw">pub fn </span>payable(
         <span class="self">self</span>,
-        <span class="ident">is_payable</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">state::IsPayable</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-        <span class="ident">MessageSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
-                <span class="ident">payable</span>: <span class="ident">is_payable</span>,
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        is_payable: bool,
+    ) -&gt; MessageSpecBuilder&lt;F, S, M, state::IsPayable, R&gt; {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                payable: is_payable,
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">M</span>, <span class="ident">S</span>, <span class="ident">P</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Returns</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, M, S, P&gt; MessageSpecBuilder&lt;F, S, M, P, Missing&lt;state::Returns&gt;&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the return type of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns</span>(
+    <span class="doccomment">/// Sets the return type of the message.
+    </span><span class="kw">pub fn </span>returns(
         <span class="self">self</span>,
-        <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">state::Returns</span><span class="op">&gt;</span> {
-        <span class="ident">MessageSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
-                <span class="ident">return_type</span>,
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        return_type: ReturnTypeSpec&lt;F&gt;,
+    ) -&gt; MessageSpecBuilder&lt;F, S, M, P, state::Returns&gt; {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                return_type,
+                ..<span class="self">self</span>.spec
             },
-            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
+            marker: PhantomData,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F, S, M, P, R&gt; MessageSpecBuilder&lt;F, S, M, P, R&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the input arguments of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the input arguments of the message specification.
+    </span><span class="kw">pub fn </span>args&lt;A&gt;(<span class="self">self</span>, args: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>A: IntoIterator&lt;Item = MessageParamSpec&lt;F&gt;&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">args</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">args</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">this</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        <span class="macro">debug_assert!</span>(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this
     }
 
-    <span class="doccomment">/// Sets the documentation of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the documentation of the message specification.
+    </span><span class="kw">pub fn </span>docs&lt;D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>D: IntoIterator&lt;Item = &lt;F <span class="kw">as </span>Form&gt;::String&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">this</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        <span class="macro">debug_assert!</span>(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-    <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
-        <span class="ident">F</span>,
-        <span class="ident">state::Selector</span>,
-        <span class="ident">state::Mutates</span>,
-        <span class="ident">state::IsPayable</span>,
-        <span class="ident">state::Returns</span>,
-    <span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt;
+    MessageSpecBuilder&lt;
+        F,
+        state::Selector,
+        state::Mutates,
+        state::IsPayable,
+        state::Returns,
+    &gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Finishes construction of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">spec</span>
+    <span class="doccomment">/// Finishes construction of the message.
+    </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; MessageSpec&lt;F&gt; {
+        <span class="self">self</span>.spec
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">MessageSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>MessageSpec {
+    <span class="kw">type </span>Output = MessageSpec&lt;PortableForm&gt;;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">MessageSpec</span> {
-            <span class="ident">label</span>: <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">selector</span>: <span class="self">self</span>.<span class="ident">selector</span>,
-            <span class="ident">mutates</span>: <span class="self">self</span>.<span class="ident">mutates</span>,
-            <span class="ident">payable</span>: <span class="self">self</span>.<span class="ident">payable</span>,
-            <span class="ident">args</span>: <span class="self">self</span>
-                .<span class="ident">args</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="ident">arg</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
-            <span class="ident">docs</span>: <span class="self">self</span>.<span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        MessageSpec {
+            label: <span class="self">self</span>.label.to_string(),
+            selector: <span class="self">self</span>.selector,
+            mutates: <span class="self">self</span>.mutates,
+            payable: <span class="self">self</span>.payable,
+            args: <span class="self">self
+                </span>.args
+                .into_iter()
+                .map(|arg| arg.into_portable(registry))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            return_type: <span class="self">self</span>.return_type.into_portable(registry),
+            docs: <span class="self">self</span>.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
-<span class="doccomment">/// Describes an event definition.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The label of the event.</span>
-    <span class="ident">label</span>: <span class="ident">F::String</span>,
-    <span class="doccomment">/// The event arguments.</span>
-    <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The event documentation.</span>
-    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F::String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Describes an event definition.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+</span><span class="kw">pub struct </span>EventSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The label of the event.
+    </span>label: F::String,
+    <span class="doccomment">/// The event arguments.
+    </span>args: Vec&lt;EventParamSpec&lt;F&gt;&gt;,
+    <span class="doccomment">/// The event documentation.
+    </span>docs: Vec&lt;F::String&gt;,
 }
 
-<span class="doccomment">/// An event specification builder.</span>
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="doccomment">/// An event specification builder.
+</span><span class="attribute">#[must_use]
+</span><span class="kw">pub struct </span>EventSpecBuilder&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="ident">spec</span>: <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
+    spec: EventSpec&lt;F&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">EventSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; EventSpecBuilder&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the input arguments of the event specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the input arguments of the event specification.
+    </span><span class="kw">pub fn </span>args&lt;A&gt;(<span class="self">self</span>, args: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>A: IntoIterator&lt;Item = EventParamSpec&lt;F&gt;&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">args</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">args</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">this</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        <span class="macro">debug_assert!</span>(this.spec.args.is_empty());
+        this.spec.args = args.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this
     }
 
-    <span class="doccomment">/// Sets the input arguments of the event specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Sets the input arguments of the event specification.
+    </span><span class="kw">pub fn </span>docs&lt;D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>D: IntoIterator&lt;Item = &lt;F <span class="kw">as </span>Form&gt;::String&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="macro">debug_assert!</span>(<span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">docs</span> <span class="op">=</span> <span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">this</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        <span class="macro">debug_assert!</span>(this.spec.docs.is_empty());
+        this.spec.docs = docs.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this
     }
 
-    <span class="doccomment">/// Finalizes building the event specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">spec</span>
+    <span class="doccomment">/// Finalizes building the event specification.
+    </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; EventSpec&lt;F&gt; {
+        <span class="self">self</span>.spec
     }
 }
 
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">EventSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>EventSpec {
+    <span class="kw">type </span>Output = EventSpec&lt;PortableForm&gt;;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">EventSpec</span> {
-            <span class="ident">label</span>: <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">args</span>: <span class="self">self</span>
-                .<span class="ident">args</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="ident">arg</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">docs</span>: <span class="self">self</span>.<span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        EventSpec {
+            label: <span class="self">self</span>.label.to_string(),
+            args: <span class="self">self
+                </span>.args
+                .into_iter()
+                .map(|arg| arg.into_portable(registry))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            docs: <span class="self">self</span>.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl</span>&lt;F&gt; EventSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Creates a new event specification builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">label</span>: <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span>) -&gt; <span class="ident">EventSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">EventSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="self">Self</span> {
-                <span class="ident">label</span>,
-                <span class="ident">args</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">docs</span>: <span class="ident">Vec::new</span>(),
-            },
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
-{
-    <span class="doccomment">/// Returns the label of the event.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>
-    }
-
-    <span class="doccomment">/// The event arguments.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>
-    }
-
-    <span class="doccomment">/// The event documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
-    }
-}
-
-<span class="doccomment">/// The 4 byte selector to identify constructors and messages</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">derive_more::From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Selector</span>([<span class="ident">u8</span>; <span class="number">4</span>]);
-
-<span class="kw">impl</span> <span class="ident">serde::Serialize</span> <span class="kw">for</span> <span class="ident">Selector</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">serde::Serializer</span>,
-    {
-        <span class="ident">serde_hex::serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, <span class="ident">serializer</span>)
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Selector</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arr</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">4</span>];
-        <span class="ident">serde_hex::deserialize_check_len</span>(<span class="ident">d</span>, <span class="ident">serde_hex::ExpectedLen::Exact</span>(<span class="kw-2">&amp;mut</span> <span class="ident">arr</span>[..]))<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">arr</span>.<span class="ident">into</span>())
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Selector</span> {
-    <span class="doccomment">/// Create a new custom selector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">bytes</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
-    {
-        <span class="self">Self</span>(<span class="ident">bytes</span>.<span class="ident">into</span>())
-    }
-
-    <span class="doccomment">/// Returns the underlying selector bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
-    }
-}
-
-<span class="doccomment">/// Describes the syntactical name of a type at a given type position.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is important when trying to work with type aliases.</span>
-<span class="doccomment">/// Normally a type alias is transparent and so scenarios such as</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// type Foo = i32;</span>
-<span class="doccomment">/// fn bar(foo: Foo);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// Will only communicate that `foo` is of type `i32` which is correct,</span>
-<span class="doccomment">/// however, it will miss the potentially important information that it</span>
-<span class="doccomment">/// is being used through a type alias named `Foo`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In ink! we currently experience this problem with environmental types</span>
-<span class="doccomment">/// such as the `Balance` type that is just a type alias to `u128` in the</span>
-<span class="doccomment">/// default setup. Even though it would be useful for third party tools</span>
-<span class="doccomment">/// such as the Polkadot UI to know that we are handling with `Balance`</span>
-<span class="doccomment">/// types, we currently cannot communicate this without display names.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">scale_info::Path</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>;
-
-<span class="doccomment">/// A type specification.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This contains the actual type as well as an optional compile-time</span>
-<span class="doccomment">/// known displayed representation of the type. This is useful for cases</span>
-<span class="doccomment">/// where the type is used through a type alias in order to provide</span>
-<span class="doccomment">/// information about the alias name.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Consider the following Rust function:</span>
-<span class="doccomment">/// ```no_compile</span>
-<span class="doccomment">/// fn is_sorted(input: &amp;[i32], pred: Predicate) -&gt; bool;</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// In this above example `input` would have no displayable name,</span>
-<span class="doccomment">/// `pred`s display name is `Predicate` and the display name of</span>
-<span class="doccomment">/// the return type is simply `bool`. Note that `Predicate` could</span>
-<span class="doccomment">/// simply be a type alias to `fn(i32, i32) -&gt; Ordering`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The actual type.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
-    <span class="ident">ty</span>: <span class="ident">F::Type</span>,
-    <span class="doccomment">/// The compile-time known displayed representation of the type.</span>
-    <span class="ident">display_name</span>: <span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">TypeSpec::of_type</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">ty</span>: <span class="ident">u32::default</span>().<span class="ident">into</span>(),
-            <span class="ident">display_name</span>: <span class="ident">Default::default</span>(),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">TypeSpec</span> {
-            <span class="ident">ty</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>),
-            <span class="ident">display_name</span>: <span class="self">self</span>.<span class="ident">display_name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">TypeSpec</span> {
-    <span class="doccomment">/// Creates a new type specification with a display name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The name is any valid Rust identifier or path.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the given display name is invalid.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_name_str</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">display_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="ident"><span class="self">Self</span>::with_name_segs</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">display_name</span>.<span class="ident">split</span>(<span class="string">&quot;::&quot;</span>))
-    }
-
-    <span class="doccomment">/// Creates a new type specification with a display name</span>
-    <span class="doccomment">/// represented by the given path segments.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The display name segments all must be valid Rust identifiers.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the given display name is invalid.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_name_segs</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">S</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    {
-        <span class="self">Self</span> {
-            <span class="ident">ty</span>: <span class="ident">meta_type</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
-            <span class="ident">display_name</span>: <span class="ident">DisplayName::from_segments</span>(<span class="ident">segments</span>)
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;display name is invalid: {:?}&quot;</span>, <span class="ident">err</span>)),
-        }
-    }
-
-    <span class="doccomment">/// Creates a new type specification without a display name.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Example:</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use ink_metadata::{TypeSpec, ReturnTypeSpec};</span>
-    <span class="doccomment">/// ReturnTypeSpec::new(TypeSpec::of_type::&lt;i32&gt;()); // return type of `i32`</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="self">Self</span> {
-            <span class="ident">ty</span>: <span class="ident">meta_type</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
-            <span class="ident">display_name</span>: <span class="ident">DisplayName::default</span>(),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
-{
-    <span class="doccomment">/// Returns the actual type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::Type</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
-    }
-
-    <span class="doccomment">/// Returns the compile-time known displayed representation of the type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">display_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">display_name</span>
-    }
-
-    <span class="doccomment">/// Creates a new type specification for a given type and display name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ty</span>: <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::Type</span>, <span class="ident">display_name</span>: <span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">ty</span>, <span class="ident">display_name</span> }
-    }
-}
-
-<span class="doccomment">/// Implementing this trait for some type `T` indicates what the return spec of</span>
-<span class="doccomment">/// `T` will be in the metadata, given `T` is used as the result of a constructor.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ConstructorReturnSpec</span> {
-    <span class="doccomment">/// Generates the type spec.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note:</span>
-    <span class="doccomment">/// The default implementation generates [`TypeSpec`] for `()`, hence it can</span>
-    <span class="doccomment">/// be used directly for constructor returning `Self`.</span>
-    <span class="kw">fn</span> <span class="ident">generate</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments_opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">TypeSpec</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">segments</span>) <span class="op">=</span> <span class="ident">segments_opt</span> {
-            <span class="ident">TypeSpec::with_name_segs</span>::<span class="op">&lt;</span>(), <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">TypeSpec::of_type</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>()
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">ConstructorReturnSpec</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">E</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">fn</span> <span class="ident">generate</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments_opt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">TypeSpec</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">segments</span>) <span class="op">=</span> <span class="ident">segments_opt</span> {
-            <span class="ident">TypeSpec::with_name_segs</span>::<span class="op">&lt;</span><span class="ident">core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">TypeSpec::of_type</span>::<span class="op">&lt;</span><span class="ident">core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-        }
-    }
-}
-
-<span class="doccomment">/// Describes a pair of parameter label and type.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The label of the parameter.</span>
-    <span class="ident">label</span>: <span class="ident">F::String</span>,
-    <span class="doccomment">/// If the event parameter is indexed.</span>
-    <span class="ident">indexed</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// The type of the parameter.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
-    <span class="ident">ty</span>: <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The documentation associated with the arguments.</span>
-    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F::String</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">EventParamSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">EventParamSpec</span> {
-            <span class="ident">label</span>: <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">indexed</span>: <span class="self">self</span>.<span class="ident">indexed</span>,
-            <span class="ident">ty</span>: <span class="self">self</span>.<span class="ident">ty</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
-            <span class="ident">docs</span>: <span class="self">self</span>.<span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
-    <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>: <span class="ident">Default</span>,
-{
-    <span class="doccomment">/// Creates a new event parameter specification builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">label</span>: <span class="ident">F::String</span>) -&gt; <span class="ident">EventParamSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">EventParamSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="self">Self</span> {
-                <span class="ident">label</span>,
-                <span class="comment">// By default event parameters are not indexed.</span>
-                <span class="ident">indexed</span>: <span class="bool-val">false</span>,
-                <span class="comment">// We initialize every parameter type as `()`.</span>
-                <span class="ident">ty</span>: <span class="ident">Default::default</span>(),
-                <span class="comment">// We start with empty docs.</span>
-                <span class="ident">docs</span>: <span class="macro">vec!</span>[],
+    <span class="doccomment">/// Creates a new event specification builder.
+    </span><span class="kw">pub fn </span>new(label: &lt;F <span class="kw">as </span>Form&gt;::String) -&gt; EventSpecBuilder&lt;F&gt; {
+        EventSpecBuilder {
+            spec: <span class="self">Self </span>{
+                label,
+                args: Vec::new(),
+                docs: Vec::new(),
             },
         }
     }
-    <span class="doccomment">/// Returns the label of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>
+}
+
+<span class="kw">impl</span>&lt;F&gt; EventSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
+{
+    <span class="doccomment">/// Returns the label of the event.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::String {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.label
     }
 
-    <span class="doccomment">/// Returns true if the event parameter is indexed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indexed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">indexed</span>
+    <span class="doccomment">/// The event arguments.
+    </span><span class="kw">pub fn </span>args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[EventParamSpec&lt;F&gt;] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.args
     }
 
-    <span class="doccomment">/// Returns the type of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
-    }
-
-    <span class="doccomment">/// Returns the documentation associated with the arguments.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
+    <span class="doccomment">/// The event documentation.
+    </span><span class="kw">pub fn </span>docs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[F::String] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.docs
     }
 }
 
-<span class="doccomment">/// Used to construct an event parameter specification.</span>
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventParamSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
-{
-    <span class="doccomment">/// The built-up event parameter specification.</span>
-    <span class="ident">spec</span>: <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-}
+<span class="doccomment">/// The 4 byte selector to identify constructors and messages
+</span><span class="attribute">#[derive(Debug, Default, PartialEq, Eq, derive_more::From)]
+</span><span class="kw">pub struct </span>Selector([u8; <span class="number">4</span>]);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">EventParamSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
-{
-    <span class="doccomment">/// Sets the type of the event parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span>(<span class="self">self</span>, <span class="ident">spec</span>: <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">ty</span> <span class="op">=</span> <span class="ident">spec</span>;
-        <span class="ident">this</span>
-    }
-
-    <span class="doccomment">/// If the event parameter is indexed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indexed</span>(<span class="self">self</span>, <span class="ident">is_indexed</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">indexed</span> <span class="op">=</span> <span class="ident">is_indexed</span>;
-        <span class="ident">this</span>
-    }
-
-    <span class="doccomment">/// Sets the documentation of the event parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">F</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>serde::Serialize <span class="kw">for </span>Selector {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: serde::Serializer,
     {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">docs</span>.<span class="ident">is_empty</span>());
-        <span class="self">Self</span> {
-            <span class="ident">spec</span>: <span class="ident">EventParamSpec</span> {
-                <span class="ident">docs</span>: <span class="ident">docs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                ..<span class="self">self</span>.<span class="ident">spec</span>
+        serde_hex::serialize(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, serializer)
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; serde::Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Selector {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>arr = [<span class="number">0</span>; <span class="number">4</span>];
+        serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(<span class="kw-2">&amp;mut </span>arr[..]))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(arr.into())
+    }
+}
+
+<span class="kw">impl </span>Selector {
+    <span class="doccomment">/// Create a new custom selector.
+    </span><span class="kw">pub fn </span>new&lt;T&gt;(bytes: T) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: Into&lt;[u8; <span class="number">4</span>]&gt;,
+    {
+        <span class="self">Self</span>(bytes.into())
+    }
+
+    <span class="doccomment">/// Returns the underlying selector bytes.
+    </span><span class="kw">pub fn </span>to_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="doccomment">/// Describes the syntactical name of a type at a given type position.
+///
+/// This is important when trying to work with type aliases.
+/// Normally a type alias is transparent and so scenarios such as
+/// ```no_compile
+/// type Foo = i32;
+/// fn bar(foo: Foo);
+/// ```
+/// Will only communicate that `foo` is of type `i32` which is correct,
+/// however, it will miss the potentially important information that it
+/// is being used through a type alias named `Foo`.
+///
+/// In ink! we currently experience this problem with environmental types
+/// such as the `Balance` type that is just a type alias to `u128` in the
+/// default setup. Even though it would be useful for third party tools
+/// such as the Polkadot UI to know that we are handling with `Balance`
+/// types, we currently cannot communicate this without display names.
+</span><span class="kw">pub type </span>DisplayName&lt;F&gt; = scale_info::Path&lt;F&gt;;
+
+<span class="doccomment">/// A type specification.
+///
+/// This contains the actual type as well as an optional compile-time
+/// known displayed representation of the type. This is useful for cases
+/// where the type is used through a type alias in order to provide
+/// information about the alias name.
+///
+/// # Examples
+///
+/// Consider the following Rust function:
+/// ```no_compile
+/// fn is_sorted(input: &amp;[i32], pred: Predicate) -&gt; bool;
+/// ```
+/// In this above example `input` would have no displayable name,
+/// `pred`s display name is `Predicate` and the display name of
+/// the return type is simply `bool`. Note that `Predicate` could
+/// simply be a type alias to `fn(i32, i32) -&gt; Ordering`.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+#[serde(rename_all = <span class="string">&quot;camelCase&quot;</span>)]
+</span><span class="kw">pub struct </span>TypeSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The actual type.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span>ty: F::Type,
+    <span class="doccomment">/// The compile-time known displayed representation of the type.
+    </span>display_name: DisplayName&lt;F&gt;,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>TypeSpec&lt;MetaForm&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        TypeSpec::of_type::&lt;()&gt;()
+    }
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>TypeSpec&lt;PortableForm&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            ty: u32::default().into(),
+            display_name: Default::default(),
+        }
+    }
+}
+
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>TypeSpec {
+    <span class="kw">type </span>Output = TypeSpec&lt;PortableForm&gt;;
+
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        TypeSpec {
+            ty: registry.register_type(<span class="kw-2">&amp;</span><span class="self">self</span>.ty),
+            display_name: <span class="self">self</span>.display_name.into_portable(registry),
+        }
+    }
+}
+
+<span class="kw">impl </span>TypeSpec {
+    <span class="doccomment">/// Creates a new type specification with a display name.
+    ///
+    /// The name is any valid Rust identifier or path.
+    ///
+    /// # Examples
+    ///
+    /// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given display name is invalid.
+    </span><span class="kw">pub fn </span>with_name_str&lt;T&gt;(display_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
+    {
+        <span class="self">Self</span>::with_name_segs::&lt;T, <span class="kw">_</span>&gt;(display_name.split(<span class="string">&quot;::&quot;</span>))
+    }
+
+    <span class="doccomment">/// Creates a new type specification with a display name
+    /// represented by the given path segments.
+    ///
+    /// The display name segments all must be valid Rust identifiers.
+    ///
+    /// # Examples
+    ///
+    /// Valid display names are `foo`, `foo::bar`, `foo::bar::Baz`, etc.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the given display name is invalid.
+    </span><span class="kw">pub fn </span>with_name_segs&lt;T, S&gt;(segments: S) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
+        S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    {
+        <span class="self">Self </span>{
+            ty: meta_type::&lt;T&gt;(),
+            display_name: DisplayName::from_segments(segments)
+                .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;display name is invalid: {:?}&quot;</span>, err)),
+        }
+    }
+
+    <span class="doccomment">/// Creates a new type specification without a display name.
+    ///
+    /// Example:
+    /// ```no_run
+    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
+    /// ReturnTypeSpec::new(TypeSpec::of_type::&lt;i32&gt;()); // return type of `i32`
+    /// ```
+    </span><span class="kw">pub fn </span>of_type&lt;T&gt;() -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: TypeInfo + <span class="lifetime">&#39;static</span>,
+    {
+        <span class="self">Self </span>{
+            ty: meta_type::&lt;T&gt;(),
+            display_name: DisplayName::default(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;F&gt; TypeSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
+{
+    <span class="doccomment">/// Returns the actual type.
+    </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::Type {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ty
+    }
+
+    <span class="doccomment">/// Returns the compile-time known displayed representation of the type.
+    </span><span class="kw">pub fn </span>display_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DisplayName&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.display_name
+    }
+
+    <span class="doccomment">/// Creates a new type specification for a given type and display name.
+    </span><span class="kw">pub fn </span>new(ty: &lt;F <span class="kw">as </span>Form&gt;::Type, display_name: DisplayName&lt;F&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ ty, display_name }
+    }
+}
+
+<span class="doccomment">/// Implementing this trait for some type `T` indicates what the return spec of
+/// `T` will be in the metadata, given `T` is used as the result of a constructor.
+</span><span class="kw">pub trait </span>ConstructorReturnSpec {
+    <span class="doccomment">/// Generates the type spec.
+    ///
+    /// Note:
+    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
+    /// be used directly for constructor returning `Self`.
+    </span><span class="kw">fn </span>generate&lt;S&gt;(segments_opt: <span class="prelude-ty">Option</span>&lt;S&gt;) -&gt; TypeSpec
+    <span class="kw">where
+        </span>S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(segments) = segments_opt {
+            TypeSpec::with_name_segs::&lt;(), S&gt;(segments)
+        } <span class="kw">else </span>{
+            TypeSpec::of_type::&lt;()&gt;()
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;O, E&gt; ConstructorReturnSpec <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;O, E&gt;
+<span class="kw">where
+    </span>E: TypeInfo + <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">fn </span>generate&lt;S&gt;(segments_opt: <span class="prelude-ty">Option</span>&lt;S&gt;) -&gt; TypeSpec
+    <span class="kw">where
+        </span>S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(segments) = segments_opt {
+            TypeSpec::with_name_segs::&lt;core::result::Result&lt;(), E&gt;, S&gt;(segments)
+        } <span class="kw">else </span>{
+            TypeSpec::of_type::&lt;core::result::Result&lt;(), E&gt;&gt;()
+        }
+    }
+}
+
+<span class="doccomment">/// Describes a pair of parameter label and type.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+</span><span class="kw">pub struct </span>EventParamSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The label of the parameter.
+    </span>label: F::String,
+    <span class="doccomment">/// If the event parameter is indexed.
+    </span>indexed: bool,
+    <span class="doccomment">/// The type of the parameter.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span>ty: TypeSpec&lt;F&gt;,
+    <span class="doccomment">/// The documentation associated with the arguments.
+    </span>docs: Vec&lt;F::String&gt;,
+}
+
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>EventParamSpec {
+    <span class="kw">type </span>Output = EventParamSpec&lt;PortableForm&gt;;
+
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        EventParamSpec {
+            label: <span class="self">self</span>.label.to_string(),
+            indexed: <span class="self">self</span>.indexed,
+            ty: <span class="self">self</span>.ty.into_portable(registry),
+            docs: <span class="self">self</span>.docs.into_iter().map(|s| s.into()).collect(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;F&gt; EventParamSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
+    TypeSpec&lt;F&gt;: Default,
+{
+    <span class="doccomment">/// Creates a new event parameter specification builder.
+    </span><span class="kw">pub fn </span>new(label: F::String) -&gt; EventParamSpecBuilder&lt;F&gt; {
+        EventParamSpecBuilder {
+            spec: <span class="self">Self </span>{
+                label,
+                <span class="comment">// By default event parameters are not indexed.
+                </span>indexed: <span class="bool-val">false</span>,
+                <span class="comment">// We initialize every parameter type as `()`.
+                </span>ty: Default::default(),
+                <span class="comment">// We start with empty docs.
+                </span>docs: <span class="macro">vec!</span>[],
             },
         }
     }
+    <span class="doccomment">/// Returns the label of the parameter.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::String {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.label
+    }
 
-    <span class="doccomment">/// Finishes constructing the event parameter spec.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">spec</span>
+    <span class="doccomment">/// Returns true if the event parameter is indexed.
+    </span><span class="kw">pub fn </span>indexed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.indexed
+    }
+
+    <span class="doccomment">/// Returns the type of the parameter.
+    </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>TypeSpec&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ty
+    }
+
+    <span class="doccomment">/// Returns the documentation associated with the arguments.
+    </span><span class="kw">pub fn </span>docs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[F::String] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.docs
     }
 }
 
-<span class="doccomment">/// Describes the contract message return type.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">transparent</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
-    <span class="ident">opt_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ReturnTypeSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">ReturnTypeSpec</span> {
-            <span class="ident">opt_type</span>: <span class="self">self</span>
-                .<span class="ident">opt_type</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">opt_type</span><span class="op">|</span> <span class="ident">opt_type</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>)),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="doccomment">/// Used to construct an event parameter specification.
+</span><span class="attribute">#[must_use]
+</span><span class="kw">pub struct </span>EventParamSpecBuilder&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Creates a new return type specification from the given type or `None`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use ink_metadata::{TypeSpec, ReturnTypeSpec};</span>
-    <span class="doccomment">/// &lt;ReturnTypeSpec&lt;scale_info::form::MetaForm&gt;&gt;::new(None); // no return type;</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The built-up event parameter specification.
+    </span>spec: EventParamSpec&lt;F&gt;,
+}
+
+<span class="kw">impl</span>&lt;F&gt; EventParamSpecBuilder&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
+{
+    <span class="doccomment">/// Sets the type of the event parameter.
+    </span><span class="kw">pub fn </span>of_type(<span class="self">self</span>, spec: TypeSpec&lt;F&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        this.spec.ty = spec;
+        this
+    }
+
+    <span class="doccomment">/// If the event parameter is indexed.
+    </span><span class="kw">pub fn </span>indexed(<span class="self">self</span>, is_indexed: bool) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        this.spec.indexed = is_indexed;
+        this
+    }
+
+    <span class="doccomment">/// Sets the documentation of the event parameter.
+    </span><span class="kw">pub fn </span>docs&lt;D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>D: IntoIterator&lt;Item = &lt;F <span class="kw">as </span>Form&gt;::String&gt;,
     {
-        <span class="self">Self</span> {
-            <span class="ident">opt_type</span>: <span class="ident">ty</span>.<span class="ident">into</span>(),
-        }
-    }
-
-    <span class="doccomment">/// Returns the optional return type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opt_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">opt_type</span>.<span class="ident">as_ref</span>()
-    }
-}
-
-<span class="doccomment">/// Describes a pair of parameter label and type.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
-    <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
-    <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
-))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The label of the parameter.</span>
-    <span class="ident">label</span>: <span class="ident">F::String</span>,
-    <span class="doccomment">/// The type of the parameter.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
-    <span class="ident">ty</span>: <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">MessageParamSpec</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">MessageParamSpec</span> {
-            <span class="ident">label</span>: <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">ty</span>: <span class="self">self</span>.<span class="ident">ty</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
-    <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>: <span class="ident">Default</span>,
-{
-    <span class="doccomment">/// Constructs a new message parameter specification via builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">label</span>: <span class="ident">F::String</span>) -&gt; <span class="ident">MessageParamSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">MessageParamSpecBuilder</span> {
-            <span class="ident">spec</span>: <span class="self">Self</span> {
-                <span class="ident">label</span>,
-                <span class="comment">// Uses `()` type by default.</span>
-                <span class="ident">ty</span>: <span class="ident">TypeSpec::default</span>(),
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.spec.docs.is_empty());
+        <span class="self">Self </span>{
+            spec: EventParamSpec {
+                docs: docs.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                ..<span class="self">self</span>.spec
             },
         }
     }
 
-    <span class="doccomment">/// Returns the label of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>
-    }
-
-    <span class="doccomment">/// Returns the type of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
+    <span class="doccomment">/// Finishes constructing the event parameter spec.
+    </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; EventParamSpec&lt;F&gt; {
+        <span class="self">self</span>.spec
     }
 }
 
-<span class="doccomment">/// Used to construct a message parameter specification.</span>
-<span class="attribute">#[<span class="ident">must_use</span>]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageParamSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The to-be-constructed message parameter specification.</span>
-    <span class="ident">spec</span>: <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Describes the contract message return type.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(transparent)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+#[must_use]
+</span><span class="kw">pub struct </span>ReturnTypeSpec&lt;F: Form = MetaForm&gt; {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span>opt_type: <span class="prelude-ty">Option</span>&lt;TypeSpec&lt;F&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> <span class="ident">MessageParamSpecBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Form</span>,
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>ReturnTypeSpec {
+    <span class="kw">type </span>Output = ReturnTypeSpec&lt;PortableForm&gt;;
+
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        ReturnTypeSpec {
+            opt_type: <span class="self">self
+                </span>.opt_type
+                .map(|opt_type| opt_type.into_portable(registry)),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;F&gt; ReturnTypeSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
 {
-    <span class="doccomment">/// Sets the type of the message parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span>(<span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">ty</span> <span class="op">=</span> <span class="ident">ty</span>;
-        <span class="ident">this</span>
+    <span class="doccomment">/// Creates a new return type specification from the given type or `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
+    /// &lt;ReturnTypeSpec&lt;scale_info::form::MetaForm&gt;&gt;::new(None); // no return type;
+    /// ```
+    </span><span class="kw">pub fn </span>new&lt;T&gt;(ty: T) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;TypeSpec&lt;F&gt;&gt;&gt;,
+    {
+        <span class="self">Self </span>{
+            opt_type: ty.into(),
+        }
     }
 
-    <span class="doccomment">/// Finishes construction of the message parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">spec</span>
+    <span class="doccomment">/// Returns the optional return type
+    </span><span class="kw">pub fn </span>opt_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TypeSpec&lt;F&gt;&gt; {
+        <span class="self">self</span>.opt_type.as_ref()
+    }
+}
+
+<span class="doccomment">/// Describes a pair of parameter label and type.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
+    deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
+</span>))]
+</span><span class="kw">pub struct </span>MessageParamSpec&lt;F: Form = MetaForm&gt; {
+    <span class="doccomment">/// The label of the parameter.
+    </span>label: F::String,
+    <span class="doccomment">/// The type of the parameter.
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;type&quot;</span>)]
+    </span>ty: TypeSpec&lt;F&gt;,
+}
+
+<span class="kw">impl </span>IntoPortable <span class="kw">for </span>MessageParamSpec {
+    <span class="kw">type </span>Output = MessageParamSpec&lt;PortableForm&gt;;
+
+    <span class="kw">fn </span>into_portable(<span class="self">self</span>, registry: <span class="kw-2">&amp;mut </span>Registry) -&gt; <span class="self">Self</span>::Output {
+        MessageParamSpec {
+            label: <span class="self">self</span>.label.to_string(),
+            ty: <span class="self">self</span>.ty.into_portable(registry),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;F&gt; MessageParamSpec&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
+    TypeSpec&lt;F&gt;: Default,
+{
+    <span class="doccomment">/// Constructs a new message parameter specification via builder.
+    </span><span class="kw">pub fn </span>new(label: F::String) -&gt; MessageParamSpecBuilder&lt;F&gt; {
+        MessageParamSpecBuilder {
+            spec: <span class="self">Self </span>{
+                label,
+                <span class="comment">// Uses `()` type by default.
+                </span>ty: TypeSpec::default(),
+            },
+        }
+    }
+
+    <span class="doccomment">/// Returns the label of the parameter.
+    </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::String {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.label
+    }
+
+    <span class="doccomment">/// Returns the type of the parameter.
+    </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>TypeSpec&lt;F&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ty
+    }
+}
+
+<span class="doccomment">/// Used to construct a message parameter specification.
+</span><span class="attribute">#[must_use]
+</span><span class="kw">pub struct </span>MessageParamSpecBuilder&lt;F: Form&gt; {
+    <span class="doccomment">/// The to-be-constructed message parameter specification.
+    </span>spec: MessageParamSpec&lt;F&gt;,
+}
+
+<span class="kw">impl</span>&lt;F&gt; MessageParamSpecBuilder&lt;F&gt;
+<span class="kw">where
+    </span>F: Form,
+{
+    <span class="doccomment">/// Sets the type of the message parameter.
+    </span><span class="kw">pub fn </span>of_type(<span class="self">self</span>, ty: TypeSpec&lt;F&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
+        this.spec.ty = ty;
+        this
+    }
+
+    <span class="doccomment">/// Finishes construction of the message parameter.
+    </span><span class="kw">pub fn </span>done(<span class="self">self</span>) -&gt; MessageParamSpec&lt;F&gt; {
+        <span class="self">self</span>.spec
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_metadata" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_metadata" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

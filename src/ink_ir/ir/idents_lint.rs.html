@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/idents_lint.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>idents_lint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/idents_lint.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>idents_lint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -101,101 +101,101 @@
 <span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="doccomment">/// Returns `Ok` if there are no occurrences of identifiers starting with `__ink_`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns a combined error for every instance of `__ink_` prefixed identifier found.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_no_ink_identifiers</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">checked</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">VisitBy</span>,
+</span><span class="doccomment">/// Returns `Ok` if there are no occurrences of identifiers starting with `__ink_`.
+///
+/// # Errors
+///
+/// Returns a combined error for every instance of `__ink_` prefixed identifier found.
+</span><span class="kw">pub fn </span>ensure_no_ink_identifiers&lt;T&gt;(checked: <span class="kw-2">&amp;</span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt;
+<span class="kw">where
+    </span>T: VisitBy,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visitor</span> <span class="op">=</span> <span class="ident">private::IdentVisitor::default</span>();
-    <span class="ident">checked</span>.<span class="ident">visit_by</span>(<span class="kw-2">&amp;mut</span> <span class="ident">visitor</span>);
-    <span class="ident">visitor</span>.<span class="ident">into_result</span>()
+    <span class="kw">let </span><span class="kw-2">mut </span>visitor = private::IdentVisitor::default();
+    checked.visit_by(<span class="kw-2">&amp;mut </span>visitor);
+    visitor.into_result()
 }
 
-<span class="doccomment">/// Makes sure to call the correct visitor function on the given visitor.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">VisitBy</span>: <span class="ident">private::Sealed</span> {
-    <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;mut</span> <span class="ident">private::IdentVisitor</span>);
+<span class="doccomment">/// Makes sure to call the correct visitor function on the given visitor.
+</span><span class="kw">pub trait </span>VisitBy: private::Sealed {
+    <span class="kw">fn </span>visit_by(<span class="kw-2">&amp;</span><span class="self">self</span>, visitor: <span class="kw-2">&amp;mut </span>private::IdentVisitor);
 }
 
-<span class="kw">mod</span> <span class="ident">private</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::VisitBy</span>;
-    <span class="kw">use</span> <span class="ident">proc_macro2::Ident</span>;
+<span class="kw">mod </span>private {
+    <span class="kw">use </span><span class="kw">super</span>::VisitBy;
+    <span class="kw">use </span>proc_macro2::Ident;
 
-    <span class="doccomment">/// Seals the implementation of `VisitBy`.</span>
-    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn::ItemMod</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn::ItemTrait</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn::ItemFn</span> {}
+    <span class="doccomment">/// Seals the implementation of `VisitBy`.
+    </span><span class="kw">pub trait </span>Sealed {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>syn::ItemMod {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>syn::ItemTrait {}
+    <span class="kw">impl </span>Sealed <span class="kw">for </span>syn::ItemFn {}
 
-    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn::ItemMod</span> {
-        <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;mut</span> <span class="ident">IdentVisitor</span>) {
-            <span class="ident">syn::visit::visit_item_mod</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
+    <span class="kw">impl </span>VisitBy <span class="kw">for </span>syn::ItemMod {
+        <span class="kw">fn </span>visit_by(<span class="kw-2">&amp;</span><span class="self">self</span>, visitor: <span class="kw-2">&amp;mut </span>IdentVisitor) {
+            syn::visit::visit_item_mod(visitor, <span class="self">self</span>);
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn::ItemTrait</span> {
-        <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;mut</span> <span class="ident">IdentVisitor</span>) {
-            <span class="ident">syn::visit::visit_item_trait</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
+    <span class="kw">impl </span>VisitBy <span class="kw">for </span>syn::ItemTrait {
+        <span class="kw">fn </span>visit_by(<span class="kw-2">&amp;</span><span class="self">self</span>, visitor: <span class="kw-2">&amp;mut </span>IdentVisitor) {
+            syn::visit::visit_item_trait(visitor, <span class="self">self</span>);
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn::ItemFn</span> {
-        <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;mut</span> <span class="ident">IdentVisitor</span>) {
-            <span class="ident">syn::visit::visit_item_fn</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
+    <span class="kw">impl </span>VisitBy <span class="kw">for </span>syn::ItemFn {
+        <span class="kw">fn </span>visit_by(<span class="kw-2">&amp;</span><span class="self">self</span>, visitor: <span class="kw-2">&amp;mut </span>IdentVisitor) {
+            syn::visit::visit_item_fn(visitor, <span class="self">self</span>);
         }
     }
 
-    <span class="doccomment">/// Visitor to ensure that there are no identifiers starting with `__ink_` as prefix.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If there are identifiers starting with `__ink_` as prefix in the input.</span>
-    <span class="doccomment">/// Will yield one combined error for all found encounters.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IdentVisitor</span> {
-        <span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Visitor to ensure that there are no identifiers starting with `__ink_` as prefix.
+    ///
+    /// # Errors
+    ///
+    /// If there are identifiers starting with `__ink_` as prefix in the input.
+    /// Will yield one combined error for all found encounters.
+    </span><span class="attribute">#[derive(Default)]
+    </span><span class="kw">pub struct </span>IdentVisitor {
+        errors: Vec&lt;syn::Error&gt;,
     }
 
-    <span class="kw">impl</span> <span class="ident">IdentVisitor</span> {
-        <span class="doccomment">/// Converts the visitor into the errors it found if any.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// Returns `Ok` if it found no errors during visitation.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_result</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">split_first</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(()),
-                <span class="prelude-val">Some</span>((<span class="ident">first</span>, <span class="ident">rest</span>)) =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">combined</span> <span class="op">=</span> <span class="ident">first</span>.<span class="ident">clone</span>();
-                    <span class="kw">for</span> <span class="ident">error</span> <span class="kw">in</span> <span class="ident">rest</span> {
-                        <span class="ident">combined</span>.<span class="ident">combine</span>(<span class="ident">error</span>.<span class="ident">clone</span>());
+    <span class="kw">impl </span>IdentVisitor {
+        <span class="doccomment">/// Converts the visitor into the errors it found if any.
+        ///
+        /// Returns `Ok` if it found no errors during visitation.
+        </span><span class="kw">pub fn </span>into_result(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+            <span class="kw">match </span><span class="self">self</span>.errors.split_first() {
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(()),
+                <span class="prelude-val">Some</span>((first, rest)) =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>combined = first.clone();
+                    <span class="kw">for </span>error <span class="kw">in </span>rest {
+                        combined.combine(error.clone());
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">combined</span>)
+                    <span class="prelude-val">Err</span>(combined)
                 }
             }
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">syn::visit::Visit</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IdentVisitor</span> {
-        <span class="kw">fn</span> <span class="ident">visit_ident</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ast</span> <span class="ident">Ident</span>) {
-            <span class="kw">if</span> <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">starts_with</span>(<span class="string">&quot;__ink_&quot;</span>) {
-                <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">push</span>(<span class="macro">format_err!</span>(
-                    <span class="ident">ident</span>,
+    <span class="kw">impl</span>&lt;<span class="lifetime">&#39;ast</span>&gt; syn::visit::Visit&lt;<span class="lifetime">&#39;ast</span>&gt; <span class="kw">for </span>IdentVisitor {
+        <span class="kw">fn </span>visit_ident(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ident: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ast </span>Ident) {
+            <span class="kw">if </span>ident.to_string().starts_with(<span class="string">&quot;__ink_&quot;</span>) {
+                <span class="self">self</span>.errors.push(<span class="macro">format_err!</span>(
+                    ident,
                     <span class="string">&quot;encountered invalid identifier starting with __ink_&quot;</span>,
                 ))
             }
@@ -203,4 +203,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

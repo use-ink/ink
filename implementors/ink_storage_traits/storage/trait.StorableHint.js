@@ -1,5 +1,5 @@
-(function() {var implementors = {};
-implementors["ink"] = [];
-implementors["ink_storage"] = [{"text":"impl&lt;K, V, Key, InnerKey&gt; StorableHint&lt;Key&gt; for <a class=\"struct\" href=\"ink_storage/struct.Mapping.html\" title=\"struct ink_storage::Mapping\">Mapping</a>&lt;K, V, InnerKey&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;V: Packed,<br>&nbsp;&nbsp;&nbsp;&nbsp;Key: StorageKey,<br>&nbsp;&nbsp;&nbsp;&nbsp;InnerKey: StorageKey,&nbsp;</span>","synthetic":false,"types":["ink_storage::lazy::mapping::Mapping"]},{"text":"impl&lt;V, Key, InnerKey&gt; StorableHint&lt;Key&gt; for <a class=\"struct\" href=\"ink_storage/struct.Lazy.html\" title=\"struct ink_storage::Lazy\">Lazy</a>&lt;V, InnerKey&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Key: StorageKey,<br>&nbsp;&nbsp;&nbsp;&nbsp;InnerKey: StorageKey,<br>&nbsp;&nbsp;&nbsp;&nbsp;V: StorableHint&lt;Key&gt;,&nbsp;</span>","synthetic":false,"types":["ink_storage::lazy::Lazy"]}];
-implementors["ink_storage_traits"] = [];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"ink":[],
+"ink_storage":[["impl&lt;K, V, Key, InnerKey&gt; StorableHint&lt;Key&gt; for <a class=\"struct\" href=\"ink_storage/struct.Mapping.html\" title=\"struct ink_storage::Mapping\">Mapping</a>&lt;K, V, InnerKey&gt;<span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;V: Packed,<br>&nbsp;&nbsp;&nbsp;&nbsp;Key: StorageKey,<br>&nbsp;&nbsp;&nbsp;&nbsp;InnerKey: StorageKey,</span>"],["impl&lt;V, Key, InnerKey&gt; StorableHint&lt;Key&gt; for <a class=\"struct\" href=\"ink_storage/struct.Lazy.html\" title=\"struct ink_storage::Lazy\">Lazy</a>&lt;V, InnerKey&gt;<span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Key: StorageKey,<br>&nbsp;&nbsp;&nbsp;&nbsp;InnerKey: StorageKey,<br>&nbsp;&nbsp;&nbsp;&nbsp;V: StorableHint&lt;Key&gt;,</span>"]],
+"ink_storage_traits":[]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

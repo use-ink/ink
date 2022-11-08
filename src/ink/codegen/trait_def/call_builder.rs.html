@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/codegen/trait_def/call_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/codegen/trait_def/call_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -81,86 +81,86 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="doccomment">/// The global call builder type for an ink! trait definition.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitCallBuilder</span> {
-    <span class="doccomment">/// The call builder type.</span>
-    <span class="kw">type</span> <span class="ident">Builder</span>;
+</span><span class="doccomment">/// The global call builder type for an ink! trait definition.
+</span><span class="kw">pub trait </span>TraitCallBuilder {
+    <span class="doccomment">/// The call builder type.
+    </span><span class="kw">type </span>Builder;
 
-    <span class="doccomment">/// Returns a shared reference to the global call builder type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This allows to call `&amp;self` ink! trait messages.</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Builder</span>;
+    <span class="doccomment">/// Returns a shared reference to the global call builder type.
+    ///
+    /// This allows to call `&amp;self` ink! trait messages.
+    </span><span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Builder;
 
-    <span class="doccomment">/// Returns an exclusive reference to the global call builder type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This allows to call any ink! trait message.</span>
-    <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Builder</span>;
+    <span class="doccomment">/// Returns an exclusive reference to the global call builder type.
+    ///
+    /// This allows to call any ink! trait message.
+    </span><span class="kw">fn </span>call_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Builder;
 }
 
-<span class="doccomment">/// Implemented by the global trait info provider.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It is used to query the global trait call forwarder.</span>
-<span class="doccomment">/// There is one global trait call forwarder that implements</span>
-<span class="doccomment">/// the call forwarding (short- and long-form) for all calls</span>
-<span class="doccomment">/// to this trait in `ink-as-dependency` configuration.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitCallForwarder</span> {
-    <span class="doccomment">/// The call forwarder type.</span>
-    <span class="kw">type</span> <span class="ident">Forwarder</span>: <span class="ident">TraitCallBuilder</span>;
+<span class="doccomment">/// Implemented by the global trait info provider.
+///
+/// It is used to query the global trait call forwarder.
+/// There is one global trait call forwarder that implements
+/// the call forwarding (short- and long-form) for all calls
+/// to this trait in `ink-as-dependency` configuration.
+</span><span class="kw">pub trait </span>TraitCallForwarder {
+    <span class="doccomment">/// The call forwarder type.
+    </span><span class="kw">type </span>Forwarder: TraitCallBuilder;
 }
 
-<span class="doccomment">/// Implemented by call builders of smart contracts.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// These might be implementing multiple different ink! traits.</span>
-<span class="doccomment">/// The codegen makes them implement this trait once for every</span>
-<span class="doccomment">/// ink! trait they have to implement.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// While the trait is not necessary it encapsulates a lot of</span>
-<span class="doccomment">/// utility and auxiliary code required for the actual ink! trait</span>
-<span class="doccomment">/// implementations.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitCallForwarderFor</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">TRAIT_ID</span>: <span class="ident">u32</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Forwarder</span>: <span class="ident">TraitCallBuilder</span>;
+<span class="doccomment">/// Implemented by call builders of smart contracts.
+///
+/// These might be implementing multiple different ink! traits.
+/// The codegen makes them implement this trait once for every
+/// ink! trait they have to implement.
+///
+/// While the trait is not necessary it encapsulates a lot of
+/// utility and auxiliary code required for the actual ink! trait
+/// implementations.
+</span><span class="kw">pub trait </span>TraitCallForwarderFor&lt;<span class="kw">const </span>TRAIT_ID: u32&gt; {
+    <span class="kw">type </span>Forwarder: TraitCallBuilder;
 
-    <span class="doccomment">/// Forwards the `&amp;self` call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used for the short-hand calling syntax.</span>
-    <span class="kw">fn</span> <span class="ident">forward</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Forwarder</span>;
+    <span class="doccomment">/// Forwards the `&amp;self` call.
+    ///
+    /// # Note
+    ///
+    /// This is used for the short-hand calling syntax.
+    </span><span class="kw">fn </span>forward(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Forwarder;
 
-    <span class="doccomment">/// Forwards the `&amp;mut self` call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used for the short-hand calling syntax.</span>
-    <span class="kw">fn</span> <span class="ident">forward_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>;
+    <span class="doccomment">/// Forwards the `&amp;mut self` call.
+    ///
+    /// # Note
+    ///
+    /// This is used for the short-hand calling syntax.
+    </span><span class="kw">fn </span>forward_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Forwarder;
 
-    <span class="doccomment">/// Builds up the `&amp;self` call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used for the long-hand calling syntax.</span>
-    <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Forwarder</span> <span class="kw">as</span> <span class="ident">TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>;
+    <span class="doccomment">/// Builds up the `&amp;self` call.
+    ///
+    /// # Note
+    ///
+    /// This is used for the long-hand calling syntax.
+    </span><span class="kw">fn </span>build(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>&lt;<span class="self">Self</span>::Forwarder <span class="kw">as </span>TraitCallBuilder&gt;::Builder;
 
-    <span class="doccomment">/// Builds up the `&amp;mut self` call.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used for the long-hand calling syntax.</span>
-    <span class="kw">fn</span> <span class="ident">build_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Forwarder</span> <span class="kw">as</span> <span class="ident">TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>;
+    <span class="doccomment">/// Builds up the `&amp;mut self` call.
+    ///
+    /// # Note
+    ///
+    /// This is used for the long-hand calling syntax.
+    </span><span class="kw">fn </span>build_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self</span>::Forwarder <span class="kw">as </span>TraitCallBuilder&gt;::Builder;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

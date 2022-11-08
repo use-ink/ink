@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/dispatch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/dispatch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -649,654 +649,654 @@
 <span id="647">647</span>
 <span id="648">648</span>
 <span id="649">649</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident">core::fmt::Display</span>;
+</span><span class="kw">use </span>core::fmt::Display;
 
-<span class="doccomment">/// Reflects the number of dispatchable ink! messages and constructors respectively.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - This is automatically implemented by all ink! smart contracts.</span>
-<span class="doccomment">/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.</span>
-<span class="doccomment">///   This explicitly includes ink! messages from ink! trait implementations.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::ContractAmountDispatchables;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor1() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor2() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message1(&amp;self) {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message2(&amp;self) {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message3(&amp;self) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     assert_eq!(&lt;Contract as ContractAmountDispatchables&gt;::CONSTRUCTORS, 2);</span>
-<span class="doccomment">///     assert_eq!(&lt;Contract as ContractAmountDispatchables&gt;::MESSAGES, 3);</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractAmountDispatchables</span> {
-    <span class="doccomment">/// The number of dispatchable ink! messages.</span>
-    <span class="kw">const</span> <span class="ident">MESSAGES</span>: <span class="ident">usize</span>;
-    <span class="doccomment">/// The number of dispatchable ink! constructors.</span>
-    <span class="kw">const</span> <span class="ident">CONSTRUCTORS</span>: <span class="ident">usize</span>;
+<span class="doccomment">/// Reflects the number of dispatchable ink! messages and constructors respectively.
+///
+/// # Note
+///
+/// - This is automatically implemented by all ink! smart contracts.
+/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.
+///   This explicitly includes ink! messages from ink! trait implementations.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::ContractAmountDispatchables;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -&gt; Self { Contract {} }
+///
+///         #[ink(constructor)]
+///         pub fn constructor2() -&gt; Self { Contract {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&amp;self) {}
+///
+///         #[ink(message)]
+///         pub fn message2(&amp;self) {}
+///
+///         #[ink(message)]
+///         pub fn message3(&amp;self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     assert_eq!(&lt;Contract as ContractAmountDispatchables&gt;::CONSTRUCTORS, 2);
+///     assert_eq!(&lt;Contract as ContractAmountDispatchables&gt;::MESSAGES, 3);
+/// }
+/// ```
+</span><span class="kw">pub trait </span>ContractAmountDispatchables {
+    <span class="doccomment">/// The number of dispatchable ink! messages.
+    </span><span class="kw">const </span>MESSAGES: usize;
+    <span class="doccomment">/// The number of dispatchable ink! constructors.
+    </span><span class="kw">const </span>CONSTRUCTORS: usize;
 }
 
-<span class="doccomment">/// Reflects the sequence of all dispatchable ink! messages of the ink! smart contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is automatically implemented by all ink! smart contracts.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::ContractAmountDispatchables;</span>
-<span class="doccomment">/// # use ink::reflect::ContractDispatchableMessages;</span>
-<span class="doccomment">/// # use ink::selector_id;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor1() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message, selector = 1234)]</span>
-<span class="doccomment">///         pub fn message1(&amp;self) {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message, selector = 0xC0DECAFE)]</span>
-<span class="doccomment">///         pub fn message2(&amp;self) {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message3(&amp;self) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         &lt;Contract as ContractDispatchableMessages&lt;{</span>
-<span class="doccomment">///             &lt;Contract as ContractAmountDispatchables&gt;::MESSAGES</span>
-<span class="doccomment">///         }&gt;&gt;::IDS,</span>
-<span class="doccomment">///         [1234, 0xC0DECAFE, selector_id!(&quot;message3&quot;)],</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractDispatchableMessages</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">AMOUNT</span>: <span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The sequence stores selector IDs of all ink! messages dispatchable by the ink! smart contract.</span>
-    <span class="kw">const</span> <span class="ident">IDS</span>: [<span class="ident">u32</span>; <span class="ident">AMOUNT</span>];
+<span class="doccomment">/// Reflects the sequence of all dispatchable ink! messages of the ink! smart contract.
+///
+/// # Note
+///
+/// This is automatically implemented by all ink! smart contracts.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::ContractAmountDispatchables;
+/// # use ink::reflect::ContractDispatchableMessages;
+/// # use ink::selector_id;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -&gt; Self { Contract {} }
+///
+///         #[ink(message, selector = 1234)]
+///         pub fn message1(&amp;self) {}
+///
+///         #[ink(message, selector = 0xC0DECAFE)]
+///         pub fn message2(&amp;self) {}
+///
+///         #[ink(message)]
+///         pub fn message3(&amp;self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     assert_eq!(
+///         &lt;Contract as ContractDispatchableMessages&lt;{
+///             &lt;Contract as ContractAmountDispatchables&gt;::MESSAGES
+///         }&gt;&gt;::IDS,
+///         [1234, 0xC0DECAFE, selector_id!(&quot;message3&quot;)],
+///     );
+/// }
+/// ```
+</span><span class="kw">pub trait </span>ContractDispatchableMessages&lt;<span class="kw">const </span>AMOUNT: usize&gt; {
+    <span class="doccomment">/// The sequence stores selector IDs of all ink! messages dispatchable by the ink! smart contract.
+    </span><span class="kw">const </span>IDS: [u32; AMOUNT];
 }
 
-<span class="doccomment">/// Reflects the sequence of all dispatchable ink! constructors of the ink! smart contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is automatically implemented by all ink! smart contracts.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::ContractAmountDispatchables;</span>
-<span class="doccomment">/// # use ink::reflect::ContractDispatchableConstructors;</span>
-<span class="doccomment">/// # use ink::selector_id;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor, selector = 1234)]</span>
-<span class="doccomment">///         pub fn constructor1() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(constructor, selector = 0xC0DECAFE)]</span>
-<span class="doccomment">///         pub fn constructor2() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor3() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message1(&amp;self) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         &lt;Contract as ContractDispatchableConstructors&lt;{</span>
-<span class="doccomment">///             &lt;Contract as ContractAmountDispatchables&gt;::CONSTRUCTORS</span>
-<span class="doccomment">///         }&gt;&gt;::IDS,</span>
-<span class="doccomment">///         [1234, 0xC0DECAFE, selector_id!(&quot;constructor3&quot;)],</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractDispatchableConstructors</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">AMOUNT</span>: <span class="ident">usize</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The sequence stores selector IDs of all ink! constructors dispatchable by the ink! smart contract.</span>
-    <span class="kw">const</span> <span class="ident">IDS</span>: [<span class="ident">u32</span>; <span class="ident">AMOUNT</span>];
+<span class="doccomment">/// Reflects the sequence of all dispatchable ink! constructors of the ink! smart contract.
+///
+/// # Note
+///
+/// This is automatically implemented by all ink! smart contracts.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::ContractAmountDispatchables;
+/// # use ink::reflect::ContractDispatchableConstructors;
+/// # use ink::selector_id;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor, selector = 1234)]
+///         pub fn constructor1() -&gt; Self { Contract {} }
+///
+///         #[ink(constructor, selector = 0xC0DECAFE)]
+///         pub fn constructor2() -&gt; Self { Contract {} }
+///
+///         #[ink(constructor)]
+///         pub fn constructor3() -&gt; Self { Contract {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&amp;self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     assert_eq!(
+///         &lt;Contract as ContractDispatchableConstructors&lt;{
+///             &lt;Contract as ContractAmountDispatchables&gt;::CONSTRUCTORS
+///         }&gt;&gt;::IDS,
+///         [1234, 0xC0DECAFE, selector_id!(&quot;constructor3&quot;)],
+///     );
+/// }
+/// ```
+</span><span class="kw">pub trait </span>ContractDispatchableConstructors&lt;<span class="kw">const </span>AMOUNT: usize&gt; {
+    <span class="doccomment">/// The sequence stores selector IDs of all ink! constructors dispatchable by the ink! smart contract.
+    </span><span class="kw">const </span>IDS: [u32; AMOUNT];
 }
 
-<span class="doccomment">/// Stores various information of the respective dispatchable ink! message.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is implemented by ink! for every dispatchable ink! message</span>
-<span class="doccomment">/// of the root ink! smart contract. The `ID` used in the trait reflects the</span>
-<span class="doccomment">/// chosen or derived selector of the dispatchable ink! message.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::DispatchableMessageInfo;</span>
-<span class="doccomment">/// # use ink::{selector_id, selector_bytes};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message1(&amp;self) {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message, payable, selector = 0xC0DECAFE)]</span>
-<span class="doccomment">///         pub fn message2(&amp;mut self, input1: i32, input2: i64) -&gt; (bool, i32) {</span>
-<span class="doccomment">///             unimplemented!()</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// Asserts that the message with the selector `ID` has the following properties.</span>
-<span class="doccomment">/// ///</span>
-<span class="doccomment">/// /// # Note</span>
-<span class="doccomment">/// ///</span>
-<span class="doccomment">/// /// The `In` and `Out` generic parameters describe the input and output types.</span>
-<span class="doccomment">/// fn assert_message_info&lt;In, Out, const ID: u32&gt;(</span>
-<span class="doccomment">///     mutates: bool,</span>
-<span class="doccomment">///     payable: bool,</span>
-<span class="doccomment">///     selector: [u8; 4],</span>
-<span class="doccomment">///     label: &amp;str,</span>
-<span class="doccomment">/// )</span>
-<span class="doccomment">/// where</span>
-<span class="doccomment">///     Contract: DispatchableMessageInfo&lt;{ID}, Input = In, Output = Out&gt;,</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::MUTATES, mutates);</span>
-<span class="doccomment">///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::PAYABLE, payable);</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         &lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::SELECTOR,</span>
-<span class="doccomment">///         selector,</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         &lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::LABEL,</span>
-<span class="doccomment">///         label,</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     assert_message_info::&lt;(), (), {selector_id!(&quot;message1&quot;)}&gt;(</span>
-<span class="doccomment">///         false, false, selector_bytes!(&quot;message1&quot;), &quot;message1&quot;</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">///     assert_message_info::&lt;(i32, i64), (bool, i32), 0xC0DECAFE_u32&gt;(</span>
-<span class="doccomment">///         true, true, [0xC0, 0xDE, 0xCA, 0xFE], &quot;message2&quot;</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DispatchableMessageInfo</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">ID</span>: <span class="ident">u32</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Reflects the input types of the dispatchable ink! message.</span>
-    <span class="kw">type</span> <span class="ident">Input</span>;
-    <span class="doccomment">/// Reflects the output type of the dispatchable ink! message.</span>
-    <span class="kw">type</span> <span class="ident">Output</span>;
-    <span class="doccomment">/// The ink! storage struct type.</span>
-    <span class="kw">type</span> <span class="ident">Storage</span>;
+<span class="doccomment">/// Stores various information of the respective dispatchable ink! message.
+///
+/// # Note
+///
+/// This trait is implemented by ink! for every dispatchable ink! message
+/// of the root ink! smart contract. The `ID` used in the trait reflects the
+/// chosen or derived selector of the dispatchable ink! message.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::DispatchableMessageInfo;
+/// # use ink::{selector_id, selector_bytes};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -&gt; Self { Contract {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&amp;self) {}
+///
+///         #[ink(message, payable, selector = 0xC0DECAFE)]
+///         pub fn message2(&amp;mut self, input1: i32, input2: i64) -&gt; (bool, i32) {
+///             unimplemented!()
+///         }
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// /// Asserts that the message with the selector `ID` has the following properties.
+/// ///
+/// /// # Note
+/// ///
+/// /// The `In` and `Out` generic parameters describe the input and output types.
+/// fn assert_message_info&lt;In, Out, const ID: u32&gt;(
+///     mutates: bool,
+///     payable: bool,
+///     selector: [u8; 4],
+///     label: &amp;str,
+/// )
+/// where
+///     Contract: DispatchableMessageInfo&lt;{ID}, Input = In, Output = Out&gt;,
+/// {
+///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::MUTATES, mutates);
+///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::PAYABLE, payable);
+///     assert_eq!(
+///         &lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::SELECTOR,
+///         selector,
+///     );
+///     assert_eq!(
+///         &lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::LABEL,
+///         label,
+///     );
+/// }
+///
+/// fn main() {
+///     assert_message_info::&lt;(), (), {selector_id!(&quot;message1&quot;)}&gt;(
+///         false, false, selector_bytes!(&quot;message1&quot;), &quot;message1&quot;
+///     );
+///     assert_message_info::&lt;(i32, i64), (bool, i32), 0xC0DECAFE_u32&gt;(
+///         true, true, [0xC0, 0xDE, 0xCA, 0xFE], &quot;message2&quot;
+///     );
+/// }
+/// ```
+</span><span class="kw">pub trait </span>DispatchableMessageInfo&lt;<span class="kw">const </span>ID: u32&gt; {
+    <span class="doccomment">/// Reflects the input types of the dispatchable ink! message.
+    </span><span class="kw">type </span>Input;
+    <span class="doccomment">/// Reflects the output type of the dispatchable ink! message.
+    </span><span class="kw">type </span>Output;
+    <span class="doccomment">/// The ink! storage struct type.
+    </span><span class="kw">type </span>Storage;
 
-    <span class="doccomment">/// The closure that can be used to dispatch into the dispatchable ink! message.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// We unify `&amp;self` and `&amp;mut self` ink! messages here and always take a `&amp;mut self`.</span>
-    <span class="doccomment">/// This is mainly done for simplification but also because we can easily convert from</span>
-    <span class="doccomment">/// `&amp;mut self` to `&amp;self` with our current dispatch codegen architecture.</span>
-    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+    <span class="doccomment">/// The closure that can be used to dispatch into the dispatchable ink! message.
+    ///
+    /// # Note
+    ///
+    /// We unify `&amp;self` and `&amp;mut self` ink! messages here and always take a `&amp;mut self`.
+    /// This is mainly done for simplification but also because we can easily convert from
+    /// `&amp;mut self` to `&amp;self` with our current dispatch codegen architecture.
+    </span><span class="kw">const </span>CALLABLE: <span class="kw">fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>::Storage, <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output;
 
-    <span class="doccomment">/// Yields `true` if the dispatchable ink! message mutates the ink! storage.</span>
-    <span class="kw">const</span> <span class="ident">MUTATES</span>: <span class="ident">bool</span>;
-    <span class="doccomment">/// Yields `true` if the dispatchable ink! message is payable.</span>
-    <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">bool</span>;
-    <span class="doccomment">/// The selectors of the dispatchable ink! message.</span>
-    <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
-    <span class="doccomment">/// The label of the dispatchable ink! message.</span>
-    <span class="kw">const</span> <span class="ident">LABEL</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    <span class="doccomment">/// Yields `true` if the dispatchable ink! message mutates the ink! storage.
+    </span><span class="kw">const </span>MUTATES: bool;
+    <span class="doccomment">/// Yields `true` if the dispatchable ink! message is payable.
+    </span><span class="kw">const </span>PAYABLE: bool;
+    <span class="doccomment">/// The selectors of the dispatchable ink! message.
+    </span><span class="kw">const </span>SELECTOR: [u8; <span class="number">4</span>];
+    <span class="doccomment">/// The label of the dispatchable ink! message.
+    </span><span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
 }
 
-<span class="doccomment">/// Stores various information of the respective dispatchable ink! constructor.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is implemented by ink! for every dispatchable ink! constructor</span>
-<span class="doccomment">/// of the root ink! smart contract. The `ID` used in the trait reflects the</span>
-<span class="doccomment">/// chosen or derived selector of the dispatchable ink! constructor.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::DispatchableConstructorInfo;</span>
-<span class="doccomment">/// # use ink::{selector_id, selector_bytes};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor1() -&gt; Self { Contract {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(constructor, selector = 0xC0DECAFE)]</span>
-<span class="doccomment">///         pub fn constructor2(input1: i32, input2: i64) -&gt; Self {</span>
-<span class="doccomment">///             Contract {}</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message(&amp;self) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// Asserts that the constructor with the selector `ID` has the following properties.</span>
-<span class="doccomment">/// ///</span>
-<span class="doccomment">/// /// # Note</span>
-<span class="doccomment">/// ///</span>
-<span class="doccomment">/// /// The `In` and `Out` generic parameters describe the input and output types.</span>
-<span class="doccomment">/// fn assert_constructor_info&lt;In, const ID: u32&gt;(</span>
-<span class="doccomment">///     selector: [u8; 4],</span>
-<span class="doccomment">///     label: &amp;str,</span>
-<span class="doccomment">/// )</span>
-<span class="doccomment">/// where</span>
-<span class="doccomment">///     Contract: DispatchableConstructorInfo&lt;{ID}, Input = In&gt;,</span>
-<span class="doccomment">/// {</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         &lt;Contract as DispatchableConstructorInfo&lt;{ID}&gt;&gt;::SELECTOR,</span>
-<span class="doccomment">///         selector,</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">///     assert_eq!(</span>
-<span class="doccomment">///         &lt;Contract as DispatchableConstructorInfo&lt;{ID}&gt;&gt;::LABEL,</span>
-<span class="doccomment">///         label,</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     assert_constructor_info::&lt;(), {selector_id!(&quot;constructor1&quot;)}&gt;(</span>
-<span class="doccomment">///         selector_bytes!(&quot;constructor1&quot;), &quot;constructor1&quot;</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">///     assert_constructor_info::&lt;(i32, i64), 0xC0DECAFE_u32&gt;(</span>
-<span class="doccomment">///         [0xC0, 0xDE, 0xCA, 0xFE], &quot;constructor2&quot;</span>
-<span class="doccomment">///     );</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DispatchableConstructorInfo</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">ID</span>: <span class="ident">u32</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Reflects the input types of the dispatchable ink! constructor.</span>
-    <span class="kw">type</span> <span class="ident">Input</span>;
-    <span class="doccomment">/// The ink! storage struct type.</span>
-    <span class="kw">type</span> <span class="ident">Storage</span>;
-    <span class="doccomment">/// Reflects the output type of the dispatchable ink! message.</span>
-    <span class="kw">type</span> <span class="ident">Output</span>;
+<span class="doccomment">/// Stores various information of the respective dispatchable ink! constructor.
+///
+/// # Note
+///
+/// This trait is implemented by ink! for every dispatchable ink! constructor
+/// of the root ink! smart contract. The `ID` used in the trait reflects the
+/// chosen or derived selector of the dispatchable ink! constructor.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::DispatchableConstructorInfo;
+/// # use ink::{selector_id, selector_bytes};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -&gt; Self { Contract {} }
+///
+///         #[ink(constructor, selector = 0xC0DECAFE)]
+///         pub fn constructor2(input1: i32, input2: i64) -&gt; Self {
+///             Contract {}
+///         }
+///
+///         #[ink(message)]
+///         pub fn message(&amp;self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// /// Asserts that the constructor with the selector `ID` has the following properties.
+/// ///
+/// /// # Note
+/// ///
+/// /// The `In` and `Out` generic parameters describe the input and output types.
+/// fn assert_constructor_info&lt;In, const ID: u32&gt;(
+///     selector: [u8; 4],
+///     label: &amp;str,
+/// )
+/// where
+///     Contract: DispatchableConstructorInfo&lt;{ID}, Input = In&gt;,
+/// {
+///     assert_eq!(
+///         &lt;Contract as DispatchableConstructorInfo&lt;{ID}&gt;&gt;::SELECTOR,
+///         selector,
+///     );
+///     assert_eq!(
+///         &lt;Contract as DispatchableConstructorInfo&lt;{ID}&gt;&gt;::LABEL,
+///         label,
+///     );
+/// }
+///
+/// fn main() {
+///     assert_constructor_info::&lt;(), {selector_id!(&quot;constructor1&quot;)}&gt;(
+///         selector_bytes!(&quot;constructor1&quot;), &quot;constructor1&quot;
+///     );
+///     assert_constructor_info::&lt;(i32, i64), 0xC0DECAFE_u32&gt;(
+///         [0xC0, 0xDE, 0xCA, 0xFE], &quot;constructor2&quot;
+///     );
+/// }
+/// ```
+</span><span class="kw">pub trait </span>DispatchableConstructorInfo&lt;<span class="kw">const </span>ID: u32&gt; {
+    <span class="doccomment">/// Reflects the input types of the dispatchable ink! constructor.
+    </span><span class="kw">type </span>Input;
+    <span class="doccomment">/// The ink! storage struct type.
+    </span><span class="kw">type </span>Storage;
+    <span class="doccomment">/// Reflects the output type of the dispatchable ink! message.
+    </span><span class="kw">type </span>Output;
 
-    <span class="doccomment">/// The closure that can be used to dispatch into the dispatchable ink! constructor.</span>
-    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+    <span class="doccomment">/// The closure that can be used to dispatch into the dispatchable ink! constructor.
+    </span><span class="kw">const </span>CALLABLE: <span class="kw">fn</span>(<span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output;
 
-    <span class="doccomment">/// Yields `true` if the dispatchable ink! constructor is payable.</span>
-    <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">bool</span>;
+    <span class="doccomment">/// Yields `true` if the dispatchable ink! constructor is payable.
+    </span><span class="kw">const </span>PAYABLE: bool;
 
-    <span class="doccomment">/// The selectors of the dispatchable ink! constructor.</span>
-    <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
+    <span class="doccomment">/// The selectors of the dispatchable ink! constructor.
+    </span><span class="kw">const </span>SELECTOR: [u8; <span class="number">4</span>];
 
-    <span class="doccomment">/// The label of the dispatchable ink! constructor.</span>
-    <span class="kw">const</span> <span class="ident">LABEL</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    <span class="doccomment">/// The label of the dispatchable ink! constructor.
+    </span><span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
 }
 
-<span class="doccomment">/// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The decoder follows the ink! calling ABI where all ink! message calls start with</span>
-<span class="doccomment">/// 4 bytes dedicated to the ink! message selector followed by the SCALE encoded parameters.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::ContractMessageDecoder;</span>
-<span class="doccomment">/// # use ink::selector_bytes;</span>
-<span class="doccomment">/// # use scale::{Encode, Decode};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor() -&gt; Self { Self {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message1(&amp;self) {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message2(&amp;self, input1: bool, input2: i32) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     // Call to `message1` without input parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;message1&quot;));</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_ok()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Call to `message2` with 2 parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));</span>
-<span class="doccomment">///         input_bytes.extend(true.encode());</span>
-<span class="doccomment">///         input_bytes.extend(42i32.encode());</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_ok()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Call with invalid ink! message selector.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;non_existing_message&quot;));</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_err()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Call with invalid ink! message parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_err()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractMessageDecoder</span> {
-    <span class="doccomment">/// The ink! smart contract message decoder type.</span>
-    <span class="kw">type</span> <span class="ident">Type</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">ExecuteDispatchable</span>;
+<span class="doccomment">/// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
+///
+/// # Note
+///
+/// The decoder follows the ink! calling ABI where all ink! message calls start with
+/// 4 bytes dedicated to the ink! message selector followed by the SCALE encoded parameters.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::ContractMessageDecoder;
+/// # use ink::selector_bytes;
+/// # use scale::{Encode, Decode};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -&gt; Self { Self {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&amp;self) {}
+///
+///         #[ink(message)]
+///         pub fn message2(&amp;self, input1: bool, input2: i32) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     // Call to `message1` without input parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;message1&quot;));
+///         assert!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Call to `message2` with 2 parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));
+///         input_bytes.extend(true.encode());
+///         input_bytes.extend(42i32.encode());
+///         assert!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Call with invalid ink! message selector.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;non_existing_message&quot;));
+///         assert!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_err()
+///         );
+///     }
+///     // Call with invalid ink! message parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));
+///         assert!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_err()
+///         );
+///     }
+/// }
+/// ```
+</span><span class="kw">pub trait </span>ContractMessageDecoder {
+    <span class="doccomment">/// The ink! smart contract message decoder type.
+    </span><span class="kw">type </span>Type: scale::Decode + ExecuteDispatchable;
 }
 
-<span class="doccomment">/// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The decoder follows the ink! calling ABI where all ink! constructor calls start with</span>
-<span class="doccomment">/// 4 bytes dedicated to the ink! constructor selector followed by the SCALE encoded parameters.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::ContractConstructorDecoder;</span>
-<span class="doccomment">/// # use ink::selector_bytes;</span>
-<span class="doccomment">/// # use scale::{Encode, Decode};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor1() -&gt; Self { Self {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor2(input1: bool, input2: i32) -&gt; Self { Self {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message(&amp;self) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     // Call to `constructor1` without input parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;constructor1&quot;));</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_ok()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Call to `constructor2` with 2 parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));</span>
-<span class="doccomment">///         input_bytes.extend(true.encode());</span>
-<span class="doccomment">///         input_bytes.extend(42i32.encode());</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_ok()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Call with invalid ink! constructor selector.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;non_existing_constructor&quot;));</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_err()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Call with invalid ink! constructor parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_err()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractConstructorDecoder</span> {
-    <span class="doccomment">/// The ink! smart contract constructor decoder type.</span>
-    <span class="kw">type</span> <span class="ident">Type</span>: <span class="ident">DecodeDispatch</span> <span class="op">+</span> <span class="ident">ExecuteDispatchable</span>;
+<span class="doccomment">/// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.
+///
+/// # Note
+///
+/// The decoder follows the ink! calling ABI where all ink! constructor calls start with
+/// 4 bytes dedicated to the ink! constructor selector followed by the SCALE encoded parameters.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::ContractConstructorDecoder;
+/// # use ink::selector_bytes;
+/// # use scale::{Encode, Decode};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -&gt; Self { Self {} }
+///
+///         #[ink(constructor)]
+///         pub fn constructor2(input1: bool, input2: i32) -&gt; Self { Self {} }
+///
+///         #[ink(message)]
+///         pub fn message(&amp;self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     // Call to `constructor1` without input parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;constructor1&quot;));
+///         assert!(
+///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Call to `constructor2` with 2 parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));
+///         input_bytes.extend(true.encode());
+///         input_bytes.extend(42i32.encode());
+///         assert!(
+///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Call with invalid ink! constructor selector.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;non_existing_constructor&quot;));
+///         assert!(
+///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_err()
+///         );
+///     }
+///     // Call with invalid ink! constructor parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));
+///         assert!(
+///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
+///                 &amp;mut &amp;input_bytes[..]).is_err()
+///         );
+///     }
+/// }
+/// ```
+</span><span class="kw">pub trait </span>ContractConstructorDecoder {
+    <span class="doccomment">/// The ink! smart contract constructor decoder type.
+    </span><span class="kw">type </span>Type: DecodeDispatch + ExecuteDispatchable;
 }
 
-<span class="doccomment">/// Starts the execution of the respective ink! message or constructor call.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implemented by the ink! smart contract message or constructor decoder.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExecuteDispatchable</span> {
-    <span class="doccomment">/// Executes the ink! smart contract message or constructor.</span>
-    <span class="kw">fn</span> <span class="ident">execute_dispatchable</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Starts the execution of the respective ink! message or constructor call.
+///
+/// # Note
+///
+/// Implemented by the ink! smart contract message or constructor decoder.
+</span><span class="kw">pub trait </span>ExecuteDispatchable {
+    <span class="doccomment">/// Executes the ink! smart contract message or constructor.
+    </span><span class="kw">fn </span>execute_dispatchable(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), DispatchError&gt;;
 }
 
-<span class="doccomment">/// An error that can occur during dispatch of ink! dispatchables.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DispatchError</span> {
-    <span class="doccomment">/// Failed to decode into a valid dispatch selector.</span>
-    <span class="ident">InvalidSelector</span>,
-    <span class="doccomment">/// The decoded selector is not known to the dispatch decoder.</span>
-    <span class="ident">UnknownSelector</span>,
-    <span class="doccomment">/// Failed to decode the parameters for the selected dispatchable.</span>
-    <span class="ident">InvalidParameters</span>,
-    <span class="doccomment">/// Failed to read execution input for the dispatchable.</span>
-    <span class="ident">CouldNotReadInput</span>,
-    <span class="doccomment">/// Invalidly paid an unpayable dispatchable.</span>
-    <span class="ident">PaidUnpayableMessage</span>,
+<span class="doccomment">/// An error that can occur during dispatch of ink! dispatchables.
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>DispatchError {
+    <span class="doccomment">/// Failed to decode into a valid dispatch selector.
+    </span>InvalidSelector,
+    <span class="doccomment">/// The decoded selector is not known to the dispatch decoder.
+    </span>UnknownSelector,
+    <span class="doccomment">/// Failed to decode the parameters for the selected dispatchable.
+    </span>InvalidParameters,
+    <span class="doccomment">/// Failed to read execution input for the dispatchable.
+    </span>CouldNotReadInput,
+    <span class="doccomment">/// Invalidly paid an unpayable dispatchable.
+    </span>PaidUnpayableMessage,
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DispatchError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_str</span>())
+<span class="kw">impl </span>Display <span class="kw">for </span>DispatchError {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.as_str())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">DispatchError</span> {
-    <span class="doccomment">/// Returns a string representation of the error.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::InvalidSelector</span> =&gt; <span class="string">&quot;unable to decode selector&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::UnknownSelector</span> =&gt; <span class="string">&quot;encountered unknown selector&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::InvalidParameters</span> =&gt; <span class="string">&quot;unable to decode input&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::CouldNotReadInput</span> =&gt; <span class="string">&quot;could not read input&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::PaidUnpayableMessage</span> =&gt; <span class="string">&quot;paid an unpayable message&quot;</span>,
+<span class="kw">impl </span>DispatchError {
+    <span class="doccomment">/// Returns a string representation of the error.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::InvalidSelector =&gt; <span class="string">&quot;unable to decode selector&quot;</span>,
+            <span class="self">Self</span>::UnknownSelector =&gt; <span class="string">&quot;encountered unknown selector&quot;</span>,
+            <span class="self">Self</span>::InvalidParameters =&gt; <span class="string">&quot;unable to decode input&quot;</span>,
+            <span class="self">Self</span>::CouldNotReadInput =&gt; <span class="string">&quot;could not read input&quot;</span>,
+            <span class="self">Self</span>::PaidUnpayableMessage =&gt; <span class="string">&quot;paid an unpayable message&quot;</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DispatchError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">scale::Error</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">error</span>: <span class="ident">DispatchError</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">error</span>.<span class="ident">as_str</span>())
+<span class="kw">impl </span>From&lt;DispatchError&gt; <span class="kw">for </span>scale::Error {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>from(error: DispatchError) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::from(error.as_str())
     }
 }
 
-<span class="doccomment">/// Decodes an ink! dispatch input into a known selector and its expected parameters.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This trait is automatically implemented for ink! message and constructor decoders.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns an error if any of the decode steps failed:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `InvalidSelector`: The first four bytes could not properly decoded into the selector.</span>
-<span class="doccomment">/// - `UnknownSelector`: The decoded selector did not match any of the expected ones.</span>
-<span class="doccomment">/// - `InvalidParameters`: Failed to decoded the parameters for the selected dispatchable.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The other dispatch errors are handled by other structures usually.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink::reflect::{ContractMessageDecoder, DecodeDispatch, DispatchError};</span>
-<span class="doccomment">/// # use ink::selector_bytes;</span>
-<span class="doccomment">/// # use scale::Encode;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #[ink::contract]</span>
-<span class="doccomment">/// pub mod contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct Contract {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl Contract {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn constructor() -&gt; Self { Self {} }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn message(&amp;self, input_1: bool, input_2: i32) {}</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// use contract::Contract;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     // Valid call to `message`:</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;message&quot;));</span>
-<span class="doccomment">///         input_bytes.extend(true.encode());</span>
-<span class="doccomment">///         input_bytes.extend(42i32.encode());</span>
-<span class="doccomment">///         assert!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(</span>
-<span class="doccomment">///                 &amp;mut &amp;input_bytes[..]).is_ok()</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Invalid call with invalid selector (or empty input).</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         assert_eq!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type</span>
-<span class="doccomment">///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])</span>
-<span class="doccomment">///                 # .map(|_| ())</span>
-<span class="doccomment">///                 .unwrap_err(),</span>
-<span class="doccomment">///             DispatchError::InvalidSelector,</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Invalid call to `message` with unknown selector.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;unknown_selector&quot;));</span>
-<span class="doccomment">///         assert_eq!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type</span>
-<span class="doccomment">///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])</span>
-<span class="doccomment">///                 # .map(|_| ())</span>
-<span class="doccomment">///                 .unwrap_err(),</span>
-<span class="doccomment">///             DispatchError::UnknownSelector,</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///     // Invalid call to `message` with invalid (or missing) parameters.</span>
-<span class="doccomment">///     {</span>
-<span class="doccomment">///         let mut input_bytes = Vec::new();</span>
-<span class="doccomment">///         input_bytes.extend(selector_bytes!(&quot;message&quot;));</span>
-<span class="doccomment">///         assert_eq!(</span>
-<span class="doccomment">///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type</span>
-<span class="doccomment">///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])</span>
-<span class="doccomment">///                 # .map(|_| ())</span>
-<span class="doccomment">///                 .unwrap_err(),</span>
-<span class="doccomment">///             DispatchError::InvalidParameters,</span>
-<span class="doccomment">///         );</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DecodeDispatch</span>: <span class="ident">scale::Decode</span> {
-    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Decodes an ink! dispatch input into a known selector and its expected parameters.
+///
+/// # Note
+///
+/// This trait is automatically implemented for ink! message and constructor decoders.
+///
+/// # Errors
+///
+/// Returns an error if any of the decode steps failed:
+///
+/// - `InvalidSelector`: The first four bytes could not properly decoded into the selector.
+/// - `UnknownSelector`: The decoded selector did not match any of the expected ones.
+/// - `InvalidParameters`: Failed to decoded the parameters for the selected dispatchable.
+///
+/// The other dispatch errors are handled by other structures usually.
+///
+/// # Usage
+///
+/// ```
+/// # use ink::reflect::{ContractMessageDecoder, DecodeDispatch, DispatchError};
+/// # use ink::selector_bytes;
+/// # use scale::Encode;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -&gt; Self { Self {} }
+///
+///         #[ink(message)]
+///         pub fn message(&amp;self, input_1: bool, input_2: i32) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     // Valid call to `message`:
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;message&quot;));
+///         input_bytes.extend(true.encode());
+///         input_bytes.extend(42i32.encode());
+///         assert!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as DecodeDispatch&gt;::decode_dispatch(
+///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Invalid call with invalid selector (or empty input).
+///     {
+///         let mut input_bytes = Vec::new();
+///         assert_eq!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type
+///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])
+///                 # .map(|_| ())
+///                 .unwrap_err(),
+///             DispatchError::InvalidSelector,
+///         );
+///     }
+///     // Invalid call to `message` with unknown selector.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;unknown_selector&quot;));
+///         assert_eq!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type
+///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])
+///                 # .map(|_| ())
+///                 .unwrap_err(),
+///             DispatchError::UnknownSelector,
+///         );
+///     }
+///     // Invalid call to `message` with invalid (or missing) parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!(&quot;message&quot;));
+///         assert_eq!(
+///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type
+///                 as DecodeDispatch&gt;::decode_dispatch(&amp;mut &amp;input_bytes[..])
+///                 # .map(|_| ())
+///                 .unwrap_err(),
+///             DispatchError::InvalidParameters,
+///         );
+///     }
+/// }
+/// ```
+</span><span class="kw">pub trait </span>DecodeDispatch: scale::Decode {
+    <span class="kw">fn </span>decode_dispatch&lt;I: scale::Input&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DispatchError&gt;;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
