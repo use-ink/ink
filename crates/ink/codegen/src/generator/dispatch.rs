@@ -274,6 +274,9 @@ impl Dispatch<'_> {
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
                     }
+
+                    // todo: generate type spec with Self here or add new metadata trait similar to
+                    // DispatchableConstructorInfo in metadata crate and add impl there
                 )
             });
         quote_spanned!(span=>
@@ -569,9 +572,10 @@ impl Dispatch<'_> {
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
 
-                    ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
-                        move || { #constructor_callable(input) }
-                    )
+                    // ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
+                    //     move || { #constructor_callable(input) }
+                    // )
+                    Ok(())
                 }
             )
         });

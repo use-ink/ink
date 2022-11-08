@@ -330,7 +330,7 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     type Input;
     /// The ink! storage struct type.
     type Storage;
-    /// Reflects the output type of the dispatchable ink! message.
+    /// Reflects the output type of the dispatchable ink! constructor.
     type Output;
 
     /// The closure that can be used to dispatch into the dispatchable ink! constructor.
@@ -344,6 +344,71 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 
     /// The label of the dispatchable ink! constructor.
     const LABEL: &'static str;
+}
+
+mod private {
+    /// Seals the implementation of `ConstructorReturnType`.
+    pub trait Sealed {}
+    impl Sealed for () {}
+    impl<T, E> Sealed for Result<T, E> {}
+    /// A thin-wrapper type that automatically seals its inner type.
+    ///
+    /// Since it is private it can only be used from within this crate.
+    /// We need this type in order to properly seal the `ConstructorReturnType`
+    /// trait from unwanted external trait implementations.
+    #[repr(transparent)]
+    pub struct Seal<T>(pub T);
+    impl<T> Sealed for Seal<T> {}
+}
+
+/// Guards against using invalid contract initializer types.
+///
+/// # Note
+///
+/// Currently the only allowed types are `()` and `Result<(), E>`
+/// where `E` is some unspecified error type.
+/// If the contract initializer returns `Result::Err` the utility
+/// method that is used to initialize an ink! smart contract will
+/// revert the state of the contract instantiation.
+pub trait ConstructorReturnType<C>: private::Sealed {
+    /// Is `true` if `Self` is `Result<C, E>`.
+    const IS_RESULT: bool = false;
+
+    /// The error type of the constructor return type.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructors this is `()` whereas for fallible
+    /// constructors this is the actual return error type. Since we only ever
+    /// return a value in case of `Result::Err` the `Result::Ok` value type
+    /// does not matter.
+    type Error;
+
+    /// Converts the return value into a `Result` instance.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructor returns this always yields `Ok`.
+    fn as_result(&self) -> Result<&C, &Self::Error>;
+}
+
+impl<C> ConstructorReturnType<C> for private::Seal<C> {
+    type Error = ();
+
+    #[inline(always)]
+    fn as_result(&self) -> Result<&C, &Self::Error> {
+        Ok(&self.0)
+    }
+}
+
+impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
+    const IS_RESULT: bool = true;
+    type Error = E;
+
+    #[inline(always)]
+    fn as_result(&self) -> Result<&C, &Self::Error> {
+        self.0.as_ref()
+    }
 }
 
 /// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.

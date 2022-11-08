@@ -118,11 +118,12 @@ impl Metadata<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
-            .map(|constructor| Self::generate_constructor(constructor))
+            .map(|constructor| self.generate_constructor(constructor))
     }
 
     /// Generates ink! metadata for a single ink! constructor.
     fn generate_constructor(
+        &self,
         constructor: ir::CallableWithSelector<ir::Constructor>,
     ) -> TokenStream2 {
         let span = constructor.span();
@@ -131,11 +132,25 @@ impl Metadata<'_> {
             .iter()
             .filter_map(|attr| attr.extract_docs());
         let selector_bytes = constructor.composed_selector().hex_lits();
+        let selector_id = constructor.composed_selector().into_be_u32();
         let is_payable = constructor.is_payable();
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
-        let ret_ty = Self::generate_constructor_return_type(constructor.output());
+        // let ret_ty = Self::generate_constructor_return_type(constructor.output());
+        let storage_ident = self.contract.module().storage().ident();
+        let output_type = constructor.output().cloned().unwrap_or_else(|| syn::parse_quote! { () });
+        let ret_ty_impl = quote_spanned!(span=>
+            // if <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>> as ::ink::reflect::ConstructorReturnType<#output_type>::IS_RESULT {
+            //     // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
+            //     //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
+            //     //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
+            //     // >>>()
+            //     todo!()
+            // } else {
+            //     ::ink::metadata::TypeSpec::of_type::<#output_type>()
+            // }
+        );
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([

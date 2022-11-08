@@ -1036,14 +1036,19 @@ pub trait ConstructorReturnSpec {
     /// Note:
     /// The default implementation generates [`TypeSpec`] for `()`, hence it can
     /// be used directly for constructor returning `Self`.
-    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
+    fn generate<C, const ID: u32, O, S>(segments_opt: Option<S>) -> TypeSpec
     where
+        C: ::ink::reflect::DispatchableConstructorInfo<N>,
         S: IntoIterator<Item = &'static str>,
     {
-        if let Some(segments) = segments_opt {
-            TypeSpec::with_name_segs::<(), S>(segments)
+        if <<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output as ::ink::reflect::ConstructorReturnType<O>>::IS_RESULT {
+            // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
+            //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
+            //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
+            // >>>()
+            todo!()
         } else {
-            TypeSpec::of_type::<()>()
+            ::ink::metadata::TypeSpec::of_type::<<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output>()
         }
     }
 }
