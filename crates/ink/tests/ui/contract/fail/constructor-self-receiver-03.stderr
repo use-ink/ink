@@ -32,4 +32,4 @@ error[E0277]: the trait bound `&'static Contract: WrapperTypeDecode` is not sati
             Arc<T>
             Box<T>
             Rc<T>
-  = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `&'static Contract`
+  = note: required for `&'static Contract` to implement `parity_scale_codec::Decode`

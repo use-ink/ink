@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
 
 ### Breaking Changes
 
@@ -28,8 +29,10 @@ protocol for future versions of Polkadot.
 - Introduce conditional compilation for messages, constructors and events ‒ [#1458](https://github.com/paritytech/ink/pull/1458)
 - Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
 
+
 ### Changed
 - Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
+- Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
 
 ### Removed
 - Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
