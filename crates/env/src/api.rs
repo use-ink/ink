@@ -611,7 +611,7 @@ where
 ///
 /// 3. If a contract calls into itself after changing its code the new call would use
 /// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `seal_set_code_hash` and the next caller would use
+/// would revert the changes made by `set_code_hash` and the next caller would use
 /// the old code.
 ///
 /// # Errors
