@@ -82,7 +82,7 @@ where
 }
 
 mod private {
-    /// Seals the implementation of `ContractInitializerReturnType`.
+    /// Seals the implementation of `ConstructorReturnType`.
     pub trait Sealed {}
     impl Sealed for () {}
     impl<T, E> Sealed for Result<T, E> {}
@@ -143,34 +143,5 @@ impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
     #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
-    }
-}
-
-/// Trait used to convert return types of contract initializer routines.
-///
-/// Only `()` and `Result<(), E>` are allowed contract initializer return types.
-/// For `WrapReturnType<C>` where `C` is the contract type the trait converts
-/// `()` into `C` and `Result<(), E>` into `Result<C, E>`.
-pub trait InitializerReturnType<C>: private::Sealed {
-    type Wrapped;
-
-    /// Performs the type conversion of the initialization routine return type.
-    fn into_wrapped(self, wrapped: C) -> Self::Wrapped;
-}
-
-impl<C> InitializerReturnType<C> for () {
-    type Wrapped = C;
-
-    #[inline]
-    fn into_wrapped(self, wrapped: C) -> C {
-        wrapped
-    }
-}
-impl<C, E> InitializerReturnType<C> for Result<(), E> {
-    type Wrapped = Result<C, E>;
-
-    #[inline]
-    fn into_wrapped(self, wrapped: C) -> Self::Wrapped {
-        self.map(|_| wrapped)
     }
 }
