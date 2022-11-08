@@ -316,6 +316,11 @@ impl Message {
     pub fn local_id(&self) -> u32 {
         utils::local_message_id(self.ident())
     }
+
+    /// Returns the identifier of the message with an additional `_checked` suffix attached.
+    pub fn checked_ident(&self) -> Ident {
+        quote::format_ident!("{}_checked", self.ident())
+    }
 }
 
 #[cfg(test)]

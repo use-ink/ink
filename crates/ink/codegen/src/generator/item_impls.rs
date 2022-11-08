@@ -256,7 +256,7 @@ impl ItemImpls<'_> {
         let vis = message.visibility();
         let receiver = message.receiver();
         let ident = message.ident();
-        let checked_ident = format_ident!("{}_checked", ident);
+        let checked_ident = message.checked_ident();
         let inputs = message.inputs();
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let wrapped_inputs = message.inputs();

@@ -295,7 +295,7 @@ impl Dispatch<'_> {
             .map(|message| {
                 let message_span = message.span();
                 let message_ident = message.ident();
-                let checked_message_ident = format_ident!("{}_checked", message_ident);
+                let checked_message_ident = message.checked_ident();
                 let payable = message.is_payable();
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
