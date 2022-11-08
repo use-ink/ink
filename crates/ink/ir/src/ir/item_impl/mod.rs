@@ -51,14 +51,8 @@ pub use self::{
         Receiver,
     },
 };
-use quote::{
-    ToTokens,
-    TokenStreamExt as _,
-};
-use syn::{
-    spanned::Spanned,
-    Attribute,
-};
+use quote::TokenStreamExt as _;
+use syn::spanned::Spanned;
 
 /// An ink! implementation block.
 ///
@@ -315,7 +309,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             return Err(format_err!(
                 impl_block_span,
                 "namespace ink! property is not allowed on ink! trait implementation blocks",
-            ));
+            ))
         }
         Ok(Self {
             attrs: other_attrs,
@@ -378,36 +372,4 @@ impl ItemImpl {
     pub fn items(&self) -> &[ir::ImplItem] {
         &self.items
     }
-}
-
-/// Check if the the conditional compilation expression
-/// for any `cfg` attributes is satisfied.
-///
-/// # Example
-/// If we have an annotated item (e.g. message)
-/// ```ignore
-/// #[ink(message)]
-/// #[cfg(feature = "foo")]
-/// #[cfg(feature = "baz")]
-/// pub fn get(&self) -> String {
-///     self.value.clone()
-/// }
-/// ```
-/// The function would would iterate over the `cfg` attributes
-/// and return `true` if any of the feature flags are set
-pub fn is_code_span_enabled(attrs: &[Attribute]) -> bool {
-    let cfg_attrs = attrs
-        .iter()
-        .filter(|a| a.path.is_ident("cfg"))
-        .map(|a| &a.tokens);
-    if cfg_attrs.clone().count() == 0 {
-        return true
-    }
-    for attr_tokens in cfg_attrs {
-        let _s = attr_tokens.to_token_stream();
-        if cfg!(_s) {
-            return true
-        }
-    }
-    false
 }

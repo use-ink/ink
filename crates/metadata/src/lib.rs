@@ -29,6 +29,7 @@ mod specs;
 mod utils;
 
 pub use self::specs::{
+    ConstructorReturnSpec,
     ConstructorSpec,
     ConstructorSpecBuilder,
     ContractSpec,

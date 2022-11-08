@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::specs::ConstructorReturnSpec;
+
 use super::*;
 use pretty_assertions::assert_eq;
 use scale_info::{
@@ -28,6 +30,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     let cs = ConstructorSpec::from_label(label)
         .selector(123_456_789u32.to_be_bytes())
         .payable(true)
+        .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
     let portable_spec = cs.into_portable(&mut registry);
@@ -44,6 +47,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
             "label": "foo",
             "payable": true,
             "selector": "0x075bcd15",
+            "returnType": null,
             "args": [],
             "docs": []
         })
@@ -53,6 +57,9 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
 #[test]
 fn spec_contract_json() {
+    let seg = ["core", "result", "Result"].iter().map(AsRef::as_ref);
+    let spec = <Result<u8, ()> as ConstructorReturnSpec>::generate(Some(seg.clone()));
+
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -64,11 +71,22 @@ fn spec_contract_json() {
                         vec!["i32"].into_iter().map(AsRef::as_ref),
                     ))
                     .done()])
+                .returns(ReturnTypeSpec::new(None))
+                .docs(Vec::new())
                 .done(),
             ConstructorSpec::from_label("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .payable(Default::default())
                 .args(Vec::new())
+                .returns(ReturnTypeSpec::new(None))
+                .docs(Vec::new())
+                .done(),
+            ConstructorSpec::from_label("result_new")
+                .selector([6u8, 3u8, 55u8, 123u8])
+                .payable(Default::default())
+                .args(Vec::new())
+                .returns(ReturnTypeSpec::new(spec))
+                .docs(Vec::new())
                 .done(),
         ])
         .messages(vec![
@@ -121,6 +139,7 @@ fn spec_contract_json() {
                     "docs": [],
                     "label": "new",
                     "payable": true,
+                    "returnType": null,
                     "selector": "0x5ebd88d6"
                 },
                 {
@@ -128,7 +147,23 @@ fn spec_contract_json() {
                     "docs": [],
                     "label": "default",
                     "payable": false,
+                    "returnType": null,
                     "selector": "0x0222ff18"
+                },
+                {
+                    "args": [],
+                    "docs": [],
+                    "label": "result_new",
+                    "payable": false,
+                    "returnType": {
+                        "displayName": [
+                            "core",
+                            "result",
+                            "Result"
+                        ],
+                        "type": 1
+                    },
+                    "selector": "0x0603377b"
                 }
             ],
             "docs": [],
@@ -181,6 +216,7 @@ fn trim_docs() {
         .selector(123_456_789u32.to_be_bytes())
         .docs(vec![" foobar      "])
         .payable(Default::default())
+        .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);
@@ -196,6 +232,7 @@ fn trim_docs() {
         json!({
             "label": "foo",
             "payable": false,
+            "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
             "docs": ["foobar"]
@@ -220,6 +257,7 @@ fn trim_docs_with_code() {
             " ```",
         ])
         .payable(Default::default())
+        .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);
@@ -235,6 +273,7 @@ fn trim_docs_with_code() {
         json!({
             "label": "foo",
             "payable": false,
+            "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
             "docs": [
@@ -254,6 +293,7 @@ fn trim_docs_with_code() {
 fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
     let spec = TypeSpec::new(123.into(), path);
+    let ret_spec = ReturnTypeSpec::new(None);
     let args = [MessageParamSpec::new("foo_arg".to_string())
         .of_type(spec)
         .done()];
@@ -262,6 +302,7 @@ fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
         .payable(true)
         .args(args)
         .docs(vec!["foo", "bar"])
+        .returns(ret_spec)
         .done()
 }
 
@@ -317,6 +358,7 @@ fn construct_runtime_contract_spec() {
             "label": "foo",
             "selector": "0x00000000",
             "payable": true,
+            "returnType": null,
             "args": [
                 {
                     "label": "foo_arg",

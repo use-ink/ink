@@ -251,6 +251,23 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let output = &mut buffer.take_rest();
+        match ext::take_storage(key, output) {
+            Ok(_) => (),
+            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = Storable::decode(&mut &output[..])?;
+        Ok(Some(decoded))
+    }
+
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
