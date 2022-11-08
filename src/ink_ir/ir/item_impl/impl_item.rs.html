@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/impl_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impl_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/impl_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impl_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -154,159 +154,159 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use super</span>::{
-    Constructor,
-    Message,
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">Constructor</span>,
+    <span class="ident">Message</span>,
 };
-<span class="kw">use crate</span>::{
-    error::ExtError <span class="kw">as _</span>,
-    ir,
-    ir::attrs::Attrs <span class="kw">as _</span>,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">ir</span>,
+    <span class="ident">ir::attrs::Attrs</span> <span class="kw">as</span> <span class="kw">_</span>,
 };
-<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
-<span class="doccomment">/// An item within an ink! implementation block.
-///
-/// Can be either
-/// - an ink! [`ir::Constructor`](`crate::ir::Constructor`)
-/// - an ink! [`ir::Message`](`crate::ir::Message`)
-/// - or any other non-ink! item.
-///
-/// # Note
-///
-/// Based on [`syn::ImplItem`] with special variants for ink! `impl` items.
-</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
-#[allow(clippy::large_enum_variant)]
-</span><span class="kw">pub enum </span>ImplItem {
-    <span class="doccomment">/// A `#[ink(constructor)]` marked inherent function.
-    </span>Constructor(Constructor),
-    <span class="doccomment">/// A `#[ink(message)]` marked method.
-    </span>Message(Message),
-    <span class="doccomment">/// Any other implementation block item.
-    </span>Other(syn::ImplItem),
+<span class="doccomment">/// An item within an ink! implementation block.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Can be either</span>
+<span class="doccomment">/// - an ink! [`ir::Constructor`](`crate::ir::Constructor`)</span>
+<span class="doccomment">/// - an ink! [`ir::Message`](`crate::ir::Message`)</span>
+<span class="doccomment">/// - or any other non-ink! item.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Based on [`syn::ImplItem`] with special variants for ink! `impl` items.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::large_enum_variant</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ImplItem</span> {
+    <span class="doccomment">/// A `#[ink(constructor)]` marked inherent function.</span>
+    <span class="ident">Constructor</span>(<span class="ident">Constructor</span>),
+    <span class="doccomment">/// A `#[ink(message)]` marked method.</span>
+    <span class="ident">Message</span>(<span class="ident">Message</span>),
+    <span class="doccomment">/// Any other implementation block item.</span>
+    <span class="ident">Other</span>(<span class="ident">syn::ImplItem</span>),
 }
 
-<span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>ImplItem {
-    <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived
-    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
-    </span><span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Constructor(constructor) =&gt; constructor.to_tokens(tokens),
-            <span class="self">Self</span>::Message(message) =&gt; message.to_tokens(tokens),
-            <span class="self">Self</span>::Other(other) =&gt; other.to_tokens(tokens),
+<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">ImplItem</span> {
+    <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
+    <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Constructor</span>(<span class="ident">constructor</span>) =&gt; <span class="ident">constructor</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident"><span class="self">Self</span>::Message</span>(<span class="ident">message</span>) =&gt; <span class="ident">message</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident"><span class="self">Self</span>::Other</span>(<span class="ident">other</span>) =&gt; <span class="ident">other</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
         }
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;syn::ImplItem&gt; <span class="kw">for </span>ImplItem {
-    <span class="kw">type </span>Error = syn::Error;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ImplItem</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ImplItem</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn </span>try_from(impl_item: syn::ImplItem) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>impl_item {
-            syn::ImplItem::Method(method_item) =&gt; {
-                <span class="kw">if </span>!ir::contains_ink_attributes(<span class="kw-2">&amp;</span>method_item.attrs) {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::Other(method_item.into()))
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">impl_item</span>: <span class="ident">syn::ImplItem</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">impl_item</span> {
+            <span class="ident">syn::ImplItem::Method</span>(<span class="ident">method_item</span>) =&gt; {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">ir::contains_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">attrs</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Other</span>(<span class="ident">method_item</span>.<span class="ident">into</span>()))
                 }
-                <span class="kw">let </span>attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>method_item.attrs)<span class="question-mark">?
-                    </span>.expect(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
-                <span class="kw">match </span>attr.first().kind() {
-                    ir::AttributeArg::Message =&gt; {
-                        &lt;Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(method_item)
-                            .map(Into::into)
-                            .map(<span class="self">Self</span>::Message)
+                <span class="kw">let</span> <span class="ident">attr</span> <span class="op">=</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>
+                    .<span class="ident">expect</span>(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
+                <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>() {
+                    <span class="ident">ir::AttributeArg::Message</span> =&gt; {
+                        <span class="op">&lt;</span><span class="ident">Message</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">method_item</span>)
+                            .<span class="ident">map</span>(<span class="ident">Into::into</span>)
+                            .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::Message</span>)
                     }
-                    ir::AttributeArg::Constructor =&gt; {
-                        &lt;Constructor <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(method_item)
-                            .map(Into::into)
-                            .map(<span class="self">Self</span>::Constructor)
+                    <span class="ident">ir::AttributeArg::Constructor</span> =&gt; {
+                        <span class="op">&lt;</span><span class="ident">Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">method_item</span>)
+                            .<span class="ident">map</span>(<span class="ident">Into::into</span>)
+                            .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::Constructor</span>)
                     }
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        method_item,
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="ident">method_item</span>,
                         <span class="string">&quot;encountered invalid ink! attribute at this point, expected either \
-                        #[ink(message)] or #[ink(constructor) attributes&quot;
-                    </span>)),
+                        #[ink(message)] or #[ink(constructor) attributes&quot;</span>
+                    )),
                 }
             }
-            other_item =&gt; {
-                <span class="comment">// This is an error if the `impl` item contains any unexpected
-                // ink! attributes. Otherwise it is a normal Rust item.
-                </span><span class="kw">if </span>ir::contains_ink_attributes(other_item.attrs()) {
-                    <span class="kw">let </span>(ink_attrs, <span class="kw">_</span>) =
-                        ir::partition_attributes(other_item.attrs().iter().cloned())<span class="question-mark">?</span>;
-                    <span class="macro">assert!</span>(!ink_attrs.is_empty());
-                    <span class="kw">fn </span>into_err(attr: <span class="kw-2">&amp;</span>ir::InkAttribute) -&gt; syn::Error {
-                        <span class="macro">format_err!</span>(attr.span(), <span class="string">&quot;encountered unexpected ink! attribute&quot;</span>,)
+            <span class="ident">other_item</span> =&gt; {
+                <span class="comment">// This is an error if the `impl` item contains any unexpected</span>
+                <span class="comment">// ink! attributes. Otherwise it is a normal Rust item.</span>
+                <span class="kw">if</span> <span class="ident">ir::contains_ink_attributes</span>(<span class="ident">other_item</span>.<span class="ident">attrs</span>()) {
+                    <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="kw">_</span>) <span class="op">=</span>
+                        <span class="ident">ir::partition_attributes</span>(<span class="ident">other_item</span>.<span class="ident">attrs</span>().<span class="ident">iter</span>().<span class="ident">cloned</span>())<span class="question-mark">?</span>;
+                    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">ink_attrs</span>.<span class="ident">is_empty</span>());
+                    <span class="kw">fn</span> <span class="ident">into_err</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">ir::InkAttribute</span>) -&gt; <span class="ident">syn::Error</span> {
+                        <span class="macro">format_err!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;encountered unexpected ink! attribute&quot;</span>,)
                     }
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(ink_attrs[<span class="number">1</span>..]
-                        .iter()
-                        .map(into_err)
-                        .fold(into_err(<span class="kw-2">&amp;</span>ink_attrs[<span class="number">0</span>]), |fst, snd| fst.into_combine(snd)))
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ink_attrs</span>[<span class="number">1</span>..]
+                        .<span class="ident">iter</span>()
+                        .<span class="ident">map</span>(<span class="ident">into_err</span>)
+                        .<span class="ident">fold</span>(<span class="ident">into_err</span>(<span class="kw-2">&amp;</span><span class="ident">ink_attrs</span>[<span class="number">0</span>]), <span class="op">|</span><span class="ident">fst</span>, <span class="ident">snd</span><span class="op">|</span> <span class="ident">fst</span>.<span class="ident">into_combine</span>(<span class="ident">snd</span>)))
                 }
-                <span class="prelude-val">Ok</span>(<span class="self">Self</span>::Other(other_item))
+                <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Other</span>(<span class="ident">other_item</span>))
             }
         }
     }
 }
 
-<span class="kw">impl </span>ImplItem {
-    <span class="doccomment">/// Returns `true` if the `impl` block item is an ink! message.
-    </span><span class="kw">pub fn </span>is_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.filter_map_message().is_some()
+<span class="kw">impl</span> <span class="ident">ImplItem</span> {
+    <span class="doccomment">/// Returns `true` if the `impl` block item is an ink! message.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">filter_map_message</span>().<span class="ident">is_some</span>()
     }
 
-    <span class="doccomment">/// Returns `Some` if `self` is an ink! message.
-    ///
-    /// Otherwise, returns `None`.
-    </span><span class="kw">pub fn </span>filter_map_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Message&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            ImplItem::Message(message) =&gt; <span class="prelude-val">Some</span>(message),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Returns `Some` if `self` is an ink! message.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Otherwise, returns `None`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Message</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ImplItem::Message</span>(<span class="ident">message</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">message</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Returns `true` if the `impl` block item is an ink! message.
-    </span><span class="kw">pub fn </span>is_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.filter_map_constructor().is_some()
+    <span class="doccomment">/// Returns `true` if the `impl` block item is an ink! message.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_constructor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">filter_map_constructor</span>().<span class="ident">is_some</span>()
     }
 
-    <span class="doccomment">/// Returns `Some` if `self` is an ink! constructor.
-    ///
-    /// Otherwise, returns `None`.
-    </span><span class="kw">pub fn </span>filter_map_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Constructor&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            ImplItem::Constructor(constructor) =&gt; <span class="prelude-val">Some</span>(constructor),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Returns `Some` if `self` is an ink! constructor.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Otherwise, returns `None`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_constructor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Constructor</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ImplItem::Constructor</span>(<span class="ident">constructor</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">constructor</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Returns `true` if the `impl` block item is a non ink! specific item.
-    </span><span class="kw">pub fn </span>is_other_item(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.filter_map_other_item().is_some()
+    <span class="doccomment">/// Returns `true` if the `impl` block item is a non ink! specific item.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_other_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">filter_map_other_item</span>().<span class="ident">is_some</span>()
     }
 
-    <span class="doccomment">/// Returns `Some` if `self` is a not an ink! specific item.
-    ///
-    /// Otherwise, returns `None`.
-    </span><span class="kw">pub fn </span>filter_map_other_item(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::ImplItem&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            ImplItem::Other(rust_item) =&gt; <span class="prelude-val">Some</span>(rust_item),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Returns `Some` if `self` is a not an ink! specific item.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Otherwise, returns `None`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_other_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::ImplItem</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ImplItem::Other</span>(<span class="ident">rust_item</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">rust_item</span>),
+            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

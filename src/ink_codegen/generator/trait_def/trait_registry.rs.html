@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/trait_def/trait_registry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trait_registry.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/trait_def/trait_registry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trait_registry.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -333,338 +333,338 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="doccomment">//! The global registry with which it is possible to refer back to the global
-//! trait call builder and call forwarder types using only the trait identifier.
-//!
-//! This works by making the global trait registry type defined in the `ink`
-//! crate implement each and every ink! trait definition and defining associated
-//! types for the trait&#39;s respective call builder and call forwarder.
+<span class="doccomment">//! The global registry with which it is possible to refer back to the global</span>
+<span class="doccomment">//! trait call builder and call forwarder types using only the trait identifier.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This works by making the global trait registry type defined in the `ink`</span>
+<span class="doccomment">//! crate implement each and every ink! trait definition and defining associated</span>
+<span class="doccomment">//! types for the trait&#39;s respective call builder and call forwarder.</span>
 
-</span><span class="kw">use </span><span class="kw">super</span>::TraitDefinition;
-<span class="kw">use crate</span>::{
-    generator::{<span class="self">self</span>,},
-    traits::GenerateCode,
-    EnforcedErrors,
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TraitDefinition</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">generator</span>::{<span class="self">self</span>,},
+    <span class="ident">traits::GenerateCode</span>,
+    <span class="ident">EnforcedErrors</span>,
 };
-<span class="kw">use </span>derive_more::From;
-<span class="kw">use </span>proc_macro2::{
-    Span,
-    TokenStream <span class="kw">as </span>TokenStream2,
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
+    <span class="ident">Span</span>,
+    <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>,
 };
-<span class="kw">use </span>quote::{
-    format_ident,
-    quote,
-    quote_spanned,
+<span class="kw">use</span> <span class="ident">quote</span>::{
+    <span class="ident">format_ident</span>,
+    <span class="ident">quote</span>,
+    <span class="ident">quote_spanned</span>,
 };
-<span class="kw">use </span>syn::{
-    parse_quote,
-    spanned::Spanned,
+<span class="kw">use</span> <span class="ident">syn</span>::{
+    <span class="ident">parse_quote</span>,
+    <span class="ident">spanned::Spanned</span>,
 };
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TraitDefinition&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="doccomment">/// Generates the code for the global trait registry implementation.
-    ///
-    /// This also generates the code for the global trait info object which
-    /// implements some `ink` traits to provide common information about
-    /// the ink! trait definition such as its unique identifier.
-    </span><span class="kw">pub fn </span>generate_trait_registry_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        TraitRegistry::from(<span class="kw-2">*</span><span class="self">self</span>).generate_code()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Generates the code for the global trait registry implementation.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This also generates the code for the global trait info object which</span>
+    <span class="doccomment">/// implements some `ink` traits to provide common information about</span>
+    <span class="doccomment">/// the ink! trait definition such as its unique identifier.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_trait_registry_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="ident">TraitRegistry::from</span>(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">generate_code</span>()
     }
 
-    <span class="doccomment">/// Returns the identifier for the ink! trait definition info object.
-    </span><span class="kw">pub fn </span>trait_info_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Ident {
-        <span class="self">self</span>.append_trait_suffix(<span class="string">&quot;TraitInfo&quot;</span>)
+    <span class="doccomment">/// Returns the identifier for the ink! trait definition info object.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trait_info_ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::Ident</span> {
+        <span class="self">self</span>.<span class="ident">append_trait_suffix</span>(<span class="string">&quot;TraitInfo&quot;</span>)
     }
 }
 
-<span class="doccomment">/// Generates code for the global ink! trait registry implementation.
-</span><span class="attribute">#[derive(From)]
-</span><span class="kw">struct </span>TraitRegistry&lt;<span class="lifetime">&#39;a</span>&gt; {
-    trait_def: TraitDefinition&lt;<span class="lifetime">&#39;a</span>&gt;,
+<span class="doccomment">/// Generates code for the global ink! trait registry implementation.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
+<span class="kw">struct</span> <span class="ident">TraitRegistry</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">trait_def</span>: <span class="ident">TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>GenerateCode <span class="kw">for </span>TraitRegistry&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>registry_impl = <span class="self">self</span>.generate_registry_impl();
-        <span class="kw">let </span>trait_info = <span class="self">self</span>.generate_trait_info_object();
-        <span class="macro">quote! </span>{
-            #registry_impl
-            #trait_info
+<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">TraitRegistry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">registry_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_registry_impl</span>();
+        <span class="kw">let</span> <span class="ident">trait_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_info_object</span>();
+        <span class="macro">quote!</span> {
+            #<span class="ident">registry_impl</span>
+            #<span class="ident">trait_info</span>
         }
     }
 }
 
-<span class="kw">impl </span>TraitRegistry&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="doccomment">/// Returns the span of the ink! trait definition.
-    </span><span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-        <span class="self">self</span>.trait_def.span()
+<span class="kw">impl</span> <span class="ident">TraitRegistry</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns the span of the ink! trait definition.</span>
+    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+        <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">span</span>()
     }
 
-    <span class="doccomment">/// Returns the identifier of the ink! trait definition.
-    </span><span class="kw">fn </span>trait_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Ident {
-        <span class="self">self</span>.trait_def.trait_def.item().ident()
+    <span class="doccomment">/// Returns the identifier of the ink! trait definition.</span>
+    <span class="kw">fn</span> <span class="ident">trait_ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span> {
+        <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">ident</span>()
     }
 
-    <span class="doccomment">/// Generates the global trait registry implementation for the ink! trait.
-    ///
-    /// This makes it possible to refer back to the global call forwarder and
-    /// call builder specific to this ink! trait from anywhere with just the Rust
-    /// trait identifier which allows for type safe access.
-    ///
-    /// # Note
-    ///
-    /// Through this implementation we register the previously defined ink! trait
-    /// call forwarder and call builder types as such for the ink! trait.
-    ///
-    /// This is done by the fact that ink! implements all ink! traits by the
-    /// [`ink::TraitDefinitionRegistry`] type and uses the `__ink_ConcreteImplementer`
-    /// associated type to refer back to the actual call forwarder and call builder types.
-    </span><span class="kw">fn </span>generate_registry_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.span();
-        <span class="kw">let </span>name = <span class="self">self</span>.trait_ident();
-        <span class="kw">let </span>trait_info_ident = <span class="self">self</span>.trait_def.trait_info_ident();
-        <span class="kw">let </span>messages = <span class="self">self</span>.generate_registry_messages();
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl</span>&lt;E&gt; #name <span class="kw">for </span>::ink::reflect::TraitDefinitionRegistry&lt;E&gt;
-            <span class="kw">where
-                </span>E: ::ink::env::Environment,
+    <span class="doccomment">/// Generates the global trait registry implementation for the ink! trait.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This makes it possible to refer back to the global call forwarder and</span>
+    <span class="doccomment">/// call builder specific to this ink! trait from anywhere with just the Rust</span>
+    <span class="doccomment">/// trait identifier which allows for type safe access.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Through this implementation we register the previously defined ink! trait</span>
+    <span class="doccomment">/// call forwarder and call builder types as such for the ink! trait.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is done by the fact that ink! implements all ink! traits by the</span>
+    <span class="doccomment">/// [`ink::TraitDefinitionRegistry`] type and uses the `__ink_ConcreteImplementer`</span>
+    <span class="doccomment">/// associated type to refer back to the actual call forwarder and call builder types.</span>
+    <span class="kw">fn</span> <span class="ident">generate_registry_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_ident</span>();
+        <span class="kw">let</span> <span class="ident">trait_info_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_info_ident</span>();
+        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_registry_messages</span>();
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> #<span class="ident">name</span> <span class="kw">for</span> <span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
+            <span class="kw">where</span>
+                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
             {
-                <span class="doccomment">/// Holds general and global information about the trait.
-                </span><span class="attribute">#[allow(non_camel_case_types)]
-                </span><span class="kw">type </span>__ink_TraitInfo = #trait_info_ident&lt;E&gt;;
+                <span class="doccomment">/// Holds general and global information about the trait.</span>
+                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+                <span class="kw">type</span> <span class="ident">__ink_TraitInfo</span> <span class="op">=</span> #<span class="ident">trait_info_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>;
 
-                #messages
+                #<span class="ident">messages</span>
             }
         )
     }
 
-    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait registry.
-    </span><span class="kw">fn </span>generate_registry_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>messages = <span class="self">self</span>.trait_def.trait_def.item().iter_items().filter_map(
-            |(item, selector)| {
-                item.filter_map_message()
-                    .map(|message| <span class="self">self</span>.generate_registry_for_message(<span class="kw-2">&amp;</span>message, selector))
+    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait registry.</span>
+    <span class="kw">fn</span> <span class="ident">generate_registry_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">iter_items</span>().<span class="ident">filter_map</span>(
+            <span class="op">|</span>(<span class="ident">item</span>, <span class="ident">selector</span>)<span class="op">|</span> {
+                <span class="ident">item</span>.<span class="ident">filter_map_message</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_registry_for_message</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>, <span class="ident">selector</span>))
             },
         );
-        <span class="macro">quote! </span>{
-            #( #messages )*
+        <span class="macro">quote!</span> {
+            #( #<span class="ident">messages</span> )<span class="op">*</span>
         }
     }
 
-    <span class="doccomment">/// Generates code to assert that ink! input and output types meet certain properties.
-    </span><span class="kw">fn </span>generate_inout_guards_for_message(message: <span class="kw-2">&amp;</span>ir::InkTraitMessage) -&gt; TokenStream2 {
-        <span class="kw">let </span>message_span = message.span();
-        <span class="kw">let </span>message_inputs = message.inputs().map(|input| {
-            <span class="kw">let </span>input_span = input.span();
-            <span class="kw">let </span>input_type = <span class="kw-2">&amp;*</span>input.ty;
-            <span class="macro">quote_spanned!</span>(input_span=&gt;
-                ::ink::codegen::utils::consume_type::&lt;
-                    ::ink::codegen::DispatchInput&lt;#input_type&gt;
-                &gt;();
+    <span class="doccomment">/// Generates code to assert that ink! input and output types meet certain properties.</span>
+    <span class="kw">fn</span> <span class="ident">generate_inout_guards_for_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">ir::InkTraitMessage</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">message_inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">input_span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
+            <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">ty</span>;
+            <span class="macro">quote_spanned!</span>(<span class="ident">input_span</span>=&gt;
+                <span class="ident">::ink::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                    <span class="ident">::ink::codegen::DispatchInput</span><span class="op">&lt;</span>#<span class="ident">input_type</span><span class="op">&gt;</span>
+                <span class="op">&gt;</span>();
             )
         });
-        <span class="kw">let </span>message_output = message.output().map(|output_type| {
-            <span class="kw">let </span>output_span = output_type.span();
-            <span class="macro">quote_spanned!</span>(output_span=&gt;
-                ::ink::codegen::utils::consume_type::&lt;
-                    ::ink::codegen::DispatchOutput&lt;#output_type&gt;
-                &gt;();
+        <span class="kw">let</span> <span class="ident">message_output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output_type</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">output_span</span> <span class="op">=</span> <span class="ident">output_type</span>.<span class="ident">span</span>();
+            <span class="macro">quote_spanned!</span>(<span class="ident">output_span</span>=&gt;
+                <span class="ident">::ink::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                    <span class="ident">::ink::codegen::DispatchOutput</span><span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span>
+                <span class="op">&gt;</span>();
             )
         });
-        <span class="macro">quote_spanned!</span>(message_span=&gt;
-            #( #message_inputs )*
-            #message_output
+        <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+            #( #<span class="ident">message_inputs</span> )<span class="op">*</span>
+            #<span class="ident">message_output</span>
         )
     }
 
-    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait registry.
-    ///
-    /// Generally the implementation of any ink! trait of the ink! trait registry
-    </span><span class="kw">fn </span>generate_registry_for_message(
+    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait registry.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Generally the implementation of any ink! trait of the ink! trait registry</span>
+    <span class="kw">fn</span> <span class="ident">generate_registry_for_message</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        message: <span class="kw-2">&amp;</span>ir::InkTraitMessage,
-        selector: ir::Selector,
-    ) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = message.span();
-        <span class="kw">let </span>ident = message.ident();
-        <span class="kw">let </span>attrs = message.attrs();
-        <span class="kw">let </span>output_ident = generator::output_ident(message.ident());
-        <span class="kw">let </span>output_type = message
-            .output()
-            .cloned()
-            .unwrap_or_else(|| <span class="macro">parse_quote! </span>{ () });
-        <span class="kw">let </span>mut_token = message.receiver().is_ref_mut().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
-        <span class="kw">let </span>(input_bindings, input_types) =
-            <span class="self">Self</span>::input_bindings_and_types(message.inputs());
-        <span class="kw">let </span>linker_error_ident = EnforcedErrors::cannot_call_trait_message(
-            <span class="self">self</span>.trait_ident(),
-            message.ident(),
-            selector,
-            message.mutates(),
+        <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">ir::InkTraitMessage</span>,
+        <span class="ident">selector</span>: <span class="ident">ir::Selector</span>,
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
+        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">generator::output_ident</span>(<span class="ident">message</span>.<span class="ident">ident</span>());
+        <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="ident">message</span>
+            .<span class="ident">output</span>()
+            .<span class="ident">cloned</span>()
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">parse_quote!</span> { () });
+        <span class="kw">let</span> <span class="ident">mut_token</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="kw-2">mut</span> });
+        <span class="kw">let</span> (<span class="ident">input_bindings</span>, <span class="ident">input_types</span>) <span class="op">=</span>
+            <span class="ident"><span class="self">Self</span>::input_bindings_and_types</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+        <span class="kw">let</span> <span class="ident">linker_error_ident</span> <span class="op">=</span> <span class="ident">EnforcedErrors::cannot_call_trait_message</span>(
+            <span class="self">self</span>.<span class="ident">trait_ident</span>(),
+            <span class="ident">message</span>.<span class="ident">ident</span>(),
+            <span class="ident">selector</span>,
+            <span class="ident">message</span>.<span class="ident">mutates</span>(),
         );
-        <span class="kw">let </span>inout_guards = <span class="self">Self</span>::generate_inout_guards_for_message(message);
-        <span class="kw">let </span>impl_body = <span class="kw">match </span><span class="macro">option_env!</span>(<span class="string">&quot;INK_COVERAGE_REPORTING&quot;</span>) {
+        <span class="kw">let</span> <span class="ident">inout_guards</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_inout_guards_for_message</span>(<span class="ident">message</span>);
+        <span class="kw">let</span> <span class="ident">impl_body</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro">option_env!</span>(<span class="string">&quot;INK_COVERAGE_REPORTING&quot;</span>) {
             <span class="prelude-val">Some</span>(<span class="string">&quot;true&quot;</span>) =&gt; {
-                <span class="macro">quote! </span>{
-                    <span class="comment">// The code coverage reporting CI stage links dead code,
-                    // hence we have to provide an `unreachable!` here. If
-                    // the invalid implementation above is linked this results
-                    // in a linker error.
-                    </span><span class="macro">::core::unreachable!</span>(
-                        <span class="string">&quot;this is an invalid ink! message call which should never be possible.&quot;
-                    </span>);
+                <span class="macro">quote!</span> {
+                    <span class="comment">// The code coverage reporting CI stage links dead code,</span>
+                    <span class="comment">// hence we have to provide an `unreachable!` here. If</span>
+                    <span class="comment">// the invalid implementation above is linked this results</span>
+                    <span class="comment">// in a linker error.</span>
+                    <span class="macro">::core::unreachable!</span>(
+                        <span class="string">&quot;this is an invalid ink! message call which should never be possible.&quot;</span>
+                    );
                 }
             }
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    <span class="doccomment">/// We enforce linking errors in case this is ever actually called.
-                    /// These linker errors are properly resolved by the cargo-contract tool.
-                    </span><span class="kw">extern </span>{
-                        <span class="kw">fn </span>#linker_error_ident() -&gt; !;
+            <span class="kw">_</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    <span class="doccomment">/// We enforce linking errors in case this is ever actually called.</span>
+                    <span class="doccomment">/// These linker errors are properly resolved by the cargo-contract tool.</span>
+                    <span class="kw">extern</span> {
+                        <span class="kw">fn</span> #<span class="ident">linker_error_ident</span>() -&gt; <span class="op">!</span>;
                     }
-                    <span class="kw">unsafe </span>{ #linker_error_ident() }
+                    <span class="kw">unsafe</span> { #<span class="ident">linker_error_ident</span>() }
                 }
             }
         };
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">type </span>#output_ident = #output_type;
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> #<span class="ident">output_type</span>;
 
-            #( #attrs )*
-            <span class="attribute">#[cold]
-            </span><span class="kw">fn </span>#ident(
-                &amp; #mut_token <span class="self">self
-                </span>#( , #input_bindings : #input_types )*
-            ) -&gt; <span class="self">Self</span>::#output_ident {
-                #inout_guards
-                #impl_body
+            #( #<span class="ident">attrs</span> )<span class="op">*</span>
+            <span class="attribute">#[<span class="ident">cold</span>]</span>
+            <span class="kw">fn</span> #<span class="ident">ident</span>(
+                <span class="op">&amp;</span> #<span class="ident">mut_token</span> <span class="self">self</span>
+                #( , #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
+            ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
+                #<span class="ident">inout_guards</span>
+                #<span class="ident">impl_body</span>
             }
         )
     }
 
-    <span class="doccomment">/// Returns a pair of input bindings `__ink_bindings_N` and types.
-    </span><span class="kw">fn </span>input_bindings_and_types(
-        inputs: ir::InputsIter,
-    ) -&gt; (Vec&lt;syn::Ident&gt;, Vec&lt;<span class="kw-2">&amp;</span>syn::Type&gt;) {
-        inputs
-            .enumerate()
-            .map(|(n, pat_type)| {
-                <span class="kw">let </span>binding = <span class="macro">format_ident!</span>(<span class="string">&quot;__ink_binding_{}&quot;</span>, n);
-                <span class="kw">let </span>ty = <span class="kw-2">&amp;*</span>pat_type.ty;
-                (binding, ty)
+    <span class="doccomment">/// Returns a pair of input bindings `__ink_bindings_N` and types.</span>
+    <span class="kw">fn</span> <span class="ident">input_bindings_and_types</span>(
+        <span class="ident">inputs</span>: <span class="ident">ir::InputsIter</span>,
+    ) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>) {
+        <span class="ident">inputs</span>
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="ident">pat_type</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">binding</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;__ink_binding_{}&quot;</span>, <span class="ident">n</span>);
+                <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">ty</span>;
+                (<span class="ident">binding</span>, <span class="ident">ty</span>)
             })
-            .unzip()
+            .<span class="ident">unzip</span>()
     }
 
-    <span class="doccomment">/// Phantom type that implements the following traits for every ink! trait:
-    ///
-    /// - `ink::TraitCallForwarder`
-    ///
-    /// It is mainly used to access global information about the ink! trait.
-    </span><span class="kw">fn </span>generate_trait_info_object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.span();
-        <span class="kw">let </span>trait_id = <span class="self">self</span>.generate_trait_id();
-        <span class="kw">let </span>trait_ident = <span class="self">self</span>.trait_ident();
-        <span class="kw">let </span>trait_info_ident = <span class="self">self</span>.trait_def.trait_info_ident();
-        <span class="kw">let </span>trait_call_forwarder = <span class="self">self</span>.trait_def.call_forwarder_ident();
-        <span class="kw">let </span>trait_message_info = <span class="self">self</span>.generate_info_for_trait_messages();
-        <span class="macro">quote_spanned!</span>(span =&gt;
-            <span class="attribute">#[doc(hidden)]
-            #[allow(non_camel_case_types)]
-            </span><span class="kw">pub struct </span>#trait_info_ident&lt;E&gt; {
-                marker: ::core::marker::PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
+    <span class="doccomment">/// Phantom type that implements the following traits for every ink! trait:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `ink::TraitCallForwarder`</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It is mainly used to access global information about the ink! trait.</span>
+    <span class="kw">fn</span> <span class="ident">generate_trait_info_object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">trait_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_id</span>();
+        <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_ident</span>();
+        <span class="kw">let</span> <span class="ident">trait_info_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_info_ident</span>();
+        <span class="kw">let</span> <span class="ident">trait_call_forwarder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">call_forwarder_ident</span>();
+        <span class="kw">let</span> <span class="ident">trait_message_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_info_for_trait_messages</span>();
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
+            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+            <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">trait_info_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+                <span class="ident">marker</span>: <span class="ident">::core::marker::PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">E</span><span class="op">&gt;</span>,
             }
 
-            #trait_message_info
+            #<span class="ident">trait_message_info</span>
 
-            <span class="kw">impl</span>&lt;E&gt; ::ink::reflect::TraitInfo <span class="kw">for </span>#trait_info_ident&lt;E&gt;
-            <span class="kw">where
-                </span>E: ::ink::env::Environment,
+            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::reflect::TraitInfo</span> <span class="kw">for</span> #<span class="ident">trait_info_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
+            <span class="kw">where</span>
+                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
             {
-                <span class="kw">const </span>ID: u32 = #trait_id;
+                <span class="kw">const</span> <span class="ident">ID</span>: <span class="ident">u32</span> <span class="op">=</span> #<span class="ident">trait_id</span>;
 
-                <span class="kw">const </span>PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>::core::primitive::str = <span class="macro">::core::module_path!</span>();
+                <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">::core::primitive::str</span> <span class="op">=</span> <span class="macro">::core::module_path!</span>();
 
-                <span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>::core::primitive::str = <span class="macro">::core::stringify!</span>(#trait_ident);
+                <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">::core::primitive::str</span> <span class="op">=</span> <span class="macro">::core::stringify!</span>(#<span class="ident">trait_ident</span>);
             }
 
-            <span class="kw">impl</span>&lt;E&gt; ::ink::codegen::TraitCallForwarder <span class="kw">for </span>#trait_info_ident&lt;E&gt;
-            <span class="kw">where
-                </span>E: ::ink::env::Environment,
+            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::codegen::TraitCallForwarder</span> <span class="kw">for</span> #<span class="ident">trait_info_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
+            <span class="kw">where</span>
+                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
             {
-                <span class="kw">type </span>Forwarder = #trait_call_forwarder&lt;E&gt;;
+                <span class="kw">type</span> <span class="ident">Forwarder</span> <span class="op">=</span> #<span class="ident">trait_call_forwarder</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>;
             }
         )
     }
 
-    <span class="doccomment">/// Generates a unique id for the trait, as an XOR of the set of selectors.
-    </span><span class="kw">fn </span>generate_trait_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::LitInt {
-        <span class="kw">let </span>span = <span class="self">self</span>.span();
-        <span class="kw">let </span><span class="kw-2">mut </span>id = <span class="number">0u32</span>;
+    <span class="doccomment">/// Generates a unique id for the trait, as an XOR of the set of selectors.</span>
+    <span class="kw">fn</span> <span class="ident">generate_trait_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="number">0u32</span>;
         <span class="macro">debug_assert!</span>(
-            <span class="self">self</span>.trait_def
-                .trait_def
-                .item()
-                .iter_items()
-                .next()
-                .is_some(),
-            <span class="string">&quot;invalid empty ink! trait definition&quot;
-        </span>);
-        <span class="kw">for </span>(<span class="kw">_</span>, selector) <span class="kw">in </span><span class="self">self</span>.trait_def.trait_def.item().iter_items() {
-            id ^= selector.into_be_u32()
+            <span class="self">self</span>.<span class="ident">trait_def</span>
+                .<span class="ident">trait_def</span>
+                .<span class="ident">item</span>()
+                .<span class="ident">iter_items</span>()
+                .<span class="ident">next</span>()
+                .<span class="ident">is_some</span>(),
+            <span class="string">&quot;invalid empty ink! trait definition&quot;</span>
+        );
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">selector</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">iter_items</span>() {
+            <span class="ident">id</span> <span class="op">^</span><span class="op">=</span> <span class="ident">selector</span>.<span class="ident">into_be_u32</span>()
         }
-        syn::LitInt::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, id), span)
+        <span class="ident">syn::LitInt::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">id</span>), <span class="ident">span</span>)
     }
 
-    <span class="doccomment">/// Generates the [`::ink::reflect::TraitMessageInfo`] implementations for all
-    /// ink! messages defined by the ink! trait definition.
-    </span><span class="kw">fn </span>generate_info_for_trait_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.span();
-        <span class="kw">let </span>message_impls = <span class="self">self</span>.trait_def.trait_def.item().iter_items().filter_map(
-            |(trait_item, selector)| {
-                trait_item.filter_map_message().map(|message| {
-                    <span class="self">self</span>.generate_info_for_trait_for_message(<span class="kw-2">&amp;</span>message, selector)
+    <span class="doccomment">/// Generates the [`::ink::reflect::TraitMessageInfo`] implementations for all</span>
+    <span class="doccomment">/// ink! messages defined by the ink! trait definition.</span>
+    <span class="kw">fn</span> <span class="ident">generate_info_for_trait_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">message_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">iter_items</span>().<span class="ident">filter_map</span>(
+            <span class="op">|</span>(<span class="ident">trait_item</span>, <span class="ident">selector</span>)<span class="op">|</span> {
+                <span class="ident">trait_item</span>.<span class="ident">filter_map_message</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
+                    <span class="self">self</span>.<span class="ident">generate_info_for_trait_for_message</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>, <span class="ident">selector</span>)
                 })
             },
         );
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            #( #message_impls )*
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            #( #<span class="ident">message_impls</span> )<span class="op">*</span>
         )
     }
 
-    <span class="doccomment">/// Generates the [`::ink::reflect::TraitMessageInfo`] implementation for a single
-    /// ink! message defined by the ink! trait definition.
-    </span><span class="kw">fn </span>generate_info_for_trait_for_message(
+    <span class="doccomment">/// Generates the [`::ink::reflect::TraitMessageInfo`] implementation for a single</span>
+    <span class="doccomment">/// ink! message defined by the ink! trait definition.</span>
+    <span class="kw">fn</span> <span class="ident">generate_info_for_trait_for_message</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        message: <span class="kw-2">&amp;</span>ir::InkTraitMessage,
-        selector: ir::Selector,
-    ) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = message.span();
-        <span class="kw">let </span>trait_info_ident = <span class="self">self</span>.trait_def.trait_info_ident();
-        <span class="kw">let </span>local_id = message.local_id();
-        <span class="kw">let </span>selector_bytes = selector.hex_lits();
-        <span class="kw">let </span>is_payable = message.ink_attrs().is_payable();
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl</span>&lt;E&gt; ::ink::reflect::TraitMessageInfo&lt;#local_id&gt; <span class="kw">for </span>#trait_info_ident&lt;E&gt; {
-                <span class="kw">const </span>PAYABLE: ::core::primitive::bool = #is_payable;
+        <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">ir::InkTraitMessage</span>,
+        <span class="ident">selector</span>: <span class="ident">ir::Selector</span>,
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">trait_info_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_info_ident</span>();
+        <span class="kw">let</span> <span class="ident">local_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">local_id</span>();
+        <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">hex_lits</span>();
+        <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ink_attrs</span>().<span class="ident">is_payable</span>();
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">trait_info_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+                <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">is_payable</span>;
 
-                <span class="kw">const </span>SELECTOR: [::core::primitive::u8; <span class="number">4usize</span>] = [ #( #selector_bytes ),* ];
+                <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> [ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ];
             }
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

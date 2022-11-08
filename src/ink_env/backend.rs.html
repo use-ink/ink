@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/backend.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/backend.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -500,505 +500,505 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use crate</span>::{
-    call::{
-        Call,
-        CallParams,
-        CreateParams,
-        DelegateCall,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">call</span>::{
+        <span class="ident">Call</span>,
+        <span class="ident">CallParams</span>,
+        <span class="ident">CreateParams</span>,
+        <span class="ident">DelegateCall</span>,
     },
-    hash::{
-        CryptoHash,
-        HashOutput,
+    <span class="ident">hash</span>::{
+        <span class="ident">CryptoHash</span>,
+        <span class="ident">HashOutput</span>,
     },
-    topics::Topics,
-    Environment,
+    <span class="ident">topics::Topics</span>,
+    <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use </span>ink_storage_traits::Storable;
+<span class="kw">use</span> <span class="ident">ink_storage_traits::Storable</span>;
 
-<span class="doccomment">/// The flags to indicate further information about the end of a contract execution.
-</span><span class="attribute">#[derive(Default)]
-</span><span class="kw">pub struct </span>ReturnFlags {
-    value: u32,
+<span class="doccomment">/// The flags to indicate further information about the end of a contract execution.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReturnFlags</span> {
+    <span class="ident">value</span>: <span class="ident">u32</span>,
 }
 
-<span class="kw">impl </span>ReturnFlags {
-    <span class="doccomment">/// Sets the bit to indicate that the execution is going to be reverted.
-    </span><span class="attribute">#[must_use]
-    </span><span class="kw">pub fn </span>set_reverted(<span class="kw-2">mut </span><span class="self">self</span>, has_reverted: bool) -&gt; <span class="self">Self </span>{
-        <span class="kw">match </span>has_reverted {
-            <span class="bool-val">true </span>=&gt; <span class="self">self</span>.value |= has_reverted <span class="kw">as </span>u32,
-            <span class="bool-val">false </span>=&gt; <span class="self">self</span>.value &amp;= !has_reverted <span class="kw">as </span>u32,
+<span class="kw">impl</span> <span class="ident">ReturnFlags</span> {
+    <span class="doccomment">/// Sets the bit to indicate that the execution is going to be reverted.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_reverted</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">has_reverted</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">has_reverted</span> {
+            <span class="bool-val">true</span> =&gt; <span class="self">self</span>.<span class="ident">value</span> <span class="op">|</span><span class="op">=</span> <span class="ident">has_reverted</span> <span class="kw">as</span> <span class="ident">u32</span>,
+            <span class="bool-val">false</span> =&gt; <span class="self">self</span>.<span class="ident">value</span> <span class="op">&amp;=</span> <span class="op">!</span><span class="ident">has_reverted</span> <span class="kw">as</span> <span class="ident">u32</span>,
         }
-        <span class="self">self
-    </span>}
+        <span class="self">self</span>
+    }
 
-    <span class="doccomment">/// Returns the underlying `u32` representation.
-    </span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_u32(<span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.value
+    <span class="doccomment">/// Returns the underlying `u32` representation.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+        <span class="self">self</span>.<span class="ident">value</span>
     }
 }
 
-<span class="doccomment">/// The flags used to change the behavior of a contract call.
-</span><span class="attribute">#[must_use]
-#[derive(Copy, Clone, Debug, Default)]
-</span><span class="kw">pub struct </span>CallFlags {
-    forward_input: bool,
-    clone_input: bool,
-    tail_call: bool,
-    allow_reentry: bool,
+<span class="doccomment">/// The flags used to change the behavior of a contract call.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallFlags</span> {
+    <span class="ident">forward_input</span>: <span class="ident">bool</span>,
+    <span class="ident">clone_input</span>: <span class="ident">bool</span>,
+    <span class="ident">tail_call</span>: <span class="ident">bool</span>,
+    <span class="ident">allow_reentry</span>: <span class="ident">bool</span>,
 }
 
-<span class="kw">impl </span>CallFlags {
-    <span class="doccomment">/// Forwards the input for the current function to the callee.
-    ///
-    /// # Note
-    ///
-    /// A forwarding call will consume the current contracts input. Any attempt to
-    /// access the input after this call returns (e.g. by trying another forwarding call)
-    /// will lead to a contract revert.
-    /// Consider using [`Self::set_clone_input`] in order to preserve the input.
-    </span><span class="kw">pub const fn </span>set_forward_input(<span class="kw-2">mut </span><span class="self">self</span>, forward_input: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.forward_input = forward_input;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Identical to [`Self::set_forward_input`] but without consuming the input.
-    ///
-    /// This adds some additional weight costs to the call.
-    ///
-    /// # Note
-    ///
-    /// This implies [`Self::set_forward_input`] and takes precedence when both are set.
-    </span><span class="kw">pub const fn </span>set_clone_input(<span class="kw-2">mut </span><span class="self">self</span>, clone_input: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.clone_input = clone_input;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Do not return from the call but rather return the result of the callee to the
-    /// callers caller.
-    ///
-    /// # Note
-    ///
-    /// This makes the current contract completely transparent to its caller by replacing
-    /// this contracts potential output with the callee ones. Any code after the contract
-    /// calls has been invoked can be safely considered unreachable.
-    </span><span class="kw">pub const fn </span>set_tail_call(<span class="kw-2">mut </span><span class="self">self</span>, tail_call: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.tail_call = tail_call;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Allow the callee to reenter into the current contract.
-    ///
-    /// Without this flag any reentrancy into the current contract that originates from
-    /// the callee (or any of its callees) is denied. This includes the first callee:
-    /// You cannot call into yourself with this flag set.
-    </span><span class="kw">pub const fn </span>set_allow_reentry(<span class="kw-2">mut </span><span class="self">self</span>, allow_reentry: bool) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.allow_reentry = allow_reentry;
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Returns the underlying `u32` representation of the call flags.
-    ///
-    /// This value is used to forward the call flag information to the
-    /// `contracts` pallet.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>into_u32(<span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.forward_input <span class="kw">as </span>u32
-            | ((<span class="self">self</span>.clone_input <span class="kw">as </span>u32) &lt;&lt; <span class="number">1</span>)
-            | ((<span class="self">self</span>.tail_call <span class="kw">as </span>u32) &lt;&lt; <span class="number">2</span>)
-            | ((<span class="self">self</span>.allow_reentry <span class="kw">as </span>u32) &lt;&lt; <span class="number">3</span>)
+<span class="kw">impl</span> <span class="ident">CallFlags</span> {
+    <span class="doccomment">/// Forwards the input for the current function to the callee.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A forwarding call will consume the current contracts input. Any attempt to</span>
+    <span class="doccomment">/// access the input after this call returns (e.g. by trying another forwarding call)</span>
+    <span class="doccomment">/// will lead to a contract revert.</span>
+    <span class="doccomment">/// Consider using [`Self::set_clone_input`] in order to preserve the input.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_forward_input</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">forward_input</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">forward_input</span> <span class="op">=</span> <span class="ident">forward_input</span>;
+        <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Returns `true` if input forwarding is set.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_forward_input`] for more information.
-    </span><span class="kw">pub const fn </span>forward_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.forward_input
+    <span class="doccomment">/// Identical to [`Self::set_forward_input`] but without consuming the input.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This adds some additional weight costs to the call.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This implies [`Self::set_forward_input`] and takes precedence when both are set.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_clone_input</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">clone_input</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone_input</span> <span class="op">=</span> <span class="ident">clone_input</span>;
+        <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Returns `true` if input cloning is set.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_clone_input`] for more information.
-    </span><span class="kw">pub const fn </span>clone_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.clone_input
+    <span class="doccomment">/// Do not return from the call but rather return the result of the callee to the</span>
+    <span class="doccomment">/// callers caller.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This makes the current contract completely transparent to its caller by replacing</span>
+    <span class="doccomment">/// this contracts potential output with the callee ones. Any code after the contract</span>
+    <span class="doccomment">/// calls has been invoked can be safely considered unreachable.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_tail_call</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tail_call</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">tail_call</span> <span class="op">=</span> <span class="ident">tail_call</span>;
+        <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Returns `true` if the tail call property is set.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_tail_call`] for more information.
-    </span><span class="kw">pub const fn </span>tail_call(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.tail_call
+    <span class="doccomment">/// Allow the callee to reenter into the current contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Without this flag any reentrancy into the current contract that originates from</span>
+    <span class="doccomment">/// the callee (or any of its callees) is denied. This includes the first callee:</span>
+    <span class="doccomment">/// You cannot call into yourself with this flag set.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_allow_reentry</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">allow_reentry</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">allow_reentry</span> <span class="op">=</span> <span class="ident">allow_reentry</span>;
+        <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Returns `true` if call reentry is allowed.
-    ///
-    /// # Note
-    ///
-    /// See [`Self::set_allow_reentry`] for more information.
-    </span><span class="kw">pub const fn </span>allow_reentry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.allow_reentry
+    <span class="doccomment">/// Returns the underlying `u32` representation of the call flags.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This value is used to forward the call flag information to the</span>
+    <span class="doccomment">/// `contracts` pallet.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+        <span class="self">self</span>.<span class="ident">forward_input</span> <span class="kw">as</span> <span class="ident">u32</span>
+            <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">clone_input</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>)
+            <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">tail_call</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>)
+            <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">allow_reentry</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>)
+    }
+
+    <span class="doccomment">/// Returns `true` if input forwarding is set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_forward_input`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">forward_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">forward_input</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if input cloning is set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_clone_input`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">clone_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">clone_input</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if the tail call property is set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_tail_call`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">tail_call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">tail_call</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if call reentry is allowed.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_allow_reentry`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">allow_reentry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">allow_reentry</span>
     }
 }
 
-<span class="doccomment">/// Environmental contract functionality that does not require `Environment`.
-</span><span class="kw">pub trait </span>EnvBackend {
-    <span class="doccomment">/// Writes the value to the contract storage under the given storage key.
-    ///
-    /// Returns the size of the pre-existing value at the specified key if any.
-    </span><span class="kw">fn </span>set_contract_storage&lt;K, V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>V) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
-    <span class="kw">where
-        </span>K: scale::Encode,
-        V: Storable;
+<span class="doccomment">/// Environmental contract functionality that does not require `Environment`.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">EnvBackend</span> {
+    <span class="doccomment">/// Writes the value to the contract storage under the given storage key.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the size of the pre-existing value at the specified key if any.</span>
+    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">V</span>: <span class="ident">Storable</span>;
 
-    <span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if any.
-    ///
-    /// # Errors
-    ///
-    /// - If the decoding of the typed value failed
-    </span><span class="kw">fn </span>get_contract_storage&lt;K, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
-    <span class="kw">where
-        </span>K: scale::Encode,
-        R: Storable;
+    <span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if any.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the decoding of the typed value failed</span>
+    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">R</span>: <span class="ident">Storable</span>;
 
-    <span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage if
-    /// any.
-    ///
-    /// # Errors
-    ///
-    /// - If the decoding of the typed value failed
-    </span><span class="kw">fn </span>take_contract_storage&lt;K, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
-    <span class="kw">where
-        </span>K: scale::Encode,
-        R: Storable;
+    <span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage if</span>
+    <span class="doccomment">/// any.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the decoding of the typed value failed</span>
+    <span class="kw">fn</span> <span class="ident">take_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">R</span>: <span class="ident">Storable</span>;
 
-    <span class="doccomment">/// Returns the size of a value stored under the given storage key is returned if any.
-    </span><span class="kw">fn </span>contains_contract_storage&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
-    <span class="kw">where
-        </span>K: scale::Encode;
+    <span class="doccomment">/// Returns the size of a value stored under the given storage key is returned if any.</span>
+    <span class="kw">fn</span> <span class="ident">contains_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>;
 
-    <span class="doccomment">/// Clears the contract&#39;s storage key entry under the given storage key.
-    ///
-    /// Returns the size of the previously stored value at the specified key if any.
-    </span><span class="kw">fn </span>clear_contract_storage&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
-    <span class="kw">where
-        </span>K: scale::Encode;
+    <span class="doccomment">/// Clears the contract&#39;s storage key entry under the given storage key.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the size of the previously stored value at the specified key if any.</span>
+    <span class="kw">fn</span> <span class="ident">clear_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">K</span>: <span class="ident">scale::Encode</span>;
 
-    <span class="doccomment">/// Returns the execution input to the executed contract and decodes it as `T`.
-    ///
-    /// # Note
-    ///
-    /// - The input is the 4-bytes selector followed by the arguments
-    ///   of the called function in their SCALE encoded representation.
-    /// - No prior interaction with the environment must take place before
-    ///   calling this procedure.
-    ///
-    /// # Usage
-    ///
-    /// Normally contracts define their own `enum` dispatch types respective
-    /// to their exported constructors and messages that implement `scale::Decode`
-    /// according to the constructors or messages selectors and their arguments.
-    /// These `enum` dispatch types are then given to this procedure as the `T`.
-    ///
-    /// When using ink! users do not have to construct those enum dispatch types
-    /// themselves as they are normally generated by the ink! code generation
-    /// automatically.
-    ///
-    /// # Errors
-    ///
-    /// If the given `T` cannot be properly decoded from the expected input.
-    </span><span class="kw">fn </span>decode_input&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
-    <span class="kw">where
-        </span>T: scale::Decode;
+    <span class="doccomment">/// Returns the execution input to the executed contract and decodes it as `T`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - The input is the 4-bytes selector followed by the arguments</span>
+    <span class="doccomment">///   of the called function in their SCALE encoded representation.</span>
+    <span class="doccomment">/// - No prior interaction with the environment must take place before</span>
+    <span class="doccomment">///   calling this procedure.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Usage</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Normally contracts define their own `enum` dispatch types respective</span>
+    <span class="doccomment">/// to their exported constructors and messages that implement `scale::Decode`</span>
+    <span class="doccomment">/// according to the constructors or messages selectors and their arguments.</span>
+    <span class="doccomment">/// These `enum` dispatch types are then given to this procedure as the `T`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// When using ink! users do not have to construct those enum dispatch types</span>
+    <span class="doccomment">/// themselves as they are normally generated by the ink! code generation</span>
+    <span class="doccomment">/// automatically.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the given `T` cannot be properly decoded from the expected input.</span>
+    <span class="kw">fn</span> <span class="ident">decode_input</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">scale::Decode</span>;
 
-    <span class="doccomment">/// Returns the value back to the caller of the executed contract.
-    ///
-    /// # Note
-    ///
-    /// Calling this method will end contract execution immediately.
-    /// It will return the given return value back to its caller.
-    ///
-    /// The `flags` parameter can be used to revert the state changes of the
-    /// entire execution if necessary.
-    </span><span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R) -&gt; !
-    <span class="kw">where
-        </span>R: scale::Encode;
+    <span class="doccomment">/// Returns the value back to the caller of the executed contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Calling this method will end contract execution immediately.</span>
+    <span class="doccomment">/// It will return the given return value back to its caller.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `flags` parameter can be used to revert the state changes of the</span>
+    <span class="doccomment">/// entire execution if necessary.</span>
+    <span class="kw">fn</span> <span class="ident">return_value</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">flags</span>: <span class="ident">ReturnFlags</span>, <span class="ident">return_value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>) -&gt; <span class="op">!</span>
+    <span class="kw">where</span>
+        <span class="ident">R</span>: <span class="ident">scale::Encode</span>;
 
-    <span class="doccomment">/// Emit a custom debug message.
-    ///
-    /// The message is appended to the debug buffer which is then supplied to the calling RPC
-    /// client. This buffer is also printed as a debug message to the node console if the
-    /// `debug` log level is enabled for the `runtime::contracts` target.
-    ///
-    /// If debug message recording is disabled in the contracts pallet, which is always the case
-    /// when the code is executing on-chain, then this will have no effect.
-    </span><span class="kw">fn </span>debug_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, content: <span class="kw-2">&amp;</span>str);
+    <span class="doccomment">/// Emit a custom debug message.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The message is appended to the debug buffer which is then supplied to the calling RPC</span>
+    <span class="doccomment">/// client. This buffer is also printed as a debug message to the node console if the</span>
+    <span class="doccomment">/// `debug` log level is enabled for the `runtime::contracts` target.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If debug message recording is disabled in the contracts pallet, which is always the case</span>
+    <span class="doccomment">/// when the code is executing on-chain, then this will have no effect.</span>
+    <span class="kw">fn</span> <span class="ident">debug_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>);
 
-    <span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.
-    </span><span class="kw">fn </span>hash_bytes&lt;H&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
-    <span class="kw">where
-        </span>H: CryptoHash;
+    <span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.</span>
+    <span class="kw">fn</span> <span class="ident">hash_bytes</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
+    <span class="kw">where</span>
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>;
 
-    <span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in `output`.
-    </span><span class="kw">fn </span>hash_encoded&lt;H, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>T, output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
-    <span class="kw">where
-        </span>H: CryptoHash,
-        T: scale::Encode;
+    <span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in `output`.</span>
+    <span class="kw">fn</span> <span class="ident">hash_encoded</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
+    <span class="kw">where</span>
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span>;
 
-    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
-    /// and stores the result in `output`.
-    </span><span class="kw">fn </span>ecdsa_recover(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
-        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
-        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,</span>
+    <span class="doccomment">/// and stores the result in `output`.</span>
+    <span class="kw">fn</span> <span class="ident">ecdsa_recover</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">65</span>],
+        <span class="ident">message_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>],
+        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">33</span>],
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Retrieves an Ethereum address from the ECDSA compressed `pubkey`
-    /// and stores the result in `output`.
-    </span><span class="kw">fn </span>ecdsa_to_eth_address(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>],
-        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>],
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+    <span class="doccomment">/// Retrieves an Ethereum address from the ECDSA compressed `pubkey`</span>
+    <span class="doccomment">/// and stores the result in `output`.</span>
+    <span class="kw">fn</span> <span class="ident">ecdsa_to_eth_address</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">pubkey</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">33</span>],
+        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">20</span>],
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Low-level interface to call a chain extension method.
-    ///
-    /// Returns the output of the chain extension of the specified type.
-    ///
-    /// # Errors
-    ///
-    /// - If the chain extension with the given ID does not exist.
-    /// - If the inputs had an unexpected encoding.
-    /// - If the output could not be properly decoded.
-    /// - If some extension specific condition has not been met.
-    ///
-    /// # Developer Note
-    ///
-    /// A valid implementation applies the `status_to_result` closure on
-    /// the status code returned by the actual call to the chain extension
-    /// method.
-    /// Only if the closure finds that the given status code indicates a
-    /// successful call to the chain extension method is the resulting
-    /// output buffer passed to the `decode_to_result` closure, in order to
-    /// drive the decoding and error management process from the outside.
-    </span><span class="kw">fn </span>call_chain_extension&lt;I, T, E, ErrorCode, F, D&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        func_id: u32,
-        input: <span class="kw-2">&amp;</span>I,
-        status_to_result: F,
-        decode_to_result: D,
-    ) -&gt; ::core::result::Result&lt;T, E&gt;
-    <span class="kw">where
-        </span>I: scale::Encode,
-        T: scale::Decode,
-        E: From&lt;ErrorCode&gt;,
-        F: FnOnce(u32) -&gt; ::core::result::Result&lt;(), ErrorCode&gt;,
-        D: FnOnce(<span class="kw-2">&amp;</span>[u8]) -&gt; ::core::result::Result&lt;T, E&gt;;
+    <span class="doccomment">/// Low-level interface to call a chain extension method.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the output of the chain extension of the specified type.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the chain extension with the given ID does not exist.</span>
+    <span class="doccomment">/// - If the inputs had an unexpected encoding.</span>
+    <span class="doccomment">/// - If the output could not be properly decoded.</span>
+    <span class="doccomment">/// - If some extension specific condition has not been met.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Developer Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A valid implementation applies the `status_to_result` closure on</span>
+    <span class="doccomment">/// the status code returned by the actual call to the chain extension</span>
+    <span class="doccomment">/// method.</span>
+    <span class="doccomment">/// Only if the closure finds that the given status code indicates a</span>
+    <span class="doccomment">/// successful call to the chain extension method is the resulting</span>
+    <span class="doccomment">/// output buffer passed to the `decode_to_result` closure, in order to</span>
+    <span class="doccomment">/// drive the decoding and error management process from the outside.</span>
+    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span>, <span class="ident">F</span>, <span class="ident">D</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">func_id</span>: <span class="ident">u32</span>,
+        <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>,
+        <span class="ident">status_to_result</span>: <span class="ident">F</span>,
+        <span class="ident">decode_to_result</span>: <span class="ident">D</span>,
+    ) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
+        <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">u32</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorCode</span><span class="op">&gt;</span>,
+        <span class="ident">D</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Sets a new code hash for the current contract.
-    ///
-    /// This effectively replaces the code which is executed for this contract address.
-    ///
-    /// # Errors
-    ///
-    /// - If the supplied `code_hash` cannot be found on-chain.
-    </span><span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;;
+    <span class="doccomment">/// Sets a new code hash for the current contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This effectively replaces the code which is executed for this contract address.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the supplied `code_hash` cannot be found on-chain.</span>
+    <span class="kw">fn</span> <span class="ident">set_code_hash</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">code_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 }
 
-<span class="doccomment">/// Environmental contract functionality.
-</span><span class="kw">pub trait </span>TypedEnvBackend: EnvBackend {
-    <span class="doccomment">/// Returns the address of the caller of the executed contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`caller`][`crate::caller`]
-    </span><span class="kw">fn </span>caller&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId;
+<span class="doccomment">/// Environmental contract functionality.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TypedEnvBackend</span>: <span class="ident">EnvBackend</span> {
+    <span class="doccomment">/// Returns the address of the caller of the executed contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`caller`][`crate::caller`]</span>
+    <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::AccountId</span>;
 
-    <span class="doccomment">/// Returns the transferred value for the contract execution.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`transferred_value`][`crate::transferred_value`]
-    </span><span class="kw">fn </span>transferred_value&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance;
+    <span class="doccomment">/// Returns the transferred value for the contract execution.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`transferred_value`][`crate::transferred_value`]</span>
+    <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span>;
 
-    <span class="doccomment">/// Returns the price for the specified amount of gas.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-    </span><span class="kw">fn </span>weight_to_fee&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; E::Balance;
+    <span class="doccomment">/// Returns the price for the specified amount of gas.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]</span>
+    <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) -&gt; <span class="ident">E::Balance</span>;
 
-    <span class="doccomment">/// Returns the amount of gas left for the contract execution.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`gas_left`][`crate::gas_left`]
-    </span><span class="kw">fn </span>gas_left&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64;
+    <span class="doccomment">/// Returns the amount of gas left for the contract execution.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`gas_left`][`crate::gas_left`]</span>
+    <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">u64</span>;
 
-    <span class="doccomment">/// Returns the timestamp of the current block.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
-    </span><span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp;
+    <span class="doccomment">/// Returns the timestamp of the current block.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`block_timestamp`][`crate::block_timestamp`]</span>
+    <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Timestamp</span>;
 
-    <span class="doccomment">/// Returns the address of the executed contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`account_id`][`crate::account_id`]
-    </span><span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId;
+    <span class="doccomment">/// Returns the address of the executed contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`account_id`][`crate::account_id`]</span>
+    <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::AccountId</span>;
 
-    <span class="doccomment">/// Returns the balance of the executed contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`balance`][`crate::balance`]
-    </span><span class="kw">fn </span>balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance;
+    <span class="doccomment">/// Returns the balance of the executed contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`balance`][`crate::balance`]</span>
+    <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span>;
 
-    <span class="doccomment">/// Returns the current block number.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`block_number`][`crate::block_number`]
-    </span><span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber;
+    <span class="doccomment">/// Returns the current block number.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`block_number`][`crate::block_number`]</span>
+    <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::BlockNumber</span>;
 
-    <span class="doccomment">/// Returns the minimum balance that is required for creating an account
-    /// (i.e. the chain&#39;s existential deposit).
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
-    </span><span class="kw">fn </span>minimum_balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance;
+    <span class="doccomment">/// Returns the minimum balance that is required for creating an account</span>
+    <span class="doccomment">/// (i.e. the chain&#39;s existential deposit).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`minimum_balance`][`crate::minimum_balance`]</span>
+    <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span>;
 
-    <span class="doccomment">/// Emits an event with the given event data.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`emit_event`][`crate::emit_event`]
-    </span><span class="kw">fn </span>emit_event&lt;E, Event&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event)
-    <span class="kw">where
-        </span>E: Environment,
-        Event: Topics + scale::Encode;
+    <span class="doccomment">/// Emits an event with the given event data.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`emit_event`][`crate::emit_event`]</span>
+    <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>)
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
+        <span class="ident">Event</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>;
 
-    <span class="doccomment">/// Invokes a contract message and returns its result.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    </span><span class="kw">fn </span>invoke_contract&lt;E, Args, R&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
-    <span class="kw">where
-        </span>E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
+    <span class="doccomment">/// Invokes a contract message and returns its result.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`invoke_contract`][`crate::invoke_contract`]</span>
+    <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">call_data</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
+        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">R</span>: <span class="ident">scale::Decode</span>;
 
-    <span class="doccomment">/// Invokes a contract message via delegate call and returns its result.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
-    </span><span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
-    <span class="kw">where
-        </span>E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode;
+    <span class="doccomment">/// Invokes a contract message via delegate call and returns its result.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]</span>
+    <span class="kw">fn</span> <span class="ident">invoke_contract_delegate</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">call_data</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
+        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">R</span>: <span class="ident">scale::Decode</span>;
 
-    <span class="doccomment">/// Instantiates another contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    </span><span class="kw">fn </span>instantiate_contract&lt;E, Args, Salt, C&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, C&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;E::AccountId&gt;
-    <span class="kw">where
-        </span>E: Environment,
-        Args: scale::Encode,
-        Salt: AsRef&lt;[u8]&gt;;
+    <span class="doccomment">/// Instantiates another contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]</span>
+    <span class="kw">fn</span> <span class="ident">instantiate_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
+        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Terminates a smart contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    </span><span class="kw">fn </span>terminate_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: E::AccountId) -&gt; !
-    <span class="kw">where
-        </span>E: Environment;
+    <span class="doccomment">/// Terminates a smart contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`terminate_contract`][`crate::terminate_contract`]</span>
+    <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">beneficiary</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="op">!</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>;
 
-    <span class="doccomment">/// Transfers value from the contract to the destination account ID.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`transfer`][`crate::transfer`]
-    </span><span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: E::AccountId, value: E::Balance) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-    <span class="kw">where
-        </span>E: Environment;
+    <span class="doccomment">/// Transfers value from the contract to the destination account ID.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`transfer`][`crate::transfer`]</span>
+    <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">destination</span>: <span class="ident">E::AccountId</span>, <span class="ident">value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>;
 
-    <span class="doccomment">/// Checks whether a specified account belongs to a contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`is_contract`][`crate::is_contract`]
-    </span><span class="attribute">#[allow(clippy::wrong_self_convention)]
-    </span><span class="kw">fn </span>is_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; bool
-    <span class="kw">where
-        </span>E: Environment;
+    <span class="doccomment">/// Checks whether a specified account belongs to a contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`is_contract`][`crate::is_contract`]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::wrong_self_convention</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">is_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>;
 
-    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call stack.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    </span><span class="kw">fn </span>caller_is_origin&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool
-    <span class="kw">where
-        </span>E: Environment;
+    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call stack.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]</span>
+    <span class="kw">fn</span> <span class="ident">caller_is_origin</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>;
 
-    <span class="doccomment">/// Retrieves the code hash of the contract at the given `account` id.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`code_hash`][`crate::code_hash`]
-    </span><span class="kw">fn </span>code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
-    <span class="kw">where
-        </span>E: Environment;
+    <span class="doccomment">/// Retrieves the code hash of the contract at the given `account` id.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`code_hash`][`crate::code_hash`]</span>
+    <span class="kw">fn</span> <span class="ident">code_hash</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>;
 
-    <span class="doccomment">/// Retrieves the code hash of the currently executing contract.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`own_code_hash`][`crate::own_code_hash`]
-    </span><span class="kw">fn </span>own_code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
-    <span class="kw">where
-        </span>E: Environment;
+    <span class="doccomment">/// Retrieves the code hash of the currently executing contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`own_code_hash`][`crate::own_code_hash`]</span>
+    <span class="kw">fn</span> <span class="ident">own_code_hash</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

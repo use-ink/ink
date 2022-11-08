@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/dispatch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/dispatch.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -917,922 +917,928 @@
 <span id="915">915</span>
 <span id="916">916</span>
 <span id="917">917</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span>core::iter;
+<span class="kw">use</span> <span class="ident">core::iter</span>;
 
-<span class="kw">use crate</span>::{
-    generator,
-    GenerateCode,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">generator</span>,
+    <span class="ident">GenerateCode</span>,
 };
-<span class="kw">use </span>derive_more::From;
-<span class="kw">use </span>ir::{
-    Callable,
-    HexLiteral <span class="kw">as _</span>,
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
+<span class="kw">use</span> <span class="ident">ir</span>::{
+    <span class="ident">Callable</span>,
+    <span class="ident">HexLiteral</span> <span class="kw">as</span> <span class="kw">_</span>,
 };
-<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
-<span class="kw">use </span>quote::{
-    format_ident,
-    quote,
-    quote_spanned,
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
+<span class="kw">use</span> <span class="ident">quote</span>::{
+    <span class="ident">format_ident</span>,
+    <span class="ident">quote</span>,
+    <span class="ident">quote_spanned</span>,
 };
-<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
-<span class="doccomment">/// Generates code for the message and constructor dispatcher.
-///
-/// This code efficiently selects the dispatched ink! constructor or message
-/// by inspecting the first four bytes (selector) of the given input bytes.
-///
-/// As this happens on every contract execution this code must be highly optimized.
-/// For that purpose a so-called dispatch enum is being generated that has a
-/// specialized `scale::Decode` implementation taking the first four bytes of
-/// the input stream in order to identify the enum variant that it is going to
-/// produce out of the rest of the input buffer.
-///
-/// The rest of the input buffer is then automatically decoded directly into the
-/// expected input types of the respective ink! constructor or message.
-</span><span class="attribute">#[derive(From)]
-</span><span class="kw">pub struct </span>Dispatch&lt;<span class="lifetime">&#39;a</span>&gt; {
-    contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+
+<span class="doccomment">/// Generates code for the message and constructor dispatcher.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This code efficiently selects the dispatched ink! constructor or message</span>
+<span class="doccomment">/// by inspecting the first four bytes (selector) of the given input bytes.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// As this happens on every contract execution this code must be highly optimized.</span>
+<span class="doccomment">/// For that purpose a so-called dispatch enum is being generated that has a</span>
+<span class="doccomment">/// specialized `scale::Decode` implementation taking the first four bytes of</span>
+<span class="doccomment">/// the input stream in order to identify the enum variant that it is going to</span>
+<span class="doccomment">/// produce out of the rest of the input buffer.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The rest of the input buffer is then automatically decoded directly into the</span>
+<span class="doccomment">/// expected input types of the respective ink! constructor or message.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dispatch</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
 }
-<span class="macro">impl_as_ref_for_generator!</span>(Dispatch);
+<span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">Dispatch</span>);
 
-<span class="kw">impl </span>GenerateCode <span class="kw">for </span>Dispatch&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span><span class="kw-2">mut </span>constructor_spans = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>message_spans = Vec::new();
+<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">Dispatch</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">constructor_spans</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">message_spans</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-        <span class="kw">let </span>amount_dispatchables =
-            <span class="self">self</span>.generate_contract_amount_dispatchables_trait_impl();
-        <span class="kw">let </span>contract_dispatchable_messages =
-            <span class="self">self</span>.generate_contract_dispatchable_messages_trait_impl(<span class="kw-2">&amp;mut </span>message_spans);
-        <span class="kw">let </span>contract_dispatchable_constructors = <span class="self">self
-            </span>.generate_contract_dispatchable_constructors_trait_impl(
-                <span class="kw-2">&amp;mut </span>constructor_spans,
+        <span class="kw">let</span> <span class="ident">amount_dispatchables</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">generate_contract_amount_dispatchables_trait_impl</span>();
+        <span class="kw">let</span> <span class="ident">contract_dispatchable_messages</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">generate_contract_dispatchable_messages_trait_impl</span>(<span class="kw-2">&amp;mut</span> <span class="ident">message_spans</span>);
+        <span class="kw">let</span> <span class="ident">contract_dispatchable_constructors</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">generate_contract_dispatchable_constructors_trait_impl</span>(
+                <span class="kw-2">&amp;mut</span> <span class="ident">constructor_spans</span>,
             );
-        <span class="kw">let </span>contract_dispatchable_constructor_infos =
-            <span class="self">self</span>.generate_dispatchable_constructor_infos();
-        <span class="kw">let </span>contract_dispatchable_messages_infos =
-            <span class="self">self</span>.generate_dispatchable_message_infos();
-        <span class="kw">let </span>constructor_decoder_type =
-            <span class="self">self</span>.generate_constructor_decoder_type(<span class="kw-2">&amp;</span>constructor_spans);
-        <span class="kw">let </span>message_decoder_type = <span class="self">self</span>.generate_message_decoder_type(<span class="kw-2">&amp;</span>message_spans);
-        <span class="kw">let </span>entry_points = <span class="self">self</span>.generate_entry_points(<span class="kw-2">&amp;</span>constructor_spans, <span class="kw-2">&amp;</span>message_spans);
-        <span class="macro">quote! </span>{
-            #amount_dispatchables
-            #contract_dispatchable_messages
-            #contract_dispatchable_constructors
-            #contract_dispatchable_constructor_infos
-            #contract_dispatchable_messages_infos
-            #constructor_decoder_type
-            #message_decoder_type
+        <span class="kw">let</span> <span class="ident">contract_dispatchable_constructor_infos</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">generate_dispatchable_constructor_infos</span>();
+        <span class="kw">let</span> <span class="ident">contract_dispatchable_messages_infos</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">generate_dispatchable_message_infos</span>();
+        <span class="kw">let</span> <span class="ident">constructor_decoder_type</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">generate_constructor_decoder_type</span>(<span class="kw-2">&amp;</span><span class="ident">constructor_spans</span>);
+        <span class="kw">let</span> <span class="ident">message_decoder_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_message_decoder_type</span>(<span class="kw-2">&amp;</span><span class="ident">message_spans</span>);
+        <span class="kw">let</span> <span class="ident">entry_points</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_entry_points</span>(<span class="kw-2">&amp;</span><span class="ident">constructor_spans</span>, <span class="kw-2">&amp;</span><span class="ident">message_spans</span>);
+        <span class="macro">quote!</span> {
+            #<span class="ident">amount_dispatchables</span>
+            #<span class="ident">contract_dispatchable_messages</span>
+            #<span class="ident">contract_dispatchable_constructors</span>
+            #<span class="ident">contract_dispatchable_constructor_infos</span>
+            #<span class="ident">contract_dispatchable_messages_infos</span>
+            #<span class="ident">constructor_decoder_type</span>
+            #<span class="ident">message_decoder_type</span>
 
-            <span class="attribute">#[cfg(not(test))]
-            #[cfg(not(feature = <span class="string">&quot;ink-as-dependency&quot;</span>))]
-            </span><span class="kw">const _</span>: () = {
-                #entry_points
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-as-dependency&quot;</span>))]</span>
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                #<span class="ident">entry_points</span>
             };
         }
     }
 }
 
-<span class="kw">impl </span>Dispatch&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="doccomment">/// Returns the number of dispatchable ink! constructors of the ink! smart contract.
-    </span><span class="kw">fn </span>query_amount_constructors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .count()
+<span class="kw">impl</span> <span class="ident">Dispatch</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns the number of dispatchable ink! constructors of the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">query_amount_constructors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+            .<span class="ident">count</span>()
     }
 
-    <span class="doccomment">/// Returns the number of dispatchable ink! messages of the ink! smart contract.
-    ///
-    /// This includes inherent ink! messages as well as trait ink! messages.
-    </span><span class="kw">fn </span>query_amount_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .count()
+    <span class="doccomment">/// Returns the number of dispatchable ink! messages of the ink! smart contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This includes inherent ink! messages as well as trait ink! messages.</span>
+    <span class="kw">fn</span> <span class="ident">query_amount_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+            .<span class="ident">count</span>()
     }
 
-    <span class="doccomment">/// Returns the index of the ink! message which has a wildcard selector, if existent.
-    </span><span class="kw">fn </span>query_wildcard_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .position(|item| item.has_wildcard_selector())
+    <span class="doccomment">/// Returns the index of the ink! message which has a wildcard selector, if existent.</span>
+    <span class="kw">fn</span> <span class="ident">query_wildcard_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">has_wildcard_selector</span>())
     }
 
-    <span class="doccomment">/// Returns the index of the ink! constructor which has a wildcard selector, if existent.
-    </span><span class="kw">fn </span>query_wildcard_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .position(|item| item.has_wildcard_selector())
+    <span class="doccomment">/// Returns the index of the ink! constructor which has a wildcard selector, if existent.</span>
+    <span class="kw">fn</span> <span class="ident">query_wildcard_constructor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">has_wildcard_selector</span>())
     }
 
-    <span class="doccomment">/// Generates code for the [`ink::ContractDispatchables`] trait implementation.
-    ///
-    /// This trait implementation stores information of how many dispatchable
-    /// ink! messages and ink! constructors there are for the ink! smart contract.
-    </span><span class="kw">fn </span>generate_contract_amount_dispatchables_trait_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>count_messages = <span class="self">self</span>.query_amount_messages();
-        <span class="kw">let </span>count_constructors = <span class="self">self</span>.query_amount_constructors();
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl </span>::ink::reflect::ContractAmountDispatchables <span class="kw">for </span>#storage_ident {
-                <span class="kw">const </span>MESSAGES: ::core::primitive::usize = #count_messages;
-                <span class="kw">const </span>CONSTRUCTORS: ::core::primitive::usize = #count_constructors;
+    <span class="doccomment">/// Generates code for the [`ink::ContractDispatchables`] trait implementation.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This trait implementation stores information of how many dispatchable</span>
+    <span class="doccomment">/// ink! messages and ink! constructors there are for the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">generate_contract_amount_dispatchables_trait_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">count_messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_amount_messages</span>();
+        <span class="kw">let</span> <span class="ident">count_constructors</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_amount_constructors</span>();
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                <span class="kw">const</span> <span class="ident">MESSAGES</span>: <span class="ident">::core::primitive::usize</span> <span class="op">=</span> #<span class="ident">count_messages</span>;
+                <span class="kw">const</span> <span class="ident">CONSTRUCTORS</span>: <span class="ident">::core::primitive::usize</span> <span class="op">=</span> #<span class="ident">count_constructors</span>;
             }
         )
     }
 
-    <span class="doccomment">/// Generates code for the [`ink::ContractDispatchableMessages`] trait implementation.
-    ///
-    /// This trait implementation stores the selector ID of each dispatchable
-    /// ink! messages of the ink! smart contract.
-    </span><span class="kw">fn </span>generate_contract_dispatchable_messages_trait_impl(
+    <span class="doccomment">/// Generates code for the [`ink::ContractDispatchableMessages`] trait implementation.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This trait implementation stores the selector ID of each dispatchable</span>
+    <span class="doccomment">/// ink! messages of the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">generate_contract_dispatchable_messages_trait_impl</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        message_spans: <span class="kw-2">&amp;mut </span>Vec&lt;proc_macro2::Span&gt;,
-    ) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>message_ids = <span class="self">self
-            </span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| {
-                iter::repeat(item_impl.trait_path()).zip(item_impl.iter_messages())
+        <span class="ident">message_spans</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">proc_macro2::Span</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">message_ids</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> {
+                <span class="ident">iter::repeat</span>(<span class="ident">item_impl</span>.<span class="ident">trait_path</span>()).<span class="ident">zip</span>(<span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
             })
-            .map(|(trait_path, message)| {
-                <span class="kw">let </span>span = message.span();
-                message_spans.push(span);
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(trait_path) = trait_path {
-                    <span class="kw">let </span>local_id = message.local_id().hex_padded_suffixed();
-                    <span class="macro">quote_spanned!</span>(span=&gt;
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_path</span>, <span class="ident">message</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="ident">message_spans</span>.<span class="ident">push</span>(<span class="ident">span</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trait_path</span>) <span class="op">=</span> <span class="ident">trait_path</span> {
+                    <span class="kw">let</span> <span class="ident">local_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">local_id</span>().<span class="ident">hex_padded_suffixed</span>();
+                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
                         {
-                            ::core::primitive::u32::from_be_bytes(
-                                &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
-                                    <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
-                                    <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::SELECTOR
+                            <span class="ident">::core::primitive::u32::from_be_bytes</span>(
+                                <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                                    <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                                    <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
                             )
                         }
                     )
-                } <span class="kw">else </span>{
-                    <span class="kw">let </span>id = message
-                        .composed_selector()
-                        .into_be_u32()
-                        .hex_padded_suffixed();
-                    <span class="macro">quote_spanned!</span>(span=&gt; #id)
+                } <span class="kw">else</span> {
+                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">message</span>
+                        .<span class="ident">composed_selector</span>()
+                        .<span class="ident">into_be_u32</span>()
+                        .<span class="ident">hex_padded_suffixed</span>();
+                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; #<span class="ident">id</span>)
                 }
             })
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-            }&gt; <span class="kw">for </span>#storage_ident {
-                <span class="kw">const </span>IDS: [
-                    ::core::primitive::u32;
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                ] = [
-                    #( #message_ids , )*
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+            }<span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                <span class="kw">const</span> <span class="ident">IDS</span>: [
+                    <span class="ident">::core::primitive::u32</span>;
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                ] <span class="op">=</span> [
+                    #( #<span class="ident">message_ids</span> , )<span class="op">*</span>
                 ];
             }
         )
     }
 
-    <span class="doccomment">/// Generates code for the [`ink::ContractDispatchableConstructors`] trait implementation.
-    ///
-    /// This trait implementation stores the selector ID of each dispatchable
-    /// ink! constructor of the ink! smart contract.
-    </span><span class="kw">fn </span>generate_contract_dispatchable_constructors_trait_impl(
+    <span class="doccomment">/// Generates code for the [`ink::ContractDispatchableConstructors`] trait implementation.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This trait implementation stores the selector ID of each dispatchable</span>
+    <span class="doccomment">/// ink! constructor of the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">generate_contract_dispatchable_constructors_trait_impl</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        constructor_spans: <span class="kw-2">&amp;mut </span>Vec&lt;proc_macro2::Span&gt;,
-    ) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>constructor_ids = <span class="self">self
-            </span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .map(|constructor| {
-                <span class="kw">let </span>span = constructor.span();
-                constructor_spans.push(span);
-                <span class="kw">let </span>id = constructor
-                    .composed_selector()
-                    .into_be_u32()
-                    .hex_padded_suffixed();
-                <span class="macro">quote_spanned!</span>(span=&gt; #id)
+        <span class="ident">constructor_spans</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">proc_macro2::Span</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">constructor_ids</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
+                <span class="ident">constructor_spans</span>.<span class="ident">push</span>(<span class="ident">span</span>);
+                <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">constructor</span>
+                    .<span class="ident">composed_selector</span>()
+                    .<span class="ident">into_be_u32</span>()
+                    .<span class="ident">hex_padded_suffixed</span>();
+                <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; #<span class="ident">id</span>)
             });
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl </span>::ink::reflect::ContractDispatchableConstructors&lt;{
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-            }&gt; <span class="kw">for </span>#storage_ident {
-                <span class="kw">const </span>IDS: [
-                    ::core::primitive::u32;
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-                ] = [
-                    #( #constructor_ids ),*
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+            }<span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                <span class="kw">const</span> <span class="ident">IDS</span>: [
+                    <span class="ident">::core::primitive::u32</span>;
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+                ] <span class="op">=</span> [
+                    #( #<span class="ident">constructor_ids</span> ),<span class="op">*</span>
                 ];
             }
         )
     }
 
-    <span class="doccomment">/// Generate code for the [`ink::DispatchableConstructorInfo`] trait implementations.
-    ///
-    /// These trait implementations store relevant dispatch information for every
-    /// dispatchable ink! constructor of the ink! smart contract.
-    </span><span class="kw">fn </span>generate_dispatchable_constructor_infos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>constructor_infos = <span class="self">self
-            </span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .map(|constructor| {
-                <span class="kw">let </span>constructor_span = constructor.span();
-                <span class="kw">let </span>constructor_ident = constructor.ident();
-                <span class="kw">let </span>payable = constructor.is_payable();
-                <span class="kw">let </span>selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
-                <span class="kw">let </span>selector_bytes = constructor.composed_selector().hex_lits();
-                <span class="kw">let </span>output_tuple_type = constructor.output().map(quote::ToTokens::to_token_stream)
-                    .unwrap_or_else(|| <span class="macro">quote! </span>{ () });
-                <span class="kw">let </span>input_bindings = generator::input_bindings(constructor.inputs());
-                <span class="kw">let </span>input_tuple_type = generator::input_types_tuple(constructor.inputs());
-                <span class="kw">let </span>input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
-                <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                    <span class="kw">impl </span>::ink::reflect::DispatchableConstructorInfo&lt;#selector_id&gt; <span class="kw">for </span>#storage_ident {
-                        <span class="kw">type </span>Input = #input_tuple_type;
-                        <span class="kw">type </span>Output = #output_tuple_type;
-                        <span class="kw">type </span>Storage = #storage_ident;
+    <span class="doccomment">/// Generate code for the [`ink::DispatchableConstructorInfo`] trait implementations.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// These trait implementations store relevant dispatch information for every</span>
+    <span class="doccomment">/// dispatchable ink! constructor of the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">generate_dispatchable_constructor_infos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">constructor_infos</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
+                <span class="kw">let</span> <span class="ident">payable</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">is_payable</span>();
+                <span class="kw">let</span> <span class="ident">selector_id</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>().<span class="ident">into_be_u32</span>().<span class="ident">hex_padded_suffixed</span>();
+                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
+                <span class="kw">let</span> <span class="ident">output_tuple_type</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="ident">quote::ToTokens::to_token_stream</span>)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () });
+                <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings</span>(<span class="ident">constructor</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">input_tuple_type</span> <span class="op">=</span> <span class="ident">generator::input_types_tuple</span>(<span class="ident">constructor</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">input_tuple_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings_tuple</span>(<span class="ident">constructor</span>.<span class="ident">inputs</span>());
+                <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                    <span class="kw">impl</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>#<span class="ident">selector_id</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                        <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> #<span class="ident">input_tuple_type</span>;
+                        <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> #<span class="ident">output_tuple_type</span>;
+                        <span class="kw">type</span> <span class="ident">Storage</span> <span class="op">=</span> #<span class="ident">storage_ident</span>;
 
-                        <span class="kw">const </span>CALLABLE: <span class="kw">fn</span>(<span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output = |#input_tuple_bindings| {
-                            #storage_ident::#constructor_ident(#( #input_bindings ),* )
+                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span> <span class="op">|</span>#<span class="ident">input_tuple_bindings</span><span class="op">|</span> {
+                            #<span class="ident">storage_ident</span>::#<span class="ident">constructor_ident</span>(#( #<span class="ident">input_bindings</span> ),<span class="op">*</span> )
                         };
-                        <span class="kw">const </span>PAYABLE: ::core::primitive::bool = #payable;
-                        <span class="kw">const </span>SELECTOR: [::core::primitive::u8; <span class="number">4usize</span>] = [ #( #selector_bytes ),* ];
-                        <span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>::core::primitive::str = <span class="macro">::core::stringify!</span>(#constructor_ident);
+                        <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">payable</span>;
+                        <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> [ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ];
+                        <span class="kw">const</span> <span class="ident">LABEL</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">::core::primitive::str</span> <span class="op">=</span> <span class="macro">::core::stringify!</span>(#<span class="ident">constructor_ident</span>);
                     }
                 )
             });
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            #( #constructor_infos )*
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            #( #<span class="ident">constructor_infos</span> )<span class="op">*</span>
         )
     }
 
-    <span class="doccomment">/// Generate code for the [`ink::DispatchableMessageInfo`] trait implementations.
-    ///
-    /// These trait implementations store relevant dispatch information for every
-    /// dispatchable ink! constructor of the ink! smart contract.
-    </span><span class="kw">fn </span>generate_dispatchable_message_infos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>inherent_message_infos = <span class="self">self
-            </span>.contract
-            .module()
-            .impls()
-            .filter(|item_impl| item_impl.trait_path().is_none())
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .map(|message| {
-                <span class="kw">let </span>message_span = message.span();
-                <span class="kw">let </span>message_ident = message.ident();
-                <span class="kw">let </span>payable = message.is_payable();
-                <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
-                <span class="kw">let </span>selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
-                <span class="kw">let </span>selector_bytes = message.composed_selector().hex_lits();
-                <span class="kw">let </span>output_tuple_type = message
-                    .output()
-                    .map(quote::ToTokens::to_token_stream)
-                    .unwrap_or_else(|| <span class="macro">quote! </span>{ () });
-                <span class="kw">let </span>input_bindings = generator::input_bindings(message.inputs());
-                <span class="kw">let </span>input_tuple_type = generator::input_types_tuple(message.inputs());
-                <span class="kw">let </span>input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
-                <span class="macro">quote_spanned!</span>(message_span=&gt;
-                    <span class="kw">impl </span>::ink::reflect::DispatchableMessageInfo&lt;#selector_id&gt; <span class="kw">for </span>#storage_ident {
-                        <span class="kw">type </span>Input = #input_tuple_type;
-                        <span class="kw">type </span>Output = #output_tuple_type;
-                        <span class="kw">type </span>Storage = #storage_ident;
-                        <span class="kw">const </span>CALLABLE: <span class="kw">fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>::Storage, <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output =
-                            |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+    <span class="doccomment">/// Generate code for the [`ink::DispatchableMessageInfo`] trait implementations.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// These trait implementations store relevant dispatch information for every</span>
+    <span class="doccomment">/// dispatchable ink! constructor of the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">generate_dispatchable_message_infos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">inherent_message_infos</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>())
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
+                <span class="kw">let</span> <span class="ident">payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>();
+                <span class="kw">let</span> <span class="ident">mutates</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
+                <span class="kw">let</span> <span class="ident">selector_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>().<span class="ident">into_be_u32</span>().<span class="ident">hex_padded_suffixed</span>();
+                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
+                <span class="kw">let</span> <span class="ident">output_tuple_type</span> <span class="op">=</span> <span class="ident">message</span>
+                    .<span class="ident">output</span>()
+                    .<span class="ident">map</span>(<span class="ident">quote::ToTokens::to_token_stream</span>)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () });
+                <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">input_tuple_type</span> <span class="op">=</span> <span class="ident">generator::input_types_tuple</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">input_tuple_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings_tuple</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                    <span class="kw">impl</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>#<span class="ident">selector_id</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                        <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> #<span class="ident">input_tuple_type</span>;
+                        <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> #<span class="ident">output_tuple_type</span>;
+                        <span class="kw">type</span> <span class="ident">Storage</span> <span class="op">=</span> #<span class="ident">storage_ident</span>;
+
+                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
+                            <span class="op">|</span><span class="ident">storage</span>, #<span class="ident">input_tuple_bindings</span><span class="op">|</span> {
+                                #<span class="ident">storage_ident</span>::#<span class="ident">message_ident</span>( <span class="ident">storage</span> #( , #<span class="ident">input_bindings</span> )<span class="op">*</span> )
                             };
-                        <span class="kw">const </span>SELECTOR: [::core::primitive::u8; <span class="number">4usize</span>] = [ #( #selector_bytes ),* ];
-                        <span class="kw">const </span>PAYABLE: ::core::primitive::bool = #payable;
-                        <span class="kw">const </span>MUTATES: ::core::primitive::bool = #mutates;
-                        <span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>::core::primitive::str = <span class="macro">::core::stringify!</span>(#message_ident);
+                        <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> [ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ];
+                        <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">payable</span>;
+                        <span class="kw">const</span> <span class="ident">MUTATES</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">mutates</span>;
+                        <span class="kw">const</span> <span class="ident">LABEL</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">::core::primitive::str</span> <span class="op">=</span> <span class="macro">::core::stringify!</span>(#<span class="ident">message_ident</span>);
                     }
                 )
             });
-        <span class="kw">let </span>trait_message_infos = <span class="self">self
-            </span>.contract
-            .module()
-            .impls()
-            .filter_map(|item_impl| {
-                item_impl
-                    .trait_path()
-                    .map(|trait_path| {
-                        <span class="kw">let </span>trait_ident = item_impl.trait_ident().expect(
-                            <span class="string">&quot;must have an ink! trait identifier if it is an ink! trait implementation&quot;
-                        </span>);
-                        iter::repeat((trait_ident, trait_path)).zip(item_impl.iter_messages())
+        <span class="kw">let</span> <span class="ident">trait_message_infos</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> {
+                <span class="ident">item_impl</span>
+                    .<span class="ident">trait_path</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">trait_ident</span>().<span class="ident">expect</span>(
+                            <span class="string">&quot;must have an ink! trait identifier if it is an ink! trait implementation&quot;</span>
+                        );
+                        <span class="ident">iter::repeat</span>((<span class="ident">trait_ident</span>, <span class="ident">trait_path</span>)).<span class="ident">zip</span>(<span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
                     })
             })
-            .flatten()
-            .map(|((trait_ident, trait_path), message)| {
-                <span class="kw">let </span>message_span = message.span();
-                <span class="kw">let </span>message_ident = message.ident();
-                <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
-                <span class="kw">let </span>local_id = message.local_id().hex_padded_suffixed();
-                <span class="kw">let </span>payable = <span class="macro">quote! </span>{{
-                    &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
-                        <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
-                        <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::PAYABLE
+            .<span class="ident">flatten</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>((<span class="ident">trait_ident</span>, <span class="ident">trait_path</span>), <span class="ident">message</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
+                <span class="kw">let</span> <span class="ident">mutates</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
+                <span class="kw">let</span> <span class="ident">local_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">local_id</span>().<span class="ident">hex_padded_suffixed</span>();
+                <span class="kw">let</span> <span class="ident">payable</span> <span class="op">=</span> <span class="macro">quote!</span> {{
+                    <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                        <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                        <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
                 }};
-                <span class="kw">let </span>selector = <span class="macro">quote! </span>{{
-                    &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
-                        <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
-                        <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::SELECTOR
+                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="macro">quote!</span> {{
+                    <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                        <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                        <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
                 }};
-                <span class="kw">let </span>selector_id = <span class="macro">quote! </span>{{
-                    ::core::primitive::u32::from_be_bytes(#selector)
+                <span class="kw">let</span> <span class="ident">selector_id</span> <span class="op">=</span> <span class="macro">quote!</span> {{
+                    <span class="ident">::core::primitive::u32::from_be_bytes</span>(#<span class="ident">selector</span>)
                 }};
-                <span class="kw">let </span>output_tuple_type = message
-                    .output()
-                    .map(quote::ToTokens::to_token_stream)
-                    .unwrap_or_else(|| <span class="macro">quote! </span>{ () });
-                <span class="kw">let </span>input_bindings = generator::input_bindings(message.inputs());
-                <span class="kw">let </span>input_tuple_type = generator::input_types_tuple(message.inputs());
-                <span class="kw">let </span>input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
-                <span class="kw">let </span>label = <span class="macro">format!</span>(<span class="string">&quot;{}::{}&quot;</span>, trait_ident, message_ident);
-                <span class="macro">quote_spanned!</span>(message_span=&gt;
-                    <span class="kw">impl </span>::ink::reflect::DispatchableMessageInfo&lt;#selector_id&gt; <span class="kw">for </span>#storage_ident {
-                        <span class="kw">type </span>Input = #input_tuple_type;
-                        <span class="kw">type </span>Output = #output_tuple_type;
-                        <span class="kw">type </span>Storage = #storage_ident;
+                <span class="kw">let</span> <span class="ident">output_tuple_type</span> <span class="op">=</span> <span class="ident">message</span>
+                    .<span class="ident">output</span>()
+                    .<span class="ident">map</span>(<span class="ident">quote::ToTokens::to_token_stream</span>)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () });
+                <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">input_tuple_type</span> <span class="op">=</span> <span class="ident">generator::input_types_tuple</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">input_tuple_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings_tuple</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}::{}&quot;</span>, <span class="ident">trait_ident</span>, <span class="ident">message_ident</span>);
+                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                    <span class="kw">impl</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>#<span class="ident">selector_id</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                        <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> #<span class="ident">input_tuple_type</span>;
+                        <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> #<span class="ident">output_tuple_type</span>;
+                        <span class="kw">type</span> <span class="ident">Storage</span> <span class="op">=</span> #<span class="ident">storage_ident</span>;
 
-                        <span class="kw">const </span>CALLABLE: <span class="kw">fn</span>(<span class="kw-2">&amp;mut </span><span class="self">Self</span>::Storage, <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output =
-                            |storage, #input_tuple_bindings| {
-                                &lt;#storage_ident <span class="kw">as </span>#trait_path&gt;::#message_ident( storage #( , #input_bindings )* )
+                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
+                            <span class="op">|</span><span class="ident">storage</span>, #<span class="ident">input_tuple_bindings</span><span class="op">|</span> {
+                                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span>::#<span class="ident">message_ident</span>( <span class="ident">storage</span> #( , #<span class="ident">input_bindings</span> )<span class="op">*</span> )
                             };
-                        <span class="kw">const </span>SELECTOR: [::core::primitive::u8; <span class="number">4usize</span>] = #selector;
-                        <span class="kw">const </span>PAYABLE: ::core::primitive::bool = #payable;
-                        <span class="kw">const </span>MUTATES: ::core::primitive::bool = #mutates;
-                        <span class="kw">const </span>LABEL: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>::core::primitive::str = #label;
+                        <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> #<span class="ident">selector</span>;
+                        <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">payable</span>;
+                        <span class="kw">const</span> <span class="ident">MUTATES</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">mutates</span>;
+                        <span class="kw">const</span> <span class="ident">LABEL</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">::core::primitive::str</span> <span class="op">=</span> #<span class="ident">label</span>;
                     }
                 )
             });
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            #( #inherent_message_infos )*
-            #( #trait_message_infos )*
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            #( #<span class="ident">inherent_message_infos</span> )<span class="op">*</span>
+            #( #<span class="ident">trait_message_infos</span> )<span class="op">*</span>
         )
     }
 
-    <span class="doccomment">/// Generates code for the entry points of the root ink! smart contract.
-    ///
-    /// This generates the `deploy` and `call` functions with which the smart
-    /// contract runtime mainly interacts with the ink! smart contract.
-    </span><span class="kw">fn </span>generate_entry_points(
+    <span class="doccomment">/// Generates code for the entry points of the root ink! smart contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This generates the `deploy` and `call` functions with which the smart</span>
+    <span class="doccomment">/// contract runtime mainly interacts with the ink! smart contract.</span>
+    <span class="kw">fn</span> <span class="ident">generate_entry_points</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        constructor_spans: <span class="kw-2">&amp;</span>[proc_macro2::Span],
-        message_spans: <span class="kw-2">&amp;</span>[proc_macro2::Span],
-    ) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>any_constructor_accept_payment =
-            <span class="self">self</span>.any_constructor_accepts_payment_expr(constructor_spans);
-        <span class="kw">let </span>any_message_accept_payment =
-            <span class="self">self</span>.any_message_accepts_payment_expr(message_spans);
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="attribute">#[cfg(not(test))]
-            #[no_mangle]
-            #[allow(clippy::nonminimal_bool)]
-            </span><span class="kw">fn </span>deploy() {
-                <span class="kw">if </span>!#any_constructor_accept_payment {
-                    ::ink::codegen::deny_payment::&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;()
-                        .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, error))
+        <span class="ident">constructor_spans</span>: <span class="kw-2">&amp;</span>[<span class="ident">proc_macro2::Span</span>],
+        <span class="ident">message_spans</span>: <span class="kw-2">&amp;</span>[<span class="ident">proc_macro2::Span</span>],
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">any_constructor_accept_payment</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">any_constructor_accepts_payment_expr</span>(<span class="ident">constructor_spans</span>);
+        <span class="kw">let</span> <span class="ident">any_message_accept_payment</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">any_message_accepts_payment_expr</span>(<span class="ident">message_spans</span>);
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
+            <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>)]</span>
+            <span class="kw">fn</span> <span class="ident">deploy</span>() {
+                <span class="kw">if</span> <span class="op">!</span>#<span class="ident">any_constructor_accept_payment</span> {
+                    <span class="ident">::ink::codegen::deny_payment</span>::<span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>))
                 }
 
-                ::ink::env::decode_input::&lt;
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractConstructorDecoder&gt;::Type&gt;()
-                    .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractConstructorDecoder&gt;::Type
-                            <span class="kw">as </span>::ink::reflect::ExecuteDispatchable&gt;::execute_dispatchable(decoder)
+                <span class="ident">::ink::env::decode_input</span>::<span class="op">&lt;</span>
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractConstructorDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>()
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::CouldNotReadInput</span>)
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">decoder</span><span class="op">|</span> {
+                        <span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractConstructorDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span>
+                            <span class="kw">as</span> <span class="ident">::ink::reflect::ExecuteDispatchable</span><span class="op">&gt;</span><span class="ident">::execute_dispatchable</span>(<span class="ident">decoder</span>)
                     })
-                    .unwrap_or_else(|error| {
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! constructor failed: {}&quot;</span>, error)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                        <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! constructor failed: {}&quot;</span>, <span class="ident">error</span>)
                     })
             }
 
-            <span class="attribute">#[cfg(not(test))]
-            #[no_mangle]
-            #[allow(clippy::nonminimal_bool)]
-            </span><span class="kw">fn </span>call() {
-                <span class="kw">if </span>!#any_message_accept_payment {
-                    ::ink::codegen::deny_payment::&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;()
-                        .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, error))
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
+            <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>)]</span>
+            <span class="kw">fn</span> <span class="ident">call</span>() {
+                <span class="kw">if</span> <span class="op">!</span>#<span class="ident">any_message_accept_payment</span> {
+                    <span class="ident">::ink::codegen::deny_payment</span>::<span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">error</span>))
                 }
 
-                ::ink::env::decode_input::&lt;
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type&gt;()
-                    .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type
-                            <span class="kw">as </span>::ink::reflect::ExecuteDispatchable&gt;::execute_dispatchable(decoder)
+                <span class="ident">::ink::env::decode_input</span>::<span class="op">&lt;</span>
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractMessageDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>()
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::CouldNotReadInput</span>)
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">decoder</span><span class="op">|</span> {
+                        <span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractMessageDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span>
+                            <span class="kw">as</span> <span class="ident">::ink::reflect::ExecuteDispatchable</span><span class="op">&gt;</span><span class="ident">::execute_dispatchable</span>(<span class="ident">decoder</span>)
                     })
-                    .unwrap_or_else(|error| {
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! message failed: {}&quot;</span>, error)
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                        <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! message failed: {}&quot;</span>, <span class="ident">error</span>)
                     })
             }
         )
     }
 
-    <span class="doccomment">/// Generates code for the ink! constructor decoder type of the ink! smart contract.
-    ///
-    /// This type can be used in order to decode the input bytes received by a call to `deploy`
-    /// into one of the available dispatchable ink! constructors and their arguments.
-    </span><span class="kw">fn </span>generate_constructor_decoder_type(
+    <span class="doccomment">/// Generates code for the ink! constructor decoder type of the ink! smart contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This type can be used in order to decode the input bytes received by a call to `deploy`</span>
+    <span class="doccomment">/// into one of the available dispatchable ink! constructors and their arguments.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructor_decoder_type</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        constructor_spans: <span class="kw-2">&amp;</span>[proc_macro2::Span],
-    ) -&gt; TokenStream2 {
-        <span class="macro">assert_eq!</span>(constructor_spans.len(), <span class="self">self</span>.query_amount_constructors());
+        <span class="ident">constructor_spans</span>: <span class="kw-2">&amp;</span>[<span class="ident">proc_macro2::Span</span>],
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="macro">assert_eq!</span>(<span class="ident">constructor_spans</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">query_amount_constructors</span>());
 
-        <span class="doccomment">/// Expands into the token sequence to represent the
-        /// input type of the ink! constructor at the given index.
-        </span><span class="kw">fn </span>expand_constructor_input(
-            span: proc_macro2::Span,
-            storage_ident: <span class="kw-2">&amp;</span>syn::Ident,
-            constructor_index: usize,
-        ) -&gt; TokenStream2 {
-            <span class="macro">quote_spanned!</span>(span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-                    }&gt;&gt;::IDS[#constructor_index]
-                }&gt;&gt;::Input
+        <span class="doccomment">/// Expands into the token sequence to represent the</span>
+        <span class="doccomment">/// input type of the ink! constructor at the given index.</span>
+        <span class="kw">fn</span> <span class="ident">expand_constructor_input</span>(
+            <span class="ident">span</span>: <span class="ident">proc_macro2::Span</span>,
+            <span class="ident">storage_ident</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>,
+            <span class="ident">constructor_index</span>: <span class="ident">usize</span>,
+        ) -&gt; <span class="ident">TokenStream2</span> {
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">constructor_index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Input</span>
             )
         }
 
-        <span class="doccomment">/// Returns the n-th ink! constructor identifier for the decoder type.
-        </span><span class="kw">fn </span>constructor_variant_ident(n: usize) -&gt; syn::Ident {
-            <span class="macro">quote::format_ident!</span>(<span class="string">&quot;Constructor{}&quot;</span>, n)
+        <span class="doccomment">/// Returns the n-th ink! constructor identifier for the decoder type.</span>
+        <span class="kw">fn</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="ident">syn::Ident</span> {
+            <span class="macro">quote::format_ident!</span>(<span class="string">&quot;Constructor{}&quot;</span>, <span class="ident">n</span>)
         }
 
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>count_constructors = <span class="self">self</span>.query_amount_constructors();
-        <span class="kw">let </span>constructors_variants = (<span class="number">0</span>..count_constructors).map(|index| {
-            <span class="kw">let </span>constructor_span = constructor_spans[index];
-            <span class="kw">let </span>constructor_ident = constructor_variant_ident(index);
-            <span class="kw">let </span>constructor_input =
-                expand_constructor_input(constructor_span, storage_ident, index);
-            <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                #constructor_ident(#constructor_input)
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">count_constructors</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_amount_constructors</span>();
+        <span class="kw">let</span> <span class="ident">constructors_variants</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">constructor_input</span> <span class="op">=</span>
+                <span class="ident">expand_constructor_input</span>(<span class="ident">constructor_span</span>, <span class="ident">storage_ident</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                #<span class="ident">constructor_ident</span>(#<span class="ident">constructor_input</span>)
             )
         });
 
-        <span class="kw">let </span>constructor_selector = (<span class="number">0</span>..count_constructors).map(|index| {
-            <span class="kw">let </span>const_ident = <span class="macro">format_ident!</span>(<span class="string">&quot;CONSTRUCTOR_{}&quot;</span>, index);
-            <span class="macro">quote_spanned!</span>(span=&gt;
-                <span class="kw">const </span>#const_ident: [::core::primitive::u8; <span class="number">4usize</span>] = &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::SELECTOR;
+        <span class="kw">let</span> <span class="ident">constructor_selector</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;CONSTRUCTOR_{}&quot;</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                <span class="kw">const</span> #<span class="ident">const_ident</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>;
             )
         });
 
-        <span class="kw">let </span>constructor_match = (<span class="number">0</span>..count_constructors).map(|index| {
-            <span class="kw">let </span>constructor_span = constructor_spans[index];
-            <span class="kw">let </span>constructor_ident = constructor_variant_ident(index);
-            <span class="kw">let </span>const_ident = <span class="macro">format_ident!</span>(<span class="string">&quot;CONSTRUCTOR_{}&quot;</span>, index);
-            <span class="kw">let </span>constructor_input = expand_constructor_input(constructor_span, storage_ident, index);
-            <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                #const_ident =&gt; {
-                    ::core::result::Result::Ok(<span class="self">Self</span>::#constructor_ident(
-                        &lt;#constructor_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
-                            .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
-                    </span>))
+        <span class="kw">let</span> <span class="ident">constructor_match</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;CONSTRUCTOR_{}&quot;</span>, <span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">constructor_input</span> <span class="op">=</span> <span class="ident">expand_constructor_input</span>(<span class="ident">constructor_span</span>, <span class="ident">storage_ident</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                #<span class="ident">const_ident</span> =&gt; {
+                    <span class="ident">::core::result::Result::Ok</span>(<span class="self">Self</span>::#<span class="ident">constructor_ident</span>(
+                        <span class="op">&lt;</span>#<span class="ident">constructor_input</span> <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidParameters</span>)<span class="question-mark">?</span>
+                    ))
                 }
             )
         });
-        <span class="kw">let </span>possibly_wildcard_selector_constructor = <span class="kw">match </span><span class="self">self
-            </span>.query_wildcard_constructor()
+        <span class="kw">let</span> <span class="ident">possibly_wildcard_selector_constructor</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>
+            .<span class="ident">query_wildcard_constructor</span>()
         {
-            <span class="prelude-val">Some</span>(wildcard_index) =&gt; {
-                <span class="kw">let </span>constructor_span = constructor_spans[wildcard_index];
-                <span class="kw">let </span>constructor_ident = constructor_variant_ident(wildcard_index);
-                <span class="kw">let </span>constructor_input = expand_constructor_input(
-                    constructor_span,
-                    storage_ident,
-                    wildcard_index,
+            <span class="prelude-val">Some</span>(<span class="ident">wildcard_index</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">wildcard_index</span>];
+                <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">wildcard_index</span>);
+                <span class="kw">let</span> <span class="ident">constructor_input</span> <span class="op">=</span> <span class="ident">expand_constructor_input</span>(
+                    <span class="ident">constructor_span</span>,
+                    <span class="ident">storage_ident</span>,
+                    <span class="ident">wildcard_index</span>,
                 );
-                <span class="macro">quote! </span>{
-                    ::core::result::Result::Ok(<span class="self">Self</span>::#constructor_ident(
-                        &lt;#constructor_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
-                            .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
-                    </span>))
+                <span class="macro">quote!</span> {
+                    <span class="ident">::core::result::Result::Ok</span>(<span class="self">Self</span>::#<span class="ident">constructor_ident</span>(
+                        <span class="op">&lt;</span>#<span class="ident">constructor_input</span> <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidParameters</span>)<span class="question-mark">?</span>
+                    ))
                 }
             }
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    <span class="ident">::core::result::Result::Err</span>(<span class="ident">::ink::reflect::DispatchError::UnknownSelector</span>)
                 }
             }
         };
-        <span class="kw">let </span>any_constructor_accept_payment =
-            <span class="self">self</span>.any_constructor_accepts_payment_expr(constructor_spans);
+        <span class="kw">let</span> <span class="ident">any_constructor_accept_payment</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">any_constructor_accepts_payment_expr</span>(<span class="ident">constructor_spans</span>);
 
-        <span class="kw">let </span>constructor_execute = (<span class="number">0</span>..count_constructors).map(|index| {
-            <span class="kw">let </span>constructor_span = constructor_spans[index];
-            <span class="kw">let </span>constructor_ident = constructor_variant_ident(index);
-            <span class="kw">let </span>constructor_callable = <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::CALLABLE
+        <span class="kw">let</span> <span class="ident">constructor_execute</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">constructor_callable</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::CALLABLE</span>
             );
-            <span class="kw">let </span>deny_payment = <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                !&lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::PAYABLE
+            <span class="kw">let</span> <span class="ident">deny_payment</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                <span class="op">!</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
             );
-            <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                <span class="self">Self</span>::#constructor_ident(input) =&gt; {
-                    <span class="kw">if </span>#any_constructor_accept_payment &amp;&amp; #deny_payment {
-                        ::ink::codegen::deny_payment::&lt;
-                            &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;()<span class="question-mark">?</span>;
+            <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                <span class="self">Self</span>::#<span class="ident">constructor_ident</span>(<span class="ident">input</span>) =&gt; {
+                    <span class="kw">if</span> #<span class="ident">any_constructor_accept_payment</span> <span class="op">&amp;&amp;</span> #<span class="ident">deny_payment</span> {
+                        <span class="ident">::ink::codegen::deny_payment</span>::<span class="op">&lt;</span>
+                            <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                     }
 
-                    ::ink::codegen::execute_constructor::&lt;#storage_ident, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
-                        <span class="kw">move </span>|| { #constructor_callable(input) }
+                    <span class="ident">::ink::codegen::execute_constructor</span>::<span class="op">&lt;</span>#<span class="ident">storage_ident</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+                        <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { #<span class="ident">constructor_callable</span>(<span class="ident">input</span>) }
                     )
                 }
             )
         });
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">const _</span>: () = {
-                <span class="attribute">#[allow(non_camel_case_types)]
-                </span><span class="kw">pub enum </span>__ink_ConstructorDecoder {
-                    #( #constructors_variants ),*
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+                <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">__ink_ConstructorDecoder</span> {
+                    #( #<span class="ident">constructors_variants</span> ),<span class="op">*</span>
                 }
 
-                <span class="kw">impl </span>::ink::reflect::DecodeDispatch <span class="kw">for </span>__ink_ConstructorDecoder {
-                    <span class="kw">fn </span>decode_dispatch&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I)
-                        -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::reflect::DispatchError&gt;
-                    <span class="kw">where
-                        </span>I: ::scale::Input,
+                <span class="kw">impl</span> <span class="ident">::ink::reflect::DecodeDispatch</span> <span class="kw">for</span> <span class="ident">__ink_ConstructorDecoder</span> {
+                    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>)
+                        -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::ink::reflect::DispatchError</span><span class="op">&gt;</span>
+                    <span class="kw">where</span>
+                        <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
                         #(
-                            #constructor_selector
-                        )*
-                        <span class="kw">match </span>&lt;[::core::primitive::u8; <span class="number">4usize</span>] <span class="kw">as </span>::scale::Decode&gt;::decode(input)
-                            .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidSelector)<span class="question-mark">?
-                        </span>{
-                            #( #constructor_match , )*
-                            _invalid =&gt; #possibly_wildcard_selector_constructor
+                            #<span class="ident">constructor_selector</span>
+                        )<span class="op">*</span>
+                        <span class="kw">match</span> <span class="op">&lt;</span>[<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidSelector</span>)<span class="question-mark">?</span>
+                        {
+                            #( #<span class="ident">constructor_match</span> , )<span class="op">*</span>
+                            <span class="ident">_invalid</span> =&gt; #<span class="ident">possibly_wildcard_selector_constructor</span>
                         }
                     }
                 }
 
-                <span class="kw">impl </span>::scale::Decode <span class="kw">for </span>__ink_ConstructorDecoder {
-                    <span class="kw">fn </span>decode&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::scale::Error&gt;
-                    <span class="kw">where
-                        </span>I: ::scale::Input,
+                <span class="kw">impl</span> <span class="ident">::scale::Decode</span> <span class="kw">for</span> <span class="ident">__ink_ConstructorDecoder</span> {
+                    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span>
+                    <span class="kw">where</span>
+                        <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
-                        &lt;<span class="self">Self </span><span class="kw">as </span>::ink::reflect::DecodeDispatch&gt;::decode_dispatch(input)
-                            .map_err(::core::convert::Into::into)
+                        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DecodeDispatch</span><span class="op">&gt;</span><span class="ident">::decode_dispatch</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="ident">::core::convert::Into::into</span>)
                     }
                 }
 
-                <span class="kw">impl </span>::ink::reflect::ExecuteDispatchable <span class="kw">for </span>__ink_ConstructorDecoder {
-                    <span class="attribute">#[allow(clippy::nonminimal_bool)]
-                    </span><span class="kw">fn </span>execute_dispatchable(<span class="self">self</span>) -&gt; ::core::result::Result&lt;(), ::ink::reflect::DispatchError&gt; {
-                        <span class="kw">match </span><span class="self">self </span>{
-                            #( #constructor_execute ),*
+                <span class="kw">impl</span> <span class="ident">::ink::reflect::ExecuteDispatchable</span> <span class="kw">for</span> <span class="ident">__ink_ConstructorDecoder</span> {
+                    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>)]</span>
+                    <span class="kw">fn</span> <span class="ident">execute_dispatchable</span>(<span class="self">self</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">::ink::reflect::DispatchError</span><span class="op">&gt;</span> {
+                        <span class="kw">match</span> <span class="self">self</span> {
+                            #( #<span class="ident">constructor_execute</span> ),<span class="op">*</span>
                         }
                     }
                 }
 
-                <span class="kw">impl </span>::ink::reflect::ContractConstructorDecoder <span class="kw">for </span>#storage_ident {
-                    <span class="kw">type </span>Type = __ink_ConstructorDecoder;
+                <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractConstructorDecoder</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">__ink_ConstructorDecoder</span>;
                 }
             };
         )
     }
 
-    <span class="doccomment">/// Generates code for the ink! message decoder type of the ink! smart contract.
-    ///
-    /// This type can be used in order to decode the input bytes received by a call to `call`
-    /// into one of the available dispatchable ink! messages and their arguments.
-    </span><span class="kw">fn </span>generate_message_decoder_type(
+    <span class="doccomment">/// Generates code for the ink! message decoder type of the ink! smart contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This type can be used in order to decode the input bytes received by a call to `call`</span>
+    <span class="doccomment">/// into one of the available dispatchable ink! messages and their arguments.</span>
+    <span class="kw">fn</span> <span class="ident">generate_message_decoder_type</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        message_spans: <span class="kw-2">&amp;</span>[proc_macro2::Span],
-    ) -&gt; TokenStream2 {
-        <span class="macro">assert_eq!</span>(message_spans.len(), <span class="self">self</span>.query_amount_messages());
+        <span class="ident">message_spans</span>: <span class="kw-2">&amp;</span>[<span class="ident">proc_macro2::Span</span>],
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="macro">assert_eq!</span>(<span class="ident">message_spans</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">query_amount_messages</span>());
 
-        <span class="doccomment">/// Expands into the token sequence to represent the
-        /// input type of the ink! message at the given index.
-        </span><span class="kw">fn </span>expand_message_input(
-            span: proc_macro2::Span,
-            storage_ident: <span class="kw-2">&amp;</span>syn::Ident,
-            message_index: usize,
-        ) -&gt; TokenStream2 {
-            <span class="macro">quote_spanned!</span>(span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#message_index]
-                }&gt;&gt;::Input
+        <span class="doccomment">/// Expands into the token sequence to represent the</span>
+        <span class="doccomment">/// input type of the ink! message at the given index.</span>
+        <span class="kw">fn</span> <span class="ident">expand_message_input</span>(
+            <span class="ident">span</span>: <span class="ident">proc_macro2::Span</span>,
+            <span class="ident">storage_ident</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>,
+            <span class="ident">message_index</span>: <span class="ident">usize</span>,
+        ) -&gt; <span class="ident">TokenStream2</span> {
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">message_index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Input</span>
             )
         }
 
-        <span class="doccomment">/// Returns the n-th ink! message identifier for the decoder type.
-        </span><span class="kw">fn </span>message_variant_ident(n: usize) -&gt; syn::Ident {
-            <span class="macro">quote::format_ident!</span>(<span class="string">&quot;Message{}&quot;</span>, n)
+        <span class="doccomment">/// Returns the n-th ink! message identifier for the decoder type.</span>
+        <span class="kw">fn</span> <span class="ident">message_variant_ident</span>(<span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="ident">syn::Ident</span> {
+            <span class="macro">quote::format_ident!</span>(<span class="string">&quot;Message{}&quot;</span>, <span class="ident">n</span>)
         }
 
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>count_messages = <span class="self">self</span>.query_amount_messages();
-        <span class="kw">let </span>message_variants = (<span class="number">0</span>..count_messages).map(|index| {
-            <span class="kw">let </span>message_span = message_spans[index];
-            <span class="kw">let </span>message_ident = message_variant_ident(index);
-            <span class="kw">let </span>message_input = expand_message_input(message_span, storage_ident, index);
-            <span class="macro">quote_spanned!</span>(message_span=&gt;
-                #message_ident(#message_input)
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">count_messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_amount_messages</span>();
+        <span class="kw">let</span> <span class="ident">message_variants</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">message_input</span> <span class="op">=</span> <span class="ident">expand_message_input</span>(<span class="ident">message_span</span>, <span class="ident">storage_ident</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                #<span class="ident">message_ident</span>(#<span class="ident">message_input</span>)
             )
         });
 
-        <span class="kw">let </span>message_selector = (<span class="number">0</span>..count_messages).map(|index| {
-            <span class="kw">let </span>const_ident = <span class="macro">format_ident!</span>(<span class="string">&quot;MESSAGE_{}&quot;</span>, index);
-            <span class="macro">quote_spanned!</span>(span=&gt;
-                <span class="kw">const </span>#const_ident: [::core::primitive::u8; <span class="number">4usize</span>] = &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::SELECTOR;
+        <span class="kw">let</span> <span class="ident">message_selector</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;MESSAGE_{}&quot;</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                <span class="kw">const</span> #<span class="ident">const_ident</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>;
             )
         });
 
-        <span class="kw">let </span>message_match = (<span class="number">0</span>..count_messages).map(|index| {
-            <span class="kw">let </span>message_span = message_spans[index];
-            <span class="kw">let </span>message_ident = message_variant_ident(index);
-            <span class="kw">let </span>const_ident = <span class="macro">format_ident!</span>(<span class="string">&quot;MESSAGE_{}&quot;</span>, index);
-            <span class="kw">let </span>message_input = expand_message_input(message_span, storage_ident, index);
-            <span class="macro">quote_spanned!</span>(message_span=&gt;
-                #const_ident =&gt; {
-                    ::core::result::Result::Ok(<span class="self">Self</span>::#message_ident(
-                        &lt;#message_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
-                            .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
-                    </span>))
+        <span class="kw">let</span> <span class="ident">message_match</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">const_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;MESSAGE_{}&quot;</span>, <span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">message_input</span> <span class="op">=</span> <span class="ident">expand_message_input</span>(<span class="ident">message_span</span>, <span class="ident">storage_ident</span>, <span class="ident">index</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                #<span class="ident">const_ident</span> =&gt; {
+                    <span class="ident">::core::result::Result::Ok</span>(<span class="self">Self</span>::#<span class="ident">message_ident</span>(
+                        <span class="op">&lt;</span>#<span class="ident">message_input</span> <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidParameters</span>)<span class="question-mark">?</span>
+                    ))
                 }
             )
         });
-        <span class="kw">let </span>possibly_wildcard_selector_message = <span class="kw">match </span><span class="self">self</span>.query_wildcard_message() {
-            <span class="prelude-val">Some</span>(wildcard_index) =&gt; {
-                <span class="kw">let </span>message_span = message_spans[wildcard_index];
-                <span class="kw">let </span>message_ident = message_variant_ident(wildcard_index);
-                <span class="kw">let </span>message_input =
-                    expand_message_input(message_span, storage_ident, wildcard_index);
-                <span class="macro">quote! </span>{
-                    ::core::result::Result::Ok(<span class="self">Self</span>::#message_ident(
-                        &lt;#message_input <span class="kw">as </span>::scale::Decode&gt;::decode(input)
-                            .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidParameters)<span class="question-mark">?
-                    </span>))
+        <span class="kw">let</span> <span class="ident">possibly_wildcard_selector_message</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">query_wildcard_message</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">wildcard_index</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">wildcard_index</span>];
+                <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message_variant_ident</span>(<span class="ident">wildcard_index</span>);
+                <span class="kw">let</span> <span class="ident">message_input</span> <span class="op">=</span>
+                    <span class="ident">expand_message_input</span>(<span class="ident">message_span</span>, <span class="ident">storage_ident</span>, <span class="ident">wildcard_index</span>);
+                <span class="macro">quote!</span> {
+                    <span class="ident">::core::result::Result::Ok</span>(<span class="self">Self</span>::#<span class="ident">message_ident</span>(
+                        <span class="op">&lt;</span>#<span class="ident">message_input</span> <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidParameters</span>)<span class="question-mark">?</span>
+                    ))
                 }
             }
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    <span class="ident">::core::result::Result::Err</span>(<span class="ident">::ink::reflect::DispatchError::UnknownSelector</span>)
                 }
             }
         };
-        <span class="kw">let </span>any_message_accept_payment =
-            <span class="self">self</span>.any_message_accepts_payment_expr(message_spans);
+        <span class="kw">let</span> <span class="ident">any_message_accept_payment</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">any_message_accepts_payment_expr</span>(<span class="ident">message_spans</span>);
 
-        <span class="kw">let </span>message_execute = (<span class="number">0</span>..count_messages).map(|index| {
-            <span class="kw">let </span>message_span = message_spans[index];
-            <span class="kw">let </span>message_ident = message_variant_ident(index);
-            <span class="kw">let </span>message_callable = <span class="macro">quote_spanned!</span>(message_span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::CALLABLE
+        <span class="kw">let</span> <span class="ident">message_execute</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
+            <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message_variant_ident</span>(<span class="ident">index</span>);
+            <span class="kw">let</span> <span class="ident">message_callable</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::CALLABLE</span>
             );
-            <span class="kw">let </span>message_output = <span class="macro">quote_spanned!</span>(message_span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::Output
+            <span class="kw">let</span> <span class="ident">message_output</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Output</span>
             );
-            <span class="kw">let </span>deny_payment = <span class="macro">quote_spanned!</span>(message_span=&gt;
-                !&lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::PAYABLE
+            <span class="kw">let</span> <span class="ident">deny_payment</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                <span class="op">!</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
             );
-            <span class="kw">let </span>mutates_storage = <span class="macro">quote_spanned!</span>(message_span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::MUTATES
+            <span class="kw">let</span> <span class="ident">mutates_storage</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::MUTATES</span>
             );
 
-            <span class="macro">quote_spanned!</span>(message_span=&gt;
-                <span class="self">Self</span>::#message_ident(input) =&gt; {
-                    <span class="kw">use </span>::core::default::Default;
+            <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                <span class="self">Self</span>::#<span class="ident">message_ident</span>(<span class="ident">input</span>) =&gt; {
+                    <span class="kw">use</span> <span class="ident">::core::default::Default</span>;
 
-                    <span class="kw">if </span>#any_message_accept_payment &amp;&amp; #deny_payment {
-                        ::ink::codegen::deny_payment::&lt;
-                            &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;()<span class="question-mark">?</span>;
+                    <span class="kw">if</span> #<span class="ident">any_message_accept_payment</span> <span class="op">&amp;&amp;</span> #<span class="ident">deny_payment</span> {
+                        <span class="ident">::ink::codegen::deny_payment</span>::<span class="op">&lt;</span>
+                            <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
                     }
 
-                    <span class="kw">let </span>result: #message_output = #message_callable(<span class="kw-2">&amp;mut </span>contract, input);
-                    <span class="kw">let </span>failure = <span class="macro">::ink::is_result_type!</span>(#message_output)
-                        &amp;&amp; <span class="macro">::ink::is_result_err!</span>(result);
+                    <span class="kw">let</span> <span class="ident">result</span>: #<span class="ident">message_output</span> <span class="op">=</span> #<span class="ident">message_callable</span>(<span class="kw-2">&amp;mut</span> <span class="ident">contract</span>, <span class="ident">input</span>);
+                    <span class="kw">let</span> <span class="ident">failure</span> <span class="op">=</span> <span class="macro">::ink::is_result_type!</span>(#<span class="ident">message_output</span>)
+                        <span class="op">&amp;&amp;</span> <span class="macro">::ink::is_result_err!</span>(<span class="ident">result</span>);
 
-                    <span class="kw">if </span>failure {
-                        <span class="comment">// We return early here since there is no need to push back the
-                        // intermediate results of the contract - the transaction is going to be
-                        // reverted anyways.
-                        </span>::ink::env::return_value::&lt;#message_output&gt;(
-                            ::ink::env::ReturnFlags::default().set_reverted(<span class="bool-val">true</span>), <span class="kw-2">&amp;</span>result
+                    <span class="kw">if</span> <span class="ident">failure</span> {
+                        <span class="comment">// We return early here since there is no need to push back the</span>
+                        <span class="comment">// intermediate results of the contract - the transaction is going to be</span>
+                        <span class="comment">// reverted anyways.</span>
+                        <span class="ident">::ink::env::return_value</span>::<span class="op">&lt;</span>#<span class="ident">message_output</span><span class="op">&gt;</span>(
+                            <span class="ident">::ink::env::ReturnFlags::default</span>().<span class="ident">set_reverted</span>(<span class="bool-val">true</span>), <span class="kw-2">&amp;</span><span class="ident">result</span>
                         )
                     }
 
-                    push_contract(contract, #mutates_storage);
+                    <span class="ident">push_contract</span>(<span class="ident">contract</span>, #<span class="ident">mutates_storage</span>);
 
-                    <span class="kw">if </span>::core::any::TypeId::of::&lt;#message_output&gt;() != ::core::any::TypeId::of::&lt;()&gt;() {
-                        <span class="comment">// In case the return type is `()` we do not return a value.
-                        </span>::ink::env::return_value::&lt;#message_output&gt;(
-                            ::ink::env::ReturnFlags::default(), <span class="kw-2">&amp;</span>result
+                    <span class="kw">if</span> <span class="ident">::core::any::TypeId::of</span>::<span class="op">&lt;</span>#<span class="ident">message_output</span><span class="op">&gt;</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">::core::any::TypeId::of</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>() {
+                        <span class="comment">// In case the return type is `()` we do not return a value.</span>
+                        <span class="ident">::ink::env::return_value</span>::<span class="op">&lt;</span>#<span class="ident">message_output</span><span class="op">&gt;</span>(
+                            <span class="ident">::ink::env::ReturnFlags::default</span>(), <span class="kw-2">&amp;</span><span class="ident">result</span>
                         )
                     }
                 }
             )
         });
 
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">const _</span>: () = {
-                <span class="attribute">#[allow(non_camel_case_types)]
-                </span><span class="kw">pub enum </span>__ink_MessageDecoder {
-                    #( #message_variants ),*
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
+                <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">__ink_MessageDecoder</span> {
+                    #( #<span class="ident">message_variants</span> ),<span class="op">*</span>
                 }
 
-                <span class="kw">impl </span>::ink::reflect::DecodeDispatch <span class="kw">for </span>__ink_MessageDecoder {
-                    <span class="kw">fn </span>decode_dispatch&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I)
-                        -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::ink::reflect::DispatchError&gt;
-                    <span class="kw">where
-                        </span>I: ::scale::Input,
+                <span class="kw">impl</span> <span class="ident">::ink::reflect::DecodeDispatch</span> <span class="kw">for</span> <span class="ident">__ink_MessageDecoder</span> {
+                    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>)
+                        -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::ink::reflect::DispatchError</span><span class="op">&gt;</span>
+                    <span class="kw">where</span>
+                        <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
                         #(
-                            #message_selector
-                        )*
-                        <span class="kw">match </span>&lt;[::core::primitive::u8; <span class="number">4usize</span>] <span class="kw">as </span>::scale::Decode&gt;::decode(input)
-                            .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::InvalidSelector)<span class="question-mark">?
-                        </span>{
-                            #( #message_match , )*
-                            _invalid =&gt; #possibly_wildcard_selector_message
+                            #<span class="ident">message_selector</span>
+                        )<span class="op">*</span>
+                        <span class="kw">match</span> <span class="op">&lt;</span>[<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="kw">as</span> <span class="ident">::scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">::ink::reflect::DispatchError::InvalidSelector</span>)<span class="question-mark">?</span>
+                        {
+                            #( #<span class="ident">message_match</span> , )<span class="op">*</span>
+                            <span class="ident">_invalid</span> =&gt; #<span class="ident">possibly_wildcard_selector_message</span>
                         }
                     }
                 }
 
-                <span class="kw">impl </span>::scale::Decode <span class="kw">for </span>__ink_MessageDecoder {
-                    <span class="kw">fn </span>decode&lt;I&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; ::core::result::Result&lt;<span class="self">Self</span>, ::scale::Error&gt;
-                    <span class="kw">where
-                        </span>I: ::scale::Input,
+                <span class="kw">impl</span> <span class="ident">::scale::Decode</span> <span class="kw">for</span> <span class="ident">__ink_MessageDecoder</span> {
+                    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span>
+                    <span class="kw">where</span>
+                        <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
-                        &lt;<span class="self">Self </span><span class="kw">as </span>::ink::reflect::DecodeDispatch&gt;::decode_dispatch(input)
-                            .map_err(::core::convert::Into::into)
+                        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DecodeDispatch</span><span class="op">&gt;</span><span class="ident">::decode_dispatch</span>(<span class="ident">input</span>)
+                            .<span class="ident">map_err</span>(<span class="ident">::core::convert::Into::into</span>)
                     }
                 }
 
-                <span class="kw">fn </span>push_contract(contract: ::core::mem::ManuallyDrop&lt;#storage_ident&gt;, mutates: bool) {
-                    <span class="kw">if </span>mutates {
-                        ::ink::env::set_contract_storage::&lt;::ink::primitives::Key, #storage_ident&gt;(
-                            <span class="kw-2">&amp;</span>&lt;#storage_ident <span class="kw">as </span>::ink::storage::traits::StorageKey&gt;::KEY,
-                            <span class="kw-2">&amp;</span>contract,
+                <span class="kw">fn</span> <span class="ident">push_contract</span>(<span class="ident">contract</span>: <span class="ident">::core::mem::ManuallyDrop</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span>, <span class="ident">mutates</span>: <span class="ident">bool</span>) {
+                    <span class="kw">if</span> <span class="ident">mutates</span> {
+                        <span class="ident">::ink::env::set_contract_storage</span>::<span class="op">&lt;</span><span class="ident">::ink::primitives::Key</span>, #<span class="ident">storage_ident</span><span class="op">&gt;</span>(
+                            <span class="kw-2">&amp;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span>,
+                            <span class="kw-2">&amp;</span><span class="ident">contract</span>,
                         );
                     }
                 }
 
-                <span class="kw">impl </span>::ink::reflect::ExecuteDispatchable <span class="kw">for </span>__ink_MessageDecoder {
-                    <span class="attribute">#[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
-                    </span><span class="kw">fn </span>execute_dispatchable(
-                        <span class="self">self
-                    </span>) -&gt; ::core::result::Result&lt;(), ::ink::reflect::DispatchError&gt; {
-                        <span class="kw">let </span>key = &lt;#storage_ident <span class="kw">as </span>::ink::storage::traits::StorageKey&gt;::KEY;
-                        <span class="kw">let </span><span class="kw-2">mut </span>contract: ::core::mem::ManuallyDrop&lt;#storage_ident&gt; =
-                            ::core::mem::ManuallyDrop::new(
-                                <span class="kw">match </span>::ink::env::get_contract_storage(<span class="kw-2">&amp;</span>key) {
-                                    ::core::result::Result::Ok(::core::option::Option::Some(value)) =&gt; value,
-                                    ::core::result::Result::Ok(::core::option::Option::None) =&gt; {
+                <span class="kw">impl</span> <span class="ident">::ink::reflect::ExecuteDispatchable</span> <span class="kw">for</span> <span class="ident">__ink_MessageDecoder</span> {
+                    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>, <span class="ident">clippy::let_unit_value</span>)]</span>
+                    <span class="kw">fn</span> <span class="ident">execute_dispatchable</span>(
+                        <span class="self">self</span>
+                    ) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">::ink::reflect::DispatchError</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span>;
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contract</span>: <span class="ident">::core::mem::ManuallyDrop</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="op">=</span>
+                            <span class="ident">::core::mem::ManuallyDrop::new</span>(
+                                <span class="kw">match</span> <span class="ident">::ink::env::get_contract_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
+                                    <span class="ident">::core::result::Result::Ok</span>(<span class="ident">::core::option::Option::Some</span>(<span class="ident">value</span>)) =&gt; <span class="ident">value</span>,
+                                    <span class="ident">::core::result::Result::Ok</span>(<span class="ident">::core::option::Option::None</span>) =&gt; {
                                         <span class="macro">::core::panic!</span>(<span class="string">&quot;storage entry was empty&quot;</span>)
                                     },
-                                    ::core::result::Result::Err(<span class="kw">_</span>) =&gt; {
+                                    <span class="ident">::core::result::Result::Err</span>(<span class="kw">_</span>) =&gt; {
                                         <span class="macro">::core::panic!</span>(<span class="string">&quot;could not properly decode storage entry&quot;</span>)
                                     },
                                 }
                             );
 
-                        <span class="kw">match </span><span class="self">self </span>{
-                            #( #message_execute ),*
+                        <span class="kw">match</span> <span class="self">self</span> {
+                            #( #<span class="ident">message_execute</span> ),<span class="op">*</span>
                         };
 
-                        ::core::result::Result::Ok(())
+                        <span class="ident">::core::result::Result::Ok</span>(())
                     }
                 }
 
-                <span class="kw">impl </span>::ink::reflect::ContractMessageDecoder <span class="kw">for </span>#storage_ident {
-                    <span class="kw">type </span>Type = __ink_MessageDecoder;
+                <span class="kw">impl</span> <span class="ident">::ink::reflect::ContractMessageDecoder</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">__ink_MessageDecoder</span>;
                 }
             };
         )
     }
 
-    <span class="doccomment">/// Generates code to express if any dispatchable ink! message accepts payment.
-    ///
-    /// This information can be used to speed-up dispatch since denying of payment
-    /// can be generalized to work before dispatch happens if none of the ink! messages
-    /// accept payment anyways.
-    </span><span class="kw">fn </span>any_message_accepts_payment_expr(
+    <span class="doccomment">/// Generates code to express if any dispatchable ink! message accepts payment.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This information can be used to speed-up dispatch since denying of payment</span>
+    <span class="doccomment">/// can be generalized to work before dispatch happens if none of the ink! messages</span>
+    <span class="doccomment">/// accept payment anyways.</span>
+    <span class="kw">fn</span> <span class="ident">any_message_accepts_payment_expr</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        message_spans: <span class="kw-2">&amp;</span>[proc_macro2::Span],
-    ) -&gt; TokenStream2 {
-        <span class="macro">assert_eq!</span>(message_spans.len(), <span class="self">self</span>.query_amount_messages());
+        <span class="ident">message_spans</span>: <span class="kw-2">&amp;</span>[<span class="ident">proc_macro2::Span</span>],
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="macro">assert_eq!</span>(<span class="ident">message_spans</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">query_amount_messages</span>());
 
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>count_messages = <span class="self">self</span>.query_amount_messages();
-        <span class="kw">let </span>message_is_payable = (<span class="number">0</span>..count_messages).map(|index| {
-            <span class="kw">let </span>message_span = message_spans[index];
-            <span class="macro">quote_spanned!</span>(message_span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableMessageInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableMessages&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::MESSAGES
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::PAYABLE
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">count_messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_amount_messages</span>();
+        <span class="kw">let</span> <span class="ident">message_is_payable</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_messages</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message_spans</span>[<span class="ident">index</span>];
+            <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableMessageInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableMessages</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::MESSAGES</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
             )
         });
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            { <span class="bool-val">false </span>#( || #message_is_payable )* }
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            { <span class="bool-val">false</span> #( <span class="op">|</span><span class="op">|</span> #<span class="ident">message_is_payable</span> )<span class="op">*</span> }
         )
     }
 
-    <span class="doccomment">/// Generates code to express if any dispatchable ink! constructor accepts payment.
-    ///
-    /// This information can be used to speed-up dispatch since denying of payment
-    /// can be generalized to work before dispatch happens if none of the ink! constructors
-    /// accept payment anyways.
-    </span><span class="kw">fn </span>any_constructor_accepts_payment_expr(
+    <span class="doccomment">/// Generates code to express if any dispatchable ink! constructor accepts payment.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This information can be used to speed-up dispatch since denying of payment</span>
+    <span class="doccomment">/// can be generalized to work before dispatch happens if none of the ink! constructors</span>
+    <span class="doccomment">/// accept payment anyways.</span>
+    <span class="kw">fn</span> <span class="ident">any_constructor_accepts_payment_expr</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        constructor_spans: <span class="kw-2">&amp;</span>[proc_macro2::Span],
-    ) -&gt; TokenStream2 {
-        <span class="macro">assert_eq!</span>(constructor_spans.len(), <span class="self">self</span>.query_amount_constructors());
+        <span class="ident">constructor_spans</span>: <span class="kw-2">&amp;</span>[<span class="ident">proc_macro2::Span</span>],
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="macro">assert_eq!</span>(<span class="ident">constructor_spans</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">query_amount_constructors</span>());
 
-        <span class="kw">let </span>span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>count_constructors = <span class="self">self</span>.query_amount_constructors();
-        <span class="kw">let </span>constructor_is_payable = (<span class="number">0</span>..count_constructors).map(|index| {
-            <span class="kw">let </span>constructor_span = constructor_spans[index];
-            <span class="macro">quote_spanned!</span>(constructor_span=&gt;
-                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
-                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
-                    }&gt;&gt;::IDS[#index]
-                }&gt;&gt;::PAYABLE
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">count_constructors</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_amount_constructors</span>();
+        <span class="kw">let</span> <span class="ident">constructor_is_payable</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">count_constructors</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">index</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor_spans</span>[<span class="ident">index</span>];
+            <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::DispatchableConstructorInfo</span><span class="op">&lt;</span>{
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractDispatchableConstructors</span><span class="op">&lt;</span>{
+                        <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractAmountDispatchables</span><span class="op">&gt;</span><span class="ident">::CONSTRUCTORS</span>
+                    }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
+                }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
             )
         });
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            { <span class="bool-val">false </span>#( || #constructor_is_payable )* }
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            { <span class="bool-val">false</span> #( <span class="op">|</span><span class="op">|</span> #<span class="ident">constructor_is_payable</span> )<span class="op">*</span> }
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

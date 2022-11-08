@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/trait_def/item/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/trait_def/item/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -397,397 +397,397 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">mod </span>iter;
-<span class="kw">mod </span>trait_item;
+<span class="kw">mod</span> <span class="ident">iter</span>;
+<span class="kw">mod</span> <span class="ident">trait_item</span>;
 
-<span class="kw">use </span><span class="self">self</span>::iter::IterInkTraitItemsRaw;
-<span class="kw">pub use </span><span class="self">self</span>::{
-    iter::IterInkTraitItems,
-    trait_item::{
-        InkTraitItem,
-        InkTraitMessage,
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::iter::IterInkTraitItemsRaw</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">iter::IterInkTraitItems</span>,
+    <span class="ident">trait_item</span>::{
+        <span class="ident">InkTraitItem</span>,
+        <span class="ident">InkTraitMessage</span>,
     },
 };
-<span class="kw">use </span><span class="kw">super</span>::TraitDefinitionConfig;
-<span class="kw">use crate</span>::{
-    ir,
-    ir::{
-        attrs::SelectorOrWildcard,
-        idents_lint,
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TraitDefinitionConfig</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ir</span>,
+    <span class="ident">ir</span>::{
+        <span class="ident">attrs::SelectorOrWildcard</span>,
+        <span class="ident">idents_lint</span>,
     },
-    Selector,
+    <span class="ident">Selector</span>,
 };
-<span class="kw">use </span>ir::TraitPrefix;
-<span class="kw">use </span>proc_macro2::{
-    Ident,
-    Span,
+<span class="kw">use</span> <span class="ident">ir::TraitPrefix</span>;
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
+    <span class="ident">Ident</span>,
+    <span class="ident">Span</span>,
 };
-<span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>syn::{
-    spanned::Spanned <span class="kw">as _</span>,
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">syn</span>::{
+    <span class="ident">spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>,
     <span class="prelude-ty">Result</span>,
 };
 
-<span class="doccomment">/// A checked ink! trait definition without its configuration.
-</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>InkItemTrait {
-    item: syn::ItemTrait,
-    message_selectors: HashMap&lt;syn::Ident, Selector&gt;,
+<span class="doccomment">/// A checked ink! trait definition without its configuration.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InkItemTrait</span> {
+    <span class="ident">item</span>: <span class="ident">syn::ItemTrait</span>,
+    <span class="ident">message_selectors</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Ident</span>, <span class="ident">Selector</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">impl </span>TryFrom&lt;syn::ItemTrait&gt; <span class="kw">for </span>InkItemTrait {
-    <span class="kw">type </span>Error = syn::Error;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItemTrait</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn </span>try_from(item_trait: syn::ItemTrait) -&gt; core::result::Result&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span>config = TraitDefinitionConfig::default();
-        <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>config, item_trait)
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>) -&gt; <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">TraitDefinitionConfig::default</span>();
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>, <span class="ident">item_trait</span>)
     }
 }
 
-<span class="kw">impl </span>InkItemTrait {
-    <span class="doccomment">/// Creates a new ink! item trait from the given configuration and trait definition.
-    </span><span class="kw">pub fn </span>new(
-        config: <span class="kw-2">&amp;</span>TraitDefinitionConfig,
-        item_trait: syn::ItemTrait,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        idents_lint::ensure_no_ink_identifiers(<span class="kw-2">&amp;</span>item_trait)<span class="question-mark">?</span>;
-        <span class="self">Self</span>::analyse_properties(<span class="kw-2">&amp;</span>item_trait)<span class="question-mark">?</span>;
-        <span class="self">Self</span>::analyse_items(<span class="kw-2">&amp;</span>item_trait)<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>message_selectors = &lt;HashMap&lt;syn::Ident, Selector&gt;&gt;::new();
-        <span class="self">Self</span>::extract_selectors(config, <span class="kw-2">&amp;</span>item_trait, <span class="kw-2">&amp;mut </span>message_selectors)<span class="question-mark">?</span>;
-        <span class="kw">if </span>message_selectors.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                item_trait.span(),
-                <span class="string">&quot;encountered invalid empty ink! trait definition&quot;
-            </span>))
+<span class="kw">impl</span> <span class="ident">InkItemTrait</span> {
+    <span class="doccomment">/// Creates a new ink! item trait from the given configuration and trait definition.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">TraitDefinitionConfig</span>,
+        <span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="ident">idents_lint::ensure_no_ink_identifiers</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
+        <span class="ident"><span class="self">Self</span>::analyse_properties</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
+        <span class="ident"><span class="self">Self</span>::analyse_items</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">message_selectors</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Ident</span>, <span class="ident">Selector</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
+        <span class="ident"><span class="self">Self</span>::extract_selectors</span>(<span class="ident">config</span>, <span class="kw-2">&amp;</span><span class="ident">item_trait</span>, <span class="kw-2">&amp;mut</span> <span class="ident">message_selectors</span>)<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">message_selectors</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                <span class="ident">item_trait</span>.<span class="ident">span</span>(),
+                <span class="string">&quot;encountered invalid empty ink! trait definition&quot;</span>
+            ))
         }
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            item: item_trait,
-            message_selectors,
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+            <span class="ident">item</span>: <span class="ident">item_trait</span>,
+            <span class="ident">message_selectors</span>,
         })
     }
 }
 
-<span class="kw">impl </span>InkItemTrait {
-    <span class="doccomment">/// Returns span of the ink! trait definition.
-    </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-        <span class="self">self</span>.item.span()
+<span class="kw">impl</span> <span class="ident">InkItemTrait</span> {
+    <span class="doccomment">/// Returns span of the ink! trait definition.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+        <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
     }
 
-    <span class="doccomment">/// Returns the attributes of the ink! trait definition.
-    </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Attribute] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.item.attrs
+    <span class="doccomment">/// Returns the attributes of the ink! trait definition.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>
     }
 
-    <span class="doccomment">/// Returns the identifier of the ink! trait definition.
-    </span><span class="kw">pub fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.item.ident
+    <span class="doccomment">/// Returns the identifier of the ink! trait definition.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">ident</span>
     }
 
-    <span class="doccomment">/// Returns an iterator yielding the ink! specific items of the ink! trait definition.
-    </span><span class="kw">pub fn </span>iter_items(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IterInkTraitItems {
-        IterInkTraitItems::new(<span class="self">self</span>)
+    <span class="doccomment">/// Returns an iterator yielding the ink! specific items of the ink! trait definition.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_items</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IterInkTraitItems</span> {
+        <span class="ident">IterInkTraitItems::new</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Analyses the properties of the ink! trait definition.
-    ///
-    /// # Errors
-    ///
-    /// - If the trait has been defined as `unsafe`.
-    /// - If the trait is an automatically implemented trait (`auto trait`).
-    /// - If the trait is generic over some set of types.
-    /// - If the trait&#39;s visibility is not public (`pub`).
-    </span><span class="kw">fn </span>analyse_properties(item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafety) = <span class="kw-2">&amp;</span>item_trait.unsafety {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                unsafety,
-                <span class="string">&quot;ink! trait definitions cannot be unsafe&quot;
-            </span>))
+    <span class="doccomment">/// Analyses the properties of the ink! trait definition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the trait has been defined as `unsafe`.</span>
+    <span class="doccomment">/// - If the trait is an automatically implemented trait (`auto trait`).</span>
+    <span class="doccomment">/// - If the trait is generic over some set of types.</span>
+    <span class="doccomment">/// - If the trait&#39;s visibility is not public (`pub`).</span>
+    <span class="kw">fn</span> <span class="ident">analyse_properties</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">unsafety</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">unsafety</span>,
+                <span class="string">&quot;ink! trait definitions cannot be unsafe&quot;</span>
+            ))
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(auto) = <span class="kw-2">&amp;</span>item_trait.auto_token {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                auto,
-                <span class="string">&quot;ink! trait definitions cannot be automatically implemented traits&quot;
-            </span>))
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">auto</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">auto_token</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">auto</span>,
+                <span class="string">&quot;ink! trait definitions cannot be automatically implemented traits&quot;</span>
+            ))
         }
-        <span class="kw">if </span>!item_trait.generics.params.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                item_trait.generics.params,
-                <span class="string">&quot;ink! trait definitions must not be generic&quot;
-            </span>))
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_trait</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">item_trait</span>.<span class="ident">generics</span>.<span class="ident">params</span>,
+                <span class="string">&quot;ink! trait definitions must not be generic&quot;</span>
+            ))
         }
-        <span class="kw">if </span>!<span class="macro">matches!</span>(item_trait.vis, syn::Visibility::Public(<span class="kw">_</span>)) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                item_trait.vis,
-                <span class="string">&quot;ink! trait definitions must have public visibility&quot;
-            </span>))
+        <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">item_trait</span>.<span class="ident">vis</span>, <span class="ident">syn::Visibility::Public</span>(<span class="kw">_</span>)) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">item_trait</span>.<span class="ident">vis</span>,
+                <span class="string">&quot;ink! trait definitions must have public visibility&quot;</span>
+            ))
         }
-        <span class="kw">if </span>!item_trait.supertraits.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                item_trait.supertraits,
-                <span class="string">&quot;ink! trait definitions with supertraits are not supported, yet&quot;
-            </span>))
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_trait</span>.<span class="ident">supertraits</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">item_trait</span>.<span class="ident">supertraits</span>,
+                <span class="string">&quot;ink! trait definitions with supertraits are not supported, yet&quot;</span>
+            ))
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns `Ok` if all trait items respects the requirements for an ink! trait definition.
-    ///
-    /// # Errors
-    ///
-    /// - If the trait contains an unsupported trait item such as
-    ///     - associated constants (`const`)
-    ///     - associated types (`type`)
-    ///     - macros definitions or usages
-    ///     - unknown token sequences (verbatim)
-    ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
-    ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`
-    ///       and need to respect their respective rules.
-    ///
-    /// # Note
-    ///
-    /// Associated types and constants might be allowed in the future.
-    </span><span class="kw">fn </span>analyse_items(item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">for </span>trait_item <span class="kw">in </span><span class="kw-2">&amp;</span>item_trait.items {
-            <span class="kw">match </span>trait_item {
-                syn::TraitItem::Const(const_trait_item) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        const_trait_item,
-                        <span class="string">&quot;associated constants in ink! trait definitions are not supported, yet&quot;
-                    </span>))
+    <span class="doccomment">/// Returns `Ok` if all trait items respects the requirements for an ink! trait definition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the trait contains an unsupported trait item such as</span>
+    <span class="doccomment">///     - associated constants (`const`)</span>
+    <span class="doccomment">///     - associated types (`type`)</span>
+    <span class="doccomment">///     - macros definitions or usages</span>
+    <span class="doccomment">///     - unknown token sequences (verbatim)</span>
+    <span class="doccomment">///     - methods with default implementations</span>
+    <span class="doccomment">/// - If the trait contains methods which do not respect the ink! trait definition requirements:</span>
+    <span class="doccomment">///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`</span>
+    <span class="doccomment">///       and need to respect their respective rules.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Associated types and constants might be allowed in the future.</span>
+    <span class="kw">fn</span> <span class="ident">analyse_items</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">trait_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">items</span> {
+            <span class="kw">match</span> <span class="ident">trait_item</span> {
+                <span class="ident">syn::TraitItem::Const</span>(<span class="ident">const_trait_item</span>) =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="ident">const_trait_item</span>,
+                        <span class="string">&quot;associated constants in ink! trait definitions are not supported, yet&quot;</span>
+                    ))
                 }
-                syn::TraitItem::Macro(macro_trait_item) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        macro_trait_item,
-                        <span class="string">&quot;macros in ink! trait definitions are not supported&quot;
-                    </span>))
+                <span class="ident">syn::TraitItem::Macro</span>(<span class="ident">macro_trait_item</span>) =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="ident">macro_trait_item</span>,
+                        <span class="string">&quot;macros in ink! trait definitions are not supported&quot;</span>
+                    ))
                 }
-                syn::TraitItem::Type(type_trait_item) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    type_trait_item,
-                    <span class="string">&quot;associated types in ink! trait definitions are not supported, yet&quot;
-                </span>))
+                <span class="ident">syn::TraitItem::Type</span>(<span class="ident">type_trait_item</span>) =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    <span class="ident">type_trait_item</span>,
+                    <span class="string">&quot;associated types in ink! trait definitions are not supported, yet&quot;</span>
+                ))
                 }
-                syn::TraitItem::Verbatim(verbatim) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        verbatim,
-                        <span class="string">&quot;encountered unsupported item in ink! trait definition&quot;
-                    </span>))
+                <span class="ident">syn::TraitItem::Verbatim</span>(<span class="ident">verbatim</span>) =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="ident">verbatim</span>,
+                        <span class="string">&quot;encountered unsupported item in ink! trait definition&quot;</span>
+                    ))
                 }
-                syn::TraitItem::Method(method_trait_item) =&gt; {
-                    <span class="self">Self</span>::analyse_trait_method(method_trait_item)<span class="question-mark">?</span>;
+                <span class="ident">syn::TraitItem::Method</span>(<span class="ident">method_trait_item</span>) =&gt; {
+                    <span class="ident"><span class="self">Self</span>::analyse_trait_method</span>(<span class="ident">method_trait_item</span>)<span class="question-mark">?</span>;
                 }
-                unknown =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        unknown,
-                        <span class="string">&quot;encountered unknown or unsupported item in ink! trait definition&quot;
-                    </span>))
+                <span class="ident">unknown</span> =&gt; {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="ident">unknown</span>,
+                        <span class="string">&quot;encountered unknown or unsupported item in ink! trait definition&quot;</span>
+                    ))
                 }
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Analyses an ink! method that can be either an ink! message or constructor.
-    ///
-    /// # Errors
-    ///
-    /// - If the method declared as `unsafe`, `const` or `async`.
-    /// - If the method has some explicit API.
-    /// - If the method is variadic or has generic parameters.
-    /// - If the method does not respect the properties of either an
-    ///   ink! message or ink! constructor.
-    </span><span class="kw">fn </span>analyse_trait_method(method: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(default_impl) = <span class="kw-2">&amp;</span>method.default {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                default_impl,
-                <span class="string">&quot;ink! trait methods with default implementations are not supported&quot;
-            </span>))
+    <span class="doccomment">/// Analyses an ink! method that can be either an ink! message or constructor.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the method declared as `unsafe`, `const` or `async`.</span>
+    <span class="doccomment">/// - If the method has some explicit API.</span>
+    <span class="doccomment">/// - If the method is variadic or has generic parameters.</span>
+    <span class="doccomment">/// - If the method does not respect the properties of either an</span>
+    <span class="doccomment">///   ink! message or ink! constructor.</span>
+    <span class="kw">fn</span> <span class="ident">analyse_trait_method</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">default_impl</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">default</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">default_impl</span>,
+                <span class="string">&quot;ink! trait methods with default implementations are not supported&quot;</span>
+            ))
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(constness) = <span class="kw-2">&amp;</span>method.sig.constness {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                constness,
-                <span class="string">&quot;const ink! trait methods are not supported&quot;
-            </span>))
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">constness</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">constness</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">constness</span>,
+                <span class="string">&quot;const ink! trait methods are not supported&quot;</span>
+            ))
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(asyncness) = <span class="kw-2">&amp;</span>method.sig.asyncness {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                asyncness,
-                <span class="string">&quot;async ink! trait methods are not supported&quot;
-            </span>))
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">asyncness</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">asyncness</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">asyncness</span>,
+                <span class="string">&quot;async ink! trait methods are not supported&quot;</span>
+            ))
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafety) = <span class="kw-2">&amp;</span>method.sig.unsafety {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                unsafety,
-                <span class="string">&quot;unsafe ink! trait methods are not supported&quot;
-            </span>))
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">unsafety</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">unsafety</span>,
+                <span class="string">&quot;unsafe ink! trait methods are not supported&quot;</span>
+            ))
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(abi) = <span class="kw-2">&amp;</span>method.sig.abi {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                abi,
-                <span class="string">&quot;ink! trait methods with non default ABI are not supported&quot;
-            </span>))
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">abi</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">abi</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">abi</span>,
+                <span class="string">&quot;ink! trait methods with non default ABI are not supported&quot;</span>
+            ))
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(variadic) = <span class="kw-2">&amp;</span>method.sig.variadic {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                variadic,
-                <span class="string">&quot;variadic ink! trait methods are not supported&quot;
-            </span>))
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variadic</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">variadic</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">variadic</span>,
+                <span class="string">&quot;variadic ink! trait methods are not supported&quot;</span>
+            ))
         }
-        <span class="kw">if </span>!method.sig.generics.params.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                method.sig.generics.params,
-                <span class="string">&quot;generic ink! trait methods are not supported&quot;
-            </span>))
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">method</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">params</span>,
+                <span class="string">&quot;generic ink! trait methods are not supported&quot;</span>
+            ))
         }
-        <span class="kw">match </span>ir::first_ink_attribute(<span class="kw-2">&amp;</span>method.attrs) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ink_attr)) =&gt; {
-                <span class="kw">match </span>ink_attr.first().kind() {
-                    ir::AttributeArg::Message =&gt; {
-                        <span class="self">Self</span>::analyse_trait_message(method)<span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">attrs</span>) {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ink_attr</span>)) =&gt; {
+                <span class="kw">match</span> <span class="ident">ink_attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>() {
+                    <span class="ident">ir::AttributeArg::Message</span> =&gt; {
+                        <span class="ident"><span class="self">Self</span>::analyse_trait_message</span>(<span class="ident">method</span>)<span class="question-mark">?</span>;
                     }
-                    ir::AttributeArg::Constructor =&gt; {
-                        <span class="self">Self</span>::analyse_trait_constructor(method)<span class="question-mark">?</span>;
+                    <span class="ident">ir::AttributeArg::Constructor</span> =&gt; {
+                        <span class="ident"><span class="self">Self</span>::analyse_trait_constructor</span>(<span class="ident">method</span>)<span class="question-mark">?</span>;
                     }
-                    _unsupported =&gt; {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                            method,
+                    <span class="ident">_unsupported</span> =&gt; {
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                            <span class="ident">method</span>,
                             <span class="string">&quot;encountered unsupported ink! attribute for ink! trait method&quot;</span>,
                         ))
                     }
                 }
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    method,
-                    <span class="string">&quot;missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method&quot;
-                </span>))
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    <span class="ident">method</span>,
+                    <span class="string">&quot;missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method&quot;</span>
+                ))
             }
-            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Constructors are generally not allowed in ink! trait definitions.
-    </span><span class="kw">fn </span>analyse_trait_constructor(constructor: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="doccomment">/// Constructors are generally not allowed in ink! trait definitions.</span>
+    <span class="kw">fn</span> <span class="ident">analyse_trait_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-            constructor.span(),
+            <span class="ident">constructor</span>.<span class="ident">span</span>(),
             <span class="string">&quot;ink! trait definitions must not have constructors&quot;</span>,
         ))
     }
 
-    <span class="doccomment">/// Analyses the properties of an ink! message.
-    ///
-    /// # Errors
-    ///
-    /// - If the message has no `&amp;self` or `&amp;mut self` receiver.
-    </span><span class="kw">fn </span>analyse_trait_message(message: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        InkTraitMessage::extract_attributes(message.span(), <span class="kw-2">&amp;</span>message.attrs)<span class="question-mark">?</span>;
-        <span class="kw">match </span>message.sig.receiver() {
-            <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(syn::FnArg::Typed(<span class="kw">_</span>)) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                message.sig,
+    <span class="doccomment">/// Analyses the properties of an ink! message.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - If the message has no `&amp;self` or `&amp;mut self` receiver.</span>
+    <span class="kw">fn</span> <span class="ident">analyse_trait_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="ident">InkTraitMessage::extract_attributes</span>(<span class="ident">message</span>.<span class="ident">span</span>(), <span class="kw-2">&amp;</span><span class="ident">message</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+        <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">sig</span>.<span class="ident">receiver</span>() {
+            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                <span class="ident">message</span>.<span class="ident">sig</span>,
                 <span class="string">&quot;missing or malformed `&amp;self` or `&amp;mut self` receiver for ink! message&quot;</span>,
             ))
             }
-            <span class="prelude-val">Some</span>(syn::FnArg::Receiver(receiver)) =&gt; {
-                <span class="kw">if </span>receiver.reference.is_none() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        receiver,
-                        <span class="string">&quot;self receiver of ink! message must be `&amp;self` or `&amp;mut self`&quot;
-                    </span>))
+            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>)) =&gt; {
+                <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">reference</span>.<span class="ident">is_none</span>() {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        <span class="ident">receiver</span>,
+                        <span class="string">&quot;self receiver of ink! message must be `&amp;self` or `&amp;mut self`&quot;</span>
+                    ))
                 }
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Extract selectors for ink! trait constructors and messages.
-    ///
-    /// The composed or manually specified selectors are stored into the provided
-    /// hash tables for later look-up when querying ink! constructors or messages.
-    /// This way we are more flexible with regard to the underlying structures of the IR.
-    ///
-    /// In this step we assume that all sanitation checks have taken place prior so
-    /// instead of returning errors we simply panic upon failures.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if there are overlapping selectors for ink! constructors
-    /// or ink! messages. Note that overlaps between ink! constructor and message
-    /// selectors are allowed.
-    </span><span class="kw">fn </span>extract_selectors(
-        config: <span class="kw-2">&amp;</span>TraitDefinitionConfig,
-        item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait,
-        message_selectors: <span class="kw-2">&amp;mut </span>HashMap&lt;syn::Ident, Selector&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>seen_message_selectors = &lt;HashMap&lt;Selector, syn::Ident&gt;&gt;::new();
-        <span class="kw">let </span>(_ink_attrs, <span class="kw">_</span>) = ir::sanitize_optional_attributes(
-            item_trait.span(),
-            item_trait.attrs.iter().cloned(),
-            |arg| {
-                <span class="kw">match </span>arg.kind() {
-                    ir::AttributeArg::Namespace(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+    <span class="doccomment">/// Extract selectors for ink! trait constructors and messages.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The composed or manually specified selectors are stored into the provided</span>
+    <span class="doccomment">/// hash tables for later look-up when querying ink! constructors or messages.</span>
+    <span class="doccomment">/// This way we are more flexible with regard to the underlying structures of the IR.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// In this step we assume that all sanitation checks have taken place prior so</span>
+    <span class="doccomment">/// instead of returning errors we simply panic upon failures.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns an error if there are overlapping selectors for ink! constructors</span>
+    <span class="doccomment">/// or ink! messages. Note that overlaps between ink! constructor and message</span>
+    <span class="doccomment">/// selectors are allowed.</span>
+    <span class="kw">fn</span> <span class="ident">extract_selectors</span>(
+        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">TraitDefinitionConfig</span>,
+        <span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>,
+        <span class="ident">message_selectors</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">syn::Ident</span>, <span class="ident">Selector</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_message_selectors</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Selector</span>, <span class="ident">syn::Ident</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
+        <span class="kw">let</span> (<span class="ident">_ink_attrs</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ir::sanitize_optional_attributes</span>(
+            <span class="ident">item_trait</span>.<span class="ident">span</span>(),
+            <span class="ident">item_trait</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>(),
+            <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
+                <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
+                    <span class="ident">ir::AttributeArg::Namespace</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )
-        .unwrap_or_else(|err| {
+        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
             <span class="macro">panic!</span>(
                 <span class="string">&quot;encountered unexpected invalid attributes on ink! trait definition: {}&quot;</span>,
-                err
+                <span class="ident">err</span>
             )
         });
-        <span class="kw">let </span>namespace = config.namespace();
-        <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>item_trait.ident;
-        <span class="kw">let </span>trait_prefix = TraitPrefix::new(ident, namespace);
-        <span class="kw">for </span>callable <span class="kw">in </span>IterInkTraitItemsRaw::from_raw(item_trait) {
-            <span class="kw">let </span>ident = callable.ident();
-            <span class="kw">let </span>ink_attrs = callable.ink_attrs();
-            <span class="kw">let </span>selector = <span class="kw">match </span>ink_attrs.selector() {
-                <span class="prelude-val">Some</span>(SelectorOrWildcard::UserProvided(manual_selector)) =&gt; {
-                    manual_selector
+        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">namespace</span>();
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">ident</span>;
+        <span class="kw">let</span> <span class="ident">trait_prefix</span> <span class="op">=</span> <span class="ident">TraitPrefix::new</span>(<span class="ident">ident</span>, <span class="ident">namespace</span>);
+        <span class="kw">for</span> <span class="ident">callable</span> <span class="kw">in</span> <span class="ident">IterInkTraitItemsRaw::from_raw</span>(<span class="ident">item_trait</span>) {
+            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">callable</span>.<span class="ident">ident</span>();
+            <span class="kw">let</span> <span class="ident">ink_attrs</span> <span class="op">=</span> <span class="ident">callable</span>.<span class="ident">ink_attrs</span>();
+            <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ink_attrs</span>.<span class="ident">selector</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">SelectorOrWildcard::UserProvided</span>(<span class="ident">manual_selector</span>)) =&gt; {
+                    <span class="ident">manual_selector</span>
                 }
-                <span class="kw">_ </span>=&gt; Selector::compose(trait_prefix, ident),
+                <span class="kw">_</span> =&gt; <span class="ident">Selector::compose</span>(<span class="ident">trait_prefix</span>, <span class="ident">ident</span>),
             };
-            <span class="kw">let </span>(duplicate_selector, duplicate_ident) = <span class="kw">match </span>callable {
-                InkTraitItem::Message(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">let </span>duplicate_selector =
-                        seen_message_selectors.insert(selector, ident.clone());
-                    <span class="kw">let </span>duplicate_ident =
-                        message_selectors.insert(ident.clone(), selector);
-                    (duplicate_selector, duplicate_ident)
+            <span class="kw">let</span> (<span class="ident">duplicate_selector</span>, <span class="ident">duplicate_ident</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">callable</span> {
+                <span class="ident">InkTraitItem::Message</span>(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">let</span> <span class="ident">duplicate_selector</span> <span class="op">=</span>
+                        <span class="ident">seen_message_selectors</span>.<span class="ident">insert</span>(<span class="ident">selector</span>, <span class="ident">ident</span>.<span class="ident">clone</span>());
+                    <span class="kw">let</span> <span class="ident">duplicate_ident</span> <span class="op">=</span>
+                        <span class="ident">message_selectors</span>.<span class="ident">insert</span>(<span class="ident">ident</span>.<span class="ident">clone</span>(), <span class="ident">selector</span>);
+                    (<span class="ident">duplicate_selector</span>, <span class="ident">duplicate_ident</span>)
                 }
             };
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(duplicate_selector) = duplicate_selector {
-                <span class="kw">use </span><span class="kw">crate</span>::error::ExtError <span class="kw">as _</span>;
-                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    ident,
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">duplicate_selector</span>) <span class="op">=</span> <span class="ident">duplicate_selector</span> {
+                <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    <span class="ident">ident</span>,
                     <span class="string">&quot;encountered duplicate selector ({:x?}) in the same ink! trait definition&quot;</span>,
-                    selector.to_bytes(),
-                ).into_combine(<span class="macro">format_err_spanned!</span>(
-                    duplicate_selector,
+                    <span class="ident">selector</span>.<span class="ident">to_bytes</span>(),
+                ).<span class="ident">into_combine</span>(<span class="macro">format_err_spanned!</span>(
+                    <span class="ident">duplicate_selector</span>,
                     <span class="string">&quot;first ink! trait constructor or message with same selector found here&quot;</span>,
                 )))
             }
             <span class="macro">assert!</span>(
-                duplicate_ident.is_none(),
+                <span class="ident">duplicate_ident</span>.<span class="ident">is_none</span>(),
                 <span class="string">&quot;encountered unexpected overlapping ink! trait constructor or message identifier&quot;</span>,
             );
         }
@@ -795,4 +795,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

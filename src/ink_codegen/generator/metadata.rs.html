@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/metadata.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>metadata.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/metadata.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>metadata.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -542,547 +542,547 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
-<span class="kw">use </span>::core::iter;
-<span class="kw">use </span>derive_more::From;
-<span class="kw">use </span>ir::{
-    Callable <span class="kw">as _</span>,
-    HexLiteral,
-    IsDocAttribute,
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
+<span class="kw">use</span> <span class="ident">::core::iter</span>;
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
+<span class="kw">use</span> <span class="ident">ir</span>::{
+    <span class="ident">Callable</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">HexLiteral</span>,
+    <span class="ident">IsDocAttribute</span>,
 };
-<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
-<span class="kw">use </span>quote::{
-    quote,
-    quote_spanned,
-    ToTokens,
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
+<span class="kw">use</span> <span class="ident">quote</span>::{
+    <span class="ident">quote</span>,
+    <span class="ident">quote_spanned</span>,
+    <span class="ident">ToTokens</span>,
 };
-<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
-<span class="doccomment">/// Generates code to generate the metadata of the contract.
-</span><span class="attribute">#[derive(From)]
-</span><span class="kw">pub struct </span>Metadata&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="doccomment">/// The contract to generate code for.
-    </span>contract: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract,
+<span class="doccomment">/// Generates code to generate the metadata of the contract.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Metadata</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The contract to generate code for.</span>
+    <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
 }
-<span class="macro">impl_as_ref_for_generator!</span>(Metadata);
+<span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">Metadata</span>);
 
-<span class="kw">impl </span>GenerateCode <span class="kw">for </span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>contract = <span class="self">self</span>.generate_contract();
-        <span class="kw">let </span>layout = <span class="self">self</span>.generate_layout();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
+<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">Metadata</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">contract</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract</span>();
+        <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_layout</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
 
-        <span class="macro">quote! </span>{
-            <span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-            #[cfg(not(feature = <span class="string">&quot;ink-as-dependency&quot;</span>))]
-            </span><span class="kw">const _</span>: () = {
-                <span class="kw">impl </span>::ink::metadata::ConstructorReturnSpec <span class="kw">for </span>#storage_ident {}
+        <span class="macro">quote!</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-as-dependency&quot;</span>))]</span>
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="kw">impl</span> <span class="ident">::ink::metadata::ConstructorReturnSpec</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {}
 
-                <span class="attribute">#[no_mangle]
-                </span><span class="kw">pub fn </span>__ink_generate_metadata() -&gt; ::ink::metadata::InkProject  {
-                    <span class="kw">let </span>layout = #layout;
-                    ::ink::metadata::layout::ValidateLayout::validate(<span class="kw-2">&amp;</span>layout).unwrap_or_else(|error| {
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;metadata ink! generation failed: {}&quot;</span>, error)
+                <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__ink_generate_metadata</span>() -&gt; <span class="ident">::ink::metadata::InkProject</span>  {
+                    <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> #<span class="ident">layout</span>;
+                    <span class="ident">::ink::metadata::layout::ValidateLayout::validate</span>(<span class="kw-2">&amp;</span><span class="ident">layout</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                        <span class="macro">::core::panic!</span>(<span class="string">&quot;metadata ink! generation failed: {}&quot;</span>, <span class="ident">error</span>)
                     });
-                    ::ink::metadata::InkProject::new(layout, #contract)
+                    <span class="ident">::ink::metadata::InkProject::new</span>(<span class="ident">layout</span>, #<span class="ident">contract</span>)
                 }
             };
         }
     }
 }
 
-<span class="kw">impl </span>Metadata&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>generate_layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>storage_span = <span class="self">self</span>.contract.module().storage().span();
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="kw">let </span>key = <span class="macro">quote! </span>{ &lt;#storage_ident <span class="kw">as </span>::ink::storage::traits::StorageKey&gt;::KEY };
+<span class="kw">impl</span> <span class="ident">Metadata</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">generate_layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="macro">quote!</span> { <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span> };
 
-        <span class="kw">let </span>layout_key = <span class="macro">quote! </span>{
-            &lt;::ink::metadata::layout::LayoutKey
-                <span class="kw">as </span>::core::convert::From&lt;::ink::primitives::Key&gt;&gt;::from(#key)
+        <span class="kw">let</span> <span class="ident">layout_key</span> <span class="op">=</span> <span class="macro">quote!</span> {
+            <span class="op">&lt;</span><span class="ident">::ink::metadata::layout::LayoutKey</span>
+                <span class="kw">as</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span><span class="ident">::ink::primitives::Key</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(#<span class="ident">key</span>)
         };
-        <span class="macro">quote_spanned!</span>(storage_span=&gt;
-            <span class="comment">// Wrap the layout of the contract into the `RootLayout`, because
-            // contract storage key is reserved for all packed fields
-            </span>::ink::metadata::layout::Layout::Root(::ink::metadata::layout::RootLayout::new(
-                #layout_key,
-                &lt;#storage_ident <span class="kw">as </span>::ink::storage::traits::StorageLayout&gt;::layout(
-                    <span class="kw-2">&amp;</span>#key,
+        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span>=&gt;
+            <span class="comment">// Wrap the layout of the contract into the `RootLayout`, because</span>
+            <span class="comment">// contract storage key is reserved for all packed fields</span>
+            <span class="ident">::ink::metadata::layout::Layout::Root</span>(<span class="ident">::ink::metadata::layout::RootLayout::new</span>(
+                #<span class="ident">layout_key</span>,
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(
+                    <span class="kw-2">&amp;</span>#<span class="ident">key</span>,
                 ),
             ))
         )
     }
 
-    <span class="kw">fn </span>generate_contract(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>constructors = <span class="self">self</span>.generate_constructors();
-        <span class="kw">let </span>messages = <span class="self">self</span>.generate_messages();
-        <span class="kw">let </span>events = <span class="self">self</span>.generate_events();
-        <span class="kw">let </span>docs = <span class="self">self
-            </span>.contract
-            .module()
-            .attrs()
-            .iter()
-            .filter_map(|attr| attr.extract_docs());
-        <span class="macro">quote! </span>{
-            ::ink::metadata::ContractSpec::new()
-                .constructors([
-                    #( #constructors ),*
+    <span class="kw">fn</span> <span class="ident">generate_contract</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_constructors</span>();
+        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_messages</span>();
+        <span class="kw">let</span> <span class="ident">events</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_events</span>();
+        <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">attrs</span>()
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
+        <span class="macro">quote!</span> {
+            <span class="ident">::ink::metadata::ContractSpec::new</span>()
+                .<span class="ident">constructors</span>([
+                    #( #<span class="ident">constructors</span> ),<span class="op">*</span>
                 ])
-                .messages([
-                    #( #messages ),*
+                .<span class="ident">messages</span>([
+                    #( #<span class="ident">messages</span> ),<span class="op">*</span>
                 ])
-                .events([
-                    #( #events ),*
+                .<span class="ident">events</span>([
+                    #( #<span class="ident">events</span> ),<span class="op">*</span>
                 ])
-                .docs([
-                    #( #docs ),*
+                .<span class="ident">docs</span>([
+                    #( #<span class="ident">docs</span> ),<span class="op">*</span>
                 ])
-                .done()
+                .<span class="ident">done</span>()
         }
     }
 
-    <span class="doccomment">/// Generates ink! metadata for all ink! smart contract constructors.
-    </span><span class="attribute">#[allow(clippy::redundant_closure)] </span><span class="comment">// We are getting arcane lifetime errors otherwise.
-    </span><span class="kw">fn </span>generate_constructors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;_ </span>{
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .map(|constructor| <span class="self">Self</span>::generate_constructor(constructor))
+    <span class="doccomment">/// Generates ink! metadata for all ink! smart contract constructors.</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::redundant_closure</span>)]</span> <span class="comment">// We are getting arcane lifetime errors otherwise.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_constructor</span>(<span class="ident">constructor</span>))
     }
 
-    <span class="doccomment">/// Generates ink! metadata for a single ink! constructor.
-    </span><span class="kw">fn </span>generate_constructor(
-        constructor: ir::CallableWithSelector&lt;ir::Constructor&gt;,
-    ) -&gt; TokenStream2 {
-        <span class="kw">let </span>span = constructor.span();
-        <span class="kw">let </span>docs = constructor
-            .attrs()
-            .iter()
-            .filter_map(|attr| attr.extract_docs());
-        <span class="kw">let </span>selector_bytes = constructor.composed_selector().hex_lits();
-        <span class="kw">let </span>is_payable = constructor.is_payable();
-        <span class="kw">let </span>constructor = constructor.callable();
-        <span class="kw">let </span>ident = constructor.ident();
-        <span class="kw">let </span>args = constructor.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
-        <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_constructor_return_type(constructor.output());
-        <span class="macro">quote_spanned!</span>(span=&gt;
-            ::ink::metadata::ConstructorSpec::from_label(<span class="macro">::core::stringify!</span>(#ident))
-                .selector([
-                    #( #selector_bytes ),*
+    <span class="doccomment">/// Generates ink! metadata for a single ink! constructor.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructor</span>(
+        <span class="ident">constructor</span>: <span class="ident">ir::CallableWithSelector</span><span class="op">&lt;</span><span class="ident">ir::Constructor</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident">constructor</span>
+            .<span class="ident">attrs</span>()
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
+        <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
+        <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">is_payable</span>();
+        <span class="kw">let</span> <span class="ident">constructor</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">callable</span>();
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
+        <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_constructor_return_type</span>(<span class="ident">constructor</span>.<span class="ident">output</span>());
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+            <span class="ident">::ink::metadata::ConstructorSpec::from_label</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+                .<span class="ident">selector</span>([
+                    #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span>
                 ])
-                .args([
-                    #( #args ),*
+                .<span class="ident">args</span>([
+                    #( #<span class="ident">args</span> ),<span class="op">*</span>
                 ])
-                .payable(#is_payable)
-                .returns(#ret_ty)
-                .docs([
-                    #( #docs ),*
+                .<span class="ident">payable</span>(#<span class="ident">is_payable</span>)
+                .<span class="ident">returns</span>(#<span class="ident">ret_ty</span>)
+                .<span class="ident">docs</span>([
+                    #( #<span class="ident">docs</span> ),<span class="op">*</span>
                 ])
-                .done()
+                .<span class="ident">done</span>()
         )
     }
 
-    <span class="doccomment">/// Generates the ink! metadata for the given parameter and parameter type.
-    </span><span class="kw">fn </span>generate_dispatch_argument(pat_type: <span class="kw-2">&amp;</span>syn::PatType) -&gt; TokenStream2 {
-        <span class="kw">let </span>ident = <span class="kw">match </span><span class="kw-2">&amp;*</span>pat_type.pat {
-            syn::Pat::Ident(ident) =&gt; <span class="kw-2">&amp;</span>ident.ident,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered ink! dispatch input with missing identifier&quot;</span>),
+    <span class="doccomment">/// Generates the ink! metadata for the given parameter and parameter type.</span>
+    <span class="kw">fn</span> <span class="ident">generate_dispatch_argument</span>(<span class="ident">pat_type</span>: <span class="kw-2">&amp;</span><span class="ident">syn::PatType</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">pat</span> {
+            <span class="ident">syn::Pat::Ident</span>(<span class="ident">ident</span>) =&gt; <span class="kw-2">&amp;</span><span class="ident">ident</span>.<span class="ident">ident</span>,
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered ink! dispatch input with missing identifier&quot;</span>),
         };
-        <span class="kw">let </span>type_spec = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>pat_type.ty);
-        <span class="macro">quote! </span>{
-            ::ink::metadata::MessageParamSpec::new(<span class="macro">::core::stringify!</span>(#ident))
-                .of_type(#type_spec)
-                .done()
+        <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_type_spec</span>(<span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">ty</span>);
+        <span class="macro">quote!</span> {
+            <span class="ident">::ink::metadata::MessageParamSpec::new</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+                .<span class="ident">of_type</span>(#<span class="ident">type_spec</span>)
+                .<span class="ident">done</span>()
         }
     }
 
-    <span class="doccomment">/// Generates the ink! metadata for the given type.
-    </span><span class="kw">fn </span>generate_type_spec(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-        <span class="kw">fn </span>without_display_name(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-            <span class="macro">quote! </span>{ ::ink::metadata::TypeSpec::of_type::&lt;#ty&gt;() }
+    <span class="doccomment">/// Generates the ink! metadata for the given type.</span>
+    <span class="kw">fn</span> <span class="ident">generate_type_spec</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">fn</span> <span class="ident">without_display_name</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">TokenStream2</span> {
+            <span class="macro">quote!</span> { <span class="ident">::ink::metadata::TypeSpec::of_type</span>::<span class="op">&lt;</span>#<span class="ident">ty</span><span class="op">&gt;</span>() }
         }
-        <span class="kw">if let </span>syn::Type::Path(type_path) = ty {
-            <span class="kw">if </span>type_path.qself.is_some() {
-                <span class="kw">return </span>without_display_name(ty)
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Type::Path</span>(<span class="ident">type_path</span>) <span class="op">=</span> <span class="ident">ty</span> {
+            <span class="kw">if</span> <span class="ident">type_path</span>.<span class="ident">qself</span>.<span class="ident">is_some</span>() {
+                <span class="kw">return</span> <span class="ident">without_display_name</span>(<span class="ident">ty</span>)
             }
-            <span class="kw">let </span>path = <span class="kw-2">&amp;</span>type_path.path;
-            <span class="kw">if </span>path.segments.is_empty() {
-                <span class="kw">return </span>without_display_name(ty)
+            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">type_path</span>.<span class="ident">path</span>;
+            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">return</span> <span class="ident">without_display_name</span>(<span class="ident">ty</span>)
             }
-            <span class="kw">let </span>segs = path
-                .segments
-                .iter()
-                .map(|seg| <span class="kw-2">&amp;</span>seg.ident)
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="macro">quote! </span>{
-                ::ink::metadata::TypeSpec::with_name_segs::&lt;#ty, <span class="kw">_</span>&gt;(
-                    ::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
+            <span class="kw">let</span> <span class="ident">segs</span> <span class="op">=</span> <span class="ident">path</span>
+                .<span class="ident">segments</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">seg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">seg</span>.<span class="ident">ident</span>)
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+            <span class="macro">quote!</span> {
+                <span class="ident">::ink::metadata::TypeSpec::with_name_segs</span>::<span class="op">&lt;</span>#<span class="ident">ty</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+                    <span class="ident">::core::iter::IntoIterator::into_iter</span>([ #( <span class="macro">::core::stringify!</span>(#<span class="ident">segs</span>) ),<span class="op">*</span> ])
+                        .<span class="ident">map</span>(<span class="ident">::core::convert::AsRef::as_ref</span>)
                 )
             }
-        } <span class="kw">else </span>{
-            without_display_name(ty)
+        } <span class="kw">else</span> {
+            <span class="ident">without_display_name</span>(<span class="ident">ty</span>)
         }
     }
 
-    <span class="doccomment">/// Generates the ink! metadata segments iterator for the given type of a constructor.
-    </span><span class="kw">fn </span>generate_constructor_type_segments(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-        <span class="kw">fn </span>without_display_name() -&gt; TokenStream2 {
-            <span class="macro">quote! </span>{ <span class="prelude-val">None </span>}
+    <span class="doccomment">/// Generates the ink! metadata segments iterator for the given type of a constructor.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructor_type_segments</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">fn</span> <span class="ident">without_display_name</span>() -&gt; <span class="ident">TokenStream2</span> {
+            <span class="macro">quote!</span> { <span class="prelude-val">None</span> }
         }
-        <span class="kw">if let </span>syn::Type::Path(type_path) = ty {
-            <span class="kw">if </span>type_path.qself.is_some() {
-                <span class="kw">return </span>without_display_name()
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Type::Path</span>(<span class="ident">type_path</span>) <span class="op">=</span> <span class="ident">ty</span> {
+            <span class="kw">if</span> <span class="ident">type_path</span>.<span class="ident">qself</span>.<span class="ident">is_some</span>() {
+                <span class="kw">return</span> <span class="ident">without_display_name</span>()
             }
-            <span class="kw">let </span>path = <span class="kw-2">&amp;</span>type_path.path;
-            <span class="kw">if </span>path.segments.is_empty() {
-                <span class="kw">return </span>without_display_name()
+            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">type_path</span>.<span class="ident">path</span>;
+            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">segments</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">return</span> <span class="ident">without_display_name</span>()
             }
-            <span class="kw">let </span>segs = path
-                .segments
-                .iter()
-                .map(|seg| <span class="kw-2">&amp;</span>seg.ident)
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="macro">quote! </span>{
-                <span class="prelude-val">Some</span>(::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
+            <span class="kw">let</span> <span class="ident">segs</span> <span class="op">=</span> <span class="ident">path</span>
+                .<span class="ident">segments</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">seg</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">seg</span>.<span class="ident">ident</span>)
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+            <span class="macro">quote!</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">::core::iter::IntoIterator::into_iter</span>([ #( <span class="macro">::core::stringify!</span>(#<span class="ident">segs</span>) ),<span class="op">*</span> ])
+                        .<span class="ident">map</span>(<span class="ident">::core::convert::AsRef::as_ref</span>)
                 )
             }
-        } <span class="kw">else </span>{
-            without_display_name()
+        } <span class="kw">else</span> {
+            <span class="ident">without_display_name</span>()
         }
     }
 
-    <span class="doccomment">/// Generates the ink! metadata for all ink! smart contract messages.
-    </span><span class="kw">fn </span>generate_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;TokenStream2&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>messages = Vec::new();
-        <span class="kw">let </span>inherent_messages = <span class="self">self</span>.generate_inherent_messages();
-        <span class="kw">let </span>trait_messages = <span class="self">self</span>.generate_trait_messages();
-        messages.extend(inherent_messages);
-        messages.extend(trait_messages);
-        messages
+    <span class="doccomment">/// Generates the ink! metadata for all ink! smart contract messages.</span>
+    <span class="kw">fn</span> <span class="ident">generate_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="ident">inherent_messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_inherent_messages</span>();
+        <span class="kw">let</span> <span class="ident">trait_messages</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_messages</span>();
+        <span class="ident">messages</span>.<span class="ident">extend</span>(<span class="ident">inherent_messages</span>);
+        <span class="ident">messages</span>.<span class="ident">extend</span>(<span class="ident">trait_messages</span>);
+        <span class="ident">messages</span>
     }
 
-    <span class="doccomment">/// Generates the ink! metadata for all inherent ink! smart contract messages.
-    </span><span class="kw">fn </span>generate_inherent_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;TokenStream2&gt; {
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .filter(|item_impl| item_impl.trait_path().is_none())
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .map(|message| {
-                <span class="kw">let </span>span = message.span();
-                <span class="kw">let </span>docs = message
-                    .attrs()
-                    .iter()
-                    .filter_map(|attr| attr.extract_docs());
-                <span class="kw">let </span>selector_bytes = message.composed_selector().hex_lits();
-                <span class="kw">let </span>is_payable = message.is_payable();
-                <span class="kw">let </span>message = message.callable();
-                <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
-                <span class="kw">let </span>ident = message.ident();
-                <span class="kw">let </span>args = message.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
-                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(message.output());
-                <span class="macro">quote_spanned!</span>(span =&gt;
-                    ::ink::metadata::MessageSpec::from_label(<span class="macro">::core::stringify!</span>(#ident))
-                        .selector([
-                            #( #selector_bytes ),*
+    <span class="doccomment">/// Generates the ink! metadata for all inherent ink! smart contract messages.</span>
+    <span class="kw">fn</span> <span class="ident">generate_inherent_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>())
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident">message</span>
+                    .<span class="ident">attrs</span>()
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
+                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
+                <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>();
+                <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">callable</span>();
+                <span class="kw">let</span> <span class="ident">mutates</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
+                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
+                <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
+                <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_return_type</span>(<span class="ident">message</span>.<span class="ident">output</span>());
+                <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
+                    <span class="ident">::ink::metadata::MessageSpec::from_label</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+                        .<span class="ident">selector</span>([
+                            #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span>
                         ])
-                        .args([
-                            #( #args ),*
+                        .<span class="ident">args</span>([
+                            #( #<span class="ident">args</span> ),<span class="op">*</span>
                         ])
-                        .returns(#ret_ty)
-                        .mutates(#mutates)
-                        .payable(#is_payable)
-                        .docs([
-                            #( #docs ),*
+                        .<span class="ident">returns</span>(#<span class="ident">ret_ty</span>)
+                        .<span class="ident">mutates</span>(#<span class="ident">mutates</span>)
+                        .<span class="ident">payable</span>(#<span class="ident">is_payable</span>)
+                        .<span class="ident">docs</span>([
+                            #( #<span class="ident">docs</span> ),<span class="op">*</span>
                         ])
-                        .done()
+                        .<span class="ident">done</span>()
                 )
             })
-            .collect()
+            .<span class="ident">collect</span>()
     }
 
-    <span class="doccomment">/// Generates the ink! metadata for all inherent ink! smart contract messages.
-    </span><span class="kw">fn </span>generate_trait_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;TokenStream2&gt; {
-        <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
-        <span class="self">self</span>.contract
-            .module()
-            .impls()
-            .filter_map(|item_impl| {
-                item_impl
-                    .trait_path()
-                    .map(|trait_path| {
-                        <span class="kw">let </span>trait_ident = item_impl.trait_ident().expect(
-                            <span class="string">&quot;must have an ink! trait identifier if it is an ink! trait implementation&quot;
-                        </span>);
-                        iter::repeat((trait_ident, trait_path)).zip(item_impl.iter_messages())
+    <span class="doccomment">/// Generates the ink! metadata for all inherent ink! smart contract messages.</span>
+    <span class="kw">fn</span> <span class="ident">generate_trait_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="self">self</span>.<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> {
+                <span class="ident">item_impl</span>
+                    .<span class="ident">trait_path</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">trait_ident</span>().<span class="ident">expect</span>(
+                            <span class="string">&quot;must have an ink! trait identifier if it is an ink! trait implementation&quot;</span>
+                        );
+                        <span class="ident">iter::repeat</span>((<span class="ident">trait_ident</span>, <span class="ident">trait_path</span>)).<span class="ident">zip</span>(<span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
                     })
             })
-            .flatten()
-            .map(|((trait_ident, trait_path), message)| {
-                <span class="kw">let </span>message_span = message.span();
-                <span class="kw">let </span>message_ident = message.ident();
-                <span class="kw">let </span>message_docs = message
-                    .attrs()
-                    .iter()
-                    .filter_map(|attr| attr.extract_docs());
-                <span class="kw">let </span>message_args = message
-                    .inputs()
-                    .map(<span class="self">Self</span>::generate_dispatch_argument);
-                <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
-                <span class="kw">let </span>local_id = message.local_id().hex_padded_suffixed();
-                <span class="kw">let </span>is_payable = <span class="macro">quote! </span>{{
-                    &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
-                        <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
-                        <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::PAYABLE
+            .<span class="ident">flatten</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>((<span class="ident">trait_ident</span>, <span class="ident">trait_path</span>), <span class="ident">message</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
+                <span class="kw">let</span> <span class="ident">message_docs</span> <span class="op">=</span> <span class="ident">message</span>
+                    .<span class="ident">attrs</span>()
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
+                <span class="kw">let</span> <span class="ident">message_args</span> <span class="op">=</span> <span class="ident">message</span>
+                    .<span class="ident">inputs</span>()
+                    .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
+                <span class="kw">let</span> <span class="ident">mutates</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
+                <span class="kw">let</span> <span class="ident">local_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">local_id</span>().<span class="ident">hex_padded_suffixed</span>();
+                <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="macro">quote!</span> {{
+                    <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                        <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                        <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
                 }};
-                <span class="kw">let </span>selector = <span class="macro">quote! </span>{{
-                    &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
-                        <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
-                        <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::SELECTOR
+                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="macro">quote!</span> {{
+                    <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                        <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                        <span class="kw">as</span> <span class="ident">::ink::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
                 }};
-                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(message.output());
-                <span class="kw">let </span>label = [trait_ident.to_string(), message_ident.to_string()].join(<span class="string">&quot;::&quot;</span>);
-                <span class="macro">quote_spanned!</span>(message_span=&gt;
-                    ::ink::metadata::MessageSpec::from_label(#label)
-                        .selector(#selector)
-                        .args([
-                            #( #message_args ),*
+                <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_return_type</span>(<span class="ident">message</span>.<span class="ident">output</span>());
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> [<span class="ident">trait_ident</span>.<span class="ident">to_string</span>(), <span class="ident">message_ident</span>.<span class="ident">to_string</span>()].<span class="ident">join</span>(<span class="string">&quot;::&quot;</span>);
+                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                    <span class="ident">::ink::metadata::MessageSpec::from_label</span>(#<span class="ident">label</span>)
+                        .<span class="ident">selector</span>(#<span class="ident">selector</span>)
+                        .<span class="ident">args</span>([
+                            #( #<span class="ident">message_args</span> ),<span class="op">*</span>
                         ])
-                        .returns(#ret_ty)
-                        .mutates(#mutates)
-                        .payable(#is_payable)
-                        .docs([
-                            #( #message_docs ),*
+                        .<span class="ident">returns</span>(#<span class="ident">ret_ty</span>)
+                        .<span class="ident">mutates</span>(#<span class="ident">mutates</span>)
+                        .<span class="ident">payable</span>(#<span class="ident">is_payable</span>)
+                        .<span class="ident">docs</span>([
+                            #( #<span class="ident">message_docs</span> ),<span class="op">*</span>
                         ])
-                        .done()
+                        .<span class="ident">done</span>()
                 )
             })
-            .collect()
+            .<span class="ident">collect</span>()
     }
 
-    <span class="doccomment">/// Generates ink! metadata for the given return type.
-    </span><span class="kw">fn </span>generate_return_type(ret_ty: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::Type&gt;) -&gt; TokenStream2 {
-        <span class="kw">match </span>ret_ty {
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
+    <span class="doccomment">/// Generates ink! metadata for the given return type.</span>
+    <span class="kw">fn</span> <span class="ident">generate_return_type</span>(<span class="ident">ret_ty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">match</span> <span class="ident">ret_ty</span> {
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(<span class="ident">::core::option::Option::None</span>)
                 }
             }
-            <span class="prelude-val">Some</span>(ty) =&gt; {
-                <span class="kw">let </span>type_spec = <span class="self">Self</span>::generate_type_spec(ty);
-                <span class="macro">quote! </span>{
-                    ::ink::metadata::ReturnTypeSpec::new(#type_spec)
+            <span class="prelude-val">Some</span>(<span class="ident">ty</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_type_spec</span>(<span class="ident">ty</span>);
+                <span class="macro">quote!</span> {
+                    <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(#<span class="ident">type_spec</span>)
                 }
             }
         }
     }
 
-    <span class="doccomment">/// Generates ink! metadata for the given return type of a constructor.
-    /// If the constructor return type is not `Result`,
-    /// the metadata will not display any type spec for the return type.
-    /// Otherwise, the return type spec is `Result&lt;(), E&gt;`.
-    </span><span class="kw">fn </span>generate_constructor_return_type(ret_ty: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::Type&gt;) -&gt; TokenStream2 {
-        <span class="kw">match </span>ret_ty {
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
+    <span class="doccomment">/// Generates ink! metadata for the given return type of a constructor.</span>
+    <span class="doccomment">/// If the constructor return type is not `Result`,</span>
+    <span class="doccomment">/// the metadata will not display any type spec for the return type.</span>
+    <span class="doccomment">/// Otherwise, the return type spec is `Result&lt;(), E&gt;`.</span>
+    <span class="kw">fn</span> <span class="ident">generate_constructor_return_type</span>(<span class="ident">ret_ty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Type</span><span class="op">&gt;</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">match</span> <span class="ident">ret_ty</span> {
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(<span class="ident">::core::option::Option::None</span>)
                 }
             }
-            <span class="prelude-val">Some</span>(syn::Type::Path(syn::TypePath { qself: <span class="prelude-val">None</span>, path }))
-                <span class="kw">if </span>path.is_ident(<span class="string">&quot;Self&quot;</span>) =&gt;
+            <span class="prelude-val">Some</span>(<span class="ident">syn::Type::Path</span>(<span class="ident">syn::TypePath</span> { <span class="ident">qself</span>: <span class="prelude-val">None</span>, <span class="ident">path</span> }))
+                <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;Self&quot;</span>) =&gt;
             {
-                <span class="macro">quote! </span>{ ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
+                <span class="macro">quote!</span> { <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(<span class="ident">::core::option::Option::None</span>)}
             }
-            <span class="prelude-val">Some</span>(ty) =&gt; {
-                <span class="kw">let </span>type_token = <span class="self">Self</span>::replace_self_with_unit(ty);
-                <span class="kw">let </span>segments = <span class="self">Self</span>::generate_constructor_type_segments(ty);
-                <span class="macro">quote! </span>{
-                    ::ink::metadata::ReturnTypeSpec::new(
-                        &lt;#type_token <span class="kw">as </span>::ink::metadata::ConstructorReturnSpec&gt;::generate(#segments)
+            <span class="prelude-val">Some</span>(<span class="ident">ty</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">type_token</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::replace_self_with_unit</span>(<span class="ident">ty</span>);
+                <span class="kw">let</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_constructor_type_segments</span>(<span class="ident">ty</span>);
+                <span class="macro">quote!</span> {
+                    <span class="ident">::ink::metadata::ReturnTypeSpec::new</span>(
+                        <span class="op">&lt;</span>#<span class="ident">type_token</span> <span class="kw">as</span> <span class="ident">::ink::metadata::ConstructorReturnSpec</span><span class="op">&gt;</span><span class="ident">::generate</span>(#<span class="ident">segments</span>)
                     )
                 }
             }
         }
     }
 
-    <span class="doccomment">/// Helper function to replace all occurrences of `Self` with `()`.
-    </span><span class="kw">fn </span>replace_self_with_unit(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
-        <span class="kw">if </span>ty.to_token_stream().to_string().contains(<span class="string">&quot;&lt; Self&quot;</span>) {
-            <span class="kw">let </span>s = ty.to_token_stream().to_string().replace(<span class="string">&quot;&lt; Self&quot;</span>, <span class="string">&quot;&lt; ()&quot;</span>);
-            s.parse().unwrap()
-        } <span class="kw">else </span>{
-            ty.to_token_stream()
+    <span class="doccomment">/// Helper function to replace all occurrences of `Self` with `()`.</span>
+    <span class="kw">fn</span> <span class="ident">replace_self_with_unit</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">if</span> <span class="ident">ty</span>.<span class="ident">to_token_stream</span>().<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="string">&quot;&lt; Self&quot;</span>) {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">to_token_stream</span>().<span class="ident">to_string</span>().<span class="ident">replace</span>(<span class="string">&quot;&lt; Self&quot;</span>, <span class="string">&quot;&lt; ()&quot;</span>);
+            <span class="ident">s</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+        } <span class="kw">else</span> {
+            <span class="ident">ty</span>.<span class="ident">to_token_stream</span>()
         }
     }
 
-    <span class="doccomment">/// Generates ink! metadata for all user provided ink! event definitions.
-    </span><span class="kw">fn </span>generate_events(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;_ </span>{
-        <span class="self">self</span>.contract.module().events().map(|event| {
-            <span class="kw">let </span>span = event.span();
-            <span class="kw">let </span>ident = event.ident();
-            <span class="kw">let </span>docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
-            <span class="kw">let </span>args = <span class="self">Self</span>::generate_event_args(event);
-            <span class="macro">quote_spanned!</span>(span =&gt;
-                ::ink::metadata::EventSpec::new(<span class="macro">::core::stringify!</span>(#ident))
-                    .args([
-                        #( #args ),*
+    <span class="doccomment">/// Generates ink! metadata for all user provided ink! event definitions.</span>
+    <span class="kw">fn</span> <span class="ident">generate_events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
+            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
+            <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">attrs</span>().<span class="ident">iter</span>().<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
+            <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_event_args</span>(<span class="ident">event</span>);
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
+                <span class="ident">::ink::metadata::EventSpec::new</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+                    .<span class="ident">args</span>([
+                        #( #<span class="ident">args</span> ),<span class="op">*</span>
                     ])
-                    .docs([
-                        #( #docs ),*
+                    .<span class="ident">docs</span>([
+                        #( #<span class="ident">docs</span> ),<span class="op">*</span>
                     ])
-                    .done()
+                    .<span class="ident">done</span>()
             )
         })
     }
 
-    <span class="doccomment">/// Generate ink! metadata for a single argument of an ink! event definition.
-    </span><span class="kw">fn </span>generate_event_args(event: <span class="kw-2">&amp;</span>ir::Event) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;_ </span>{
-        event.fields().map(|event_field| {
-            <span class="kw">let </span>span = event_field.span();
-            <span class="kw">let </span>ident = event_field.ident();
-            <span class="kw">let </span>is_topic = event_field.is_topic;
-            <span class="kw">let </span>docs = event_field
-                .attrs()
-                .into_iter()
-                .filter_map(|attr| attr.extract_docs());
-            <span class="kw">let </span>ty = <span class="self">Self</span>::generate_type_spec(event_field.ty());
-            <span class="macro">quote_spanned!</span>(span =&gt;
-                ::ink::metadata::EventParamSpec::new(<span class="macro">::core::stringify!</span>(#ident))
-                    .of_type(#ty)
-                    .indexed(#is_topic)
-                    .docs([
-                        #( #docs ),*
+    <span class="doccomment">/// Generate ink! metadata for a single argument of an ink! event definition.</span>
+    <span class="kw">fn</span> <span class="ident">generate_event_args</span>(<span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Event</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        <span class="ident">event</span>.<span class="ident">fields</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">event_field</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">span</span>();
+            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">ident</span>();
+            <span class="kw">let</span> <span class="ident">is_topic</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">is_topic</span>;
+            <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident">event_field</span>
+                .<span class="ident">attrs</span>()
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
+            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_type_spec</span>(<span class="ident">event_field</span>.<span class="ident">ty</span>());
+            <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
+                <span class="ident">::ink::metadata::EventParamSpec::new</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+                    .<span class="ident">of_type</span>(#<span class="ident">ty</span>)
+                    .<span class="ident">indexed</span>(#<span class="ident">is_topic</span>)
+                    .<span class="ident">docs</span>([
+                        #( #<span class="ident">docs</span> ),<span class="op">*</span>
                     ])
-                    .done()
+                    .<span class="ident">done</span>()
             )
         })
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Extracts and collects the contents of the Rust documentation attributes.
-    </span><span class="kw">fn </span>extract_doc_attributes(attrs: <span class="kw-2">&amp;</span>[syn::Attribute]) -&gt; Vec&lt;String&gt; {
-        attrs
-            .iter()
-            .filter_map(|attr| attr.extract_docs())
-            .collect()
+    <span class="doccomment">/// Extracts and collects the contents of the Rust documentation attributes.</span>
+    <span class="kw">fn</span> <span class="ident">extract_doc_attributes</span>(<span class="ident">attrs</span>: <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="ident">attrs</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>())
+            .<span class="ident">collect</span>()
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>extract_doc_comments_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">extract_doc_comments_works</span>() {
         <span class="macro">assert_eq!</span>(
-            extract_doc_attributes(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc = <span class="string">r&quot;content&quot;</span>] </span>)]),
-            <span class="macro">vec!</span>[<span class="string">&quot;content&quot;</span>.to_string()],
+            <span class="ident">extract_doc_attributes</span>(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r&quot;content&quot;</span>]</span> )]),
+            <span class="macro">vec!</span>[<span class="string">&quot;content&quot;</span>.<span class="ident">to_string</span>()],
         );
         <span class="macro">assert_eq!</span>(
-            extract_doc_attributes(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>(
-                <span class="doccomment">/// content
-            </span>)]),
-            <span class="macro">vec!</span>[<span class="string">&quot; content&quot;</span>.to_string()],
+            <span class="ident">extract_doc_attributes</span>(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>(
+                <span class="doccomment">/// content</span>
+            )]),
+            <span class="macro">vec!</span>[<span class="string">&quot; content&quot;</span>.<span class="ident">to_string</span>()],
         );
         <span class="macro">assert_eq!</span>(
-            extract_doc_attributes(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>(
+            <span class="ident">extract_doc_attributes</span>(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>(
                 <span class="doccomment">/**
                  * Multi-line comments
                  * may span many,
                  * many lines
-                 */
-            </span>)]),
+                 */</span>
+            )]),
             <span class="macro">vec!</span>[<span class="string">r&quot;
                  * Multi-line comments
                  * may span many,
                  * many lines
-                 &quot;
-            </span>.to_string()],
+                 &quot;</span>
+            .<span class="ident">to_string</span>()],
         );
         <span class="macro">assert_eq!</span>(
-            extract_doc_attributes(<span class="kw-2">&amp;</span>[
+            <span class="ident">extract_doc_attributes</span>(<span class="kw-2">&amp;</span>[
                 <span class="macro">syn::parse_quote!</span>(
-                    <span class="doccomment">/// multiple
-                </span>),
+                    <span class="doccomment">/// multiple</span>
+                ),
                 <span class="macro">syn::parse_quote!</span>(
-                    <span class="doccomment">/// single
-                </span>),
+                    <span class="doccomment">/// single</span>
+                ),
                 <span class="macro">syn::parse_quote!</span>(
-                    <span class="doccomment">/// line
-                </span>),
+                    <span class="doccomment">/// line</span>
+                ),
                 <span class="macro">syn::parse_quote!</span>(
-                    <span class="doccomment">/// comments
-                </span>),
+                    <span class="doccomment">/// comments</span>
+                ),
             ]),
             <span class="macro">vec!</span>[
-                <span class="string">&quot; multiple&quot;</span>.to_string(),
-                <span class="string">&quot; single&quot;</span>.to_string(),
-                <span class="string">&quot; line&quot;</span>.to_string(),
-                <span class="string">&quot; comments&quot;</span>.to_string(),
+                <span class="string">&quot; multiple&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot; single&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot; line&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot; comments&quot;</span>.<span class="ident">to_string</span>(),
             ],
         );
         <span class="macro">assert_eq!</span>(
-            extract_doc_attributes(<span class="kw-2">&amp;</span>[
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc = <span class="string">r&quot;a&quot;</span>] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[non_doc] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc = <span class="string">r&quot;b&quot;</span>] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[derive(NonDoc)] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc = <span class="string">r&quot;c&quot;</span>] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[docker = <span class="bool-val">false</span>] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc = <span class="string">r&quot;d&quot;</span>] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc(Nope)] </span>),
-                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[doc = <span class="string">r&quot;e&quot;</span>] </span>),
+            <span class="ident">extract_doc_attributes</span>(<span class="kw-2">&amp;</span>[
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r&quot;a&quot;</span>]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">non_doc</span>]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r&quot;b&quot;</span>]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">NonDoc</span>)]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r&quot;c&quot;</span>]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">docker</span> <span class="op">=</span> <span class="bool-val">false</span>]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r&quot;d&quot;</span>]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">Nope</span>)]</span> ),
+                <span class="macro">syn::parse_quote!</span>( <span class="attribute">#[<span class="ident">doc</span> <span class="op">=</span> <span class="string">r&quot;e&quot;</span>]</span> ),
             ]),
             <span class="macro">vec!</span>[
-                <span class="string">&quot;a&quot;</span>.to_string(),
-                <span class="string">&quot;b&quot;</span>.to_string(),
-                <span class="string">&quot;c&quot;</span>.to_string(),
-                <span class="string">&quot;d&quot;</span>.to_string(),
-                <span class="string">&quot;e&quot;</span>.to_string(),
+                <span class="string">&quot;a&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;b&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;c&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;d&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;e&quot;</span>.<span class="ident">to_string</span>(),
             ],
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>constructor_return_type_works() {
-        <span class="kw">let </span>expected_no_ret_type_spec = <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)&quot;</span>;
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">constructor_return_type_works</span>() {
+        <span class="kw">let</span> <span class="ident">expected_no_ret_type_spec</span> <span class="op">=</span> <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)&quot;</span>;
 
-        <span class="kw">let </span>actual = Metadata::generate_constructor_return_type(<span class="prelude-val">None</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>actual.to_string(), expected_no_ret_type_spec);
+        <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">Metadata::generate_constructor_return_type</span>(<span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">to_string</span>(), <span class="ident">expected_no_ret_type_spec</span>);
 
-        <span class="kw">match </span><span class="macro">syn::parse_quote!</span>( -&gt; <span class="self">Self </span>) {
-            syn::ReturnType::Type(<span class="kw">_</span>, t) =&gt; {
-                <span class="kw">let </span>actual = Metadata::generate_constructor_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>t));
-                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>actual.to_string(), expected_no_ret_type_spec);
+        <span class="kw">match</span> <span class="macro">syn::parse_quote!</span>( -&gt; <span class="self">Self</span> ) {
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">t</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">Metadata::generate_constructor_return_type</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">to_string</span>(), <span class="ident">expected_no_ret_type_spec</span>);
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
 
-        <span class="kw">match </span><span class="macro">syn::parse_quote!</span>( -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; ) {
-            syn::ReturnType::Type(<span class="kw">_</span>, t) =&gt; {
-                <span class="kw">let </span>actual = Metadata::generate_constructor_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>t));
-                <span class="kw">let </span>expected = <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (&lt; Result &lt; () , () &gt; as :: ink :: metadata :: ConstructorReturnSpec &gt; :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))&quot;</span>;
-                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>actual.to_string(), expected);
+        <span class="kw">match</span> <span class="macro">syn::parse_quote!</span>( -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ()<span class="op">&gt;</span> ) {
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">t</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">Metadata::generate_constructor_return_type</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (&lt; Result &lt; () , () &gt; as :: ink :: metadata :: ConstructorReturnSpec &gt; :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))&quot;</span>;
+                <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">to_string</span>(), <span class="ident">expected</span>);
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

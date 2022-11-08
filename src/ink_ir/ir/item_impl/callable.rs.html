@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/callable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>callable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_impl/callable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>callable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -656,661 +656,661 @@
 <span id="654">654</span>
 <span id="655">655</span>
 <span id="656">656</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="doccomment">//! Utilities and helper routines that are useful for both ink! messages
-//! and ink! constructors.
+<span class="doccomment">//! Utilities and helper routines that are useful for both ink! messages</span>
+<span class="doccomment">//! and ink! constructors.</span>
 
-</span><span class="kw">use </span><span class="kw">crate</span>::ir;
-<span class="kw">use </span>core::fmt;
-<span class="kw">use </span>proc_macro2::{
-    Ident,
-    Span,
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ir</span>;
+<span class="kw">use</span> <span class="ident">core::fmt</span>;
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
+    <span class="ident">Ident</span>,
+    <span class="ident">Span</span>,
 };
-<span class="kw">use </span>quote::ToTokens <span class="kw">as _</span>;
-<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
+<span class="kw">use</span> <span class="ident">quote::ToTokens</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
-<span class="doccomment">/// The kind of externally callable smart contract entity.
-</span><span class="attribute">#[derive(Debug, Copy, Clone)]
-</span><span class="kw">pub enum </span>CallableKind {
-    <span class="doccomment">/// An ink! message externally callable.
-    </span>Message,
-    <span class="doccomment">/// An ink! constructor externally callable.
-    </span>Constructor,
+<span class="doccomment">/// The kind of externally callable smart contract entity.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CallableKind</span> {
+    <span class="doccomment">/// An ink! message externally callable.</span>
+    <span class="ident">Message</span>,
+    <span class="doccomment">/// An ink! constructor externally callable.</span>
+    <span class="ident">Constructor</span>,
 }
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>CallableKind {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Message =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;message&quot;</span>),
-            <span class="self">Self</span>::Constructor =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constructor&quot;</span>),
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">CallableKind</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Message</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Constructor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
         }
     }
 }
 
-<span class="doccomment">/// Wrapper for a callable that adds its composed selector.
-</span><span class="attribute">#[derive(Debug)]
-</span><span class="kw">pub struct </span>CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt; {
-    <span class="doccomment">/// The composed selector computed by the associated implementation block
-    /// and the given callable.
-    </span>composed_selector: ir::Selector,
-    <span class="doccomment">/// The parent implementation block.
-    </span>item_impl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl,
-    <span class="doccomment">/// The actual callable.
-    </span>callable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>C,
+<span class="doccomment">/// Wrapper for a callable that adds its composed selector.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The composed selector computed by the associated implementation block</span>
+    <span class="doccomment">/// and the given callable.</span>
+    <span class="ident">composed_selector</span>: <span class="ident">ir::Selector</span>,
+    <span class="doccomment">/// The parent implementation block.</span>
+    <span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span>,
+    <span class="doccomment">/// The actual callable.</span>
+    <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span>,
 }
 
-<span class="kw">impl</span>&lt;C&gt; Copy <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;_</span>, C&gt; {}
-<span class="kw">impl</span>&lt;C&gt; Clone <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;_</span>, C&gt; {
-    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            composed_selector: <span class="self">self</span>.composed_selector,
-            item_impl: <span class="self">self</span>.item_impl,
-            callable: <span class="self">self</span>.callable,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">composed_selector</span>: <span class="self">self</span>.<span class="ident">composed_selector</span>,
+            <span class="ident">item_impl</span>: <span class="self">self</span>.<span class="ident">item_impl</span>,
+            <span class="ident">callable</span>: <span class="self">self</span>.<span class="ident">callable</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt;
-<span class="kw">where
-    </span>C: Callable,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
-    <span class="doccomment">/// Creates a new wrapper around the given callable and parent `impl` block.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(item_impl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl, callable: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>C) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            composed_selector: compose_selector(item_impl, callable),
-            item_impl,
-            callable,
+    <span class="doccomment">/// Creates a new wrapper around the given callable and parent `impl` block.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">composed_selector</span>: <span class="ident">compose_selector</span>(<span class="ident">item_impl</span>, <span class="ident">callable</span>),
+            <span class="ident">item_impl</span>,
+            <span class="ident">callable</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt; {
-    <span class="doccomment">/// Returns the composed selector of the ink! callable the `impl` block.
-    </span><span class="kw">pub fn </span>composed_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ir::Selector {
-        <span class="self">self</span>.composed_selector
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns the composed selector of the ink! callable the `impl` block.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">composed_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ir::Selector</span> {
+        <span class="self">self</span>.<span class="ident">composed_selector</span>
     }
 
-    <span class="doccomment">/// Returns a shared reference to the underlying callable.
-    </span><span class="kw">pub fn </span>callable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>C {
-        <span class="self">self</span>.callable
+    <span class="doccomment">/// Returns a shared reference to the underlying callable.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span> {
+        <span class="self">self</span>.<span class="ident">callable</span>
     }
 
-    <span class="doccomment">/// Returns the parent implementation block of the ink! callable.
-    </span><span class="kw">pub fn </span>item_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl {
-        <span class="self">self</span>.item_impl
+    <span class="doccomment">/// Returns the parent implementation block of the ink! callable.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">item_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span> {
+        <span class="self">self</span>.<span class="ident">item_impl</span>
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; Callable <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt;
-<span class="kw">where
-    </span>C: Callable,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Callable</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
-    <span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CallableKind {
-        &lt;C <span class="kw">as </span>Callable&gt;::kind(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CallableKind</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::kind</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident {
-        &lt;C <span class="kw">as </span>Callable&gt;::ident(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::ident</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>user_provided_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ir::Selector&gt; {
-        &lt;C <span class="kw">as </span>Callable&gt;::user_provided_selector(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::user_provided_selector</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>is_payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        &lt;C <span class="kw">as </span>Callable&gt;::is_payable(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::is_payable</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>has_wildcard_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        &lt;C <span class="kw">as </span>Callable&gt;::has_wildcard_selector(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">has_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::has_wildcard_selector</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Visibility {
-        &lt;C <span class="kw">as </span>Callable&gt;::visibility(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::visibility</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>inputs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InputsIter {
-        &lt;C <span class="kw">as </span>Callable&gt;::inputs(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputsIter</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::inputs</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>inputs_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-        &lt;C <span class="kw">as </span>Callable&gt;::inputs_span(<span class="self">self</span>.callable)
+    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::inputs_span</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn </span>statements(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Stmt] {
-        &lt;C <span class="kw">as </span>Callable&gt;::statements(<span class="self">self</span>.callable)
-    }
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, C&gt; ::core::ops::Deref <span class="kw">for </span>CallableWithSelector&lt;<span class="lifetime">&#39;a</span>, C&gt; {
-    <span class="kw">type </span>Target = C;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="self">self</span>.callable
+    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>] {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::statements</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 }
 
-<span class="doccomment">/// An ink! callable.
-///
-/// This is either an ink! message or an ink! constructor.
-/// Used to share common behavior between different callable types.
-</span><span class="kw">pub trait </span>Callable {
-    <span class="doccomment">/// Returns the kind of the ink! callable.
-    </span><span class="kw">fn </span>kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CallableKind;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">::core::ops::Deref</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">C</span>;
 
-    <span class="doccomment">/// Returns the identifier of the ink! callable.
-    </span><span class="kw">fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident;
-
-    <span class="doccomment">/// Returns the selector of the ink! callable if any has been manually set.
-    </span><span class="kw">fn </span>user_provided_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ir::Selector&gt;;
-
-    <span class="doccomment">/// Returns `true` if the ink! callable is flagged as payable.
-    ///
-    /// # Note
-    ///
-    /// Flagging as payable is done using the `#[ink(payable)]` attribute.
-    </span><span class="kw">fn </span>is_payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-
-    <span class="doccomment">/// Returns `true` if the ink! callable is flagged as a wildcard selector.
-    </span><span class="kw">fn </span>has_wildcard_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-
-    <span class="doccomment">/// Returns the visibility of the ink! callable.
-    </span><span class="kw">fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Visibility;
-
-    <span class="doccomment">/// Returns an iterator yielding all input parameters of the ink! callable.
-    </span><span class="kw">fn </span>inputs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InputsIter;
-
-    <span class="doccomment">/// Returns the span of the inputs of the ink! callable.
-    </span><span class="kw">fn </span>inputs_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span;
-
-    <span class="doccomment">/// Returns a slice over shared references to the statements of the callable.
-    </span><span class="kw">fn </span>statements(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Stmt];
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
+        <span class="self">self</span>.<span class="ident">callable</span>
+    }
 }
 
-<span class="doccomment">/// Returns the composed selector of the ink! callable.
-///
-/// Composition takes into account the given [`ir::ItemImpl`].
-///
-/// # Details
-///
-/// Given
-///
-/// - the identifier `i` of the callable
-/// - the optionally set selector `s` of the callable
-/// - the `impl` blocks trait path in case it implements a trait, `P`
-/// - 16 kB blocks optional user provided namespace `S`
-///
-/// Then the selector is composed in the following way:
-///
-/// - If `s` is given we simply return `s`.
-/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate
-///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.
-///   If `T` refers to a relative path or is just an identifier we only take
-///   its last segment `p` (e.g. the trait&#39;s identifier) into consideration
-///   and use it instead of `P` in the above concatenation.
-///   In the following we refer to the resulting concatenation as `C`.
-/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output
-///   and take the first 4 bytes that are returned in order as the composed
-///   selector.
-///
-/// # Examples
-///
-/// ## Overriding the composed selector
-///
-/// Given
-///
-/// ```no_compile
-/// impl MyStorage {
-///     #[ink(message, selector = 0xDEADBEEF)]
-///     fn my_message(&amp;self) {}
-/// }
-/// ```
-///
-/// …then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
-/// the composed selector.
-///
-/// ## Inherent implementation block
-///
-/// Given
-///
-/// ```no_compile
-/// impl MyStorage {
-///     #[ink(message)]
-///     fn my_message(&amp;self) {}
-/// }
-/// ```
-///
-/// …then the selector of `my_message` is composed such as:
-/// ```no_compile
-/// BLAKE2(&quot;my_message&quot;.to_string().as_bytes())[0..4]
-/// ```
-///
-/// ## Trait implementation block
-///
-/// Given
-///
-/// ```no_compile
-/// impl MyTrait for MyStorage {
-///     #[ink(message)]
-///     fn my_message(&amp;self) {}
-/// }
-/// ```
-///
-/// …then the selector of `my_message` is composed such as:
-/// ```no_compile
-/// BLAKE2(&quot;MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
-/// ```
-///
-/// ## Using full path for trait
-///
-/// Given
-///
-/// ```no_compile
-/// impl ::my_full::long_path::MyTrait for MyStorage {
-///     #[ink(message)]
-///     fn my_message(&amp;self) {}
-/// }
-/// ```
-///
-/// …then the selector of `my_message` is composed such as:
-/// ```no_compile
-/// BLAKE2(&quot;::my_full::long_path::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
-/// ```
-///
-/// ## Using a namespace
-///
-/// Given
-///
-/// ```no_compile
-/// #[ink(namespace = &quot;my_namespace&quot;)]
-/// impl MyTrait for MyStorage {
-///     #[ink(message)]
-///     fn my_message(&amp;self) {}
-/// }
-/// ```
-///
-/// …then the selector of `my_message` is composed such as:
-/// ```no_compile
-/// BLAKE2(&quot;my_namespace::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
-/// ```
-///
-/// ## Note
-///
-/// All above examples work similarly for ink! constructors interchangeably.
-///
-/// ## Usage Recommendations
-///
-/// These recommendation mainly apply to trait implementation blocks:
-///
-/// - The recommendation by the ink! team is to use the full-path approach
-/// wherever possible; OR import the trait and use only its identifier with
-/// an additional namespace if required to disambiguate selectors.
-/// - Try not to intermix the above recommendations.
-/// - Avoid directly setting the selector of an ink! message or constructor.
-///   Only do this if nothing else helps and you need a very specific selector,
-///   e.g. in case of backwards compatibility.
-/// - Do not use the namespace unless required to disambiguate.
-</span><span class="kw">pub fn </span>compose_selector&lt;C&gt;(item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl, callable: <span class="kw-2">&amp;</span>C) -&gt; ir::Selector
-<span class="kw">where
-    </span>C: Callable,
+<span class="doccomment">/// An ink! callable.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is either an ink! message or an ink! constructor.</span>
+<span class="doccomment">/// Used to share common behavior between different callable types.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Callable</span> {
+    <span class="doccomment">/// Returns the kind of the ink! callable.</span>
+    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CallableKind</span>;
+
+    <span class="doccomment">/// Returns the identifier of the ink! callable.</span>
+    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span>;
+
+    <span class="doccomment">/// Returns the selector of the ink! callable if any has been manually set.</span>
+    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Returns `true` if the ink! callable is flagged as payable.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Flagging as payable is done using the `#[ink(payable)]` attribute.</span>
+    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+
+    <span class="doccomment">/// Returns `true` if the ink! callable is flagged as a wildcard selector.</span>
+    <span class="kw">fn</span> <span class="ident">has_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+
+    <span class="doccomment">/// Returns the visibility of the ink! callable.</span>
+    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span>;
+
+    <span class="doccomment">/// Returns an iterator yielding all input parameters of the ink! callable.</span>
+    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputsIter</span>;
+
+    <span class="doccomment">/// Returns the span of the inputs of the ink! callable.</span>
+    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span>;
+
+    <span class="doccomment">/// Returns a slice over shared references to the statements of the callable.</span>
+    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>];
+}
+
+<span class="doccomment">/// Returns the composed selector of the ink! callable.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Composition takes into account the given [`ir::ItemImpl`].</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Details</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Given</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - the identifier `i` of the callable</span>
+<span class="doccomment">/// - the optionally set selector `s` of the callable</span>
+<span class="doccomment">/// - the `impl` blocks trait path in case it implements a trait, `P`</span>
+<span class="doccomment">/// - 16 kB blocks optional user provided namespace `S`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Then the selector is composed in the following way:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - If `s` is given we simply return `s`.</span>
+<span class="doccomment">/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate</span>
+<span class="doccomment">///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.</span>
+<span class="doccomment">///   If `T` refers to a relative path or is just an identifier we only take</span>
+<span class="doccomment">///   its last segment `p` (e.g. the trait&#39;s identifier) into consideration</span>
+<span class="doccomment">///   and use it instead of `P` in the above concatenation.</span>
+<span class="doccomment">///   In the following we refer to the resulting concatenation as `C`.</span>
+<span class="doccomment">/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output</span>
+<span class="doccomment">///   and take the first 4 bytes that are returned in order as the composed</span>
+<span class="doccomment">///   selector.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Overriding the composed selector</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Given</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// impl MyStorage {</span>
+<span class="doccomment">///     #[ink(message, selector = 0xDEADBEEF)]</span>
+<span class="doccomment">///     fn my_message(&amp;self) {}</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// …then the selector of `my_message` is simply `0xDEADBEEF` since it overrides</span>
+<span class="doccomment">/// the composed selector.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Inherent implementation block</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Given</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// impl MyStorage {</span>
+<span class="doccomment">///     #[ink(message)]</span>
+<span class="doccomment">///     fn my_message(&amp;self) {}</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// …then the selector of `my_message` is composed such as:</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// BLAKE2(&quot;my_message&quot;.to_string().as_bytes())[0..4]</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Trait implementation block</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Given</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// impl MyTrait for MyStorage {</span>
+<span class="doccomment">///     #[ink(message)]</span>
+<span class="doccomment">///     fn my_message(&amp;self) {}</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// …then the selector of `my_message` is composed such as:</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// BLAKE2(&quot;MyTrait::my_message&quot;.to_string().as_bytes())[0..4]</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Using full path for trait</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Given</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// impl ::my_full::long_path::MyTrait for MyStorage {</span>
+<span class="doccomment">///     #[ink(message)]</span>
+<span class="doccomment">///     fn my_message(&amp;self) {}</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// …then the selector of `my_message` is composed such as:</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// BLAKE2(&quot;::my_full::long_path::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Using a namespace</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Given</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// #[ink(namespace = &quot;my_namespace&quot;)]</span>
+<span class="doccomment">/// impl MyTrait for MyStorage {</span>
+<span class="doccomment">///     #[ink(message)]</span>
+<span class="doccomment">///     fn my_message(&amp;self) {}</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// …then the selector of `my_message` is composed such as:</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// BLAKE2(&quot;my_namespace::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// All above examples work similarly for ink! constructors interchangeably.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Usage Recommendations</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// These recommendation mainly apply to trait implementation blocks:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - The recommendation by the ink! team is to use the full-path approach</span>
+<span class="doccomment">/// wherever possible; OR import the trait and use only its identifier with</span>
+<span class="doccomment">/// an additional namespace if required to disambiguate selectors.</span>
+<span class="doccomment">/// - Try not to intermix the above recommendations.</span>
+<span class="doccomment">/// - Avoid directly setting the selector of an ink! message or constructor.</span>
+<span class="doccomment">///   Only do this if nothing else helps and you need a very specific selector,</span>
+<span class="doccomment">///   e.g. in case of backwards compatibility.</span>
+<span class="doccomment">/// - Do not use the namespace unless required to disambiguate.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compose_selector</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) -&gt; <span class="ident">ir::Selector</span>
+<span class="kw">where</span>
+    <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(selector) = callable.user_provided_selector() {
-        <span class="kw">return </span><span class="kw-2">*</span>selector
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">selector</span>) <span class="op">=</span> <span class="ident">callable</span>.<span class="ident">user_provided_selector</span>() {
+        <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">selector</span>
     }
-    <span class="kw">let </span>callable_ident = callable.ident().to_string().into_bytes();
-    <span class="kw">let </span>namespace_bytes = item_impl
-        .namespace()
-        .map(|namespace| namespace.as_bytes().to_vec())
-        .unwrap_or_default();
-    <span class="kw">let </span>separator = <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
-    <span class="kw">let </span>joined = <span class="kw">match </span>item_impl.trait_path() {
-        <span class="prelude-val">None </span>=&gt; {
-            <span class="comment">// Inherent implementation block:
-            </span><span class="kw">if </span>namespace_bytes.is_empty() {
-                callable_ident
-            } <span class="kw">else </span>{
-                [namespace_bytes, callable_ident].join(separator)
+    <span class="kw">let</span> <span class="ident">callable_ident</span> <span class="op">=</span> <span class="ident">callable</span>.<span class="ident">ident</span>().<span class="ident">to_string</span>().<span class="ident">into_bytes</span>();
+    <span class="kw">let</span> <span class="ident">namespace_bytes</span> <span class="op">=</span> <span class="ident">item_impl</span>
+        .<span class="ident">namespace</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">namespace</span><span class="op">|</span> <span class="ident">namespace</span>.<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())
+        .<span class="ident">unwrap_or_default</span>();
+    <span class="kw">let</span> <span class="ident">separator</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
+    <span class="kw">let</span> <span class="ident">joined</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>() {
+        <span class="prelude-val">None</span> =&gt; {
+            <span class="comment">// Inherent implementation block:</span>
+            <span class="kw">if</span> <span class="ident">namespace_bytes</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">callable_ident</span>
+            } <span class="kw">else</span> {
+                [<span class="ident">namespace_bytes</span>, <span class="ident">callable_ident</span>].<span class="ident">join</span>(<span class="ident">separator</span>)
             }
         }
-        <span class="prelude-val">Some</span>(path) =&gt; {
-            <span class="comment">// Trait implementation block:
-            //
-            // We need to separate between full-path, e.g. `::my::full::Path`
-            // starting with `::` and relative paths for the composition.
-            </span><span class="kw">let </span>path_bytes = <span class="kw">if </span>path.leading_colon.is_some() {
-                <span class="kw">let </span><span class="kw-2">mut </span>str_repr = path.to_token_stream().to_string();
-                str_repr.retain(|c| !c.is_whitespace());
-                str_repr.into_bytes()
-            } <span class="kw">else </span>{
-                path.segments
-                    .last()
-                    .expect(<span class="string">&quot;encountered empty trait path&quot;</span>)
-                    .ident
-                    .to_string()
-                    .into_bytes()
+        <span class="prelude-val">Some</span>(<span class="ident">path</span>) =&gt; {
+            <span class="comment">// Trait implementation block:</span>
+            <span class="comment">//</span>
+            <span class="comment">// We need to separate between full-path, e.g. `::my::full::Path`</span>
+            <span class="comment">// starting with `::` and relative paths for the composition.</span>
+            <span class="kw">let</span> <span class="ident">path_bytes</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">leading_colon</span>.<span class="ident">is_some</span>() {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">str_repr</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">to_token_stream</span>().<span class="ident">to_string</span>();
+                <span class="ident">str_repr</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">is_whitespace</span>());
+                <span class="ident">str_repr</span>.<span class="ident">into_bytes</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">path</span>.<span class="ident">segments</span>
+                    .<span class="ident">last</span>()
+                    .<span class="ident">expect</span>(<span class="string">&quot;encountered empty trait path&quot;</span>)
+                    .<span class="ident">ident</span>
+                    .<span class="ident">to_string</span>()
+                    .<span class="ident">into_bytes</span>()
             };
-            <span class="kw">if </span>namespace_bytes.is_empty() {
-                [path_bytes, callable_ident].join(separator)
-            } <span class="kw">else </span>{
-                [namespace_bytes, path_bytes, callable_ident].join(separator)
+            <span class="kw">if</span> <span class="ident">namespace_bytes</span>.<span class="ident">is_empty</span>() {
+                [<span class="ident">path_bytes</span>, <span class="ident">callable_ident</span>].<span class="ident">join</span>(<span class="ident">separator</span>)
+            } <span class="kw">else</span> {
+                [<span class="ident">namespace_bytes</span>, <span class="ident">path_bytes</span>, <span class="ident">callable_ident</span>].<span class="ident">join</span>(<span class="ident">separator</span>)
             }
         }
     };
-    ir::Selector::compute(<span class="kw-2">&amp;</span>joined)
+    <span class="ident">ir::Selector::compute</span>(<span class="kw-2">&amp;</span><span class="ident">joined</span>)
 }
 
-<span class="doccomment">/// Ensures that common invariants of externally callable ink! entities are met.
-///
-/// # Errors
-///
-/// In case any of the common externally callable invariants are not met:
-/// - This is `true` if the externally callable is:
-///  - generic
-///  - `const` (compile-time evaluable)
-///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)
-///  - `unsafe` (caller provided assertions not yet stable)
-/// - Furthermore this is `true` if the externally callable is defined for a
-///   non default ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>ensure_callable_invariants(
-    method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
-    kind: CallableKind,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
-    <span class="kw">let </span>bad_visibility = <span class="kw">match </span><span class="kw-2">&amp;</span>method_item.vis {
-        syn::Visibility::Inherited =&gt; <span class="prelude-val">None</span>,
-        syn::Visibility::Restricted(vis_restricted) =&gt; <span class="prelude-val">Some</span>(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) =&gt; <span class="prelude-val">Some</span>(vis_crate.span()),
-        syn::Visibility::Public(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+<span class="doccomment">/// Ensures that common invariants of externally callable ink! entities are met.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In case any of the common externally callable invariants are not met:</span>
+<span class="doccomment">/// - This is `true` if the externally callable is:</span>
+<span class="doccomment">///  - generic</span>
+<span class="doccomment">///  - `const` (compile-time evaluable)</span>
+<span class="doccomment">///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)</span>
+<span class="doccomment">///  - `unsafe` (caller provided assertions not yet stable)</span>
+<span class="doccomment">/// - Furthermore this is `true` if the externally callable is defined for a</span>
+<span class="doccomment">///   non default ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.</span>
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ensure_callable_invariants</span>(
+    <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
+    <span class="ident">kind</span>: <span class="ident">CallableKind</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">bad_visibility</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">vis</span> {
+        <span class="ident">syn::Visibility::Inherited</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="ident">syn::Visibility::Restricted</span>(<span class="ident">vis_restricted</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vis_restricted</span>.<span class="ident">span</span>()),
+        <span class="ident">syn::Visibility::Crate</span>(<span class="ident">vis_crate</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vis_crate</span>.<span class="ident">span</span>()),
+        <span class="ident">syn::Visibility::Public</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
     };
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(bad_visibility) = bad_visibility {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-            bad_visibility,
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bad_visibility</span>) <span class="op">=</span> <span class="ident">bad_visibility</span> {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+            <span class="ident">bad_visibility</span>,
             <span class="string">&quot;ink! {}s must have public or inherited visibility&quot;</span>,
-            kind
+            <span class="ident">kind</span>
         ))
     }
-    <span class="kw">if </span>!method_item.sig.generics.params.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            method_item.sig.generics.params,
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">generics</span>.<span class="ident">params</span>,
             <span class="string">&quot;ink! {}s must not be generic&quot;</span>,
-            kind,
+            <span class="ident">kind</span>,
         ))
     }
-    <span class="kw">if </span>method_item.sig.constness.is_some() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            method_item.sig.constness,
+    <span class="kw">if</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">constness</span>.<span class="ident">is_some</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">constness</span>,
             <span class="string">&quot;ink! {}s must not be const&quot;</span>,
-            kind,
+            <span class="ident">kind</span>,
         ))
     }
-    <span class="kw">if </span>method_item.sig.asyncness.is_some() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            method_item.sig.asyncness,
+    <span class="kw">if</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">asyncness</span>.<span class="ident">is_some</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">asyncness</span>,
             <span class="string">&quot;ink! {}s must not be async&quot;</span>,
-            kind,
+            <span class="ident">kind</span>,
         ))
     }
-    <span class="kw">if </span>method_item.sig.unsafety.is_some() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            method_item.sig.unsafety,
+    <span class="kw">if</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">unsafety</span>.<span class="ident">is_some</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">unsafety</span>,
             <span class="string">&quot;ink! {}s must not be unsafe&quot;</span>,
-            kind,
+            <span class="ident">kind</span>,
         ))
     }
-    <span class="kw">if </span>method_item.sig.abi.is_some() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            method_item.sig.abi,
+    <span class="kw">if</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">abi</span>.<span class="ident">is_some</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">abi</span>,
             <span class="string">&quot;ink! {}s must not have explicit ABI&quot;</span>,
-            kind,
+            <span class="ident">kind</span>,
         ))
     }
-    <span class="kw">if </span>method_item.sig.variadic.is_some() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            method_item.sig.variadic,
+    <span class="kw">if</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">variadic</span>.<span class="ident">is_some</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">variadic</span>,
             <span class="string">&quot;ink! {}s must not be variadic&quot;</span>,
-            kind,
+            <span class="ident">kind</span>,
         ))
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(arg) = method_item.sig.inputs.iter().find(|input| {
-        <span class="kw">match </span>input {
-            syn::FnArg::Typed(pat) =&gt; !<span class="macro">matches!</span>(<span class="kw-2">*</span>pat.pat, syn::Pat::Ident(<span class="kw">_</span>)),
-            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>) <span class="op">=</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+        <span class="kw">match</span> <span class="ident">input</span> {
+            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat</span>) =&gt; <span class="op">!</span><span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">pat</span>.<span class="ident">pat</span>, <span class="ident">syn::Pat::Ident</span>(<span class="kw">_</span>)),
+            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-            arg,
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">arg</span>,
             <span class="string">&quot;ink! {} arguments must have an identifier&quot;</span>,
-            kind
+            <span class="ident">kind</span>
         ))
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// The visibility of an ink! message or constructor.
-</span><span class="attribute">#[derive(Debug, Clone)]
-</span><span class="kw">pub enum </span>Visibility {
-    Public(syn::VisPublic),
-    Inherited,
+<span class="doccomment">/// The visibility of an ink! message or constructor.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Visibility</span> {
+    <span class="ident">Public</span>(<span class="ident">syn::VisPublic</span>),
+    <span class="ident">Inherited</span>,
 }
 
-<span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>Visibility {
-    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Public(vis_public) =&gt; vis_public.to_tokens(tokens),
-            <span class="self">Self</span>::Inherited =&gt; (),
+<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Visibility</span> {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) =&gt; <span class="ident">vis_public</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident"><span class="self">Self</span>::Inherited</span> =&gt; (),
         }
     }
 }
 
-<span class="kw">impl </span>Visibility {
-    <span class="doccomment">/// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
-    ///
-    /// # Note
-    ///
-    /// Messages in normal implementation blocks must have public visibility.
-    </span><span class="kw">pub fn </span>is_pub(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Public(<span class="kw">_</span>))
+<span class="kw">impl</span> <span class="ident">Visibility</span> {
+    <span class="doccomment">/// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Messages in normal implementation blocks must have public visibility.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_pub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Public</span>(<span class="kw">_</span>))
     }
 
-    <span class="doccomment">/// Returns `true` if the visibility of the ink! message of constructor is inherited.
-    ///
-    /// # Note
-    ///
-    /// Messages in trait implementation blocks must have inherited visibility.
-    </span><span class="kw">pub fn </span>is_inherited(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Inherited)
+    <span class="doccomment">/// Returns `true` if the visibility of the ink! message of constructor is inherited.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Messages in trait implementation blocks must have inherited visibility.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_inherited</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Inherited</span>)
     }
 
-    <span class="doccomment">/// Returns the associated span if any.
-    </span><span class="kw">pub fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Span&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Public(vis_public) =&gt; <span class="prelude-val">Some</span>(vis_public.span()),
-            <span class="self">Self</span>::Inherited =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Returns the associated span if any.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vis_public</span>.<span class="ident">span</span>()),
+            <span class="ident"><span class="self">Self</span>::Inherited</span> =&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="doccomment">/// Iterator over the input parameters of an ink! message or constructor.
-///
-/// Does not yield the self receiver of ink! messages.
-</span><span class="kw">pub struct </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    iter: syn::punctuated::Iter&lt;<span class="lifetime">&#39;a</span>, syn::FnArg&gt;,
+<span class="doccomment">/// Iterator over the input parameters of an ink! message or constructor.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Does not yield the self receiver of ink! messages.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">iter</span>: <span class="ident">syn::punctuated::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">syn::FnArg</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="doccomment">/// Creates a new inputs iterator over the given `syn` punctuation.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new&lt;P&gt;(inputs: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::punctuated::Punctuated&lt;syn::FnArg, P&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            iter: inputs.iter(),
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new inputs iterator over the given `syn` punctuation.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">inputs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::punctuated::Punctuated</span><span class="op">&lt;</span><span class="ident">syn::FnArg</span>, <span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">iter</span>: <span class="ident">inputs</span>.<span class="ident">iter</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Message&gt; <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(message: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Message) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>message.item.sig.inputs)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Constructor&gt; <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>from(constructor: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Constructor) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>constructor.item.sig.inputs)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">&amp;</span><span class="ident">constructor</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::PatType;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::PatType</span>;
 
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop </span>{
-            <span class="kw">match </span><span class="self">self</span>.iter.next() {
-                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(syn::FnArg::Typed(pat_typed)) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(pat_typed),
-                <span class="prelude-val">Some</span>(syn::FnArg::Receiver(<span class="kw">_</span>)) =&gt; <span class="kw">continue </span><span class="lifetime">&#39;repeat</span>,
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop</span> {
+            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>() {
+                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_typed</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pat_typed</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>,
             }
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ExactSizeIterator <span class="kw">for </span>InputsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.iter.len()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">len</span>()
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>core::fmt::Debug;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">core::fmt::Debug</span>;
 
-    <span class="kw">pub enum </span>ExpectedSelector {
-        Raw([u8; <span class="number">4</span>]),
-        Blake2(Vec&lt;u8&gt;),
+    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExpectedSelector</span> {
+        <span class="ident">Raw</span>([<span class="ident">u8</span>; <span class="number">4</span>]),
+        <span class="ident">Blake2</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>),
     }
 
-    <span class="kw">impl </span>From&lt;[u8; <span class="number">4</span>]&gt; <span class="kw">for </span>ExpectedSelector {
-        <span class="kw">fn </span>from(raw_selector: [u8; <span class="number">4</span>]) -&gt; <span class="self">Self </span>{
-            ExpectedSelector::Raw(raw_selector)
+    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExpectedSelector</span> {
+        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">raw_selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="self">Self</span> {
+            <span class="ident">ExpectedSelector::Raw</span>(<span class="ident">raw_selector</span>)
         }
     }
 
-    <span class="kw">impl </span>From&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>ExpectedSelector {
-        <span class="kw">fn </span>from(blake2_input: Vec&lt;u8&gt;) -&gt; <span class="self">Self </span>{
-            ExpectedSelector::Blake2(blake2_input)
+    <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExpectedSelector</span> {
+        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">blake2_input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+            <span class="ident">ExpectedSelector::Blake2</span>(<span class="ident">blake2_input</span>)
         }
     }
 
-    <span class="kw">impl </span>ExpectedSelector {
-        <span class="kw">pub fn </span>expected_selector(<span class="self">self</span>) -&gt; ir::Selector {
-            <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Raw(raw_selector) =&gt; ir::Selector::from(raw_selector),
-                <span class="self">Self</span>::Blake2(blake2_input) =&gt; ir::Selector::compute(<span class="kw-2">&amp;</span>blake2_input),
+    <span class="kw">impl</span> <span class="ident">ExpectedSelector</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expected_selector</span>(<span class="self">self</span>) -&gt; <span class="ident">ir::Selector</span> {
+            <span class="kw">match</span> <span class="self">self</span> {
+                <span class="ident"><span class="self">Self</span>::Raw</span>(<span class="ident">raw_selector</span>) =&gt; <span class="ident">ir::Selector::from</span>(<span class="ident">raw_selector</span>),
+                <span class="ident"><span class="self">Self</span>::Blake2</span>(<span class="ident">blake2_input</span>) =&gt; <span class="ident">ir::Selector::compute</span>(<span class="kw-2">&amp;</span><span class="ident">blake2_input</span>),
             }
         }
     }
 
-    <span class="doccomment">/// Asserts that the given ink! implementation block and the given ink!
-    /// message result in the same composed selector as the expected bytes.
-    </span><span class="kw">fn </span>assert_compose_selector&lt;C, S&gt;(
-        item_impl: syn::ItemImpl,
-        item_method: syn::ImplItemMethod,
-        expected_selector: S,
-    ) <span class="kw">where
-        </span>C: Callable + TryFrom&lt;syn::ImplItemMethod&gt;,
-        &lt;C <span class="kw">as </span>TryFrom&lt;syn::ImplItemMethod&gt;&gt;::Error: Debug,
-        S: Into&lt;ExpectedSelector&gt;,
+    <span class="doccomment">/// Asserts that the given ink! implementation block and the given ink!</span>
+    <span class="doccomment">/// message result in the same composed selector as the expected bytes.</span>
+    <span class="kw">fn</span> <span class="ident">assert_compose_selector</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">S</span><span class="op">&gt;</span>(
+        <span class="ident">item_impl</span>: <span class="ident">syn::ItemImpl</span>,
+        <span class="ident">item_method</span>: <span class="ident">syn::ImplItemMethod</span>,
+        <span class="ident">expected_selector</span>: <span class="ident">S</span>,
+    ) <span class="kw">where</span>
+        <span class="ident">C</span>: <span class="ident">Callable</span> <span class="op">+</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span>,
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Error</span>: <span class="ident">Debug</span>,
+        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ExpectedSelector</span><span class="op">&gt;</span>,
     {
         <span class="macro">assert_eq!</span>(
-            compose_selector(
-                <span class="kw-2">&amp;</span>&lt;ir::ItemImpl <span class="kw">as </span>TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(item_impl).unwrap(),
-                <span class="kw-2">&amp;</span>&lt;C <span class="kw">as </span>TryFrom&lt;syn::ImplItemMethod&gt;&gt;::try_from(item_method).unwrap(),
+            <span class="ident">compose_selector</span>(
+                <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">ir::ItemImpl</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemImpl</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_impl</span>).<span class="ident">unwrap</span>(),
+                <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>).<span class="ident">unwrap</span>(),
             ),
-            expected_selector.into().expected_selector(),
+            <span class="ident">expected_selector</span>.<span class="ident">into</span>().<span class="ident">expected_selector</span>(),
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>compose_selector_works() {
-        assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(<span class="kw">impl</span>)]
-                </span><span class="kw">impl </span>MyStorage {}
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">compose_selector_works</span>() {
+        <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>)]</span>
+                <span class="kw">impl</span> <span class="ident">MyStorage</span> {}
             },
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(message)]
-                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;my_message&quot;</span>.to_vec(),
+            <span class="string">b&quot;my_message&quot;</span>.<span class="ident">to_vec</span>(),
         );
-        assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(<span class="kw">impl</span>)]
-                </span><span class="kw">impl </span>MyTrait <span class="kw">for </span>MyStorage {}
+        <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>)]</span>
+                <span class="kw">impl</span> <span class="ident">MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {}
             },
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(message)]
-                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;MyTrait::my_message&quot;</span>.to_vec(),
+            <span class="string">b&quot;MyTrait::my_message&quot;</span>.<span class="ident">to_vec</span>(),
         );
-        assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(<span class="kw">impl</span>)]
-                </span><span class="kw">impl </span>::my::full::path::MyTrait <span class="kw">for </span>MyStorage {}
+        <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>)]</span>
+                <span class="kw">impl</span> <span class="ident">::my::full::path::MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {}
             },
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(message)]
-                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;::my::full::path::MyTrait::my_message&quot;</span>.to_vec(),
+            <span class="string">b&quot;::my::full::path::MyTrait::my_message&quot;</span>.<span class="ident">to_vec</span>(),
         );
-        assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(<span class="kw">impl</span>, namespace = <span class="string">&quot;my_namespace&quot;</span>)]
-                </span><span class="kw">impl </span>MyStorage {}
+        <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>, <span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
+                <span class="kw">impl</span> <span class="ident">MyStorage</span> {}
             },
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(message)]
-                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;my_namespace::my_message&quot;</span>.to_vec(),
+            <span class="string">b&quot;my_namespace::my_message&quot;</span>.<span class="ident">to_vec</span>(),
         );
-        assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(<span class="kw">impl</span>)]
-                </span><span class="kw">impl </span>MyTrait <span class="kw">for </span>MyStorage {}
+        <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>)]</span>
+                <span class="kw">impl</span> <span class="ident">MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {}
             },
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(message, selector = <span class="number">0xDEADBEEF</span>)]
-                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             [<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>],
         );
-        assert_compose_selector::&lt;ir::Message, <span class="kw">_</span>&gt;(
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(<span class="kw">impl</span>)]
-                </span><span class="kw">impl </span>relative::path_to::MyTrait <span class="kw">for </span>MyStorage {}
+        <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>)]</span>
+                <span class="kw">impl</span> <span class="ident">relative::path_to::MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {}
             },
-            <span class="macro">syn::parse_quote! </span>{
-                <span class="attribute">#[ink(message)]
-                </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;MyTrait::my_message&quot;</span>.to_vec(),
+            <span class="string">b&quot;MyTrait::my_message&quot;</span>.<span class="ident">to_vec</span>(),
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
