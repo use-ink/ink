@@ -25,14 +25,14 @@ mod cross_chain_test {
                 DefaultEnvironment,
             };
 
-            let result = build_call::<DefaultEnvironment>()
+            let _result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<Result<(), ::ink::LangError>>()
                 // .returns::<()>()
                 .fire();
 
-            ink::env::debug_println!("cross_contract::call output: {:?}", &result);
+            ink::env::debug_println!("cross_contract::call output: {:?}", &_result);
         }
     }
 }
