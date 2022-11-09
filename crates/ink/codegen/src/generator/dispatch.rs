@@ -275,8 +275,21 @@ impl Dispatch<'_> {
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
                     }
 
-                    // todo: generate type spec with Self here or add new metadata trait similar to
-                    // DispatchableConstructorInfo in metadata crate and add impl there
+                    #[cfg(feature = "std")]
+                    impl ::ink::metadata::ConstructorReturnSpec<#selector_id> for #storage_ident {
+                        fn generate() -> ::ink::metadata::TypeSpec
+                        {
+                             // if <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>> as ::ink::reflect::ConstructorReturnType<#output_type>::IS_RESULT {
+                            //     // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
+                            //     //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
+                            //     //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
+                            //     // >>>()
+                            //     todo!()
+                            // }
+                            // type ConstructorInfo = <Self as ::ink::reflect::DispatchableConstructorInfo<{ #selector_id }>>;
+                            ::ink::metadata::TypeSpec::of_type::<<Self as ::ink::reflect::DispatchableConstructorInfo<{ #selector_id }>>::Output>()
+                        }
+                    }
                 )
             });
         quote_spanned!(span=>

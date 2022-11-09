@@ -1032,20 +1032,7 @@ where
 /// `T` will be in the metadata, given `T` is used as the result of a constructor.
 pub trait ConstructorReturnSpec<const ID: u32> {
     /// Generates the type spec.
-    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
-    where
-        S: IntoIterator<Item = &'static str>;
-    // {
-    //     if <<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output as ::ink::reflect::ConstructorReturnType<O>>::IS_RESULT {
-    //         // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
-    //         //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
-    //         //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
-    //         // >>>()
-    //         todo!()
-    //     } else {
-    //         ::ink::metadata::TypeSpec::of_type::<<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output>()
-    //     }
-    // }
+    fn generate() -> TypeSpec;
 }
 
 /// Describes a pair of parameter label and type.

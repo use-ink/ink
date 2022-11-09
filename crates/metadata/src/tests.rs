@@ -57,8 +57,8 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
 #[test]
 fn spec_contract_json() {
-    let seg = ["core", "result", "Result"].iter().map(AsRef::as_ref);
-    let spec = <Result<u8, ()> as ConstructorReturnSpec>::generate(Some(seg.clone()));
+    let seg = ["core", "result", "Result"];
+    // let spec = <Result<u8, ()> as ConstructorReturnSpec>::generate(Some(seg.clone()));
 
     // given
     let contract: ContractSpec = ContractSpec::new()
@@ -85,7 +85,7 @@ fn spec_contract_json() {
                 .selector([6u8, 3u8, 55u8, 123u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(spec))
+                .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
                 .done(),
         ])

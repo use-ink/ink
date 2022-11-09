@@ -137,17 +137,10 @@ impl Metadata<'_> {
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         // let ret_ty = Self::generate_constructor_return_type(constructor.output());
         let storage_ident = self.contract.module().storage().ident();
-        let output_type = constructor.output().cloned().unwrap_or_else(|| syn::parse_quote! { () });
-        let ret_ty_impl = quote_spanned!(span=>
-            // if <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>> as ::ink::reflect::ConstructorReturnType<#output_type>::IS_RESULT {
-            //     // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
-            //     //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
-            //     //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
-            //     // >>>()
-            //     todo!()
-            // } else {
-            //     ::ink::metadata::TypeSpec::of_type::<#output_type>()
-            // }
+        let ret_ty = quote_spanned!(span=>
+            ::ink::metadata::ReturnTypeSpec::new(
+                Some(< #storage_ident as ::ink::metadata::ConstructorReturnSpec< { #selector_id } > >::generate())
+            )
         );
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
