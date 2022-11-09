@@ -536,7 +536,7 @@ mod tests {
         match syn::parse_quote!( -> Result<Self, ()> ) {
             syn::ReturnType::Type(_, t) => {
                 let actual = Metadata::generate_constructor_return_type(Some(&t));
-                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))";
+                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (:: core :: option :: Option :: Some (:: core :: iter :: Iterator :: map (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) , :: core :: convert :: AsRef :: as_ref))))";
                 assert_eq!(&actual.to_string(), expected);
             }
             _ => unreachable!(),
