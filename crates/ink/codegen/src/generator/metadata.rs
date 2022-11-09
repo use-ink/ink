@@ -187,8 +187,10 @@ impl Metadata<'_> {
                 .collect::<Vec<_>>();
             quote! {
                 ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
+                        ::core::convert::AsRef::as_ref
+                    )
                 )
             }
         } else {
@@ -215,9 +217,10 @@ impl Metadata<'_> {
                 .map(|seg| &seg.ident)
                 .collect::<Vec<_>>();
             quote! {
-                Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
-                )
+                ::core::option::Option::Some(::core::iter::Iterator::map(
+                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
+                    ::core::convert::AsRef::as_ref
+                ))
             }
         } else {
             without_display_name()
