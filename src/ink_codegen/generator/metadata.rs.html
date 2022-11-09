@@ -542,6 +542,9 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -731,8 +734,10 @@
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
             <span class="macro">quote! </span>{
                 ::ink::metadata::TypeSpec::with_name_segs::&lt;#ty, <span class="kw">_</span>&gt;(
-                    ::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ]),
+                        ::core::convert::AsRef::as_ref
+                    )
                 )
             }
         } <span class="kw">else </span>{
@@ -759,9 +764,10 @@
                 .map(|seg| <span class="kw-2">&amp;</span>seg.ident)
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
             <span class="macro">quote! </span>{
-                <span class="prelude-val">Some</span>(::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
-                )
+                ::core::option::Option::Some(::core::iter::Iterator::map(
+                    ::core::iter::IntoIterator::into_iter([ #( <span class="macro">::core::stringify!</span>(#segs) ),* ]),
+                    ::core::convert::AsRef::as_ref
+                ))
             }
         } <span class="kw">else </span>{
             without_display_name()
@@ -1077,7 +1083,7 @@
         <span class="kw">match </span><span class="macro">syn::parse_quote!</span>( -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; ) {
             syn::ReturnType::Type(<span class="kw">_</span>, t) =&gt; {
                 <span class="kw">let </span>actual = Metadata::generate_constructor_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>t));
-                <span class="kw">let </span>expected = <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (&lt; Result &lt; () , () &gt; as :: ink :: metadata :: ConstructorReturnSpec &gt; :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))&quot;</span>;
+                <span class="kw">let </span>expected = <span class="string">&quot;:: ink :: metadata :: ReturnTypeSpec :: new (&lt; Result &lt; () , () &gt; as :: ink :: metadata :: ConstructorReturnSpec &gt; :: generate (:: core :: option :: Option :: Some (:: core :: iter :: Iterator :: map (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) , :: core :: convert :: AsRef :: as_ref))))&quot;</span>;
                 <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>actual.to_string(), expected);
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
