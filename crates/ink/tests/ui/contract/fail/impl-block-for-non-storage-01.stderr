@@ -19,14 +19,14 @@ error[E0599]: no function or associated item named `constructor_2` found for str
    |                function or associated item not found in `Contract`
    |                help: there is an associated function with a similar name: `constructor_1`
 
-error[E0599]: no function or associated item named `message_2` found for struct `Contract` in the current scope
+error[E0599]: no function or associated item named `message_2_checked` found for struct `Contract` in the current scope
   --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:25:16
    |
 4  |     pub struct Contract {}
-   |     --- function or associated item `message_2` not found for this struct
+   |     --- function or associated item `message_2_checked` not found for this struct
 ...
 25 |         pub fn message_2(&self) {}
    |                ^^^^^^^^^
    |                |
    |                function or associated item not found in `Contract`
-   |                help: there is a method with a similar name: `message_1`
+   |                help: there is a method with a similar name: `message_1_checked`
