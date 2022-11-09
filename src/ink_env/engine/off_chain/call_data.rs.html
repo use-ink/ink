@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/call_data.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_data.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/call_data.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_data.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -98,103 +98,103 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span><span class="kw">crate</span>::call::Selector;
-<span class="kw">use </span>ink_prelude::{
-    vec,
-    vec::Vec,
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::call::Selector</span>;
+<span class="kw">use</span> <span class="ident">ink_prelude</span>::{
+    <span class="ident">vec</span>,
+    <span class="ident">vec::Vec</span>,
 };
 
-<span class="doccomment">/// The raw ABI respecting input data to a call.
-///
-/// # Note
-///
-/// The first four bytes are the function selector and the rest are SCALE encoded inputs.
-</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>CallData {
-    <span class="doccomment">/// Already encoded function selector and inputs.
-    ///
-    /// # Note
-    ///
-    /// Has the invariant of always holding at least 4 bytes (the selector).
-    </span>bytes: Vec&lt;u8&gt;,
+<span class="doccomment">/// The raw ABI respecting input data to a call.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The first four bytes are the function selector and the rest are SCALE encoded inputs.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallData</span> {
+    <span class="doccomment">/// Already encoded function selector and inputs.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Has the invariant of always holding at least 4 bytes (the selector).</span>
+    <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl </span>CallData {
-    <span class="doccomment">/// Creates new call ABI data for the given selector.
-    </span><span class="kw">pub fn </span>new(selector: Selector) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>bytes = selector.to_bytes();
-        <span class="self">Self </span>{
-            bytes: <span class="macro">vec!</span>[bytes[<span class="number">0</span>], bytes[<span class="number">1</span>], bytes[<span class="number">2</span>], bytes[<span class="number">3</span>]],
+<span class="kw">impl</span> <span class="ident">CallData</span> {
+    <span class="doccomment">/// Creates new call ABI data for the given selector.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">selector</span>: <span class="ident">Selector</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">to_bytes</span>();
+        <span class="self">Self</span> {
+            <span class="ident">bytes</span>: <span class="macro">vec!</span>[<span class="ident">bytes</span>[<span class="number">0</span>], <span class="ident">bytes</span>[<span class="number">1</span>], <span class="ident">bytes</span>[<span class="number">2</span>], <span class="ident">bytes</span>[<span class="number">3</span>]],
         }
     }
 
-    <span class="doccomment">/// Pushes the given argument onto the call ABI data in encoded form.
-    </span><span class="kw">pub fn </span>push_arg&lt;A&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw-2">&amp;</span>A)
-    <span class="kw">where
-        </span>A: scale::Encode,
+    <span class="doccomment">/// Pushes the given argument onto the call ABI data in encoded form.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">arg</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>)
+    <span class="kw">where</span>
+        <span class="ident">A</span>: <span class="ident">scale::Encode</span>,
     {
-        arg.encode_to(<span class="kw-2">&amp;mut </span><span class="self">self</span>.bytes)
+        <span class="ident">arg</span>.<span class="ident">encode_to</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bytes</span>)
     }
 
-    <span class="doccomment">/// Returns the selector of `self`.
-    </span><span class="kw">pub fn </span>selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Selector {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.bytes.len() &gt;= <span class="number">4</span>);
-        <span class="kw">let </span>bytes = [<span class="self">self</span>.bytes[<span class="number">0</span>], <span class="self">self</span>.bytes[<span class="number">1</span>], <span class="self">self</span>.bytes[<span class="number">2</span>], <span class="self">self</span>.bytes[<span class="number">3</span>]];
-        bytes.into()
+    <span class="doccomment">/// Returns the selector of `self`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Selector</span> {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span>);
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="self">self</span>.<span class="ident">bytes</span>[<span class="number">0</span>], <span class="self">self</span>.<span class="ident">bytes</span>[<span class="number">1</span>], <span class="self">self</span>.<span class="ident">bytes</span>[<span class="number">2</span>], <span class="self">self</span>.<span class="ident">bytes</span>[<span class="number">3</span>]];
+        <span class="ident">bytes</span>.<span class="ident">into</span>()
     }
 
-    <span class="doccomment">/// Returns the underlying bytes of the encoded input parameters.
-    </span><span class="kw">pub fn </span>params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.bytes.len() &gt;= <span class="number">4</span>);
-        <span class="kw-2">&amp;</span><span class="self">self</span>.bytes[<span class="number">4</span>..]
+    <span class="doccomment">/// Returns the underlying bytes of the encoded input parameters.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">4</span>);
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bytes</span>[<span class="number">4</span>..]
     }
 
-    <span class="doccomment">/// Returns the underlying byte representation.
-    </span><span class="kw">pub fn </span>to_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.bytes
-    }
-}
-
-<span class="kw">impl </span>scale::Encode <span class="kw">for </span>CallData {
-    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.bytes.len()
-    }
-
-    <span class="kw">fn </span>encode_to&lt;T: scale::Output + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>T) {
-        dest.write(<span class="self">self</span>.bytes.as_slice());
+    <span class="doccomment">/// Returns the underlying byte representation.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bytes</span>
     }
 }
 
-<span class="kw">impl </span>scale::Decode <span class="kw">for </span>CallData {
-    <span class="kw">fn </span>decode&lt;I: scale::Input&gt;(
-        input: <span class="kw-2">&amp;mut </span>I,
-    ) -&gt; core::result::Result&lt;<span class="self">Self</span>, scale::Error&gt; {
-        <span class="kw">let </span>remaining_len = input.remaining_len().unwrap_or(<span class="prelude-val">None</span>).unwrap_or(<span class="number">0</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>bytes = Vec::with_capacity(remaining_len);
-        <span class="kw">while let </span><span class="prelude-val">Ok</span>(byte) = input.read_byte() {
-            bytes.push(byte);
+<span class="kw">impl</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">CallData</span> {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">len</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="ident">T</span>) {
+        <span class="ident">dest</span>.<span class="ident">write</span>(<span class="self">self</span>.<span class="ident">bytes</span>.<span class="ident">as_slice</span>());
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">scale::Decode</span> <span class="kw">for</span> <span class="ident">CallData</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(
+        <span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>,
+    ) -&gt; <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">remaining_len</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">remaining_len</span>().<span class="ident">unwrap_or</span>(<span class="prelude-val">None</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">remaining_len</span>);
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">byte</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">read_byte</span>() {
+            <span class="ident">bytes</span>.<span class="ident">push</span>(<span class="ident">byte</span>);
         }
-        <span class="kw">if </span>bytes.len() &lt; <span class="number">4 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(scale::Error::from(
+        <span class="kw">if</span> <span class="ident">bytes</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">4</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">scale::Error::from</span>(
                 <span class="string">&quot;require at least 4 bytes for input data&quot;</span>,
             ))
         }
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ bytes })
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">bytes</span> })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/storage/traits/src/impls/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_storage_traits/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_storage_traits/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/storage/traits/src/impls/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_storage_traits/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_storage_traits/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_storage_traits/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -177,182 +177,182 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use crate</span>::{
-    AutoStorableHint,
-    Packed,
-    StorableHint,
-    StorageKey,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">AutoStorableHint</span>,
+    <span class="ident">Packed</span>,
+    <span class="ident">StorableHint</span>,
+    <span class="ident">StorageKey</span>,
 };
-<span class="kw">use </span>core::{
-    fmt::Debug,
-    marker::PhantomData,
+<span class="kw">use</span> <span class="ident">core</span>::{
+    <span class="ident">fmt::Debug</span>,
+    <span class="ident">marker::PhantomData</span>,
 };
-<span class="kw">use </span>ink_primitives::{
-    Key,
-    KeyComposer,
+<span class="kw">use</span> <span class="ident">ink_primitives</span>::{
+    <span class="ident">Key</span>,
+    <span class="ident">KeyComposer</span>,
 };
 
-<span class="doccomment">/// Auto key type means that the storage key should be calculated automatically.
-</span><span class="attribute">#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(scale_info::TypeInfo))]
-</span><span class="kw">pub struct </span>AutoKey;
+<span class="doccomment">/// Auto key type means that the storage key should be calculated automatically.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AutoKey</span>;
 
-<span class="kw">impl </span>StorageKey <span class="kw">for </span>AutoKey {
-    <span class="kw">const </span>KEY: Key = <span class="number">0</span>;
+<span class="kw">impl</span> <span class="ident">StorageKey</span> <span class="kw">for</span> <span class="ident">AutoKey</span> {
+    <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span> <span class="op">=</span> <span class="number">0</span>;
 }
 
-<span class="kw">impl </span>Debug <span class="kw">for </span>AutoKey {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;AutoKey&quot;</span>)
-            .field(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>StorageKey&gt;::KEY)
-            .finish()
+<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">AutoKey</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;AutoKey&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span>)
+            .<span class="ident">finish</span>()
     }
 }
 
-<span class="doccomment">/// Manual key type specifies the storage key.
-</span><span class="attribute">#[derive(Default, Copy, Clone, Eq, PartialEq, PartialOrd)]
-#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(scale_info::TypeInfo))]
-</span><span class="kw">pub struct </span>ManualKey&lt;<span class="kw">const </span>KEY: Key, ParentKey: StorageKey = ()&gt;(
-    PhantomData&lt;<span class="kw">fn</span>() -&gt; ParentKey&gt;,
+<span class="doccomment">/// Manual key type specifies the storage key.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span>, <span class="ident">ParentKey</span>: <span class="ident">StorageKey</span> <span class="op">=</span> ()<span class="op">&gt;</span>(
+    <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">ParentKey</span><span class="op">&gt;</span>,
 );
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>KEY: Key, ParentKey: StorageKey&gt; StorageKey <span class="kw">for </span>ManualKey&lt;KEY, ParentKey&gt; {
-    <span class="kw">const </span>KEY: Key = KeyComposer::concat(KEY, ParentKey::KEY);
+<span class="kw">impl</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span>, <span class="ident">ParentKey</span>: <span class="ident">StorageKey</span><span class="op">&gt;</span> <span class="ident">StorageKey</span> <span class="kw">for</span> <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="ident">KEY</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span> {
+    <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span> <span class="op">=</span> <span class="ident">KeyComposer::concat</span>(<span class="ident">KEY</span>, <span class="ident">ParentKey::KEY</span>);
 }
 
-<span class="kw">impl</span>&lt;<span class="kw">const </span>KEY: Key, ParentKey: StorageKey&gt; Debug <span class="kw">for </span>ManualKey&lt;KEY, ParentKey&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
-        f.debug_struct(<span class="string">&quot;ManualKey&quot;</span>)
-            .field(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>StorageKey&gt;::KEY)
-            .finish()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span>, <span class="ident">ParentKey</span>: <span class="ident">StorageKey</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="ident">KEY</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;ManualKey&quot;</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">StorageKey</span><span class="op">&gt;</span><span class="ident">::KEY</span>)
+            .<span class="ident">finish</span>()
     }
 }
 
-<span class="doccomment">/// Resolver key type selects between preferred key and autogenerated key.
-/// If the `L` type is `AutoKey` it returns auto-generated `R` else `L`.
-</span><span class="attribute">#[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Debug)]
-#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(scale_info::TypeInfo))]
-</span><span class="kw">pub struct </span>ResolverKey&lt;L: StorageKey, R: StorageKey&gt;(PhantomData&lt;<span class="kw">fn</span>() -&gt; (L, R)&gt;);
+<span class="doccomment">/// Resolver key type selects between preferred key and autogenerated key.</span>
+<span class="doccomment">/// If the `L` type is `AutoKey` it returns auto-generated `R` else `L`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResolverKey</span><span class="op">&lt;</span><span class="ident">L</span>: <span class="ident">StorageKey</span>, <span class="ident">R</span>: <span class="ident">StorageKey</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">L</span>, <span class="ident">R</span>)<span class="op">&gt;</span>);
 
-<span class="kw">impl</span>&lt;L: StorageKey, R: StorageKey&gt; StorageKey <span class="kw">for </span>ResolverKey&lt;L, R&gt; {
-    <span class="doccomment">/// `KEY` of the `AutoKey` is zero. If left key is zero, then use right manual key.
-    </span><span class="kw">const </span>KEY: Key = <span class="kw">if </span>L::KEY == <span class="number">0 </span>{ R::KEY } <span class="kw">else </span>{ L::KEY };
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">L</span>: <span class="ident">StorageKey</span>, <span class="ident">R</span>: <span class="ident">StorageKey</span><span class="op">&gt;</span> <span class="ident">StorageKey</span> <span class="kw">for</span> <span class="ident">ResolverKey</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// `KEY` of the `AutoKey` is zero. If left key is zero, then use right manual key.</span>
+    <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">L::KEY</span> <span class="op">==</span> <span class="number">0</span> { <span class="ident">R::KEY</span> } <span class="kw">else</span> { <span class="ident">L::KEY</span> };
 }
 
-<span class="kw">type </span>FinalKey&lt;T, <span class="kw">const </span>KEY: Key, ParentKey&gt; =
-    ResolverKey&lt;&lt;T <span class="kw">as </span>StorableHint&lt;ParentKey&gt;&gt;::PreferredKey, ManualKey&lt;KEY, ParentKey&gt;&gt;;
+<span class="kw">type</span> <span class="ident">FinalKey</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span> <span class="op">=</span>
+    <span class="ident">ResolverKey</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorableHint</span><span class="op">&lt;</span><span class="ident">ParentKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PreferredKey</span>, <span class="ident">ManualKey</span><span class="op">&lt;</span><span class="ident">KEY</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-<span class="comment">// `AutoStorableHint` trait figures out that storage key it should use.
-// - If the `PreferredKey` is `AutoKey` it will use an auto-generated key passed as generic
-// into `AutoStorableHint`.
-// - If `PreferredKey` is `ManualKey`, then it will use it.
-</span><span class="kw">impl</span>&lt;T, <span class="kw">const </span>KEY: Key, ParentKey&gt; AutoStorableHint&lt;ManualKey&lt;KEY, ParentKey&gt;&gt; <span class="kw">for </span>T
-<span class="kw">where
-    </span>T: StorableHint&lt;ParentKey&gt;,
-    T: StorableHint&lt;FinalKey&lt;T, KEY, ParentKey&gt;&gt;,
-    ParentKey: StorageKey,
+<span class="comment">// `AutoStorableHint` trait figures out that storage key it should use.</span>
+<span class="comment">// - If the `PreferredKey` is `AutoKey` it will use an auto-generated key passed as generic</span>
+<span class="comment">// into `AutoStorableHint`.</span>
+<span class="comment">// - If `PreferredKey` is `ManualKey`, then it will use it.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span> <span class="ident">AutoStorableHint</span><span class="op">&lt;</span><span class="ident">ManualKey</span><span class="op">&lt;</span><span class="ident">KEY</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">StorableHint</span><span class="op">&lt;</span><span class="ident">ParentKey</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">StorableHint</span><span class="op">&lt;</span><span class="ident">FinalKey</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">KEY</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">ParentKey</span>: <span class="ident">StorageKey</span>,
 {
-    <span class="kw">type </span>Type = &lt;T <span class="kw">as </span>StorableHint&lt;FinalKey&lt;T, KEY, ParentKey&gt;&gt;&gt;::Type;
+    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorableHint</span><span class="op">&lt;</span><span class="ident">FinalKey</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">KEY</span>, <span class="ident">ParentKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Type</span>;
 }
 
-<span class="kw">impl</span>&lt;P&gt; <span class="kw">super</span>::storage::private::Sealed <span class="kw">for </span>P <span class="kw">where </span>P: scale::Decode + scale::Encode {}
-<span class="kw">impl</span>&lt;P&gt; Packed <span class="kw">for </span>P <span class="kw">where </span>P: scale::Decode + scale::Encode {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="ident"><span class="kw">super</span>::storage::private::Sealed</span> <span class="kw">for</span> <span class="ident">P</span> <span class="kw">where</span> <span class="ident">P</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">scale::Encode</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="ident">Packed</span> <span class="kw">for</span> <span class="ident">P</span> <span class="kw">where</span> <span class="ident">P</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">scale::Encode</span> {}
 
-<span class="kw">impl</span>&lt;P&gt; StorageKey <span class="kw">for </span>P
-<span class="kw">where
-    </span>P: Packed,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="ident">StorageKey</span> <span class="kw">for</span> <span class="ident">P</span>
+<span class="kw">where</span>
+    <span class="ident">P</span>: <span class="ident">Packed</span>,
 {
-    <span class="kw">const </span>KEY: Key = <span class="number">0</span>;
+    <span class="kw">const</span> <span class="ident">KEY</span>: <span class="ident">Key</span> <span class="op">=</span> <span class="number">0</span>;
 }
 
-<span class="kw">impl</span>&lt;P, Key&gt; StorableHint&lt;Key&gt; <span class="kw">for </span>P
-<span class="kw">where
-    </span>P: Packed,
-    Key: StorageKey,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">Key</span><span class="op">&gt;</span> <span class="ident">StorableHint</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">P</span>
+<span class="kw">where</span>
+    <span class="ident">P</span>: <span class="ident">Packed</span>,
+    <span class="ident">Key</span>: <span class="ident">StorageKey</span>,
 {
-    <span class="kw">type </span>Type = P;
-    <span class="kw">type </span>PreferredKey = AutoKey;
+    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">P</span>;
+    <span class="kw">type</span> <span class="ident">PreferredKey</span> <span class="op">=</span> <span class="ident">AutoKey</span>;
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="doccomment">/// Creates test to verify that the primitive types are packed.
-    </span><span class="attribute">#[macro_export]
-    </span><span class="macro">macro_rules! </span>storage_hint_works_for_primitive {
-        ( <span class="macro-nonterminal">$ty</span>:ty ) =&gt; {
-            <span class="macro">paste::item! </span>{
-                <span class="attribute">#[test]
-                #[allow(non_snake_case)]
-                </span><span class="kw">fn </span>[&lt;<span class="macro-nonterminal">$ty </span>_storage_hint_works&gt;] () {
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="doccomment">/// Creates test to verify that the primitive types are packed.</span>
+    <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+    <span class="macro">macro_rules!</span> <span class="ident">storage_hint_works_for_primitive</span> {
+        ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span> ) =&gt; {
+            <span class="macro">paste::item!</span> {
+                <span class="attribute">#[<span class="ident">test</span>]</span>
+                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
+                <span class="kw">fn</span> [<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> <span class="ident">_storage_hint_works</span><span class="op">&gt;</span>] () {
                     <span class="macro">assert_eq!</span>(
-                        ::core::any::TypeId::of::&lt;<span class="macro-nonterminal">$ty</span>&gt;(),
-                        ::core::any::TypeId::of::&lt;&lt;<span class="macro-nonterminal">$ty </span><span class="kw">as </span><span class="macro-nonterminal">$crate::StorableHint</span>&lt;<span class="macro-nonterminal">$crate::ManualKey</span>&lt;<span class="number">123</span>&gt;&gt;&gt;::Type&gt;()
+                        <span class="ident">::core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span>(),
+                        <span class="ident">::core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::StorableHint</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::ManualKey</span><span class="op">&lt;</span><span class="number">123</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>()
                     );
                 }
             }
         };
     }
-    <span class="kw">mod </span>arrays {
-        <span class="kw">use </span><span class="kw">crate</span>::storage_hint_works_for_primitive;
+    <span class="kw">mod</span> <span class="ident">arrays</span> {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::storage_hint_works_for_primitive</span>;
 
-        <span class="kw">type </span>Array = [i32; <span class="number">4</span>];
-        <span class="macro">storage_hint_works_for_primitive!</span>(Array);
+        <span class="kw">type</span> <span class="ident">Array</span> <span class="op">=</span> [<span class="ident">i32</span>; <span class="number">4</span>];
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">Array</span>);
 
-        <span class="kw">type </span>ArrayTuples = [(i32, i32); <span class="number">2</span>];
-        <span class="macro">storage_hint_works_for_primitive!</span>(ArrayTuples);
+        <span class="kw">type</span> <span class="ident">ArrayTuples</span> <span class="op">=</span> [(<span class="ident">i32</span>, <span class="ident">i32</span>); <span class="number">2</span>];
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">ArrayTuples</span>);
     }
 
-    <span class="kw">mod </span>prims {
-        <span class="kw">use </span><span class="kw">crate</span>::storage_hint_works_for_primitive;
-        <span class="kw">use </span>ink_primitives::AccountId;
+    <span class="kw">mod</span> <span class="ident">prims</span> {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::storage_hint_works_for_primitive</span>;
+        <span class="kw">use</span> <span class="ident">ink_primitives::AccountId</span>;
 
-        <span class="macro">storage_hint_works_for_primitive!</span>(bool);
-        <span class="macro">storage_hint_works_for_primitive!</span>(String);
-        <span class="macro">storage_hint_works_for_primitive!</span>(AccountId);
-        <span class="macro">storage_hint_works_for_primitive!</span>(i8);
-        <span class="macro">storage_hint_works_for_primitive!</span>(i16);
-        <span class="macro">storage_hint_works_for_primitive!</span>(i32);
-        <span class="macro">storage_hint_works_for_primitive!</span>(i64);
-        <span class="macro">storage_hint_works_for_primitive!</span>(i128);
-        <span class="macro">storage_hint_works_for_primitive!</span>(u8);
-        <span class="macro">storage_hint_works_for_primitive!</span>(u16);
-        <span class="macro">storage_hint_works_for_primitive!</span>(u32);
-        <span class="macro">storage_hint_works_for_primitive!</span>(u64);
-        <span class="macro">storage_hint_works_for_primitive!</span>(u128);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">bool</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">String</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">AccountId</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">i8</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">i16</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">i32</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">i64</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">i128</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">u8</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">u16</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">u32</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">u64</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">u128</span>);
 
-        <span class="kw">type </span>OptionU8 = <span class="prelude-ty">Option</span>&lt;u8&gt;;
-        <span class="macro">storage_hint_works_for_primitive!</span>(OptionU8);
+        <span class="kw">type</span> <span class="ident">OptionU8</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">OptionU8</span>);
 
-        <span class="kw">type </span>ResultU8 = <span class="prelude-ty">Result</span>&lt;u8, bool&gt;;
-        <span class="macro">storage_hint_works_for_primitive!</span>(ResultU8);
+        <span class="kw">type</span> <span class="ident">ResultU8</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">bool</span><span class="op">&gt;</span>;
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">ResultU8</span>);
 
-        <span class="kw">type </span>BoxU8 = Box&lt;u8&gt;;
-        <span class="macro">storage_hint_works_for_primitive!</span>(BoxU8);
+        <span class="kw">type</span> <span class="ident">BoxU8</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">BoxU8</span>);
 
-        <span class="kw">type </span>BoxOptionU8 = Box&lt;<span class="prelude-ty">Option</span>&lt;u8&gt;&gt;;
-        <span class="macro">storage_hint_works_for_primitive!</span>(BoxOptionU8);
+        <span class="kw">type</span> <span class="ident">BoxOptionU8</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">BoxOptionU8</span>);
     }
 
-    <span class="kw">mod </span>tuples {
-        <span class="kw">use </span><span class="kw">crate</span>::storage_hint_works_for_primitive;
+    <span class="kw">mod</span> <span class="ident">tuples</span> {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::storage_hint_works_for_primitive</span>;
 
-        <span class="kw">type </span>TupleSix = (i32, u32, String, u8, bool, Box&lt;<span class="prelude-ty">Option</span>&lt;i32&gt;&gt;);
-        <span class="macro">storage_hint_works_for_primitive!</span>(TupleSix);
+        <span class="kw">type</span> <span class="ident">TupleSix</span> <span class="op">=</span> (<span class="ident">i32</span>, <span class="ident">u32</span>, <span class="ident">String</span>, <span class="ident">u8</span>, <span class="ident">bool</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+        <span class="macro">storage_hint_works_for_primitive!</span>(<span class="ident">TupleSix</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_storage_traits" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_storage_traits" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

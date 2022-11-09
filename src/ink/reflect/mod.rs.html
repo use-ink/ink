@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -55,60 +55,60 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="doccomment">//! Definitions and utilities for ink! smart contract static reflection.
-//!
-//! # Note
-//!
-//! The ink! smart contract codegen uses these reflections in order to
-//! structure, solidify and manage the generated code.
-//!
-//! However, the definitions in this module might be useful to ink! smart
-//! contract authors as well as they allow to inspect compile time information
-//! about the ink! smart contract at hand.
+<span class="doccomment">//! Definitions and utilities for ink! smart contract static reflection.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Note</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The ink! smart contract codegen uses these reflections in order to</span>
+<span class="doccomment">//! structure, solidify and manage the generated code.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! However, the definitions in this module might be useful to ink! smart</span>
+<span class="doccomment">//! contract authors as well as they allow to inspect compile time information</span>
+<span class="doccomment">//! about the ink! smart contract at hand.</span>
 
-</span><span class="kw">mod </span>contract;
-<span class="kw">mod </span>dispatch;
-<span class="kw">mod </span>event;
-<span class="kw">mod </span>trait_def;
+<span class="kw">mod</span> <span class="ident">contract</span>;
+<span class="kw">mod</span> <span class="ident">dispatch</span>;
+<span class="kw">mod</span> <span class="ident">event</span>;
+<span class="kw">mod</span> <span class="ident">trait_def</span>;
 
-<span class="kw">pub use </span><span class="self">self</span>::{
-    contract::{
-        ContractEnv,
-        ContractName,
-        ContractReference,
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">contract</span>::{
+        <span class="ident">ContractEnv</span>,
+        <span class="ident">ContractName</span>,
+        <span class="ident">ContractReference</span>,
     },
-    dispatch::{
-        ContractAmountDispatchables,
-        ContractConstructorDecoder,
-        ContractDispatchableConstructors,
-        ContractDispatchableMessages,
-        ContractMessageDecoder,
-        DecodeDispatch,
-        DispatchError,
-        DispatchableConstructorInfo,
-        DispatchableMessageInfo,
-        ExecuteDispatchable,
+    <span class="ident">dispatch</span>::{
+        <span class="ident">ContractAmountDispatchables</span>,
+        <span class="ident">ContractConstructorDecoder</span>,
+        <span class="ident">ContractDispatchableConstructors</span>,
+        <span class="ident">ContractDispatchableMessages</span>,
+        <span class="ident">ContractMessageDecoder</span>,
+        <span class="ident">DecodeDispatch</span>,
+        <span class="ident">DispatchError</span>,
+        <span class="ident">DispatchableConstructorInfo</span>,
+        <span class="ident">DispatchableMessageInfo</span>,
+        <span class="ident">ExecuteDispatchable</span>,
     },
-    event::ContractEventBase,
-    trait_def::{
-        TraitDefinitionRegistry,
-        TraitInfo,
-        TraitMessageInfo,
+    <span class="ident">event::ContractEventBase</span>,
+    <span class="ident">trait_def</span>::{
+        <span class="ident">TraitDefinitionRegistry</span>,
+        <span class="ident">TraitInfo</span>,
+        <span class="ident">TraitMessageInfo</span>,
     },
 };
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

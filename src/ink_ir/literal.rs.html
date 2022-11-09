@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/literal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>literal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/literal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>literal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -137,142 +137,142 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">mod </span>private {
-    <span class="doccomment">/// Used to prevent external direct usage of `HexLiteral::hex_impl_`.
-    </span><span class="kw">pub struct </span>Sealed;
+<span class="kw">mod</span> <span class="ident">private</span> {
+    <span class="doccomment">/// Used to prevent external direct usage of `HexLiteral::hex_impl_`.</span>
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sealed</span>;
 }
 
-<span class="doccomment">/// Used to convert literal values into their hex representations for code generation.
-</span><span class="kw">pub trait </span>HexLiteral {
-    <span class="doccomment">/// Shared implementation details.
-    ///
-    /// # Note
-    ///
-    /// Users shall not use this trait method directly hence it is hidden.
-    </span><span class="attribute">#[doc(hidden)]
-    </span><span class="kw">fn </span>hex_impl_(
+<span class="doccomment">/// Used to convert literal values into their hex representations for code generation.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HexLiteral</span> {
+    <span class="doccomment">/// Shared implementation details.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Users shall not use this trait method directly hence it is hidden.</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">hex_impl_</span>(
         <span class="self">self</span>,
-        fmt: ::core::fmt::Arguments,
-        sealed: private::Sealed,
-    ) -&gt; syn::LitInt;
+        <span class="ident">fmt</span>: <span class="ident">::core::fmt::Arguments</span>,
+        <span class="ident">sealed</span>: <span class="ident">private::Sealed</span>,
+    ) -&gt; <span class="ident">syn::LitInt</span>;
 
-    <span class="doccomment">/// Converts the given value into a hex represented literal with type suffix.
-    </span><span class="kw">fn </span>hex_suffixed(<span class="self">self</span>) -&gt; syn::LitInt;
+    <span class="doccomment">/// Converts the given value into a hex represented literal with type suffix.</span>
+    <span class="kw">fn</span> <span class="ident">hex_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
 
-    <span class="doccomment">/// Converts the given value into a hex represented literal without type suffix.
-    </span><span class="kw">fn </span>hex_unsuffixed(<span class="self">self</span>) -&gt; syn::LitInt;
+    <span class="doccomment">/// Converts the given value into a hex represented literal without type suffix.</span>
+    <span class="kw">fn</span> <span class="ident">hex_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
 
-    <span class="doccomment">/// Converts the given value into a hex represented literal with type suffix.
-    ///
-    /// The resulting hex encoded literal is padded with zeros.
-    </span><span class="kw">fn </span>hex_padded_suffixed(<span class="self">self</span>) -&gt; syn::LitInt;
+    <span class="doccomment">/// Converts the given value into a hex represented literal with type suffix.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The resulting hex encoded literal is padded with zeros.</span>
+    <span class="kw">fn</span> <span class="ident">hex_padded_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
 
-    <span class="doccomment">/// Converts the given value into a hex represented literal without type suffix.
-    ///
-    /// The resulting hex encoded literal is padded with zeros.
-    </span><span class="kw">fn </span>hex_padded_unsuffixed(<span class="self">self</span>) -&gt; syn::LitInt;
+    <span class="doccomment">/// Converts the given value into a hex represented literal without type suffix.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The resulting hex encoded literal is padded with zeros.</span>
+    <span class="kw">fn</span> <span class="ident">hex_padded_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
 }
 
-<span class="macro">macro_rules! </span>generate_hex_literal_impls {
-    ( $( (<span class="macro-nonterminal">$ty</span>:ty, <span class="macro-nonterminal">$name</span>:literal, <span class="macro-nonterminal">$fmt_suffixed</span>:literal, <span class="macro-nonterminal">$fmt_unsuffixed</span>:literal) ),* $(,)<span class="question-mark">? </span>) =&gt; {
+<span class="macro">macro_rules!</span> <span class="ident">generate_hex_literal_impls</span> {
+    ( $( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_suffixed</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_unsuffixed</span>:<span class="ident">literal</span>) ),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
         $(
-            <span class="kw">impl </span>HexLiteral <span class="kw">for </span><span class="macro-nonterminal">$ty </span>{
-                <span class="kw">fn </span>hex_impl_(<span class="self">self</span>, fmt: ::core::fmt::Arguments, _sealed: private::Sealed) -&gt; syn::LitInt {
-                    ::syn::LitInt::new(
-                        <span class="kw-2">&amp;</span><span class="macro">::std::format!</span>(<span class="string">&quot;{}&quot;</span>, fmt),
-                        proc_macro2::Span::call_site()
+            <span class="kw">impl</span> <span class="ident">HexLiteral</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
+                <span class="kw">fn</span> <span class="ident">hex_impl_</span>(<span class="self">self</span>, <span class="ident">fmt</span>: <span class="ident">::core::fmt::Arguments</span>, <span class="ident">_sealed</span>: <span class="ident">private::Sealed</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                    <span class="ident">::syn::LitInt::new</span>(
+                        <span class="kw-2">&amp;</span><span class="macro">::std::format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">fmt</span>),
+                        <span class="ident">proc_macro2::Span::call_site</span>()
                     )
                 }
 
-                <span class="kw">fn </span>hex_suffixed(<span class="self">self</span>) -&gt; syn::LitInt {
-                    <span class="self">self</span>.hex_impl_(<span class="macro">::core::format_args!</span>(<span class="string">&quot;0x{:X}_{}&quot;</span>, <span class="self">self</span>, <span class="macro-nonterminal">$name</span>), private::Sealed)
+                <span class="kw">fn</span> <span class="ident">hex_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                    <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="string">&quot;0x{:X}_{}&quot;</span>, <span class="self">self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="ident">private::Sealed</span>)
                 }
 
-                <span class="kw">fn </span>hex_unsuffixed(<span class="self">self</span>) -&gt; syn::LitInt {
-                    <span class="self">self</span>.hex_impl_(<span class="macro">::core::format_args!</span>(<span class="string">&quot;0x{:X}&quot;</span>, <span class="self">self</span>), private::Sealed)
+                <span class="kw">fn</span> <span class="ident">hex_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                    <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="string">&quot;0x{:X}&quot;</span>, <span class="self">self</span>), <span class="ident">private::Sealed</span>)
                 }
 
-                <span class="kw">fn </span>hex_padded_suffixed(<span class="self">self</span>) -&gt; syn::LitInt {
-                    <span class="self">self</span>.hex_impl_(<span class="macro">::core::format_args!</span>(<span class="macro-nonterminal">$fmt_suffixed</span>, <span class="self">self</span>, <span class="macro-nonterminal">$name</span>), private::Sealed)
+                <span class="kw">fn</span> <span class="ident">hex_padded_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                    <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_suffixed</span>, <span class="self">self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="ident">private::Sealed</span>)
                 }
 
-                <span class="kw">fn </span>hex_padded_unsuffixed(<span class="self">self</span>) -&gt; syn::LitInt {
-                    <span class="self">self</span>.hex_impl_(<span class="macro">::core::format_args!</span>(<span class="macro-nonterminal">$fmt_unsuffixed</span>, <span class="self">self</span>), private::Sealed)
+                <span class="kw">fn</span> <span class="ident">hex_padded_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                    <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_unsuffixed</span>, <span class="self">self</span>), <span class="ident">private::Sealed</span>)
                 }
             }
-        )*
+        )<span class="op">*</span>
     };
 }
-<span class="attribute">#[rustfmt::skip]
-</span><span class="macro">generate_hex_literal_impls!</span>(
-    (::core::primitive::i8 ,    <span class="string">&quot;i8&quot;</span>,  <span class="string">&quot;0x{:02X}_{}&quot;</span>,  <span class="string">&quot;0x{:02X}&quot;</span>),
-    (::core::primitive::u8 ,    <span class="string">&quot;u8&quot;</span>,  <span class="string">&quot;0x{:02X}_{}&quot;</span>,  <span class="string">&quot;0x{:02X}&quot;</span>),
-    (::core::primitive::i16,   <span class="string">&quot;i16&quot;</span>,  <span class="string">&quot;0x{:04X}_{}&quot;</span>,  <span class="string">&quot;0x{:04X}&quot;</span>),
-    (::core::primitive::u16,   <span class="string">&quot;u16&quot;</span>,  <span class="string">&quot;0x{:04X}_{}&quot;</span>,  <span class="string">&quot;0x{:04X}&quot;</span>),
-    (::core::primitive::i32,   <span class="string">&quot;i32&quot;</span>,  <span class="string">&quot;0x{:08X}_{}&quot;</span>,  <span class="string">&quot;0x{:08X}&quot;</span>),
-    (::core::primitive::u32,   <span class="string">&quot;u32&quot;</span>,  <span class="string">&quot;0x{:08X}_{}&quot;</span>,  <span class="string">&quot;0x{:08X}&quot;</span>),
-    (::core::primitive::i64,   <span class="string">&quot;i64&quot;</span>, <span class="string">&quot;0x{:016X}_{}&quot;</span>, <span class="string">&quot;0x{:016X}&quot;</span>),
-    (::core::primitive::u64,   <span class="string">&quot;u64&quot;</span>, <span class="string">&quot;0x{:016X}_{}&quot;</span>, <span class="string">&quot;0x{:016X}&quot;</span>),
-    (::core::primitive::i128, <span class="string">&quot;i128&quot;</span>, <span class="string">&quot;0x{:032X}_{}&quot;</span>, <span class="string">&quot;0x{:032X}&quot;</span>),
-    (::core::primitive::u128, <span class="string">&quot;u128&quot;</span>, <span class="string">&quot;0x{:032X}_{}&quot;</span>, <span class="string">&quot;0x{:032X}&quot;</span>),
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+<span class="macro">generate_hex_literal_impls!</span>(
+    (<span class="ident">::core::primitive::i8</span> ,    <span class="string">&quot;i8&quot;</span>,  <span class="string">&quot;0x{:02X}_{}&quot;</span>,  <span class="string">&quot;0x{:02X}&quot;</span>),
+    (<span class="ident">::core::primitive::u8</span> ,    <span class="string">&quot;u8&quot;</span>,  <span class="string">&quot;0x{:02X}_{}&quot;</span>,  <span class="string">&quot;0x{:02X}&quot;</span>),
+    (<span class="ident">::core::primitive::i16</span>,   <span class="string">&quot;i16&quot;</span>,  <span class="string">&quot;0x{:04X}_{}&quot;</span>,  <span class="string">&quot;0x{:04X}&quot;</span>),
+    (<span class="ident">::core::primitive::u16</span>,   <span class="string">&quot;u16&quot;</span>,  <span class="string">&quot;0x{:04X}_{}&quot;</span>,  <span class="string">&quot;0x{:04X}&quot;</span>),
+    (<span class="ident">::core::primitive::i32</span>,   <span class="string">&quot;i32&quot;</span>,  <span class="string">&quot;0x{:08X}_{}&quot;</span>,  <span class="string">&quot;0x{:08X}&quot;</span>),
+    (<span class="ident">::core::primitive::u32</span>,   <span class="string">&quot;u32&quot;</span>,  <span class="string">&quot;0x{:08X}_{}&quot;</span>,  <span class="string">&quot;0x{:08X}&quot;</span>),
+    (<span class="ident">::core::primitive::i64</span>,   <span class="string">&quot;i64&quot;</span>, <span class="string">&quot;0x{:016X}_{}&quot;</span>, <span class="string">&quot;0x{:016X}&quot;</span>),
+    (<span class="ident">::core::primitive::u64</span>,   <span class="string">&quot;u64&quot;</span>, <span class="string">&quot;0x{:016X}_{}&quot;</span>, <span class="string">&quot;0x{:016X}&quot;</span>),
+    (<span class="ident">::core::primitive::i128</span>, <span class="string">&quot;i128&quot;</span>, <span class="string">&quot;0x{:032X}_{}&quot;</span>, <span class="string">&quot;0x{:032X}&quot;</span>),
+    (<span class="ident">::core::primitive::u128</span>, <span class="string">&quot;u128&quot;</span>, <span class="string">&quot;0x{:032X}_{}&quot;</span>, <span class="string">&quot;0x{:032X}&quot;</span>),
 );
-<span class="attribute">#[cfg(target_pointer_width = <span class="string">&quot;16&quot;</span>)]
-</span><span class="macro">generate_hex_literal_impls!</span>(
-    (::core::primitive::usize, <span class="string">&quot;usize&quot;</span>, <span class="string">&quot;0x{:04X}_{}&quot;</span>, <span class="string">&quot;0x{:04X}&quot;</span>),
-    (::core::primitive::isize, <span class="string">&quot;isize&quot;</span>, <span class="string">&quot;0x{:04X}_{}&quot;</span>, <span class="string">&quot;0x{:04X}&quot;</span>),
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;16&quot;</span>)]</span>
+<span class="macro">generate_hex_literal_impls!</span>(
+    (<span class="ident">::core::primitive::usize</span>, <span class="string">&quot;usize&quot;</span>, <span class="string">&quot;0x{:04X}_{}&quot;</span>, <span class="string">&quot;0x{:04X}&quot;</span>),
+    (<span class="ident">::core::primitive::isize</span>, <span class="string">&quot;isize&quot;</span>, <span class="string">&quot;0x{:04X}_{}&quot;</span>, <span class="string">&quot;0x{:04X}&quot;</span>),
 );
-<span class="attribute">#[cfg(target_pointer_width = <span class="string">&quot;32&quot;</span>)]
-</span><span class="macro">generate_hex_literal_impls!</span>(
-    (::core::primitive::usize, <span class="string">&quot;usize&quot;</span>, <span class="string">&quot;0x{:08X}_{}&quot;</span>, <span class="string">&quot;0x{:08X}&quot;</span>),
-    (::core::primitive::isize, <span class="string">&quot;isize&quot;</span>, <span class="string">&quot;0x{:08X}_{}&quot;</span>, <span class="string">&quot;0x{:08X}&quot;</span>),
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;32&quot;</span>)]</span>
+<span class="macro">generate_hex_literal_impls!</span>(
+    (<span class="ident">::core::primitive::usize</span>, <span class="string">&quot;usize&quot;</span>, <span class="string">&quot;0x{:08X}_{}&quot;</span>, <span class="string">&quot;0x{:08X}&quot;</span>),
+    (<span class="ident">::core::primitive::isize</span>, <span class="string">&quot;isize&quot;</span>, <span class="string">&quot;0x{:08X}_{}&quot;</span>, <span class="string">&quot;0x{:08X}&quot;</span>),
 );
-<span class="attribute">#[cfg(target_pointer_width = <span class="string">&quot;64&quot;</span>)]
-</span><span class="macro">generate_hex_literal_impls!</span>(
-    (::core::primitive::usize, <span class="string">&quot;usize&quot;</span>, <span class="string">&quot;0x{:16X}_{}&quot;</span>, <span class="string">&quot;0x{:16X}&quot;</span>),
-    (::core::primitive::isize, <span class="string">&quot;isize&quot;</span>, <span class="string">&quot;0x{:16X}_{}&quot;</span>, <span class="string">&quot;0x{:16X}&quot;</span>),
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;64&quot;</span>)]</span>
+<span class="macro">generate_hex_literal_impls!</span>(
+    (<span class="ident">::core::primitive::usize</span>, <span class="string">&quot;usize&quot;</span>, <span class="string">&quot;0x{:16X}_{}&quot;</span>, <span class="string">&quot;0x{:16X}&quot;</span>),
+    (<span class="ident">::core::primitive::isize</span>, <span class="string">&quot;isize&quot;</span>, <span class="string">&quot;0x{:16X}_{}&quot;</span>, <span class="string">&quot;0x{:16X}&quot;</span>),
 );
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use </span><span class="kw">super</span>::HexLiteral <span class="kw">as _</span>;
-    <span class="kw">use </span>quote::quote;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::HexLiteral</span> <span class="kw">as</span> <span class="kw">_</span>;
+    <span class="kw">use</span> <span class="ident">quote::quote</span>;
 
-    <span class="kw">fn </span>assert_quote(given: syn::LitInt, expected: <span class="kw-2">&amp;</span>str) {
-        <span class="macro">assert_eq!</span>(<span class="macro">quote!</span>(#given).to_string(), expected);
+    <span class="kw">fn</span> <span class="ident">assert_quote</span>(<span class="ident">given</span>: <span class="ident">syn::LitInt</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+        <span class="macro">assert_eq!</span>(<span class="macro">quote!</span>(#<span class="ident">given</span>).<span class="ident">to_string</span>(), <span class="ident">expected</span>);
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>simple() {
-        <span class="kw">let </span>value = <span class="number">0x42_i32</span>;
-        <span class="macro">assert_eq!</span>(<span class="macro">quote!</span>(#value).to_string(), <span class="string">&quot;66i32&quot;</span>);
-        assert_quote(value.hex_suffixed(), <span class="string">&quot;0x42_i32&quot;</span>);
-        assert_quote(value.hex_unsuffixed(), <span class="string">&quot;0x42&quot;</span>);
-        assert_quote(value.hex_padded_suffixed(), <span class="string">&quot;0x00000042_i32&quot;</span>);
-        assert_quote(value.hex_padded_unsuffixed(), <span class="string">&quot;0x00000042&quot;</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">simple</span>() {
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="number">0x42_i32</span>;
+        <span class="macro">assert_eq!</span>(<span class="macro">quote!</span>(#<span class="ident">value</span>).<span class="ident">to_string</span>(), <span class="string">&quot;66i32&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_suffixed</span>(), <span class="string">&quot;0x42_i32&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_unsuffixed</span>(), <span class="string">&quot;0x42&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_padded_suffixed</span>(), <span class="string">&quot;0x00000042_i32&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_padded_unsuffixed</span>(), <span class="string">&quot;0x00000042&quot;</span>);
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>code_cafe() {
-        <span class="kw">let </span>value = <span class="number">0xC0DE_CAFE_u32</span>;
-        assert_quote(value.hex_suffixed(), <span class="string">&quot;0xC0DECAFE_u32&quot;</span>);
-        assert_quote(value.hex_padded_suffixed(), <span class="string">&quot;0xC0DECAFE_u32&quot;</span>);
-        assert_quote(value.hex_unsuffixed(), <span class="string">&quot;0xC0DECAFE&quot;</span>);
-        assert_quote(value.hex_padded_unsuffixed(), <span class="string">&quot;0xC0DECAFE&quot;</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">code_cafe</span>() {
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="number">0xC0DE_CAFE_u32</span>;
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_suffixed</span>(), <span class="string">&quot;0xC0DECAFE_u32&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_padded_suffixed</span>(), <span class="string">&quot;0xC0DECAFE_u32&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_unsuffixed</span>(), <span class="string">&quot;0xC0DECAFE&quot;</span>);
+        <span class="ident">assert_quote</span>(<span class="ident">value</span>.<span class="ident">hex_padded_unsuffixed</span>(), <span class="string">&quot;0xC0DECAFE&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

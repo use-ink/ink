@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface for a chain extension."><meta name="keywords" content="rust, rustlang, rust-lang, chain_extension"><title>chain_extension in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface for a chain extension."><meta name="keywords" content="rust, rustlang, rust-lang, chain_extension"><title>chain_extension in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In ink</a></h2></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[chain_extension]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
 <h2 id="structure"><a href="#structure">Structure</a></h2>
@@ -28,14 +28,14 @@ can be flagged:</p>
 </div>
 <p>As with all ink! attributes multiple of them can either appear in a contiguous list:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink(extension = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>, returns_result = <span class="bool-val">false</span>)]
-</span><span class="kw">fn </span>key_access_for_account(key: <span class="kw-2">&amp;</span>[u8], account: <span class="kw-2">&amp;</span>[u8]) -&gt; Access;</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+<span class="kw">fn</span> <span class="ident">key_access_for_account</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">account</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Access</span>;</code></pre></div>
 <p>…or as multiple stand alone ink! attributes applied to the same item:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink(extension = <span class="number">5</span>)]
-#[ink(handle_status = <span class="bool-val">false</span>)]
-#[ink(returns_result = <span class="bool-val">false</span>)]
-</span><span class="kw">fn </span>key_access_for_account(key: <span class="kw-2">&amp;</span>[u8], account: <span class="kw-2">&amp;</span>[u8]) -&gt; Access;</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>)]</span>
+<span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+<span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+<span class="kw">fn</span> <span class="ident">key_access_for_account</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">account</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Access</span>;</code></pre></div>
 <h3 id="details-handle_status"><a href="#details-handle_status">Details: <code>handle_status</code></a></h3>
 <p>Default value: <code>true</code></p>
 <p>By default all chain extension methods return a <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>.
@@ -72,12 +72,12 @@ there are 4 different cases with slightly varying semantics:</p>
 </div><h2 id="error-code"><a href="#error-code">Error Code</a></h2>
 <p>Every chain extension defines exactly one <code>ErrorCode</code> using the following syntax:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::chain_extension]
-</span><span class="kw">pub trait </span>MyChainExtension {
-    <span class="kw">type </span>ErrorCode = MyErrorCode;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::chain_extension</span>]</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
+    <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> <span class="ident">MyErrorCode</span>;
 
-    <span class="comment">// more definitions
-</span>}</code></pre></div>
+    <span class="comment">// more definitions</span>
+}</code></pre></div>
 <p>The defined <code>ErrorCode</code> must implement <code>FromStatusCode</code> which should be implemented as a
 more or less trivial conversion from the <code>u32</code> status code to a <code>Result&lt;(), Self::ErrorCode&gt;</code>.
 The <code>Ok(())</code> value indicates that the call to the chain extension method was successful.</p>
@@ -87,64 +87,64 @@ However, chain extension authors may use whatever suits their needs.</p>
 <p>In the below example a chain extension is defined that allows its users to read and write
 from and to the runtime storage using access privileges:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="doccomment">/// Custom chain extension to read to and write from the runtime.
-</span><span class="attribute">#[ink::chain_extension]
-</span><span class="kw">pub trait </span>RuntimeReadWrite {
-    <span class="kw">type </span>ErrorCode = ReadWriteErrorCode;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="doccomment">/// Custom chain extension to read to and write from the runtime.</span>
+<span class="attribute">#[<span class="ident">ink::chain_extension</span>]</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">RuntimeReadWrite</span> {
+    <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> <span class="ident">ReadWriteErrorCode</span>;
 
-    <span class="doccomment">/// Reads from runtime storage.
-    ///
-    /// # Note
-    ///
-    /// Actually returns a value of type `Result&lt;Vec&lt;u8&gt;, Self::ErrorCode&gt;`.
-    </span><span class="attribute">#[ink(extension = <span class="number">1</span>, returns_result = <span class="bool-val">false</span>)]
-    </span><span class="kw">fn </span>read(key: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt;;
+    <span class="doccomment">/// Reads from runtime storage.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Actually returns a value of type `Result&lt;Vec&lt;u8&gt;, Self::ErrorCode&gt;`.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Reads from runtime storage.
-    ///
-    /// Returns the number of bytes read and up to 32 bytes of the
-    /// read value. Unused bytes in the output are set to 0.
-    ///
-    /// # Errors
-    ///
-    /// If the runtime storage cell stores a value that requires more than
-    /// 32 bytes.
-    ///
-    /// # Note
-    ///
-    /// This requires `ReadWriteError` to implement `From&lt;ReadWriteErrorCode&gt;`
-    /// and may potentially return any `Self::ErrorCode` through its return value.
-    </span><span class="attribute">#[ink(extension = <span class="number">2</span>)]
-    </span><span class="kw">fn </span>read_small(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, [u8; <span class="number">32</span>]), ReadWriteError&gt;;
+    <span class="doccomment">/// Reads from runtime storage.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the number of bytes read and up to 32 bytes of the</span>
+    <span class="doccomment">/// read value. Unused bytes in the output are set to 0.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the runtime storage cell stores a value that requires more than</span>
+    <span class="doccomment">/// 32 bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This requires `ReadWriteError` to implement `From&lt;ReadWriteErrorCode&gt;`</span>
+    <span class="doccomment">/// and may potentially return any `Self::ErrorCode` through its return value.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">read_small</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, [<span class="ident">u8</span>; <span class="number">32</span>]), <span class="ident">ReadWriteError</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Writes into runtime storage.
-    ///
-    /// # Note
-    ///
-    /// Actually returns a value of type `Result&lt;(), Self::ErrorCode&gt;`.
-    </span><span class="attribute">#[ink(extension = <span class="number">3</span>, returns_result = <span class="bool-val">false</span>)]
-    </span><span class="kw">fn </span>write(key: <span class="kw-2">&amp;</span>[u8], value: <span class="kw-2">&amp;</span>[u8]);
+    <span class="doccomment">/// Writes into runtime storage.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Actually returns a value of type `Result&lt;(), Self::ErrorCode&gt;`.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">3</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">write</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">value</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]);
 
-    <span class="doccomment">/// Returns the access allowed for the key for the caller.
-    ///
-    /// # Note
-    ///
-    /// Assumes to never fail the call and therefore always returns `Option&lt;Access&gt;`.
-    </span><span class="attribute">#[ink(extension = <span class="number">4</span>, returns_result = <span class="bool-val">false</span>, handle_status = <span class="bool-val">false</span>)]
-    </span><span class="kw">fn </span>access(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Access&gt;;
+    <span class="doccomment">/// Returns the access allowed for the key for the caller.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Assumes to never fail the call and therefore always returns `Option&lt;Access&gt;`.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">4</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">access</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Access</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Unlocks previously aquired permission to access key.
-    ///
-    /// # Errors
-    ///
-    /// If the permission was not granted.
-    ///
-    /// # Note
-    ///
-    /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
-    /// to implement `From&lt;Self::ErrorCode&gt;` as in the `read_small` method above.
-    </span><span class="attribute">#[ink(extension = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>)]
-    </span><span class="kw">fn </span>unlock_access(key: <span class="kw-2">&amp;</span>[u8], access: Access) -&gt; <span class="prelude-ty">Result</span>&lt;(), UnlockAccessError&gt;;
+    <span class="doccomment">/// Unlocks previously aquired permission to access key.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the permission was not granted.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`</span>
+    <span class="doccomment">/// to implement `From&lt;Self::ErrorCode&gt;` as in the `read_small` method above.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">unlock_access</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">access</span>: <span class="ident">Access</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UnlockAccessError</span><span class="op">&gt;</span>;
 }</code></pre></div>
 <p>All the error types and other utility types used in the chain extension definition
 above are often required to implement various traits such as SCALE’s <code>Encode</code> and <code>Decode</code>
@@ -155,21 +155,21 @@ as well as <code>scale-info</code>’s <code>TypeInfo</code> trait.</p>
 <p>In order to allow ink! smart contracts to use the above defined chain extension it needs
 to be integrated into an <code>Environment</code> definition as shown below:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ink_env::{Environment, DefaultEnvironment};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_env</span>::{<span class="ident">Environment</span>, <span class="ident">DefaultEnvironment</span>};
 
-<span class="kw">pub enum </span>CustomEnvironment {}
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CustomEnvironment</span> {}
 
-<span class="kw">impl </span>Environment <span class="kw">for </span>CustomEnvironment {
-    <span class="kw">const </span>MAX_EVENT_TOPICS: usize =
-        &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::MAX_EVENT_TOPICS;
+<span class="kw">impl</span> <span class="ident">Environment</span> <span class="kw">for</span> <span class="ident">CustomEnvironment</span> {
+    <span class="kw">const</span> <span class="ident">MAX_EVENT_TOPICS</span>: <span class="ident">usize</span> <span class="op">=</span>
+        <span class="op">&lt;</span><span class="ident">DefaultEnvironment</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::MAX_EVENT_TOPICS</span>;
 
-    <span class="kw">type </span>AccountId = &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::AccountId;
-    <span class="kw">type </span>Balance = &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::Balance;
-    <span class="kw">type </span>Hash = &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::Hash;
-    <span class="kw">type </span>BlockNumber = &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::BlockNumber;
-    <span class="kw">type </span>Timestamp = &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::Timestamp;
+    <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultEnvironment</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>;
+    <span class="kw">type</span> <span class="ident">Balance</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultEnvironment</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Balance</span>;
+    <span class="kw">type</span> <span class="ident">Hash</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultEnvironment</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Hash</span>;
+    <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultEnvironment</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::BlockNumber</span>;
+    <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">DefaultEnvironment</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Timestamp</span>;
 
-    <span class="kw">type </span>ChainExtension = RuntimeReadWrite;
+    <span class="kw">type</span> <span class="ident">ChainExtension</span> <span class="op">=</span> <span class="ident">RuntimeReadWrite</span>;
 }</code></pre></div>
 <p>Above we defined the <code>CustomEnvironment</code> which defaults to ink!’s <code>DefaultEnvironment</code>
 for all constants and types but the <code>ChainExtension</code> type which is assigned to our newly
@@ -182,52 +182,52 @@ shown below.</p>
 <code>self.extension()</code>. For example as in <code>Self::extension().read(...)</code> or
 <code>self.extension().read(...)</code>.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink::contract(env = CustomEnvironment)]
-</span><span class="kw">mod </span>read_writer {
-    <span class="attribute">#[ink(storage)]
-    </span><span class="kw">pub struct </span>ReadWriter {}
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">env</span> <span class="op">=</span> <span class="ident">CustomEnvironment</span>)]</span>
+<span class="kw">mod</span> <span class="ident">read_writer</span> {
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReadWriter</span> {}
 
-    <span class="kw">impl </span>ReadWriter {
-        <span class="attribute">#[ink(constructor)]
-        </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{ <span class="self">Self </span>{} }
+    <span class="kw">impl</span> <span class="ident">ReadWriter</span> {
+        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> { <span class="self">Self</span> {} }
 
-        <span class="attribute">#[ink(message)]
-        </span><span class="kw">pub fn </span>read(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, ReadWriteErrorCode&gt; {
-            <span class="self">self</span>.env()
-                .extension()
-                .read(<span class="kw-2">&amp;</span>key)
+        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ReadWriteErrorCode</span><span class="op">&gt;</span> {
+            <span class="self">self</span>.<span class="ident">env</span>()
+                .<span class="ident">extension</span>()
+                .<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
         }
 
-        <span class="attribute">#[ink(message)]
-        </span><span class="kw">pub fn </span>read_small(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(u32, [u8; <span class="number">32</span>]), ReadWriteError&gt; {
-            <span class="self">self</span>.env()
-                .extension()
-                .read_small(<span class="kw-2">&amp;</span>key)
+        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_small</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, [<span class="ident">u8</span>; <span class="number">32</span>]), <span class="ident">ReadWriteError</span><span class="op">&gt;</span> {
+            <span class="self">self</span>.<span class="ident">env</span>()
+                .<span class="ident">extension</span>()
+                .<span class="ident">read_small</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
         }
 
-        <span class="attribute">#[ink(message)]
-        </span><span class="kw">pub fn </span>write(
+        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write</span>(
             <span class="kw-2">&amp;</span><span class="self">self</span>,
-            key: Vec&lt;u8&gt;,
-            value: Vec&lt;u8&gt;,
-        ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ReadWriteErrorCode&gt; {
-            <span class="self">self</span>.env()
-                .extension()
-                .write(<span class="kw-2">&amp;</span>key, <span class="kw-2">&amp;</span>value)
+            <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+            <span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+        ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ReadWriteErrorCode</span><span class="op">&gt;</span> {
+            <span class="self">self</span>.<span class="ident">env</span>()
+                .<span class="ident">extension</span>()
+                .<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>)
         }
 
-        <span class="attribute">#[ink(message)]
-        </span><span class="kw">pub fn </span>access(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Access&gt; {
-            <span class="self">self</span>.env()
-                .extension()
-                .access(<span class="kw-2">&amp;</span>key)
+        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">access</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Access</span><span class="op">&gt;</span> {
+            <span class="self">self</span>.<span class="ident">env</span>()
+                .<span class="ident">extension</span>()
+                .<span class="ident">access</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
         }
 
-        <span class="attribute">#[ink(message)]
-        </span><span class="kw">pub fn </span>unlock_access(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Vec&lt;u8&gt;, access: Access) -&gt; <span class="prelude-ty">Result</span>&lt;(), UnlockAccessError&gt; {
-            <span class="self">self</span>.env()
-                .extension()
-                .unlock_access(<span class="kw-2">&amp;</span>key, access)
+        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unlock_access</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">access</span>: <span class="ident">Access</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UnlockAccessError</span><span class="op">&gt;</span> {
+            <span class="self">self</span>.<span class="ident">env</span>()
+                .<span class="ident">extension</span>()
+                .<span class="ident">unlock_access</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="ident">access</span>)
         }
     }
 }</code></pre></div>
@@ -240,4 +240,4 @@ This limitation might be lifted in future versions of ink!.</li>
 <li>It is not possible to declare other chain extension traits as super traits or super
 chain extensions of another.</li>
 </ul>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/test_api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -396,401 +396,401 @@
 <span id="394">394</span>
 <span id="395">395</span>
 <span id="396">396</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="doccomment">//! Operations on the off-chain testing environment.
+<span class="doccomment">//! Operations on the off-chain testing environment.</span>
 
-</span><span class="kw">use super</span>::{
-    EnvInstance,
-    OnInstance,
+<span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">EnvInstance</span>,
+    <span class="ident">OnInstance</span>,
 };
-<span class="kw">use crate</span>::{
-    Environment,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use </span>core::fmt::Debug;
-<span class="kw">use </span>ink_engine::test_api::RecordedDebugMessages;
-<span class="kw">use </span>std::panic::UnwindSafe;
+<span class="kw">use</span> <span class="ident">core::fmt::Debug</span>;
+<span class="kw">use</span> <span class="ident">ink_engine::test_api::RecordedDebugMessages</span>;
+<span class="kw">use</span> <span class="ident">std::panic::UnwindSafe</span>;
 
-<span class="kw">pub use </span><span class="kw">super</span>::call_data::CallData;
-<span class="kw">pub use </span>ink_engine::ChainExtension;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::call_data::CallData</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_engine::ChainExtension</span>;
 
-<span class="doccomment">/// Record for an emitted event.
-</span><span class="attribute">#[derive(Clone)]
-</span><span class="kw">pub struct </span>EmittedEvent {
-    <span class="doccomment">/// Recorded topics of the emitted event.
-    </span><span class="kw">pub </span>topics: Vec&lt;Vec&lt;u8&gt;&gt;,
-    <span class="doccomment">/// Recorded encoding of the emitted event.
-    </span><span class="kw">pub </span>data: Vec&lt;u8&gt;,
+<span class="doccomment">/// Record for an emitted event.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EmittedEvent</span> {
+    <span class="doccomment">/// Recorded topics of the emitted event.</span>
+    <span class="kw">pub</span> <span class="ident">topics</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Recorded encoding of the emitted event.</span>
+    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
 }
 
-<span class="doccomment">/// Sets the balance of the account to the given balance.
-///
-/// # Note
-///
-/// Note that account could refer to either a user account or
-/// a smart contract account.
-///
-/// # Errors
-///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-/// - If the underlying `new_balance` type does not match.
-</span><span class="kw">pub fn </span>set_account_balance&lt;T&gt;(account_id: T::AccountId, new_balance: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id), new_balance);
-    })
-}
-
-<span class="doccomment">/// Returns the balance of the account.
-///
-/// # Note
-///
-/// Note that account could refer to either a user account or
-/// a smart contract account. This returns the same as `env::api::balance`
-/// if given the account id of the currently executed smart contract.
-///
-/// # Errors
-///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-</span><span class="kw">pub fn </span>get_account_balance&lt;T&gt;(account_id: T::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;T::Balance&gt;
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .get_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
-            .map_err(Into::into)
-    })
-}
-
-<span class="doccomment">/// Registers a new chain extension.
-</span><span class="kw">pub fn </span>register_chain_extension&lt;E&gt;(extension: E)
-<span class="kw">where
-    </span>E: ink_engine::ChainExtension + <span class="lifetime">&#39;static</span>,
+<span class="doccomment">/// Sets the balance of the account to the given balance.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that account could refer to either a user account or</span>
+<span class="doccomment">/// a smart contract account.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - If `account` does not exist.</span>
+<span class="doccomment">/// - If the underlying `account` type does not match.</span>
+<span class="doccomment">/// - If the underlying `new_balance` type does not match.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_account_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T::AccountId</span>, <span class="ident">new_balance</span>: <span class="ident">T::Balance</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&lt;</span><span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span><span class="op">&gt;</span>, <span class="comment">// Just temporary for the MVP!</span>
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .chain_extension_handler
-            .register(Box::new(extension));
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>), <span class="ident">new_balance</span>);
     })
 }
 
-<span class="doccomment">/// Returns the contents of the past performed environmental debug messages in order.
-</span><span class="kw">pub fn </span>recorded_debug_messages() -&gt; RecordedDebugMessages {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.get_emitted_debug_messages()
+<span class="doccomment">/// Returns the balance of the account.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that account could refer to either a user account or</span>
+<span class="doccomment">/// a smart contract account. This returns the same as `env::api::balance`</span>
+<span class="doccomment">/// if given the account id of the currently executed smart contract.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - If `account` does not exist.</span>
+<span class="doccomment">/// - If the underlying `account` type does not match.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_account_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T::AccountId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&lt;</span><span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span><span class="op">&gt;</span>, <span class="comment">// Just temporary for the MVP!</span>
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">get_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     })
 }
 
-<span class="doccomment">/// Set to true to disable clearing storage
-///
-/// # Note
-///
-/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
-/// because lazy storage structures automatically clear their associated cells when they are dropped.
-</span><span class="kw">pub fn </span>set_clear_storage_disabled(_disable: bool) {
+<span class="doccomment">/// Registers a new chain extension.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_chain_extension</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">extension</span>: <span class="ident">E</span>)
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">ink_engine::ChainExtension</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">chain_extension_handler</span>
+            .<span class="ident">register</span>(<span class="ident">Box::new</span>(<span class="ident">extension</span>));
+    })
+}
+
+<span class="doccomment">/// Returns the contents of the past performed environmental debug messages in order.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recorded_debug_messages</span>() -&gt; <span class="ident">RecordedDebugMessages</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">get_emitted_debug_messages</span>()
+    })
+}
+
+<span class="doccomment">/// Set to true to disable clearing storage</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,</span>
+<span class="doccomment">/// because lazy storage structures automatically clear their associated cells when they are dropped.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clear_storage_disabled</span>(<span class="ident">_disable</span>: <span class="ident">bool</span>) {
     <span class="macro">unimplemented!</span>(
-        <span class="string">&quot;off-chain environment does not yet support `set_clear_storage_disabled`&quot;
-    </span>);
+        <span class="string">&quot;off-chain environment does not yet support `set_clear_storage_disabled`&quot;</span>
+    );
 }
 
-<span class="doccomment">/// Advances the chain by a single block.
-</span><span class="kw">pub fn </span>advance_block&lt;T&gt;()
-<span class="kw">where
-    </span>T: Environment,
+<span class="doccomment">/// Advances the chain by a single block.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">advance_block</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.advance_block();
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">advance_block</span>();
     })
 }
 
-<span class="doccomment">/// Sets a caller for the next call.
-</span><span class="kw">pub fn </span>set_caller&lt;T&gt;(caller: T::AccountId)
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+<span class="doccomment">/// Sets a caller for the next call.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_caller</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">caller</span>: <span class="ident">T::AccountId</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.set_caller(scale::Encode::encode(<span class="kw-2">&amp;</span>caller));
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_caller</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">caller</span>));
     })
 }
 
-<span class="doccomment">/// Sets the callee for the next call.
-</span><span class="kw">pub fn </span>set_callee&lt;T&gt;(callee: T::AccountId)
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+<span class="doccomment">/// Sets the callee for the next call.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_callee</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">callee</span>: <span class="ident">T::AccountId</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.set_callee(scale::Encode::encode(<span class="kw-2">&amp;</span>callee));
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_callee</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">callee</span>));
     })
 }
 
-<span class="doccomment">/// Gets the currently set callee.
-///
-/// This is account id of the currently executing contract.
-</span><span class="kw">pub fn </span>callee&lt;T&gt;() -&gt; T::AccountId
-<span class="kw">where
-    </span>T: Environment,
+<span class="doccomment">/// Gets the currently set callee.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is account id of the currently executing contract.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callee</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">T::AccountId</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        <span class="kw">let </span>callee = instance.engine.get_callee();
-        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>callee[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encoding failed: {}&quot;</span>, err))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">callee</span> <span class="op">=</span> <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">get_callee</span>();
+        <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">callee</span>[..])
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;encoding failed: {}&quot;</span>, <span class="ident">err</span>))
     })
 }
 
-<span class="doccomment">/// Returns the total number of reads and writes of the contract&#39;s storage.
-</span><span class="kw">pub fn </span>get_contract_storage_rw&lt;T&gt;(account_id: <span class="kw-2">&amp;</span>T::AccountId) -&gt; (usize, usize)
-<span class="kw">where
-    </span>T: Environment,
+<span class="doccomment">/// Returns the total number of reads and writes of the contract&#39;s storage.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_storage_rw</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T::AccountId</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .get_contract_storage_rw(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">get_contract_storage_rw</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
     })
 }
 
-<span class="doccomment">/// Sets the balance of `account_id` to `new_balance`.
-</span><span class="kw">pub fn </span>set_balance&lt;T&gt;(account_id: T::AccountId, new_balance: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-    </span>&lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+<span class="doccomment">/// Sets the balance of `account_id` to `new_balance`.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T::AccountId</span>, <span class="ident">new_balance</span>: <span class="ident">T::Balance</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&lt;</span><span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span><span class="op">&gt;</span>, <span class="comment">// Just temporary for the MVP!</span>
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id), new_balance);
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>), <span class="ident">new_balance</span>);
     })
 }
 
-<span class="doccomment">/// Sets the value transferred from the caller to the callee as part of the call.
-///
-/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
-</span><span class="kw">pub fn </span>set_value_transferred&lt;T&gt;(value: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.set_value_transferred(value);
+<span class="doccomment">/// Sets the value transferred from the caller to the callee as part of the call.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_value_transferred</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">T::Balance</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&lt;</span><span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span><span class="op">&gt;</span>, <span class="comment">// Just temporary for the MVP!</span>
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_value_transferred</span>(<span class="ident">value</span>);
     })
 }
 
-<span class="doccomment">/// Transfers value from the caller account to the contract.
-///
-/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
-</span><span class="kw">pub fn </span>transfer_in&lt;T&gt;(value: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-</span>{
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        <span class="kw">let </span>caller = instance
-            .engine
-            .exec_context
-            .caller
-            .as_ref()
-            .expect(<span class="string">&quot;no caller has been set&quot;</span>)
-            .as_bytes()
-            .to_vec();
+<span class="doccomment">/// Transfers value from the caller account to the contract.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer_in</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="ident">T::Balance</span>)
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&lt;</span><span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span><span class="op">&gt;</span>, <span class="comment">// Just temporary for the MVP!</span>
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">exec_context</span>
+            .<span class="ident">caller</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">expect</span>(<span class="string">&quot;no caller has been set&quot;</span>)
+            .<span class="ident">as_bytes</span>()
+            .<span class="ident">to_vec</span>();
 
-        <span class="kw">let </span>caller_old_balance = instance
-            .engine
-            .get_balance(caller.clone())
-            .unwrap_or_default();
+        <span class="kw">let</span> <span class="ident">caller_old_balance</span> <span class="op">=</span> <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">get_balance</span>(<span class="ident">caller</span>.<span class="ident">clone</span>())
+            .<span class="ident">unwrap_or_default</span>();
 
-        <span class="kw">let </span>callee = instance.engine.get_callee();
-        <span class="kw">let </span>contract_old_balance = instance
-            .engine
-            .get_balance(callee.clone())
-            .unwrap_or_default();
+        <span class="kw">let</span> <span class="ident">callee</span> <span class="op">=</span> <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">get_callee</span>();
+        <span class="kw">let</span> <span class="ident">contract_old_balance</span> <span class="op">=</span> <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">get_balance</span>(<span class="ident">callee</span>.<span class="ident">clone</span>())
+            .<span class="ident">unwrap_or_default</span>();
 
-        instance
-            .engine
-            .set_balance(caller, caller_old_balance - value);
-        instance
-            .engine
-            .set_balance(callee, contract_old_balance + value);
-        instance.engine.set_value_transferred(value);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">caller</span>, <span class="ident">caller_old_balance</span> <span class="op">-</span> <span class="ident">value</span>);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">callee</span>, <span class="ident">contract_old_balance</span> <span class="op">+</span> <span class="ident">value</span>);
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_value_transferred</span>(<span class="ident">value</span>);
     });
 }
 
-<span class="doccomment">/// Returns the amount of storage cells used by the account `account_id`.
-///
-/// Returns `None` if the `account_id` is non-existent.
-</span><span class="kw">pub fn </span>count_used_storage_cells&lt;T&gt;(account_id: <span class="kw-2">&amp;</span>T::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;
-<span class="kw">where
-    </span>T: Environment,
+<span class="doccomment">/// Returns the amount of storage cells used by the account `account_id`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Returns `None` if the `account_id` is non-existent.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_used_storage_cells</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T::AccountId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .count_used_storage_cells(<span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
-            .map_err(Into::into)
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">count_used_storage_cells</span>(<span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     })
 }
 
-<span class="doccomment">/// Runs the given closure test function with the default configuration
-/// for the off-chain environment.
-</span><span class="kw">pub fn </span>run_test&lt;T, F&gt;(f: F) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
-<span class="kw">where
-    </span>T: Environment,
-    F: FnOnce(DefaultAccounts&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+<span class="doccomment">/// Runs the given closure test function with the default configuration</span>
+<span class="doccomment">/// for the off-chain environment.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_test</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    <span class="kw">let </span>default_accounts = default_accounts::&lt;T&gt;();
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance.engine.initialize_or_reset();
+    <span class="kw">let</span> <span class="ident">default_accounts</span> <span class="op">=</span> <span class="ident">default_accounts</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">initialize_or_reset</span>();
 
-        <span class="kw">let </span>encoded_alice = scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.alice);
-        instance.engine.set_caller(encoded_alice.clone());
-        instance.engine.set_callee(encoded_alice.clone());
+        <span class="kw">let</span> <span class="ident">encoded_alice</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">default_accounts</span>.<span class="ident">alice</span>);
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_caller</span>(<span class="ident">encoded_alice</span>.<span class="ident">clone</span>());
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_callee</span>(<span class="ident">encoded_alice</span>.<span class="ident">clone</span>());
 
-        <span class="comment">// set up the funds for the default accounts
-        </span><span class="kw">let </span>substantial = <span class="number">1_000_000</span>;
-        <span class="kw">let </span>some = <span class="number">1_000</span>;
-        instance.engine.set_balance(encoded_alice, substantial);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.bob), some);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.charlie), some);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.django), <span class="number">0</span>);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.eve), <span class="number">0</span>);
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>default_accounts.frank), <span class="number">0</span>);
+        <span class="comment">// set up the funds for the default accounts</span>
+        <span class="kw">let</span> <span class="ident">substantial</span> <span class="op">=</span> <span class="number">1_000_000</span>;
+        <span class="kw">let</span> <span class="ident">some</span> <span class="op">=</span> <span class="number">1_000</span>;
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">set_balance</span>(<span class="ident">encoded_alice</span>, <span class="ident">substantial</span>);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">default_accounts</span>.<span class="ident">bob</span>), <span class="ident">some</span>);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">default_accounts</span>.<span class="ident">charlie</span>), <span class="ident">some</span>);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">default_accounts</span>.<span class="ident">django</span>), <span class="number">0</span>);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">default_accounts</span>.<span class="ident">eve</span>), <span class="number">0</span>);
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">set_balance</span>(<span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">default_accounts</span>.<span class="ident">frank</span>), <span class="number">0</span>);
     });
-    f(default_accounts)
+    <span class="ident">f</span>(<span class="ident">default_accounts</span>)
 }
 
-<span class="doccomment">/// Returns the default accounts for testing purposes:
-/// Alice, Bob, Charlie, Django, Eve and Frank.
-</span><span class="kw">pub fn </span>default_accounts&lt;T&gt;() -&gt; DefaultAccounts&lt;T&gt;
-<span class="kw">where
-    </span>T: Environment,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+<span class="doccomment">/// Returns the default accounts for testing purposes:</span>
+<span class="doccomment">/// Alice, Bob, Charlie, Django, Eve and Frank.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_accounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    DefaultAccounts {
-        alice: T::AccountId::from([<span class="number">0x01</span>; <span class="number">32</span>]),
-        bob: T::AccountId::from([<span class="number">0x02</span>; <span class="number">32</span>]),
-        charlie: T::AccountId::from([<span class="number">0x03</span>; <span class="number">32</span>]),
-        django: T::AccountId::from([<span class="number">0x04</span>; <span class="number">32</span>]),
-        eve: T::AccountId::from([<span class="number">0x05</span>; <span class="number">32</span>]),
-        frank: T::AccountId::from([<span class="number">0x06</span>; <span class="number">32</span>]),
+    <span class="ident">DefaultAccounts</span> {
+        <span class="ident">alice</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x01</span>; <span class="number">32</span>]),
+        <span class="ident">bob</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x02</span>; <span class="number">32</span>]),
+        <span class="ident">charlie</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x03</span>; <span class="number">32</span>]),
+        <span class="ident">django</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x04</span>; <span class="number">32</span>]),
+        <span class="ident">eve</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x05</span>; <span class="number">32</span>]),
+        <span class="ident">frank</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x06</span>; <span class="number">32</span>]),
     }
 }
 
-<span class="doccomment">/// The default accounts.
-</span><span class="kw">pub struct </span>DefaultAccounts&lt;T&gt;
-<span class="kw">where
-    </span>T: Environment,
+<span class="doccomment">/// The default accounts.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// The predefined `ALICE` account holding substantial amounts of value.
-    </span><span class="kw">pub </span>alice: T::AccountId,
-    <span class="doccomment">/// The predefined `BOB` account holding some amounts of value.
-    </span><span class="kw">pub </span>bob: T::AccountId,
-    <span class="doccomment">/// The predefined `CHARLIE` account holding some amounts of value.
-    </span><span class="kw">pub </span>charlie: T::AccountId,
-    <span class="doccomment">/// The predefined `DJANGO` account holding no value.
-    </span><span class="kw">pub </span>django: T::AccountId,
-    <span class="doccomment">/// The predefined `EVE` account holding no value.
-    </span><span class="kw">pub </span>eve: T::AccountId,
-    <span class="doccomment">/// The predefined `FRANK` account holding no value.
-    </span><span class="kw">pub </span>frank: T::AccountId,
+    <span class="doccomment">/// The predefined `ALICE` account holding substantial amounts of value.</span>
+    <span class="kw">pub</span> <span class="ident">alice</span>: <span class="ident">T::AccountId</span>,
+    <span class="doccomment">/// The predefined `BOB` account holding some amounts of value.</span>
+    <span class="kw">pub</span> <span class="ident">bob</span>: <span class="ident">T::AccountId</span>,
+    <span class="doccomment">/// The predefined `CHARLIE` account holding some amounts of value.</span>
+    <span class="kw">pub</span> <span class="ident">charlie</span>: <span class="ident">T::AccountId</span>,
+    <span class="doccomment">/// The predefined `DJANGO` account holding no value.</span>
+    <span class="kw">pub</span> <span class="ident">django</span>: <span class="ident">T::AccountId</span>,
+    <span class="doccomment">/// The predefined `EVE` account holding no value.</span>
+    <span class="kw">pub</span> <span class="ident">eve</span>: <span class="ident">T::AccountId</span>,
+    <span class="doccomment">/// The predefined `FRANK` account holding no value.</span>
+    <span class="kw">pub</span> <span class="ident">frank</span>: <span class="ident">T::AccountId</span>,
 }
 
-<span class="doccomment">/// Returns the recorded emitted events in order.
-</span><span class="kw">pub fn </span>recorded_events() -&gt; <span class="kw">impl </span>Iterator&lt;Item = EmittedEvent&gt; {
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .get_emitted_events()
-            .into_iter()
-            .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+<span class="doccomment">/// Returns the recorded emitted events in order.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recorded_events</span>() -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">EmittedEvent</span><span class="op">&gt;</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>
+            .<span class="ident">engine</span>
+            .<span class="ident">get_emitted_events</span>()
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">evt</span>: <span class="ident">ink_engine::test_api::EmittedEvent</span><span class="op">|</span> <span class="ident">evt</span>.<span class="ident">into</span>())
     })
 }
 
-<span class="doccomment">/// Tests if a contract terminates successfully after `self.env().terminate()`
-/// has been called.
-///
-/// The arguments denote:
-///
-/// * `should_terminate`: A closure in which the function supposed to terminate is called.
-/// * `expected_beneficiary`: The beneficiary account who should have received the
-///    remaining value in the contract
-/// * `expected_value_transferred_to_beneficiary`: The value which should have been transferred
-///   to the `expected_beneficiary`.
-/// # Usage
-///
-/// ```no_compile
-/// let should_terminate = move || your_contract.fn_which_should_terminate();
-/// ink_env::test::assert_contract_termination::&lt;ink_env::DefaultEnvironment, _&gt;(
-///     should_terminate,
-///     expected_beneficiary,
-///     expected_value_transferred_to_beneficiary
-/// );
-/// ```
-///
-/// See `examples/contract-terminate` for a complete usage example.
-</span><span class="kw">pub fn </span>assert_contract_termination&lt;T, F&gt;(
-    should_terminate: F,
-    expected_beneficiary: T::AccountId,
-    expected_value_transferred_to_beneficiary: T::Balance,
-) <span class="kw">where
-    </span>T: Environment,
-    F: FnMut() + UnwindSafe,
-    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: Debug,
-    &lt;T <span class="kw">as </span>Environment&gt;::Balance: Debug,
+<span class="doccomment">/// Tests if a contract terminates successfully after `self.env().terminate()`</span>
+<span class="doccomment">/// has been called.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The arguments denote:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * `should_terminate`: A closure in which the function supposed to terminate is called.</span>
+<span class="doccomment">/// * `expected_beneficiary`: The beneficiary account who should have received the</span>
+<span class="doccomment">///    remaining value in the contract</span>
+<span class="doccomment">/// * `expected_value_transferred_to_beneficiary`: The value which should have been transferred</span>
+<span class="doccomment">///   to the `expected_beneficiary`.</span>
+<span class="doccomment">/// # Usage</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_compile</span>
+<span class="doccomment">/// let should_terminate = move || your_contract.fn_which_should_terminate();</span>
+<span class="doccomment">/// ink_env::test::assert_contract_termination::&lt;ink_env::DefaultEnvironment, _&gt;(</span>
+<span class="doccomment">///     should_terminate,</span>
+<span class="doccomment">///     expected_beneficiary,</span>
+<span class="doccomment">///     expected_value_transferred_to_beneficiary</span>
+<span class="doccomment">/// );</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See `examples/contract-terminate` for a complete usage example.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assert_contract_termination</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(
+    <span class="ident">should_terminate</span>: <span class="ident">F</span>,
+    <span class="ident">expected_beneficiary</span>: <span class="ident">T::AccountId</span>,
+    <span class="ident">expected_value_transferred_to_beneficiary</span>: <span class="ident">T::Balance</span>,
+) <span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="ident">F</span>: <span class="ident">FnMut</span>() <span class="op">+</span> <span class="ident">UnwindSafe</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">Debug</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Balance</span>: <span class="ident">Debug</span>,
 {
-    <span class="kw">let </span>value_any = ::std::panic::catch_unwind(should_terminate)
-        .expect_err(<span class="string">&quot;contract did not terminate&quot;</span>);
-    <span class="kw">let </span>encoded_input = value_any
-        .downcast_ref::&lt;Vec&lt;u8&gt;&gt;()
-        .expect(<span class="string">&quot;panic object can not be cast&quot;</span>);
-    <span class="kw">let </span>(value_transferred, encoded_beneficiary): (T::Balance, Vec&lt;u8&gt;) =
-        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_input[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {}&quot;</span>, err));
-    <span class="kw">let </span>beneficiary =
-        &lt;T::AccountId <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_beneficiary[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {}&quot;</span>, err));
-    <span class="macro">assert_eq!</span>(value_transferred, expected_value_transferred_to_beneficiary);
-    <span class="macro">assert_eq!</span>(beneficiary, expected_beneficiary);
+    <span class="kw">let</span> <span class="ident">value_any</span> <span class="op">=</span> <span class="ident">::std::panic::catch_unwind</span>(<span class="ident">should_terminate</span>)
+        .<span class="ident">expect_err</span>(<span class="string">&quot;contract did not terminate&quot;</span>);
+    <span class="kw">let</span> <span class="ident">encoded_input</span> <span class="op">=</span> <span class="ident">value_any</span>
+        .<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+        .<span class="ident">expect</span>(<span class="string">&quot;panic object can not be cast&quot;</span>);
+    <span class="kw">let</span> (<span class="ident">value_transferred</span>, <span class="ident">encoded_beneficiary</span>): (<span class="ident">T::Balance</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>
+        <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded_input</span>[..])
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {}&quot;</span>, <span class="ident">err</span>));
+    <span class="kw">let</span> <span class="ident">beneficiary</span> <span class="op">=</span>
+        <span class="op">&lt;</span><span class="ident">T::AccountId</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded_beneficiary</span>[..])
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {}&quot;</span>, <span class="ident">err</span>));
+    <span class="macro">assert_eq!</span>(<span class="ident">value_transferred</span>, <span class="ident">expected_value_transferred_to_beneficiary</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">beneficiary</span>, <span class="ident">expected_beneficiary</span>);
 }
 
-<span class="doccomment">/// Prepend contract message call with value transfer. Used for tests in off-chain environment.
-</span><span class="attribute">#[macro_export]
-</span><span class="macro">macro_rules! </span>pay_with_call {
-    (<span class="macro-nonterminal">$contract</span>:ident . <span class="macro-nonterminal">$message</span>:ident ( $( <span class="macro-nonterminal">$params</span>:expr ),* ) , <span class="macro-nonterminal">$amount</span>:expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::test::transfer_in</span>::&lt;Environment&gt;(<span class="macro-nonterminal">$amount</span>);
-        <span class="macro-nonterminal">$contract</span>.<span class="macro-nonterminal">$message</span>($ (<span class="macro-nonterminal">$params</span>) ,<span class="kw-2">*</span>)
+<span class="doccomment">/// Prepend contract message call with value transfer. Used for tests in off-chain environment.</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">pay_with_call</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">contract</span>:<span class="ident">ident</span> . <span class="macro-nonterminal">$</span><span class="macro-nonterminal">message</span>:<span class="ident">ident</span> ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">params</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) , <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amount</span>:<span class="ident">expr</span>) =&gt; {{
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::test::transfer_in</span>::<span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">amount</span>);
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">contract</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">message</span>($ (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">params</span>) ,<span class="kw-2">*</span>)
     }}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

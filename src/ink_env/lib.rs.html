@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -168,173 +168,173 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="doccomment">//! The `ink_env` utilities used to interoperate with the contract executor.
-//!
-//! Mainly provides entities to work on a contract&#39;s storage
-//! as well as high-level collections on top of those.
-//! Also provides environmental utilities, such as storage allocators,
-//! FFI to interface with FRAME contracts and a primitive blockchain
-//! emulator for simple off-chain testing.
+<span class="doccomment">//! The `ink_env` utilities used to interoperate with the contract executor.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Mainly provides entities to work on a contract&#39;s storage</span>
+<span class="doccomment">//! as well as high-level collections on top of those.</span>
+<span class="doccomment">//! Also provides environmental utilities, such as storage allocators,</span>
+<span class="doccomment">//! FFI to interface with FRAME contracts and a primitive blockchain</span>
+<span class="doccomment">//! emulator for simple off-chain testing.</span>
 
-</span><span class="attribute">#![doc(
-    html_logo_url = <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
-    html_favicon_url = <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;
-</span>)]
-#![cfg_attr(not(feature = <span class="string">&quot;std&quot;</span>), no_std)]
-#![deny(
-    missing_docs,
-    bad_style,
-    bare_trait_objects,
-    const_err,
-    improper_ctypes,
-    non_shorthand_field_patterns,
-    no_mangle_generic_items,
-    overflowing_literals,
-    path_statements,
-    patterns_in_fns_without_body,
-    private_in_public,
-    unconditional_recursion,
-    unused_allocation,
-    unused_comparisons,
-    unused_parens,
-    while_true,
-    trivial_casts,
-    trivial_numeric_casts,
-    unused_extern_crates
-)]
+<span class="attribute">#![<span class="ident">doc</span>(
+    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
+    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;</span>
+)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(
+    <span class="ident">missing_docs</span>,
+    <span class="ident">bad_style</span>,
+    <span class="ident">bare_trait_objects</span>,
+    <span class="ident">const_err</span>,
+    <span class="ident">improper_ctypes</span>,
+    <span class="ident">non_shorthand_field_patterns</span>,
+    <span class="ident">no_mangle_generic_items</span>,
+    <span class="ident">overflowing_literals</span>,
+    <span class="ident">path_statements</span>,
+    <span class="ident">patterns_in_fns_without_body</span>,
+    <span class="ident">private_in_public</span>,
+    <span class="ident">unconditional_recursion</span>,
+    <span class="ident">unused_allocation</span>,
+    <span class="ident">unused_comparisons</span>,
+    <span class="ident">unused_parens</span>,
+    <span class="ident">while_true</span>,
+    <span class="ident">trivial_casts</span>,
+    <span class="ident">trivial_numeric_casts</span>,
+    <span class="ident">unused_extern_crates</span>
+)]</span>
 
-#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-#[allow(unused_extern_crates)]
-</span><span class="kw">extern crate </span>rlibc;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_extern_crates</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rlibc</span>;
 
-<span class="attribute">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-#[allow(unused_variables)]
-#[panic_handler]
-</span><span class="kw">fn </span>panic(info: <span class="kw-2">&amp;</span>core::panic::PanicInfo) -&gt; ! {
-    <span class="comment">// This code gets removed in release builds where the macro will expand into nothing.
-    </span><span class="macro">debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, info);
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
+<span class="attribute">#[<span class="ident">panic_handler</span>]</span>
+<span class="kw">fn</span> <span class="ident">panic</span>(<span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">core::panic::PanicInfo</span>) -&gt; <span class="op">!</span> {
+    <span class="comment">// This code gets removed in release builds where the macro will expand into nothing.</span>
+    <span class="macro">debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="ident">info</span>);
 
-    <span class="comment">// We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    // This is used in order to make any panic a direct abort avoiding Rust&#39;s general
-    // panic infrastructure.
-    </span>core::arch::wasm32::unreachable();
+    <span class="comment">// We only use this operation if we are guaranteed to be in Wasm32 compilation.</span>
+    <span class="comment">// This is used in order to make any panic a direct abort avoiding Rust&#39;s general</span>
+    <span class="comment">// panic infrastructure.</span>
+    <span class="ident">core::arch::wasm32::unreachable</span>();
 }
 
-<span class="comment">// This extern crate definition is required since otherwise rustc
-// is not recognizing its allocator and panic handler definitions.
-</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
-</span><span class="kw">extern crate </span>ink_allocator;
+<span class="comment">// This extern crate definition is required since otherwise rustc</span>
+<span class="comment">// is not recognizing its allocator and panic handler definitions.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">ink_allocator</span>;
 
-<span class="kw">mod </span>api;
-<span class="kw">mod </span>arithmetic;
-<span class="kw">mod </span>backend;
-<span class="kw">pub mod </span>call;
-<span class="kw">pub mod </span>chain_extension;
-<span class="kw">mod </span>engine;
-<span class="kw">mod </span>error;
-<span class="kw">pub mod </span>hash;
-<span class="attribute">#[doc(hidden)]
-</span><span class="kw">pub mod </span>topics;
-<span class="kw">mod </span>types;
+<span class="kw">mod</span> <span class="ident">api</span>;
+<span class="kw">mod</span> <span class="ident">arithmetic</span>;
+<span class="kw">mod</span> <span class="ident">backend</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">call</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chain_extension</span>;
+<span class="kw">mod</span> <span class="ident">engine</span>;
+<span class="kw">mod</span> <span class="ident">error</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hash</span>;
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">topics</span>;
+<span class="kw">mod</span> <span class="ident">types</span>;
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="attribute">#[cfg(any(feature = <span class="string">&quot;std&quot;</span>, test, doc))]
-#[doc(inline)]
-</span><span class="kw">pub use </span><span class="self">self</span>::engine::off_chain::test_api <span class="kw">as </span>test;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::engine::off_chain::test_api</span> <span class="kw">as</span> <span class="ident">test</span>;
 
-<span class="kw">use </span><span class="self">self</span>::backend::{
-    EnvBackend,
-    TypedEnvBackend,
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::backend</span>::{
+    <span class="ident">EnvBackend</span>,
+    <span class="ident">TypedEnvBackend</span>,
 };
-<span class="kw">pub use </span><span class="self">self</span>::{
-    api::<span class="kw-2">*</span>,
-    backend::{
-        CallFlags,
-        ReturnFlags,
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">api</span>::<span class="kw-2">*</span>,
+    <span class="ident">backend</span>::{
+        <span class="ident">CallFlags</span>,
+        <span class="ident">ReturnFlags</span>,
     },
-    error::{
-        Error,
+    <span class="ident">error</span>::{
+        <span class="ident">Error</span>,
         <span class="prelude-ty">Result</span>,
     },
-    topics::Topics,
-    types::{
-        DefaultEnvironment,
-        Environment,
-        FromLittleEndian,
-        Gas,
-        NoChainExtension,
+    <span class="ident">topics::Topics</span>,
+    <span class="ident">types</span>::{
+        <span class="ident">DefaultEnvironment</span>,
+        <span class="ident">Environment</span>,
+        <span class="ident">FromLittleEndian</span>,
+        <span class="ident">Gas</span>,
+        <span class="ident">NoChainExtension</span>,
     },
 };
-<span class="kw">use </span>ink_primitives::Clear;
+<span class="kw">use</span> <span class="ident">ink_primitives::Clear</span>;
 
-<span class="macro">cfg_if::cfg_if! </span>{
-    <span class="kw">if </span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;ink-debug&quot;</span>, feature = <span class="string">&quot;std&quot;</span>))] </span>{
-        <span class="doccomment">/// Required by the `debug_print*` macros below, because there is no guarantee that
-        /// contracts will have a direct `ink_prelude` dependency. In the future we could introduce
-        /// an &quot;umbrella&quot; crate containing all the `ink!` crates which could also host these macros.
-        </span><span class="attribute">#[doc(hidden)]
-        </span><span class="kw">pub use </span>ink_prelude::format;
+<span class="macro">cfg_if::cfg_if!</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-debug&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span> {
+        <span class="doccomment">/// Required by the `debug_print*` macros below, because there is no guarantee that</span>
+        <span class="doccomment">/// contracts will have a direct `ink_prelude` dependency. In the future we could introduce</span>
+        <span class="doccomment">/// an &quot;umbrella&quot; crate containing all the `ink!` crates which could also host these macros.</span>
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_prelude::format</span>;
 
-        <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer if message recording is
-        /// enabled in the contracts pallet and if the call is performed via RPC (**not** via an
-        /// extrinsic). The `debug_message` buffer will be:
-        ///  - Returned to the RPC caller.
-        ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
-        ///    node console&#39;s `stdout` when the log level is set to `-lruntime::contracts=debug`.
-        ///
-        /// # Note
-        ///
-        /// This depends on the `seal_debug_message` interface which requires the
-        /// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.
-        </span><span class="attribute">#[macro_export]
-        </span><span class="macro">macro_rules! </span>debug_print {
-            ($(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; (<span class="macro-nonterminal">$crate::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>)));
+        <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer if message recording is</span>
+        <span class="doccomment">/// enabled in the contracts pallet and if the call is performed via RPC (**not** via an</span>
+        <span class="doccomment">/// extrinsic). The `debug_message` buffer will be:</span>
+        <span class="doccomment">///  - Returned to the RPC caller.</span>
+        <span class="doccomment">///  - Logged as a `debug!` message on the Substrate node, which will be printed to the</span>
+        <span class="doccomment">///    node console&#39;s `stdout` when the log level is set to `-lruntime::contracts=debug`.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Note</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This depends on the `seal_debug_message` interface which requires the</span>
+        <span class="doccomment">/// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.</span>
+        <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+        <span class="macro">macro_rules!</span> <span class="ident">debug_print</span> {
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>)));
         }
 
-        <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
-        /// with a newline appended.
-        ///
-        /// # Note
-        ///
-        /// This depends on the `seal_debug_message` interface which requires the
-        /// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.
-        </span><span class="attribute">#[macro_export]
-        </span><span class="macro">macro_rules! </span>debug_println {
+        <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but</span>
+        <span class="doccomment">/// with a newline appended.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Note</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This depends on the `seal_debug_message` interface which requires the</span>
+        <span class="doccomment">/// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.</span>
+        <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+        <span class="macro">macro_rules!</span> <span class="ident">debug_println</span> {
             () =&gt; (<span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;\n&quot;</span>));
-            ($(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; (
-                <span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$arg</span>)<span class="kw-2">*</span>));
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; (
+                <span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>));
             )
         }
-    } <span class="kw">else </span>{
-        <span class="attribute">#[macro_export]
-        </span><span class="doccomment">/// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
-        </span><span class="macro">macro_rules! </span>debug_print {
-            ($(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; ();
+    } <span class="kw">else</span> {
+        <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+        <span class="doccomment">/// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.</span>
+        <span class="macro">macro_rules!</span> <span class="ident">debug_print</span> {
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ();
         }
 
-        <span class="attribute">#[macro_export]
-        </span><span class="doccomment">/// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
-        </span><span class="macro">macro_rules! </span>debug_println {
+        <span class="attribute">#[<span class="ident">macro_export</span>]</span>
+        <span class="doccomment">/// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.</span>
+        <span class="macro">macro_rules!</span> <span class="ident">debug_println</span> {
             () =&gt; ();
-            ($(<span class="macro-nonterminal">$arg</span>:tt)<span class="kw-2">*</span>) =&gt; ();
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) =&gt; ();
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

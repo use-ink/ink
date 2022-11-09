@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ast/attr_args.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>attr_args.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ast/attr_args.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>attr_args.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -305,310 +305,310 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span>proc_macro2::{
-    Ident,
-    TokenStream <span class="kw">as </span>TokenStream2,
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
+    <span class="ident">Ident</span>,
+    <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>,
 };
-<span class="kw">use </span>quote::ToTokens;
-<span class="kw">use </span>syn::{
-    ext::IdentExt <span class="kw">as _</span>,
-    parse::{
-        Parse,
-        ParseStream,
+<span class="kw">use</span> <span class="ident">quote::ToTokens</span>;
+<span class="kw">use</span> <span class="ident">syn</span>::{
+    <span class="ident">ext::IdentExt</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">parse</span>::{
+        <span class="ident">Parse</span>,
+        <span class="ident">ParseStream</span>,
     },
-    punctuated::Punctuated,
-    spanned::Spanned,
-    Token,
+    <span class="ident">punctuated::Punctuated</span>,
+    <span class="ident">spanned::Spanned</span>,
+    <span class="ident">Token</span>,
 };
 
-<span class="doccomment">/// The attribute arguments for the configuration of an ink! smart contract.
-///
-/// For example, the segment `env = ::my::env::Environment`
-/// in `#[ink::contract(env = ::my::env::Environment)]`.
-</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>AttributeArgs {
-    args: Punctuated&lt;MetaNameValue, <span class="macro">Token!</span>[,]&gt;,
+<span class="doccomment">/// The attribute arguments for the configuration of an ink! smart contract.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// For example, the segment `env = ::my::env::Environment`</span>
+<span class="doccomment">/// in `#[ink::contract(env = ::my::env::Environment)]`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AttributeArgs</span> {
+    <span class="ident">args</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">MetaNameValue</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span>,
 }
 
-<span class="doccomment">/// A name-value pair within an attribute, like `feature = &quot;nightly&quot;`.
-///
-/// The only difference from `syn::MetaNameValue` is that this additionally
-/// allows the `value` to be a plain identifier or path.
-</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>MetaNameValue {
-    <span class="kw">pub </span>name: syn::Path,
-    <span class="kw">pub </span>eq_token: syn::token::Eq,
-    <span class="kw">pub </span>value: PathOrLit,
+<span class="doccomment">/// A name-value pair within an attribute, like `feature = &quot;nightly&quot;`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The only difference from `syn::MetaNameValue` is that this additionally</span>
+<span class="doccomment">/// allows the `value` to be a plain identifier or path.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MetaNameValue</span> {
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">syn::Path</span>,
+    <span class="kw">pub</span> <span class="ident">eq_token</span>: <span class="ident">syn::token::Eq</span>,
+    <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">PathOrLit</span>,
 }
 
-<span class="doccomment">/// Either a path or a literal.
-</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>PathOrLit {
-    Path(syn::Path),
-    Lit(syn::Lit),
+<span class="doccomment">/// Either a path or a literal.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathOrLit</span> {
+    <span class="ident">Path</span>(<span class="ident">syn::Path</span>),
+    <span class="ident">Lit</span>(<span class="ident">syn::Lit</span>),
 }
 
-<span class="kw">impl </span>IntoIterator <span class="kw">for </span>AttributeArgs {
-    <span class="kw">type </span>Item = MetaNameValue;
-    <span class="kw">type </span>IntoIter = syn::punctuated::IntoIter&lt;MetaNameValue&gt;;
+<span class="kw">impl</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">AttributeArgs</span> {
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaNameValue</span>;
+    <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">syn::punctuated::IntoIter</span><span class="op">&lt;</span><span class="ident">MetaNameValue</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
-        <span class="self">self</span>.args.into_iter()
+    <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::IntoIter</span> {
+        <span class="self">self</span>.<span class="ident">args</span>.<span class="ident">into_iter</span>()
     }
 }
 
-<span class="kw">impl </span>Parse <span class="kw">for </span>AttributeArgs {
-    <span class="kw">fn </span>parse(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, syn::Error&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            args: Punctuated::parse_terminated(input)<span class="question-mark">?</span>,
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">AttributeArgs</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+            <span class="ident">args</span>: <span class="ident">Punctuated::parse_terminated</span>(<span class="ident">input</span>)<span class="question-mark">?</span>,
         })
     }
 }
 
-<span class="kw">impl </span>Parse <span class="kw">for </span>MetaNameValue {
-    <span class="kw">fn </span>parse(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, syn::Error&gt; {
-        <span class="kw">let </span>path = input.call(<span class="self">Self</span>::parse_meta_path)<span class="question-mark">?</span>;
-        <span class="self">Self</span>::parse_meta_name_value_after_path(path, input)
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">MetaNameValue</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">call</span>(<span class="ident"><span class="self">Self</span>::parse_meta_path</span>)<span class="question-mark">?</span>;
+        <span class="ident"><span class="self">Self</span>::parse_meta_name_value_after_path</span>(<span class="ident">path</span>, <span class="ident">input</span>)
     }
 }
 
-<span class="kw">impl </span>ToTokens <span class="kw">for </span>PathOrLit {
-    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream2) {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Lit(lit) =&gt; lit.to_tokens(tokens),
-            <span class="self">Self</span>::Path(path) =&gt; path.to_tokens(tokens),
+<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">PathOrLit</span> {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream2</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Lit</span>(<span class="ident">lit</span>) =&gt; <span class="ident">lit</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident"><span class="self">Self</span>::Path</span>(<span class="ident">path</span>) =&gt; <span class="ident">path</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
         }
     }
 }
 
-<span class="kw">impl </span>ToTokens <span class="kw">for </span>MetaNameValue {
-    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream2) {
-        <span class="self">self</span>.name.to_tokens(tokens);
-        <span class="self">self</span>.eq_token.to_tokens(tokens);
-        <span class="self">self</span>.value.to_tokens(tokens);
+<span class="kw">impl</span> <span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">MetaNameValue</span> {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TokenStream2</span>) {
+        <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
+        <span class="self">self</span>.<span class="ident">eq_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
+        <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
     }
 }
 
-<span class="kw">impl </span>MetaNameValue {
-    <span class="doccomment">/// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.
-    ///
-    /// # Note
-    ///
-    /// This code was taken from the `syn` implementation for a very similar
-    /// syntactical pattern.
-    </span><span class="kw">fn </span>parse_meta_path(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;syn::Path, syn::Error&gt; {
-        <span class="prelude-val">Ok</span>(syn::Path {
-            leading_colon: input.parse()<span class="question-mark">?</span>,
-            segments: {
-                <span class="kw">let </span><span class="kw-2">mut </span>segments = Punctuated::new();
-                <span class="kw">while </span>input.peek(Ident::peek_any) {
-                    <span class="kw">let </span>ident = Ident::parse_any(input)<span class="question-mark">?</span>;
-                    segments.push_value(syn::PathSegment::from(ident));
-                    <span class="kw">if </span>!input.peek(<span class="macro">syn::Token!</span>[::]) {
-                        <span class="kw">break
-                    </span>}
-                    <span class="kw">let </span>punct = input.parse()<span class="question-mark">?</span>;
-                    segments.push_punct(punct);
+<span class="kw">impl</span> <span class="ident">MetaNameValue</span> {
+    <span class="doccomment">/// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This code was taken from the `syn` implementation for a very similar</span>
+    <span class="doccomment">/// syntactical pattern.</span>
+    <span class="kw">fn</span> <span class="ident">parse_meta_path</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">syn::Path</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">syn::Path</span> {
+            <span class="ident">leading_colon</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">segments</span>: {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segments</span> <span class="op">=</span> <span class="ident">Punctuated::new</span>();
+                <span class="kw">while</span> <span class="ident">input</span>.<span class="ident">peek</span>(<span class="ident">Ident::peek_any</span>) {
+                    <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Ident::parse_any</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+                    <span class="ident">segments</span>.<span class="ident">push_value</span>(<span class="ident">syn::PathSegment::from</span>(<span class="ident">ident</span>));
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">peek</span>(<span class="macro">syn::Token!</span>[::]) {
+                        <span class="kw">break</span>
+                    }
+                    <span class="kw">let</span> <span class="ident">punct</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+                    <span class="ident">segments</span>.<span class="ident">push_punct</span>(<span class="ident">punct</span>);
                 }
-                <span class="kw">if </span>segments.is_empty() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(input.error(<span class="string">&quot;expected path&quot;</span>))
-                } <span class="kw">else if </span>segments.trailing_punct() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(input.error(<span class="string">&quot;expected path segment&quot;</span>))
+                <span class="kw">if</span> <span class="ident">segments</span>.<span class="ident">is_empty</span>() {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">input</span>.<span class="ident">error</span>(<span class="string">&quot;expected path&quot;</span>))
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">segments</span>.<span class="ident">trailing_punct</span>() {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">input</span>.<span class="ident">error</span>(<span class="string">&quot;expected path segment&quot;</span>))
                 }
-                segments
+                <span class="ident">segments</span>
             },
         })
     }
 
-    <span class="kw">fn </span>parse_meta_name_value_after_path(
-        name: syn::Path,
-        input: ParseStream,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;MetaNameValue, syn::Error&gt; {
-        <span class="kw">let </span>span = name.span();
-        <span class="prelude-val">Ok</span>(MetaNameValue {
-            name,
-            eq_token: input.parse().map_err(|_error| {
+    <span class="kw">fn</span> <span class="ident">parse_meta_name_value_after_path</span>(
+        <span class="ident">name</span>: <span class="ident">syn::Path</span>,
+        <span class="ident">input</span>: <span class="ident">ParseStream</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MetaNameValue</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">span</span>();
+        <span class="prelude-val">Ok</span>(<span class="ident">MetaNameValue</span> {
+            <span class="ident">name</span>,
+            <span class="ident">eq_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_error</span><span class="op">|</span> {
                 <span class="macro">format_err!</span>(
-                    span,
+                    <span class="ident">span</span>,
                     <span class="string">&quot;ink! config options require an argument separated by &#39;=&#39;&quot;</span>,
                 )
             })<span class="question-mark">?</span>,
-            value: input.parse()<span class="question-mark">?</span>,
+            <span class="ident">value</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
         })
     }
 }
 
-<span class="kw">impl </span>Parse <span class="kw">for </span>PathOrLit {
-    <span class="kw">fn </span>parse(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, syn::Error&gt; {
-        <span class="kw">if </span>input.fork().peek(syn::Lit) {
-            <span class="kw">return </span>input.parse::&lt;syn::Lit&gt;().map(PathOrLit::Lit)
+<span class="kw">impl</span> <span class="ident">Parse</span> <span class="kw">for</span> <span class="ident">PathOrLit</span> {
+    <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">ParseStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">fork</span>().<span class="ident">peek</span>(<span class="ident">syn::Lit</span>) {
+            <span class="kw">return</span> <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">syn::Lit</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="ident">PathOrLit::Lit</span>)
         }
-        <span class="kw">if </span>input.fork().peek(Ident::peek_any) || input.fork().peek(<span class="macro">Token!</span>[::]) {
-            <span class="kw">return </span>input.parse::&lt;syn::Path&gt;().map(PathOrLit::Path)
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">fork</span>().<span class="ident">peek</span>(<span class="ident">Ident::peek_any</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">fork</span>().<span class="ident">peek</span>(<span class="macro">Token!</span>[::]) {
+            <span class="kw">return</span> <span class="ident">input</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">syn::Path</span><span class="op">&gt;</span>().<span class="ident">map</span>(<span class="ident">PathOrLit::Path</span>)
         }
-        <span class="prelude-val">Err</span>(input.error(<span class="string">&quot;cannot parse into either literal or path&quot;</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">input</span>.<span class="ident">error</span>(<span class="string">&quot;cannot parse into either literal or path&quot;</span>))
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>quote::quote;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">quote::quote</span>;
 
-    <span class="kw">impl </span>AttributeArgs {
-        <span class="doccomment">/// Creates a new attribute argument list from the given arguments.
-        </span><span class="kw">pub fn </span>new&lt;I&gt;(args: I) -&gt; <span class="self">Self
-        </span><span class="kw">where
-            </span>I: IntoIterator&lt;Item = MetaNameValue&gt;,
+    <span class="kw">impl</span> <span class="ident">AttributeArgs</span> {
+        <span class="doccomment">/// Creates a new attribute argument list from the given arguments.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
+        <span class="kw">where</span>
+            <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaNameValue</span><span class="op">&gt;</span>,
         {
-            <span class="self">Self </span>{
-                args: args.into_iter().collect(),
+            <span class="self">Self</span> {
+                <span class="ident">args</span>: <span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             }
         }
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>empty_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">empty_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{}).unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[])
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> {}).<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[])
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>literal_bool_value_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">literal_bool_value_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{ name = <span class="bool-val">true </span>}).unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[MetaNameValue {
-                name: <span class="macro">syn::parse_quote! </span>{ name },
-                eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                value: PathOrLit::Lit(<span class="macro">syn::parse_quote! </span>{ <span class="bool-val">true </span>}),
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> { <span class="ident">name</span> <span class="op">=</span> <span class="bool-val">true</span> }).<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[<span class="ident">MetaNameValue</span> {
+                <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name</span> },
+                <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                <span class="ident">value</span>: <span class="ident">PathOrLit::Lit</span>(<span class="macro">syn::parse_quote!</span> { <span class="bool-val">true</span> }),
             }])
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>literal_str_value_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">literal_str_value_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{ name = <span class="string">&quot;string literal&quot; </span>}).unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[MetaNameValue {
-                name: <span class="macro">syn::parse_quote! </span>{ name },
-                eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                value: PathOrLit::Lit(<span class="macro">syn::parse_quote! </span>{ <span class="string">&quot;string literal&quot; </span>}),
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> { <span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;string literal&quot;</span> }).<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[<span class="ident">MetaNameValue</span> {
+                <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name</span> },
+                <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                <span class="ident">value</span>: <span class="ident">PathOrLit::Lit</span>(<span class="macro">syn::parse_quote!</span> { <span class="string">&quot;string literal&quot;</span> }),
             }])
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>ident_value_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ident_value_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{ name = MyIdentifier }).unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[MetaNameValue {
-                name: <span class="macro">syn::parse_quote! </span>{ name },
-                eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                value: PathOrLit::Path(<span class="macro">syn::parse_quote! </span>{ MyIdentifier }),
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> { <span class="ident">name</span> <span class="op">=</span> <span class="ident">MyIdentifier</span> }).<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[<span class="ident">MetaNameValue</span> {
+                <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name</span> },
+                <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                <span class="ident">value</span>: <span class="ident">PathOrLit::Path</span>(<span class="macro">syn::parse_quote!</span> { <span class="ident">MyIdentifier</span> }),
             }])
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>root_path_value_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">root_path_value_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{ name = ::this::is::my::Path }).unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[MetaNameValue {
-                name: <span class="macro">syn::parse_quote! </span>{ name },
-                eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                value: PathOrLit::Path(<span class="macro">syn::parse_quote! </span>{ ::this::is::my::Path }),
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> { <span class="ident">name</span> <span class="op">=</span> <span class="ident">::this::is::my::Path</span> }).<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[<span class="ident">MetaNameValue</span> {
+                <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name</span> },
+                <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                <span class="ident">value</span>: <span class="ident">PathOrLit::Path</span>(<span class="macro">syn::parse_quote!</span> { <span class="ident">::this::is::my::Path</span> }),
             }])
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>relative_path_value_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">relative_path_value_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{ name = this::is::my::relative::Path })
-                .unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[MetaNameValue {
-                name: <span class="macro">syn::parse_quote! </span>{ name },
-                eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                value: PathOrLit::Path(
-                    <span class="macro">syn::parse_quote! </span>{ this::is::my::relative::Path }
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> { <span class="ident">name</span> <span class="op">=</span> <span class="ident">this::is::my::relative::Path</span> })
+                .<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[<span class="ident">MetaNameValue</span> {
+                <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name</span> },
+                <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                <span class="ident">value</span>: <span class="ident">PathOrLit::Path</span>(
+                    <span class="macro">syn::parse_quote!</span> { <span class="ident">this::is::my::relative::Path</span> }
                 ),
             }])
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>trailing_comma_works() {
-        <span class="kw">let </span><span class="kw-2">mut </span>expected_args = Punctuated::new();
-        expected_args.push_value(MetaNameValue {
-            name: <span class="macro">syn::parse_quote! </span>{ name },
-            eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-            value: PathOrLit::Path(<span class="macro">syn::parse_quote! </span>{ value }),
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">trailing_comma_works</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_args</span> <span class="op">=</span> <span class="ident">Punctuated::new</span>();
+        <span class="ident">expected_args</span>.<span class="ident">push_value</span>(<span class="ident">MetaNameValue</span> {
+            <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name</span> },
+            <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+            <span class="ident">value</span>: <span class="ident">PathOrLit::Path</span>(<span class="macro">syn::parse_quote!</span> { <span class="ident">value</span> }),
         });
-        expected_args.push_punct(&lt;<span class="macro">Token!</span>[,]&gt;::default());
+        <span class="ident">expected_args</span>.<span class="ident">push_punct</span>(<span class="op">&lt;</span><span class="macro">Token!</span>[,]<span class="op">&gt;</span><span class="ident">::default</span>());
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{ name = value, }).unwrap(),
-            AttributeArgs {
-                args: expected_args,
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> { <span class="ident">name</span> <span class="op">=</span> <span class="ident">value</span>, }).<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs</span> {
+                <span class="ident">args</span>: <span class="ident">expected_args</span>,
             }
         )
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>many_mixed_works() {
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">many_mixed_works</span>() {
         <span class="macro">assert_eq!</span>(
-            syn::parse2::&lt;AttributeArgs&gt;(<span class="macro">quote! </span>{
-                name1 = ::root::Path,
-                name2 = <span class="bool-val">false</span>,
-                name3 = <span class="string">&quot;string literal&quot;</span>,
-                name4 = <span class="number">42</span>,
-                name5 = <span class="number">7.7
-            </span>})
-            .unwrap(),
-            AttributeArgs::new(<span class="macro">vec!</span>[
-                MetaNameValue {
-                    name: <span class="macro">syn::parse_quote! </span>{ name1 },
-                    eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                    value: PathOrLit::Path(<span class="macro">syn::parse_quote! </span>{ ::root::Path }),
+            <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">AttributeArgs</span><span class="op">&gt;</span>(<span class="macro">quote!</span> {
+                <span class="ident">name1</span> <span class="op">=</span> <span class="ident">::root::Path</span>,
+                <span class="ident">name2</span> <span class="op">=</span> <span class="bool-val">false</span>,
+                <span class="ident">name3</span> <span class="op">=</span> <span class="string">&quot;string literal&quot;</span>,
+                <span class="ident">name4</span> <span class="op">=</span> <span class="number">42</span>,
+                <span class="ident">name5</span> <span class="op">=</span> <span class="number">7.7</span>
+            })
+            .<span class="ident">unwrap</span>(),
+            <span class="ident">AttributeArgs::new</span>(<span class="macro">vec!</span>[
+                <span class="ident">MetaNameValue</span> {
+                    <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name1</span> },
+                    <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                    <span class="ident">value</span>: <span class="ident">PathOrLit::Path</span>(<span class="macro">syn::parse_quote!</span> { <span class="ident">::root::Path</span> }),
                 },
-                MetaNameValue {
-                    name: <span class="macro">syn::parse_quote! </span>{ name2 },
-                    eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                    value: PathOrLit::Lit(<span class="macro">syn::parse_quote! </span>{ <span class="bool-val">false </span>}),
+                <span class="ident">MetaNameValue</span> {
+                    <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name2</span> },
+                    <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                    <span class="ident">value</span>: <span class="ident">PathOrLit::Lit</span>(<span class="macro">syn::parse_quote!</span> { <span class="bool-val">false</span> }),
                 },
-                MetaNameValue {
-                    name: <span class="macro">syn::parse_quote! </span>{ name3 },
-                    eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                    value: PathOrLit::Lit(<span class="macro">syn::parse_quote! </span>{ <span class="string">&quot;string literal&quot; </span>}),
+                <span class="ident">MetaNameValue</span> {
+                    <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name3</span> },
+                    <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                    <span class="ident">value</span>: <span class="ident">PathOrLit::Lit</span>(<span class="macro">syn::parse_quote!</span> { <span class="string">&quot;string literal&quot;</span> }),
                 },
-                MetaNameValue {
-                    name: <span class="macro">syn::parse_quote! </span>{ name4 },
-                    eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                    value: PathOrLit::Lit(<span class="macro">syn::parse_quote! </span>{ <span class="number">42 </span>}),
+                <span class="ident">MetaNameValue</span> {
+                    <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name4</span> },
+                    <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                    <span class="ident">value</span>: <span class="ident">PathOrLit::Lit</span>(<span class="macro">syn::parse_quote!</span> { <span class="number">42</span> }),
                 },
-                MetaNameValue {
-                    name: <span class="macro">syn::parse_quote! </span>{ name5 },
-                    eq_token: <span class="macro">syn::parse_quote! </span>{ = },
-                    value: PathOrLit::Lit(<span class="macro">syn::parse_quote! </span>{ <span class="number">7.7 </span>}),
+                <span class="ident">MetaNameValue</span> {
+                    <span class="ident">name</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">name5</span> },
+                    <span class="ident">eq_token</span>: <span class="macro">syn::parse_quote!</span> { <span class="op">=</span> },
+                    <span class="ident">value</span>: <span class="ident">PathOrLit::Lit</span>(<span class="macro">syn::parse_quote!</span> { <span class="number">7.7</span> }),
                 },
             ])
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

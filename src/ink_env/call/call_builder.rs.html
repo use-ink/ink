@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/call_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/call_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -645,650 +645,650 @@
 <span id="643">643</span>
 <span id="644">644</span>
 <span id="645">645</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use crate</span>::{
-    backend::CallFlags,
-    call::{
-        utils::{
-            EmptyArgumentList,
-            ReturnType,
-            Set,
-            Unset,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">backend::CallFlags</span>,
+    <span class="ident">call</span>::{
+        <span class="ident">utils</span>::{
+            <span class="ident">EmptyArgumentList</span>,
+            <span class="ident">ReturnType</span>,
+            <span class="ident">Set</span>,
+            <span class="ident">Unset</span>,
         },
-        ExecutionInput,
+        <span class="ident">ExecutionInput</span>,
     },
-    types::Gas,
-    Environment,
-    Error,
+    <span class="ident">types::Gas</span>,
+    <span class="ident">Environment</span>,
+    <span class="ident">Error</span>,
 };
-<span class="kw">use </span>core::marker::PhantomData;
-<span class="kw">use </span>ink_primitives::Clear;
-<span class="kw">use </span>num_traits::Zero;
+<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Clear</span>;
+<span class="kw">use</span> <span class="ident">num_traits::Zero</span>;
 
-<span class="doccomment">/// The final parameters to the cross-contract call.
-</span><span class="attribute">#[derive(Debug)]
-</span><span class="kw">pub struct </span>CallParams&lt;E, CallType, Args, R&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="doccomment">/// The final parameters to the cross-contract call.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// A marker to indicate which type of call to perform.
-    </span>call_type: CallType,
-    <span class="doccomment">/// The flags used to change the behavior of a contract call.
-    </span>call_flags: CallFlags,
-    <span class="doccomment">/// The expected return type.
-    </span>_return_type: ReturnType&lt;R&gt;,
-    <span class="doccomment">/// The inputs to the execution which is a selector and encoded arguments.
-    </span>exec_input: ExecutionInput&lt;Args&gt;,
-    <span class="doccomment">/// `Environment` is used by `CallType` for correct types
-    </span>_phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
+    <span class="doccomment">/// A marker to indicate which type of call to perform.</span>
+    <span class="ident">call_type</span>: <span class="ident">CallType</span>,
+    <span class="doccomment">/// The flags used to change the behavior of a contract call.</span>
+    <span class="ident">call_flags</span>: <span class="ident">CallFlags</span>,
+    <span class="doccomment">/// The expected return type.</span>
+    <span class="ident">_return_type</span>: <span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The inputs to the execution which is a selector and encoded arguments.</span>
+    <span class="ident">exec_input</span>: <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// `Environment` is used by `CallType` for correct types</span>
+    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">E</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span>&lt;E, CallType, Args, R&gt; CallParams&lt;E, CallType, Args, R&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Returns the call flags.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>call_flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CallFlags {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.call_flags
+    <span class="doccomment">/// Returns the call flags.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">call_flags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">CallFlags</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">call_flags</span>
     }
 
-    <span class="doccomment">/// Returns the execution input.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>exec_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ExecutionInput&lt;Args&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.exec_input
+    <span class="doccomment">/// Returns the execution input.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">exec_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">exec_input</span>
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Returns the account ID of the called contract instance.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::AccountId {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.callee
+    <span class="doccomment">/// Returns the account ID of the called contract instance.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">callee</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">callee</span>
     }
 
-    <span class="doccomment">/// Returns the chosen gas limit for the called contract execution.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>gas_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Gas {
-        <span class="self">self</span>.call_type.gas_limit
+    <span class="doccomment">/// Returns the chosen gas limit for the called contract execution.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">gas_limit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Gas</span> {
+        <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">gas_limit</span>
     }
 
-    <span class="doccomment">/// Returns the transferred value for the called contract.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Balance {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.transferred_value
+    <span class="doccomment">/// Returns the transferred value for the called contract.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">E::Balance</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">transferred_value</span>
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Returns the code hash which we use to perform a delegate call.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Hash {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.code_hash
+    <span class="doccomment">/// Returns the code hash which we use to perform a delegate call.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">E::Hash</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">code_hash</span>
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;
-<span class="kw">where
-    </span>E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
 {
-    <span class="doccomment">/// Invokes the contract with the given built-up call parameters.
-    ///
-    /// Returns the result of the contract execution.
-    </span><span class="kw">pub fn </span>invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, <span class="kw">crate</span>::Error&gt; {
-        <span class="kw">crate</span>::invoke_contract(<span class="self">self</span>)
+    <span class="doccomment">/// Invokes the contract with the given built-up call parameters.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the result of the contract execution.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="kw">crate</span>::invoke_contract</span>(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;
-<span class="kw">where
-    </span>E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
 {
-    <span class="doccomment">/// Invokes the contract via delegated call with the given
-    /// built-up call parameters.
-    ///
-    /// Returns the result of the contract execution.
-    </span><span class="kw">pub fn </span>invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, <span class="kw">crate</span>::Error&gt; {
-        <span class="kw">crate</span>::invoke_contract_delegate(<span class="self">self</span>)
+    <span class="doccomment">/// Invokes the contract via delegated call with the given</span>
+    <span class="doccomment">/// built-up call parameters.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the result of the contract execution.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="kw">crate</span>::invoke_contract_delegate</span>(<span class="self">self</span>)
     }
 }
 
-<span class="doccomment">/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
-///
-/// # Example
-///
-/// **Note:** The shown examples panic because there is currently no cross-calling
-///           support in the off-chain testing environment. However, this code
-///           should work fine in on-chain environments.
-///
-/// ## Example 1: No Return Value
-///
-/// The below example shows calling of a message of another contract that does
-/// not return any value back to its caller. The called function:
-///
-/// - has a selector equal to `0xDEADBEEF`
-/// - is provided with 5000 units of gas for its execution
-/// - is provided with 10 units of transferred value for the contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
-///
-/// ```should_panic
-/// # use ::ink_env::{
-/// #     Environment,
-/// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput}
-/// # };
-/// # use ink_env::call::Call;
-/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
-/// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;
-/// build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(
-///             Call::new()
-///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000)
-///                 .transferred_value(10))
-///     .exec_input(
-///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
-///             .push_arg(42u8)
-///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
-///     )
-///     .returns::&lt;()&gt;()
-///     .fire()
-///     .unwrap();
-/// ```
-///
-/// ## Example 2: With Return Value
-///
-/// The below example shows calling of a message of another contract that does
-/// return a `i32` value back to its caller. The called function:
-///
-/// - has a selector equal to `0xDEADBEEF`
-/// - is provided with 5000 units of gas for its execution
-/// - is provided with 10 units of transferred value for the contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
-///
-/// ```should_panic
-/// # use ::ink_env::{
-/// #     Environment,
-/// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, Call},
-/// # };
-/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
-/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(Call::new()
-///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000))
-///     .transferred_value(10)
-///     .exec_input(
-///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
-///             .push_arg(42u8)
-///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
-///     )
-///     .returns::&lt;i32&gt;()
-///     .fire()
-///     .unwrap();
-/// ```
-///
-/// ## Example 3: Delegate call
-///
-/// **Note:** The shown example panics because there is currently no delegate calling
-///           support in the off-chain testing environment. However, this code
-///           should work fine in on-chain environments.
-///
-/// ```should_panic
-/// # use ::ink_env::{
-/// #     Environment,
-/// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},
-/// # };
-/// # use ink_primitives::Clear;
-/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
-/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(DelegateCall::new()
-///                 .code_hash(&lt;DefaultEnvironment as Environment&gt;::Hash::clear()))
-///     .exec_input(
-///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
-///             .push_arg(42u8)
-///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
-///     )
-///     .returns::&lt;i32&gt;()
-///     .fire()
-///     .unwrap();
-/// ```
-</span><span class="attribute">#[allow(clippy::type_complexity)]
-</span><span class="kw">pub fn </span>build_call&lt;E&gt;() -&gt; CallBuilder&lt;
-    E,
-    Unset&lt;Call&lt;E&gt;&gt;,
-    Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
-    Unset&lt;ReturnType&lt;()&gt;&gt;,
-&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="doccomment">/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// **Note:** The shown examples panic because there is currently no cross-calling</span>
+<span class="doccomment">///           support in the off-chain testing environment. However, this code</span>
+<span class="doccomment">///           should work fine in on-chain environments.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Example 1: No Return Value</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The below example shows calling of a message of another contract that does</span>
+<span class="doccomment">/// not return any value back to its caller. The called function:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - has a selector equal to `0xDEADBEEF`</span>
+<span class="doccomment">/// - is provided with 5000 units of gas for its execution</span>
+<span class="doccomment">/// - is provided with 10 units of transferred value for the contract instance</span>
+<span class="doccomment">/// - receives the following arguments in order</span>
+<span class="doccomment">///    1. an `i32` with value `42`</span>
+<span class="doccomment">///    2. a `bool` with value `true`</span>
+<span class="doccomment">///    3. an array of 32 `u8` with value `0x10`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```should_panic</span>
+<span class="doccomment">/// # use ::ink_env::{</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
+<span class="doccomment">/// #     call::{build_call, Selector, ExecutionInput}</span>
+<span class="doccomment">/// # };</span>
+<span class="doccomment">/// # use ink_env::call::Call;</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
+<span class="doccomment">/// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;</span>
+<span class="doccomment">/// build_call::&lt;DefaultEnvironment&gt;()</span>
+<span class="doccomment">///     .call_type(</span>
+<span class="doccomment">///             Call::new()</span>
+<span class="doccomment">///                 .callee(AccountId::from([0x42; 32]))</span>
+<span class="doccomment">///                 .gas_limit(5000)</span>
+<span class="doccomment">///                 .transferred_value(10))</span>
+<span class="doccomment">///     .exec_input(</span>
+<span class="doccomment">///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))</span>
+<span class="doccomment">///             .push_arg(42u8)</span>
+<span class="doccomment">///             .push_arg(true)</span>
+<span class="doccomment">///             .push_arg(&amp;[0x10u8; 32])</span>
+<span class="doccomment">///     )</span>
+<span class="doccomment">///     .returns::&lt;()&gt;()</span>
+<span class="doccomment">///     .fire()</span>
+<span class="doccomment">///     .unwrap();</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Example 2: With Return Value</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The below example shows calling of a message of another contract that does</span>
+<span class="doccomment">/// return a `i32` value back to its caller. The called function:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - has a selector equal to `0xDEADBEEF`</span>
+<span class="doccomment">/// - is provided with 5000 units of gas for its execution</span>
+<span class="doccomment">/// - is provided with 10 units of transferred value for the contract instance</span>
+<span class="doccomment">/// - receives the following arguments in order</span>
+<span class="doccomment">///    1. an `i32` with value `42`</span>
+<span class="doccomment">///    2. a `bool` with value `true`</span>
+<span class="doccomment">///    3. an array of 32 `u8` with value `0x10`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```should_panic</span>
+<span class="doccomment">/// # use ::ink_env::{</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
+<span class="doccomment">/// #     call::{build_call, Selector, ExecutionInput, Call},</span>
+<span class="doccomment">/// # };</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
+<span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()</span>
+<span class="doccomment">///     .call_type(Call::new()</span>
+<span class="doccomment">///                 .callee(AccountId::from([0x42; 32]))</span>
+<span class="doccomment">///                 .gas_limit(5000))</span>
+<span class="doccomment">///     .transferred_value(10)</span>
+<span class="doccomment">///     .exec_input(</span>
+<span class="doccomment">///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))</span>
+<span class="doccomment">///             .push_arg(42u8)</span>
+<span class="doccomment">///             .push_arg(true)</span>
+<span class="doccomment">///             .push_arg(&amp;[0x10u8; 32])</span>
+<span class="doccomment">///     )</span>
+<span class="doccomment">///     .returns::&lt;i32&gt;()</span>
+<span class="doccomment">///     .fire()</span>
+<span class="doccomment">///     .unwrap();</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Example 3: Delegate call</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// **Note:** The shown example panics because there is currently no delegate calling</span>
+<span class="doccomment">///           support in the off-chain testing environment. However, this code</span>
+<span class="doccomment">///           should work fine in on-chain environments.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```should_panic</span>
+<span class="doccomment">/// # use ::ink_env::{</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
+<span class="doccomment">/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, DelegateCall},</span>
+<span class="doccomment">/// # };</span>
+<span class="doccomment">/// # use ink_primitives::Clear;</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
+<span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()</span>
+<span class="doccomment">///     .call_type(DelegateCall::new()</span>
+<span class="doccomment">///                 .code_hash(&lt;DefaultEnvironment as Environment&gt;::Hash::clear()))</span>
+<span class="doccomment">///     .exec_input(</span>
+<span class="doccomment">///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))</span>
+<span class="doccomment">///             .push_arg(42u8)</span>
+<span class="doccomment">///             .push_arg(true)</span>
+<span class="doccomment">///             .push_arg(&amp;[0x10u8; 32])</span>
+<span class="doccomment">///     )</span>
+<span class="doccomment">///     .returns::&lt;i32&gt;()</span>
+<span class="doccomment">///     .fire()</span>
+<span class="doccomment">///     .unwrap();</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+    <span class="ident">E</span>,
+    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    CallBuilder {
-        call_type: Default::default(),
-        call_flags: Default::default(),
-        exec_input: Default::default(),
-        return_type: Default::default(),
-        _phantom: Default::default(),
+    <span class="ident">CallBuilder</span> {
+        <span class="ident">call_type</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">call_flags</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">exec_input</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">return_type</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
     }
 }
 
-<span class="doccomment">/// The default call type for cross-contract calls. Performs a cross-contract call to `callee`
-/// with gas limit `gas_limit`, transferring `transferred_value` of currency.
-</span><span class="kw">pub struct </span>Call&lt;E: Environment&gt; {
-    callee: E::AccountId,
-    gas_limit: Gas,
-    transferred_value: E::Balance,
+<span class="doccomment">/// The default call type for cross-contract calls. Performs a cross-contract call to `callee`</span>
+<span class="doccomment">/// with gas limit `gas_limit`, transferring `transferred_value` of currency.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> {
+    <span class="ident">callee</span>: <span class="ident">E::AccountId</span>,
+    <span class="ident">gas_limit</span>: <span class="ident">Gas</span>,
+    <span class="ident">transferred_value</span>: <span class="ident">E::Balance</span>,
 }
 
-<span class="kw">impl</span>&lt;E: Environment&gt; Default <span class="kw">for </span>Call&lt;E&gt; {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        Call {
-            callee: Default::default(),
-            gas_limit: Default::default(),
-            transferred_value: E::Balance::zero(),
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">Call</span> {
+            <span class="ident">callee</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">gas_limit</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">transferred_value</span>: <span class="ident">E::Balance::zero</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E: Environment&gt; Call&lt;E&gt; {
-    <span class="doccomment">/// Returns a clean builder for [`Call`].
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        Default::default()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns a clean builder for [`Call`].</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">Default::default</span>()
     }
 }
 
-<span class="kw">impl</span>&lt;E&gt; Call&lt;E&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>callee(<span class="self">self</span>, callee: E::AccountId) -&gt; <span class="self">Self </span>{
-        Call {
-            callee,
-            gas_limit: <span class="self">self</span>.gas_limit,
-            transferred_value: <span class="self">self</span>.transferred_value,
+    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callee</span>(<span class="self">self</span>, <span class="ident">callee</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Call</span> {
+            <span class="ident">callee</span>,
+            <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
+            <span class="ident">transferred_value</span>: <span class="self">self</span>.<span class="ident">transferred_value</span>,
         }
     }
 
-    <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>gas_limit(<span class="self">self</span>, gas_limit: Gas) -&gt; <span class="self">Self </span>{
-        Call {
-            callee: <span class="self">self</span>.callee,
-            gas_limit,
-            transferred_value: <span class="self">self</span>.transferred_value,
+    <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_limit</span>(<span class="self">self</span>, <span class="ident">gas_limit</span>: <span class="ident">Gas</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Call</span> {
+            <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
+            <span class="ident">gas_limit</span>,
+            <span class="ident">transferred_value</span>: <span class="self">self</span>.<span class="ident">transferred_value</span>,
         }
     }
 
-    <span class="doccomment">/// Sets the `transferred_value` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>transferred_value(<span class="self">self</span>, transferred_value: E::Balance) -&gt; <span class="self">Self </span>{
-        Call {
-            callee: <span class="self">self</span>.callee,
-            gas_limit: <span class="self">self</span>.gas_limit,
-            transferred_value,
-        }
-    }
-}
-
-<span class="doccomment">/// The `delegatecall` call type. Performs a call with the given code hash.
-</span><span class="kw">pub struct </span>DelegateCall&lt;E: Environment&gt; {
-    code_hash: E::Hash,
-}
-
-<span class="kw">impl</span>&lt;E: Environment&gt; DelegateCall&lt;E&gt; {
-    <span class="doccomment">/// Returns a clean builder for [`DelegateCall`]
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        Default::default()
-    }
-}
-
-<span class="kw">impl</span>&lt;E: Environment&gt; Default <span class="kw">for </span>DelegateCall&lt;E&gt; {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        DelegateCall {
-            code_hash: E::Hash::clear(),
+    <span class="doccomment">/// Sets the `transferred_value` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="self">self</span>, <span class="ident">transferred_value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Call</span> {
+            <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
+            <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
+            <span class="ident">transferred_value</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E: Environment&gt; DelegateCall&lt;E&gt; {
-    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.
-    </span><span class="kw">pub fn </span>code_hash(<span class="self">self</span>, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
-        DelegateCall { code_hash }
+<span class="doccomment">/// The `delegatecall` call type. Performs a call with the given code hash.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> {
+    <span class="ident">code_hash</span>: <span class="ident">E::Hash</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns a clean builder for [`DelegateCall`]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">Default::default</span>()
     }
 }
 
-<span class="doccomment">/// Builds up a cross contract call.
-</span><span class="kw">pub struct </span>CallBuilder&lt;E, CallType, Args, RetType&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">DelegateCall</span> {
+            <span class="ident">code_hash</span>: <span class="ident">E::Hash::clear</span>(),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span> <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="self">self</span>, <span class="ident">code_hash</span>: <span class="ident">E::Hash</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">DelegateCall</span> { <span class="ident">code_hash</span> }
+    }
+}
+
+<span class="doccomment">/// Builds up a cross contract call.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// The current parameters that have been built up so far.
-    </span>call_type: CallType,
-    call_flags: CallFlags,
-    exec_input: Args,
-    return_type: RetType,
-    _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; E&gt;,
+    <span class="doccomment">/// The current parameters that have been built up so far.</span>
+    <span class="ident">call_type</span>: <span class="ident">CallType</span>,
+    <span class="ident">call_flags</span>: <span class="ident">CallFlags</span>,
+    <span class="ident">exec_input</span>: <span class="ident">Args</span>,
+    <span class="ident">return_type</span>: <span class="ident">RetType</span>,
+    <span class="ident">_phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">E</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span>&lt;E, CallType, Args, RetType&gt; CallBuilder&lt;E, Unset&lt;CallType&gt;, Args, RetType&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">CallType</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// The type of the call.
-    </span><span class="attribute">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>call_type&lt;NewCallType&gt;(
+    <span class="doccomment">/// The type of the call.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_type</span><span class="op">&lt;</span><span class="ident">NewCallType</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
-        call_type: NewCallType,
-    ) -&gt; CallBuilder&lt;E, Set&lt;NewCallType&gt;, Args, RetType&gt; {
-        CallBuilder {
-            call_type: Set(call_type),
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+        <span class="ident">call_type</span>: <span class="ident">NewCallType</span>,
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">NewCallType</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">call_type</span>),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, CallType, Args, RetType&gt; CallBuilder&lt;E, CallType, Args, RetType&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// The flags used to change the behavior of the contract call.
-    </span><span class="attribute">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>call_flags(
+    <span class="doccomment">/// The flags used to change the behavior of the contract call.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_flags</span>(
         <span class="self">self</span>,
-        call_flags: CallFlags,
-    ) -&gt; CallBuilder&lt;E, CallType, Args, RetType&gt; {
-        CallBuilder {
-            call_type: <span class="self">self</span>.call_type,
-            call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+        <span class="ident">call_flags</span>: <span class="ident">CallFlags</span>,
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>,
+            <span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, CallType, Args&gt; CallBuilder&lt;E, CallType, Args, Unset&lt;ReturnType&lt;()&gt;&gt;&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Sets the type of the returned value upon the execution of the call.
-    ///
-    /// # Note
-    ///
-    /// Either use `.returns::&lt;()&gt;` to signal that the call does not return a value
-    /// or use `.returns::&lt;T&gt;` to signal that the call returns a value of type `T`.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>returns&lt;R&gt;(<span class="self">self</span>) -&gt; CallBuilder&lt;E, CallType, Args, Set&lt;ReturnType&lt;R&gt;&gt;&gt; {
-        CallBuilder {
-            call_type: <span class="self">self</span>.call_type,
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: Set(Default::default()),
-            _phantom: Default::default(),
+    <span class="doccomment">/// Sets the type of the returned value upon the execution of the call.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Either use `.returns::&lt;()&gt;` to signal that the call does not return a value</span>
+    <span class="doccomment">/// or use `.returns::&lt;T&gt;` to signal that the call returns a value of type `T`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>,
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="ident">Set</span>(<span class="ident">Default::default</span>()),
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, CallType, RetType&gt;
-    CallBuilder&lt;E, CallType, Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;, RetType&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Sets the execution input to the given value.
-    </span><span class="kw">pub fn </span>exec_input&lt;Args&gt;(
+    <span class="doccomment">/// Sets the execution input to the given value.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exec_input</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
-        exec_input: ExecutionInput&lt;Args&gt;,
-    ) -&gt; CallBuilder&lt;E, CallType, Set&lt;ExecutionInput&lt;Args&gt;&gt;, RetType&gt; {
-        CallBuilder {
-            call_type: <span class="self">self</span>.call_type,
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: Set(exec_input),
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+        <span class="ident">exec_input</span>: <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>,
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="ident">Set</span>(<span class="ident">exec_input</span>),
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, RetType&gt; CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Args, RetType&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>callee(<span class="self">self</span>, callee: E::AccountId) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
-        CallBuilder {
-            call_type: Set(Call {
-                callee,
-                gas_limit: call_type.gas_limit,
-                transferred_value: call_type.transferred_value,
+    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callee</span>(<span class="self">self</span>, <span class="ident">callee</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">call_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>();
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">Call</span> {
+                <span class="ident">callee</span>,
+                <span class="ident">gas_limit</span>: <span class="ident">call_type</span>.<span class="ident">gas_limit</span>,
+                <span class="ident">transferred_value</span>: <span class="ident">call_type</span>.<span class="ident">transferred_value</span>,
             }),
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 
-    <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>gas_limit(<span class="self">self</span>, gas_limit: Gas) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
-        CallBuilder {
-            call_type: Set(Call {
-                callee: call_type.callee,
-                gas_limit,
-                transferred_value: call_type.transferred_value,
+    <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_limit</span>(<span class="self">self</span>, <span class="ident">gas_limit</span>: <span class="ident">Gas</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">call_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>();
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">Call</span> {
+                <span class="ident">callee</span>: <span class="ident">call_type</span>.<span class="ident">callee</span>,
+                <span class="ident">gas_limit</span>,
+                <span class="ident">transferred_value</span>: <span class="ident">call_type</span>.<span class="ident">transferred_value</span>,
             }),
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 
-    <span class="doccomment">/// Sets the `transferred_value` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>transferred_value(<span class="self">self</span>, transferred_value: E::Balance) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
-        CallBuilder {
-            call_type: Set(Call {
-                callee: call_type.callee,
-                gas_limit: call_type.gas_limit,
-                transferred_value,
+    <span class="doccomment">/// Sets the `transferred_value` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="self">self</span>, <span class="ident">transferred_value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">call_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>();
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">Call</span> {
+                <span class="ident">callee</span>: <span class="ident">call_type</span>.<span class="ident">callee</span>,
+                <span class="ident">gas_limit</span>: <span class="ident">call_type</span>.<span class="ident">gas_limit</span>,
+                <span class="ident">transferred_value</span>,
             }),
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, RetType&gt; CallBuilder&lt;E, Set&lt;DelegateCall&lt;E&gt;&gt;, Args, RetType&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.
-    </span><span class="kw">pub fn </span>code_hash(<span class="self">self</span>, code_hash: E::Hash) -&gt; <span class="self">Self </span>{
-        CallBuilder {
-            call_type: Set(DelegateCall { code_hash }),
-            call_flags: <span class="self">self</span>.call_flags,
-            exec_input: <span class="self">self</span>.exec_input,
-            return_type: <span class="self">self</span>.return_type,
-            _phantom: Default::default(),
+    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="self">self</span>, <span class="ident">code_hash</span>: <span class="ident">E::Hash</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">DelegateCall</span> { <span class="ident">code_hash</span> }),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, RetType&gt;
-    CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;RetType&gt;&gt;&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">RetType</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Finalizes the call builder to call a function.
-    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, Call&lt;E&gt;, Args, RetType&gt; {
-        CallParams {
-            call_type: <span class="self">self</span>.call_type.value(),
-            call_flags: <span class="self">self</span>.call_flags,
-            _return_type: Default::default(),
-            exec_input: <span class="self">self</span>.exec_input.value(),
-            _phantom: <span class="self">self</span>._phantom,
+    <span class="doccomment">/// Finalizes the call builder to call a function.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="self">self</span>) -&gt; <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+        <span class="ident">CallParams</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">_return_type</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>.<span class="ident">value</span>(),
+            <span class="ident">_phantom</span>: <span class="self">self</span>.<span class="ident">_phantom</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, RetType&gt;
-    CallBuilder&lt;
-        E,
-        Set&lt;DelegateCall&lt;E&gt;&gt;,
-        Set&lt;ExecutionInput&lt;Args&gt;&gt;,
-        Set&lt;ReturnType&lt;RetType&gt;&gt;,
-    &gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+        <span class="ident">E</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">RetType</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Finalizes the call builder to call a function.
-    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, Args, RetType&gt; {
-        CallParams {
-            call_type: <span class="self">self</span>.call_type.value(),
-            call_flags: <span class="self">self</span>.call_flags,
-            _return_type: Default::default(),
-            exec_input: <span class="self">self</span>.exec_input.value(),
-            _phantom: <span class="self">self</span>._phantom,
+    <span class="doccomment">/// Finalizes the call builder to call a function.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="self">self</span>) -&gt; <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+        <span class="ident">CallParams</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">_return_type</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>.<span class="ident">value</span>(),
+            <span class="ident">_phantom</span>: <span class="self">self</span>.<span class="ident">_phantom</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, RetType&gt;
-    CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;, Unset&lt;RetType&gt;&gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">RetType</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Finalizes the call builder to call a function.
-    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, Call&lt;E&gt;, EmptyArgumentList, ()&gt; {
-        CallParams {
-            call_type: <span class="self">self</span>.call_type.value(),
-            call_flags: <span class="self">self</span>.call_flags,
-            _return_type: Default::default(),
-            exec_input: Default::default(),
-            _phantom: <span class="self">self</span>._phantom,
+    <span class="doccomment">/// Finalizes the call builder to call a function.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="self">self</span>) -&gt; <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">EmptyArgumentList</span>, ()<span class="op">&gt;</span> {
+        <span class="ident">CallParams</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">_return_type</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">exec_input</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">_phantom</span>: <span class="self">self</span>.<span class="ident">_phantom</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E, RetType&gt;
-    CallBuilder&lt;
-        E,
-        Set&lt;DelegateCall&lt;E&gt;&gt;,
-        Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
-        Unset&lt;RetType&gt;,
-    &gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+        <span class="ident">E</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">RetType</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Finalizes the call builder to call a function.
-    </span><span class="kw">pub fn </span>params(<span class="self">self</span>) -&gt; CallParams&lt;E, DelegateCall&lt;E&gt;, EmptyArgumentList, ()&gt; {
-        CallParams {
-            call_type: <span class="self">self</span>.call_type.value(),
-            call_flags: <span class="self">self</span>.call_flags,
-            _return_type: Default::default(),
-            exec_input: Default::default(),
-            _phantom: <span class="self">self</span>._phantom,
+    <span class="doccomment">/// Finalizes the call builder to call a function.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="self">self</span>) -&gt; <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">EmptyArgumentList</span>, ()<span class="op">&gt;</span> {
+        <span class="ident">CallParams</span> {
+            <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>(),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">_return_type</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">exec_input</span>: <span class="ident">Default::default</span>(),
+            <span class="ident">_phantom</span>: <span class="self">self</span>.<span class="ident">_phantom</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;E&gt;
-    CallBuilder&lt;
-        E,
-        Set&lt;Call&lt;E&gt;&gt;,
-        Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
-        Unset&lt;ReturnType&lt;()&gt;&gt;,
-    &gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+        <span class="ident">E</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Invokes the cross-chain function call.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.params().invoke()
+    <span class="doccomment">/// Invokes the cross-chain function call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">invoke</span>()
     }
 }
 
-<span class="kw">impl</span>&lt;E&gt;
-    CallBuilder&lt;
-        E,
-        Set&lt;DelegateCall&lt;E&gt;&gt;,
-        Unset&lt;ExecutionInput&lt;EmptyArgumentList&gt;&gt;,
-        Unset&lt;ReturnType&lt;()&gt;&gt;,
-    &gt;
-<span class="kw">where
-    </span>E: Environment,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+        <span class="ident">E</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="doccomment">/// Invokes the cross-chain function call.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.params().invoke()
+    <span class="doccomment">/// Invokes the cross-chain function call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">invoke</span>()
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt;
-    CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
-<span class="kw">where
-    </span>E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
 {
-    <span class="doccomment">/// Invokes the cross-chain function call and returns the result.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, Error&gt; {
-        <span class="self">self</span>.params().invoke()
+    <span class="doccomment">/// Invokes the cross-chain function call and returns the result.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">invoke</span>()
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, R&gt;
-    CallBuilder&lt;E, Set&lt;DelegateCall&lt;E&gt;&gt;, Set&lt;ExecutionInput&lt;Args&gt;&gt;, Set&lt;ReturnType&lt;R&gt;&gt;&gt;
-<span class="kw">where
-    </span>E: Environment,
-    Args: scale::Encode,
-    R: scale::Decode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
 {
-    <span class="doccomment">/// Invokes the cross-chain function call and returns the result.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, Error&gt; {
-        <span class="self">self</span>.params().invoke()
+    <span class="doccomment">/// Invokes the cross-chain function call and returns the result.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">invoke</span>()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

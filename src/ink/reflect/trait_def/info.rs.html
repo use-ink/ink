@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/trait_def/info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/reflect/trait_def/info.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -152,157 +152,157 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="doccomment">/// Stores information for every ink! trait message of an ink! trait definition.
-///
-/// This information includes if the ink! trait message is payable
-/// as well as its derived or manually specified selector.
-///
-/// In the future this info trait might be extended to contain
-/// more information about a single ink! trait message.
-///
-/// The information provided through this trait can be used on the
-/// implementer side of an ink! trait to check and guard certain
-/// properties on a Rust type system level. This is important since
-/// ink! cannot be guaranteed to have both the ink! trait definition
-/// and all of its implementers under its scope and radar.
-///
-/// # Note
-///
-/// - The `TraitMessageInfo&lt;LOCAL_ID&gt;` is implemented by the
-///   automatically generated ink! trait definition information object
-///   associated to the ink! trait definition at hand.
-/// - For every ink! trait message defined by the ink! trait definition
-///   the associated ink! trait definition information object implements
-///   this trait given the `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait
-///   message respectively.
-/// - The local IDs uniquely identifying all the ink! trait messages
-///   of the ink! trait definition are computed solely using the Rust
-///   identifier of the ink! trait message which can be derived from
-///   ink! implementation blocks in order to query the information
-///   stored by this ink! trait information object trait implementation.
-///
-/// # Usage
-///
-/// ```
-/// #[ink::trait_definition]
-/// pub trait InkTrait {
-///     #[ink(message)]
-///     fn trait_message_1(&amp;self);
-///
-///     #[ink(message, payable, selector = 0xC0DECAFE)]
-///     fn trait_message_2(&amp;mut self);
-/// }
-///
-/// #[ink::trait_definition(namespace = &quot;foo&quot;)]
-/// pub trait InkTrait2 {
-///     #[ink(message)]
-///     fn trait_message(&amp;self);
-/// }
-///
-/// #[ink::contract]
-/// pub mod contract {
-///     use super::{InkTrait, InkTrait2};
-///
-///     #[ink(storage)]
-///     pub struct Contract {}
-///
-///     impl Contract {
-///         #[ink(constructor)]
-///         pub fn constructor() -&gt; Self { Contract {} }
-///     }
-///
-///     impl InkTrait for Contract {
-///         #[ink(message)]
-///         fn trait_message_1(&amp;self) {}
-///
-///         #[ink(message)]
-///         fn trait_message_2(&amp;mut self) {}
-///     }
-///
-///     impl InkTrait2 for Contract {
-///         #[ink(message)]
-///         fn trait_message(&amp;self) {}
-///     }
-/// }
-///
-/// # use ink::reflect::TraitDefinitionRegistry;
-/// # use ink::reflect::TraitMessageInfo;
-/// # use ink_env::DefaultEnvironment;
-/// # use ink::{selector_id, selector_bytes};
-///
-/// fn main() {
-///     assert_eq!(
-///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_1&quot;)}&gt;&gt;::PAYABLE,
-///         false,
-///     );
-///     assert_eq!(
-///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_2&quot;)}&gt;&gt;::PAYABLE,
-///         true,
-///     );
-///     assert_eq!(
-///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait2&gt;::__ink_TraitInfo
-///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message&quot;)}&gt;&gt;::PAYABLE,
-///         false,
-///     );
-///     assert_eq!(
-///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_1&quot;)}&gt;&gt;::SELECTOR,
-///         selector_bytes!(&quot;InkTrait::trait_message_1&quot;)
-///     );
-///     assert_eq!(
-///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo
-///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_2&quot;)}&gt;&gt;::SELECTOR,
-///         [0xC0, 0xDE, 0xCA, 0xFE]
-///     );
-///     assert_eq!(
-///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait2&gt;::__ink_TraitInfo
-///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message&quot;)}&gt;&gt;::SELECTOR,
-///         selector_bytes!(&quot;foo::InkTrait2::trait_message&quot;)
-///     );
-/// }
-/// ```
-</span><span class="kw">pub trait </span>TraitMessageInfo&lt;<span class="kw">const </span>TRAIT_LOCAL_MESSAGE_ID: u32&gt; {
-    <span class="doccomment">/// Is `true` if the ink! trait message has been annotated with `#[ink(payable)]`.
-    </span><span class="kw">const </span>PAYABLE: bool;
+<span class="doccomment">/// Stores information for every ink! trait message of an ink! trait definition.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This information includes if the ink! trait message is payable</span>
+<span class="doccomment">/// as well as its derived or manually specified selector.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In the future this info trait might be extended to contain</span>
+<span class="doccomment">/// more information about a single ink! trait message.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The information provided through this trait can be used on the</span>
+<span class="doccomment">/// implementer side of an ink! trait to check and guard certain</span>
+<span class="doccomment">/// properties on a Rust type system level. This is important since</span>
+<span class="doccomment">/// ink! cannot be guaranteed to have both the ink! trait definition</span>
+<span class="doccomment">/// and all of its implementers under its scope and radar.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - The `TraitMessageInfo&lt;LOCAL_ID&gt;` is implemented by the</span>
+<span class="doccomment">///   automatically generated ink! trait definition information object</span>
+<span class="doccomment">///   associated to the ink! trait definition at hand.</span>
+<span class="doccomment">/// - For every ink! trait message defined by the ink! trait definition</span>
+<span class="doccomment">///   the associated ink! trait definition information object implements</span>
+<span class="doccomment">///   this trait given the `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait</span>
+<span class="doccomment">///   message respectively.</span>
+<span class="doccomment">/// - The local IDs uniquely identifying all the ink! trait messages</span>
+<span class="doccomment">///   of the ink! trait definition are computed solely using the Rust</span>
+<span class="doccomment">///   identifier of the ink! trait message which can be derived from</span>
+<span class="doccomment">///   ink! implementation blocks in order to query the information</span>
+<span class="doccomment">///   stored by this ink! trait information object trait implementation.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Usage</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// #[ink::trait_definition]</span>
+<span class="doccomment">/// pub trait InkTrait {</span>
+<span class="doccomment">///     #[ink(message)]</span>
+<span class="doccomment">///     fn trait_message_1(&amp;self);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     #[ink(message, payable, selector = 0xC0DECAFE)]</span>
+<span class="doccomment">///     fn trait_message_2(&amp;mut self);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #[ink::trait_definition(namespace = &quot;foo&quot;)]</span>
+<span class="doccomment">/// pub trait InkTrait2 {</span>
+<span class="doccomment">///     #[ink(message)]</span>
+<span class="doccomment">///     fn trait_message(&amp;self);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #[ink::contract]</span>
+<span class="doccomment">/// pub mod contract {</span>
+<span class="doccomment">///     use super::{InkTrait, InkTrait2};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     #[ink(storage)]</span>
+<span class="doccomment">///     pub struct Contract {}</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     impl Contract {</span>
+<span class="doccomment">///         #[ink(constructor)]</span>
+<span class="doccomment">///         pub fn constructor() -&gt; Self { Contract {} }</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     impl InkTrait for Contract {</span>
+<span class="doccomment">///         #[ink(message)]</span>
+<span class="doccomment">///         fn trait_message_1(&amp;self) {}</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///         #[ink(message)]</span>
+<span class="doccomment">///         fn trait_message_2(&amp;mut self) {}</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     impl InkTrait2 for Contract {</span>
+<span class="doccomment">///         #[ink(message)]</span>
+<span class="doccomment">///         fn trait_message(&amp;self) {}</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # use ink::reflect::TraitDefinitionRegistry;</span>
+<span class="doccomment">/// # use ink::reflect::TraitMessageInfo;</span>
+<span class="doccomment">/// # use ink_env::DefaultEnvironment;</span>
+<span class="doccomment">/// # use ink::{selector_id, selector_bytes};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// fn main() {</span>
+<span class="doccomment">///     assert_eq!(</span>
+<span class="doccomment">///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo</span>
+<span class="doccomment">///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_1&quot;)}&gt;&gt;::PAYABLE,</span>
+<span class="doccomment">///         false,</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">///     assert_eq!(</span>
+<span class="doccomment">///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo</span>
+<span class="doccomment">///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_2&quot;)}&gt;&gt;::PAYABLE,</span>
+<span class="doccomment">///         true,</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">///     assert_eq!(</span>
+<span class="doccomment">///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait2&gt;::__ink_TraitInfo</span>
+<span class="doccomment">///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message&quot;)}&gt;&gt;::PAYABLE,</span>
+<span class="doccomment">///         false,</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">///     assert_eq!(</span>
+<span class="doccomment">///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo</span>
+<span class="doccomment">///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_1&quot;)}&gt;&gt;::SELECTOR,</span>
+<span class="doccomment">///         selector_bytes!(&quot;InkTrait::trait_message_1&quot;)</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">///     assert_eq!(</span>
+<span class="doccomment">///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait&gt;::__ink_TraitInfo</span>
+<span class="doccomment">///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message_2&quot;)}&gt;&gt;::SELECTOR,</span>
+<span class="doccomment">///         [0xC0, 0xDE, 0xCA, 0xFE]</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">///     assert_eq!(</span>
+<span class="doccomment">///         &lt;&lt;TraitDefinitionRegistry&lt;DefaultEnvironment&gt; as InkTrait2&gt;::__ink_TraitInfo</span>
+<span class="doccomment">///             as TraitMessageInfo&lt;{selector_id!(&quot;trait_message&quot;)}&gt;&gt;::SELECTOR,</span>
+<span class="doccomment">///         selector_bytes!(&quot;foo::InkTrait2::trait_message&quot;)</span>
+<span class="doccomment">///     );</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitMessageInfo</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">TRAIT_LOCAL_MESSAGE_ID</span>: <span class="ident">u32</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Is `true` if the ink! trait message has been annotated with `#[ink(payable)]`.</span>
+    <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">bool</span>;
 
-    <span class="doccomment">/// The unique selector of the ink! trait message.
-    ///
-    /// This might have been adjusted using `#[ink(selector = N:u32)]` at the
-    /// ink! trait definition site.
-    </span><span class="kw">const </span>SELECTOR: [u8; <span class="number">4</span>];
+    <span class="doccomment">/// The unique selector of the ink! trait message.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This might have been adjusted using `#[ink(selector = N:u32)]` at the</span>
+    <span class="doccomment">/// ink! trait definition site.</span>
+    <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
 }
 
-<span class="doccomment">/// Captures info about an ink! trait definition.
-</span><span class="kw">pub trait </span>TraitInfo {
-    <span class="doccomment">/// The unique id of the ink! trait definition.
-    </span><span class="kw">const </span>ID: u32;
+<span class="doccomment">/// Captures info about an ink! trait definition.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitInfo</span> {
+    <span class="doccomment">/// The unique id of the ink! trait definition.</span>
+    <span class="kw">const</span> <span class="ident">ID</span>: <span class="ident">u32</span>;
 
-    <span class="doccomment">/// The module path of the ink! trait definition.
-    ///
-    /// This is equivalent to Rust&#39;s builtin `module_path!` macro
-    /// invocation at the definition site of the ink! trait.
-    </span><span class="kw">const </span>PATH: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="doccomment">/// The module path of the ink! trait definition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is equivalent to Rust&#39;s builtin `module_path!` macro</span>
+    <span class="doccomment">/// invocation at the definition site of the ink! trait.</span>
+    <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 
-    <span class="doccomment">/// The name of the ink! trait.
-    ///
-    /// This is just for convenience.
-    </span><span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str;
+    <span class="doccomment">/// The name of the ink! trait.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is just for convenience.</span>
+    <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

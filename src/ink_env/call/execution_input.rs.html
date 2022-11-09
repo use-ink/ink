@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/execution_input.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>execution_input.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/call/execution_input.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>execution_input.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -249,254 +249,254 @@
 <span id="247">247</span>
 <span id="248">248</span>
 <span id="249">249</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span><span class="kw">crate</span>::call::Selector;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::call::Selector</span>;
 
-<span class="doccomment">/// The input data for a smart contract execution.
-</span><span class="attribute">#[derive(Default, Debug)]
-</span><span class="kw">pub struct </span>ExecutionInput&lt;Args&gt; {
-    <span class="doccomment">/// The selector for the smart contract execution.
-    </span>selector: Selector,
-    <span class="doccomment">/// The arguments of the smart contract execution.
-    </span>args: Args,
+<span class="doccomment">/// The input data for a smart contract execution.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The selector for the smart contract execution.</span>
+    <span class="ident">selector</span>: <span class="ident">Selector</span>,
+    <span class="doccomment">/// The arguments of the smart contract execution.</span>
+    <span class="ident">args</span>: <span class="ident">Args</span>,
 }
 
-<span class="kw">impl </span>ExecutionInput&lt;EmptyArgumentList&gt; {
-    <span class="doccomment">/// Creates a new execution input with the given selector.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>new(selector: Selector) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            selector,
-            args: ArgumentList::empty(),
+<span class="kw">impl</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new execution input with the given selector.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">selector</span>: <span class="ident">Selector</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">selector</span>,
+            <span class="ident">args</span>: <span class="ident">ArgumentList::empty</span>(),
         }
     }
 
-    <span class="doccomment">/// Pushes an argument to the execution input.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>push_arg&lt;T&gt;(
+    <span class="doccomment">/// Pushes an argument to the execution input.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
-        arg: T,
-    ) -&gt; ExecutionInput&lt;ArgumentList&lt;Argument&lt;T&gt;, EmptyArgumentList&gt;&gt;
-    <span class="kw">where
-        </span>T: scale::Encode,
+        <span class="ident">arg</span>: <span class="ident">T</span>,
+    ) -&gt; <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
-        ExecutionInput {
-            selector: <span class="self">self</span>.selector,
-            args: <span class="self">self</span>.args.push_arg(arg),
+        <span class="ident">ExecutionInput</span> {
+            <span class="ident">selector</span>: <span class="self">self</span>.<span class="ident">selector</span>,
+            <span class="ident">args</span>: <span class="self">self</span>.<span class="ident">args</span>.<span class="ident">push_arg</span>(<span class="ident">arg</span>),
         }
     }
 }
 
-<span class="kw">impl</span>&lt;Head, Rest&gt; ExecutionInput&lt;ArgumentList&lt;Argument&lt;Head&gt;, Rest&gt;&gt; {
-    <span class="doccomment">/// Pushes an argument to the execution input.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>push_arg&lt;T&gt;(<span class="self">self</span>, arg: T) -&gt; ExecutionInput&lt;ArgsList&lt;T, ArgsList&lt;Head, Rest&gt;&gt;&gt;
-    <span class="kw">where
-        </span>T: scale::Encode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Pushes an argument to the execution input.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
-        ExecutionInput {
-            selector: <span class="self">self</span>.selector,
-            args: <span class="self">self</span>.args.push_arg(arg),
+        <span class="ident">ExecutionInput</span> {
+            <span class="ident">selector</span>: <span class="self">self</span>.<span class="ident">selector</span>,
+            <span class="ident">args</span>: <span class="self">self</span>.<span class="ident">args</span>.<span class="ident">push_arg</span>(<span class="ident">arg</span>),
         }
     }
 }
 
-<span class="doccomment">/// An argument list.
-///
-/// This type is constructed mainly at compile type via type constructions
-/// to avoid having to allocate heap memory while constructing the encoded
-/// arguments. The potentially heap allocating encoding is done right at the end
-/// where we can leverage the static environmental buffer instead of allocating
-/// heap memory.
-</span><span class="attribute">#[derive(Default, Debug)]
-</span><span class="kw">pub struct </span>ArgumentList&lt;Head, Rest&gt; {
-    <span class="doccomment">/// The first argument of the argument list.
-    </span>head: Head,
-    <span class="doccomment">/// All the rest arguments.
-    </span>rest: Rest,
+<span class="doccomment">/// An argument list.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This type is constructed mainly at compile type via type constructions</span>
+<span class="doccomment">/// to avoid having to allocate heap memory while constructing the encoded</span>
+<span class="doccomment">/// arguments. The potentially heap allocating encoding is done right at the end</span>
+<span class="doccomment">/// where we can leverage the static environmental buffer instead of allocating</span>
+<span class="doccomment">/// heap memory.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The first argument of the argument list.</span>
+    <span class="ident">head</span>: <span class="ident">Head</span>,
+    <span class="doccomment">/// All the rest arguments.</span>
+    <span class="ident">rest</span>: <span class="ident">Rest</span>,
 }
 
-<span class="doccomment">/// Minor simplification of an argument list with a head and rest.
-</span><span class="kw">pub type </span>ArgsList&lt;Head, Rest&gt; = ArgumentList&lt;Argument&lt;Head&gt;, Rest&gt;;
+<span class="doccomment">/// Minor simplification of an argument list with a head and rest.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span>;
 
-<span class="doccomment">/// A single argument and its reference to a known value.
-</span><span class="attribute">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Argument&lt;T&gt; {
-    <span class="doccomment">/// The reference to the known value.
-    ///
-    /// Used for the encoding at the end of the construction.
-    </span>arg: T,
+<span class="doccomment">/// A single argument and its reference to a known value.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The reference to the known value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Used for the encoding at the end of the construction.</span>
+    <span class="ident">arg</span>: <span class="ident">T</span>,
 }
 
-<span class="kw">impl</span>&lt;T&gt; Argument&lt;T&gt; {
-    <span class="doccomment">/// Creates a new argument.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">fn </span>new(arg: T) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ arg }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new argument.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">arg</span> }
     }
 }
 
-<span class="doccomment">/// The end of an argument list.
-</span><span class="attribute">#[derive(Default, Debug)]
-</span><span class="kw">pub struct </span>ArgumentListEnd;
+<span class="doccomment">/// The end of an argument list.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArgumentListEnd</span>;
 
-<span class="doccomment">/// An empty argument list.
-</span><span class="kw">pub type </span>EmptyArgumentList = ArgumentList&lt;ArgumentListEnd, ArgumentListEnd&gt;;
+<span class="doccomment">/// An empty argument list.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">EmptyArgumentList</span> <span class="op">=</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">ArgumentListEnd</span>, <span class="ident">ArgumentListEnd</span><span class="op">&gt;</span>;
 
-<span class="kw">impl </span>EmptyArgumentList {
-    <span class="doccomment">/// Creates a new empty argument list.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>empty() -&gt; EmptyArgumentList {
-        ArgumentList {
-            head: ArgumentListEnd,
-            rest: ArgumentListEnd,
+<span class="kw">impl</span> <span class="ident">EmptyArgumentList</span> {
+    <span class="doccomment">/// Creates a new empty argument list.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">EmptyArgumentList</span> {
+        <span class="ident">ArgumentList</span> {
+            <span class="ident">head</span>: <span class="ident">ArgumentListEnd</span>,
+            <span class="ident">rest</span>: <span class="ident">ArgumentListEnd</span>,
         }
     }
 
-    <span class="doccomment">/// Pushes the first argument to the empty argument list.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>push_arg&lt;T&gt;(<span class="self">self</span>, arg: T) -&gt; ArgumentList&lt;Argument&lt;T&gt;, <span class="self">Self</span>&gt;
-    <span class="kw">where
-        </span>T: scale::Encode,
+    <span class="doccomment">/// Pushes the first argument to the empty argument list.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
-        ArgumentList {
-            head: Argument::new(arg),
-            rest: <span class="self">self</span>,
+        <span class="ident">ArgumentList</span> {
+            <span class="ident">head</span>: <span class="ident">Argument::new</span>(<span class="ident">arg</span>),
+            <span class="ident">rest</span>: <span class="self">self</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;Head, Rest&gt; ArgumentList&lt;Argument&lt;Head&gt;, Rest&gt; {
-    <span class="doccomment">/// Pushes another argument to the argument list.
-    </span><span class="attribute">#[inline]
-    </span><span class="kw">pub fn </span>push_arg&lt;T&gt;(<span class="self">self</span>, arg: T) -&gt; ArgumentList&lt;Argument&lt;T&gt;, <span class="self">Self</span>&gt;
-    <span class="kw">where
-        </span>T: scale::Encode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Pushes another argument to the argument list.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
-        ArgumentList {
-            head: Argument::new(arg),
-            rest: <span class="self">self</span>,
+        <span class="ident">ArgumentList</span> {
+            <span class="ident">head</span>: <span class="ident">Argument::new</span>(<span class="ident">arg</span>),
+            <span class="ident">rest</span>: <span class="self">self</span>,
         }
     }
 }
 
-<span class="kw">impl</span>&lt;T&gt; scale::Encode <span class="kw">for </span>Argument&lt;T&gt;
-<span class="kw">where
-    </span>T: scale::Encode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
 {
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        &lt;T <span class="kw">as </span>scale::Encode&gt;::size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>.arg)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arg</span>)
     }
 
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>encode_to&lt;O: scale::Output + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>O) {
-        &lt;T <span class="kw">as </span>scale::Encode&gt;::encode_to(<span class="kw-2">&amp;</span><span class="self">self</span>.arg, output)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arg</span>, <span class="ident">output</span>)
     }
 }
 
-<span class="kw">impl </span>scale::Encode <span class="kw">for </span>EmptyArgumentList {
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="number">0
-    </span>}
+<span class="kw">impl</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">EmptyArgumentList</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="number">0</span>
+    }
 
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>encode_to&lt;O: scale::Output + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, _output: <span class="kw-2">&amp;mut </span>O) {}
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {}
 }
 
-<span class="kw">impl</span>&lt;Head, Rest&gt; scale::Encode <span class="kw">for </span>ArgumentList&lt;Argument&lt;Head&gt;, Rest&gt;
-<span class="kw">where
-    </span>Head: scale::Encode,
-    Rest: scale::Encode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">Head</span>: <span class="ident">scale::Encode</span>,
+    <span class="ident">Rest</span>: <span class="ident">scale::Encode</span>,
 {
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        scale::Encode::size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>.head) + scale::Encode::size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>.rest)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>) <span class="op">+</span> <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rest</span>)
     }
 
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>encode_to&lt;O: scale::Output + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>O) {
-        <span class="comment">// We reverse the order of encoding because we build up the list of
-        // arguments in reverse order, too. This way we encode the arguments
-        // in the same order in which they have been pushed to the argument list
-        // while the argument list itself organizes them in reverse order.
-        </span>scale::Encode::encode_to(<span class="kw-2">&amp;</span><span class="self">self</span>.rest, output);
-        scale::Encode::encode_to(<span class="kw-2">&amp;</span><span class="self">self</span>.head, output);
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {
+        <span class="comment">// We reverse the order of encoding because we build up the list of</span>
+        <span class="comment">// arguments in reverse order, too. This way we encode the arguments</span>
+        <span class="comment">// in the same order in which they have been pushed to the argument list</span>
+        <span class="comment">// while the argument list itself organizes them in reverse order.</span>
+        <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rest</span>, <span class="ident">output</span>);
+        <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>, <span class="ident">output</span>);
     }
 }
 
-<span class="kw">impl</span>&lt;Args&gt; scale::Encode <span class="kw">for </span>ExecutionInput&lt;Args&gt;
-<span class="kw">where
-    </span>Args: scale::Encode,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
 {
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        scale::Encode::size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>.selector) + scale::Encode::size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>.args)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>) <span class="op">+</span> <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>)
     }
 
-    <span class="attribute">#[inline]
-    </span><span class="kw">fn </span>encode_to&lt;O: scale::Output + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, output: <span class="kw-2">&amp;mut </span>O) {
-        scale::Encode::encode_to(<span class="kw-2">&amp;</span><span class="self">self</span>.selector, output);
-        scale::Encode::encode_to(<span class="kw-2">&amp;</span><span class="self">self</span>.args, output);
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {
+        <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>, <span class="ident">output</span>);
+        <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>, <span class="ident">output</span>);
     }
 }
 
-<span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>empty_exec_input_works() {
-        <span class="kw">let </span>selector = Selector::new([<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>]);
-        <span class="kw">let </span>exec_input = ExecutionInput::new(selector);
-        <span class="kw">let </span>encoded = scale::Encode::encode(<span class="kw-2">&amp;</span>exec_input);
-        <span class="macro">assert!</span>(!encoded.is_empty());
-        <span class="kw">let </span>decoded = &lt;Selector <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded[..]).unwrap();
-        <span class="macro">assert_eq!</span>(decoded, selector);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">empty_exec_input_works</span>() {
+        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">Selector::new</span>([<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>]);
+        <span class="kw">let</span> <span class="ident">exec_input</span> <span class="op">=</span> <span class="ident">ExecutionInput::new</span>(<span class="ident">selector</span>);
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">exec_input</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">encoded</span>.<span class="ident">is_empty</span>());
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Selector</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">decoded</span>, <span class="ident">selector</span>);
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>empty_args_works() {
-        <span class="kw">let </span>empty_list = ArgumentList::empty();
-        <span class="kw">let </span>encoded = scale::Encode::encode(<span class="kw-2">&amp;</span>empty_list);
-        <span class="macro">assert_eq!</span>(encoded, &lt;Vec&lt;u8&gt;&gt;::new());
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">empty_args_works</span>() {
+        <span class="kw">let</span> <span class="ident">empty_list</span> <span class="op">=</span> <span class="ident">ArgumentList::empty</span>();
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">empty_list</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">encoded</span>, <span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>());
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>single_argument_works() {
-        <span class="kw">let </span>empty_list = ArgumentList::empty().push_arg(<span class="kw-2">&amp;</span><span class="number">1i32</span>);
-        <span class="kw">let </span>encoded = scale::Encode::encode(<span class="kw-2">&amp;</span>empty_list);
-        <span class="macro">assert!</span>(!encoded.is_empty());
-        <span class="kw">let </span>decoded = &lt;i32 <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded[..]).unwrap();
-        <span class="macro">assert_eq!</span>(decoded, <span class="number">1i32</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">single_argument_works</span>() {
+        <span class="kw">let</span> <span class="ident">empty_list</span> <span class="op">=</span> <span class="ident">ArgumentList::empty</span>().<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span><span class="number">1i32</span>);
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">empty_list</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">encoded</span>.<span class="ident">is_empty</span>());
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">decoded</span>, <span class="number">1i32</span>);
     }
 
-    <span class="attribute">#[test]
-    </span><span class="kw">fn </span>multiple_arguments_works() {
-        <span class="kw">let </span>empty_list = ArgumentList::empty()
-            .push_arg(<span class="kw-2">&amp;</span><span class="number">42i32</span>)
-            .push_arg(<span class="kw-2">&amp;</span><span class="bool-val">true</span>)
-            .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x66u8</span>; <span class="number">4</span>]);
-        <span class="kw">let </span>encoded = scale::Encode::encode(<span class="kw-2">&amp;</span>empty_list);
-        <span class="macro">assert!</span>(!encoded.is_empty());
-        <span class="kw">let </span>decoded =
-            &lt;(i32, bool, [u8; <span class="number">4</span>]) <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded[..]).unwrap();
-        <span class="macro">assert_eq!</span>(decoded, (<span class="number">42i32</span>, <span class="bool-val">true</span>, [<span class="number">0x66</span>; <span class="number">4</span>]));
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">multiple_arguments_works</span>() {
+        <span class="kw">let</span> <span class="ident">empty_list</span> <span class="op">=</span> <span class="ident">ArgumentList::empty</span>()
+            .<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span><span class="number">42i32</span>)
+            .<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span><span class="bool-val">true</span>)
+            .<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span>[<span class="number">0x66u8</span>; <span class="number">4</span>]);
+        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">empty_list</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">encoded</span>.<span class="ident">is_empty</span>());
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span>
+            <span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">bool</span>, [<span class="ident">u8</span>; <span class="number">4</span>]) <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">decoded</span>, (<span class="number">42i32</span>, <span class="bool-val">true</span>, [<span class="number">0x66</span>; <span class="number">4</span>]));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

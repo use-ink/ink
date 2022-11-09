@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/storage_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>storage_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/storage_item.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>storage_item.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -249,254 +249,254 @@
 <span id="247">247</span>
 <span id="248">248</span>
 <span id="249">249</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
-<span class="kw">use </span>derive_more::From;
-<span class="kw">use </span>proc_macro2::{
-    Ident,
-    TokenStream <span class="kw">as </span>TokenStream2,
-    TokenStream,
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
+    <span class="ident">Ident</span>,
+    <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>,
+    <span class="ident">TokenStream</span>,
 };
-<span class="kw">use </span>quote::{
-    format_ident,
-    quote,
-    quote_spanned,
-    ToTokens,
+<span class="kw">use</span> <span class="ident">quote</span>::{
+    <span class="ident">format_ident</span>,
+    <span class="ident">quote</span>,
+    <span class="ident">quote_spanned</span>,
+    <span class="ident">ToTokens</span>,
 };
-<span class="kw">use </span>syn::{
-    spanned::Spanned,
-    Data,
-    DataEnum,
-    DataStruct,
-    DataUnion,
-    Field,
-    Fields,
-    Type,
+<span class="kw">use</span> <span class="ident">syn</span>::{
+    <span class="ident">spanned::Spanned</span>,
+    <span class="ident">Data</span>,
+    <span class="ident">DataEnum</span>,
+    <span class="ident">DataStruct</span>,
+    <span class="ident">DataUnion</span>,
+    <span class="ident">Field</span>,
+    <span class="ident">Fields</span>,
+    <span class="ident">Type</span>,
 };
 
-<span class="doccomment">/// Generates code for the storage item.
-</span><span class="attribute">#[derive(From, Copy, Clone)]
-</span><span class="kw">pub struct </span>StorageItem&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="doccomment">/// The storage item to generate code for.
-    </span>item: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::StorageItem,
+<span class="doccomment">/// Generates code for the storage item.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StorageItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The storage item to generate code for.</span>
+    <span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::StorageItem</span>,
 }
 
-<span class="kw">impl </span>GenerateCode <span class="kw">for </span>StorageItem&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="doccomment">/// Generates ink! storage item code.
-    </span><span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>attrs = <span class="self">self</span>.item.attrs();
-        <span class="kw">let </span>generated_struct = <span class="kw">match </span><span class="self">self</span>.item.data().clone() {
-            Data::Struct(struct_item) =&gt; <span class="self">self</span>.generate_struct(struct_item),
-            Data::Enum(enum_item) =&gt; <span class="self">self</span>.generate_enum(enum_item),
-            Data::Union(union_item) =&gt; <span class="self">self</span>.generate_union(union_item),
+<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">StorageItem</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Generates ink! storage item code.</span>
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>();
+        <span class="kw">let</span> <span class="ident">generated_struct</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">data</span>().<span class="ident">clone</span>() {
+            <span class="ident">Data::Struct</span>(<span class="ident">struct_item</span>) =&gt; <span class="self">self</span>.<span class="ident">generate_struct</span>(<span class="ident">struct_item</span>),
+            <span class="ident">Data::Enum</span>(<span class="ident">enum_item</span>) =&gt; <span class="self">self</span>.<span class="ident">generate_enum</span>(<span class="ident">enum_item</span>),
+            <span class="ident">Data::Union</span>(<span class="ident">union_item</span>) =&gt; <span class="self">self</span>.<span class="ident">generate_union</span>(<span class="ident">union_item</span>),
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>derive = <span class="macro">quote! </span>{};
-        <span class="kw">if </span><span class="self">self</span>.item.config().derive() {
-            derive = <span class="macro">quote! </span>{
-                <span class="attribute">#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(
-                    ::scale_info::TypeInfo,
-                    ::ink::storage::traits::StorageLayout,
-                ))]
-                #[derive(
-                    ::ink::storage::traits::StorableHint,
-                    ::ink::storage::traits::StorageKey,
-                    ::ink::storage::traits::Storable,
-                )]
-            </span>};
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">derive</span> <span class="op">=</span> <span class="macro">quote!</span> {};
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">config</span>().<span class="ident">derive</span>() {
+            <span class="ident">derive</span> <span class="op">=</span> <span class="macro">quote!</span> {
+                <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(
+                    <span class="ident">::scale_info::TypeInfo</span>,
+                    <span class="ident">::ink::storage::traits::StorageLayout</span>,
+                ))]</span>
+                <span class="attribute">#[<span class="ident">derive</span>(
+                    <span class="ident">::ink::storage::traits::StorableHint</span>,
+                    <span class="ident">::ink::storage::traits::StorageKey</span>,
+                    <span class="ident">::ink::storage::traits::Storable</span>,
+                )]</span>
+            };
         }
 
-        <span class="kw">let </span>type_check = <span class="self">self</span>.generate_type_check();
+        <span class="kw">let</span> <span class="ident">type_check</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_type_check</span>();
 
-        <span class="macro">quote! </span>{
-            #type_check
+        <span class="macro">quote!</span> {
+            #<span class="ident">type_check</span>
 
-            #(#attrs)*
-            #derive
-            #generated_struct
+            #(#<span class="ident">attrs</span>)<span class="op">*</span>
+            #<span class="ident">derive</span>
+            #<span class="ident">generated_struct</span>
         }
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StorageItem&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>generate_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, struct_item: DataStruct) -&gt; TokenStream2 {
-        <span class="kw">let </span>item = <span class="self">self</span>.item;
-        <span class="kw">let </span>struct_ident = item.ident();
-        <span class="kw">let </span>vis = item.vis();
-        <span class="kw">let </span>generics = item.generics();
-        <span class="kw">let </span>salt = item.salt();
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StorageItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">generate_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">struct_item</span>: <span class="ident">DataStruct</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item</span>;
+        <span class="kw">let</span> <span class="ident">struct_ident</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">vis</span>();
+        <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">generics</span>();
+        <span class="kw">let</span> <span class="ident">salt</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">salt</span>();
 
-        <span class="kw">let </span>fields = struct_item.fields.iter().enumerate().map(|(i, field)| {
-            convert_into_storage_field(struct_ident, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>salt, i, field)
+        <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">struct_item</span>.<span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">field</span>)<span class="op">|</span> {
+            <span class="ident">convert_into_storage_field</span>(<span class="ident">struct_ident</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">salt</span>, <span class="ident">i</span>, <span class="ident">field</span>)
         });
 
-        <span class="kw">match </span>struct_item.fields {
-            Fields::Unnamed(<span class="kw">_</span>) =&gt; {
-                <span class="macro">quote! </span>{
-                    #vis <span class="kw">struct </span>#struct_ident #generics (
-                        #(#fields),*
+        <span class="kw">match</span> <span class="ident">struct_item</span>.<span class="ident">fields</span> {
+            <span class="ident">Fields::Unnamed</span>(<span class="kw">_</span>) =&gt; {
+                <span class="macro">quote!</span> {
+                    #<span class="ident">vis</span> <span class="kw">struct</span> #<span class="ident">struct_ident</span> #<span class="ident">generics</span> (
+                        #(#<span class="ident">fields</span>),<span class="op">*</span>
                     );
                 }
             }
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">quote! </span>{
-                    #vis <span class="kw">struct </span>#struct_ident #generics {
-                        #(#fields),*
+            <span class="kw">_</span> =&gt; {
+                <span class="macro">quote!</span> {
+                    #<span class="ident">vis</span> <span class="kw">struct</span> #<span class="ident">struct_ident</span> #<span class="ident">generics</span> {
+                        #(#<span class="ident">fields</span>),<span class="op">*</span>
                     }
                 }
             }
         }
     }
 
-    <span class="kw">fn </span>generate_enum(<span class="kw-2">&amp;</span><span class="self">self</span>, enum_item: DataEnum) -&gt; TokenStream2 {
-        <span class="kw">let </span>item = <span class="self">self</span>.item;
-        <span class="kw">let </span>enum_ident = item.ident();
-        <span class="kw">let </span>vis = item.vis();
-        <span class="kw">let </span>generics = item.generics();
-        <span class="kw">let </span>salt = item.salt();
+    <span class="kw">fn</span> <span class="ident">generate_enum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">enum_item</span>: <span class="ident">DataEnum</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item</span>;
+        <span class="kw">let</span> <span class="ident">enum_ident</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">vis</span>();
+        <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">generics</span>();
+        <span class="kw">let</span> <span class="ident">salt</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">salt</span>();
 
-        <span class="kw">let </span>variants = enum_item.variants.into_iter().map(|variant| {
-            <span class="kw">let </span>attrs = variant.attrs;
-            <span class="kw">let </span>variant_ident = <span class="kw-2">&amp;</span>variant.ident;
-            <span class="kw">let </span>discriminant = <span class="kw">if let </span><span class="prelude-val">Some</span>((eq, expr)) = variant.discriminant {
-                <span class="macro">quote! </span>{ #eq #expr}
-            } <span class="kw">else </span>{
-                <span class="macro">quote! </span>{}
+        <span class="kw">let</span> <span class="ident">variants</span> <span class="op">=</span> <span class="ident">enum_item</span>.<span class="ident">variants</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">variant</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">variant</span>.<span class="ident">attrs</span>;
+            <span class="kw">let</span> <span class="ident">variant_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">variant</span>.<span class="ident">ident</span>;
+            <span class="kw">let</span> <span class="ident">discriminant</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">eq</span>, <span class="ident">expr</span>)) <span class="op">=</span> <span class="ident">variant</span>.<span class="ident">discriminant</span> {
+                <span class="macro">quote!</span> { #<span class="ident">eq</span> #<span class="ident">expr</span>}
+            } <span class="kw">else</span> {
+                <span class="macro">quote!</span> {}
             };
 
-            <span class="kw">let </span>fields: Vec&lt;<span class="kw">_</span>&gt; = variant
-                .fields
-                .iter()
-                .enumerate()
-                .map(|(i, field)| {
-                    convert_into_storage_field(
-                        enum_ident,
-                        <span class="prelude-val">Some</span>(variant_ident),
-                        <span class="kw-2">&amp;</span>salt,
-                        i,
-                        field,
+            <span class="kw">let</span> <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">variant</span>
+                .<span class="ident">fields</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">enumerate</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">field</span>)<span class="op">|</span> {
+                    <span class="ident">convert_into_storage_field</span>(
+                        <span class="ident">enum_ident</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">variant_ident</span>),
+                        <span class="kw-2">&amp;</span><span class="ident">salt</span>,
+                        <span class="ident">i</span>,
+                        <span class="ident">field</span>,
                     )
                 })
-                .collect();
+                .<span class="ident">collect</span>();
 
-            <span class="kw">let </span>fields = <span class="kw">match </span>variant.fields {
-                Fields::Named(<span class="kw">_</span>) =&gt; <span class="macro">quote! </span>{ { #(#fields),* } },
-                Fields::Unnamed(<span class="kw">_</span>) =&gt; <span class="macro">quote! </span>{ ( #(#fields),* ) },
-                Fields::Unit =&gt; <span class="macro">quote! </span>{},
+            <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">variant</span>.<span class="ident">fields</span> {
+                <span class="ident">Fields::Named</span>(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span> { { #(#<span class="ident">fields</span>),<span class="op">*</span> } },
+                <span class="ident">Fields::Unnamed</span>(<span class="kw">_</span>) =&gt; <span class="macro">quote!</span> { ( #(#<span class="ident">fields</span>),<span class="op">*</span> ) },
+                <span class="ident">Fields::Unit</span> =&gt; <span class="macro">quote!</span> {},
             };
 
-            <span class="macro">quote! </span>{
-                #(#attrs)*
-                #variant_ident #fields #discriminant
+            <span class="macro">quote!</span> {
+                #(#<span class="ident">attrs</span>)<span class="op">*</span>
+                #<span class="ident">variant_ident</span> #<span class="ident">fields</span> #<span class="ident">discriminant</span>
             }
         });
 
-        <span class="macro">quote! </span>{
-            #vis <span class="kw">enum </span>#enum_ident #generics {
-                #(#variants),*
+        <span class="macro">quote!</span> {
+            #<span class="ident">vis</span> <span class="kw">enum</span> #<span class="ident">enum_ident</span> #<span class="ident">generics</span> {
+                #(#<span class="ident">variants</span>),<span class="op">*</span>
             }
         }
     }
 
-    <span class="kw">fn </span>generate_union(<span class="kw-2">&amp;</span><span class="self">self</span>, union_item: DataUnion) -&gt; TokenStream2 {
-        <span class="kw">let </span>item = <span class="self">self</span>.item;
-        <span class="kw">let </span>union_ident = item.ident();
-        <span class="kw">let </span>vis = item.vis();
-        <span class="kw">let </span>generics = item.generics();
-        <span class="kw">let </span>salt = item.salt();
+    <span class="kw">fn</span> <span class="ident">generate_union</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">union_item</span>: <span class="ident">DataUnion</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item</span>;
+        <span class="kw">let</span> <span class="ident">union_ident</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">vis</span>();
+        <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">generics</span>();
+        <span class="kw">let</span> <span class="ident">salt</span> <span class="op">=</span> <span class="ident">item</span>.<span class="ident">salt</span>();
 
-        <span class="kw">let </span>fields = union_item
-            .fields
-            .named
-            .iter()
-            .enumerate()
-            .map(|(i, field)| {
-                convert_into_storage_field(union_ident, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>salt, i, field)
+        <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">union_item</span>
+            .<span class="ident">fields</span>
+            .<span class="ident">named</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">field</span>)<span class="op">|</span> {
+                <span class="ident">convert_into_storage_field</span>(<span class="ident">union_ident</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">salt</span>, <span class="ident">i</span>, <span class="ident">field</span>)
             });
 
-        <span class="macro">quote! </span>{
-            #vis union #union_ident #generics {
-                #(#fields),*
+        <span class="macro">quote!</span> {
+            #<span class="ident">vis</span> <span class="ident">union</span> #<span class="ident">union_ident</span> #<span class="ident">generics</span> {
+                #(#<span class="ident">fields</span>),<span class="op">*</span>
             }
         }
     }
 
-    <span class="kw">fn </span>generate_type_check(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
-        <span class="kw">let </span>fields = <span class="self">self
-            </span>.item
-            .all_used_types()
-            .into_iter()
-            .enumerate()
-            .map(|(i, ty)| {
-                <span class="kw">let </span>field_name = <span class="macro">format_ident!</span>(<span class="string">&quot;field_{}&quot;</span>, i);
-                <span class="kw">let </span>span = ty.span();
-                <span class="macro">quote_spanned!</span>(span =&gt;
-                    #field_name: #ty
+    <span class="kw">fn</span> <span class="ident">generate_type_check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">item</span>
+            .<span class="ident">all_used_types</span>()
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">ty</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;field_{}&quot;</span>, <span class="ident">i</span>);
+                <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">span</span>();
+                <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
+                    #<span class="ident">field_name</span>: #<span class="ident">ty</span>
                 )
             });
-        <span class="kw">let </span>generics = <span class="self">self</span>.item.generics();
-        <span class="kw">let </span>salt = <span class="self">self</span>.item.salt();
+        <span class="kw">let</span> <span class="ident">generics</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">generics</span>();
+        <span class="kw">let</span> <span class="ident">salt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">salt</span>();
 
-        <span class="macro">quote! </span>{
-            <span class="kw">const _</span>: () = {
-                <span class="kw">struct </span>Check #generics {
-                    salt: #salt,
-                    #(#fields),*
+        <span class="macro">quote!</span> {
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="kw">struct</span> <span class="ident">Check</span> #<span class="ident">generics</span> {
+                    <span class="ident">salt</span>: #<span class="ident">salt</span>,
+                    #(#<span class="ident">fields</span>),<span class="op">*</span>
                 }
             };
         }
     }
 }
 
-<span class="kw">fn </span>convert_into_storage_field(
-    struct_ident: <span class="kw-2">&amp;</span>Ident,
-    variant_ident: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>syn::Ident&gt;,
-    salt: <span class="kw-2">&amp;</span>TokenStream,
-    index: usize,
-    field: <span class="kw-2">&amp;</span>Field,
-) -&gt; Field {
-    <span class="kw">let </span>field_name = <span class="kw">if let </span><span class="prelude-val">Some</span>(field_ident) = <span class="kw-2">&amp;</span>field.ident {
-        field_ident.to_string()
-    } <span class="kw">else </span>{
-        index.to_string()
+<span class="kw">fn</span> <span class="ident">convert_into_storage_field</span>(
+    <span class="ident">struct_ident</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
+    <span class="ident">variant_ident</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Ident</span><span class="op">&gt;</span>,
+    <span class="ident">salt</span>: <span class="kw-2">&amp;</span><span class="ident">TokenStream</span>,
+    <span class="ident">index</span>: <span class="ident">usize</span>,
+    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="ident">Field</span>,
+) -&gt; <span class="ident">Field</span> {
+    <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">field_ident</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ident</span> {
+        <span class="ident">field_ident</span>.<span class="ident">to_string</span>()
+    } <span class="kw">else</span> {
+        <span class="ident">index</span>.<span class="ident">to_string</span>()
     };
 
-    <span class="kw">let </span>variant_name = <span class="kw">if let </span><span class="prelude-val">Some</span>(variant_ident) = variant_ident {
-        variant_ident.to_string()
-    } <span class="kw">else </span>{
-        <span class="string">&quot;&quot;</span>.to_string()
+    <span class="kw">let</span> <span class="ident">variant_name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">variant_ident</span>) <span class="op">=</span> <span class="ident">variant_ident</span> {
+        <span class="ident">variant_ident</span>.<span class="ident">to_string</span>()
+    } <span class="kw">else</span> {
+        <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
     };
 
-    <span class="kw">let </span>key = ink_primitives::KeyComposer::compute_key(
-        struct_ident.to_string().as_str(),
-        variant_name.as_str(),
-        field_name.as_str(),
+    <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">ink_primitives::KeyComposer::compute_key</span>(
+        <span class="ident">struct_ident</span>.<span class="ident">to_string</span>().<span class="ident">as_str</span>(),
+        <span class="ident">variant_name</span>.<span class="ident">as_str</span>(),
+        <span class="ident">field_name</span>.<span class="ident">as_str</span>(),
     )
-    .expect(<span class="string">&quot;unable to compute the storage key for the field&quot;</span>);
+    .<span class="ident">expect</span>(<span class="string">&quot;unable to compute the storage key for the field&quot;</span>);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>new_field = field.clone();
-    <span class="kw">let </span>ty = field.ty.clone().to_token_stream();
-    <span class="kw">let </span>span = field.ty.span();
-    <span class="kw">let </span>new_ty = Type::Verbatim(<span class="macro">quote_spanned!</span>(span =&gt;
-        &lt;#ty <span class="kw">as </span>::ink::storage::traits::AutoStorableHint&lt;
-            ::ink::storage::traits::ManualKey&lt;#key, #salt&gt;,
-        &gt;&gt;::Type
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_field</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ty</span>.<span class="ident">clone</span>().<span class="ident">to_token_stream</span>();
+    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">ty</span>.<span class="ident">span</span>();
+    <span class="kw">let</span> <span class="ident">new_ty</span> <span class="op">=</span> <span class="ident">Type::Verbatim</span>(<span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
+        <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::AutoStorableHint</span><span class="op">&lt;</span>
+            <span class="ident">::ink::storage::traits::ManualKey</span><span class="op">&lt;</span>#<span class="ident">key</span>, #<span class="ident">salt</span><span class="op">&gt;</span>,
+        <span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Type</span>
     ));
-    new_field.ty = new_ty;
-    new_field
+    <span class="ident">new_field</span>.<span class="ident">ty</span> <span class="op">=</span> <span class="ident">new_ty</span>;
+    <span class="ident">new_field</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

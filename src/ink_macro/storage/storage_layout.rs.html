@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/macro/src/storage/storage_layout.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>storage_layout.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_macro/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_macro/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/macro/src/storage/storage_layout.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>storage_layout.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_macro/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_macro/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_macro/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -135,68 +135,68 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
 
-</span><span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
-<span class="kw">use </span>quote::quote;
-<span class="kw">use </span>syn::spanned::Spanned;
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
+<span class="kw">use</span> <span class="ident">quote::quote</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
 
-<span class="kw">fn </span>field_layout&lt;<span class="lifetime">&#39;a</span>&gt;(
-    variant: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>synstructure::VariantInfo,
-) -&gt; <span class="kw">impl </span>Iterator&lt;Item = TokenStream2&gt; + <span class="lifetime">&#39;a </span>{
-    variant.ast().fields.iter().enumerate().map(|(i, field)| {
-        <span class="kw">let </span>ident = <span class="kw">match </span>field.ident.as_ref() {
-            <span class="prelude-val">Some</span>(ident) =&gt; {
-                <span class="kw">let </span>ident_str = ident.to_string();
-                <span class="macro">quote! </span>{ #ident_str }
+<span class="kw">fn</span> <span class="ident">field_layout</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+    <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">synstructure::VariantInfo</span>,
+) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
+    <span class="ident">variant</span>.<span class="ident">ast</span>().<span class="ident">fields</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">field</span>)<span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">ident</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">ident_str</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
+                <span class="macro">quote!</span> { #<span class="ident">ident_str</span> }
             }
-            <span class="prelude-val">None </span>=&gt; {
-                <span class="kw">let </span>index = i.to_string();
-                <span class="macro">quote! </span>{ #index }
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">to_string</span>();
+                <span class="macro">quote!</span> { #<span class="ident">index</span> }
             }
         };
-        <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>field.ty;
-        <span class="macro">quote! </span>{
-            ::ink::metadata::layout::FieldLayout::new(
-                #ident,
-                &lt;#ty <span class="kw">as </span>::ink::storage::traits::StorageLayout&gt;::layout(__key),
+        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ty</span>;
+        <span class="macro">quote!</span> {
+            <span class="ident">::ink::metadata::layout::FieldLayout::new</span>(
+                #<span class="ident">ident</span>,
+                <span class="op">&lt;</span>#<span class="ident">ty</span> <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">__key</span>),
             )
         }
     })
 }
 
-<span class="kw">fn </span>storage_layout_struct(s: <span class="kw-2">&amp;</span>synstructure::Structure) -&gt; TokenStream2 {
+<span class="kw">fn</span> <span class="ident">storage_layout_struct</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">synstructure::Structure</span>) -&gt; <span class="ident">TokenStream2</span> {
     <span class="macro">assert!</span>(
-        <span class="macro">matches!</span>(s.ast().data, syn::Data::Struct(<span class="kw">_</span>)),
-        <span class="string">&quot;s must be a struct item&quot;
-    </span>);
+        <span class="macro">matches!</span>(<span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">data</span>, <span class="ident">syn::Data::Struct</span>(<span class="kw">_</span>)),
+        <span class="string">&quot;s must be a struct item&quot;</span>
+    );
     <span class="macro">assert!</span>(
-        s.variants().len() == <span class="number">1</span>,
-        <span class="string">&quot;structs must have at most one variant&quot;
-    </span>);
-    <span class="kw">let </span>struct_ident = s.ast().ident.clone();
-    <span class="kw">let </span>variant: <span class="kw-2">&amp;</span>synstructure::VariantInfo = <span class="kw-2">&amp;</span>s.variants()[<span class="number">0</span>];
-    <span class="kw">let </span>field_layouts = field_layout(variant);
-    s.gen_impl(<span class="macro">quote! </span>{
-        gen <span class="kw">impl </span>::ink::storage::traits::StorageLayout <span class="kw">for </span>@<span class="self">Self </span>{
-            <span class="kw">fn </span>layout(__key: <span class="kw-2">&amp;</span>::ink::primitives::Key) -&gt; ::ink::metadata::layout::Layout {
-                ::ink::metadata::layout::Layout::Struct(
-                    ::ink::metadata::layout::StructLayout::new(
-                        <span class="macro">::core::stringify!</span>(#struct_ident),
+        <span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>,
+        <span class="string">&quot;structs must have at most one variant&quot;</span>
+    );
+    <span class="kw">let</span> <span class="ident">struct_ident</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">ident</span>.<span class="ident">clone</span>();
+    <span class="kw">let</span> <span class="ident">variant</span>: <span class="kw-2">&amp;</span><span class="ident">synstructure::VariantInfo</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">variants</span>()[<span class="number">0</span>];
+    <span class="kw">let</span> <span class="ident">field_layouts</span> <span class="op">=</span> <span class="ident">field_layout</span>(<span class="ident">variant</span>);
+    <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
+        <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink::storage::traits::StorageLayout</span> <span class="kw">for</span> @<span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">__key</span>: <span class="kw-2">&amp;</span><span class="ident">::ink::primitives::Key</span>) -&gt; <span class="ident">::ink::metadata::layout::Layout</span> {
+                <span class="ident">::ink::metadata::layout::Layout::Struct</span>(
+                    <span class="ident">::ink::metadata::layout::StructLayout::new</span>(
+                        <span class="macro">::core::stringify!</span>(#<span class="ident">struct_ident</span>),
                         [
-                            #(#field_layouts ,)*
+                            #(#<span class="ident">field_layouts</span> ,)<span class="op">*</span>
                         ]
                     )
                 )
@@ -205,53 +205,53 @@
     })
 }
 
-<span class="kw">fn </span>storage_layout_enum(s: <span class="kw-2">&amp;</span>synstructure::Structure) -&gt; TokenStream2 {
+<span class="kw">fn</span> <span class="ident">storage_layout_enum</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">synstructure::Structure</span>) -&gt; <span class="ident">TokenStream2</span> {
     <span class="macro">assert!</span>(
-        <span class="macro">matches!</span>(s.ast().data, syn::Data::Enum(<span class="kw">_</span>)),
-        <span class="string">&quot;s must be an enum item&quot;
-    </span>);
+        <span class="macro">matches!</span>(<span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">data</span>, <span class="ident">syn::Data::Enum</span>(<span class="kw">_</span>)),
+        <span class="string">&quot;s must be an enum item&quot;</span>
+    );
 
-    <span class="kw">if </span>s.variants().len() &gt; <span class="number">256 </span>{
-        <span class="kw">return </span>syn::Error::new(
-            s.ast().span(),
+    <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">256</span> {
+        <span class="kw">return</span> <span class="ident">syn::Error::new</span>(
+            <span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">span</span>(),
             <span class="string">&quot;Currently only enums with at most 256 variants are supported.&quot;</span>,
         )
-        .to_compile_error()
+        .<span class="ident">to_compile_error</span>()
     }
 
-    <span class="kw">let </span>variant_layouts = s.variants().iter().enumerate().map(|(n, variant)| {
-        <span class="kw">let </span>variant_ident = variant.ast().ident;
-        <span class="kw">let </span>discriminant = variant
-            .ast()
-            .discriminant
-            .as_ref()
-            .map(|(<span class="kw">_</span>, expr)| <span class="macro">quote! </span>{ #expr })
-            .unwrap_or_else(|| <span class="macro">quote! </span>{ #n });
-        <span class="kw">let </span>field_layouts = field_layout(variant);
-        <span class="macro">quote! </span>{
+    <span class="kw">let</span> <span class="ident">variant_layouts</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="ident">variant</span>)<span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">variant_ident</span> <span class="op">=</span> <span class="ident">variant</span>.<span class="ident">ast</span>().<span class="ident">ident</span>;
+        <span class="kw">let</span> <span class="ident">discriminant</span> <span class="op">=</span> <span class="ident">variant</span>
+            .<span class="ident">ast</span>()
+            .<span class="ident">discriminant</span>
+            .<span class="ident">as_ref</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">expr</span>)<span class="op">|</span> <span class="macro">quote!</span> { #<span class="ident">expr</span> })
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { #<span class="ident">n</span> });
+        <span class="kw">let</span> <span class="ident">field_layouts</span> <span class="op">=</span> <span class="ident">field_layout</span>(<span class="ident">variant</span>);
+        <span class="macro">quote!</span> {
             {
                 (
-                    ::ink::metadata::layout::Discriminant::from(#discriminant),
-                    ::ink::metadata::layout::StructLayout::new(
-                        <span class="macro">::core::stringify!</span>(#variant_ident),
+                    <span class="ident">::ink::metadata::layout::Discriminant::from</span>(#<span class="ident">discriminant</span>),
+                    <span class="ident">::ink::metadata::layout::StructLayout::new</span>(
+                        <span class="macro">::core::stringify!</span>(#<span class="ident">variant_ident</span>),
                         [
-                            #(#field_layouts ,)*
+                            #(#<span class="ident">field_layouts</span> ,)<span class="op">*</span>
                         ]
                     ),
                 )
             }
         }
     });
-    <span class="kw">let </span>enum_ident = s.ast().ident.clone();
-    s.gen_impl(<span class="macro">quote! </span>{
-        gen <span class="kw">impl </span>::ink::storage::traits::StorageLayout <span class="kw">for </span>@<span class="self">Self </span>{
-            <span class="kw">fn </span>layout(__key: <span class="kw-2">&amp;</span>::ink::primitives::Key) -&gt; ::ink::metadata::layout::Layout {
-                ::ink::metadata::layout::Layout::Enum(
-                    ::ink::metadata::layout::EnumLayout::new(
-                        <span class="macro">::core::stringify!</span>(#enum_ident),
-                        ::ink::metadata::layout::LayoutKey::from(__key),
+    <span class="kw">let</span> <span class="ident">enum_ident</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">ident</span>.<span class="ident">clone</span>();
+    <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
+        <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink::storage::traits::StorageLayout</span> <span class="kw">for</span> @<span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">__key</span>: <span class="kw-2">&amp;</span><span class="ident">::ink::primitives::Key</span>) -&gt; <span class="ident">::ink::metadata::layout::Layout</span> {
+                <span class="ident">::ink::metadata::layout::Layout::Enum</span>(
+                    <span class="ident">::ink::metadata::layout::EnumLayout::new</span>(
+                        <span class="macro">::core::stringify!</span>(#<span class="ident">enum_ident</span>),
+                        <span class="ident">::ink::metadata::layout::LayoutKey::from</span>(<span class="ident">__key</span>),
                         [
-                            #(#variant_layouts ,)*
+                            #(#<span class="ident">variant_layouts</span> ,)<span class="op">*</span>
                         ]
                     )
                 )
@@ -260,15 +260,15 @@
     })
 }
 
-<span class="kw">pub fn </span>storage_layout_derive(<span class="kw-2">mut </span>s: synstructure::Structure) -&gt; TokenStream2 {
-    s.bind_with(|<span class="kw">_</span>| synstructure::BindStyle::Move)
-        .add_bounds(synstructure::AddBounds::Fields)
-        .underscore_const(<span class="bool-val">true</span>);
-    <span class="kw">match </span><span class="kw-2">&amp;</span>s.ast().data {
-        syn::Data::Struct(<span class="kw">_</span>) =&gt; storage_layout_struct(<span class="kw-2">&amp;</span>s),
-        syn::Data::Enum(<span class="kw">_</span>) =&gt; storage_layout_enum(<span class="kw-2">&amp;</span>s),
-        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;cannot derive `StorageLayout` for Rust `union` items&quot;</span>),
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">storage_layout_derive</span>(<span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">synstructure::Structure</span>) -&gt; <span class="ident">TokenStream2</span> {
+    <span class="ident">s</span>.<span class="ident">bind_with</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">synstructure::BindStyle::Move</span>)
+        .<span class="ident">add_bounds</span>(<span class="ident">synstructure::AddBounds::Fields</span>)
+        .<span class="ident">underscore_const</span>(<span class="bool-val">true</span>);
+    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">ast</span>().<span class="ident">data</span> {
+        <span class="ident">syn::Data::Struct</span>(<span class="kw">_</span>) =&gt; <span class="ident">storage_layout_struct</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>),
+        <span class="ident">syn::Data::Enum</span>(<span class="kw">_</span>) =&gt; <span class="ident">storage_layout_enum</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>),
+        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;cannot derive `StorageLayout` for Rust `union` items&quot;</span>),
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
