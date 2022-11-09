@@ -652,35 +652,6 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     }
 }
 
-macro_rules! impl_wrapper_for {
-    ( $( ($name:ident => $name:ident), )* ) => {
-        $(
-            #[inline(always)]
-            pub fn $name(output: &mut &mut [u8]) {
-                let mut output_len = output.len() as u32;
-                {
-                    unsafe {
-                        sys::$name(
-                            Ptr32Mut::from_slice(output),
-                            Ptr32Mut::from_ref(&mut output_len),
-                        )
-                    };
-                }
-            }
-        )*
-    }
-}
-impl_wrapper_for! {
-    (caller => caller),
-    (block_number => block_number),
-    (address => address),
-    (balance => balance),
-    (gas_left => gas_left),
-    (value_transferred => value_transferred),
-    (now => now),
-    (minimum_balance => minimum_balance),
-}
-
 #[inline(always)]
 pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
