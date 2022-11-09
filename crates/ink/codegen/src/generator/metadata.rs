@@ -46,8 +46,6 @@ impl GenerateCode for Metadata<'_> {
             #[cfg(feature = "std")]
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
-                impl ::ink::metadata::ConstructorReturnSpec for #storage_ident {}
-
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
                     let layout = #layout;

@@ -1030,43 +1030,22 @@ where
 
 /// Implementing this trait for some type `T` indicates what the return spec of
 /// `T` will be in the metadata, given `T` is used as the result of a constructor.
-pub trait ConstructorReturnSpec {
+pub trait ConstructorReturnSpec<const ID: u32> {
     /// Generates the type spec.
-    ///
-    /// Note:
-    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
-    /// be used directly for constructor returning `Self`.
-    fn generate<C, const ID: u32, O, S>(segments_opt: Option<S>) -> TypeSpec
-    where
-        C: ::ink::reflect::DispatchableConstructorInfo<N>,
-        S: IntoIterator<Item = &'static str>,
-    {
-        if <<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output as ::ink::reflect::ConstructorReturnType<O>>::IS_RESULT {
-            // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
-            //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
-            //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
-            // >>>()
-            todo!()
-        } else {
-            ::ink::metadata::TypeSpec::of_type::<<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output>()
-        }
-    }
-}
-
-impl<O, E> ConstructorReturnSpec for Result<O, E>
-where
-    E: TypeInfo + 'static,
-{
     fn generate<S>(segments_opt: Option<S>) -> TypeSpec
     where
-        S: IntoIterator<Item = &'static str>,
-    {
-        if let Some(segments) = segments_opt {
-            TypeSpec::with_name_segs::<core::result::Result<(), E>, S>(segments)
-        } else {
-            TypeSpec::of_type::<core::result::Result<(), E>>()
-        }
-    }
+        S: IntoIterator<Item = &'static str>;
+    // {
+    //     if <<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output as ::ink::reflect::ConstructorReturnType<O>>::IS_RESULT {
+    //         // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
+    //         //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
+    //         //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
+    //         // >>>()
+    //         todo!()
+    //     } else {
+    //         ::ink::metadata::TypeSpec::of_type::<<C as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Output>()
+    //     }
+    // }
 }
 
 /// Describes a pair of parameter label and type.
