@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/chain_extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/chain_extension.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chain_extension.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -178,178 +178,178 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
-<span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">ir::ChainExtensionMethod</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
-<span class="kw">use</span> <span class="ident">quote</span>::{
-    <span class="ident">format_ident</span>,
-    <span class="ident">quote_spanned</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::GenerateCode;
+<span class="kw">use </span>derive_more::From;
+<span class="kw">use </span>ir::ChainExtensionMethod;
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
+<span class="kw">use </span>quote::{
+    format_ident,
+    quote_spanned,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
+<span class="kw">use </span>syn::spanned::Spanned;
 
-<span class="doccomment">/// Generator to create an ink! chain extension.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChainExtension</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">extension</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ChainExtension</span>,
+<span class="doccomment">/// Generator to create an ink! chain extension.
+</span><span class="attribute">#[derive(From)]
+</span><span class="kw">pub struct </span>ChainExtension&lt;<span class="lifetime">&#39;a</span>&gt; {
+    extension: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ChainExtension,
 }
 
-<span class="kw">impl</span> <span class="ident">ChainExtension</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_for_instance_method</span>(
-        <span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">ChainExtensionMethod</span>,
-        <span class="ident">error_code</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">func_id</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">id</span>().<span class="ident">into_u32</span>();
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">sig</span>();
-        <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">inputs</span>;
-        <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">pat</span>);
-        <span class="kw">let</span> <span class="ident">input_types</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">ty</span>);
+<span class="kw">impl </span>ChainExtension&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_for_instance_method(
+        method: <span class="kw-2">&amp;</span>ChainExtensionMethod,
+        error_code: <span class="kw-2">&amp;</span>syn::Type,
+    ) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = method.span();
+        <span class="kw">let </span>attrs = method.attrs();
+        <span class="kw">let </span>ident = method.ident();
+        <span class="kw">let </span>func_id = method.id().into_u32();
+        <span class="kw">let </span>sig = method.sig();
+        <span class="kw">let </span>inputs = <span class="kw-2">&amp;</span>sig.inputs;
+        <span class="kw">let </span>input_bindings = method.inputs().map(|pat_type| <span class="kw-2">&amp;</span>pat_type.pat);
+        <span class="kw">let </span>input_types = method.inputs().map(|pat_type| <span class="kw-2">&amp;</span>pat_type.ty);
 
-        <span class="comment">// Mostly tuple-based type representation of the inputs:</span>
-        <span class="comment">// Special case for when there is exactly one input type.</span>
-        <span class="comment">// - 0 inputs          -&gt; ()</span>
-        <span class="comment">// - 1 input T         -&gt; T</span>
-        <span class="comment">// - n inputs A, B. .. -&gt; (A, B, ..)</span>
-        <span class="kw">let</span> <span class="ident">compound_input_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">inputs</span>.<span class="ident">len</span>() {
-            <span class="number">0</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; ()),
-            <span class="number">1</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; #( #<span class="ident">input_types</span> )<span class="op">*</span> ),
-            <span class="ident">_n</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; ( #( #<span class="ident">input_types</span> ),<span class="op">*</span> ) ),
+        <span class="comment">// Mostly tuple-based type representation of the inputs:
+        // Special case for when there is exactly one input type.
+        // - 0 inputs          -&gt; ()
+        // - 1 input T         -&gt; T
+        // - n inputs A, B. .. -&gt; (A, B, ..)
+        </span><span class="kw">let </span>compound_input_type = <span class="kw">match </span>inputs.len() {
+            <span class="number">0 </span>=&gt; <span class="macro">quote_spanned!</span>(span=&gt; ()),
+            <span class="number">1 </span>=&gt; <span class="macro">quote_spanned!</span>(span=&gt; #( #input_types )* ),
+            _n =&gt; <span class="macro">quote_spanned!</span>(span=&gt; ( #( #input_types ),* ) ),
         };
 
-        <span class="comment">// Mostly tuple-based value representation of the inputs:</span>
-        <span class="comment">// Special case for when there is exactly one input value.</span>
-        <span class="comment">// - 0 inputs          -&gt; ()</span>
-        <span class="comment">// - 1 input a         -&gt; a</span>
-        <span class="comment">// - n inputs a, b. .. -&gt; (a, b, ..)</span>
-        <span class="kw">let</span> <span class="ident">compound_input_bindings</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">inputs</span>.<span class="ident">len</span>() {
-            <span class="number">0</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; ()),
-            <span class="number">1</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; #( #<span class="ident">input_bindings</span> )<span class="op">*</span> ),
-            <span class="ident">_n</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; ( #( #<span class="ident">input_bindings</span> ),<span class="op">*</span> ) ),
+        <span class="comment">// Mostly tuple-based value representation of the inputs:
+        // Special case for when there is exactly one input value.
+        // - 0 inputs          -&gt; ()
+        // - 1 input a         -&gt; a
+        // - n inputs a, b. .. -&gt; (a, b, ..)
+        </span><span class="kw">let </span>compound_input_bindings = <span class="kw">match </span>inputs.len() {
+            <span class="number">0 </span>=&gt; <span class="macro">quote_spanned!</span>(span=&gt; ()),
+            <span class="number">1 </span>=&gt; <span class="macro">quote_spanned!</span>(span=&gt; #( #input_bindings )* ),
+            _n =&gt; <span class="macro">quote_spanned!</span>(span=&gt; ( #( #input_bindings ),* ) ),
         };
 
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">output</span>;
-        <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">output</span> {
-            <span class="ident">syn::ReturnType::Default</span> =&gt; <span class="macro">quote_spanned!</span>(<span class="ident">output</span>.<span class="ident">span</span>()=&gt; ()),
-            <span class="ident">syn::ReturnType::Type</span>(<span class="ident">_arrow</span>, <span class="ident">ty</span>) =&gt; {
-                <span class="macro">quote_spanned!</span>(<span class="ident">output</span>.<span class="ident">span</span>()=&gt; #<span class="ident">ty</span>)
+        <span class="kw">let </span>output = <span class="kw-2">&amp;</span>sig.output;
+        <span class="kw">let </span>output_type = <span class="kw">match </span>output {
+            syn::ReturnType::Default =&gt; <span class="macro">quote_spanned!</span>(output.span()=&gt; ()),
+            syn::ReturnType::Type(_arrow, ty) =&gt; {
+                <span class="macro">quote_spanned!</span>(output.span()=&gt; #ty)
             }
         };
 
-        <span class="kw">let</span> <span class="ident">handle_status</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">handle_status</span>();
-        <span class="kw">let</span> <span class="ident">returns_result</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">returns_result</span>();
+        <span class="kw">let </span>handle_status = method.handle_status();
+        <span class="kw">let </span>returns_result = method.returns_result();
 
-        <span class="kw">let</span> <span class="ident">error_code_handling</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">handle_status</span> {
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                .<span class="ident">handle_error_code</span>::<span class="op">&lt;</span>#<span class="ident">error_code</span><span class="op">&gt;</span>()
+        <span class="kw">let </span>error_code_handling = <span class="kw">if </span>handle_status {
+            <span class="macro">quote_spanned!</span>(span=&gt;
+                .handle_error_code::&lt;#error_code&gt;()
             )
-        } <span class="kw">else</span> {
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                .<span class="ident">ignore_error_code</span>()
+        } <span class="kw">else </span>{
+            <span class="macro">quote_spanned!</span>(span=&gt;
+                .ignore_error_code()
             )
         };
 
-        <span class="kw">let</span> <span class="ident">result_handling</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">returns_result</span> {
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                .<span class="ident">output_result</span>::<span class="op">&lt;</span>
-                    <span class="op">&lt;</span>#<span class="ident">output_type</span> <span class="kw">as</span> <span class="ident">::ink::IsResultType</span><span class="op">&gt;</span><span class="ident">::Ok</span>,
-                    <span class="op">&lt;</span>#<span class="ident">output_type</span> <span class="kw">as</span> <span class="ident">::ink::IsResultType</span><span class="op">&gt;</span><span class="ident">::Err</span>,
-                <span class="op">&gt;</span>()
+        <span class="kw">let </span>result_handling = <span class="kw">if </span>returns_result {
+            <span class="macro">quote_spanned!</span>(span=&gt;
+                .output_result::&lt;
+                    &lt;#output_type <span class="kw">as </span>::ink::IsResultType&gt;::Ok,
+                    &lt;#output_type <span class="kw">as </span>::ink::IsResultType&gt;::Err,
+                &gt;()
             )
-        } <span class="kw">else</span> {
-            <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                .<span class="ident">output</span>::<span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span>()
+        } <span class="kw">else </span>{
+            <span class="macro">quote_spanned!</span>(span=&gt;
+                .output::&lt;#output_type&gt;()
             )
         };
 
-        <span class="kw">let</span> <span class="ident">returned_type</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">returns_result</span>, <span class="ident">handle_status</span>) {
+        <span class="kw">let </span>returned_type = <span class="kw">match </span>(returns_result, handle_status) {
             (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
-                <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                    <span class="ident">::core::result::Result</span><span class="op">&lt;</span>#<span class="ident">output_type</span>, #<span class="ident">error_code</span><span class="op">&gt;</span>
+                <span class="macro">quote_spanned!</span>(span=&gt;
+                    ::core::result::Result&lt;#output_type, #error_code&gt;
                 )
             }
-            <span class="kw">_</span> =&gt; {
-                <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-                    #<span class="ident">output_type</span>
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">quote_spanned!</span>(span=&gt;
+                    #output_type
                 )
             }
         };
 
-        <span class="kw">let</span> <span class="ident">where_output_is_result</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            #<span class="ident">output_type</span>: <span class="ident">::ink::IsResultType</span>,
+        <span class="kw">let </span>where_output_is_result = <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(span=&gt;
+            #output_type: ::ink::IsResultType,
         ))
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">returns_result</span>);
+        .filter(|<span class="kw">_</span>| returns_result);
 
-        <span class="kw">let</span> <span class="ident">where_output_impls_from_error_code</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="op">&lt;</span>#<span class="ident">output_type</span> <span class="kw">as</span> <span class="ident">::ink::IsResultType</span><span class="op">&gt;</span><span class="ident">::Err</span>: <span class="ident">::core::convert::From</span><span class="op">&lt;</span>#<span class="ident">error_code</span><span class="op">&gt;</span>,
-        )).<span class="ident">filter</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">returns_result</span> <span class="op">&amp;&amp;</span> <span class="ident">handle_status</span>);
+        <span class="kw">let </span>where_output_impls_from_error_code = <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(span=&gt;
+            &lt;#output_type <span class="kw">as </span>::ink::IsResultType&gt;::Err: ::core::convert::From&lt;#error_code&gt;,
+        )).filter(|<span class="kw">_</span>| returns_result &amp;&amp; handle_status);
 
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">ident</span>(<span class="self">self</span>, #<span class="ident">inputs</span>) -&gt; #<span class="ident">returned_type</span>
-            <span class="kw">where</span>
-                #<span class="ident">where_output_is_result</span>
-                #<span class="ident">where_output_impls_from_error_code</span>
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #attrs )*
+            <span class="attribute">#[inline]
+            </span><span class="kw">pub fn </span>#ident(<span class="self">self</span>, #inputs) -&gt; #returned_type
+            <span class="kw">where
+                </span>#where_output_is_result
+                #where_output_impls_from_error_code
             {
-                <span class="ident">::ink::env::chain_extension::ChainExtensionMethod::build</span>(#<span class="ident">func_id</span>)
-                    .<span class="ident">input</span>::<span class="op">&lt;</span>#<span class="ident">compound_input_type</span><span class="op">&gt;</span>()
-                    #<span class="ident">result_handling</span>
-                    #<span class="ident">error_code_handling</span>
-                    .<span class="ident">call</span>(<span class="kw-2">&amp;</span>#<span class="ident">compound_input_bindings</span>)
+                ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                    .input::&lt;#compound_input_type&gt;()
+                    #result_handling
+                    #error_code_handling
+                    .call(<span class="kw-2">&amp;</span>#compound_input_bindings)
             }
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">ChainExtension</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extension</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extension</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extension</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">error_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">extension</span>.<span class="ident">error_code</span>();
-        <span class="kw">let</span> <span class="ident">instance_methods</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">extension</span>
-            .<span class="ident">iter_methods</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_for_instance_method</span>(<span class="ident">method</span>, <span class="ident">error_code</span>));
-        <span class="kw">let</span> <span class="ident">instance_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;__ink_{}Instance&quot;</span>, <span class="ident">ident</span>);
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            #(#<span class="ident">attrs</span>)<span class="op">*</span>
-            <span class="kw">pub</span> <span class="kw">enum</span> #<span class="ident">ident</span> {}
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>ChainExtension&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.extension.span();
+        <span class="kw">let </span>attrs = <span class="self">self</span>.extension.attrs();
+        <span class="kw">let </span>ident = <span class="self">self</span>.extension.ident();
+        <span class="kw">let </span>error_code = <span class="self">self</span>.extension.error_code();
+        <span class="kw">let </span>instance_methods = <span class="self">self
+            </span>.extension
+            .iter_methods()
+            .map(|method| <span class="self">Self</span>::generate_for_instance_method(method, error_code));
+        <span class="kw">let </span>instance_ident = <span class="macro">format_ident!</span>(<span class="string">&quot;__ink_{}Instance&quot;</span>, ident);
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            #(#attrs)*
+            <span class="kw">pub enum </span>#ident {}
 
-            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-                <span class="kw">struct</span> <span class="ident">__ink_Private</span>;
-                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">instance_ident</span> {
-                    <span class="ident">__ink_private</span>: <span class="ident">__ink_Private</span>
+            <span class="kw">const _</span>: () = {
+                <span class="attribute">#[allow(non_camel_case_types)]
+                </span><span class="kw">struct </span>__ink_Private;
+                <span class="attribute">#[allow(non_camel_case_types)]
+                </span><span class="kw">pub struct </span>#instance_ident {
+                    __ink_private: __ink_Private
                 }
 
-                <span class="kw">impl</span> #<span class="ident">instance_ident</span> {
-                    #( #<span class="ident">instance_methods</span> )<span class="op">*</span>
+                <span class="kw">impl </span>#instance_ident {
+                    #( #instance_methods )*
                 }
 
-                <span class="kw">impl</span> <span class="ident">::ink::ChainExtensionInstance</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                    <span class="kw">type</span> <span class="ident">Instance</span> <span class="op">=</span> #<span class="ident">instance_ident</span>;
+                <span class="kw">impl </span>::ink::ChainExtensionInstance <span class="kw">for </span>#ident {
+                    <span class="kw">type </span>Instance = #instance_ident;
 
-                    <span class="kw">fn</span> <span class="ident">instantiate</span>() -&gt; <span class="ident"><span class="self">Self</span>::Instance</span> {
-                        <span class="ident"><span class="self">Self</span>::Instance</span> { <span class="ident">__ink_private</span>: <span class="ident">__ink_Private</span> }
+                    <span class="kw">fn </span>instantiate() -&gt; <span class="self">Self</span>::Instance {
+                        <span class="self">Self</span>::Instance { __ink_private: __ink_Private }
                     }
                 }
             };
@@ -357,4 +357,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

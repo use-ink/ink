@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>api.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -690,695 +690,695 @@
 <span id="688">688</span>
 <span id="689">689</span>
 <span id="690">690</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="doccomment">//! The public raw interface towards the host Wasm engine.</span>
+</span><span class="doccomment">//! The public raw interface towards the host Wasm engine.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">backend</span>::{
-        <span class="ident">EnvBackend</span>,
-        <span class="ident">ReturnFlags</span>,
-        <span class="ident">TypedEnvBackend</span>,
+</span><span class="kw">use crate</span>::{
+    backend::{
+        EnvBackend,
+        ReturnFlags,
+        TypedEnvBackend,
     },
-    <span class="ident">call</span>::{
-        <span class="ident">Call</span>,
-        <span class="ident">CallParams</span>,
-        <span class="ident">CreateParams</span>,
-        <span class="ident">DelegateCall</span>,
+    call::{
+        Call,
+        CallParams,
+        CreateParams,
+        DelegateCall,
     },
-    <span class="ident">engine</span>::{
-        <span class="ident">EnvInstance</span>,
-        <span class="ident">OnInstance</span>,
+    engine::{
+        EnvInstance,
+        OnInstance,
     },
-    <span class="ident">hash</span>::{
-        <span class="ident">CryptoHash</span>,
-        <span class="ident">HashOutput</span>,
+    hash::{
+        CryptoHash,
+        HashOutput,
     },
-    <span class="ident">topics::Topics</span>,
-    <span class="ident">types::Gas</span>,
-    <span class="ident">Environment</span>,
+    topics::Topics,
+    types::Gas,
+    Environment,
     <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_storage_traits::Storable</span>;
+<span class="kw">use </span>ink_storage_traits::Storable;
 
-<span class="doccomment">/// Returns the address of the caller of the executed contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned caller cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::AccountId</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the address of the caller of the executed contract.
+///
+/// # Errors
+///
+/// If the returned caller cannot be properly decoded.
+</span><span class="kw">pub fn </span>caller&lt;E&gt;() -&gt; E::AccountId
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::caller</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::caller::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the transferred value for the contract execution.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::Balance</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the transferred value for the contract execution.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>transferred_value&lt;E&gt;() -&gt; E::Balance
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::transferred_value</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::transferred_value::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the price for the specified amount of gas.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">gas</span>: <span class="ident">Gas</span>) -&gt; <span class="ident">E::Balance</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the price for the specified amount of gas.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>weight_to_fee&lt;E&gt;(gas: Gas) -&gt; E::Balance
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::weight_to_fee</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">gas</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::weight_to_fee::&lt;E&gt;(instance, gas)
     })
 }
 
-<span class="doccomment">/// Returns the amount of gas left for the contract execution.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">Gas</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the amount of gas left for the contract execution.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>gas_left&lt;E&gt;() -&gt; Gas
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::gas_left</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::gas_left::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the current block timestamp.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::Timestamp</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the current block timestamp.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>block_timestamp&lt;E&gt;() -&gt; E::Timestamp
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::block_timestamp</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::block_timestamp::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the account ID of the executed contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This method was formerly known as `address`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::AccountId</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the account ID of the executed contract.
+///
+/// # Note
+///
+/// This method was formerly known as `address`.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>account_id&lt;E&gt;() -&gt; E::AccountId
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::account_id</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::account_id::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the balance of the executed contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::Balance</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the balance of the executed contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>balance&lt;E&gt;() -&gt; E::Balance
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::balance</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::balance::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the current block number.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::BlockNumber</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the current block number.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>block_number&lt;E&gt;() -&gt; E::BlockNumber
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::block_number</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::block_number::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the minimum balance that is required for creating an account</span>
-<span class="doccomment">/// (i.e. the chain&#39;s existential deposit).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">E::Balance</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Returns the minimum balance that is required for creating an account
+/// (i.e. the chain&#39;s existential deposit).
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>minimum_balance&lt;E&gt;() -&gt; E::Balance
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::minimum_balance</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::minimum_balance::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Emits an event with the given event data.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">event</span>: <span class="ident">Event</span>)
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
-    <span class="ident">Event</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>,
+<span class="doccomment">/// Emits an event with the given event data.
+</span><span class="kw">pub fn </span>emit_event&lt;E, Event&gt;(event: Event)
+<span class="kw">where
+    </span>E: Environment,
+    Event: Topics + scale::Encode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::emit_event</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">event</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::emit_event::&lt;E, Event&gt;(instance, event)
     })
 }
 
-<span class="doccomment">/// Writes the value to the contract storage under the given storage key and returns the size</span>
-<span class="doccomment">/// of pre-existing value if any.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the encode length of value exceeds the configured maximum value length of a storage entry.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">V</span>: <span class="ident">Storable</span>,
+<span class="doccomment">/// Writes the value to the contract storage under the given storage key and returns the size
+/// of pre-existing value if any.
+///
+/// # Panics
+///
+/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+</span><span class="kw">pub fn </span>set_contract_storage&lt;K, V&gt;(key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>V) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
+<span class="kw">where
+    </span>K: scale::Encode,
+    V: Storable,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::set_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>, <span class="ident">value</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::set_contract_storage::&lt;K, V&gt;(instance, key, value)
     })
 }
 
-<span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if any.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the decoding of the typed value failed (`KeyNotFound`)</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">R</span>: <span class="ident">Storable</span>,
+<span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if any.
+///
+/// # Errors
+///
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+</span><span class="kw">pub fn </span>get_contract_storage&lt;K, R&gt;(key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
+<span class="kw">where
+    </span>K: scale::Encode,
+    R: Storable,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::get_contract_storage::&lt;K, R&gt;(instance, key)
     })
 }
 
-<span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the decoding of the typed value failed (`KeyNotFound`)</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">R</span>: <span class="ident">Storable</span>,
+<span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+///
+/// # Errors
+///
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+</span><span class="kw">pub fn </span>take_contract_storage&lt;K, R&gt;(key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
+<span class="kw">where
+    </span>K: scale::Encode,
+    R: Storable,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::take_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::take_contract_storage::&lt;K, R&gt;(instance, key)
     })
 }
 
-<span class="doccomment">/// Checks whether there is a value stored under the given storage key in the contract&#39;s storage.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If a value is stored under the specified key, the size of the value is returned.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+<span class="doccomment">/// Checks whether there is a value stored under the given storage key in the contract&#39;s storage.
+///
+/// If a value is stored under the specified key, the size of the value is returned.
+</span><span class="kw">pub fn </span>contains_contract_storage&lt;K&gt;(key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
+<span class="kw">where
+    </span>K: scale::Encode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::contains_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::contains_contract_storage::&lt;K&gt;(instance, key)
     })
 }
 
-<span class="doccomment">/// Clears the contract&#39;s storage entry under the given storage key.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If a value was stored under the specified storage key, the size of the value is returned.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+<span class="doccomment">/// Clears the contract&#39;s storage entry under the given storage key.
+///
+/// If a value was stored under the specified storage key, the size of the value is returned.
+</span><span class="kw">pub fn </span>clear_contract_storage&lt;K&gt;(key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
+<span class="kw">where
+    </span>K: scale::Encode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::clear_contract_storage</span>::<span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::clear_contract_storage::&lt;K&gt;(instance, key)
     })
 }
 
-<span class="doccomment">/// Invokes a contract message and returns its result.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a low level way to evaluate another smart contract.</span>
-<span class="doccomment">/// Prefer to use the ink! guided and type safe approach to using this.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the called account does not exist.</span>
-<span class="doccomment">/// - If the called account is not a contract.</span>
-<span class="doccomment">/// - If arguments passed to the called contract message are invalid.</span>
-<span class="doccomment">/// - If the called contract execution has trapped.</span>
-<span class="doccomment">/// - If the called contract ran out of gas upon execution.</span>
-<span class="doccomment">/// - If the returned value failed to decode properly.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
-    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+<span class="doccomment">/// Invokes a contract message and returns its result.
+///
+/// # Note
+///
+/// This is a low level way to evaluate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the called account does not exist.
+/// - If the called account is not a contract.
+/// - If arguments passed to the called contract message are invalid.
+/// - If the called contract execution has trapped.
+/// - If the called contract ran out of gas upon execution.
+/// - If the returned value failed to decode properly.
+</span><span class="kw">pub fn </span>invoke_contract&lt;E, Args, R&gt;(params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+<span class="kw">where
+    </span>E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::invoke_contract</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract::&lt;E, Args, R&gt;(instance, params)
     })
 }
 
-<span class="doccomment">/// Invokes a contract message via delegate call and returns its result.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a low level way to evaluate another smart contract via delegate call.</span>
-<span class="doccomment">/// Prefer to use the ink! guided and type safe approach to using this.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the specified code hash does not exist.</span>
-<span class="doccomment">/// - If arguments passed to the called code message are invalid.</span>
-<span class="doccomment">/// - If the called code execution has trapped.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke_contract_delegate</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
-    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
-    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+<span class="doccomment">/// Invokes a contract message via delegate call and returns its result.
+///
+/// # Note
+///
+/// This is a low level way to evaluate another smart contract via delegate call.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the specified code hash does not exist.
+/// - If arguments passed to the called code message are invalid.
+/// - If the called code execution has trapped.
+</span><span class="kw">pub fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
+    params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+<span class="kw">where
+    </span>E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::invoke_contract_delegate</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_delegate::&lt;E, Args, R&gt;(instance, params)
     })
 }
 
-<span class="doccomment">/// Instantiates another contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a low level way to instantiate another smart contract.</span>
-<span class="doccomment">/// Prefer to use the ink! guided and type safe approach to using this.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the code hash is invalid.</span>
-<span class="doccomment">/// - If the arguments passed to the instantiation process are invalid.</span>
-<span class="doccomment">/// - If the instantiation process traps.</span>
-<span class="doccomment">/// - If the instantiation process runs out of gas.</span>
-<span class="doccomment">/// - If given insufficient endowment.</span>
-<span class="doccomment">/// - If the returned account ID failed to decode properly.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>(
-    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
-    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-    <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+<span class="doccomment">/// Instantiates another contract.
+///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the code hash is invalid.
+/// - If the arguments passed to the instantiation process are invalid.
+/// - If the instantiation process traps.
+/// - If the instantiation process runs out of gas.
+/// - If given insufficient endowment.
+/// - If the returned account ID failed to decode properly.
+</span><span class="kw">pub fn </span>instantiate_contract&lt;E, Args, Salt, C&gt;(
+    params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, C&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;E::AccountId&gt;
+<span class="kw">where
+    </span>E: Environment,
+    Args: scale::Encode,
+    Salt: AsRef&lt;[u8]&gt;,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::instantiate_contract</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract::&lt;E, Args, Salt, C&gt;(instance, params)
     })
 }
 
-<span class="doccomment">/// Terminates the existence of the currently executed smart contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This removes the calling account and transfers all remaining balance</span>
-<span class="doccomment">/// to the given beneficiary.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function never returns. Either the termination was successful and the</span>
-<span class="doccomment">/// execution of the destroyed contract is halted. Or it failed during the termination</span>
-<span class="doccomment">/// which is considered fatal and results in a trap and rollback.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">beneficiary</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="op">!</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Terminates the existence of the currently executed smart contract.
+///
+/// This removes the calling account and transfers all remaining balance
+/// to the given beneficiary.
+///
+/// # Note
+///
+/// This function never returns. Either the termination was successful and the
+/// execution of the destroyed contract is halted. Or it failed during the termination
+/// which is considered fatal and results in a trap and rollback.
+</span><span class="kw">pub fn </span>terminate_contract&lt;E&gt;(beneficiary: E::AccountId) -&gt; !
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::terminate_contract</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">beneficiary</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::terminate_contract::&lt;E&gt;(instance, beneficiary)
     })
 }
 
-<span class="doccomment">/// Transfers value from the contract to the destination account ID.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is more efficient and simpler than the alternative to make a no-op</span>
-<span class="doccomment">/// contract call or invoke a runtime function that performs the</span>
-<span class="doccomment">/// transaction.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the contract does not have sufficient free funds.</span>
-<span class="doccomment">/// - If the transfer had brought the sender&#39;s total balance below the</span>
-<span class="doccomment">///   minimum balance. You need to use [`terminate_contract`] in case</span>
-<span class="doccomment">///   this is your intention.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">destination</span>: <span class="ident">E::AccountId</span>, <span class="ident">value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Transfers value from the contract to the destination account ID.
+///
+/// # Note
+///
+/// This is more efficient and simpler than the alternative to make a no-op
+/// contract call or invoke a runtime function that performs the
+/// transaction.
+///
+/// # Errors
+///
+/// - If the contract does not have sufficient free funds.
+/// - If the transfer had brought the sender&#39;s total balance below the
+///   minimum balance. You need to use [`terminate_contract`] in case
+///   this is your intention.
+</span><span class="kw">pub fn </span>transfer&lt;E&gt;(destination: E::AccountId, value: E::Balance) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::transfer</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">destination</span>, <span class="ident">value</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::transfer::&lt;E&gt;(instance, destination, value)
     })
 }
 
-<span class="doccomment">/// Returns the execution input to the executed contract and decodes it as `T`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - The input is the 4-bytes selector followed by the arguments</span>
-<span class="doccomment">///   of the called function in their SCALE encoded representation.</span>
-<span class="doccomment">/// - No prior interaction with the environment must take place before</span>
-<span class="doccomment">///   calling this procedure.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Normally contracts define their own `enum` dispatch types respective</span>
-<span class="doccomment">/// to their exported constructors and messages that implement `scale::Decode`</span>
-<span class="doccomment">/// according to the constructors or messages selectors and their arguments.</span>
-<span class="doccomment">/// These `enum` dispatch types are then given to this procedure as the `T`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When using ink! users do not have to construct those enum dispatch types</span>
-<span class="doccomment">/// themselves as they are normally generated by the ink! code generation</span>
-<span class="doccomment">/// automatically.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the given `T` cannot be properly decoded from the expected input.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_input</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
+<span class="doccomment">/// Returns the execution input to the executed contract and decodes it as `T`.
+///
+/// # Note
+///
+/// - The input is the 4-bytes selector followed by the arguments
+///   of the called function in their SCALE encoded representation.
+/// - No prior interaction with the environment must take place before
+///   calling this procedure.
+///
+/// # Usage
+///
+/// Normally contracts define their own `enum` dispatch types respective
+/// to their exported constructors and messages that implement `scale::Decode`
+/// according to the constructors or messages selectors and their arguments.
+/// These `enum` dispatch types are then given to this procedure as the `T`.
+///
+/// When using ink! users do not have to construct those enum dispatch types
+/// themselves as they are normally generated by the ink! code generation
+/// automatically.
+///
+/// # Errors
+///
+/// If the given `T` cannot be properly decoded from the expected input.
+</span><span class="kw">pub fn </span>decode_input&lt;T&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+<span class="kw">where
+    </span>T: scale::Decode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::decode_input</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::decode_input::&lt;T&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Returns the value back to the caller of the executed contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function  stops the execution of the contract immediately.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_value</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">return_flags</span>: <span class="ident">ReturnFlags</span>, <span class="ident">return_value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>) -&gt; <span class="op">!</span>
-<span class="kw">where</span>
-    <span class="ident">R</span>: <span class="ident">scale::Encode</span>,
+<span class="doccomment">/// Returns the value back to the caller of the executed contract.
+///
+/// # Note
+///
+/// This function  stops the execution of the contract immediately.
+</span><span class="kw">pub fn </span>return_value&lt;R&gt;(return_flags: ReturnFlags, return_value: <span class="kw-2">&amp;</span>R) -&gt; !
+<span class="kw">where
+    </span>R: scale::Encode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::return_value</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">return_flags</span>, <span class="ident">return_value</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::return_value::&lt;R&gt;(instance, return_flags, return_value)
     })
 }
 
-<span class="doccomment">/// Appends the given message to the debug message buffer.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">EnvBackend::debug_message</span>(<span class="ident">instance</span>, <span class="ident">message</span>)
+<span class="doccomment">/// Appends the given message to the debug message buffer.
+</span><span class="kw">pub fn </span>debug_message(message: <span class="kw-2">&amp;</span>str) {
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        EnvBackend::debug_message(instance, message)
     })
 }
 
-<span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// use ink_env::hash::{Sha2x256, HashOutput};</span>
-<span class="doccomment">/// let input: &amp;[u8] = &amp;[13, 14, 15];</span>
-<span class="doccomment">/// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer</span>
-<span class="doccomment">/// let hash  = ink_env::hash_bytes::&lt;Sha2x256&gt;(input, &amp;mut output);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_bytes</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
-<span class="kw">where</span>
-    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+<span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// use ink_env::hash::{Sha2x256, HashOutput};
+/// let input: &amp;[u8] = &amp;[13, 14, 15];
+/// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer
+/// let hash  = ink_env::hash_bytes::&lt;Sha2x256&gt;(input, &amp;mut output);
+/// ```
+</span><span class="kw">pub fn </span>hash_bytes&lt;H&gt;(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
+<span class="kw">where
+    </span>H: CryptoHash,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">instance</span>.<span class="ident">hash_bytes</span>::<span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance.hash_bytes::&lt;H&gt;(input, output)
     })
 }
 
-<span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in `output`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use ink_env::hash::{Sha2x256, HashOutput};</span>
-<span class="doccomment">/// const EXPECTED: [u8; 32] = [</span>
-<span class="doccomment">///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,</span>
-<span class="doccomment">///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">/// let encodable = (42, &quot;foo&quot;, true); // Implements `scale::Encode`</span>
-<span class="doccomment">/// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer</span>
-<span class="doccomment">/// ink_env::hash_encoded::&lt;Sha2x256, _&gt;(&amp;encodable, &amp;mut output);</span>
-<span class="doccomment">/// assert_eq!(output, EXPECTED);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_encoded</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
-<span class="kw">where</span>
-    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
-    <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
+<span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// # use ink_env::hash::{Sha2x256, HashOutput};
+/// const EXPECTED: [u8; 32] = [
+///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
+///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+/// ];
+/// let encodable = (42, &quot;foo&quot;, true); // Implements `scale::Encode`
+/// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer
+/// ink_env::hash_encoded::&lt;Sha2x256, _&gt;(&amp;encodable, &amp;mut output);
+/// assert_eq!(output, EXPECTED);
+/// ```
+</span><span class="kw">pub fn </span>hash_encoded&lt;H, T&gt;(input: <span class="kw-2">&amp;</span>T, output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
+<span class="kw">where
+    </span>H: CryptoHash,
+    T: scale::Encode,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">instance</span>.<span class="ident">hash_encoded</span>::<span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance.hash_encoded::&lt;H, T&gt;(input, output)
     })
 }
 
-<span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,</span>
-<span class="doccomment">/// and stores the result in `output`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// const signature: [u8; 65] = [</span>
-<span class="doccomment">///     195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18, 94,</span>
-<span class="doccomment">///     131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119, 235,</span>
-<span class="doccomment">///     137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102, 166, 176,</span>
-<span class="doccomment">///     140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">/// const message_hash: [u8; 32] = [</span>
-<span class="doccomment">///     167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108, 213,</span>
-<span class="doccomment">///     78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">/// const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [</span>
-<span class="doccomment">///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,</span>
-<span class="doccomment">///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">/// let mut output = [0; 33];</span>
-<span class="doccomment">/// ink_env::ecdsa_recover(&amp;signature, &amp;message_hash, &amp;mut output);</span>
-<span class="doccomment">/// assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ecdsa_recover</span>(
-    <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">65</span>],
-    <span class="ident">message_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>],
-    <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">33</span>],
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">instance</span>.<span class="ident">ecdsa_recover</span>(<span class="ident">signature</span>, <span class="ident">message_hash</span>, <span class="ident">output</span>)
+<span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+/// and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// const signature: [u8; 65] = [
+///     195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18, 94,
+///     131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119, 235,
+///     137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102, 166, 176,
+///     140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
+/// ];
+/// const message_hash: [u8; 32] = [
+///     167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108, 213,
+///     78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
+/// ];
+/// const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
+///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+/// ];
+/// let mut output = [0; 33];
+/// ink_env::ecdsa_recover(&amp;signature, &amp;message_hash, &amp;mut output);
+/// assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);
+/// ```
+</span><span class="kw">pub fn </span>ecdsa_recover(
+    signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
+    message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+    output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance.ecdsa_recover(signature, message_hash, output)
     })
 }
 
-<span class="doccomment">/// Returns an Ethereum address from the ECDSA compressed public key.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// let pub_key = [</span>
-<span class="doccomment">///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,</span>
-<span class="doccomment">///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">///  let EXPECTED_ETH_ADDRESS = [</span>
-<span class="doccomment">///     253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,</span>
-<span class="doccomment">///     37, 21, 191,</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">/// let mut output = [0; 20];</span>
-<span class="doccomment">/// ink_env::ecdsa_to_eth_address(&amp;pub_key, &amp;mut output);</span>
-<span class="doccomment">/// assert_eq!(output, EXPECTED_ETH_ADDRESS);</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the ECDSA public key cannot be recovered from the provided public key.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ecdsa_to_eth_address</span>(<span class="ident">pubkey</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">33</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">20</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">instance</span>.<span class="ident">ecdsa_to_eth_address</span>(<span class="ident">pubkey</span>, <span class="ident">output</span>)
+<span class="doccomment">/// Returns an Ethereum address from the ECDSA compressed public key.
+///
+/// # Example
+///
+/// ```
+/// let pub_key = [
+///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
+///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
+/// ];
+///  let EXPECTED_ETH_ADDRESS = [
+///     253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
+///     37, 21, 191,
+/// ];
+/// let mut output = [0; 20];
+/// ink_env::ecdsa_to_eth_address(&amp;pub_key, &amp;mut output);
+/// assert_eq!(output, EXPECTED_ETH_ADDRESS);
+/// ```
+///
+/// # Errors
+///
+/// - If the ECDSA public key cannot be recovered from the provided public key.
+</span><span class="kw">pub fn </span>ecdsa_to_eth_address(pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>], output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance.ecdsa_to_eth_address(pubkey, output)
     })
 }
 
-<span class="doccomment">/// Checks whether the specified account is a contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="ident">bool</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Checks whether the specified account is a contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>is_contract&lt;E&gt;(account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; bool
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::is_contract</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">account</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::is_contract::&lt;E&gt;(instance, account)
     })
 }
 
-<span class="doccomment">/// Retrieves the code hash of the contract at the specified account id.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If no code hash was found for the specified account id.</span>
-<span class="doccomment">/// - If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_hash</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Retrieves the code hash of the contract at the specified account id.
+///
+/// # Errors
+///
+/// - If no code hash was found for the specified account id.
+/// - If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>code_hash&lt;E&gt;(account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::code_hash</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">account</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::code_hash::&lt;E&gt;(instance, account)
     })
 }
 
-<span class="doccomment">/// Retrieves the code hash of the currently executing contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">own_code_hash</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Retrieves the code hash of the currently executing contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>own_code_hash&lt;E&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::own_code_hash</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::own_code_hash::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call stack.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Prefer this over [`is_contract`] when checking whether your contract is being called by</span>
-<span class="doccomment">/// a contract or a plain account. The reason is that it performs better since it does not</span>
-<span class="doccomment">/// need to do any storage lookups.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A return value of `true` indicates that this contract is being called by a plain account.</span>
-<span class="doccomment">/// and `false` indicates that the caller is another contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller_is_origin</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">bool</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call stack.
+///
+/// Prefer this over [`is_contract`] when checking whether your contract is being called by
+/// a contract or a plain account. The reason is that it performs better since it does not
+/// need to do any storage lookups.
+///
+/// A return value of `true` indicates that this contract is being called by a plain account.
+/// and `false` indicates that the caller is another contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+</span><span class="kw">pub fn </span>caller_is_origin&lt;E&gt;() -&gt; bool
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::caller_is_origin</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        TypedEnvBackend::caller_is_origin::&lt;E&gt;(instance)
     })
 }
 
-<span class="doccomment">/// Replace the contract code at the specified address with new code.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// There are a couple of important considerations which must be taken into account when</span>
-<span class="doccomment">/// using this API:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// 1. The storage at the code hash will remain untouched. This means that contract developers</span>
-<span class="doccomment">/// must ensure that the storage layout of the new code is compatible with that of the old code.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// 2. Contracts using this API can&#39;t be assumed as having deterministic addresses. Said another way,</span>
-<span class="doccomment">/// when using this API you lose the guarantee that an address always identifies a specific code hash.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// 3. If a contract calls into itself after changing its code the new call would use</span>
-<span class="doccomment">/// the new code. However, if the original caller panics after returning from the sub call it</span>
-<span class="doccomment">/// would revert the changes made by `seal_set_code_hash` and the next caller would use</span>
-<span class="doccomment">/// the old code.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Storage Compatibility</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When the smart contract code is modified,</span>
-<span class="doccomment">/// it is important to observe an additional virtual restriction</span>
-<span class="doccomment">/// that is imposed on this procedure:</span>
-<span class="doccomment">/// you should not change the order in which the contract state variables</span>
-<span class="doccomment">/// are declared, nor their type.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Violating the restriction will not prevent a successful compilation,</span>
-<span class="doccomment">/// but will result in the mix-up of values or failure to read the storage correctly.</span>
-<span class="doccomment">/// This can result in severe errors in the application utilizing the contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the storage of your contract looks like this:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// #[ink(storage)]</span>
-<span class="doccomment">/// pub struct YourContract {</span>
-<span class="doccomment">///     x: u32,</span>
-<span class="doccomment">///     y: bool,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The procedures listed below will make it invalid:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Changing the order of variables:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// #[ink(storage)]</span>
-<span class="doccomment">/// pub struct YourContract {</span>
-<span class="doccomment">///     y: bool,</span>
-<span class="doccomment">///     x: u32,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Removing existing variable:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// #[ink(storage)]</span>
-<span class="doccomment">/// pub struct YourContract {</span>
-<span class="doccomment">///     x: u32,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Changing type of a variable:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// #[ink(storage)]</span>
-<span class="doccomment">/// pub struct YourContract {</span>
-<span class="doccomment">///     x: u64,</span>
-<span class="doccomment">///     y: bool,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Introducing a new variable before any of the existing ones:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// #[ink(storage)]</span>
-<span class="doccomment">/// pub struct YourContract {</span>
-<span class="doccomment">///     z: Vec&lt;u32&gt;,</span>
-<span class="doccomment">///     x: u32,</span>
-<span class="doccomment">///     y: bool,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Please refer to the</span>
-<span class="doccomment">/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)</span>
-<span class="doccomment">/// for more details and examples.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_code_hash</span>(<span class="ident">code_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">instance</span>.<span class="ident">set_code_hash</span>(<span class="ident">code_hash</span>))
+<span class="doccomment">/// Replace the contract code at the specified address with new code.
+///
+/// # Note
+///
+/// There are a couple of important considerations which must be taken into account when
+/// using this API:
+///
+/// 1. The storage at the code hash will remain untouched. This means that contract developers
+/// must ensure that the storage layout of the new code is compatible with that of the old code.
+///
+/// 2. Contracts using this API can&#39;t be assumed as having deterministic addresses. Said another way,
+/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+///
+/// 3. If a contract calls into itself after changing its code the new call would use
+/// the new code. However, if the original caller panics after returning from the sub call it
+/// would revert the changes made by `seal_set_code_hash` and the next caller would use
+/// the old code.
+///
+/// # Errors
+///
+/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+///
+/// # Storage Compatibility
+///
+/// When the smart contract code is modified,
+/// it is important to observe an additional virtual restriction
+/// that is imposed on this procedure:
+/// you should not change the order in which the contract state variables
+/// are declared, nor their type.
+///
+/// Violating the restriction will not prevent a successful compilation,
+/// but will result in the mix-up of values or failure to read the storage correctly.
+/// This can result in severe errors in the application utilizing the contract.
+///
+/// If the storage of your contract looks like this:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// The procedures listed below will make it invalid:
+///
+/// Changing the order of variables:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     y: bool,
+///     x: u32,
+/// }
+/// ```
+///
+/// Removing existing variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+/// }
+/// ```
+///
+/// Changing type of a variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u64,
+///     y: bool,
+/// }
+/// ```
+///
+/// Introducing a new variable before any of the existing ones:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     z: Vec&lt;u32&gt;,
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// Please refer to the
+/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// for more details and examples.
+</span><span class="kw">pub fn </span>set_code_hash(code_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

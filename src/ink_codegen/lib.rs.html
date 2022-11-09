@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -94,99 +94,99 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="doccomment">//! The ink! code generation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! This module defines everything the ink! procedural macro needs in order to</span>
-<span class="doccomment">//! generate Rust code for ink! smart contracts.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! We avoid structuring things via hidden or private modules, this</span>
-<span class="doccomment">//! was the ink! v1 way of doing code generation and it was bug prone</span>
-<span class="doccomment">//! and hard to maintain.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! What we do instead to generate code that is hidden from users is to</span>
-<span class="doccomment">//! pack it into anonymous `const` (so `const _: () = { … };`) and connect</span>
-<span class="doccomment">//! those to the outside world with private trait implementations.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can see how the generated code looks by installing</span>
-<span class="doccomment">//! [`cargo-expand`](https://github.com/dtolnay/cargo-expand)</span>
-<span class="doccomment">//! and executing `cargo expand --manifest-path ./examples/flipper/Cargo.toml` in this repository.</span>
+</span><span class="doccomment">//! The ink! code generation.
+//!
+//! This module defines everything the ink! procedural macro needs in order to
+//! generate Rust code for ink! smart contracts.
+//!
+//! We avoid structuring things via hidden or private modules, this
+//! was the ink! v1 way of doing code generation and it was bug prone
+//! and hard to maintain.
+//!
+//! What we do instead to generate code that is hidden from users is to
+//! pack it into anonymous `const` (so `const _: () = { … };`) and connect
+//! those to the outside world with private trait implementations.
+//!
+//! You can see how the generated code looks by installing
+//! [`cargo-expand`](https://github.com/dtolnay/cargo-expand)
+//! and executing `cargo expand --manifest-path ./examples/flipper/Cargo.toml` in this repository.
 
-<span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;</span>
-)]</span>
+</span><span class="attribute">#![doc(
+    html_logo_url = <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,
+    html_favicon_url = <span class="string">&quot;https://use.ink/crate-docs/favicon.png&quot;
+</span>)]
 
-<span class="kw">mod</span> <span class="ident">enforced_error</span>;
-<span class="kw">mod</span> <span class="ident">generator</span>;
-<span class="kw">mod</span> <span class="ident">traits</span>;
+</span><span class="kw">mod </span>enforced_error;
+<span class="kw">mod </span>generator;
+<span class="kw">mod </span>traits;
 
-<span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">enforced_error::EnforcedErrors</span>,
-    <span class="ident">traits</span>::{
-        <span class="ident">GenerateCode</span>,
-        <span class="ident">GenerateCodeUsing</span>,
+<span class="kw">use </span><span class="self">self</span>::{
+    enforced_error::EnforcedErrors,
+    traits::{
+        GenerateCode,
+        GenerateCodeUsing,
     },
 };
-<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
+<span class="kw">use </span>proc_macro2::TokenStream <span class="kw">as </span>TokenStream2;
 
-<span class="doccomment">/// Types for which code can be generated by this crate.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CodeGenerator</span>: <span class="ident">Sized</span> {
-    <span class="doccomment">/// The underlying generator generating the code.</span>
-    <span class="kw">type</span> <span class="ident">Generator</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">GenerateCode</span>;
+<span class="doccomment">/// Types for which code can be generated by this crate.
+</span><span class="kw">pub trait </span>CodeGenerator: Sized {
+    <span class="doccomment">/// The underlying generator generating the code.
+    </span><span class="kw">type </span>Generator: From&lt;<span class="self">Self</span>&gt; + GenerateCode;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::Contract</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Contract {
+    <span class="kw">type </span>Generator = generator::Contract&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::StorageItem</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::StorageItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::StorageItem {
+    <span class="kw">type </span>Generator = generator::StorageItem&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::InkTraitDefinition</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::InkTraitDefinition {
+    <span class="kw">type </span>Generator = generator::TraitDefinition&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::InkTest</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::InkTest</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::InkTest {
+    <span class="kw">type </span>Generator = generator::InkTest&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ChainExtension</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::ChainExtension</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ChainExtension {
+    <span class="kw">type </span>Generator = generator::ChainExtension&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::SelectorMacro</span><span class="op">&lt;</span><span class="ident">ir::marker::SelectorId</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::SelectorId</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::SelectorMacro&lt;ir::marker::SelectorId&gt; {
+    <span class="kw">type </span>Generator = generator::SelectorId&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::SelectorMacro</span><span class="op">&lt;</span><span class="ident">ir::marker::SelectorBytes</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::SelectorBytes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::SelectorMacro&lt;ir::marker::SelectorBytes&gt; {
+    <span class="kw">type </span>Generator = generator::SelectorBytes&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Blake2x256Macro</span> {
-    <span class="kw">type</span> <span class="ident">Generator</span> <span class="op">=</span> <span class="ident">generator::Blake2x256</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Blake2x256Macro {
+    <span class="kw">type </span>Generator = generator::Blake2x256&lt;<span class="lifetime">&#39;a</span>&gt;;
 }
 
-<span class="doccomment">/// Generates the entire code for the given ink! contract.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_code</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entity</span>: <span class="ident">T</span>) -&gt; <span class="ident">TokenStream2</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">CodeGenerator</span>,
+<span class="doccomment">/// Generates the entire code for the given ink! contract.
+</span><span class="kw">pub fn </span>generate_code&lt;T&gt;(entity: T) -&gt; TokenStream2
+<span class="kw">where
+    </span>T: CodeGenerator,
 {
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">CodeGenerator</span><span class="op">&gt;</span><span class="ident">::Generator::from</span>(<span class="ident">entity</span>).<span class="ident">generate_code</span>()
+    &lt;T <span class="kw">as </span>CodeGenerator&gt;::Generator::from(entity).generate_code()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

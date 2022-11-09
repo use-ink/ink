@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>item_mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item_mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>item_mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -923,240 +923,240 @@
 <span id="921">921</span>
 <span id="922">922</span>
 <span id="923">923</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ir</span>,
-    <span class="ident">ir::idents_lint</span>,
-    <span class="ident">Callable</span>,
+</span><span class="kw">use crate</span>::{
+    ir,
+    ir::idents_lint,
+    Callable,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
-    <span class="ident">Ident</span>,
-    <span class="ident">Span</span>,
+<span class="kw">use </span>proc_macro2::{
+    Ident,
+    Span,
 };
-<span class="kw">use</span> <span class="ident">quote::TokenStreamExt</span> <span class="kw">as</span> <span class="kw">_</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::{
-    <span class="ident">spanned::Spanned</span>,
-    <span class="ident">token</span>,
+<span class="kw">use </span>quote::TokenStreamExt <span class="kw">as _</span>;
+<span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>syn::{
+    spanned::Spanned,
+    token,
 };
 
-<span class="doccomment">/// The ink! module.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is the root of all ink! smart contracts and is defined similarly to</span>
-<span class="doccomment">/// a normal Rust module annotated with</span>
-<span class="doccomment">/// `#[ink::contract( /* optional configuration */ )]` attribute.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// It contains ink! specific items as well as normal Rust items.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// // #[ink::contract] &lt;-- this line belongs to the ink! configuration!</span>
-<span class="doccomment">/// # use ink_ir as ir;</span>
-<span class="doccomment">/// # &lt;ir::ItemMod as TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(syn::parse_quote! {</span>
-<span class="doccomment">/// mod my_contract {</span>
-<span class="doccomment">///     #[ink(storage)]</span>
-<span class="doccomment">///     pub struct MyStorage {</span>
-<span class="doccomment">///         /* storage fields */</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     #[ink(event)]</span>
-<span class="doccomment">///     pub struct MyEvent {</span>
-<span class="doccomment">///         /* event fields */</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///     impl MyStorage {</span>
-<span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         pub fn my_constructor() -&gt; Self {</span>
-<span class="doccomment">///             /* constructor initialization */</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         #[ink(message)]</span>
-<span class="doccomment">///         pub fn my_message(&amp;self) {</span>
-<span class="doccomment">///             /* message statements */</span>
-<span class="doccomment">///         }</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # }).unwrap();</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This type has been named after [`syn::ItemMod`] and inherits all of the</span>
-<span class="doccomment">/// fields that are required for inline module definitions.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Developer Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Structurally the ink! `Module` mirrors an inline Rust module, for example:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// mod rust_module {</span>
-<span class="doccomment">///     /* some Rust item definitions */</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the capabilities of an inline Rust module change we have to adjust for that.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ItemMod</span> {
-    <span class="ident">attrs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
-    <span class="ident">vis</span>: <span class="ident">syn::Visibility</span>,
-    <span class="ident">mod_token</span>: <span class="ident">token::Mod</span>,
-    <span class="ident">ident</span>: <span class="ident">Ident</span>,
-    <span class="ident">brace</span>: <span class="ident">token::Brace</span>,
-    <span class="ident">items</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir::Item</span><span class="op">&gt;</span>,
+<span class="doccomment">/// The ink! module.
+///
+/// This is the root of all ink! smart contracts and is defined similarly to
+/// a normal Rust module annotated with
+/// `#[ink::contract( /* optional configuration */ )]` attribute.
+///
+/// It contains ink! specific items as well as normal Rust items.
+///
+/// # Example
+///
+/// ```
+/// // #[ink::contract] &lt;-- this line belongs to the ink! configuration!
+/// # use ink_ir as ir;
+/// # &lt;ir::ItemMod as TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(syn::parse_quote! {
+/// mod my_contract {
+///     #[ink(storage)]
+///     pub struct MyStorage {
+///         /* storage fields */
+///     }
+///
+///     #[ink(event)]
+///     pub struct MyEvent {
+///         /* event fields */
+///     }
+///
+///     impl MyStorage {
+///         #[ink(constructor)]
+///         pub fn my_constructor() -&gt; Self {
+///             /* constructor initialization */
+///         }
+///
+///         #[ink(message)]
+///         pub fn my_message(&amp;self) {
+///             /* message statements */
+///         }
+///     }
+/// }
+/// # }).unwrap();
+/// ```
+///
+/// # Note
+///
+/// This type has been named after [`syn::ItemMod`] and inherits all of the
+/// fields that are required for inline module definitions.
+///
+/// # Developer Note
+///
+/// Structurally the ink! `Module` mirrors an inline Rust module, for example:
+///
+/// ```
+/// mod rust_module {
+///     /* some Rust item definitions */
+/// }
+/// ```
+///
+/// If the capabilities of an inline Rust module change we have to adjust for that.
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>ItemMod {
+    attrs: Vec&lt;syn::Attribute&gt;,
+    vis: syn::Visibility,
+    mod_token: token::Mod,
+    ident: Ident,
+    brace: token::Brace,
+    items: Vec&lt;ir::Item&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ItemMod</span> {
-    <span class="doccomment">/// Ensures that the ink! storage struct is not missing and that there are</span>
-    <span class="doccomment">/// not multiple ink! storage struct definitions for the given slice of items.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_storage_struct_quantity</span>(
-        <span class="ident">module_span</span>: <span class="ident">Span</span>,
-        <span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">ir::Item</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">storage_iter</span> <span class="op">=</span> <span class="ident">items</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">item</span>, <span class="ident">ir::Item::Ink</span>(<span class="ident">ir::InkItem::Storage</span>(<span class="kw">_</span>))));
-        <span class="kw">if</span> <span class="ident">storage_iter</span>.<span class="ident">clone</span>().<span class="ident">next</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">module_span</span>, <span class="string">&quot;missing ink! storage struct&quot;</span>,))
+<span class="kw">impl </span>ItemMod {
+    <span class="doccomment">/// Ensures that the ink! storage struct is not missing and that there are
+    /// not multiple ink! storage struct definitions for the given slice of items.
+    </span><span class="kw">fn </span>ensure_storage_struct_quantity(
+        module_span: Span,
+        items: <span class="kw-2">&amp;</span>[ir::Item],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">let </span>storage_iter = items
+            .iter()
+            .filter(|item| <span class="macro">matches!</span>(item, ir::Item::Ink(ir::InkItem::Storage(<span class="kw">_</span>))));
+        <span class="kw">if </span>storage_iter.clone().next().is_none() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(module_span, <span class="string">&quot;missing ink! storage struct&quot;</span>,))
         }
-        <span class="kw">if</span> <span class="ident">storage_iter</span>.<span class="ident">clone</span>().<span class="ident">count</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error</span> <span class="op">=</span> <span class="macro">format_err!</span>(
-                <span class="ident">module_span</span>,
-                <span class="string">&quot;encountered multiple ink! storage structs, expected exactly one&quot;</span>
-            );
-            <span class="kw">for</span> <span class="ident">storage</span> <span class="kw">in</span> <span class="ident">storage_iter</span> {
-                <span class="ident">error</span>.<span class="ident">combine</span>(<span class="macro">format_err!</span>(<span class="ident">storage</span>, <span class="string">&quot;ink! storage struct here&quot;</span>))
+        <span class="kw">if </span>storage_iter.clone().count() &gt;= <span class="number">2 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>error = <span class="macro">format_err!</span>(
+                module_span,
+                <span class="string">&quot;encountered multiple ink! storage structs, expected exactly one&quot;
+            </span>);
+            <span class="kw">for </span>storage <span class="kw">in </span>storage_iter {
+                error.combine(<span class="macro">format_err!</span>(storage, <span class="string">&quot;ink! storage struct here&quot;</span>))
             }
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>)
+            <span class="kw">return </span><span class="prelude-val">Err</span>(error)
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Ensures that the given slice of items contains at least one ink! message.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_contains_message</span>(
-        <span class="ident">module_span</span>: <span class="ident">Span</span>,
-        <span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">ir::Item</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">found_message</span> <span class="op">=</span> <span class="ident">items</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">item</span> {
-                    <span class="ident">ir::Item::Ink</span>(<span class="ident">ir::InkItem::ImplBlock</span>(<span class="ident">item_impl</span>)) =&gt; {
-                        <span class="prelude-val">Some</span>(<span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+    <span class="doccomment">/// Ensures that the given slice of items contains at least one ink! message.
+    </span><span class="kw">fn </span>ensure_contains_message(
+        module_span: Span,
+        items: <span class="kw-2">&amp;</span>[ir::Item],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">let </span>found_message = items
+            .iter()
+            .filter_map(|item| {
+                <span class="kw">match </span>item {
+                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) =&gt; {
+                        <span class="prelude-val">Some</span>(item_impl.iter_messages())
                     }
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 }
             })
-            .<span class="ident">any</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">messages</span><span class="op">|</span> <span class="ident">messages</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">found_message</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">module_span</span>, <span class="string">&quot;missing ink! message&quot;</span>))
+            .any(|<span class="kw-2">mut </span>messages| messages.next().is_some());
+        <span class="kw">if </span>!found_message {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(module_span, <span class="string">&quot;missing ink! message&quot;</span>))
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Ensures that the given slice of items contains at least one ink! constructor.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_contains_constructor</span>(
-        <span class="ident">module_span</span>: <span class="ident">Span</span>,
-        <span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">ir::Item</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">found_constructor</span> <span class="op">=</span> <span class="ident">items</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">item</span> {
-                    <span class="ident">ir::Item::Ink</span>(<span class="ident">ir::InkItem::ImplBlock</span>(<span class="ident">item_impl</span>)) =&gt; {
-                        <span class="prelude-val">Some</span>(<span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+    <span class="doccomment">/// Ensures that the given slice of items contains at least one ink! constructor.
+    </span><span class="kw">fn </span>ensure_contains_constructor(
+        module_span: Span,
+        items: <span class="kw-2">&amp;</span>[ir::Item],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">let </span>found_constructor = items
+            .iter()
+            .filter_map(|item| {
+                <span class="kw">match </span>item {
+                    ir::Item::Ink(ir::InkItem::ImplBlock(item_impl)) =&gt; {
+                        <span class="prelude-val">Some</span>(item_impl.iter_constructors())
                     }
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 }
             })
-            .<span class="ident">any</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">constructors</span><span class="op">|</span> <span class="ident">constructors</span>.<span class="ident">next</span>().<span class="ident">is_some</span>());
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">found_constructor</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">module_span</span>, <span class="string">&quot;missing ink! constructor&quot;</span>))
+            .any(|<span class="kw-2">mut </span>constructors| constructors.next().is_some());
+        <span class="kw">if </span>!found_constructor {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(module_span, <span class="string">&quot;missing ink! constructor&quot;</span>))
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Ensures that no ink! message or constructor selectors are overlapping.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// We differentiate between ink! message and ink! constructor selectors</span>
-    <span class="doccomment">/// since they are dispatched independently from each other and thus are</span>
-    <span class="doccomment">/// allowed to have overlapping selectors.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_no_overlapping_selectors</span>(<span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">ir::Item</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ir::Selector</span>, <span class="kw-2">&amp;</span><span class="ident">ir::Message</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ir::Selector</span>, <span class="kw-2">&amp;</span><span class="ident">ir::Constructor</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
-        <span class="kw">for</span> <span class="ident">item_impl</span> <span class="kw">in</span> <span class="ident">items</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="ident">ir::Item::map_ink_item</span>)
-            .<span class="ident">filter_map</span>(<span class="ident">ir::InkItem::filter_map_impl_block</span>)
+    <span class="doccomment">/// Ensures that no ink! message or constructor selectors are overlapping.
+    ///
+    /// # Note
+    ///
+    /// We differentiate between ink! message and ink! constructor selectors
+    /// since they are dispatched independently from each other and thus are
+    /// allowed to have overlapping selectors.
+    </span><span class="kw">fn </span>ensure_no_overlapping_selectors(items: <span class="kw-2">&amp;</span>[ir::Item]) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>messages = &lt;HashMap&lt;ir::Selector, <span class="kw-2">&amp;</span>ir::Message&gt;&gt;::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>constructors = &lt;HashMap&lt;ir::Selector, <span class="kw-2">&amp;</span>ir::Constructor&gt;&gt;::new();
+        <span class="kw">for </span>item_impl <span class="kw">in </span>items
+            .iter()
+            .filter_map(ir::Item::map_ink_item)
+            .filter_map(ir::InkItem::filter_map_impl_block)
         {
-            <span class="kw">use</span> <span class="ident">std::collections::hash_map::Entry</span>;
-            <span class="doccomment">/// Kind is either `&quot;message&quot;` or `&quot;constructor&quot;`.</span>
-            <span class="kw">fn</span> <span class="ident">compose_error</span>(
-                <span class="ident">first_span</span>: <span class="ident">Span</span>,
-                <span class="ident">second_span</span>: <span class="ident">Span</span>,
-                <span class="ident">selector</span>: <span class="ident">ir::Selector</span>,
-                <span class="ident">kind</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-            ) -&gt; <span class="ident">syn::Error</span> {
-                <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
+            <span class="kw">use </span>std::collections::hash_map::Entry;
+            <span class="doccomment">/// Kind is either `&quot;message&quot;` or `&quot;constructor&quot;`.
+            </span><span class="kw">fn </span>compose_error(
+                first_span: Span,
+                second_span: Span,
+                selector: ir::Selector,
+                kind: <span class="kw-2">&amp;</span>str,
+            ) -&gt; syn::Error {
+                <span class="kw">use </span><span class="kw">crate</span>::error::ExtError <span class="kw">as _</span>;
                 <span class="macro">format_err!</span>(
-                    <span class="ident">second_span</span>,
+                    second_span,
                     <span class="string">&quot;encountered ink! {}s with overlapping selectors (= {:02X?})\n\
                      hint: use #[ink(selector = S:u32)] on the callable or \
                      #[ink(namespace = N:string)] on the implementation block to \
                      disambiguate overlapping selectors.&quot;</span>,
-                    <span class="ident">kind</span>,
-                    <span class="ident">selector</span>.<span class="ident">to_bytes</span>(),
+                    kind,
+                    selector.to_bytes(),
                 )
-                .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
-                    <span class="ident">first_span</span>,
+                .into_combine(<span class="macro">format_err!</span>(
+                    first_span,
                     <span class="string">&quot;first ink! {} with overlapping selector here&quot;</span>,
-                    <span class="ident">kind</span>,
+                    kind,
                 ))
             }
-            <span class="kw">for</span> <span class="ident">message</span> <span class="kw">in</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>() {
-                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>();
-                <span class="kw">match</span> <span class="ident">messages</span>.<span class="ident">entry</span>(<span class="ident">selector</span>) {
-                    <span class="ident">Entry::Occupied</span>(<span class="ident">overlap</span>) =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">compose_error</span>(
-                            <span class="ident">overlap</span>.<span class="ident">get</span>().<span class="ident">span</span>(),
-                            <span class="ident">message</span>.<span class="ident">callable</span>().<span class="ident">span</span>(),
-                            <span class="ident">selector</span>,
+            <span class="kw">for </span>message <span class="kw">in </span>item_impl.iter_messages() {
+                <span class="kw">let </span>selector = message.composed_selector();
+                <span class="kw">match </span>messages.entry(selector) {
+                    Entry::Occupied(overlap) =&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(compose_error(
+                            overlap.get().span(),
+                            message.callable().span(),
+                            selector,
                             <span class="string">&quot;message&quot;</span>,
                         ))
                     }
-                    <span class="ident">Entry::Vacant</span>(<span class="ident">vacant</span>) =&gt; {
-                        <span class="ident">vacant</span>.<span class="ident">insert</span>(<span class="ident">message</span>.<span class="ident">callable</span>());
+                    Entry::Vacant(vacant) =&gt; {
+                        vacant.insert(message.callable());
                     }
                 }
             }
-            <span class="kw">for</span> <span class="ident">constructor</span> <span class="kw">in</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>() {
-                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>();
-                <span class="kw">match</span> <span class="ident">constructors</span>.<span class="ident">entry</span>(<span class="ident">selector</span>) {
-                    <span class="ident">Entry::Occupied</span>(<span class="ident">overlap</span>) =&gt; {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">compose_error</span>(
-                            <span class="ident">overlap</span>.<span class="ident">get</span>().<span class="ident">span</span>(),
-                            <span class="ident">constructor</span>.<span class="ident">callable</span>().<span class="ident">span</span>(),
-                            <span class="ident">selector</span>,
+            <span class="kw">for </span>constructor <span class="kw">in </span>item_impl.iter_constructors() {
+                <span class="kw">let </span>selector = constructor.composed_selector();
+                <span class="kw">match </span>constructors.entry(selector) {
+                    Entry::Occupied(overlap) =&gt; {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(compose_error(
+                            overlap.get().span(),
+                            constructor.callable().span(),
+                            selector,
                             <span class="string">&quot;constructor&quot;</span>,
                         ))
                     }
-                    <span class="ident">Entry::Vacant</span>(<span class="ident">vacant</span>) =&gt; {
-                        <span class="ident">vacant</span>.<span class="ident">insert</span>(<span class="ident">constructor</span>.<span class="ident">callable</span>());
+                    Entry::Vacant(vacant) =&gt; {
+                        vacant.insert(constructor.callable());
                     }
                 }
             }
@@ -1164,49 +1164,49 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Ensures that at most one wildcard selector exists among ink! messages, as well as</span>
-    <span class="doccomment">/// ink! constructors.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_only_one_wildcard_selector</span>(<span class="ident">items</span>: <span class="kw-2">&amp;</span>[<span class="ident">ir::Item</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wildcard_selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Message</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">item_impl</span> <span class="kw">in</span> <span class="ident">items</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="ident">ir::Item::map_ink_item</span>)
-            .<span class="ident">filter_map</span>(<span class="ident">ir::InkItem::filter_map_impl_block</span>)
+    <span class="doccomment">/// Ensures that at most one wildcard selector exists among ink! messages, as well as
+    /// ink! constructors.
+    </span><span class="kw">fn </span>ensure_only_one_wildcard_selector(items: <span class="kw-2">&amp;</span>[ir::Item]) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>wildcard_selector: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ir::Message&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>item_impl <span class="kw">in </span>items
+            .iter()
+            .filter_map(ir::Item::map_ink_item)
+            .filter_map(ir::InkItem::filter_map_impl_block)
         {
-            <span class="kw">for</span> <span class="ident">message</span> <span class="kw">in</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>() {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">message</span>.<span class="ident">has_wildcard_selector</span>() {
-                    <span class="kw">continue</span>
-                }
-                <span class="kw">match</span> <span class="ident">wildcard_selector</span> {
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">wildcard_selector</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">message</span>.<span class="ident">callable</span>()),
-                    <span class="prelude-val">Some</span>(<span class="ident">overlap</span>) =&gt; {
-                        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                            <span class="ident">message</span>.<span class="ident">callable</span>().<span class="ident">span</span>(),
+            <span class="kw">for </span>message <span class="kw">in </span>item_impl.iter_messages() {
+                <span class="kw">if </span>!message.has_wildcard_selector() {
+                    <span class="kw">continue
+                </span>}
+                <span class="kw">match </span>wildcard_selector {
+                    <span class="prelude-val">None </span>=&gt; wildcard_selector = <span class="prelude-val">Some</span>(message.callable()),
+                    <span class="prelude-val">Some</span>(overlap) =&gt; {
+                        <span class="kw">use </span><span class="kw">crate</span>::error::ExtError <span class="kw">as _</span>;
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                            message.callable().span(),
                             <span class="string">&quot;encountered ink! messages with overlapping wildcard selectors&quot;</span>,
                         )
-                        .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
-                            <span class="ident">overlap</span>.<span class="ident">span</span>(),
+                        .into_combine(<span class="macro">format_err!</span>(
+                            overlap.span(),
                             <span class="string">&quot;first ink! message with overlapping wildcard selector here&quot;</span>,
                         )))
                     }
                 }
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wildcard_selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Constructor</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">for</span> <span class="ident">constructor</span> <span class="kw">in</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>() {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">constructor</span>.<span class="ident">has_wildcard_selector</span>() {
-                    <span class="kw">continue</span>
-                }
-                <span class="kw">match</span> <span class="ident">wildcard_selector</span> {
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">wildcard_selector</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">constructor</span>.<span class="ident">callable</span>()),
-                    <span class="prelude-val">Some</span>(<span class="ident">overlap</span>) =&gt; {
-                        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                            <span class="ident">constructor</span>.<span class="ident">callable</span>().<span class="ident">span</span>(),
+            <span class="kw">let </span><span class="kw-2">mut </span>wildcard_selector: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ir::Constructor&gt; = <span class="prelude-val">None</span>;
+            <span class="kw">for </span>constructor <span class="kw">in </span>item_impl.iter_constructors() {
+                <span class="kw">if </span>!constructor.has_wildcard_selector() {
+                    <span class="kw">continue
+                </span>}
+                <span class="kw">match </span>wildcard_selector {
+                    <span class="prelude-val">None </span>=&gt; wildcard_selector = <span class="prelude-val">Some</span>(constructor.callable()),
+                    <span class="prelude-val">Some</span>(overlap) =&gt; {
+                        <span class="kw">use </span><span class="kw">crate</span>::error::ExtError <span class="kw">as _</span>;
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                            constructor.callable().span(),
                             <span class="string">&quot;encountered ink! constructor with overlapping wildcard selectors&quot;</span>,
                         )
-                            .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
-                            <span class="ident">overlap</span>.<span class="ident">span</span>(),
+                            .into_combine(<span class="macro">format_err!</span>(
+                            overlap.span(),
                             <span class="string">&quot;first ink! constructor with overlapping wildcard selector here&quot;</span>,
                         )))
                     }
@@ -1217,370 +1217,370 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ItemMod</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="kw">impl </span>TryFrom&lt;syn::ItemMod&gt; <span class="kw">for </span>ItemMod {
+    <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">module</span>: <span class="ident">syn::ItemMod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">module_span</span> <span class="op">=</span> <span class="ident">module</span>.<span class="ident">span</span>();
-        <span class="ident">idents_lint::ensure_no_ink_identifiers</span>(<span class="kw-2">&amp;</span><span class="ident">module</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">brace</span>, <span class="ident">items</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">module</span>.<span class="ident">content</span> {
-            <span class="prelude-val">Some</span>((<span class="ident">brace</span>, <span class="ident">items</span>)) =&gt; (<span class="ident">brace</span>, <span class="ident">items</span>),
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    <span class="ident">module</span>,
+    <span class="kw">fn </span>try_from(module: syn::ItemMod) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>module_span = module.span();
+        idents_lint::ensure_no_ink_identifiers(<span class="kw-2">&amp;</span>module)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(brace, items) = <span class="kw">match </span>module.content {
+            <span class="prelude-val">Some</span>((brace, items)) =&gt; (brace, items),
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    module,
                     <span class="string">&quot;out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}`&quot;</span>,
                 ))
             }
         };
-        <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="ident">module</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ink_attrs</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error</span> <span class="op">=</span> <span class="macro">format_err!</span>(
-                <span class="ident">module_span</span>,
-                <span class="string">&quot;encountered invalid ink! attributes on ink! module&quot;</span>
-            );
-            <span class="kw">for</span> <span class="ident">ink_attr</span> <span class="kw">in</span> <span class="ident">ink_attrs</span> {
-                <span class="ident">error</span>.<span class="ident">combine</span>(<span class="macro">format_err!</span>(
-                    <span class="ident">ink_attr</span>.<span class="ident">span</span>(),
-                    <span class="string">&quot;invalid ink! attribute on module&quot;</span>
-                ))
+        <span class="kw">let </span>(ink_attrs, other_attrs) = ir::partition_attributes(module.attrs)<span class="question-mark">?</span>;
+        <span class="kw">if </span>!ink_attrs.is_empty() {
+            <span class="kw">let </span><span class="kw-2">mut </span>error = <span class="macro">format_err!</span>(
+                module_span,
+                <span class="string">&quot;encountered invalid ink! attributes on ink! module&quot;
+            </span>);
+            <span class="kw">for </span>ink_attr <span class="kw">in </span>ink_attrs {
+                error.combine(<span class="macro">format_err!</span>(
+                    ink_attr.span(),
+                    <span class="string">&quot;invalid ink! attribute on module&quot;
+                </span>))
             }
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">error</span>)
+            <span class="kw">return </span><span class="prelude-val">Err</span>(error)
         }
-        <span class="kw">let</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">items</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">&lt;</span><span class="ident">ir::Item</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::Item</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_storage_struct_quantity</span>(<span class="ident">module_span</span>, <span class="kw-2">&amp;</span><span class="ident">items</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_contains_message</span>(<span class="ident">module_span</span>, <span class="kw-2">&amp;</span><span class="ident">items</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_contains_constructor</span>(<span class="ident">module_span</span>, <span class="kw-2">&amp;</span><span class="ident">items</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_no_overlapping_selectors</span>(<span class="kw-2">&amp;</span><span class="ident">items</span>)<span class="question-mark">?</span>;
-        <span class="ident"><span class="self">Self</span>::ensure_only_one_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="ident">items</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">attrs</span>: <span class="ident">other_attrs</span>,
-            <span class="ident">vis</span>: <span class="ident">module</span>.<span class="ident">vis</span>,
-            <span class="ident">mod_token</span>: <span class="ident">module</span>.<span class="ident">mod_token</span>,
-            <span class="ident">ident</span>: <span class="ident">module</span>.<span class="ident">ident</span>,
-            <span class="ident">brace</span>,
-            <span class="ident">items</span>,
+        <span class="kw">let </span>items = items
+            .into_iter()
+            .map(&lt;ir::Item <span class="kw">as </span>TryFrom&lt;syn::Item&gt;&gt;::try_from)
+            .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, syn::Error&gt;&gt;()<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_storage_struct_quantity(module_span, <span class="kw-2">&amp;</span>items)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_contains_message(module_span, <span class="kw-2">&amp;</span>items)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_contains_constructor(module_span, <span class="kw-2">&amp;</span>items)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_no_overlapping_selectors(<span class="kw-2">&amp;</span>items)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::ensure_only_one_wildcard_selector(<span class="kw-2">&amp;</span>items)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            attrs: other_attrs,
+            vis: module.vis,
+            mod_token: module.mod_token,
+            ident: module.ident,
+            brace,
+            items,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">ItemMod</span> {
-    <span class="doccomment">/// We mainly implement this trait for ink! module to have a derived</span>
-    <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
-        <span class="ident">tokens</span>.<span class="ident">append_all</span>(
-            <span class="self">self</span>.<span class="ident">attrs</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">attr</span>.<span class="ident">style</span>, <span class="ident">syn::AttrStyle::Outer</span>)),
+<span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>ItemMod {
+    <span class="doccomment">/// We mainly implement this trait for ink! module to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    </span><span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
+        tokens.append_all(
+            <span class="self">self</span>.attrs
+                .iter()
+                .filter(|attr| <span class="macro">matches!</span>(attr.style, syn::AttrStyle::Outer)),
         );
-        <span class="self">self</span>.<span class="ident">vis</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
-        <span class="self">self</span>.<span class="ident">mod_token</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
-        <span class="self">self</span>.<span class="ident">ident</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>);
-        <span class="self">self</span>.<span class="ident">brace</span>.<span class="ident">surround</span>(<span class="ident">tokens</span>, <span class="op">|</span><span class="ident">tokens</span><span class="op">|</span> {
-            <span class="ident">tokens</span>.<span class="ident">append_all</span>(
-                <span class="self">self</span>.<span class="ident">attrs</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">attr</span>.<span class="ident">style</span>, <span class="ident">syn::AttrStyle::Inner</span>(<span class="kw">_</span>))),
+        <span class="self">self</span>.vis.to_tokens(tokens);
+        <span class="self">self</span>.mod_token.to_tokens(tokens);
+        <span class="self">self</span>.ident.to_tokens(tokens);
+        <span class="self">self</span>.brace.surround(tokens, |tokens| {
+            tokens.append_all(
+                <span class="self">self</span>.attrs
+                    .iter()
+                    .filter(|attr| <span class="macro">matches!</span>(attr.style, syn::AttrStyle::Inner(<span class="kw">_</span>))),
             );
-            <span class="ident">tokens</span>.<span class="ident">append_all</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">items</span>);
+            tokens.append_all(<span class="kw-2">&amp;</span><span class="self">self</span>.items);
         });
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ItemMod</span> {
-    <span class="doccomment">/// Returns the identifier of the ink! module.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ident</span>
+<span class="kw">impl </span>ItemMod {
+    <span class="doccomment">/// Returns the identifier of the ink! module.
+    </span><span class="kw">pub fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ident
     }
 
-    <span class="doccomment">/// Returns the storage struct definition for this ink! module.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The storage definition is the struct that has been annotated with</span>
-    <span class="doccomment">/// `#[ink(storage)]`. This struct is required to be defined in the root</span>
-    <span class="doccomment">/// of the ink! inline module.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If zero or multiple `#[ink(storage)]` annotated structs were found in</span>
-    <span class="doccomment">/// the ink! module. This can be expected to never happen since upon</span>
-    <span class="doccomment">/// construction of an ink! module it is asserted that exactly one</span>
-    <span class="doccomment">/// `#[ink(storage)]` struct exists.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">storage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ir::Storage</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">IterInkItems::new</span>(<span class="self">self</span>)
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">ink_item</span><span class="op">|</span> <span class="ident">ink_item</span>.<span class="ident">filter_map_storage_item</span>());
-        <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="ident">iter</span>
-            .<span class="ident">next</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;encountered ink! module without a storage struct&quot;</span>);
+    <span class="doccomment">/// Returns the storage struct definition for this ink! module.
+    ///
+    /// # Note
+    ///
+    /// The storage definition is the struct that has been annotated with
+    /// `#[ink(storage)]`. This struct is required to be defined in the root
+    /// of the ink! inline module.
+    ///
+    /// # Panics
+    ///
+    /// If zero or multiple `#[ink(storage)]` annotated structs were found in
+    /// the ink! module. This can be expected to never happen since upon
+    /// construction of an ink! module it is asserted that exactly one
+    /// `#[ink(storage)]` struct exists.
+    </span><span class="kw">pub fn </span>storage(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ir::Storage {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = IterInkItems::new(<span class="self">self</span>)
+            .filter_map(|ink_item| ink_item.filter_map_storage_item());
+        <span class="kw">let </span>storage = iter
+            .next()
+            .expect(<span class="string">&quot;encountered ink! module without a storage struct&quot;</span>);
         <span class="macro">assert!</span>(
-            <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">is_none</span>(),
-            <span class="string">&quot;encountered multiple storage structs in ink! module&quot;</span>
-        );
-        <span class="ident">storage</span>
+            iter.next().is_none(),
+            <span class="string">&quot;encountered multiple storage structs in ink! module&quot;
+        </span>);
+        storage
     }
 
-    <span class="doccomment">/// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">items</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">ir::Item</span>] {
-        <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">as_slice</span>()
+    <span class="doccomment">/// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.
+    </span><span class="kw">pub fn </span>items(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[ir::Item] {
+        <span class="self">self</span>.items.as_slice()
     }
 
-    <span class="doccomment">/// Returns an iterator yielding all ink! implementation blocks.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// An ink! implementation block can be either an inherent `impl` block</span>
-    <span class="doccomment">/// directly defined for the contract&#39;s storage struct if it includes at</span>
-    <span class="doccomment">/// least one `#[ink(message)]` or `#[ink(constructor)]` annotation, e.g.:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use ink_ir as ir;</span>
-    <span class="doccomment">/// # &lt;ir::ItemMod as TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(syn::parse_quote! {</span>
-    <span class="doccomment">/// # mod my_module {</span>
-    <span class="doccomment">/// # #[ink(storage)]</span>
-    <span class="doccomment">/// # pub struct MyStorage {</span>
-    <span class="doccomment">/// #     /* storage fields */</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// impl MyStorage {</span>
-    <span class="doccomment">/// #   #[ink(constructor)]</span>
-    <span class="doccomment">/// #   pub fn my_constructor() -&gt; Self {</span>
-    <span class="doccomment">/// #       /* constructor implementation */</span>
-    <span class="doccomment">/// #   }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">///     #[ink(message)]</span>
-    <span class="doccomment">///     pub fn my_message(&amp;self) {</span>
-    <span class="doccomment">///         /* message implementation */</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// # }}).unwrap();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Also an implementation block can be defined as a trait implementation</span>
-    <span class="doccomment">/// for the ink! storage struct using the `#[ink(impl)]` annotation even</span>
-    <span class="doccomment">/// if none of its interior items have any ink! specific attributes on them,</span>
-    <span class="doccomment">/// e.g.:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use ink_ir as ir;</span>
-    <span class="doccomment">/// # &lt;ir::ItemMod as TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(syn::parse_quote! {</span>
-    <span class="doccomment">/// # mod my_module {</span>
-    <span class="doccomment">/// # #[ink(storage)]</span>
-    <span class="doccomment">/// # pub struct MyStorage {</span>
-    <span class="doccomment">/// #     /* storage fields */</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// #[ink(impl)]</span>
-    <span class="doccomment">/// impl MyStorage {</span>
-    <span class="doccomment">///     fn my_method(&amp;self) -&gt; i32 {</span>
-    <span class="doccomment">///         /* method implementation */</span>
-    <span class="doccomment">///     }</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # impl MyStorage {</span>
-    <span class="doccomment">/// #   #[ink(constructor)]</span>
-    <span class="doccomment">/// #   pub fn my_constructor() -&gt; Self {</span>
-    <span class="doccomment">/// #       /* constructor implementation */</span>
-    <span class="doccomment">/// #   }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// #   #[ink(message)]</span>
-    <span class="doccomment">/// #   pub fn my_message(&amp;self) {</span>
-    <span class="doccomment">/// #       /* message implementation */</span>
-    <span class="doccomment">/// #   }</span>
-    <span class="doccomment">/// # }</span>
-    <span class="doccomment">/// # }}).unwrap();</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IterItemImpls</span> {
-        <span class="ident">IterItemImpls::new</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Returns an iterator yielding all ink! implementation blocks.
+    ///
+    /// # Note
+    ///
+    /// An ink! implementation block can be either an inherent `impl` block
+    /// directly defined for the contract&#39;s storage struct if it includes at
+    /// least one `#[ink(message)]` or `#[ink(constructor)]` annotation, e.g.:
+    ///
+    /// ```
+    /// # use ink_ir as ir;
+    /// # &lt;ir::ItemMod as TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(syn::parse_quote! {
+    /// # mod my_module {
+    /// # #[ink(storage)]
+    /// # pub struct MyStorage {
+    /// #     /* storage fields */
+    /// # }
+    /// #
+    /// impl MyStorage {
+    /// #   #[ink(constructor)]
+    /// #   pub fn my_constructor() -&gt; Self {
+    /// #       /* constructor implementation */
+    /// #   }
+    /// #
+    ///     #[ink(message)]
+    ///     pub fn my_message(&amp;self) {
+    ///         /* message implementation */
+    ///     }
+    /// }
+    /// # }}).unwrap();
+    /// ```
+    ///
+    /// Also an implementation block can be defined as a trait implementation
+    /// for the ink! storage struct using the `#[ink(impl)]` annotation even
+    /// if none of its interior items have any ink! specific attributes on them,
+    /// e.g.:
+    ///
+    /// ```
+    /// # use ink_ir as ir;
+    /// # &lt;ir::ItemMod as TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(syn::parse_quote! {
+    /// # mod my_module {
+    /// # #[ink(storage)]
+    /// # pub struct MyStorage {
+    /// #     /* storage fields */
+    /// # }
+    /// #
+    /// #[ink(impl)]
+    /// impl MyStorage {
+    ///     fn my_method(&amp;self) -&gt; i32 {
+    ///         /* method implementation */
+    ///     }
+    /// }
+    /// #
+    /// # impl MyStorage {
+    /// #   #[ink(constructor)]
+    /// #   pub fn my_constructor() -&gt; Self {
+    /// #       /* constructor implementation */
+    /// #   }
+    /// #
+    /// #   #[ink(message)]
+    /// #   pub fn my_message(&amp;self) {
+    /// #       /* message implementation */
+    /// #   }
+    /// # }
+    /// # }}).unwrap();
+    /// ```
+    </span><span class="kw">pub fn </span>impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IterItemImpls {
+        IterItemImpls::new(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Returns an iterator yielding all event definitions in this ink! module.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IterEvents</span> {
-        <span class="ident">IterEvents::new</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Returns an iterator yielding all event definitions in this ink! module.
+    </span><span class="kw">pub fn </span>events(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; IterEvents {
+        IterEvents::new(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Returns all non-ink! attributes of the ink! module.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">attrs</span>
+    <span class="doccomment">/// Returns all non-ink! attributes of the ink! module.
+    </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Attribute] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.attrs
     }
 
-    <span class="doccomment">/// Returns the visibility of the ink! module.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vis</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Visibility</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">vis</span>
+    <span class="doccomment">/// Returns the visibility of the ink! module.
+    </span><span class="kw">pub fn </span>vis(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Visibility {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.vis
     }
 }
 
-<span class="doccomment">/// Iterator yielding ink! item definitions of the ink! smart contract.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IterInkItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">items_iter</span>: <span class="ident">core::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">ir::Item</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator yielding ink! item definitions of the ink! smart contract.
+</span><span class="kw">pub struct </span>IterInkItems&lt;<span class="lifetime">&#39;a</span>&gt; {
+    items_iter: core::slice::Iter&lt;<span class="lifetime">&#39;a</span>, ir::Item&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IterInkItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new ink! module items iterator.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ink_module</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ItemMod</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">items_iter</span>: <span class="ident">ink_module</span>.<span class="ident">items</span>.<span class="ident">iter</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IterInkItems&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new ink! module items iterator.
+    </span><span class="kw">fn </span>new(ink_module: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ItemMod) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            items_iter: ink_module.items.iter(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IterInkItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::InkItem</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>IterInkItems&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::InkItem;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">items_iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">item</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">item</span>.<span class="ident">map_ink_item</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>)
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.items_iter.next() {
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(item) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(event) = item.map_ink_item() {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(event)
                     }
-                    <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>
-                }
+                    <span class="kw">continue </span><span class="lifetime">&#39;repeat
+                </span>}
             }
         }
     }
 }
 
-<span class="doccomment">/// Iterator yielding all ink! event definitions within the ink!</span>
-<span class="doccomment">/// [`ItemMod`](`crate::ir::ItemMod`).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IterEvents</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">items_iter</span>: <span class="ident">IterInkItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator yielding all ink! event definitions within the ink!
+/// [`ItemMod`](`crate::ir::ItemMod`).
+</span><span class="kw">pub struct </span>IterEvents&lt;<span class="lifetime">&#39;a</span>&gt; {
+    items_iter: IterInkItems&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IterEvents</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new ink! events iterator.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ink_module</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ItemMod</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">items_iter</span>: <span class="ident">IterInkItems::new</span>(<span class="ident">ink_module</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IterEvents&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new ink! events iterator.
+    </span><span class="kw">fn </span>new(ink_module: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ItemMod) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            items_iter: IterInkItems::new(ink_module),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IterEvents</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Event</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>IterEvents&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::Event;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">items_iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">ink_item</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">ink_item</span>.<span class="ident">filter_map_event_item</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>)
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.items_iter.next() {
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(ink_item) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(event) = ink_item.filter_map_event_item() {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(event)
                     }
-                    <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>
-                }
+                    <span class="kw">continue </span><span class="lifetime">&#39;repeat
+                </span>}
             }
         }
     }
 }
 
-<span class="doccomment">/// Iterator yielding all ink! implementation block definitions within the ink!</span>
-<span class="doccomment">/// [`ItemMod`](`crate::ir::ItemMod`).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IterItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">items_iter</span>: <span class="ident">IterInkItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator yielding all ink! implementation block definitions within the ink!
+/// [`ItemMod`](`crate::ir::ItemMod`).
+</span><span class="kw">pub struct </span>IterItemImpls&lt;<span class="lifetime">&#39;a</span>&gt; {
+    items_iter: IterInkItems&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IterItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new ink! implementation blocks iterator.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ink_module</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ItemMod</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">items_iter</span>: <span class="ident">IterInkItems::new</span>(<span class="ident">ink_module</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; IterItemImpls&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new ink! implementation blocks iterator.
+    </span><span class="kw">fn </span>new(ink_module: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ItemMod) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            items_iter: IterInkItems::new(ink_module),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IterItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>IterItemImpls&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ir::ItemImpl;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">items_iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">ink_item</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">ink_item</span>.<span class="ident">filter_map_impl_block</span>() {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>)
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="lifetime">&#39;repeat</span>: <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.items_iter.next() {
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(ink_item) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(event) = ink_item.filter_map_impl_block() {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(event)
                     }
-                    <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>
-                }
+                    <span class="kw">continue </span><span class="lifetime">&#39;repeat
+                </span>}
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span> <span class="kw">as</span> <span class="ident">ir</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use crate as </span>ir;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">item_mod_try_from_works</span>() {
-        <span class="kw">let</span> <span class="ident">item_mods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">minimal</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Minimal</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>item_mod_try_from_works() {
+        <span class="kw">let </span>item_mods: Vec&lt;syn::ItemMod&gt; = <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>minimal {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>Minimal {}
 
-                    <span class="kw">impl</span> <span class="ident">Minimal</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {}
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minimal_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                    <span class="kw">impl </span>Minimal {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>minimal_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">flipper</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flipper</span> {
-                        <span class="ident">value</span>: <span class="ident">bool</span>,
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>flipper {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>Flipper {
+                        value: bool,
                     }
 
-                    <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Flipper</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-                            <span class="self">Self</span> { <span class="ident">value</span>: <span class="bool-val">false</span> }
+                    <span class="kw">impl </span>Default <span class="kw">for </span>Flipper {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+                            <span class="self">Self </span>{ value: <span class="bool-val">false </span>}
                         }
                     }
 
-                    <span class="kw">impl</span> <span class="ident">Flipper</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-                            <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">value</span>
+                    <span class="kw">impl </span>Flipper {
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+                            <span class="self">self</span>.value = !<span class="self">self</span>.value
                         }
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-                            <span class="self">self</span>.<span class="ident">value</span>
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+                            <span class="self">self</span>.value
                         }
                     }
                 }
             },
         ];
-        <span class="kw">for</span> <span class="ident">item_mod</span> <span class="kw">in</span> <span class="ident">item_mods</span> {
-            <span class="macro">assert!</span>(<span class="op">&lt;</span><span class="ident">ir::ItemMod</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_mod</span>).<span class="ident">is_ok</span>())
+        <span class="kw">for </span>item_mod <span class="kw">in </span>item_mods {
+            <span class="macro">assert!</span>(&lt;ir::ItemMod <span class="kw">as </span>TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(item_mod).is_ok())
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">assert_fail</span>(<span class="ident">item_mod</span>: <span class="ident">syn::ItemMod</span>, <span class="ident">expected_err</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="kw">fn </span>assert_fail(item_mod: syn::ItemMod, expected_err: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_eq!</span>(
-            <span class="op">&lt;</span><span class="ident">ir::ItemMod</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_mod</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="prelude-val">Err</span>(<span class="ident">expected_err</span>.<span class="ident">to_string</span>()),
+            &lt;ir::ItemMod <span class="kw">as </span>TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(item_mod)
+                .map_err(|err| err.to_string()),
+            <span class="prelude-val">Err</span>(expected_err.to_string()),
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">missing_storage_struct_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>missing_storage_struct_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1588,20 +1588,20 @@
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">multiple_storage_struct_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyFirstStorage</span> {}
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MySecondStorage</span> {}
-                    <span class="kw">impl</span> <span class="ident">MyFirstStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>multiple_storage_struct_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyFirstStorage {}
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MySecondStorage {}
+                    <span class="kw">impl </span>MyFirstStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1609,17 +1609,17 @@
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">missing_constructor_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>missing_constructor_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1627,17 +1627,17 @@
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">missing_message_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>missing_message_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
                     }
                 }
             },
@@ -1645,29 +1645,29 @@
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">invalid_out_of_line_module_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>invalid_out_of_line_module_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module;
             },
             <span class="string">&quot;out-of-line ink! modules are not supported, use `#[ink::contract] mod name { ... }`&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflicting_attributes_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflicting_attributes_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(namespace = <span class="string">&quot;my_namespace&quot;</span>)]
+                </span><span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1675,25 +1675,25 @@
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlapping_messages_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>overlapping_messages_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message, selector = <span class="number">0xDEADBEEF</span>)]
+                        </span><span class="kw">pub fn </span>my_message_1(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message_2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(message, selector = <span class="number">0xDEADBEEF</span>)]
+                        </span><span class="kw">pub fn </span>my_message_2(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1703,25 +1703,25 @@
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlapping_constructors_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>overlapping_constructors_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor_1</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor, selector = <span class="number">0xDEADBEEF</span>)]
+                        </span><span class="kw">pub fn </span>my_constructor_1() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>my_message_1(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor_2</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor, selector = <span class="number">0xDEADBEEF</span>)]
+                        </span><span class="kw">pub fn </span>my_constructor_2() -&gt; <span class="self">Self </span>{}
                     }
                 }
             },
@@ -1731,25 +1731,25 @@
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlapping_trait_impls_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>overlapping_trait_impls_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">first::MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>first::MyTrait <span class="kw">for </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
 
-                    <span class="kw">impl</span> <span class="ident">second::MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                    <span class="kw">impl </span>second::MyTrait <span class="kw">for </span>MyStorage {
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1759,44 +1759,44 @@
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">allow_overlap_between_messages_and_constructors</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>allow_overlap_between_messages_and_constructors() {
         <span class="macro">assert!</span>(
-            <span class="op">&lt;</span><span class="ident">ir::ItemMod</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+            &lt;ir::ItemMod <span class="kw">as </span>TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(<span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor, selector = <span class="number">0xDEADBEEF</span>)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message, selector = <span class="number">0xDEADBEEF</span>)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             })
-            .<span class="ident">is_ok</span>()
+            .is_ok()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlapping_wildcard_selectors_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>overlapping_wildcard_selectors_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="kw">_</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message, selector = <span class="kw">_</span>)]
+                        </span><span class="kw">pub fn </span>my_message1(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="kw">_</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message, selector = <span class="kw">_</span>)]
+                        </span><span class="kw">pub fn </span>my_message2(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1804,41 +1804,41 @@
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">wildcard_selector_on_constructor_works</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>wildcard_selector_on_constructor_works() {
         <span class="macro">assert!</span>(
-            <span class="op">&lt;</span><span class="ident">ir::ItemMod</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+            &lt;ir::ItemMod <span class="kw">as </span>TryFrom&lt;syn::ItemMod&gt;&gt;::try_from(<span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="kw">_</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor, selector = <span class="kw">_</span>)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             })
-            .<span class="ident">is_ok</span>()
+            .is_ok()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlap_between_wildcard_selector_and_composed_selector_fails</span>() {
-        <span class="ident">assert_fail</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>overlap_between_wildcard_selector_and_composed_selector_fails() {
+        assert_fail(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">mod </span>my_module {
+                    <span class="attribute">#[ink(storage)]
+                    </span><span class="kw">pub struct </span>MyStorage {}
 
-                    <span class="kw">impl</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+                    <span class="kw">impl </span>MyStorage {
+                        <span class="attribute">#[ink(constructor)]
+                        </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
 
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="kw">_</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xCAFEBABE</span>)]</span>
-                        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                        <span class="attribute">#[ink(message, selector = <span class="kw">_</span>, selector = <span class="number">0xCAFEBABE</span>)]
+                        </span><span class="kw">pub fn </span>my_message(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
                     }
                 }
             },
@@ -1847,4 +1847,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

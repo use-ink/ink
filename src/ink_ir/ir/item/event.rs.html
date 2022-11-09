@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item/event.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/ir/src/ir/item/event.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_ir/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_ir/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -481,486 +481,486 @@
 <span id="479">479</span>
 <span id="480">480</span>
 <span id="481">481</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
-    <span class="ident">ir</span>,
-    <span class="ident">ir::utils</span>,
+</span><span class="kw">use crate</span>::{
+    error::ExtError <span class="kw">as _</span>,
+    ir,
+    ir::utils,
 };
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
-    <span class="ident">Ident</span>,
-    <span class="ident">Span</span>,
+<span class="kw">use </span>proc_macro2::{
+    Ident,
+    Span,
 };
-<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
-<span class="doccomment">/// An ink! event struct definition.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # let event = &lt;ink_ir::Event as TryFrom&lt;syn::ItemStruct&gt;&gt;::try_from(syn::parse_quote! {</span>
-<span class="doccomment">/// #[ink(event)]</span>
-<span class="doccomment">/// pub struct Transaction {</span>
-<span class="doccomment">///     #[ink(topic)]</span>
-<span class="doccomment">///     from: AccountId,</span>
-<span class="doccomment">///     #[ink(topic)]</span>
-<span class="doccomment">///     to: AccountId,</span>
-<span class="doccomment">///     value: Balance,</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// # }).unwrap();</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Event</span> {
-    <span class="ident">item</span>: <span class="ident">syn::ItemStruct</span>,
-    <span class="kw">pub</span> <span class="ident">anonymous</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// An ink! event struct definition.
+///
+/// # Example
+///
+/// ```
+/// # let event = &lt;ink_ir::Event as TryFrom&lt;syn::ItemStruct&gt;&gt;::try_from(syn::parse_quote! {
+/// #[ink(event)]
+/// pub struct Transaction {
+///     #[ink(topic)]
+///     from: AccountId,
+///     #[ink(topic)]
+///     to: AccountId,
+///     value: Balance,
+/// }
+/// # }).unwrap();
+/// ```
+</span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Event {
+    item: syn::ItemStruct,
+    <span class="kw">pub </span>anonymous: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Event</span> {
-    <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
-    <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
-        <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>)
+<span class="kw">impl </span>quote::ToTokens <span class="kw">for </span>Event {
+    <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived
+    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    </span><span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>proc_macro2::TokenStream) {
+        <span class="self">self</span>.item.to_tokens(tokens)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Event</span> {
-    <span class="doccomment">/// Returns `true` if the first ink! annotation on the given struct is</span>
-    <span class="doccomment">/// `#[ink(event)]`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If the first found ink! attribute is malformed.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">is_ink_event</span>(
-        <span class="ident">item_struct</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemStruct</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ir::contains_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">attrs</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
+<span class="kw">impl </span>Event {
+    <span class="doccomment">/// Returns `true` if the first ink! annotation on the given struct is
+    /// `#[ink(event)]`.
+    ///
+    /// # Errors
+    ///
+    /// If the first found ink! attribute is malformed.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_ink_event(
+        item_struct: <span class="kw-2">&amp;</span>syn::ItemStruct,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool, syn::Error&gt; {
+        <span class="kw">if </span>!ir::contains_ink_attributes(<span class="kw-2">&amp;</span>item_struct.attrs) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
         }
-        <span class="comment">// At this point we know that there must be at least one ink!</span>
-        <span class="comment">// attribute. This can be either the ink! storage struct,</span>
-        <span class="comment">// an ink! event or an invalid ink! attribute.</span>
-        <span class="kw">let</span> <span class="ident">attr</span> <span class="op">=</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>
-            .<span class="ident">expect</span>(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
-        <span class="prelude-val">Ok</span>(<span class="macro">matches!</span>(<span class="ident">attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>(), <span class="ident">ir::AttributeArg::Event</span>))
+        <span class="comment">// At this point we know that there must be at least one ink!
+        // attribute. This can be either the ink! storage struct,
+        // an ink! event or an invalid ink! attribute.
+        </span><span class="kw">let </span>attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>item_struct.attrs)<span class="question-mark">?
+            </span>.expect(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
+        <span class="prelude-val">Ok</span>(<span class="macro">matches!</span>(attr.first().kind(), ir::AttributeArg::Event))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemStruct</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Event</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+<span class="kw">impl </span>TryFrom&lt;syn::ItemStruct&gt; <span class="kw">for </span>Event {
+    <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_struct</span>: <span class="ident">syn::ItemStruct</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">struct_span</span> <span class="op">=</span> <span class="ident">item_struct</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="ident">ir::sanitize_attributes</span>(
-            <span class="ident">struct_span</span>,
-            <span class="ident">item_struct</span>.<span class="ident">attrs</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Event</span>,
-            <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
-                    <span class="ident">ir::AttributeArg::Event</span> <span class="op">|</span> <span class="ident">ir::AttributeArg::Anonymous</span> =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+    <span class="kw">fn </span>try_from(item_struct: syn::ItemStruct) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>struct_span = item_struct.span();
+        <span class="kw">let </span>(ink_attrs, other_attrs) = ir::sanitize_attributes(
+            struct_span,
+            item_struct.attrs,
+            <span class="kw-2">&amp;</span>ir::AttributeArgKind::Event,
+            |arg| {
+                <span class="kw">match </span>arg.kind() {
+                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous =&gt; <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">item_struct</span>.<span class="ident">generics</span>.<span class="ident">params</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                <span class="ident">item_struct</span>.<span class="ident">generics</span>.<span class="ident">params</span>,
+        <span class="kw">if </span>!item_struct.generics.params.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                item_struct.generics.params,
                 <span class="string">&quot;generic ink! event structs are not supported&quot;</span>,
             ))
         }
-        <span class="ident">utils::ensure_pub_visibility</span>(<span class="string">&quot;event structs&quot;</span>, <span class="ident">struct_span</span>, <span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">vis</span>)<span class="question-mark">?</span>;
-        <span class="lifetime">&#39;repeat</span>: <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="ident">item_struct</span>.<span class="ident">fields</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">field_span</span> <span class="op">=</span> <span class="ident">field</span>.<span class="ident">span</span>();
-            <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="ident">field</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">ink_attrs</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>
-            }
-            <span class="kw">let</span> <span class="ident">normalized</span> <span class="op">=</span>
-                <span class="ident">ir::InkAttribute::from_expanded</span>(<span class="ident">ink_attrs</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                    <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(<span class="ident">field_span</span>, <span class="string">&quot;at this invocation&quot;</span>,))
+        utils::ensure_pub_visibility(<span class="string">&quot;event structs&quot;</span>, struct_span, <span class="kw-2">&amp;</span>item_struct.vis)<span class="question-mark">?</span>;
+        <span class="lifetime">&#39;repeat</span>: <span class="kw">for </span>field <span class="kw">in </span>item_struct.fields.iter() {
+            <span class="kw">let </span>field_span = field.span();
+            <span class="kw">let </span>(ink_attrs, <span class="kw">_</span>) = ir::partition_attributes(field.attrs.clone())<span class="question-mark">?</span>;
+            <span class="kw">if </span>ink_attrs.is_empty() {
+                <span class="kw">continue </span><span class="lifetime">&#39;repeat
+            </span>}
+            <span class="kw">let </span>normalized =
+                ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+                    err.into_combine(<span class="macro">format_err!</span>(field_span, <span class="string">&quot;at this invocation&quot;</span>,))
                 })<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">normalized</span>.<span class="ident">first</span>().<span class="ident">kind</span>(), <span class="ident">ir::AttributeArg::Topic</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                    <span class="ident">field_span</span>,
+            <span class="kw">if </span>!<span class="macro">matches!</span>(normalized.first().kind(), ir::AttributeArg::Topic) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                    field_span,
                     <span class="string">&quot;first optional ink! attribute of an event field must be #[ink(topic)]&quot;</span>,
                 ))
             }
-            <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">normalized</span>.<span class="ident">args</span>() {
-                <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">ir::AttributeArg::Topic</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                        <span class="ident">arg</span>.<span class="ident">span</span>(),
+            <span class="kw">for </span>arg <span class="kw">in </span>normalized.args() {
+                <span class="kw">if </span>!<span class="macro">matches!</span>(arg.kind(), ir::AttributeArg::Topic) {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                        arg.span(),
                         <span class="string">&quot;encountered conflicting ink! attribute for event field&quot;</span>,
                     ))
                 }
             }
         }
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">item</span>: <span class="ident">syn::ItemStruct</span> {
-                <span class="ident">attrs</span>: <span class="ident">other_attrs</span>,
-                ..<span class="ident">item_struct</span>
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            item: syn::ItemStruct {
+                attrs: other_attrs,
+                ..item_struct
             },
-            <span class="ident">anonymous</span>: <span class="ident">ink_attrs</span>.<span class="ident">is_anonymous</span>(),
+            anonymous: ink_attrs.is_anonymous(),
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Event</span> {
-    <span class="doccomment">/// Returns the identifier of the event struct.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">ident</span>
+<span class="kw">impl </span>Event {
+    <span class="doccomment">/// Returns the identifier of the event struct.
+    </span><span class="kw">pub fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.ident
     }
 
-    <span class="doccomment">/// Returns an iterator yielding all the `#[ink(topic)]` annotated fields</span>
-    <span class="doccomment">/// of the event struct.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">EventFieldsIter</span> {
-        <span class="ident">EventFieldsIter::new</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
+    /// of the event struct.
+    </span><span class="kw">pub fn </span>fields(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; EventFieldsIter {
+        EventFieldsIter::new(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Returns all non-ink! attributes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>
+    <span class="doccomment">/// Returns all non-ink! attributes.
+    </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Attribute] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.item.attrs
     }
 }
 
-<span class="doccomment">/// An event field with a flag indicating if this field is an event topic.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventField</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The associated `field` is an event topic if this is `true`.</span>
-    <span class="kw">pub</span> <span class="ident">is_topic</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// The event field.</span>
-    <span class="ident">field</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Field</span>,
+<span class="doccomment">/// An event field with a flag indicating if this field is an event topic.
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>EventField&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// The associated `field` is an event topic if this is `true`.
+    </span><span class="kw">pub </span>is_topic: bool,
+    <span class="doccomment">/// The event field.
+    </span>field: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Field,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">EventField</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the span of the event field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="self">self</span>) -&gt; <span class="ident">Span</span> {
-        <span class="self">self</span>.<span class="ident">field</span>.<span class="ident">span</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; EventField&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Returns the span of the event field.
+    </span><span class="kw">pub fn </span>span(<span class="self">self</span>) -&gt; Span {
+        <span class="self">self</span>.field.span()
     }
 
-    <span class="doccomment">/// Returns all non-ink! attributes of the event field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">non_ink_attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">field</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>())
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;encountered invalid event field attributes: {}&quot;</span>, <span class="ident">err</span>)
+    <span class="doccomment">/// Returns all non-ink! attributes of the event field.
+    </span><span class="kw">pub fn </span>attrs(<span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
+        <span class="kw">let </span>(<span class="kw">_</span>, non_ink_attrs) = ir::partition_attributes(<span class="self">self</span>.field.attrs.clone())
+            .unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">&quot;encountered invalid event field attributes: {}&quot;</span>, err)
             });
-        <span class="ident">non_ink_attrs</span>
+        non_ink_attrs
     }
 
-    <span class="doccomment">/// Returns the visibility of the event field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vis</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Visibility</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field</span>.<span class="ident">vis</span>
+    <span class="doccomment">/// Returns the visibility of the event field.
+    </span><span class="kw">pub fn </span>vis(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Visibility {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.field.vis
     }
 
-    <span class="doccomment">/// Returns the identifier of the event field if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Ident</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">field</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>()
+    <span class="doccomment">/// Returns the identifier of the event field if any.
+    </span><span class="kw">pub fn </span>ident(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Ident&gt; {
+        <span class="self">self</span>.field.ident.as_ref()
     }
 
-    <span class="doccomment">/// Returns the type of the event field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Type</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field</span>.<span class="ident">ty</span>
+    <span class="doccomment">/// Returns the type of the event field.
+    </span><span class="kw">pub fn </span>ty(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Type {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.field.ty
     }
 }
 
-<span class="doccomment">/// Iterator yielding all `#[ink(topic)]` annotated fields of an event struct.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventFieldsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">iter</span>: <span class="ident">syn::punctuated::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">syn::Field</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Iterator yielding all `#[ink(topic)]` annotated fields of an event struct.
+</span><span class="kw">pub struct </span>EventFieldsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    iter: syn::punctuated::Iter&lt;<span class="lifetime">&#39;a</span>, syn::Field&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">EventFieldsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new topics fields iterator for the given ink! event struct.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Event</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">iter</span>: <span class="ident">event</span>.<span class="ident">item</span>.<span class="ident">fields</span>.<span class="ident">iter</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; EventFieldsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Creates a new topics fields iterator for the given ink! event struct.
+    </span><span class="kw">fn </span>new(event: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Event) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            iter: event.item.fields.iter(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">EventFieldsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">EventField</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Iterator <span class="kw">for </span>EventFieldsIter&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Item = EventField&lt;<span class="lifetime">&#39;a</span>&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">field</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">is_topic</span> <span class="op">=</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">attrs</span>)
-                    .<span class="ident">unwrap_or_default</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>(), <span class="ident">ir::AttributeArg::Topic</span>))
-                    .<span class="ident">unwrap_or_default</span>();
-                <span class="prelude-val">Some</span>(<span class="ident">EventField</span> { <span class="ident">is_topic</span>, <span class="ident">field</span> })
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">match </span><span class="self">self</span>.iter.next() {
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(field) =&gt; {
+                <span class="kw">let </span>is_topic = ir::first_ink_attribute(<span class="kw-2">&amp;</span>field.attrs)
+                    .unwrap_or_default()
+                    .map(|attr| <span class="macro">matches!</span>(attr.first().kind(), ir::AttributeArg::Topic))
+                    .unwrap_or_default();
+                <span class="prelude-val">Some</span>(EventField { is_topic, field })
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">simple_try_from_works</span>() {
-        <span class="kw">let</span> <span class="ident">item_struct</span>: <span class="ident">syn::ItemStruct</span> <span class="op">=</span> <span class="macro">syn::parse_quote!</span> {
-            <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>simple_try_from_works() {
+        <span class="kw">let </span>item_struct: syn::ItemStruct = <span class="macro">syn::parse_quote! </span>{
+            <span class="attribute">#[ink(event)]
+            </span><span class="kw">pub struct </span>MyEvent {
+                <span class="attribute">#[ink(topic)]
+                </span>field_1: i32,
+                field_2: bool,
             }
         };
-        <span class="macro">assert!</span>(<span class="ident">Event::try_from</span>(<span class="ident">item_struct</span>).<span class="ident">is_ok</span>());
+        <span class="macro">assert!</span>(Event::try_from(item_struct).is_ok());
     }
 
-    <span class="kw">fn</span> <span class="ident">assert_try_from_fails</span>(<span class="ident">item_struct</span>: <span class="ident">syn::ItemStruct</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="kw">fn </span>assert_try_from_fails(item_struct: syn::ItemStruct, expected: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Event::try_from</span>(<span class="ident">item_struct</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="prelude-val">Err</span>(<span class="ident">expected</span>.<span class="ident">to_string</span>())
+            Event::try_from(item_struct).map_err(|err| err.to_string()),
+            <span class="prelude-val">Err</span>(expected.to_string())
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflicting_struct_attributes_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflicting_struct_attributes_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                #[ink(storage)]
+                </span><span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(topic)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">duplicate_struct_attributes_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>duplicate_struct_attributes_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                #[ink(event)]
+                </span><span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(topic)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;encountered duplicate ink! attribute&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">wrong_first_struct_attribute_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>wrong_first_struct_attribute_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(storage)]
+                #[ink(event)]
+                </span><span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(topic)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;unexpected first ink! attribute argument&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">missing_storage_attribute_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>missing_storage_attribute_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(topic)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;encountered unexpected empty expanded ink! attribute arguments&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">generic_event_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GenericEvent</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">T</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>generic_event_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                </span><span class="kw">pub struct </span>GenericEvent&lt;T&gt; {
+                    <span class="attribute">#[ink(topic)]
+                    </span>field_1: T,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;generic ink! event structs are not supported&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">non_pub_event_struct</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">struct</span> <span class="ident">PrivateEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>non_pub_event_struct() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                </span><span class="kw">struct </span>PrivateEvent {
+                    <span class="attribute">#[ink(topic)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;non `pub` ink! event structs are not supported&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">duplicate_field_attributes_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>duplicate_field_attributes_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                </span><span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(topic)]
+                    #[ink(topic)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;encountered duplicate ink! attribute&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">invalid_field_attributes_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>invalid_field_attributes_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                </span><span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(message)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;first optional ink! attribute of an event field must be #[ink(topic)]&quot;</span>,
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflicting_field_attributes_fails</span>() {
-        <span class="ident">assert_try_from_fails</span>(
-            <span class="macro">syn::parse_quote!</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">payable</span>)]</span>
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                    <span class="ident">field_2</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflicting_field_attributes_fails() {
+        assert_try_from_fails(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attribute">#[ink(event)]
+                </span><span class="kw">pub struct </span>MyEvent {
+                    <span class="attribute">#[ink(topic)]
+                    #[ink(payable)]
+                    </span>field_1: i32,
+                    field_2: bool,
                 }
             },
             <span class="string">&quot;encountered conflicting ink! attribute for event field&quot;</span>,
         )
     }
 
-    <span class="doccomment">/// Used for the event fields iterator unit test because `syn::Field` does</span>
-    <span class="doccomment">/// not provide a `syn::parse::Parse` implementation.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">NamedField</span>(<span class="ident">syn::Field</span>);
+    <span class="doccomment">/// Used for the event fields iterator unit test because `syn::Field` does
+    /// not provide a `syn::parse::Parse` implementation.
+    </span><span class="attribute">#[derive(Debug, PartialEq, Eq)]
+    </span><span class="kw">struct </span>NamedField(syn::Field);
 
-    <span class="kw">impl</span> <span class="ident">syn::parse::Parse</span> <span class="kw">for</span> <span class="ident">NamedField</span> {
-        <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">input</span>: <span class="ident">syn::parse::ParseStream</span>) -&gt; <span class="ident">syn::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">syn::Field::parse_named</span>(<span class="ident">input</span>)<span class="question-mark">?</span>))
+    <span class="kw">impl </span>syn::parse::Parse <span class="kw">for </span>NamedField {
+        <span class="kw">fn </span>parse(input: syn::parse::ParseStream) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+            <span class="prelude-val">Ok</span>(<span class="self">Self</span>(syn::Field::parse_named(input)<span class="question-mark">?</span>))
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">NamedField</span> {
-        <span class="doccomment">/// Returns the identifier of the named field.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
-            <span class="self">self</span>.<span class="number">0</span>.<span class="ident">ident</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
+    <span class="kw">impl </span>NamedField {
+        <span class="doccomment">/// Returns the identifier of the named field.
+        </span><span class="kw">pub fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Ident {
+            <span class="self">self</span>.<span class="number">0</span>.ident.as_ref().unwrap()
         }
 
-        <span class="doccomment">/// Returns the type of the named field.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Type</span> {
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">ty</span>
+        <span class="doccomment">/// Returns the type of the named field.
+        </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>syn::Type {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.ty
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">event_fields_iter_works</span>() {
-        <span class="kw">let</span> <span class="ident">expected_fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">NamedField</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>event_fields_iter_works() {
+        <span class="kw">let </span>expected_fields: Vec&lt;(bool, NamedField)&gt; = <span class="macro">vec!</span>[
             (
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="ident">field_1</span>: <span class="ident">i32</span>
+                <span class="macro">syn::parse_quote! </span>{
+                    field_1: i32
                 },
             ),
             (
                 <span class="bool-val">false</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="ident">field_2</span>: <span class="ident">u64</span>
+                <span class="macro">syn::parse_quote! </span>{
+                    field_2: u64
                 },
             ),
             (
                 <span class="bool-val">true</span>,
-                <span class="macro">syn::parse_quote!</span> {
-                    <span class="ident">field_3</span>: [<span class="ident">u8</span>; <span class="number">32</span>]
+                <span class="macro">syn::parse_quote! </span>{
+                    field_3: [u8; <span class="number">32</span>]
                 },
             ),
         ];
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Event</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemStruct</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-            <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                <span class="ident">field_2</span>: <span class="ident">u64</span>,
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                <span class="ident">field_3</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
+        <span class="kw">let </span>input = &lt;Event <span class="kw">as </span>TryFrom&lt;syn::ItemStruct&gt;&gt;::try_from(<span class="macro">syn::parse_quote! </span>{
+            <span class="attribute">#[ink(event)]
+            </span><span class="kw">pub struct </span>MyEvent {
+                <span class="attribute">#[ink(topic)]
+                </span>field_1: i32,
+                field_2: u64,
+                <span class="attribute">#[ink(topic)]
+                </span>field_3: [u8; <span class="number">32</span>],
             }
         })
-        .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fields_iter</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">fields</span>();
-        <span class="kw">for</span> (<span class="ident">is_topic</span>, <span class="ident">expected_field</span>) <span class="kw">in</span> <span class="ident">expected_fields</span> {
-            <span class="kw">let</span> <span class="ident">field</span> <span class="op">=</span> <span class="ident">fields_iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">field</span>.<span class="ident">is_topic</span>, <span class="ident">is_topic</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">field</span>.<span class="ident">ident</span>(), <span class="prelude-val">Some</span>(<span class="ident">expected_field</span>.<span class="ident">ident</span>()));
-            <span class="macro">assert_eq!</span>(<span class="ident">field</span>.<span class="ident">ty</span>(), <span class="ident">expected_field</span>.<span class="ident">ty</span>());
+        .unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>fields_iter = input.fields();
+        <span class="kw">for </span>(is_topic, expected_field) <span class="kw">in </span>expected_fields {
+            <span class="kw">let </span>field = fields_iter.next().unwrap();
+            <span class="macro">assert_eq!</span>(field.is_topic, is_topic);
+            <span class="macro">assert_eq!</span>(field.ident(), <span class="prelude-val">Some</span>(expected_field.ident()));
+            <span class="macro">assert_eq!</span>(field.ty(), expected_field.ty());
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">anonymous_event_works</span>() {
-        <span class="kw">fn</span> <span class="ident">assert_anonymous_event</span>(<span class="ident">event</span>: <span class="ident">syn::ItemStruct</span>) {
-            <span class="kw">match</span> <span class="ident">Event::try_from</span>(<span class="ident">event</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">event</span>) =&gt; {
-                    <span class="macro">assert!</span>(<span class="ident">event</span>.<span class="ident">anonymous</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>anonymous_event_works() {
+        <span class="kw">fn </span>assert_anonymous_event(event: syn::ItemStruct) {
+            <span class="kw">match </span>Event::try_from(event) {
+                <span class="prelude-val">Ok</span>(event) =&gt; {
+                    <span class="macro">assert!</span>(event.anonymous);
                 }
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid anonymous event&quot;</span>),
             }
         }
-        <span class="ident">assert_anonymous_event</span>(<span class="macro">syn::parse_quote!</span> {
-            <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
-            <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">anonymous</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                <span class="ident">field_2</span>: <span class="ident">bool</span>,
+        assert_anonymous_event(<span class="macro">syn::parse_quote! </span>{
+            <span class="attribute">#[ink(event)]
+            #[ink(anonymous)]
+            </span><span class="kw">pub struct </span>MyEvent {
+                <span class="attribute">#[ink(topic)]
+                </span>field_1: i32,
+                field_2: bool,
             }
         });
-        <span class="ident">assert_anonymous_event</span>(<span class="macro">syn::parse_quote!</span> {
-            <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>, <span class="ident">anonymous</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEvent</span> {
-                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">topic</span>)]</span>
-                <span class="ident">field_1</span>: <span class="ident">i32</span>,
-                <span class="ident">field_2</span>: <span class="ident">bool</span>,
+        assert_anonymous_event(<span class="macro">syn::parse_quote! </span>{
+            <span class="attribute">#[ink(event, anonymous)]
+            </span><span class="kw">pub struct </span>MyEvent {
+                <span class="attribute">#[ink(topic)]
+                </span>field_1: i32,
+                field_2: bool,
             }
         });
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_ir" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

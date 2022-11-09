@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/codegen/event/topics.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>topics.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/src/codegen/event/topics.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>topics.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -91,96 +91,96 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
+</span><span class="kw">use </span>core::marker::PhantomData;
 
-<span class="doccomment">/// Guards that an ink! event definitions respects the topic limit.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// // #[ink(event)]</span>
-<span class="doccomment">/// pub struct ExampleEvent {}</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// The amount of the topics of the example event struct.</span>
-<span class="doccomment">/// const LEN_TOPICS: usize = 3;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// /// The limit for the amount of topics per ink! event definition.</span>
-<span class="doccomment">/// const TOPICS_LIMIT: usize = 4;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl ::ink::codegen::EventLenTopics for ExampleEvent {</span>
-<span class="doccomment">///     type LenTopics = ::ink::codegen::EventTopics&lt;LEN_TOPICS&gt;;</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // The below code only compiles successfully if the example ink! event</span>
-<span class="doccomment">/// // definitions respects the topic limitation: it must have an amount of</span>
-<span class="doccomment">/// // topics less than or equal to the topic limit.</span>
-<span class="doccomment">/// const _: () = ::ink::codegen::utils::consume_type::&lt;</span>
-<span class="doccomment">///     ::ink::codegen::EventRespectsTopicLimit&lt;</span>
-<span class="doccomment">///         ExampleEvent,</span>
-<span class="doccomment">///         TOPICS_LIMIT,</span>
-<span class="doccomment">///     &gt;</span>
-<span class="doccomment">/// &gt;();</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventRespectsTopicLimit</span><span class="op">&lt;</span><span class="ident">Event</span>, <span class="kw">const</span> <span class="ident">LEN_MAX_TOPICS</span>: <span class="ident">usize</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">Event</span>: <span class="ident">EventLenTopics</span>,
-    <span class="op">&lt;</span><span class="ident">Event</span> <span class="kw">as</span> <span class="ident">EventLenTopics</span><span class="op">&gt;</span><span class="ident">::LenTopics</span>: <span class="ident">RespectTopicLimit</span><span class="op">&lt;</span><span class="ident">LEN_MAX_TOPICS</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Guards that an ink! event definitions respects the topic limit.
+///
+/// # Usage
+///
+/// ```
+/// // #[ink(event)]
+/// pub struct ExampleEvent {}
+///
+/// /// The amount of the topics of the example event struct.
+/// const LEN_TOPICS: usize = 3;
+///
+/// /// The limit for the amount of topics per ink! event definition.
+/// const TOPICS_LIMIT: usize = 4;
+///
+/// impl ::ink::codegen::EventLenTopics for ExampleEvent {
+///     type LenTopics = ::ink::codegen::EventTopics&lt;LEN_TOPICS&gt;;
+/// }
+///
+/// // The below code only compiles successfully if the example ink! event
+/// // definitions respects the topic limitation: it must have an amount of
+/// // topics less than or equal to the topic limit.
+/// const _: () = ::ink::codegen::utils::consume_type::&lt;
+///     ::ink::codegen::EventRespectsTopicLimit&lt;
+///         ExampleEvent,
+///         TOPICS_LIMIT,
+///     &gt;
+/// &gt;();
+/// ```
+</span><span class="kw">pub struct </span>EventRespectsTopicLimit&lt;Event, <span class="kw">const </span>LEN_MAX_TOPICS: usize&gt;
+<span class="kw">where
+    </span>Event: EventLenTopics,
+    &lt;Event <span class="kw">as </span>EventLenTopics&gt;::LenTopics: RespectTopicLimit&lt;LEN_MAX_TOPICS&gt;,
 {
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">Event</span><span class="op">&gt;</span>,
+    marker: PhantomData&lt;<span class="kw">fn</span>() -&gt; Event&gt;,
 }
 
-<span class="doccomment">/// Guards that an amount of event topics respects the event topic limit.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implemented by `EventTopics&lt;M&gt;` if M is less or equal to N.</span>
-<span class="doccomment">/// Automatically implemented for up to 12 event topics.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">RespectTopicLimit</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> {}
+<span class="doccomment">/// Guards that an amount of event topics respects the event topic limit.
+///
+/// # Note
+///
+/// Implemented by `EventTopics&lt;M&gt;` if M is less or equal to N.
+/// Automatically implemented for up to 12 event topics.
+</span><span class="kw">pub trait </span>RespectTopicLimit&lt;<span class="kw">const </span>N: usize&gt; {}
 
-<span class="doccomment">/// Represents an the amount of topics for an ink! event definition.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventTopics</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Represents an the amount of topics for an ink! event definition.
+</span><span class="kw">pub struct </span>EventTopics&lt;<span class="kw">const </span>N: usize&gt;;
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_is_smaller_or_equals</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span>:<span class="ident">literal</span> $( , <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">literal</span> )<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
-        <span class="kw">impl</span> <span class="ident">RespectTopicLimit</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventTopics</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span><span class="op">&gt;</span> {}
+<span class="macro">macro_rules! </span>impl_is_smaller_or_equals {
+    ( <span class="macro-nonterminal">$first</span>:literal $( , <span class="macro-nonterminal">$rest</span>:literal )* $(,)<span class="question-mark">? </span>) =&gt; {
+        <span class="kw">impl </span>RespectTopicLimit&lt;<span class="macro-nonterminal">$first</span>&gt; <span class="kw">for </span>EventTopics&lt;<span class="macro-nonterminal">$first</span>&gt; {}
         $(
-            <span class="kw">impl</span> <span class="ident">RespectTopicLimit</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventTopics</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">first</span><span class="op">&gt;</span> {}
-        )<span class="op">*</span>
+            <span class="kw">impl </span>RespectTopicLimit&lt;<span class="macro-nonterminal">$rest</span>&gt; <span class="kw">for </span>EventTopics&lt;<span class="macro-nonterminal">$first</span>&gt; {}
+        )*
 
-        <span class="macro">impl_is_smaller_or_equals!</span> { $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span> ),<span class="op">*</span> }
+        <span class="macro">impl_is_smaller_or_equals! </span>{ $( <span class="macro-nonterminal">$rest </span>),* }
     };
     ( ) =&gt; {};
 }
-<span class="macro">impl_is_smaller_or_equals!</span> {
-    <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>
-}
+<span class="macro">impl_is_smaller_or_equals! </span>{
+    <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12
+</span>}
 
-<span class="doccomment">/// Stores the number of event topics of the ink! event definition.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">EventLenTopics</span> {
-    <span class="doccomment">/// Type denoting the number of event topics.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// We use an associated type instead of an associated constant here</span>
-    <span class="doccomment">/// because Rust does not yet allow for generics in constant parameter</span>
-    <span class="doccomment">/// position which would be required in the `EventRespectsTopicLimit`</span>
-    <span class="doccomment">/// trait definition.</span>
-    <span class="doccomment">/// As soon as this is possible in Rust we might change this to a constant.</span>
-    <span class="kw">type</span> <span class="ident">LenTopics</span>;
+<span class="doccomment">/// Stores the number of event topics of the ink! event definition.
+</span><span class="kw">pub trait </span>EventLenTopics {
+    <span class="doccomment">/// Type denoting the number of event topics.
+    ///
+    /// # Note
+    ///
+    /// We use an associated type instead of an associated constant here
+    /// because Rust does not yet allow for generics in constant parameter
+    /// position which would be required in the `EventRespectsTopicLimit`
+    /// trait definition.
+    /// As soon as this is possible in Rust we might change this to a constant.
+    </span><span class="kw">type </span>LenTopics;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

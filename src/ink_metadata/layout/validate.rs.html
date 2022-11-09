@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/layout/validate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>validate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_metadata/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_metadata/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/metadata/src/layout/validate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>validate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ink_metadata/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ink_metadata/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ink_metadata/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -298,192 +298,192 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layout</span>::{
-    <span class="ident">Layout</span>,
-    <span class="ident">MetadataError</span>,
-    <span class="ident">StructLayout</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::layout::{
+    Layout,
+    MetadataError,
+    StructLayout,
 };
-<span class="kw">use</span> <span class="ident">ink_prelude::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
-<span class="kw">use</span> <span class="ident">scale_info::form::MetaForm</span>;
+<span class="kw">use </span>ink_prelude::collections::HashMap;
+<span class="kw">use </span>ink_primitives::Key;
+<span class="kw">use </span>scale_info::form::MetaForm;
 
-<span class="doccomment">/// It validates that the storage layout doesn&#39;t have conflicting storage keys.</span>
-<span class="doccomment">/// Otherwise an error with a description of the conflict is returned.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ValidateLayout</span> {
-    <span class="ident">first_entry</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Key</span>, <span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">name_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// It validates that the storage layout doesn&#39;t have conflicting storage keys.
+/// Otherwise an error with a description of the conflict is returned.
+</span><span class="kw">pub struct </span>ValidateLayout {
+    first_entry: HashMap&lt;Key, String&gt;,
+    name_stack: Vec&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ValidateLayout</span> {
-    <span class="doccomment">/// Validates the storage layout.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate</span>(<span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">Layout</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MetadataError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">validator</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">first_entry</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">name_stack</span>: <span class="ident">Default::default</span>(),
+<span class="kw">impl </span>ValidateLayout {
+    <span class="doccomment">/// Validates the storage layout.
+    </span><span class="kw">pub fn </span>validate(layout: <span class="kw-2">&amp;</span>Layout&lt;MetaForm&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), MetadataError&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>validator = <span class="self">Self </span>{
+            first_entry: Default::default(),
+            name_stack: Default::default(),
         };
-        <span class="ident">validator</span>.<span class="ident">recursive_validate</span>(<span class="ident">layout</span>)
+        validator.recursive_validate(layout)
     }
 
-    <span class="kw">fn</span> <span class="ident">recursive_validate</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">Layout</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MetadataError</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">layout</span> {
-            <span class="ident">Layout::Root</span>(<span class="ident">root</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">check_key</span>(<span class="ident">root</span>.<span class="ident">root_key</span>.<span class="ident">key</span>())<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">recursive_validate</span>(<span class="ident">root</span>.<span class="ident">layout</span>())
+    <span class="kw">fn </span>recursive_validate(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        layout: <span class="kw-2">&amp;</span>Layout&lt;MetaForm&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), MetadataError&gt; {
+        <span class="kw">match </span>layout {
+            Layout::Root(root) =&gt; {
+                <span class="self">self</span>.check_key(root.root_key.key())<span class="question-mark">?</span>;
+                <span class="self">self</span>.recursive_validate(root.layout())
             }
-            <span class="ident">Layout::Hash</span>(<span class="ident">hash</span>) =&gt; <span class="self">self</span>.<span class="ident">recursive_validate</span>(<span class="ident">hash</span>.<span class="ident">layout</span>()),
-            <span class="ident">Layout::Array</span>(<span class="ident">array</span>) =&gt; <span class="self">self</span>.<span class="ident">recursive_validate</span>(<span class="ident">array</span>.<span class="ident">layout</span>()),
-            <span class="ident">Layout::Struct</span>(<span class="ident">st</span>) =&gt; <span class="self">self</span>.<span class="ident">check_struct_layout</span>(<span class="ident">st</span>),
-            <span class="ident">Layout::Enum</span>(<span class="ident">en</span>) =&gt; {
-                <span class="comment">// After `Enum::` we will have the struct -&gt; `Enum::Struct`</span>
-                <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{}::&quot;</span>, <span class="ident">en</span>.<span class="ident">name</span>()));
-                <span class="kw">for</span> <span class="ident">variant</span> <span class="kw">in</span> <span class="ident">en</span>.<span class="ident">variants</span>().<span class="ident">values</span>() {
-                    <span class="self">self</span>.<span class="ident">check_struct_layout</span>(<span class="ident">variant</span>)<span class="question-mark">?</span>;
+            Layout::Hash(hash) =&gt; <span class="self">self</span>.recursive_validate(hash.layout()),
+            Layout::Array(array) =&gt; <span class="self">self</span>.recursive_validate(array.layout()),
+            Layout::Struct(st) =&gt; <span class="self">self</span>.check_struct_layout(st),
+            Layout::Enum(en) =&gt; {
+                <span class="comment">// After `Enum::` we will have the struct -&gt; `Enum::Struct`
+                </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">&quot;{}::&quot;</span>, en.name()));
+                <span class="kw">for </span>variant <span class="kw">in </span>en.variants().values() {
+                    <span class="self">self</span>.check_struct_layout(variant)<span class="question-mark">?</span>;
                 }
-                <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;stack is not empty; qed&quot;</span>);
+                <span class="self">self</span>.name_stack.pop().expect(<span class="string">&quot;stack is not empty; qed&quot;</span>);
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(()),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">check_struct_layout</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">st</span>: <span class="kw-2">&amp;</span><span class="ident">StructLayout</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MetadataError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">push</span>(<span class="ident">st</span>.<span class="ident">name</span>().<span class="ident">to_string</span>());
-        <span class="kw">for</span> <span class="ident">layout</span> <span class="kw">in</span> <span class="ident">st</span>.<span class="ident">fields</span>() {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">layout</span>.<span class="ident">name</span>();
-            <span class="comment">// After `Struct` we always have fields -&gt; `Struct.field`</span>
-            <span class="comment">// After field we have `Struct` or `Enum` -&gt; `Struct.field:Struct`</span>
-            <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;.{}:&quot;</span>, <span class="ident">name</span>));
+    <span class="kw">fn </span>check_struct_layout(<span class="kw-2">&amp;mut </span><span class="self">self</span>, st: <span class="kw-2">&amp;</span>StructLayout) -&gt; <span class="prelude-ty">Result</span>&lt;(), MetadataError&gt; {
+        <span class="self">self</span>.name_stack.push(st.name().to_string());
+        <span class="kw">for </span>layout <span class="kw">in </span>st.fields() {
+            <span class="kw">let </span>name = layout.name();
+            <span class="comment">// After `Struct` we always have fields -&gt; `Struct.field`
+            // After field we have `Struct` or `Enum` -&gt; `Struct.field:Struct`
+            </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">&quot;.{}:&quot;</span>, name));
 
-            <span class="self">self</span>.<span class="ident">recursive_validate</span>(<span class="ident">layout</span>.<span class="ident">layout</span>())<span class="question-mark">?</span>;
+            <span class="self">self</span>.recursive_validate(layout.layout())<span class="question-mark">?</span>;
 
-            <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+            <span class="self">self</span>.name_stack.pop().unwrap();
         }
-        <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="self">self</span>.name_stack.pop().unwrap();
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">check_key</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MetadataError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">name_stack</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev_path</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">first_entry</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-            <span class="prelude-val">Err</span>(<span class="ident">MetadataError::Collision</span>(<span class="ident">prev_path</span>.<span class="ident">clone</span>(), <span class="ident">path</span>))
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">first_entry</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">key</span>, <span class="ident">path</span>);
+    <span class="kw">fn </span>check_key(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Key) -&gt; <span class="prelude-ty">Result</span>&lt;(), MetadataError&gt; {
+        <span class="kw">let </span>path = <span class="self">self</span>.name_stack.join(<span class="string">&quot;&quot;</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_path) = <span class="self">self</span>.first_entry.get(key) {
+            <span class="prelude-val">Err</span>(MetadataError::Collision(prev_path.clone(), path))
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.first_entry.insert(<span class="kw-2">*</span>key, path);
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layout</span>::{
-        <span class="ident">EnumLayout</span>,
-        <span class="ident">FieldLayout</span>,
-        <span class="ident">Layout</span>,
-        <span class="ident">LeafLayout</span>,
-        <span class="ident">MetadataError</span>,
-        <span class="ident">RootLayout</span>,
-        <span class="ident">StructLayout</span>,
-        <span class="ident">ValidateLayout</span>,
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">crate</span>::layout::{
+        EnumLayout,
+        FieldLayout,
+        Layout,
+        LeafLayout,
+        MetadataError,
+        RootLayout,
+        StructLayout,
+        ValidateLayout,
     };
-    <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
-    <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+    <span class="kw">use </span>ink_primitives::Key;
+    <span class="kw">use </span>std::collections::BTreeSet;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">valid_layout_tree_only_roots</span>() {
-        <span class="comment">// Root(0) -&gt; Root(1) -&gt; Root(2) -&gt; u32</span>
-        <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="ident">RootLayout::new</span>(
-            <span class="number">0</span>.<span class="ident">into</span>(),
-            <span class="ident">RootLayout::new</span>(
-                <span class="number">1</span>.<span class="ident">into</span>(),
-                <span class="ident">RootLayout::new</span>(<span class="number">2</span>.<span class="ident">into</span>(), <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="number">2</span>.<span class="ident">into</span>())),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>valid_layout_tree_only_roots() {
+        <span class="comment">// Root(0) -&gt; Root(1) -&gt; Root(2) -&gt; u32
+        </span><span class="kw">let </span>layout = RootLayout::new(
+            <span class="number">0</span>.into(),
+            RootLayout::new(
+                <span class="number">1</span>.into(),
+                RootLayout::new(<span class="number">2</span>.into(), LeafLayout::from_key::&lt;u32&gt;(<span class="number">2</span>.into())),
             ),
         );
 
-        <span class="macro">assert!</span>(<span class="ident">ValidateLayout::validate</span>(<span class="kw-2">&amp;</span><span class="ident">Layout::Root</span>(<span class="ident">layout</span>)).<span class="ident">is_ok</span>())
+        <span class="macro">assert!</span>(ValidateLayout::validate(<span class="kw-2">&amp;</span>Layout::Root(layout)).is_ok())
     }
 
-    <span class="comment">// If any of the root key are equal it should cause an error</span>
-    <span class="kw">fn</span> <span class="ident">valid_big_layout_tree</span>(
-        <span class="ident">key_for_root_0</span>: <span class="ident">Key</span>,
-        <span class="ident">key_for_root_1</span>: <span class="ident">Key</span>,
-        <span class="ident">key_for_root_2</span>: <span class="ident">Key</span>,
-        <span class="ident">key_for_root_3</span>: <span class="ident">Key</span>,
-        <span class="ident">key_for_root_4</span>: <span class="ident">Key</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">MetadataError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">root_0</span> <span class="op">=</span> <span class="ident">key_for_root_0</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">root_1</span> <span class="op">=</span> <span class="ident">key_for_root_1</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">root_2</span> <span class="op">=</span> <span class="ident">key_for_root_2</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">root_3</span> <span class="op">=</span> <span class="ident">key_for_root_3</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">root_4</span> <span class="op">=</span> <span class="ident">key_for_root_4</span>.<span class="ident">into</span>();
-        <span class="comment">// Below the description of the layout tree. Inside `(...)` the expected storage key.</span>
-        <span class="comment">//              Root(0)</span>
-        <span class="comment">//                |</span>
-        <span class="comment">//            Contract(0)</span>
-        <span class="comment">//          /     |     \</span>
-        <span class="comment">//  a:Root(1)  b:u32(0)  c:Struct0(0)</span>
-        <span class="comment">//         |               /       \</span>
-        <span class="comment">//  Vec&lt;u8&gt;(1)     d:u128(0)     f:Root(2)</span>
-        <span class="comment">//                                   |</span>
-        <span class="comment">//                                Enum(2)</span>
-        <span class="comment">//                               /   |   \</span>
-        <span class="comment">//                           First Second Third</span>
-        <span class="comment">//                       0.Struct1 0.u8(2) 0.Root(3)</span>
-        <span class="comment">//                             |            |</span>
-        <span class="comment">//                           Root(4)      String</span>
-        <span class="comment">//                             |</span>
-        <span class="comment">//                      g:BTreeSet&lt;u64&gt;(4)</span>
-        <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="ident">RootLayout::new</span>(
-            <span class="ident">root_0</span>,
-            <span class="ident">StructLayout::new</span>(
+    <span class="comment">// If any of the root key are equal it should cause an error
+    </span><span class="kw">fn </span>valid_big_layout_tree(
+        key_for_root_0: Key,
+        key_for_root_1: Key,
+        key_for_root_2: Key,
+        key_for_root_3: Key,
+        key_for_root_4: Key,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), MetadataError&gt; {
+        <span class="kw">let </span>root_0 = key_for_root_0.into();
+        <span class="kw">let </span>root_1 = key_for_root_1.into();
+        <span class="kw">let </span>root_2 = key_for_root_2.into();
+        <span class="kw">let </span>root_3 = key_for_root_3.into();
+        <span class="kw">let </span>root_4 = key_for_root_4.into();
+        <span class="comment">// Below the description of the layout tree. Inside `(...)` the expected storage key.
+        //              Root(0)
+        //                |
+        //            Contract(0)
+        //          /     |     \
+        //  a:Root(1)  b:u32(0)  c:Struct0(0)
+        //         |               /       \
+        //  Vec&lt;u8&gt;(1)     d:u128(0)     f:Root(2)
+        //                                   |
+        //                                Enum(2)
+        //                               /   |   \
+        //                           First Second Third
+        //                       0.Struct1 0.u8(2) 0.Root(3)
+        //                             |            |
+        //                           Root(4)      String
+        //                             |
+        //                      g:BTreeSet&lt;u64&gt;(4)
+        </span><span class="kw">let </span>layout = RootLayout::new(
+            root_0,
+            StructLayout::new(
                 <span class="string">&quot;Contract&quot;</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">FieldLayout::new</span>(
+                    FieldLayout::new(
                         <span class="string">&quot;a&quot;</span>,
-                        <span class="ident">StructLayout::new</span>(
+                        StructLayout::new(
                             <span class="string">&quot;Struct0&quot;</span>,
                             <span class="macro">vec!</span>[
-                                <span class="ident">FieldLayout::new</span>(<span class="string">&quot;d&quot;</span>, <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>(<span class="ident">root_0</span>)),
-                                <span class="ident">FieldLayout::new</span>(
+                                FieldLayout::new(<span class="string">&quot;d&quot;</span>, LeafLayout::from_key::&lt;u128&gt;(root_0)),
+                                FieldLayout::new(
                                     <span class="string">&quot;f&quot;</span>,
-                                    <span class="ident">RootLayout::new</span>(
-                                        <span class="ident">root_2</span>,
-                                        <span class="ident">EnumLayout::new</span>(
+                                    RootLayout::new(
+                                        root_2,
+                                        EnumLayout::new(
                                             <span class="string">&quot;Enum&quot;</span>,
-                                            <span class="ident">root_2</span>,
+                                            root_2,
                                             <span class="macro">vec!</span>[
                                                 (
-                                                    <span class="number">0</span>.<span class="ident">into</span>(),
-                                                    <span class="ident">StructLayout::new</span>(
+                                                    <span class="number">0</span>.into(),
+                                                    StructLayout::new(
                                                         <span class="string">&quot;First&quot;</span>,
-                                                        <span class="macro">vec!</span>[<span class="ident">FieldLayout::new</span>(
+                                                        <span class="macro">vec!</span>[FieldLayout::new(
                                                             <span class="string">&quot;0&quot;</span>,
-                                                            <span class="ident">StructLayout::new</span>(
+                                                            StructLayout::new(
                                                                 <span class="string">&quot;Struct1&quot;</span>,
-                                                                <span class="macro">vec!</span>[<span class="ident">FieldLayout::new</span>(
+                                                                <span class="macro">vec!</span>[FieldLayout::new(
                                                                     <span class="string">&quot;g&quot;</span>,
-                                                                    <span class="ident">RootLayout::new</span>(
-                                                                        <span class="ident">root_4</span>,
-                                                                        <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span>
-                                                                            <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-                                                                        <span class="op">&gt;</span>(
-                                                                            <span class="ident">root_4</span>
+                                                                    RootLayout::new(
+                                                                        root_4,
+                                                                        LeafLayout::from_key::&lt;
+                                                                            BTreeSet&lt;u64&gt;,
+                                                                        &gt;(
+                                                                            root_4
                                                                         ),
                                                                     ),
                                                                 )],
@@ -492,25 +492,25 @@
                                                     ),
                                                 ),
                                                 (
-                                                    <span class="number">1</span>.<span class="ident">into</span>(),
-                                                    <span class="ident">StructLayout::new</span>(
+                                                    <span class="number">1</span>.into(),
+                                                    StructLayout::new(
                                                         <span class="string">&quot;Second&quot;</span>,
-                                                        <span class="macro">vec!</span>[<span class="ident">FieldLayout::new</span>(
+                                                        <span class="macro">vec!</span>[FieldLayout::new(
                                                             <span class="string">&quot;0&quot;</span>,
-                                                            <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(<span class="ident">root_2</span>),
+                                                            LeafLayout::from_key::&lt;u8&gt;(root_2),
                                                         )],
                                                     ),
                                                 ),
                                                 (
-                                                    <span class="number">2</span>.<span class="ident">into</span>(),
-                                                    <span class="ident">StructLayout::new</span>(
+                                                    <span class="number">2</span>.into(),
+                                                    StructLayout::new(
                                                         <span class="string">&quot;Third&quot;</span>,
-                                                        <span class="macro">vec!</span>[<span class="ident">FieldLayout::new</span>(
+                                                        <span class="macro">vec!</span>[FieldLayout::new(
                                                             <span class="string">&quot;0&quot;</span>,
-                                                            <span class="ident">RootLayout::new</span>(
-                                                                <span class="ident">root_3</span>,
-                                                                <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(
-                                                                    <span class="ident">root_3</span>,
+                                                            RootLayout::new(
+                                                                root_3,
+                                                                LeafLayout::from_key::&lt;String&gt;(
+                                                                    root_3,
                                                                 ),
                                                             ),
                                                         )],
@@ -523,78 +523,78 @@
                             ],
                         ),
                     ),
-                    <span class="ident">FieldLayout::new</span>(<span class="string">&quot;b&quot;</span>, <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="ident">root_0</span>)),
-                    <span class="ident">FieldLayout::new</span>(
+                    FieldLayout::new(<span class="string">&quot;b&quot;</span>, LeafLayout::from_key::&lt;u32&gt;(root_0)),
+                    FieldLayout::new(
                         <span class="string">&quot;c&quot;</span>,
-                        <span class="ident">RootLayout::new</span>(<span class="ident">root_1</span>, <span class="ident">LeafLayout::from_key</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">root_1</span>)),
+                        RootLayout::new(root_1, LeafLayout::from_key::&lt;Vec&lt;u8&gt;&gt;(root_1)),
                     ),
                 ],
             ),
         );
 
-        <span class="ident">ValidateLayout::validate</span>(<span class="kw-2">&amp;</span><span class="ident">Layout::Root</span>(<span class="ident">layout</span>))
+        ValidateLayout::validate(<span class="kw-2">&amp;</span>Layout::Root(layout))
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">tree_is_valid</span>() {
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(()), <span class="ident">valid_big_layout_tree</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>));
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(()), <span class="ident">valid_big_layout_tree</span>(<span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>tree_is_valid() {
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(()), valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>));
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Ok</span>(()), valid_big_layout_tree(<span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>));
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflict_0_and_1</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflict_0_and_1() {
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Err</span>(<span class="ident">MetadataError::Collision</span>(
-                <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;Contract.c:&quot;</span>.<span class="ident">to_string</span>()
+            <span class="prelude-val">Err</span>(MetadataError::Collision(
+                <span class="string">&quot;&quot;</span>.to_string(),
+                <span class="string">&quot;Contract.c:&quot;</span>.to_string()
             )),
-            <span class="ident">valid_big_layout_tree</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)
+            valid_big_layout_tree(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflict_0_and_2</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflict_0_and_2() {
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Err</span>(<span class="ident">MetadataError::Collision</span>(
-                <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;Contract.a:Struct0.f:&quot;</span>.<span class="ident">to_string</span>()
+            <span class="prelude-val">Err</span>(MetadataError::Collision(
+                <span class="string">&quot;&quot;</span>.to_string(),
+                <span class="string">&quot;Contract.a:Struct0.f:&quot;</span>.to_string()
             )),
-            <span class="ident">valid_big_layout_tree</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>)
+            valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">4</span>)
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflict_0_and_3</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflict_0_and_3() {
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Err</span>(<span class="ident">MetadataError::Collision</span>(
-                <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::Third.0:&quot;</span>.<span class="ident">to_string</span>()
+            <span class="prelude-val">Err</span>(MetadataError::Collision(
+                <span class="string">&quot;&quot;</span>.to_string(),
+                <span class="string">&quot;Contract.a:Struct0.f:Enum::Third.0:&quot;</span>.to_string()
             )),
-            <span class="ident">valid_big_layout_tree</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">4</span>)
+            valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">4</span>)
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflict_0_and_4</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflict_0_and_4() {
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Err</span>(<span class="ident">MetadataError::Collision</span>(
-                <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::First.0:Struct1.g:&quot;</span>.<span class="ident">to_string</span>()
+            <span class="prelude-val">Err</span>(MetadataError::Collision(
+                <span class="string">&quot;&quot;</span>.to_string(),
+                <span class="string">&quot;Contract.a:Struct0.f:Enum::First.0:Struct1.g:&quot;</span>.to_string()
             )),
-            <span class="ident">valid_big_layout_tree</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>)
+            valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>)
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">conflict_3_and_4</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>conflict_3_and_4() {
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Err</span>(<span class="ident">MetadataError::Collision</span>(
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::First.0:Struct1.g:&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;Contract.a:Struct0.f:Enum::Third.0:&quot;</span>.<span class="ident">to_string</span>()
+            <span class="prelude-val">Err</span>(MetadataError::Collision(
+                <span class="string">&quot;Contract.a:Struct0.f:Enum::First.0:Struct1.g:&quot;</span>.to_string(),
+                <span class="string">&quot;Contract.a:Struct0.f:Enum::Third.0:&quot;</span>.to_string()
             )),
-            <span class="ident">valid_big_layout_tree</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>)
+            valid_big_layout_tree(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>)
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_metadata" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_metadata" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/trait_def/call_forwarder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_forwarder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/ink/codegen/src/generator/trait_def/call_forwarder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>call_forwarder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_codegen/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_codegen/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -363,368 +363,368 @@
 <span id="361">361</span>
 <span id="362">362</span>
 <span id="363">363</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TraitDefinition</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">generator</span>,
-    <span class="ident">traits::GenerateCode</span>,
+</span><span class="kw">use </span><span class="kw">super</span>::TraitDefinition;
+<span class="kw">use crate</span>::{
+    generator,
+    traits::GenerateCode,
 };
-<span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{
-    <span class="ident">Span</span>,
-    <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>,
+<span class="kw">use </span>derive_more::From;
+<span class="kw">use </span>proc_macro2::{
+    Span,
+    TokenStream <span class="kw">as </span>TokenStream2,
 };
-<span class="kw">use</span> <span class="ident">quote</span>::{
-    <span class="ident">quote</span>,
-    <span class="ident">quote_spanned</span>,
+<span class="kw">use </span>quote::{
+    quote,
+    quote_spanned,
 };
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Generates code for the global trait call forwarder for an ink! trait.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - The generated call forwarder type implements the ink! trait definition</span>
-    <span class="doccomment">///   and allows to build up contract calls that allow for customization by</span>
-    <span class="doccomment">///   the user to provide gas limit, endowment etc.</span>
-    <span class="doccomment">/// - The call forwarder is associated to the call builder for the same ink!</span>
-    <span class="doccomment">///   trait definition and handles all ink! trait calls into another contract</span>
-    <span class="doccomment">///   instance on-chain. For constructing custom calls it forwards to the call</span>
-    <span class="doccomment">///   builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_call_forwarder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="ident">CallForwarder::from</span>(<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">generate_code</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TraitDefinition&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Generates code for the global trait call forwarder for an ink! trait.
+    ///
+    /// # Note
+    ///
+    /// - The generated call forwarder type implements the ink! trait definition
+    ///   and allows to build up contract calls that allow for customization by
+    ///   the user to provide gas limit, endowment etc.
+    /// - The call forwarder is associated to the call builder for the same ink!
+    ///   trait definition and handles all ink! trait calls into another contract
+    ///   instance on-chain. For constructing custom calls it forwards to the call
+    ///   builder.
+    </span><span class="kw">pub fn </span>generate_call_forwarder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        CallForwarder::from(<span class="kw-2">*</span><span class="self">self</span>).generate_code()
     }
 
-    <span class="doccomment">/// The identifier of the ink! trait call forwarder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_forwarder_ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::Ident</span> {
-        <span class="self">self</span>.<span class="ident">append_trait_suffix</span>(<span class="ident">CallForwarder::SUFFIX</span>)
+    <span class="doccomment">/// The identifier of the ink! trait call forwarder.
+    </span><span class="kw">pub fn </span>call_forwarder_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Ident {
+        <span class="self">self</span>.append_trait_suffix(CallForwarder::SUFFIX)
     }
 }
 
-<span class="doccomment">/// Generates code for the global ink! trait call forwarder.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
-<span class="kw">struct</span> <span class="ident">CallForwarder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">trait_def</span>: <span class="ident">TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Generates code for the global ink! trait call forwarder.
+</span><span class="attribute">#[derive(From)]
+</span><span class="kw">struct </span>CallForwarder&lt;<span class="lifetime">&#39;a</span>&gt; {
+    trait_def: TraitDefinition&lt;<span class="lifetime">&#39;a</span>&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">CallForwarder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">struct_definition</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_struct_definition</span>();
-        <span class="kw">let</span> <span class="ident">storage_layout_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_storage_layout_impl</span>();
-        <span class="kw">let</span> <span class="ident">auxiliary_trait_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_auxiliary_trait_impls</span>();
-        <span class="kw">let</span> <span class="ident">to_from_account_id_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_to_from_account_id_impls</span>();
-        <span class="kw">let</span> <span class="ident">call_builder_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_call_builder_trait_impl</span>();
-        <span class="kw">let</span> <span class="ident">ink_trait_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_ink_trait_impl</span>();
-        <span class="macro">quote!</span> {
-            #<span class="ident">struct_definition</span>
-            #<span class="ident">storage_layout_impl</span>
-            #<span class="ident">auxiliary_trait_impls</span>
-            #<span class="ident">to_from_account_id_impls</span>
-            #<span class="ident">call_builder_impl</span>
-            #<span class="ident">ink_trait_impl</span>
+<span class="kw">impl </span>GenerateCode <span class="kw">for </span>CallForwarder&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>generate_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>struct_definition = <span class="self">self</span>.generate_struct_definition();
+        <span class="kw">let </span>storage_layout_impl = <span class="self">self</span>.generate_storage_layout_impl();
+        <span class="kw">let </span>auxiliary_trait_impls = <span class="self">self</span>.generate_auxiliary_trait_impls();
+        <span class="kw">let </span>to_from_account_id_impls = <span class="self">self</span>.generate_to_from_account_id_impls();
+        <span class="kw">let </span>call_builder_impl = <span class="self">self</span>.generate_call_builder_trait_impl();
+        <span class="kw">let </span>ink_trait_impl = <span class="self">self</span>.generate_ink_trait_impl();
+        <span class="macro">quote! </span>{
+            #struct_definition
+            #storage_layout_impl
+            #auxiliary_trait_impls
+            #to_from_account_id_impls
+            #call_builder_impl
+            #ink_trait_impl
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CallForwarder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The name suffix for ink! trait call forwarder.</span>
-    <span class="kw">const</span> <span class="ident">SUFFIX</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;TraitCallForwarder&quot;</span>;
+<span class="kw">impl </span>CallForwarder&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// The name suffix for ink! trait call forwarder.
+    </span><span class="kw">const </span>SUFFIX: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str = <span class="string">&quot;TraitCallForwarder&quot;</span>;
 
-    <span class="doccomment">/// Returns the span of the ink! trait definition.</span>
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
-        <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">span</span>()
+    <span class="doccomment">/// Returns the span of the ink! trait definition.
+    </span><span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+        <span class="self">self</span>.trait_def.span()
     }
 
-    <span class="doccomment">/// Returns the identifier of the ink! trait call forwarder.</span>
-    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::Ident</span> {
-        <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">call_forwarder_ident</span>()
+    <span class="doccomment">/// Returns the identifier of the ink! trait call forwarder.
+    </span><span class="kw">fn </span>ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Ident {
+        <span class="self">self</span>.trait_def.call_forwarder_ident()
     }
 
-    <span class="doccomment">/// Generates the struct type definition for the account wrapper type.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This type is going to implement the trait so that invoking its trait</span>
-    <span class="doccomment">/// methods will perform contract calls via contract&#39;s pallet contract</span>
-    <span class="doccomment">/// execution abstraction.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike the layout specific traits it is possible to derive the SCALE</span>
-    <span class="doccomment">/// `Encode` and `Decode` traits since they generate trait bounds per field</span>
-    <span class="doccomment">/// instead of per generic parameter which is exactly what we need here.</span>
-    <span class="doccomment">/// However, it should be noted that this is not Rust default behavior.</span>
-    <span class="kw">fn</span> <span class="ident">generate_struct_definition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">call_forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="doccomment">/// The global call forwarder for the ink! trait definition.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// All cross-contract calls to contracts implementing the associated ink! trait</span>
-            <span class="doccomment">/// will be handled by this type.</span>
-            <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-            <span class="attribute">#[<span class="ident">derive</span>(
-                <span class="ident">::scale::Encode</span>,
-                <span class="ident">::scale::Decode</span>,
-            )]</span>
-            <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-            <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
+    <span class="doccomment">/// Generates the struct type definition for the account wrapper type.
+    ///
+    /// This type is going to implement the trait so that invoking its trait
+    /// methods will perform contract calls via contract&#39;s pallet contract
+    /// execution abstraction.
+    ///
+    /// # Note
+    ///
+    /// Unlike the layout specific traits it is possible to derive the SCALE
+    /// `Encode` and `Decode` traits since they generate trait bounds per field
+    /// instead of per generic parameter which is exactly what we need here.
+    /// However, it should be noted that this is not Rust default behavior.
+    </span><span class="kw">fn </span>generate_struct_definition(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.span();
+        <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            <span class="doccomment">/// The global call forwarder for the ink! trait definition.
+            ///
+            /// All cross-contract calls to contracts implementing the associated ink! trait
+            /// will be handled by this type.
+            </span><span class="attribute">#[doc(hidden)]
+            #[allow(non_camel_case_types)]
+            #[derive(
+                ::scale::Encode,
+                ::scale::Decode,
+            )]
+            #[repr(transparent)]
+            </span><span class="kw">pub struct </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
             {
-                <span class="ident">builder</span>: <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>,
+                builder: &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder,
             }
         )
     }
 
-    <span class="doccomment">/// Generates the `StorageLayout` trait implementation for the account wrapper.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Due to the generic parameter `E` and Rust&#39;s default rules for derive generated</span>
-    <span class="doccomment">/// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.</span>
-    <span class="kw">fn</span> <span class="ident">generate_storage_layout_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">call_forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::storage::traits::StorageLayout</span>
-                <span class="kw">for</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-                <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink::env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">::ink::storage::traits::StorageLayout</span>,
+    <span class="doccomment">/// Generates the `StorageLayout` trait implementation for the account wrapper.
+    ///
+    /// # Note
+    ///
+    /// Due to the generic parameter `E` and Rust&#39;s default rules for derive generated
+    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    </span><span class="kw">fn </span>generate_storage_layout_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.span();
+        <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+            </span><span class="kw">impl</span>&lt;E&gt; ::ink::storage::traits::StorageLayout
+                <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::ink::storage::traits::StorageLayout,
             {
-                <span class="kw">fn</span> <span class="ident">layout</span>(
-                    <span class="ident">__key</span>: <span class="kw-2">&amp;</span><span class="ident">::ink::primitives::Key</span>,
-                ) -&gt; <span class="ident">::ink::metadata::layout::Layout</span> {
-                    <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>
-                        <span class="kw">as</span> <span class="ident">::ink::storage::traits::StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">__key</span>)
+                <span class="kw">fn </span>layout(
+                    __key: <span class="kw-2">&amp;</span>::ink::primitives::Key,
+                ) -&gt; ::ink::metadata::layout::Layout {
+                    &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder
+                        <span class="kw">as </span>::ink::storage::traits::StorageLayout&gt;::layout(__key)
                 }
             }
         )
     }
 
-    <span class="doccomment">/// Generates trait implementations for auxiliary traits for the account wrapper.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Auxiliary traits currently include:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - `Clone`: To allow cloning contract references in the long run.</span>
-    <span class="doccomment">/// - `Debug`: To better debug internal contract state.</span>
-    <span class="kw">fn</span> <span class="ident">generate_auxiliary_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">call_forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::core::clone::Clone</span> <span class="kw">for</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-                <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink::env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">::core::clone::Clone</span>,
+    <span class="doccomment">/// Generates trait implementations for auxiliary traits for the account wrapper.
+    ///
+    /// # Note
+    ///
+    /// Auxiliary traits currently include:
+    ///
+    /// - `Clone`: To allow cloning contract references in the long run.
+    /// - `Debug`: To better debug internal contract state.
+    </span><span class="kw">fn </span>generate_auxiliary_trait_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.span();
+        <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::core::clone::Clone <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::core::clone::Clone,
             {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-                    <span class="self">Self</span> {
-                        <span class="ident">builder</span>: <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>
-                            <span class="kw">as</span> <span class="ident">::core::clone::Clone</span><span class="op">&gt;</span><span class="ident">::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">builder</span>),
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+                    <span class="self">Self </span>{
+                        builder: &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder
+                            <span class="kw">as </span>::core::clone::Clone&gt;::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.builder),
                     }
                 }
             }
 
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::core::fmt::Debug</span> <span class="kw">for</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-                <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink::env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">::core::fmt::Debug</span>,
+            <span class="kw">impl</span>&lt;E&gt; ::core::fmt::Debug <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::core::fmt::Debug,
             {
-                <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span> {
-                    <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">call_forwarder_ident</span>))
-                        .<span class="ident">field</span>(<span class="string">&quot;account_id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">builder</span>.<span class="ident">account_id</span>)
-                        .<span class="ident">finish</span>()
+                <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>::core::fmt::Formatter) -&gt; ::core::fmt::Result {
+                    f.debug_struct(<span class="macro">::core::stringify!</span>(#call_forwarder_ident))
+                        .field(<span class="string">&quot;account_id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.builder.account_id)
+                        .finish()
                 }
             }
         )
     }
 
-    <span class="doccomment">/// Generate trait impls for `FromAccountId` and `ToAccountId` for the account wrapper.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This allows user code to conveniently transform from and to `AccountId` when</span>
-    <span class="doccomment">/// interacting with typed contracts.</span>
-    <span class="kw">fn</span> <span class="ident">generate_to_from_account_id_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">call_forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::env::call::FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-                <span class="kw">for</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
+    <span class="doccomment">/// Generate trait impls for `FromAccountId` and `ToAccountId` for the account wrapper.
+    ///
+    /// # Note
+    ///
+    /// This allows user code to conveniently transform from and to `AccountId` when
+    /// interacting with typed contracts.
+    </span><span class="kw">fn </span>generate_to_from_account_id_impls(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.span();
+        <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::ink::env::call::FromAccountId&lt;E&gt;
+                <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
             {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink::env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>) -&gt; <span class="self">Self</span> {
-                    <span class="self">Self</span> { <span class="ident">builder</span>: <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>
-                        <span class="kw">as</span> <span class="ident">::ink::env::call::FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from_account_id</span>(<span class="ident">account_id</span>) }
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>from_account_id(account_id: &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId) -&gt; <span class="self">Self </span>{
+                    <span class="self">Self </span>{ builder: &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder
+                        <span class="kw">as </span>::ink::env::call::FromAccountId&lt;E&gt;&gt;::from_account_id(account_id) }
                 }
             }
 
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::ToAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
+            <span class="kw">impl</span>&lt;E&gt; ::ink::ToAccountId&lt;E&gt; <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
             {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink::env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span> {
-                    <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>
-                        <span class="kw">as</span> <span class="ident">::ink::ToAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">builder</span>)
-                }
-            }
-        )
-    }
-
-    <span class="doccomment">/// Generate the trait implementation for `CallBuilder` for the ink! trait call forwarder.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Through the implementation of this trait it is possible to refer to the</span>
-    <span class="doccomment">/// ink! trait call builder that is associated to this ink! trait call forwarder.</span>
-    <span class="kw">fn</span> <span class="ident">generate_call_builder_trait_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">call_forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">call_builder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">call_builder_ident</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="doccomment">/// This trait allows to bridge from call forwarder to call builder.</span>
-            <span class="doccomment">///</span>
-            <span class="doccomment">/// Also this explains why we designed the generated code so that we have</span>
-            <span class="doccomment">/// both types and why the forwarder is a thin-wrapper around the builder</span>
-            <span class="doccomment">/// as this allows to perform this operation safely.</span>
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::codegen::TraitCallBuilder</span> <span class="kw">for</span> #<span class="ident">call_forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-            {
-                <span class="kw">type</span> <span class="ident">Builder</span> <span class="op">=</span> #<span class="ident">call_builder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>;
-
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span> {
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">builder</span>
-                }
-
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span> {
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">builder</span>
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId {
+                    &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder
+                        <span class="kw">as </span>::ink::ToAccountId&lt;E&gt;&gt;::to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>.builder)
                 }
             }
         )
     }
 
-    <span class="doccomment">/// Generates the implementation of the associated ink! trait definition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The implementation mainly forwards to the associated ink! call builder</span>
-    <span class="doccomment">/// of the same ink! trait definition.</span>
-    <span class="kw">fn</span> <span class="ident">generate_ink_trait_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">trait_info_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_info_ident</span>();
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">message_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_ink_trait_impl_messages</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">::ink::reflect::ContractEnv</span> <span class="kw">for</span> #<span class="ident">forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
+    <span class="doccomment">/// Generate the trait implementation for `CallBuilder` for the ink! trait call forwarder.
+    ///
+    /// # Note
+    ///
+    /// Through the implementation of this trait it is possible to refer to the
+    /// ink! trait call builder that is associated to this ink! trait call forwarder.
+    </span><span class="kw">fn </span>generate_call_builder_trait_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.trait_def.span();
+        <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
+        <span class="kw">let </span>call_builder_ident = <span class="self">self</span>.trait_def.call_builder_ident();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="doccomment">/// This trait allows to bridge from call forwarder to call builder.
+            ///
+            /// Also this explains why we designed the generated code so that we have
+            /// both types and why the forwarder is a thin-wrapper around the builder
+            /// as this allows to perform this operation safely.
+            </span><span class="kw">impl</span>&lt;E&gt; ::ink::codegen::TraitCallBuilder <span class="kw">for </span>#call_forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
             {
-                <span class="kw">type</span> <span class="ident">Env</span> <span class="op">=</span> <span class="ident">E</span>;
-            }
+                <span class="kw">type </span>Builder = #call_builder_ident&lt;E&gt;;
 
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> #<span class="ident">trait_ident</span> <span class="kw">for</span> #<span class="ident">forwarder_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
-            <span class="kw">where</span>
-                <span class="ident">E</span>: <span class="ident">::ink::env::Environment</span>,
-            {
-                <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
-                <span class="kw">type</span> <span class="ident">__ink_TraitInfo</span> <span class="op">=</span> #<span class="ident">trait_info_ident</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>;
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder {
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.builder
+                }
 
-                #<span class="ident">message_impls</span>
+                <span class="attribute">#[inline]
+                </span><span class="kw">fn </span>call_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder {
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.builder
+                }
             }
         )
     }
 
-    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait call forwarder.</span>
-    <span class="kw">fn</span> <span class="ident">generate_ink_trait_impl_messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">trait_def</span>
-                .<span class="ident">trait_def</span>
-                .<span class="ident">item</span>()
-                .<span class="ident">iter_items</span>()
-                .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">item</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                    <span class="ident">item</span>.<span class="ident">filter_map_message</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_ink_trait_impl_for_message</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>))
+    <span class="doccomment">/// Generates the implementation of the associated ink! trait definition.
+    ///
+    /// # Note
+    ///
+    /// The implementation mainly forwards to the associated ink! call builder
+    /// of the same ink! trait definition.
+    </span><span class="kw">fn </span>generate_ink_trait_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = <span class="self">self</span>.trait_def.span();
+        <span class="kw">let </span>trait_ident = <span class="self">self</span>.trait_def.trait_def.item().ident();
+        <span class="kw">let </span>trait_info_ident = <span class="self">self</span>.trait_def.trait_info_ident();
+        <span class="kw">let </span>forwarder_ident = <span class="self">self</span>.ident();
+        <span class="kw">let </span>message_impls = <span class="self">self</span>.generate_ink_trait_impl_messages();
+        <span class="macro">quote_spanned!</span>(span=&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::ink::reflect::ContractEnv <span class="kw">for </span>#forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+            {
+                <span class="kw">type </span>Env = E;
+            }
+
+            <span class="kw">impl</span>&lt;E&gt; #trait_ident <span class="kw">for </span>#forwarder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+            {
+                <span class="attribute">#[allow(non_camel_case_types)]
+                </span><span class="kw">type </span>__ink_TraitInfo = #trait_info_ident&lt;E&gt;;
+
+                #message_impls
+            }
+        )
+    }
+
+    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait call forwarder.
+    </span><span class="kw">fn </span>generate_ink_trait_impl_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
+        <span class="kw">let </span>messages =
+            <span class="self">self</span>.trait_def
+                .trait_def
+                .item()
+                .iter_items()
+                .filter_map(|(item, <span class="kw">_</span>)| {
+                    item.filter_map_message()
+                        .map(|message| <span class="self">self</span>.generate_ink_trait_impl_for_message(<span class="kw-2">&amp;</span>message))
                 });
-        <span class="macro">quote!</span> {
-            #( #<span class="ident">messages</span> )<span class="op">*</span>
+        <span class="macro">quote! </span>{
+            #( #messages )*
         }
     }
 
-    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait call forwarder.</span>
-    <span class="kw">fn</span> <span class="ident">generate_ink_trait_impl_for_message</span>(
+    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait call forwarder.
+    </span><span class="kw">fn </span>generate_ink_trait_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">ir::InkTraitMessage</span>,
-    ) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">trait_def</span>
-            .<span class="ident">trait_def</span>
-            .<span class="ident">config</span>()
-            .<span class="ident">whitelisted_attributes</span>()
-            .<span class="ident">filter_attr</span>(<span class="ident">message</span>.<span class="ident">attrs</span>());
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">generator::output_ident</span>(<span class="ident">message_ident</span>);
-        <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="ident">message</span>
-            .<span class="ident">output</span>()
-            .<span class="ident">cloned</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">syn::parse_quote!</span>(()));
-        <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">pat</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">input_types</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">ty</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">call_op</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">receiver</span>() {
-            <span class="ident">ir::Receiver::Ref</span> =&gt; <span class="macro">quote!</span> { <span class="ident">call</span> },
-            <span class="ident">ir::Receiver::RefMut</span> =&gt; <span class="macro">quote!</span> { <span class="ident">call_mut</span> },
+        message: <span class="kw-2">&amp;</span>ir::InkTraitMessage,
+    ) -&gt; TokenStream2 {
+        <span class="kw">let </span>span = message.span();
+        <span class="kw">let </span>trait_ident = <span class="self">self</span>.trait_def.trait_def.item().ident();
+        <span class="kw">let </span>forwarder_ident = <span class="self">self</span>.ident();
+        <span class="kw">let </span>message_ident = message.ident();
+        <span class="kw">let </span>attrs = <span class="self">self
+            </span>.trait_def
+            .trait_def
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(message.attrs());
+        <span class="kw">let </span>output_ident = generator::output_ident(message_ident);
+        <span class="kw">let </span>output_type = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| <span class="macro">syn::parse_quote!</span>(()));
+        <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>call_op = <span class="kw">match </span>message.receiver() {
+            ir::Receiver::Ref =&gt; <span class="macro">quote! </span>{ call },
+            ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ call_mut },
         };
-        <span class="kw">let</span> <span class="ident">mut_tok</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">mutates</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="kw-2">mut</span> });
-        <span class="kw">let</span> <span class="ident">panic_str</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>mut_tok = message.mutates().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
+        <span class="kw">let </span>panic_str = <span class="macro">format!</span>(
             <span class="string">&quot;encountered error while calling &lt;{} as {}&gt;::{}&quot;</span>,
-            <span class="ident">forwarder_ident</span>, <span class="ident">trait_ident</span>, <span class="ident">message_ident</span>,
+            forwarder_ident, trait_ident, message_ident,
         );
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> #<span class="ident">output_type</span>;
+        <span class="macro">quote_spanned!</span>(span =&gt;
+            <span class="kw">type </span>#output_ident = #output_type;
 
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">fn</span> #<span class="ident">message_ident</span>(
-                <span class="op">&amp;</span> #<span class="ident">mut_tok</span> <span class="self">self</span>
-                #( , #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
-            ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span> <span class="kw">as</span> #<span class="ident">trait_ident</span><span class="op">&gt;</span>::#<span class="ident">message_ident</span>(
-                    <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink::codegen::TraitCallBuilder</span><span class="op">&gt;</span>::#<span class="ident">call_op</span>(<span class="self">self</span>)
+            #( #attrs )*
+            <span class="attribute">#[inline]
+            </span><span class="kw">fn </span>#message_ident(
+                &amp; #mut_tok <span class="self">self
+                </span>#( , #input_bindings : #input_types )*
+            ) -&gt; <span class="self">Self</span>::#output_ident {
+                &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::Builder <span class="kw">as </span>#trait_ident&gt;::#message_ident(
+                    &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_op(<span class="self">self</span>)
                     #(
-                        , #<span class="ident">input_bindings</span>
-                    )<span class="op">*</span>
+                        , #input_bindings
+                    )*
                 )
-                    .<span class="ident">fire</span>()
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #<span class="ident">panic_str</span>, <span class="ident">err</span>))
+                    .fire()
+                    .unwrap_or_else(|err| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #panic_str, err))
             }
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_codegen" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

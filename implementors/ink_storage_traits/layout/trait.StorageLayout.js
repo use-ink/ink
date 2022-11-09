@@ -1,5 +1,5 @@
-(function() {var implementors = {};
-implementors["ink"] = [];
-implementors["ink_storage"] = [{"text":"impl&lt;K, V, KeyType&gt; StorageLayout for <a class=\"struct\" href=\"ink_storage/struct.Mapping.html\" title=\"struct ink_storage::Mapping\">Mapping</a>&lt;K, V, KeyType&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;K: TypeInfo + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;V: Packed + StorageLayout + TypeInfo + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;KeyType: StorageKey + TypeInfo + 'static,&nbsp;</span>","synthetic":false,"types":["ink_storage::lazy::mapping::Mapping"]},{"text":"impl&lt;V, KeyType&gt; StorageLayout for <a class=\"struct\" href=\"ink_storage/struct.Lazy.html\" title=\"struct ink_storage::Lazy\">Lazy</a>&lt;V, KeyType&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;V: StorageLayout + TypeInfo + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;KeyType: StorageKey + TypeInfo + 'static,&nbsp;</span>","synthetic":false,"types":["ink_storage::lazy::Lazy"]}];
-implementors["ink_storage_traits"] = [];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"ink":[],
+"ink_storage":[["impl&lt;K, V, KeyType&gt; StorageLayout for <a class=\"struct\" href=\"ink_storage/struct.Mapping.html\" title=\"struct ink_storage::Mapping\">Mapping</a>&lt;K, V, KeyType&gt;<span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;K: TypeInfo + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;V: Packed + StorageLayout + TypeInfo + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;KeyType: StorageKey + TypeInfo + 'static,</span>"],["impl&lt;V, KeyType&gt; StorageLayout for <a class=\"struct\" href=\"ink_storage/struct.Lazy.html\" title=\"struct ink_storage::Lazy\">Lazy</a>&lt;V, KeyType&gt;<span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;V: StorageLayout + TypeInfo + 'static,<br>&nbsp;&nbsp;&nbsp;&nbsp;KeyType: StorageKey + TypeInfo + 'static,</span>"]],
+"ink_storage_traits":[]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

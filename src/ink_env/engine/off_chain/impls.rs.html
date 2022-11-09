@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/engine/off_chain/impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impls.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../ink_env/index.html"><div class="logo-container">
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../ink_env/index.html">
                         <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -543,548 +543,548 @@
 <span id="541">541</span>
 <span id="542">542</span>
 <span id="543">543</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
-<span class="comment">//</span>
-<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
-<span class="comment">// you may not use this file except in compliance with the License.</span>
-<span class="comment">// You may obtain a copy of the License at</span>
-<span class="comment">//</span>
-<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
-<span class="comment">//</span>
-<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
-<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
-<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
-<span class="comment">// See the License for the specific language governing permissions and</span>
-<span class="comment">// limitations under the License.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::EnvInstance</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">call</span>::{
-        <span class="ident">Call</span>,
-        <span class="ident">CallParams</span>,
-        <span class="ident">CreateParams</span>,
-        <span class="ident">DelegateCall</span>,
+</span><span class="kw">use </span><span class="kw">super</span>::EnvInstance;
+<span class="kw">use crate</span>::{
+    call::{
+        Call,
+        CallParams,
+        CreateParams,
+        DelegateCall,
     },
-    <span class="ident">hash</span>::{
-        <span class="ident">Blake2x128</span>,
-        <span class="ident">Blake2x256</span>,
-        <span class="ident">CryptoHash</span>,
-        <span class="ident">HashOutput</span>,
-        <span class="ident">Keccak256</span>,
-        <span class="ident">Sha2x256</span>,
+    hash::{
+        Blake2x128,
+        Blake2x256,
+        CryptoHash,
+        HashOutput,
+        Keccak256,
+        Sha2x256,
     },
-    <span class="ident">topics</span>::{
-        <span class="ident">Topics</span>,
-        <span class="ident">TopicsBuilderBackend</span>,
+    topics::{
+        Topics,
+        TopicsBuilderBackend,
     },
-    <span class="ident">Clear</span>,
-    <span class="ident">EnvBackend</span>,
-    <span class="ident">Environment</span>,
-    <span class="ident">Error</span>,
+    Clear,
+    EnvBackend,
+    Environment,
+    Error,
     <span class="prelude-ty">Result</span>,
-    <span class="ident">ReturnFlags</span>,
-    <span class="ident">TypedEnvBackend</span>,
+    ReturnFlags,
+    TypedEnvBackend,
 };
-<span class="kw">use</span> <span class="ident">ink_engine</span>::{
-    <span class="ident">ext</span>,
-    <span class="ident">ext::Engine</span>,
+<span class="kw">use </span>ink_engine::{
+    ext,
+    ext::Engine,
 };
-<span class="kw">use</span> <span class="ident">ink_storage_traits::Storable</span>;
+<span class="kw">use </span>ink_storage_traits::Storable;
 
-<span class="doccomment">/// The capacity of the static buffer.</span>
-<span class="doccomment">/// This is the same size as the ink! on-chain environment. We chose to use the same size</span>
-<span class="doccomment">/// to be as close to the on-chain behavior as possible.</span>
-<span class="kw">const</span> <span class="ident">BUFFER_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">14</span>; <span class="comment">// 16 kB</span>
+<span class="doccomment">/// The capacity of the static buffer.
+/// This is the same size as the ink! on-chain environment. We chose to use the same size
+/// to be as close to the on-chain behavior as possible.
+</span><span class="kw">const </span>BUFFER_SIZE: usize = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>; <span class="comment">// 16 kB
 
-<span class="kw">impl</span> <span class="ident">CryptoHash</span> <span class="kw">for</span> <span class="ident">Blake2x128</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>) {
-        <span class="kw">type</span> <span class="ident">OutputType</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">16</span>];
+</span><span class="kw">impl </span>CryptoHash <span class="kw">for </span>Blake2x128 {
+    <span class="kw">fn </span>hash(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>HashOutput&gt;::Type) {
+        <span class="kw">type </span>OutputType = [u8; <span class="number">16</span>];
         <span class="macro">static_assertions::assert_type_eq_all!</span>(
-            <span class="op">&lt;</span><span class="ident">Blake2x128</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>,
-            <span class="ident">OutputType</span>
+            &lt;Blake2x128 <span class="kw">as </span>HashOutput&gt;::Type,
+            OutputType
         );
-        <span class="kw">let</span> <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OutputType</span> <span class="op">=</span> <span class="macro">arrayref::array_mut_ref!</span>(<span class="ident">output</span>, <span class="number">0</span>, <span class="number">16</span>);
-        <span class="ident">Engine::hash_blake2_128</span>(<span class="ident">input</span>, <span class="ident">output</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">16</span>);
+        Engine::hash_blake2_128(input, output);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CryptoHash</span> <span class="kw">for</span> <span class="ident">Blake2x256</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>) {
-        <span class="kw">type</span> <span class="ident">OutputType</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
+<span class="kw">impl </span>CryptoHash <span class="kw">for </span>Blake2x256 {
+    <span class="kw">fn </span>hash(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>HashOutput&gt;::Type) {
+        <span class="kw">type </span>OutputType = [u8; <span class="number">32</span>];
         <span class="macro">static_assertions::assert_type_eq_all!</span>(
-            <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>,
-            <span class="ident">OutputType</span>
+            &lt;Blake2x256 <span class="kw">as </span>HashOutput&gt;::Type,
+            OutputType
         );
-        <span class="kw">let</span> <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OutputType</span> <span class="op">=</span> <span class="macro">arrayref::array_mut_ref!</span>(<span class="ident">output</span>, <span class="number">0</span>, <span class="number">32</span>);
-        <span class="ident">Engine::hash_blake2_256</span>(<span class="ident">input</span>, <span class="ident">output</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
+        Engine::hash_blake2_256(input, output);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CryptoHash</span> <span class="kw">for</span> <span class="ident">Sha2x256</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>) {
-        <span class="kw">type</span> <span class="ident">OutputType</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
+<span class="kw">impl </span>CryptoHash <span class="kw">for </span>Sha2x256 {
+    <span class="kw">fn </span>hash(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>HashOutput&gt;::Type) {
+        <span class="kw">type </span>OutputType = [u8; <span class="number">32</span>];
         <span class="macro">static_assertions::assert_type_eq_all!</span>(
-            <span class="op">&lt;</span><span class="ident">Sha2x256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>,
-            <span class="ident">OutputType</span>
+            &lt;Sha2x256 <span class="kw">as </span>HashOutput&gt;::Type,
+            OutputType
         );
-        <span class="kw">let</span> <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OutputType</span> <span class="op">=</span> <span class="macro">arrayref::array_mut_ref!</span>(<span class="ident">output</span>, <span class="number">0</span>, <span class="number">32</span>);
-        <span class="ident">Engine::hash_sha2_256</span>(<span class="ident">input</span>, <span class="ident">output</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
+        Engine::hash_sha2_256(input, output);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">CryptoHash</span> <span class="kw">for</span> <span class="ident">Keccak256</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>) {
-        <span class="kw">type</span> <span class="ident">OutputType</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
+<span class="kw">impl </span>CryptoHash <span class="kw">for </span>Keccak256 {
+    <span class="kw">fn </span>hash(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;<span class="self">Self </span><span class="kw">as </span>HashOutput&gt;::Type) {
+        <span class="kw">type </span>OutputType = [u8; <span class="number">32</span>];
         <span class="macro">static_assertions::assert_type_eq_all!</span>(
-            <span class="op">&lt;</span><span class="ident">Keccak256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>,
-            <span class="ident">OutputType</span>
+            &lt;Keccak256 <span class="kw">as </span>HashOutput&gt;::Type,
+            OutputType
         );
-        <span class="kw">let</span> <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">OutputType</span> <span class="op">=</span> <span class="macro">arrayref::array_mut_ref!</span>(<span class="ident">output</span>, <span class="number">0</span>, <span class="number">32</span>);
-        <span class="ident">Engine::hash_keccak_256</span>(<span class="ident">input</span>, <span class="ident">output</span>);
+        <span class="kw">let </span>output: <span class="kw-2">&amp;mut </span>OutputType = <span class="macro">arrayref::array_mut_ref!</span>(output, <span class="number">0</span>, <span class="number">32</span>);
+        Engine::hash_keccak_256(input, output);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ext::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ext_error</span>: <span class="ident">ext::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">ext_error</span> {
-            <span class="ident">ext::Error::Unknown</span> =&gt; <span class="ident"><span class="self">Self</span>::Unknown</span>,
-            <span class="ident">ext::Error::CalleeTrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::CalleeTrapped</span>,
-            <span class="ident">ext::Error::CalleeReverted</span> =&gt; <span class="ident"><span class="self">Self</span>::CalleeReverted</span>,
-            <span class="ident">ext::Error::KeyNotFound</span> =&gt; <span class="ident"><span class="self">Self</span>::KeyNotFound</span>,
-            <span class="ident">ext::Error::_BelowSubsistenceThreshold</span> =&gt; <span class="ident"><span class="self">Self</span>::_BelowSubsistenceThreshold</span>,
-            <span class="ident">ext::Error::TransferFailed</span> =&gt; <span class="ident"><span class="self">Self</span>::TransferFailed</span>,
-            <span class="ident">ext::Error::_EndowmentTooLow</span> =&gt; <span class="ident"><span class="self">Self</span>::_EndowmentTooLow</span>,
-            <span class="ident">ext::Error::CodeNotFound</span> =&gt; <span class="ident"><span class="self">Self</span>::CodeNotFound</span>,
-            <span class="ident">ext::Error::NotCallable</span> =&gt; <span class="ident"><span class="self">Self</span>::NotCallable</span>,
-            <span class="ident">ext::Error::LoggingDisabled</span> =&gt; <span class="ident"><span class="self">Self</span>::LoggingDisabled</span>,
-            <span class="ident">ext::Error::EcdsaRecoveryFailed</span> =&gt; <span class="ident"><span class="self">Self</span>::EcdsaRecoveryFailed</span>,
+<span class="kw">impl </span>From&lt;ext::Error&gt; <span class="kw">for </span><span class="kw">crate</span>::Error {
+    <span class="kw">fn </span>from(ext_error: ext::Error) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>ext_error {
+            ext::Error::Unknown =&gt; <span class="self">Self</span>::Unknown,
+            ext::Error::CalleeTrapped =&gt; <span class="self">Self</span>::CalleeTrapped,
+            ext::Error::CalleeReverted =&gt; <span class="self">Self</span>::CalleeReverted,
+            ext::Error::KeyNotFound =&gt; <span class="self">Self</span>::KeyNotFound,
+            ext::Error::_BelowSubsistenceThreshold =&gt; <span class="self">Self</span>::_BelowSubsistenceThreshold,
+            ext::Error::TransferFailed =&gt; <span class="self">Self</span>::TransferFailed,
+            ext::Error::_EndowmentTooLow =&gt; <span class="self">Self</span>::_EndowmentTooLow,
+            ext::Error::CodeNotFound =&gt; <span class="self">Self</span>::CodeNotFound,
+            ext::Error::NotCallable =&gt; <span class="self">Self</span>::NotCallable,
+            ext::Error::LoggingDisabled =&gt; <span class="self">Self</span>::LoggingDisabled,
+            ext::Error::EcdsaRecoveryFailed =&gt; <span class="self">Self</span>::EcdsaRecoveryFailed,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TopicsBuilder</span> {
-    <span class="kw">pub</span> <span class="ident">topics</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Default)]
+</span><span class="kw">pub struct </span>TopicsBuilder {
+    <span class="kw">pub </span>topics: Vec&lt;Vec&lt;u8&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TopicsBuilder</span>
-<span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">Environment</span>,
+<span class="kw">impl</span>&lt;E&gt; TopicsBuilderBackend&lt;E&gt; <span class="kw">for </span>TopicsBuilder
+<span class="kw">where
+    </span>E: Environment,
 {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+    <span class="kw">type </span>Output = Vec&lt;u8&gt;;
 
-    <span class="kw">fn</span> <span class="ident">expect</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_expected_topics</span>: <span class="ident">usize</span>) {}
+    <span class="kw">fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _expected_topics: usize) {}
 
-    <span class="kw">fn</span> <span class="ident">push_topic</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">topic_value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
+    <span class="kw">fn </span>push_topic&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, topic_value: <span class="kw-2">&amp;</span>T)
+    <span class="kw">where
+        </span>T: scale::Encode,
     {
-        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">topic_value</span>.<span class="ident">encode</span>();
-        <span class="kw">let</span> <span class="ident">len_encoded</span> <span class="op">=</span> <span class="ident">encoded</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Hash::clear</span>();
-        <span class="kw">let</span> <span class="ident">len_result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">as_ref</span>().<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="ident">len_encoded</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">len_result</span> {
-            <span class="ident">result</span>.<span class="ident">as_mut</span>()[..<span class="ident">len_encoded</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]);
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash_output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type::default</span>();
-            <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">CryptoHash</span><span class="op">&gt;</span><span class="ident">::hash</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>[..], <span class="kw-2">&amp;mut</span> <span class="ident">hash_output</span>);
-            <span class="kw">let</span> <span class="ident">copy_len</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">hash_output</span>.<span class="ident">len</span>(), <span class="ident">len_result</span>);
-            <span class="ident">result</span>.<span class="ident">as_mut</span>()[<span class="number">0</span>..<span class="ident">copy_len</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">hash_output</span>[<span class="number">0</span>..<span class="ident">copy_len</span>]);
+        <span class="kw">let </span>encoded = topic_value.encode();
+        <span class="kw">let </span>len_encoded = encoded.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>result = &lt;E <span class="kw">as </span>Environment&gt;::Hash::clear();
+        <span class="kw">let </span>len_result = result.as_ref().len();
+        <span class="kw">if </span>len_encoded &lt;= len_result {
+            result.as_mut()[..len_encoded].copy_from_slice(<span class="kw-2">&amp;</span>encoded[..]);
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>hash_output = &lt;Blake2x256 <span class="kw">as </span>HashOutput&gt;::Type::default();
+            &lt;Blake2x256 <span class="kw">as </span>CryptoHash&gt;::hash(<span class="kw-2">&amp;</span>encoded[..], <span class="kw-2">&amp;mut </span>hash_output);
+            <span class="kw">let </span>copy_len = core::cmp::min(hash_output.len(), len_result);
+            result.as_mut()[<span class="number">0</span>..copy_len].copy_from_slice(<span class="kw-2">&amp;</span>hash_output[<span class="number">0</span>..copy_len]);
         }
-        <span class="kw">let</span> <span class="ident">off_hash</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">as_ref</span>();
-        <span class="kw">let</span> <span class="ident">off_hash</span> <span class="op">=</span> <span class="ident">off_hash</span>.<span class="ident">to_vec</span>();
+        <span class="kw">let </span>off_hash = result.as_ref();
+        <span class="kw">let </span>off_hash = off_hash.to_vec();
         <span class="macro">debug_assert!</span>(
-            <span class="op">!</span><span class="self">self</span>.<span class="ident">topics</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">off_hash</span>),
-            <span class="string">&quot;duplicate topic hash discovered!&quot;</span>
-        );
-        <span class="self">self</span>.<span class="ident">topics</span>.<span class="ident">push</span>(<span class="ident">off_hash</span>);
+            !<span class="self">self</span>.topics.contains(<span class="kw-2">&amp;</span>off_hash),
+            <span class="string">&quot;duplicate topic hash discovered!&quot;
+        </span>);
+        <span class="self">self</span>.topics.push(off_hash);
     }
 
-    <span class="kw">fn</span> <span class="ident">output</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">fn </span>output(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>all: Vec&lt;u8&gt; = Vec::new();
 
-        <span class="kw">let</span> <span class="ident">topics_len_compact</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Compact</span>(<span class="self">self</span>.<span class="ident">topics</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>);
-        <span class="kw">let</span> <span class="ident">topics_encoded</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">topics_len_compact</span>)[..];
-        <span class="ident">all</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">topics_encoded</span>.<span class="ident">to_vec</span>());
+        <span class="kw">let </span>topics_len_compact = <span class="kw-2">&amp;</span>scale::Compact(<span class="self">self</span>.topics.len() <span class="kw">as </span>u32);
+        <span class="kw">let </span>topics_encoded = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>topics_len_compact)[..];
+        all.append(<span class="kw-2">&amp;mut </span>topics_encoded.to_vec());
 
-        <span class="self">self</span>.<span class="ident">topics</span>.<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">v</span><span class="op">|</span> <span class="ident">all</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">v</span>));
-        <span class="ident">all</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">EnvInstance</span> {
-    <span class="doccomment">/// Returns the contract property value.</span>
-    <span class="kw">fn</span> <span class="ident">get_property</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ext_fn</span>: <span class="kw">fn</span>(<span class="ident">engine</span>: <span class="kw-2">&amp;</span><span class="ident">Engine</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]),
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">full_scope</span>: [<span class="ident">u8</span>; <span class="ident">BUFFER_SIZE</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="ident">BUFFER_SIZE</span>];
-        <span class="kw">let</span> <span class="ident">full_scope</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">full_scope</span>[..];
-        <span class="ident">ext_fn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">full_scope</span>);
-        <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">full_scope</span>[..]).<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+        <span class="self">self</span>.topics.into_iter().for_each(|<span class="kw-2">mut </span>v| all.append(<span class="kw-2">&amp;mut </span>v));
+        all
     }
 }
 
-<span class="kw">impl</span> <span class="ident">EnvBackend</span> <span class="kw">for</span> <span class="ident">EnvInstance</span> {
-    <span class="kw">fn</span> <span class="ident">set_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">V</span>: <span class="ident">Storable</span>,
+<span class="kw">impl </span>EnvInstance {
+    <span class="doccomment">/// Returns the contract property value.
+    </span><span class="kw">fn </span>get_property&lt;T&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ext_fn: <span class="kw">fn</span>(engine: <span class="kw-2">&amp;</span>Engine, output: <span class="kw-2">&amp;mut &amp;mut </span>[u8]),
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+    <span class="kw">where
+        </span>T: scale::Decode,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="ident">Storable::encode</span>(<span class="ident">value</span>, <span class="kw-2">&amp;mut</span> <span class="ident">v</span>);
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">set_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>(), <span class="kw-2">&amp;</span><span class="ident">v</span>[..])
+        <span class="kw">let </span><span class="kw-2">mut </span>full_scope: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
+        <span class="kw">let </span>full_scope = <span class="kw-2">&amp;mut &amp;mut </span>full_scope[..];
+        ext_fn(<span class="kw-2">&amp;</span><span class="self">self</span>.engine, full_scope);
+        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>full_scope[..]).map_err(Into::into)
+    }
+}
+
+<span class="kw">impl </span>EnvBackend <span class="kw">for </span>EnvInstance {
+    <span class="kw">fn </span>set_contract_storage&lt;K, V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>V) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
+    <span class="kw">where
+        </span>K: scale::Encode,
+        V: Storable,
+    {
+        <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[];
+        Storable::encode(value, <span class="kw-2">&amp;mut </span>v);
+        <span class="self">self</span>.engine.set_storage(<span class="kw-2">&amp;</span>key.encode(), <span class="kw-2">&amp;</span>v[..])
     }
 
-    <span class="kw">fn</span> <span class="ident">get_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">R</span>: <span class="ident">Storable</span>,
+    <span class="kw">fn </span>get_contract_storage&lt;K, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
+    <span class="kw">where
+        </span>K: scale::Encode,
+        R: Storable,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="number">9600</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">9600</span>];
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">get_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>(), <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]) {
+        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; <span class="number">9600</span>] = [<span class="number">0</span>; <span class="number">9600</span>];
+        <span class="kw">match </span><span class="self">self</span>.engine.get_storage(<span class="kw-2">&amp;</span>key.encode(), <span class="kw-2">&amp;mut &amp;mut </span>output[..]) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
-            <span class="prelude-val">Err</span>(<span class="ident">ext::Error::KeyNotFound</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Storable::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">decoded</span>))
+        <span class="kw">let </span>decoded = Storable::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
     }
 
-    <span class="kw">fn</span> <span class="ident">take_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">R</span>: <span class="ident">Storable</span>,
+    <span class="kw">fn </span>take_contract_storage&lt;K, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;&gt;
+    <span class="kw">where
+        </span>K: scale::Encode,
+        R: Storable,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="number">9600</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">9600</span>];
-        <span class="kw">match</span> <span class="self">self</span>
-            .<span class="ident">engine</span>
-            .<span class="ident">take_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>(), <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..])
+        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; <span class="number">9600</span>] = [<span class="number">0</span>; <span class="number">9600</span>];
+        <span class="kw">match </span><span class="self">self
+            </span>.engine
+            .take_storage(<span class="kw-2">&amp;</span>key.encode(), <span class="kw-2">&amp;mut &amp;mut </span>output[..])
         {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
-            <span class="prelude-val">Err</span>(<span class="ident">ext::Error::KeyNotFound</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            <span class="prelude-val">Err</span>(ext::Error::KeyNotFound) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected error&quot;</span>),
         }
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Storable::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">decoded</span>))
+        <span class="kw">let </span>decoded = Storable::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(decoded))
     }
 
-    <span class="kw">fn</span> <span class="ident">contains_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+    <span class="kw">fn </span>contains_contract_storage&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
+    <span class="kw">where
+        </span>K: scale::Encode,
     {
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">contains_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>())
+        <span class="self">self</span>.engine.contains_storage(<span class="kw-2">&amp;</span>key.encode())
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_contract_storage</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">K</span>: <span class="ident">scale::Encode</span>,
+    <span class="kw">fn </span>clear_contract_storage&lt;K&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
+    <span class="kw">where
+        </span>K: scale::Encode,
     {
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">clear_storage</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>.<span class="ident">encode</span>())
+        <span class="self">self</span>.engine.clear_storage(<span class="kw-2">&amp;</span>key.encode())
     }
 
-    <span class="kw">fn</span> <span class="ident">decode_input</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
+    <span class="kw">fn </span>decode_input&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt;
+    <span class="kw">where
+        </span>T: scale::Decode,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `seal_input`&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">return_value</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_flags</span>: <span class="ident">ReturnFlags</span>, <span class="ident">_return_value</span>: <span class="kw-2">&amp;</span><span class="ident">R</span>) -&gt; <span class="op">!</span>
-    <span class="kw">where</span>
-        <span class="ident">R</span>: <span class="ident">scale::Encode</span>,
+    <span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, _return_value: <span class="kw-2">&amp;</span>R) -&gt; !
+    <span class="kw">where
+        </span>R: scale::Encode,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `seal_return_value`&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">debug_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">debug_message</span>(<span class="ident">message</span>)
+    <span class="kw">fn </span>debug_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) {
+        <span class="self">self</span>.engine.debug_message(message)
     }
 
-    <span class="kw">fn</span> <span class="ident">hash_bytes</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
-    <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="kw">fn </span>hash_bytes&lt;H&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
+    <span class="kw">where
+        </span>H: CryptoHash,
     {
-        <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">CryptoHash</span><span class="op">&gt;</span><span class="ident">::hash</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+        &lt;H <span class="kw">as </span>CryptoHash&gt;::hash(input, output)
     }
 
-    <span class="kw">fn</span> <span class="ident">hash_encoded</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
-    <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
-        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
+    <span class="kw">fn </span>hash_encoded&lt;H, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>T, output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
+    <span class="kw">where
+        </span>H: CryptoHash,
+        T: scale::Encode,
     {
-        <span class="kw">let</span> <span class="ident">enc_input</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="ident">input</span>)[..];
-        <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">CryptoHash</span><span class="op">&gt;</span><span class="ident">::hash</span>(<span class="ident">enc_input</span>, <span class="ident">output</span>)
+        <span class="kw">let </span>enc_input = <span class="kw-2">&amp;</span>scale::Encode::encode(input)[..];
+        &lt;H <span class="kw">as </span>CryptoHash&gt;::hash(enc_input, output)
     }
 
-    <span class="kw">fn</span> <span class="ident">ecdsa_recover</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">65</span>],
-        <span class="ident">message_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>],
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">33</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">secp256k1</span>::{
-            <span class="ident">ecdsa</span>::{
-                <span class="ident">RecoverableSignature</span>,
-                <span class="ident">RecoveryId</span>,
+    <span class="kw">fn </span>ecdsa_recover(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        signature: <span class="kw-2">&amp;</span>[u8; <span class="number">65</span>],
+        message_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>],
+        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">33</span>],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">use </span>secp256k1::{
+            ecdsa::{
+                RecoverableSignature,
+                RecoveryId,
             },
-            <span class="ident">Message</span>,
-            <span class="ident">SECP256K1</span>,
+            Message,
+            SECP256K1,
         };
 
-        <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added</span>
-        <span class="comment">// as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.</span>
-        <span class="kw">let</span> <span class="ident">recovery_byte</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">signature</span>[<span class="number">64</span>] <span class="op">&gt;</span> <span class="number">26</span> {
-            <span class="ident">signature</span>[<span class="number">64</span>] <span class="op">-</span> <span class="number">27</span>
-        } <span class="kw">else</span> {
-            <span class="ident">signature</span>[<span class="number">64</span>]
+        <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        </span><span class="kw">let </span>recovery_byte = <span class="kw">if </span>signature[<span class="number">64</span>] &gt; <span class="number">26 </span>{
+            signature[<span class="number">64</span>] - <span class="number">27
+        </span>} <span class="kw">else </span>{
+            signature[<span class="number">64</span>]
         };
-        <span class="kw">let</span> <span class="ident">recovery_id</span> <span class="op">=</span> <span class="ident">RecoveryId::from_i32</span>(<span class="ident">recovery_byte</span> <span class="kw">as</span> <span class="ident">i32</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {}&quot;</span>, <span class="ident">error</span>));
-        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">Message::from_slice</span>(<span class="ident">message_hash</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {}&quot;</span>, <span class="ident">error</span>)
+        <span class="kw">let </span>recovery_id = RecoveryId::from_i32(recovery_byte <span class="kw">as </span>i32)
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {}&quot;</span>, error));
+        <span class="kw">let </span>message = Message::from_slice(message_hash).unwrap_or_else(|error| {
+            <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {}&quot;</span>, error)
         });
-        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span>
-            <span class="ident">RecoverableSignature::from_compact</span>(<span class="kw-2">&amp;</span><span class="ident">signature</span>[<span class="number">0</span>..<span class="number">64</span>], <span class="ident">recovery_id</span>)
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {}&quot;</span>, <span class="ident">error</span>)
+        <span class="kw">let </span>signature =
+            RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
+                .unwrap_or_else(|error| {
+                    <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {}&quot;</span>, error)
                 });
 
-        <span class="kw">let</span> <span class="ident">pub_key</span> <span class="op">=</span> <span class="ident">SECP256K1</span>.<span class="ident">recover_ecdsa</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="ident">signature</span>);
-        <span class="kw">match</span> <span class="ident">pub_key</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">pub_key</span>) =&gt; {
-                <span class="kw-2">*</span><span class="ident">output</span> <span class="op">=</span> <span class="ident">pub_key</span>.<span class="ident">serialize</span>();
+        <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
+        <span class="kw">match </span>pub_key {
+            <span class="prelude-val">Ok</span>(pub_key) =&gt; {
+                <span class="kw-2">*</span>output = pub_key.serialize();
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::EcdsaRecoveryFailed</span>),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(Error::EcdsaRecoveryFailed),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">ecdsa_to_eth_address</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">pubkey</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">33</span>],
-        <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">20</span>],
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pk</span> <span class="op">=</span> <span class="ident">secp256k1::PublicKey::from_slice</span>(<span class="ident">pubkey</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::EcdsaRecoveryFailed</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">uncompressed</span> <span class="op">=</span> <span class="ident">pk</span>.<span class="ident">serialize_uncompressed</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Keccak256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type::default</span>();
-        <span class="op">&lt;</span><span class="ident">Keccak256</span><span class="op">&gt;</span><span class="ident">::hash</span>(<span class="kw-2">&amp;</span><span class="ident">uncompressed</span>[<span class="number">1</span>..], <span class="kw-2">&amp;mut</span> <span class="ident">hash</span>);
-        <span class="ident">output</span>.<span class="ident">as_mut</span>().<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">hash</span>[<span class="number">12</span>..]);
+    <span class="kw">fn </span>ecdsa_to_eth_address(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        pubkey: <span class="kw-2">&amp;</span>[u8; <span class="number">33</span>],
+        output: <span class="kw-2">&amp;mut </span>[u8; <span class="number">20</span>],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>pk = secp256k1::PublicKey::from_slice(pubkey)
+            .map_err(|<span class="kw">_</span>| Error::EcdsaRecoveryFailed)<span class="question-mark">?</span>;
+        <span class="kw">let </span>uncompressed = pk.serialize_uncompressed();
+        <span class="kw">let </span><span class="kw-2">mut </span>hash = &lt;Keccak256 <span class="kw">as </span>HashOutput&gt;::Type::default();
+        &lt;Keccak256&gt;::hash(<span class="kw-2">&amp;</span>uncompressed[<span class="number">1</span>..], <span class="kw-2">&amp;mut </span>hash);
+        output.as_mut().copy_from_slice(<span class="kw-2">&amp;</span>hash[<span class="number">12</span>..]);
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span>, <span class="ident">F</span>, <span class="ident">D</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">func_id</span>: <span class="ident">u32</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>,
-        <span class="ident">status_to_result</span>: <span class="ident">F</span>,
-        <span class="ident">decode_to_result</span>: <span class="ident">D</span>,
-    ) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
-        <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>,
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">u32</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorCode</span><span class="op">&gt;</span>,
-        <span class="ident">D</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>call_chain_extension&lt;I, T, E, ErrorCode, F, D&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        func_id: u32,
+        input: <span class="kw-2">&amp;</span>I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -&gt; ::core::result::Result&lt;T, E&gt;
+    <span class="kw">where
+        </span>I: scale::Encode,
+        T: scale::Decode,
+        E: From&lt;ErrorCode&gt;,
+        F: FnOnce(u32) -&gt; ::core::result::Result&lt;(), ErrorCode&gt;,
+        D: FnOnce(<span class="kw-2">&amp;</span>[u8]) -&gt; ::core::result::Result&lt;T, E&gt;,
     {
-        <span class="kw">let</span> <span class="ident">enc_input</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="ident">input</span>)[..];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="ident">BUFFER_SIZE</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="ident">BUFFER_SIZE</span>];
+        <span class="kw">let </span>enc_input = <span class="kw-2">&amp;</span>scale::Encode::encode(input)[..];
+        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
 
-        <span class="self">self</span>.<span class="ident">engine</span>
-            .<span class="ident">call_chain_extension</span>(<span class="ident">func_id</span>, <span class="ident">enc_input</span>, <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]);
-        <span class="kw">let</span> (<span class="ident">status</span>, <span class="ident">out</span>): (<span class="ident">u32</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+        <span class="self">self</span>.engine
+            .call_chain_extension(func_id, enc_input, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
+        <span class="kw">let </span>(status, out): (u32, Vec&lt;u8&gt;) = scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])
+            .unwrap_or_else(|error| {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;could not decode `call_chain_extension` output: {:?}&quot;</span>,
-                    <span class="ident">error</span>
+                    error
                 )
             });
 
-        <span class="ident">status_to_result</span>(<span class="ident">status</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">decode_to_result</span>(<span class="kw-2">&amp;</span><span class="ident">out</span>[..])<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">decoded</span>)
+        status_to_result(status)<span class="question-mark">?</span>;
+        <span class="kw">let </span>decoded = decode_to_result(<span class="kw-2">&amp;</span>out[..])<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(decoded)
     }
 
-    <span class="kw">fn</span> <span class="ident">set_code_hash</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_code_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn </span>set_code_hash(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _code_hash: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `set_code_hash`&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TypedEnvBackend</span> <span class="kw">for</span> <span class="ident">EnvInstance</span> {
-    <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::AccountId</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>(<span class="ident">Engine::caller</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `caller` property: {:?}&quot;</span>, <span class="ident">error</span>)
+<span class="kw">impl </span>TypedEnvBackend <span class="kw">for </span>EnvInstance {
+    <span class="kw">fn </span>caller&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
+        <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::caller)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `caller` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::value_transferred</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `transferred_value` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>transferred_value&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
+        <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::value_transferred)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `transferred_value` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="ident">Engine::gas_left</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `gas_left` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>gas_left&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.get_property::&lt;u64&gt;(Engine::gas_left)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `gas_left` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Timestamp</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Timestamp</span><span class="op">&gt;</span>(<span class="ident">Engine::block_timestamp</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_timestamp` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp {
+        <span class="self">self</span>.get_property::&lt;E::Timestamp&gt;(Engine::block_timestamp)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_timestamp` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::AccountId</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>(<span class="ident">Engine::address</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `account_id` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
+        <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::address)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `account_id` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::balance</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `balance` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
+        <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::balance)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `balance` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::BlockNumber</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::BlockNumber</span><span class="op">&gt;</span>(<span class="ident">Engine::block_number</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_number` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber {
+        <span class="self">self</span>.get_property::&lt;E::BlockNumber&gt;(Engine::block_number)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_number` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::minimum_balance</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `minimum_balance` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>minimum_balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
+        <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::minimum_balance)
+            .unwrap_or_else(|error| {
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `minimum_balance` property: {:?}&quot;</span>, error)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>)
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
-        <span class="ident">Event</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>,
+    <span class="kw">fn </span>emit_event&lt;E, Event&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, event: Event)
+    <span class="kw">where
+        </span>E: Environment,
+        Event: Topics + scale::Encode,
     {
-        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">TopicsBuilder::default</span>();
-        <span class="kw">let</span> <span class="ident">enc_topics</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">topics</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">builder</span>.<span class="ident">into</span>());
-        <span class="kw">let</span> <span class="ident">enc_data</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)[..];
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">deposit_event</span>(<span class="kw-2">&amp;</span><span class="ident">enc_topics</span>[..], <span class="ident">enc_data</span>);
+        <span class="kw">let </span>builder = TopicsBuilder::default();
+        <span class="kw">let </span>enc_topics = event.topics::&lt;E, <span class="kw">_</span>&gt;(builder.into());
+        <span class="kw">let </span>enc_data = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>event)[..];
+        <span class="self">self</span>.engine.deposit_event(<span class="kw-2">&amp;</span>enc_topics[..], enc_data);
     }
 
-    <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
-        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+    <span class="kw">fn </span>invoke_contract&lt;E, Args, R&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+    <span class="kw">where
+        </span>E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
     {
-        <span class="kw">let</span> <span class="ident">_gas_limit</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">gas_limit</span>();
-        <span class="kw">let</span> <span class="ident">_callee</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">callee</span>();
-        <span class="kw">let</span> <span class="ident">_call_flags</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">call_flags</span>().<span class="ident">into_u32</span>();
-        <span class="kw">let</span> <span class="ident">_transferred_value</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">transferred_value</span>();
-        <span class="kw">let</span> <span class="ident">_input</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">exec_input</span>();
+        <span class="kw">let </span>_gas_limit = params.gas_limit();
+        <span class="kw">let </span>_callee = params.callee();
+        <span class="kw">let </span>_call_flags = params.call_flags().into_u32();
+        <span class="kw">let </span>_transferred_value = params.transferred_value();
+        <span class="kw">let </span>_input = params.exec_input();
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract invocation&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">invoke_contract_delegate</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
-        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+    <span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        params: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+    <span class="kw">where
+        </span>E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
     {
-        <span class="kw">let</span> <span class="ident">_code_hash</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">code_hash</span>();
+        <span class="kw">let </span>_code_hash = params.code_hash();
         <span class="macro">unimplemented!</span>(
-            <span class="string">&quot;off-chain environment does not support delegated contract invocation&quot;</span>
-        )
+            <span class="string">&quot;off-chain environment does not support delegated contract invocation&quot;
+        </span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">instantiate_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
-        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-        <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
+    <span class="kw">fn </span>instantiate_contract&lt;E, Args, Salt, C&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, C&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;E::AccountId&gt;
+    <span class="kw">where
+        </span>E: Environment,
+        Args: scale::Encode,
+        Salt: AsRef&lt;[u8]&gt;,
     {
-        <span class="kw">let</span> <span class="ident">_code_hash</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">code_hash</span>();
-        <span class="kw">let</span> <span class="ident">_gas_limit</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">gas_limit</span>();
-        <span class="kw">let</span> <span class="ident">_endowment</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">endowment</span>();
-        <span class="kw">let</span> <span class="ident">_input</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">exec_input</span>();
-        <span class="kw">let</span> <span class="ident">_salt_bytes</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">salt_bytes</span>();
+        <span class="kw">let </span>_code_hash = params.code_hash();
+        <span class="kw">let </span>_gas_limit = params.gas_limit();
+        <span class="kw">let </span>_endowment = params.endowment();
+        <span class="kw">let </span>_input = params.exec_input();
+        <span class="kw">let </span>_salt_bytes = params.salt_bytes();
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">beneficiary</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="op">!</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="kw">fn </span>terminate_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, beneficiary: E::AccountId) -&gt; !
+    <span class="kw">where
+        </span>E: Environment,
     {
-        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">beneficiary</span>);
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">terminate</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..])
+        <span class="kw">let </span>buffer = scale::Encode::encode(<span class="kw-2">&amp;</span>beneficiary);
+        <span class="self">self</span>.engine.terminate(<span class="kw-2">&amp;</span>buffer[..])
     }
 
-    <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">destination</span>: <span class="ident">E::AccountId</span>, <span class="ident">value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="kw">fn </span>transfer&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, destination: E::AccountId, value: E::Balance) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>E: Environment,
     {
-        <span class="kw">let</span> <span class="ident">enc_destination</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">destination</span>)[..];
-        <span class="kw">let</span> <span class="ident">enc_value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>)[..];
-        <span class="self">self</span>.<span class="ident">engine</span>
-            .<span class="ident">transfer</span>(<span class="ident">enc_destination</span>, <span class="ident">enc_value</span>)
-            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+        <span class="kw">let </span>enc_destination = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>destination)[..];
+        <span class="kw">let </span>enc_value = <span class="kw-2">&amp;</span>scale::Encode::encode(<span class="kw-2">&amp;</span>value)[..];
+        <span class="self">self</span>.engine
+            .transfer(enc_destination, enc_value)
+            .map_err(Into::into)
     }
 
-    <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) -&gt; <span class="ident">E::Balance</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="ident">BUFFER_SIZE</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="ident">BUFFER_SIZE</span>];
-        <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">weight_to_fee</span>(<span class="ident">gas</span>, <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]);
-        <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..]).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;could not read `weight_to_fee` property: {:?}&quot;</span>, <span class="ident">error</span>)
+    <span class="kw">fn </span>weight_to_fee&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gas: u64) -&gt; E::Balance {
+        <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
+        <span class="self">self</span>.engine.weight_to_fee(gas, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
+        scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..]).unwrap_or_else(|error| {
+            <span class="macro">panic!</span>(<span class="string">&quot;could not read `weight_to_fee` property: {:?}&quot;</span>, error)
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">is_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="ident">bool</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="kw">fn </span>is_contract&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; bool
+    <span class="kw">where
+        </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">caller_is_origin</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="kw">fn </span>caller_is_origin&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool
+    <span class="kw">where
+        </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support cross-contract calls&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">code_hash</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="kw">fn </span>code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _account: <span class="kw-2">&amp;</span>E::AccountId) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
+    <span class="kw">where
+        </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `code_hash`&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">own_code_hash</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Environment</span>,
+    <span class="kw">fn </span>own_code_hash&lt;E&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt;
+    <span class="kw">where
+        </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `own_code_hash`&quot;</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
