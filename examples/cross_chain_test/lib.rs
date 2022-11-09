@@ -4,6 +4,7 @@
 mod cross_chain_test {
 
     #[ink(storage)]
+    #[derive(Default)]
     pub struct CrossChainTest {}
 
     impl CrossChainTest {
