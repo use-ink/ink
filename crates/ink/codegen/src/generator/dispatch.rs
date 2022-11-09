@@ -434,19 +434,19 @@ impl Dispatch<'_> {
                 }
 
                 let dispatchable = match ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>() {
-                        Ok(decoded_dispatchable) => {
-                            ::ink::env::debug_println!("Result from `decode_input` {:?}", &decoded_dispatchable);
-                            decoded_dispatchable
-                        },
-                        Err(_decoding_error) => {
+                    <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        ::ink::env::debug_println!("Result from `decode_input` {:?}", &decoded_dispatchable);
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        use ::core::default::Default;
                         ::ink::env::debug_println!("Result from `decode_input` {:?}", &_decoding_error);
 
                         // TODO: Here will pick out the `Dispatch` error we're interested in telling the
                         // user about and encode it correctly
-                        let error = ::core::result::Result::Err(
-                            ::ink::LangError::CouldNotReadInput
-                        );
+                        let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
                         // message output since we were unable to figure out what the caller wanted
@@ -455,7 +455,8 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::core::result::Result<(), ::ink::LangError>>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true), &error
+                            ::ink::env::ReturnFlags::default().set_reverted(true),
+                            &error,
                         );
                     }
                 };

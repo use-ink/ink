@@ -50,6 +50,9 @@ impl GenerateCode for Metadata<'_> {
 
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject  {
+                    // TODO: Use changes from #1486
+                    use ::core::iter::Iterator;
+
                     let layout = #layout;
                     ::ink::metadata::layout::ValidateLayout::validate(&layout).unwrap_or_else(|error| {
                         ::core::panic!("metadata ink! generation failed: {}", error)
