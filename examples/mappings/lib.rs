@@ -93,8 +93,10 @@ mod mappings {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn insert_and_get_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            //given
+        async fn insert_and_get_works(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
             let constructor = mappings::constructors::new();
             let contract_id = client
                 .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
@@ -102,35 +104,175 @@ mod mappings {
                 .expect("instantiate failed")
                 .account_id;
 
+            // when
+            let insert = mappings::messages::insert_balance(1_000);
+            let size = client
+                .call(&mut ink_e2e::alice(), contract_id.clone(), insert, 0, None)
+                .await
+                .expect("call failed")
+                .value;
 
-            //when
-            let insert = mappings::messages::insert_balance(1_000_000);
+            // then
+            let get = mappings::messages::get_balance();
+            let balance = client
+                .call(&mut ink_e2e::alice(), contract_id.clone(), get, 0, None)
+                .await
+                .expect("call failed")
+                .value;
+
+            assert!(size.is_none());
+            assert_eq!(balance, Some(1_000));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn insert_and_contains_works(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = mappings::constructors::new();
+            let contract_id = client
+                .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let insert = mappings::messages::insert_balance(2_000);
+            let _ = client
+                .call(&mut ink_e2e::bob(), contract_id.clone(), insert, 0, None)
+                .await
+                .expect("call failed");
+
+            // then
+            let contains = mappings::messages::contains_balance();
+            let is_there = client
+                .call(&mut ink_e2e::bob(), contract_id.clone(), contains, 0, None)
+                .await
+                .expect("call failed")
+                .value;
+
+            assert!(is_there);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn reinsert_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // given
+            let constructor = mappings::constructors::new();
+            let contract_id = client
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let first_insert = mappings::messages::insert_balance(1_000_000);
             let _ = client
                 .call(
-                    &mut ink_e2e::alice(),
+                    &mut ink_e2e::charlie(),
                     contract_id.clone(),
-                    insert,
+                    first_insert,
                     0,
-                    None
+                    None,
                 )
                 .await
                 .expect("call failed");
 
-            //then
-            let get = mappings::messages::get_balance();
-            let balance = client
-               .call(
-                    &mut ink_e2e::alice(),
+            let insert = mappings::messages::insert_balance(10_000);
+            let size = client
+                .call(
+                    &mut ink_e2e::charlie(),
                     contract_id.clone(),
-                    get,
+                    insert,
                     0,
-                    None
+                    None,
                 )
                 .await
                 .expect("call failed")
                 .value;
-            println!("{:?}", balance);
-            assert_eq!(balance, Some(1_000_000));
+
+            // then
+            assert!(size.is_some());
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn insert_and_remove_works(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = mappings::constructors::new();
+            let contract_id = client
+                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let insert = mappings::messages::insert_balance(3_000);
+            let _ = client
+                .call(&mut ink_e2e::dave(), contract_id.clone(), insert, 0, None)
+                .await
+                .expect("call failed");
+
+            let remove = mappings::messages::remove_balance();
+            let _ = client
+                .call(&mut ink_e2e::dave(), contract_id.clone(), remove, 0, None)
+                .await
+                .expect("call failed");
+
+            // then
+            let get = mappings::messages::get_balance();
+            let balance = client
+                .call(&mut ink_e2e::dave(), contract_id.clone(), get, 0, None)
+                .await
+                .expect("call failed")
+                .value;
+
+            assert_eq!(balance, None);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn insert_and_take_works(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = mappings::constructors::new();
+            let contract_id = client
+                .instantiate(&mut ink_e2e::eve(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let insert = mappings::messages::insert_balance(4_000);
+            let _ = client
+                .call(&mut ink_e2e::eve(), contract_id.clone(), insert, 0, None)
+                .await
+                .expect("call failed");
+
+            let take = mappings::messages::take_balance();
+            let balance = client
+                .call(&mut ink_e2e::eve(), contract_id.clone(), take, 0, None)
+                .await
+                .expect("call failed")
+                .value;
+
+            // then
+            let contains = mappings::messages::contains_balance();
+            let is_not_there = client
+                .call(&mut ink_e2e::eve(), contract_id.clone(), contains, 0, None)
+                .await
+                .expect("call failed")
+                .value;
+
+            assert_eq!(balance, Some(4_000));
+            assert!(!is_not_there);
 
             Ok(())
         }
