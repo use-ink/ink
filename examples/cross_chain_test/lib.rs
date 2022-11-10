@@ -37,7 +37,7 @@ mod cross_chain_test {
             match result {
                 Ok(_) => (),
                 Err(ink::LangError::CouldNotReadInput) => {
-                    ink::env::debug_println!("CouldNotReadInput")
+                    ink::env::debug_println!("CouldNotReadInput");
                 }
                 Err(_) => unimplemented!(),
             }
