@@ -22,4 +22,16 @@ mod contract {
     }
 }
 
-fn main() {}
+use ink::metadata::InkProject;
+
+fn generate_metadata() -> InkProject {
+    extern "Rust" {
+        fn __ink_generate_metadata() -> InkProject;
+    }
+
+    unsafe { __ink_generate_metadata() }
+}
+
+fn main() {
+    let metadata = generate_metadata();
+}
