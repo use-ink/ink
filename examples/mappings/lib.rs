@@ -1,3 +1,6 @@
+//! A smart contract which demonstrates functionality of `Mapping` functions.
+//! It merely inserts, removes, takes and removes values from from storage.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::contract]

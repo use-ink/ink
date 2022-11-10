@@ -1,8 +1,9 @@
 [package]
 name = "mappings"
-version = "0.1.0"
-authors = ["[your_name] <[your_email]>"]
+version = "4.0.0-alpha.3"
+authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
+publish = false
 
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
