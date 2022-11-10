@@ -142,7 +142,6 @@ impl Metadata<'_> {
             ::ink::metadata::ReturnTypeSpec::new(
                 Some(
                     if #constructor_info ::IS_RESULT {
-                        println!("IS_RESULT true");
                         ::ink::metadata::TypeSpec::of_type::<
                             ::core::result::Result<
                                 (),
@@ -150,7 +149,6 @@ impl Metadata<'_> {
                             >
                         >()
                     } else {
-                        println!("IS_RESULT false");
                         ::ink::metadata::TypeSpec::of_type::< #constructor_info ::Output>()
                     }
                 )
