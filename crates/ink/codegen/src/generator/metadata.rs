@@ -193,8 +193,10 @@ impl Metadata<'_> {
                 .collect::<Vec<_>>();
             quote! {
                 ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
+                        ::core::convert::AsRef::as_ref
+                    )
                 )
             }
         } else {
@@ -221,9 +223,10 @@ impl Metadata<'_> {
                 .map(|seg| &seg.ident)
                 .collect::<Vec<_>>();
             quote! {
-                Some(::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
-                )
+                ::core::option::Option::Some(::core::iter::Iterator::map(
+                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
+                    ::core::convert::AsRef::as_ref
+                ))
             }
         } else {
             without_display_name()
@@ -539,7 +542,7 @@ mod tests {
         match syn::parse_quote!( -> Result<Self, ()> ) {
             syn::ReturnType::Type(_, t) => {
                 let actual = Metadata::generate_constructor_return_type(Some(&t));
-                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (Some (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) . map (:: core :: convert :: AsRef :: as_ref))))";
+                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (:: core :: option :: Option :: Some (:: core :: iter :: Iterator :: map (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) , :: core :: convert :: AsRef :: as_ref))))";
                 assert_eq!(&actual.to_string(), expected);
             }
             _ => unreachable!(),
