@@ -256,7 +256,7 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
-                let output_tuple_type = constructor.output().map(quote::ToTokens::to_token_stream)
+                let output_type = constructor.output().map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(constructor.inputs());
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
@@ -264,7 +264,7 @@ impl Dispatch<'_> {
                 quote_spanned!(constructor_span=>
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
-                        type Output = #output_tuple_type;
+                        type Output = #output_type;
                         type Storage = #storage_ident;
 
                         const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
@@ -286,8 +286,12 @@ impl Dispatch<'_> {
                             //     // >>>()
                             //     todo!()
                             // }
-                            // type ConstructorInfo = <Self as ::ink::reflect::DispatchableConstructorInfo<{ #selector_id }>>;
-                            ::ink::metadata::TypeSpec::of_type::<<Self as ::ink::reflect::DispatchableConstructorInfo<{ #selector_id }>>::Output>()
+                            if ::ink::is_result_type!(#output_type) {
+                                todo!()
+                            // todo: how to get the Error tyoe
+                            } else {
+                                ::ink::metadata::TypeSpec::of_type::<#output_type>()
+                            }
                         }
                     }
                 )

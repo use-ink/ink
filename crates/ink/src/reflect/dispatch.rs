@@ -383,32 +383,19 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     /// return a value in case of `Result::Err` the `Result::Ok` value type
     /// does not matter.
     type Error;
-
-    /// Converts the return value into a `Result` instance.
-    ///
-    /// # Note
-    ///
-    /// For infallible constructor returns this always yields `Ok`.
-    fn as_result(&self) -> Result<&C, &Self::Error>;
 }
 
-impl<C> ConstructorReturnType<C> for private::Seal<C> {
+pub struct ReturnType<T>(core::marker::PhantomData<T>);
+
+impl<T> private::Sealed for ReturnType<T> {}
+
+impl<C> ConstructorReturnType<C> for ReturnType<C> {
     type Error = ();
-
-    #[inline(always)]
-    fn as_result(&self) -> Result<&C, &Self::Error> {
-        Ok(&self.0)
-    }
 }
 
-impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
+impl<C, E> ConstructorReturnType<C> for ReturnType<Result<C, E>> {
     const IS_RESULT: bool = true;
     type Error = E;
-
-    #[inline(always)]
-    fn as_result(&self) -> Result<&C, &Self::Error> {
-        self.0.as_ref()
-    }
 }
 
 /// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
