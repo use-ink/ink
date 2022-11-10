@@ -1,0 +1,32 @@
+[package]
+name = "cross_chain_ref"
+version = "0.1.0"
+authors = ["[your_name] <[your_email]>"]
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
+flipper = { path = "../flipper", default-features = false, features = ["ink-as-dependency"] }
+
+[lib]
+name = "cross_chain_ref"
+path = "lib.rs"
+crate-type = [
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+
+    "flipper/std",
+]
+ink-as-dependency = []

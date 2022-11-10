@@ -14,7 +14,12 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 [lib]
 name = "flipper"
 path = "lib.rs"
-crate-type = ["cdylib"]
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
+]
 
 [features]
 default = ["std"]
