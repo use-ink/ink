@@ -1,6 +1,6 @@
 #[test]
 #[should_panic(
-    expected = "\n\nError establishing connection to a node at ws://0.0.0.0:9944\nMake sure your node is running."
+    expected = "Error establishing connection to a node at ws://0.0.0.0:9944. Make sure you run a node behind the given url!"
 )]
 fn fail_initialization_with_no_node() {
     let client_init =

@@ -279,12 +279,14 @@ where
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
+                if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
+                    let error_msg = format!("Error establishing connection to a node at {}. Make sure you run a node behind the given url!", url);
+                    log_error(&error_msg);
+                    panic!("{}", error_msg);
+                }
                 log_error(
                     "Unable to create client! Please check that your node is running.",
                 );
-                if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
-                    panic!("\n\nError establishing connection to a node at {}\nMake sure your node is running.", url);
-                }
                 panic!("Unable to create client: {:?}", err);
             });
 
