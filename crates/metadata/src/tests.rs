@@ -80,7 +80,9 @@ fn spec_contract_json() {
                 .selector([6u8, 3u8, 55u8, 123u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(Some(TypeSpec::of_type::<Result<(), ()>>())))
+                .returns(ReturnTypeSpec::new(Some(
+                    TypeSpec::of_type::<Result<(), ()>>(),
+                )))
                 .docs(Vec::new())
                 .done(),
         ])
