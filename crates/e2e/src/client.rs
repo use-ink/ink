@@ -544,7 +544,13 @@ where
 
         let dry_run = self
             .api
-            .call_dry_run(account_id.clone(), value, None, contract_call.0.clone())
+            .call_dry_run(
+                signer.account_id().clone(),
+                account_id.clone(),
+                value,
+                None,
+                contract_call.0.clone(),
+            )
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
         log_info(&format!(

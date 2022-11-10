@@ -130,7 +130,7 @@ mod mappings {
                 .expect("call failed")
                 .value;
             println!("{:?}", balance);
-            assert_eq!(balance, None);
+            assert_eq!(balance, Some(1_000_000));
 
             Ok(())
         }
