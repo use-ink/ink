@@ -580,7 +580,7 @@ impl Dispatch<'_> {
             //         as ::ink::reflect::ConstructorOutput::<#constructor_output>
             // );
             let constructor_value = quote_spanned!(constructor_span=>
-                <::ink::reflect::ConstructorOutput<#constructor_output>>
+                ::ink::reflect::ConstructorOutput::<#constructor_output>
             );
 
             quote_spanned!(constructor_span=>
@@ -593,7 +593,7 @@ impl Dispatch<'_> {
                     let result: #constructor_output = #constructor_callable(input);
                     let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
 
-                    match <::ink::reflect::ConstructorOutput<#constructor_output>>::as_result(&output_value) {
+                    match #constructor_value :: as_result(&output_value) {
                         ::core::result::Result::Ok(contract) => {
                             ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                                 &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
