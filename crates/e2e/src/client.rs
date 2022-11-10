@@ -282,6 +282,9 @@ where
                 log_error(
                     "Unable to create client! Please check that your node is running.",
                 );
+                if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
+                    panic!("\n\nError establishing connection to a node at {}\nMake sure your node is running.", url);
+                }
                 panic!("Unable to create client: {:?}", err);
             });
 
