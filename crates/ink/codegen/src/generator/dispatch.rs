@@ -576,7 +576,8 @@ impl Dispatch<'_> {
                 }>>::PAYABLE
             );
             let constructor_value = quote_spanned!(constructor_span=>
-                ::ink::reflect::ConstructorOutput::<#constructor_output>
+                <::ink::reflect::ConstructorOutputValue<#constructor_output>
+                    as ::ink::reflect::ConstructorOutput::<#constructor_output>>
             );
 
             quote_spanned!(constructor_span=>
@@ -596,12 +597,12 @@ impl Dispatch<'_> {
                                 &contract,
                             );
                             // On success we return the `Ok(())` value for callers.
-                            ::ink::env::return_value::<::core::result::Result<(), ()>>(
-                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Ok(())
+                            ::ink::env::return_value::<::core::result::Result<&(), ()>>(
+                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Ok(&())
                             )
                         },
                         ::core::result::Result::Err(err) => {
-                            ::ink::env::return_value::<::core::result::Result<(), #constructor_value :: Error>>(
+                           ::ink::env::return_value::<::core::result::Result<(), #constructor_value :: Error>>(
                                 ::ink::env::ReturnFlags::default(), &::core::result::Result::Err(err)
                             )
                         }

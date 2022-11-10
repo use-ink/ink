@@ -400,7 +400,7 @@ impl<T> ConstructorOutputValue<T> {
 impl<T> private::Sealed for ConstructorOutputValue<T> {}
 
 impl<C> ConstructorOutput<C> for ConstructorOutputValue<C> {
-    type Error = ();
+    type Error = &'static ();
 
     #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {

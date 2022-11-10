@@ -13,19 +13,9 @@
 // limitations under the License.
 
 use crate::reflect::{
-    ContractEnv,
     DispatchError,
 };
-use core::mem::ManuallyDrop;
-use ink_env::{
-    Environment,
-    ReturnFlags,
-};
-use ink_storage::traits::{
-    Storable,
-    StorageKey,
-};
-use scale::Encode;
+use ink_env::Environment;
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
@@ -43,40 +33,3 @@ where
     }
     Ok(())
 }
-
-// /// Executes the given ink! constructor.
-// ///
-// /// # Note
-// ///
-// /// The closure is supposed to already contain all the arguments that the real
-// /// constructor message requires and forwards them.
-// #[inline]
-// pub fn execute_constructor<Contract, F, R>(f: F) -> Result<(), DispatchError>
-// where
-//     Contract: Storable + StorageKey + ContractEnv,
-//     F: FnOnce() -> R,
-//     <private::Seal<R> as ConstructorReturnType<Contract>>::Error: Encode,
-//     private::Seal<R>: ConstructorReturnType<Contract>,
-// {
-//     let result = ManuallyDrop::new(private::Seal(f()));
-//     match result.as_result() {
-//         Ok(contract) => {
-//             // Constructor is infallible or is fallible but succeeded.
-//             //
-//             // This requires us to sync back the changes of the contract storage.
-//             ink_env::set_contract_storage::<ink_primitives::Key, Contract>(
-//                 &Contract::KEY,
-//                 contract,
-//             );
-//             ink_env::return_value(ReturnFlags::default().set_reverted(false), &());
-//         }
-//         Err(error) => {
-//             // Constructor is fallible and failed.
-//             //
-//             // We need to revert the state of the transaction.
-//             ink_env::return_value::<
-//                 <private::Seal<R> as ConstructorReturnType<Contract>>::Error,
-//             >(ReturnFlags::default().set_reverted(true), error)
-//         }
-//     }
-// }

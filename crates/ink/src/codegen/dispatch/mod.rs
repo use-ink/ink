@@ -19,7 +19,6 @@ mod type_check;
 pub use self::{
     execution::{
         deny_payment,
-        // execute_constructor,
     },
     info::ContractCallBuilder,
     type_check::{

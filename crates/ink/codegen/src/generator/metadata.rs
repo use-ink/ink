@@ -24,7 +24,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
-    ToTokens,
 };
 use syn::spanned::Spanned as _;
 
@@ -40,7 +39,6 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let storage_ident = self.contract.module().storage().ident();
 
         quote! {
             #[cfg(feature = "std")]
@@ -218,35 +216,6 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates the ink! metadata segments iterator for the given type of a constructor.
-    fn generate_constructor_type_segments(ty: &syn::Type) -> TokenStream2 {
-        fn without_display_name() -> TokenStream2 {
-            quote! { None }
-        }
-        if let syn::Type::Path(type_path) = ty {
-            if type_path.qself.is_some() {
-                return without_display_name()
-            }
-            let path = &type_path.path;
-            if path.segments.is_empty() {
-                return without_display_name()
-            }
-            let segs = path
-                .segments
-                .iter()
-                .map(|seg| &seg.ident)
-                .collect::<Vec<_>>();
-            quote! {
-                ::core::option::Option::Some(::core::iter::Iterator::map(
-                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
-                    ::core::convert::AsRef::as_ref
-                ))
-            }
-        } else {
-            without_display_name()
-        }
-    }
-
     /// Generates the ink! metadata for all ink! smart contract messages.
     fn generate_messages(&self) -> Vec<TokenStream2> {
         let mut messages = Vec::new();
@@ -370,16 +339,6 @@ impl Metadata<'_> {
                     ::ink::metadata::ReturnTypeSpec::new(#type_spec)
                 }
             }
-        }
-    }
-
-    /// Helper function to replace all occurrences of `Self` with `()`.
-    fn replace_self_with_unit(ty: &syn::Type) -> TokenStream2 {
-        if ty.to_token_stream().to_string().contains("< Self") {
-            let s = ty.to_token_stream().to_string().replace("< Self", "< ()");
-            s.parse().unwrap()
-        } else {
-            ty.to_token_stream()
         }
     }
 
