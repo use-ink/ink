@@ -279,16 +279,13 @@ impl Dispatch<'_> {
                     impl ::ink::metadata::ConstructorReturnSpec<#selector_id> for #storage_ident {
                         fn generate() -> ::ink::metadata::TypeSpec
                         {
-                             // if <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>> as ::ink::reflect::ConstructorReturnType<#output_type>::IS_RESULT {
-                            //     // ::ink::metadata::TypeSpec::of_type::<::core::result::Result<(),
-                            //     //     <<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id> as
-                            //     //         ::ink::reflect::ConstructorReturnType<#output_type>>::Error
-                            //     // >>>()
-                            //     todo!()
-                            // }
                             if ::ink::is_result_type!(#output_type) {
-                                todo!()
-                            // todo: how to get the Error tyoe
+                                ::ink::metadata::TypeSpec::of_type::<
+                                    ::core::result::Result<
+                                        (),
+                                        <::ink::reflect::ReturnType<#output_type> as ::ink::reflect::ConstructorReturnType<#output_type>>::Error
+                                    >
+                                >()
                             } else {
                                 ::ink::metadata::TypeSpec::of_type::<#output_type>()
                             }

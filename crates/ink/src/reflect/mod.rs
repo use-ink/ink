@@ -41,6 +41,7 @@ pub use self::{
         ContractDispatchableMessages,
         ContractMessageDecoder,
         ConstructorReturnType,
+        ReturnType,
         DecodeDispatch,
         DispatchError,
         DispatchableConstructorInfo,
