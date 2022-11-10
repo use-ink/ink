@@ -355,16 +355,6 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 mod private {
     /// Seals the implementation of `ConstructorReturnType`.
     pub trait Sealed {}
-    impl Sealed for () {}
-    impl<T, E> Sealed for Result<T, E> {}
-    /// A thin-wrapper type that automatically seals its inner type.
-    ///
-    /// Since it is private it can only be used from within this crate.
-    /// We need this type in order to properly seal the `ConstructorReturnType`
-    /// trait from unwanted external trait implementations.
-    #[repr(transparent)]
-    pub struct Seal<T>(pub T);
-    impl<T> Sealed for Seal<T> {}
 }
 
 /// Guards against using invalid contract initializer types.
@@ -376,7 +366,7 @@ mod private {
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
 /// revert the state of the contract instantiation.
-pub trait ConstructorReturnType<C>: private::Sealed {
+pub trait ConstructorOutput<C>: private::Sealed {
     /// Is `true` if `Self` is `Result<C, E>`.
     const IS_RESULT: bool = false;
 
@@ -389,19 +379,43 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     /// return a value in case of `Result::Err` the `Result::Ok` value type
     /// does not matter.
     type Error;
+
+    /// Converts the return value into a `Result` instance.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructor returns this always yields `Ok`.
+    fn as_result(&self) -> Result<&C, &Self::Error>;
 }
 
-pub struct ReturnType<T>(core::marker::PhantomData<T>);
+/// todo: docs
+pub struct ConstructorOutputValue<T>(T);
 
-impl<T> private::Sealed for ReturnType<T> {}
+impl<T> ConstructorOutputValue<T> {
+    pub fn new(val: T) -> Self {
+        Self(val)
+    }
+}
 
-impl<C> ConstructorReturnType<C> for ReturnType<C> {
+impl<T> private::Sealed for ConstructorOutputValue<T> {}
+
+impl<C> ConstructorOutput<C> for ConstructorOutputValue<C> {
     type Error = ();
+
+    #[inline(always)]
+    fn as_result(&self) -> Result<&C, &Self::Error> {
+        Ok(&self.0)
+    }
 }
 
-impl<C, E> ConstructorReturnType<C> for ReturnType<Result<C, E>> {
+impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
     const IS_RESULT: bool = true;
     type Error = E;
+
+    #[inline(always)]
+    fn as_result(&self) -> Result<&C, &Self::Error> {
+        self.0.as_ref()
+    }
 }
 
 /// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.

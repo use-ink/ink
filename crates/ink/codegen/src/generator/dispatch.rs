@@ -261,13 +261,17 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(constructor.inputs());
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+                let constructor_return_type = quote_spanned!(constructor_span=>
+                    <::ink::reflect::ConstructorOutputValue<#output_type>
+                        as ::ink::reflect::ConstructorOutput<#output_type>>
+                );
                 quote_spanned!(constructor_span=>
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_type;
                         type Storage = #storage_ident;
-                        type Error = <::ink::reflect::ReturnType<#output_type> as ::ink::reflect::ConstructorReturnType<#output_type>>::Error;
-                        const IS_RESULT: ::core::primitive::bool = true; // todo
+                        type Error = #constructor_return_type :: Error;
+                        const IS_RESULT: ::core::primitive::bool = #constructor_return_type :: IS_RESULT;
 
                         const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
@@ -557,6 +561,13 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
+            let constructor_output = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::Output
+            );
             let deny_payment = quote_spanned!(constructor_span=>
                 !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
@@ -564,12 +575,49 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
+            // let constructor_value = quote_spanned!(constructor_span=>
+            //     <::ink::reflect::ConstructorOutputValue<#constructor_output>
+            //         as ::ink::reflect::ConstructorOutput::<#constructor_output>
+            // );
+            let constructor_value = quote_spanned!(constructor_span=>
+                <::ink::reflect::ConstructorOutput<#constructor_output>>
+            );
+
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
+
+                    let result: #constructor_output = #constructor_callable(input);
+                    let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
+
+                    match <::ink::reflect::ConstructorOutput<#constructor_output>>::as_result(&output_value) {
+                        ::core::result::Result::Ok(contract) => {
+                            ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
+                                &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
+                                &contract,
+                            );
+                            // On success we return the `Ok(())` value for callers.
+                            ::ink::env::return_value::<::core::result::Result<(), ()>>(
+                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Ok(())
+                            )
+                        },
+                        ::core::result::Result::Err(err) => {
+                            todo!()
+                            // ::ink::env::return_value::<::core::result::Result<(), ()>>(
+                            //     ::ink::env::ReturnFlags::default(), &::core::result::Result::Ok(())
+                            // )
+                        }
+                    }
+
+                    // let failure = ::ink::is_result_type!(#constructor_output)
+                    //     && ::ink::is_result_err!(result);
+                    //
+                    // if failure {
+                    //
+                    // }
 
                     // ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
                     //     move || { #constructor_callable(input) }
