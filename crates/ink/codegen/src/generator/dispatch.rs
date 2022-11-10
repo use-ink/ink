@@ -577,7 +577,7 @@ impl Dispatch<'_> {
             );
             let constructor_value = quote_spanned!(constructor_span=>
                 <::ink::reflect::ConstructorOutputValue<#constructor_output>
-                    as ::ink::reflect::ConstructorOutput::<#constructor_output>>
+                    as ::ink::reflect::ConstructorOutput::<#storage_ident>>
             );
 
             quote_spanned!(constructor_span=>
@@ -602,7 +602,7 @@ impl Dispatch<'_> {
                             )
                         },
                         ::core::result::Result::Err(err) => {
-                           ::ink::env::return_value::<::core::result::Result<(), #constructor_value :: Error>>(
+                           ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
                                 ::ink::env::ReturnFlags::default(), &::core::result::Result::Err(err)
                             )
                         }

@@ -34,4 +34,10 @@ fn generate_metadata() -> InkProject {
 
 fn main() {
     let metadata = generate_metadata();
+
+    let constructor = metadata.spec().constructors().iter()
+        .next()
+        .unwrap();
+
+    assert_eq!("constructor", constructor.label());
 }
