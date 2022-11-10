@@ -136,7 +136,7 @@ impl Metadata<'_> {
         // let ret_ty = Self::generate_constructor_return_type(constructor.output());
         let storage_ident = self.contract.module().storage().ident();
         let constructor_info = quote_spanned!(span =>
-            < #storage_ident as ::ink::reflect::DispatchableConstructorInfo< { #selector_id } >>
+            < #storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>>
         );
         let ret_ty = quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
