@@ -1028,13 +1028,6 @@ where
     }
 }
 
-/// Implementing this trait for some type `T` indicates what the return spec of
-/// `T` will be in the metadata, given `T` is used as the result of a constructor.
-pub trait ConstructorReturnSpec<const ID: u32> {
-    /// Generates the type spec.
-    fn generate() -> TypeSpec;
-}
-
 /// Describes a pair of parameter label and type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::specs::ConstructorReturnSpec;
-
 use super::*;
 use pretty_assertions::assert_eq;
 use scale_info::{

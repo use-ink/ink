@@ -137,9 +137,23 @@ impl Metadata<'_> {
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         // let ret_ty = Self::generate_constructor_return_type(constructor.output());
         let storage_ident = self.contract.module().storage().ident();
+        let constructor_info = quote_spanned!(span =>
+            < #storage_ident as ::ink::reflect::DispatchableConstructorInfo< { #selector_id } >>
+        );
         let ret_ty = quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
-                Some(< #storage_ident as ::ink::metadata::ConstructorReturnSpec< { #selector_id } > >::generate())
+                Some(
+                    if #constructor_info ::IS_RESULT {
+                        ::ink::metadata::TypeSpec::of_type::<
+                            ::core::result::Result<
+                                (),
+                                #constructor_info ::Error
+                            >
+                        >()
+                    } else {
+                        ::ink::metadata::TypeSpec::of_type::< #constructor_info ::Output>()
+                    }
+                )
             )
         );
         quote_spanned!(span=>
@@ -359,34 +373,6 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates ink! metadata for the given return type of a constructor.
-    /// If the constructor return type is not `Result`,
-    /// the metadata will not display any type spec for the return type.
-    /// Otherwise, the return type spec is `Result<(), E>`.
-    fn generate_constructor_return_type(ret_ty: Option<&syn::Type>) -> TokenStream2 {
-        match ret_ty {
-            None => {
-                quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
-                }
-            }
-            Some(syn::Type::Path(syn::TypePath { qself: None, path }))
-                if path.is_ident("Self") =>
-            {
-                quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
-            }
-            Some(ty) => {
-                let type_token = Self::replace_self_with_unit(ty);
-                let segments = Self::generate_constructor_type_segments(ty);
-                quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(
-                        <#type_token as ::ink::metadata::ConstructorReturnSpec>::generate(#segments)
-                    )
-                }
-            }
-        }
-    }
-
     /// Helper function to replace all occurrences of `Self` with `()`.
     fn replace_self_with_unit(ty: &syn::Type) -> TokenStream2 {
         if ty.to_token_stream().to_string().contains("< Self") {
@@ -524,28 +510,28 @@ mod tests {
         )
     }
 
-    #[test]
-    fn constructor_return_type_works() {
-        let expected_no_ret_type_spec = ":: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)";
-
-        let actual = Metadata::generate_constructor_return_type(None);
-        assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
-
-        match syn::parse_quote!( -> Self ) {
-            syn::ReturnType::Type(_, t) => {
-                let actual = Metadata::generate_constructor_return_type(Some(&t));
-                assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
-            }
-            _ => unreachable!(),
-        }
-
-        match syn::parse_quote!( -> Result<Self, ()> ) {
-            syn::ReturnType::Type(_, t) => {
-                let actual = Metadata::generate_constructor_return_type(Some(&t));
-                let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (:: core :: option :: Option :: Some (:: core :: iter :: Iterator :: map (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) , :: core :: convert :: AsRef :: as_ref))))";
-                assert_eq!(&actual.to_string(), expected);
-            }
-            _ => unreachable!(),
-        }
-    }
+    // #[test]
+    // fn constructor_return_type_works() {
+    //     let expected_no_ret_type_spec = ":: ink :: metadata :: ReturnTypeSpec :: new (:: core :: option :: Option :: None)";
+    //
+    //     let actual = Metadata::generate_constructor_return_type(None);
+    //     assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
+    //
+    //     match syn::parse_quote!( -> Self ) {
+    //         syn::ReturnType::Type(_, t) => {
+    //             let actual = Metadata::generate_constructor_return_type(Some(&t));
+    //             assert_eq!(&actual.to_string(), expected_no_ret_type_spec);
+    //         }
+    //         _ => unreachable!(),
+    //     }
+    //
+    //     match syn::parse_quote!( -> Result<Self, ()> ) {
+    //         syn::ReturnType::Type(_, t) => {
+    //             let actual = Metadata::generate_constructor_return_type(Some(&t));
+    //             let expected = ":: ink :: metadata :: ReturnTypeSpec :: new (< Result < () , () > as :: ink :: metadata :: ConstructorReturnSpec > :: generate (:: core :: option :: Option :: Some (:: core :: iter :: Iterator :: map (:: core :: iter :: IntoIterator :: into_iter ([:: core :: stringify ! (Result)]) , :: core :: convert :: AsRef :: as_ref))))";
+    //             assert_eq!(&actual.to_string(), expected);
+    //         }
+    //         _ => unreachable!(),
+    //     }
+    // }
 }

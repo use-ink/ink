@@ -332,6 +332,12 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     type Storage;
     /// Reflects the output type of the dispatchable ink! constructor.
     type Output;
+    /// The type of the error returned from the constructor.
+    /// Infallible constructors will have `()` as the error type.
+    type Error;
+
+    /// True if the constructor returns a `Result`.
+    const IS_RESULT: bool;
 
     /// The closure that can be used to dispatch into the dispatchable ink! constructor.
     const CALLABLE: fn(Self::Input) -> Self::Output;

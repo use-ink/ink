@@ -266,6 +266,8 @@ impl Dispatch<'_> {
                         type Input = #input_tuple_type;
                         type Output = #output_type;
                         type Storage = #storage_ident;
+                        type Error = <::ink::reflect::ReturnType<#output_type> as ::ink::reflect::ConstructorReturnType<#output_type>>::Error;
+                        const IS_RESULT: ::core::primitive::bool = true; // todo
 
                         const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
@@ -273,23 +275,6 @@ impl Dispatch<'_> {
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
-                    }
-
-                    #[cfg(feature = "std")]
-                    impl ::ink::metadata::ConstructorReturnSpec<#selector_id> for #storage_ident {
-                        fn generate() -> ::ink::metadata::TypeSpec
-                        {
-                            if ::ink::is_result_type!(#output_type) {
-                                ::ink::metadata::TypeSpec::of_type::<
-                                    ::core::result::Result<
-                                        (),
-                                        <::ink::reflect::ReturnType<#output_type> as ::ink::reflect::ConstructorReturnType<#output_type>>::Error
-                                    >
-                                >()
-                            } else {
-                                ::ink::metadata::TypeSpec::of_type::<#output_type>()
-                            }
-                        }
                     }
                 )
             });
