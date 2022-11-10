@@ -1218,8 +1218,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #         panic!("encountered unexpected invalid SCALE encoding")
 /// #     }
 /// # }
-/// # // TODO: Remove Debug impl
-/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo, ::core::fmt::Debug)]
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
 /// # pub enum Access {
 /// #     ReadWrite,
 /// #     ReadOnly,

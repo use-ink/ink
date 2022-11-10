@@ -442,23 +442,9 @@ impl TypedEnvBackend for EnvInstance {
             output,
         );
         match call_result {
-            Ok(()) => {
-                // let decoded = scale::Decode::decode(&mut &output[..])?;
-                // Ok(decoded)
-                if let Ok(decoded) = scale::Decode::decode(&mut &output[..]) {
-                    Ok(decoded)
-                } else {
-                    ::core::panic!("failed to decode successful message output");
-                }
-            }
-            Err(ext::Error::CalleeReverted) => {
-                // let decoded = scale::Decode::decode(&mut &output[..])?;
-                // Ok(decoded)
-                if let Ok(decoded) = scale::Decode::decode(&mut &output[..]) {
-                    Ok(decoded)
-                } else {
-                    ::core::panic!("failed to decode reverted message output");
-                }
+            Ok(()) | Err(ext::Error::CalleeReverted) => {
+                let decoded = scale::Decode::decode(&mut &output[..])?;
+                Ok(decoded)
             }
             Err(actual_error) => Err(actual_error.into()),
         }

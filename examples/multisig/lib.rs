@@ -110,13 +110,11 @@ mod multisig {
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
     /// If enough owners agree it will be executed by the contract.
-    ///
-    /// TODO: Figure out where this is being pulled in
-    #[derive(scale::Decode, scale::Encode, ::core::fmt::Debug)]
+    #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
         derive(
-            // Debug,
+            Debug,
             PartialEq,
             Eq,
             scale_info::TypeInfo,

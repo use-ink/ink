@@ -515,7 +515,7 @@ pub trait ExecuteDispatchable {
 }
 
 /// An error that can occur during dispatch of ink! dispatchables.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, ::scale::Encode, ::scale::Decode)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum DispatchError {
     /// Failed to decode into a valid dispatch selector.
     InvalidSelector,

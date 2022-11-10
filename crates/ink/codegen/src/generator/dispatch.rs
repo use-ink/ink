@@ -437,15 +437,10 @@ impl Dispatch<'_> {
                     <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
                 >() {
                     ::core::result::Result::Ok(decoded_dispatchable) => {
-                        ::ink::env::debug_println!("Result from `decode_input` {:?}", &decoded_dispatchable);
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
                         use ::core::default::Default;
-                        ::ink::env::debug_println!("Result from `decode_input` {:?}", &_decoding_error);
-
-                        // TODO: Here will pick out the `Dispatch` error we're interested in telling the
-                        // user about and encode it correctly
                         let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
@@ -804,7 +799,6 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
-                #[derive(::core::fmt::Debug)]
                 pub enum __ink_MessageDecoder {
                     #( #message_variants ),*
                 }
