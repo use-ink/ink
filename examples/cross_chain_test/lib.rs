@@ -25,14 +25,22 @@ mod cross_chain_test {
                 DefaultEnvironment,
             };
 
-            let _result = build_call::<DefaultEnvironment>()
+            let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<Result<(), ::ink::LangError>>()
                 // .returns::<()>()
-                .fire();
+                .fire()
+                .expect("seal error");
 
-            ink::env::debug_println!("cross_contract::call output: {:?}", &_result);
+            ink::env::debug_println!("cross_contract::call output: {:?}", &result);
+            match result {
+                Ok(_) => (),
+                Err(ink::LangError::CouldNotReadInput) => {
+                    ink::env::debug_println!("CouldNotReadInput")
+                }
+                Err(_) => unimplemented!(),
+            }
         }
     }
 }
