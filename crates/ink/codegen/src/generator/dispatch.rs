@@ -575,10 +575,6 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
-            // let constructor_value = quote_spanned!(constructor_span=>
-            //     <::ink::reflect::ConstructorOutputValue<#constructor_output>
-            //         as ::ink::reflect::ConstructorOutput::<#constructor_output>
-            // );
             let constructor_value = quote_spanned!(constructor_span=>
                 ::ink::reflect::ConstructorOutput::<#constructor_output>
             );
@@ -605,24 +601,11 @@ impl Dispatch<'_> {
                             )
                         },
                         ::core::result::Result::Err(err) => {
-                            todo!()
-                            // ::ink::env::return_value::<::core::result::Result<(), ()>>(
-                            //     ::ink::env::ReturnFlags::default(), &::core::result::Result::Ok(())
-                            // )
+                            ::ink::env::return_value::<::core::result::Result<(), #constructor_value :: Error>>(
+                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Err(err)
+                            )
                         }
                     }
-
-                    // let failure = ::ink::is_result_type!(#constructor_output)
-                    //     && ::ink::is_result_err!(result);
-                    //
-                    // if failure {
-                    //
-                    // }
-
-                    // ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
-                    //     move || { #constructor_callable(input) }
-                    // )
-                    Ok(())
                 }
             )
         });
