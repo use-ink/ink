@@ -112,6 +112,12 @@ fn spec_contract_json() {
                 .done(),
         ])
         .events(Vec::new())
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
         .done();
 
     let mut registry = Registry::new();
@@ -168,6 +174,13 @@ fn spec_contract_json() {
             ],
             "docs": [],
             "events": [],
+            "lang_error": {
+              "displayName": [
+                "ink",
+                "LangError"
+              ],
+              "type": 3
+            },
             "messages": [
                 {
                     "args": [

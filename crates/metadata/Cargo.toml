@@ -34,6 +34,7 @@ default = [
 ]
 std = [
     "ink_prelude/std",
+    "ink_primitives/std",
     "serde/std",
     "scale-info/std",
 ]
