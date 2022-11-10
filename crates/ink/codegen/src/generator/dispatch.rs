@@ -263,7 +263,7 @@ impl Dispatch<'_> {
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
                 let constructor_return_type = quote_spanned!(constructor_span=>
                     <::ink::reflect::ConstructorOutputValue<#output_type>
-                        as ::ink::reflect::ConstructorOutput<#output_type>>
+                        as ::ink::reflect::ConstructorOutput<#storage_ident>>
                 );
                 quote_spanned!(constructor_span=>
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
