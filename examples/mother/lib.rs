@@ -20,7 +20,10 @@
 #[ink::contract]
 mod mother {
     use ink::prelude::{
-        string::{String, ToString},
+        string::{
+            String,
+            ToString,
+        },
         vec::Vec,
     };
 
