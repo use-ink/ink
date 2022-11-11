@@ -73,11 +73,11 @@ macro_rules! define_error_codes {
 define_error_codes! {
     /// The called function trapped and has its state changes reverted.
     /// In this case no output buffer is returned.
-    /// Can only be returned from `seal_call` and `seal_instantiate`.
+    /// Can only be returned from `call` and `instantiate`.
     CalleeTrapped = 1,
     /// The called function ran to completion but decided to revert its state.
     /// An output buffer is returned when one was supplied.
-    /// Can only be returned from `seal_call` and `seal_instantiate`.
+    /// Can only be returned from `call` and `instantiate`.
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
@@ -92,7 +92,7 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is no contract.
     NotCallable = 8,
-    /// The call to `seal_debug_message` had no effect because debug message
+    /// The call to `debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
