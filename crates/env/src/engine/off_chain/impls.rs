@@ -245,14 +245,14 @@ impl EnvBackend for EnvInstance {
     where
         T: scale::Decode,
     {
-        unimplemented!("the off-chain env does not implement `seal_input`")
+        unimplemented!("the off-chain env does not implement `input`")
     }
 
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        unimplemented!("the off-chain env does not implement `seal_return_value`")
+        unimplemented!("the off-chain env does not implement `return_value`")
     }
 
     fn debug_message(&mut self, message: &str) {

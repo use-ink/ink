@@ -54,11 +54,11 @@ macro_rules! define_error_codes {
 define_error_codes! {
     /// The called function trapped and has its state changes reverted.
     /// In this case no output buffer is returned.
-    /// Can only be returned from `seal_call` and `seal_instantiate`.
+    /// Can only be returned from `call` and `instantiate`.
     CalleeTrapped = 1,
     /// The called function ran to completion but decided to revert its state.
     /// An output buffer is returned when one was supplied.
-    /// Can only be returned from `seal_call` and `seal_instantiate`.
+    /// Can only be returned from `call` and `instantiate`.
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
@@ -73,7 +73,7 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is no contract.
     NotCallable = 8,
-     /// The call to `seal_debug_message` had no effect because debug message
+     /// The call to `debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
@@ -217,21 +217,21 @@ mod sys {
 
     #[link(wasm_import_module = "seal0")]
     extern "C" {
-        pub fn seal_transfer(
+        pub fn transfer(
             account_id_ptr: Ptr32<[u8]>,
             account_id_len: u32,
             transferred_value_ptr: Ptr32<[u8]>,
             transferred_value_len: u32,
         ) -> ReturnCode;
 
-        pub fn seal_deposit_event(
+        pub fn deposit_event(
             topics_ptr: Ptr32<[u8]>,
             topics_len: u32,
             data_ptr: Ptr32<[u8]>,
             data_len: u32,
         );
 
-        pub fn seal_call_chain_extension(
+        pub fn call_chain_extension(
             func_id: u32,
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
@@ -239,74 +239,65 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
-        pub fn seal_input(buf_ptr: Ptr32Mut<[u8]>, buf_len_ptr: Ptr32Mut<u32>);
+        pub fn input(buf_ptr: Ptr32Mut<[u8]>, buf_len_ptr: Ptr32Mut<u32>);
         pub fn seal_return(flags: u32, data_ptr: Ptr32<[u8]>, data_len: u32) -> !;
 
-        pub fn seal_caller(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_block_number(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-        pub fn seal_address(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_balance(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_weight_to_fee(
+        pub fn caller(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn block_number(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn address(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn balance(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn weight_to_fee(
             gas: u64,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
-        pub fn seal_gas_left(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_value_transferred(
+        pub fn gas_left(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn value_transferred(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
-        pub fn seal_now(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_minimum_balance(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
+        pub fn now(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
+        pub fn minimum_balance(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
 
-        pub fn seal_hash_keccak_256(
+        pub fn hash_keccak_256(
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
-        pub fn seal_hash_blake2_256(
+        pub fn hash_blake2_256(
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
-        pub fn seal_hash_blake2_128(
+        pub fn hash_blake2_128(
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
-        pub fn seal_hash_sha2_256(
+        pub fn hash_sha2_256(
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
 
-        pub fn seal_is_contract(account_id_ptr: Ptr32<[u8]>) -> ReturnCode;
+        pub fn is_contract(account_id_ptr: Ptr32<[u8]>) -> ReturnCode;
 
-        pub fn seal_caller_is_origin() -> ReturnCode;
+        pub fn caller_is_origin() -> ReturnCode;
 
-        pub fn seal_set_code_hash(code_hash_ptr: Ptr32<[u8]>) -> ReturnCode;
+        pub fn set_code_hash(code_hash_ptr: Ptr32<[u8]>) -> ReturnCode;
 
-        pub fn seal_code_hash(
+        pub fn code_hash(
             account_id_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
-        pub fn seal_own_code_hash(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
+        pub fn own_code_hash(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
 
         #[cfg(feature = "ink-debug")]
-        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
+        pub fn debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
 
-        pub fn seal_delegate_call(
+        pub fn delegate_call(
             flags: u32,
             code_hash_ptr: Ptr32<[u8]>,
             input_data_ptr: Ptr32<[u8]>,
@@ -315,7 +306,7 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
-        pub fn seal_ecdsa_recover(
+        pub fn ecdsa_recover(
             // 65 bytes of ecdsa signature
             signature_ptr: Ptr32<[u8]>,
             // 32 bytes hash of the message
@@ -323,7 +314,7 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
 
-        pub fn seal_ecdsa_to_eth_address(
+        pub fn ecdsa_to_eth_address(
             public_key_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
@@ -331,7 +322,7 @@ mod sys {
 
     #[link(wasm_import_module = "seal1")]
     extern "C" {
-        pub fn seal_instantiate(
+        pub fn instantiate(
             init_code_ptr: Ptr32<[u8]>,
             gas: u64,
             endowment_ptr: Ptr32<[u8]>,
@@ -345,9 +336,9 @@ mod sys {
             salt_len: u32,
         ) -> ReturnCode;
 
-        pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>) -> !;
+        pub fn terminate(beneficiary_ptr: Ptr32<[u8]>) -> !;
 
-        pub fn seal_call(
+        pub fn call(
             flags: u32,
             callee_ptr: Ptr32<[u8]>,
             gas: u64,
@@ -372,7 +363,7 @@ mod sys {
         //
         // Returns the size of the pre-existing value at the specified key if any. Otherwise
         // `SENTINEL` is returned as a sentinel value.
-        pub fn seal_set_storage(
+        pub fn set_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,
             value_ptr: Ptr32<[u8]>,
@@ -388,7 +379,7 @@ mod sys {
         //
         // Returns the size of the pre-existing value at the specified key if any. Otherwise
         // `SENTINEL` is returned as a sentinel value.
-        pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
+        pub fn clear_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
 
         // # Parameters
         //
@@ -399,7 +390,7 @@ mod sys {
         //
         // Returns the size of the pre-existing value at the specified key if any. Otherwise
         // `SENTINEL` is returned as a sentinel value.
-        pub fn seal_contains_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
+        pub fn contains_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
 
         // # Parameters
         //
@@ -412,7 +403,7 @@ mod sys {
         // # Errors
         //
         // `ReturnCode::KeyNotFound`
-        pub fn seal_get_storage(
+        pub fn get_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,
             out_ptr: Ptr32Mut<[u8]>,
@@ -432,7 +423,7 @@ mod sys {
         /// # Errors
         ///
         /// `ReturnCode::KeyNotFound`
-        pub fn seal_take_storage(
+        pub fn take_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,
             out_ptr: Ptr32Mut<[u8]>,
@@ -462,7 +453,7 @@ pub fn instantiate(
     let mut return_value_len = out_return_value.len() as u32;
     let ret_code = {
         unsafe {
-            sys::seal_instantiate(
+            sys::instantiate(
                 Ptr32::from_slice(code_hash),
                 gas_limit,
                 Ptr32::from_slice(endowment),
@@ -494,7 +485,7 @@ pub fn call(
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
-            sys::seal_call(
+            sys::call(
                 flags,
                 Ptr32::from_slice(callee),
                 gas_limit,
@@ -520,7 +511,7 @@ pub fn delegate_call(
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
-            sys::seal_delegate_call(
+            sys::delegate_call(
                 flags,
                 Ptr32::from_slice(code_hash),
                 Ptr32::from_slice(input),
@@ -536,7 +527,7 @@ pub fn delegate_call(
 
 pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
     let ret_code = unsafe {
-        sys::seal_transfer(
+        sys::transfer(
             Ptr32::from_slice(account_id),
             account_id.len() as u32,
             Ptr32::from_slice(value),
@@ -548,7 +539,7 @@ pub fn transfer(account_id: &[u8], value: &[u8]) -> Result {
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
     unsafe {
-        sys::seal_deposit_event(
+        sys::deposit_event(
             Ptr32::from_slice(topics),
             topics.len() as u32,
             Ptr32::from_slice(data),
@@ -559,7 +550,7 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
 
 pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
     let ret_code = unsafe {
-        sys::seal_set_storage(
+        sys::set_storage(
             Ptr32::from_slice(key),
             key.len() as u32,
             Ptr32::from_slice(encoded_value),
@@ -571,7 +562,7 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) -> Option<u32> {
 
 pub fn clear_storage(key: &[u8]) -> Option<u32> {
     let ret_code =
-        unsafe { sys::seal_clear_storage(Ptr32::from_slice(key), key.len() as u32) };
+        unsafe { sys::clear_storage(Ptr32::from_slice(key), key.len() as u32) };
     ret_code.into()
 }
 
@@ -580,7 +571,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
-            sys::seal_get_storage(
+            sys::get_storage(
                 Ptr32::from_slice(key),
                 key.len() as u32,
                 Ptr32Mut::from_slice(output),
@@ -597,7 +588,7 @@ pub fn take_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
-            sys::seal_take_storage(
+            sys::take_storage(
                 Ptr32::from_slice(key),
                 key.len() as u32,
                 Ptr32Mut::from_slice(output),
@@ -611,12 +602,12 @@ pub fn take_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
 
 pub fn storage_contains(key: &[u8]) -> Option<u32> {
     let ret_code =
-        unsafe { sys::seal_contains_storage(Ptr32::from_slice(key), key.len() as u32) };
+        unsafe { sys::contains_storage(Ptr32::from_slice(key), key.len() as u32) };
     ret_code.into()
 }
 
 pub fn terminate(beneficiary: &[u8]) -> ! {
-    unsafe { sys::seal_terminate(Ptr32::from_slice(beneficiary)) }
+    unsafe { sys::terminate(Ptr32::from_slice(beneficiary)) }
 }
 
 #[inline(always)]
@@ -624,7 +615,7 @@ pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) 
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
-            sys::seal_call_chain_extension(
+            sys::call_chain_extension(
                 func_id,
                 Ptr32::from_slice(input),
                 input.len() as u32,
@@ -642,7 +633,7 @@ pub fn input(output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
         unsafe {
-            sys::seal_input(
+            sys::input(
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
             )
@@ -661,15 +652,15 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     }
 }
 
-macro_rules! impl_seal_wrapper_for {
-    ( $( ($name:ident => $seal_name:ident), )* ) => {
+macro_rules! impl_wrapper_for {
+    ( $( $name:ident, )* ) => {
         $(
             #[inline(always)]
             pub fn $name(output: &mut &mut [u8]) {
                 let mut output_len = output.len() as u32;
                 {
                     unsafe {
-                        sys::$seal_name(
+                        sys::$name(
                             Ptr32Mut::from_slice(output),
                             Ptr32Mut::from_ref(&mut output_len),
                         )
@@ -679,15 +670,15 @@ macro_rules! impl_seal_wrapper_for {
         )*
     }
 }
-impl_seal_wrapper_for! {
-    (caller => seal_caller),
-    (block_number => seal_block_number),
-    (address => seal_address),
-    (balance => seal_balance),
-    (gas_left => seal_gas_left),
-    (value_transferred => seal_value_transferred),
-    (now => seal_now),
-    (minimum_balance => seal_minimum_balance),
+impl_wrapper_for! {
+    caller,
+    block_number,
+    address,
+    balance,
+    gas_left,
+    value_transferred,
+    now,
+    minimum_balance,
 }
 
 #[inline(always)]
@@ -695,7 +686,7 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
         unsafe {
-            sys::seal_weight_to_fee(
+            sys::weight_to_fee(
                 gas,
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
@@ -706,7 +697,7 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
 }
 
 #[cfg(feature = "ink-debug")]
-/// Call `seal_debug_message` with the supplied UTF-8 encoded message.
+/// Call `debug_message` with the supplied UTF-8 encoded message.
 ///
 /// If debug message recording is disabled in the contracts pallet, the first call will
 /// return a `LoggingDisabled` error, and further calls will be a no-op to avoid the cost
@@ -714,7 +705,7 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
 ///
 /// # Note
 ///
-/// This depends on the `seal_debug_message` interface which requires the
+/// This depends on the `debug_message` interface which requires the
 /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
 pub fn debug_message(message: &str) {
     static mut DEBUG_ENABLED: bool = false;
@@ -728,9 +719,8 @@ pub fn debug_message(message: &str) {
     // of underestimate gas usage. Otherwise using this estimate could lead to a out of gas error.
     if unsafe { DEBUG_ENABLED || FIRST_RUN } {
         let bytes = message.as_bytes();
-        let ret_code = unsafe {
-            sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
-        };
+        let ret_code =
+            unsafe { sys::debug_message(Ptr32::from_slice(bytes), bytes.len() as u32) };
         if !matches!(ret_code.into(), Err(Error::LoggingDisabled)) {
             // SAFETY: safe because executing in a single threaded context
             unsafe { DEBUG_ENABLED = true }
@@ -749,7 +739,7 @@ macro_rules! impl_hash_fn {
         paste::item! {
             pub fn [<hash_ $name>](input: &[u8], output: &mut [u8; $bytes_result]) {
                 unsafe {
-                    sys::[<seal_hash_ $name>](
+                    sys::[<hash_ $name>](
                         Ptr32::from_slice(input),
                         input.len() as u32,
                         Ptr32Mut::from_slice(output),
@@ -770,7 +760,7 @@ pub fn ecdsa_recover(
     output: &mut [u8; 33],
 ) -> Result {
     let ret_code = unsafe {
-        sys::seal_ecdsa_recover(
+        sys::ecdsa_recover(
             Ptr32::from_slice(signature),
             Ptr32::from_slice(message_hash),
             Ptr32Mut::from_slice(output),
@@ -781,33 +771,30 @@ pub fn ecdsa_recover(
 
 pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result {
     let ret_code = unsafe {
-        sys::seal_ecdsa_to_eth_address(
-            Ptr32::from_slice(pubkey),
-            Ptr32Mut::from_slice(output),
-        )
+        sys::ecdsa_to_eth_address(Ptr32::from_slice(pubkey), Ptr32Mut::from_slice(output))
     };
     ret_code.into()
 }
 
 pub fn is_contract(account_id: &[u8]) -> bool {
-    let ret_val = unsafe { sys::seal_is_contract(Ptr32::from_slice(account_id)) };
+    let ret_val = unsafe { sys::is_contract(Ptr32::from_slice(account_id)) };
     ret_val.into_bool()
 }
 
 pub fn caller_is_origin() -> bool {
-    let ret_val = unsafe { sys::seal_caller_is_origin() };
+    let ret_val = unsafe { sys::caller_is_origin() };
     ret_val.into_bool()
 }
 
 pub fn set_code_hash(code_hash: &[u8]) -> Result {
-    let ret_val = unsafe { sys::seal_set_code_hash(Ptr32::from_slice(code_hash)) };
+    let ret_val = unsafe { sys::set_code_hash(Ptr32::from_slice(code_hash)) };
     ret_val.into()
 }
 
 pub fn code_hash(account_id: &[u8], output: &mut [u8]) -> Result {
     let mut output_len = output.len() as u32;
     let ret_val = unsafe {
-        sys::seal_code_hash(
+        sys::code_hash(
             Ptr32::from_slice(account_id),
             Ptr32Mut::from_slice(output),
             Ptr32Mut::from_ref(&mut output_len),
@@ -819,7 +806,7 @@ pub fn code_hash(account_id: &[u8], output: &mut [u8]) -> Result {
 pub fn own_code_hash(output: &mut [u8]) {
     let mut output_len = output.len() as u32;
     unsafe {
-        sys::seal_own_code_hash(
+        sys::own_code_hash(
             Ptr32Mut::from_slice(output),
             Ptr32Mut::from_ref(&mut output_len),
         )
