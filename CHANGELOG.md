@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
+- Fix E2E dry-run for `Mapping::insert()` - [#1494](https://github.com/paritytech/ink/pull/1494)
 
 ### Breaking Changes
 
