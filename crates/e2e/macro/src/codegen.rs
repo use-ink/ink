@@ -132,6 +132,17 @@ impl InkE2ETest {
 
                 ::ink_e2e::INIT.call_once(|| {
                     ::ink_e2e::env_logger::init();
+                    let check_async = ::ink_e2e::Client::<
+                        ::ink_e2e::PolkadotConfig,
+                        ink::env::DefaultEnvironment
+                    >::new(&#ws_url);
+
+                    ::ink_e2e::tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .unwrap_or_else(|err|
+                            panic!("Failed building the Runtime during initialization: {}", err))
+                        .block_on(check_async);
                 });
 
                 #( #meta )*

@@ -235,4 +235,13 @@ mod mother {
             let _ = contract.revert_or_trap(Some(Failure::Panic));
         }
     }
+
+    #[cfg(test)]
+    mod e2e_tests {
+        use super::*;
+
+        #[ink_e2e::test(ws_url = "ws:://0.0.0.0:9944")]
+        #[should_panic]
+        async fn e2e_must_fail_without_connection(mut client: ink_e2e::Client<C, E>) {}
+    }
 }
