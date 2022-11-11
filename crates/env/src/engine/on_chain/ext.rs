@@ -444,7 +444,7 @@ mod sys {
         //
         // Returns the size of the pre-existing value at the specified key if any. Otherwise
         // `SENTINEL` is returned as a sentinel value.
-        pub fn seal_set_storage(
+        pub fn set_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,
             value_ptr: Ptr32<[u8]>,
