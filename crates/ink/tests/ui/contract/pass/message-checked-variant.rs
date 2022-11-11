@@ -20,5 +20,4 @@ use contract::Contract;
 fn main() {
     let contract = Contract::default();
     contract.message();
-    contract.message_checked().unwrap();
 }
