@@ -358,7 +358,7 @@ where
         input_data: Vec<u8>,
     ) -> ContractExecResult<E::Balance> {
         let call_request = RpcCallRequest::<C, E> {
-            origin: account_id,
+            origin,
             dest: contract,
             value,
             gas_limit: DRY_RUN_GAS_LIMIT,
