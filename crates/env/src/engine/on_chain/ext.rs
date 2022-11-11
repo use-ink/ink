@@ -348,27 +348,6 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
-    }
-
-    #[link(wasm_import_module = "__unstable__")]
-    extern "C" {
-        // # Parameters
-        //
-        // - `key_ptr`: pointer into the linear memory where the location to store the value is placed.
-        // - `key_len`: the length of the key in bytes.
-        // - `value_ptr`: pointer into the linear memory where the value to set is placed.
-        // - `value_len`: the length of the value in bytes.
-        //
-        // # Return Value
-        //
-        // Returns the size of the pre-existing value at the specified key if any. Otherwise
-        // `SENTINEL` is returned as a sentinel value.
-        pub fn set_storage(
-            key_ptr: Ptr32<[u8]>,
-            key_len: u32,
-            value_ptr: Ptr32<[u8]>,
-            value_len: u32,
-        ) -> ReturnCode;
 
         // # Parameters
         //
@@ -409,7 +388,10 @@ mod sys {
             out_ptr: Ptr32Mut<[u8]>,
             out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+    }
 
+    #[link(wasm_import_module = "__unstable__")]
+    extern "C" {
         /// Retrieve and remove the value under the given key from storage.
         ///
         /// # Parameters
@@ -428,6 +410,27 @@ mod sys {
             key_len: u32,
             out_ptr: Ptr32Mut<[u8]>,
             out_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
+    }
+
+    #[link(wasm_import_module = "seal2")]
+    extern "C" {
+        // # Parameters
+        //
+        // - `key_ptr`: pointer into the linear memory where the location to store the value is placed.
+        // - `key_len`: the length of the key in bytes.
+        // - `value_ptr`: pointer into the linear memory where the value to set is placed.
+        // - `value_len`: the length of the value in bytes.
+        //
+        // # Return Value
+        //
+        // Returns the size of the pre-existing value at the specified key if any. Otherwise
+        // `SENTINEL` is returned as a sentinel value.
+        pub fn set_storage(
+            key_ptr: Ptr32<[u8]>,
+            key_len: u32,
+            value_ptr: Ptr32<[u8]>,
+            value_len: u32,
         ) -> ReturnCode;
     }
 }
