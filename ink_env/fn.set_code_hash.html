@@ -16,7 +16,7 @@ when using this API you lose the guarantee that an address always identifies a s
 <li>
 <p>If a contract calls into itself after changing its code the new call would use
 the new code. However, if the original caller panics after returning from the sub call it
-would revert the changes made by <code>seal_set_code_hash</code> and the next caller would use
+would revert the changes made by <code>set_code_hash</code> and the next caller would use
 the old code.</p>
 </li>
 </ol>

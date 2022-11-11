@@ -790,14 +790,14 @@
     <span class="kw">where
         </span>T: scale::Decode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `seal_input`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `input`&quot;</span>)
     }
 
     <span class="kw">fn </span>return_value&lt;R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _flags: ReturnFlags, _return_value: <span class="kw-2">&amp;</span>R) -&gt; !
     <span class="kw">where
         </span>R: scale::Encode,
     {
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `seal_return_value`&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;the off-chain env does not implement `return_value`&quot;</span>)
     }
 
     <span class="kw">fn </span>debug_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>str) {
