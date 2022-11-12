@@ -25,6 +25,7 @@ use alloc::{
     vec::Vec,
 };
 use core::marker::PhantomData;
+use ink_primitives::LangError;
 use scale_info::{
     form::{
         Form,
@@ -33,6 +34,7 @@ use scale_info::{
     },
     meta_type,
     IntoPortable,
+    PortableRegistryBuilder,
     Registry,
     TypeInfo,
 };
@@ -349,6 +351,7 @@ pub struct ConstructorSpecBuilder<F: Form, Selector, IsPayable, Returns> {
 impl<F> ConstructorSpec<F>
 where
     F: Form,
+    ReturnTypeSpec<F>: Default,
 {
     /// Creates a new constructor spec builder.
     pub fn from_label(
@@ -365,7 +368,7 @@ where
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(None),
+                return_type: Default::default(),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -519,6 +522,7 @@ mod state {
 impl<F> MessageSpec<F>
 where
     F: Form,
+    ReturnTypeSpec<F>: Default,
 {
     /// Creates a new message spec builder.
     pub fn from_label(
@@ -537,7 +541,7 @@ where
                 mutates: false,
                 payable: false,
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(None),
+                return_type: Default::default(),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -1214,7 +1218,23 @@ where
 #[must_use]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    opt_type: Option<TypeSpec<F>>,
+    return_type: TypeSpec<F>,
+}
+
+impl Default for ReturnTypeSpec<MetaForm> {
+    fn default() -> Self {
+        Self {
+            return_type: TypeSpec::of_type::<Result<(), LangError>>(),
+        }
+    }
+}
+
+impl Default for ReturnTypeSpec<PortableForm> {
+    fn default() -> Self {
+        Self {
+            return_type: Default::default(),
+        }
+    }
 }
 
 impl IntoPortable for ReturnTypeSpec {
@@ -1222,10 +1242,39 @@ impl IntoPortable for ReturnTypeSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ReturnTypeSpec {
-            opt_type: self
-                .opt_type
-                .map(|opt_type| opt_type.into_portable(registry)),
+            return_type: self.return_type.into_portable(registry),
         }
+    }
+}
+
+impl ReturnTypeSpec {
+    /// Creates a new return type specification XXX: TODO update docs
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
+    /// # use ink_primitives::LangError;
+    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new::<(), LangError>(None); // no return type;
+    /// ```
+    pub fn new<O, E>() -> Self
+    where
+        O: TypeInfo + 'static,
+        E: TypeInfo + 'static,
+    {
+        Self {
+            return_type: TypeSpec::of_type::<Result<O, E>>(),
+        }
+    }
+}
+
+impl ReturnTypeSpec<PortableForm> {
+    pub fn portable(
+        _ok: <PortableForm as Form>::Type,
+        _err: <PortableForm as Form>::Type,
+        _registry: &mut PortableRegistryBuilder,
+    ) -> Self {
+        todo!()
     }
 }
 
@@ -1233,26 +1282,9 @@ impl<F> ReturnTypeSpec<F>
 where
     F: Form,
 {
-    /// Creates a new return type specification from the given type or `None`.
-    ///
-    /// # Examples
-    ///
-    /// ```no_run
-    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
-    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(None); // no return type;
-    /// ```
-    pub fn new<T>(ty: T) -> Self
-    where
-        T: Into<Option<TypeSpec<F>>>,
-    {
-        Self {
-            opt_type: ty.into(),
-        }
-    }
-
-    /// Returns the optional return type
-    pub fn opt_type(&self) -> Option<&TypeSpec<F>> {
-        self.opt_type.as_ref()
+    /// Returns the return type specification
+    pub fn return_type(&self) -> &TypeSpec<F> {
+        &self.return_type
     }
 }
 
