@@ -75,27 +75,68 @@ mod cross_chain_test {
                 .await
                 .expect("instantiate `flipper` failed")
                 .account_id;
-            let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
 
-            let valid_selector = [0x63, 0x3A, 0xA5, 0x51];
-            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            // --- Can Flip Correctly ---
 
-            let call_result = client
+            let get_call_result = client
                 .call(
                     &mut ink_e2e::bob(),
-                    contract_acc_id.clone(),
-                    cross_chain_test::messages::call(flipper_ink_acc_id, valid_selector),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
                     0,
                     None,
                 )
                 .await
-                .expect("calling `cross_chain_test::call` failed");
-            assert!(call_result.value.is_ok());
-            dbg!(&call_result.value);
+                .expect("Calling `flipper::get` failed");
+            let initial_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
 
-            // TODO: Figure out `Clone` impl for E2EAccountId
+            let flip_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::flip(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::flip` failed");
+            assert!(flip_call_result.value.is_ok());
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let flipped_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+            assert!(flipped_value == !initial_value);
+
+            // --- Invalid Selector Can Be Handled ---
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let initial_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+
             let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
-
+            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call_result = client
                 .call(
                     &mut ink_e2e::bob(),
@@ -108,17 +149,81 @@ mod cross_chain_test {
                     None,
                 )
                 .await
-                .expect("calling `cross_chain_test::call` failed");
-            dbg!(&call_result.value);
+                .expect("Calling `cross_chain_test::call` failed");
+
+            let flipper_result = call_result
+                .value
+                .expect("Call to `cross_chain_test::call` failed");
 
             // TODO: Need to figure out how to derive `PartialEq` for `e2e::LangError`
-            match call_result.value.unwrap() {
+            match flipper_result {
                 Ok(_) => panic!("should've been an error"),
                 Err(E2ELangError::CouldNotReadInput) => {}
                 // TODO: Need to figure out how to make `e2e::LangError` `non_exhaustive`
                 #[allow(unreachable_patterns)]
                 Err(_) => panic!("should've been a different error"),
             };
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let flipped_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+            assert!(flipped_value == initial_value);
+
+            // --- State is Reverted on Message Error ---
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let initial_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+
+            let err_flip_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::err_flip(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::err_flip` failed");
+            let flipper_result = err_flip_call_result
+                .value
+                .expect("Call to `flipper::err_flip` failed");
+            assert!(flipper_result.is_err());
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let flipped_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+            assert!(flipped_value == initial_value);
 
             Ok(())
         }

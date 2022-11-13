@@ -36,6 +36,15 @@ pub mod flipper {
         pub fn get(&self) -> bool {
             self.value
         }
+
+        /// Flips the current value of the Flipper's boolean.
+        ///
+        /// We should see the state being reverted here, no write should occur.
+        #[ink(message)]
+        pub fn err_flip(&mut self) -> Result<(), ()> {
+            self.value = !self.value;
+            Err(())
+        }
     }
 
     #[cfg(test)]
