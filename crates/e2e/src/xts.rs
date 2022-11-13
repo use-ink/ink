@@ -351,14 +351,14 @@ where
     /// Dry runs a call of the contract at `contract` with the given parameters.
     pub async fn call_dry_run(
         &self,
-        account_id: C::AccountId,
+        origin: C::AccountId,
         contract: C::AccountId,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
         input_data: Vec<u8>,
     ) -> ContractExecResult<E::Balance> {
         let call_request = RpcCallRequest::<C, E> {
-            origin: account_id,
+            origin,
             dest: contract,
             value,
             gas_limit: DRY_RUN_GAS_LIMIT,
