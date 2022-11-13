@@ -18,7 +18,7 @@ mod cross_chain_test {
             &mut self,
             address: AccountId,
             selector: [u8; 4],
-        ) -> Result<(), ::ink::LangError> {
+        ) -> Option<::ink::LangError> {
             use ink::env::{
                 call::{
                     build_call,
@@ -39,10 +39,10 @@ mod cross_chain_test {
 
             ink::env::debug_println!("cross_contract::call output: {:?}", &result);
             match result {
-                Ok(_) => Ok(()),
+                Ok(_) => None,
                 Err(e @ ink::LangError::CouldNotReadInput) => {
                     ink::env::debug_println!("CouldNotReadInput");
-                    Err(e)
+                    Some(e)
                 }
                 Err(_) => unimplemented!(),
             }
@@ -146,12 +146,12 @@ mod cross_chain_test {
                     0,
                     None,
                 )
-                .await
-                .expect("Calling `flipper::err_flip` failed");
-            let flipper_result = err_flip_call_result
-                .value
-                .expect("Call to `flipper::err_flip` failed");
-            assert!(flipper_result.is_err());
+                .await;
+
+            assert!(matches!(
+                err_flip_call_result,
+                Err(ink_e2e::Error::CallExtrinsic(_))
+            ));
 
             let get_call_result = client
                 .call(
@@ -228,14 +228,10 @@ mod cross_chain_test {
                 .value
                 .expect("Call to `cross_chain_test::call` failed");
 
-            // TODO: Need to figure out how to derive `PartialEq` for `e2e::LangError`
-            match flipper_result {
-                Ok(_) => panic!("should've been an error"),
-                Err(E2ELangError::CouldNotReadInput) => {}
-                // TODO: Need to figure out how to make `e2e::LangError` `non_exhaustive`
-                #[allow(unreachable_patterns)]
-                Err(_) => panic!("should've been a different error"),
-            };
+            assert!(matches!(
+                flipper_result,
+                Some(E2ELangError::CouldNotReadInput)
+            ));
 
             let get_call_result = client
                 .call(
