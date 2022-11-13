@@ -256,25 +256,14 @@ impl ItemImpls<'_> {
         let vis = message.visibility();
         let receiver = message.receiver();
         let ident = message.ident();
-        let checked_ident = message.checked_ident();
         let inputs = message.inputs();
-        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
-        let wrapped_inputs = message.inputs();
         let output_arrow = message.output().map(|_| quote! { -> });
         let output = message.output();
-        let wrapped_output = message.wrapped_output();
         let statements = message.statements();
-
         quote_spanned!(span =>
             #( #attrs )*
             #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
                 #( #statements )*
-            }
-
-            #( #attrs )*
-            #vis fn #checked_ident(#receiver #( , #wrapped_inputs )* ) -> #wrapped_output {
-                ::core::result::Result::Ok(self.#ident( #( #input_bindings , )* ))
-
             }
         )
     }

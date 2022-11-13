@@ -297,12 +297,14 @@ impl Dispatch<'_> {
             .map(|message| {
                 let message_span = message.span();
                 let message_ident = message.ident();
-                let checked_message_ident = message.checked_ident();
                 let payable = message.is_payable();
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
-                let output_tuple_type = message.wrapped_output();
+                let output_tuple_type = message
+                    .output()
+                    .map(quote::ToTokens::to_token_stream)
+                    .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
@@ -314,7 +316,7 @@ impl Dispatch<'_> {
 
                         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                             |storage, #input_tuple_bindings| {
-                                #storage_ident::#checked_message_ident( storage #( , #input_bindings )* )
+                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const PAYABLE: ::core::primitive::bool = #payable;
@@ -777,21 +779,24 @@ impl Dispatch<'_> {
                     let failure = ::ink::is_result_type!(#message_output)
                         && ::ink::is_result_err!(result);
 
+                    // Currently no `LangError`s are raised at this level of the dispatch logic
+                    // so `Ok` is always returned to the caller.
+                    let return_value = ::core::result::Result::Ok(result);
+
                     if failure {
                         // We return early here since there is no need to push back the
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
-                        ::ink::env::return_value::<#message_output>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true), &result
+                        ::ink::env::return_value::<::core::result::Result::<#message_output, ::ink::LangError>>(
+                            ::ink::env::ReturnFlags::default().set_reverted(true), &return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
-                    ::ink::env::return_value::<#message_output>(
-                        ::ink::env::ReturnFlags::default(), &result
+                    ::ink::env::return_value::<::core::result::Result::<#message_output, ::ink::LangError>>(
+                        ::ink::env::ReturnFlags::default(), &return_value
                     )
-
                 }
             )
         });
