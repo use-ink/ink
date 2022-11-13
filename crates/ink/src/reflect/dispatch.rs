@@ -224,10 +224,10 @@ pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
 /// }
 ///
 /// fn main() {
-///     assert_message_info::<(), Result<(), ink::LangError>, {selector_id!("message1")}>(
+///     assert_message_info::<(), (), {selector_id!("message1")}>(
 ///         false, false, selector_bytes!("message1"), "message1"
 ///     );
-///     assert_message_info::<(i32, i64), Result<(bool, i32), ink::LangError>, 0xC0DECAFE_u32>(
+///     assert_message_info::<(i32, i64), (bool, i32), 0xC0DECAFE_u32>(
 ///         true, true, [0xC0, 0xDE, 0xCA, 0xFE], "message2"
 ///     );
 /// }
