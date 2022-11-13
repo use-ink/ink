@@ -57,6 +57,11 @@ mod cross_chain_test {
         async fn e2e_cross_chain_test(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            use cross_chain_test::contract_types::ink_primitives::{
+                types::AccountId as E2EAccountId,
+                LangError as E2ELangError,
+            };
+
             let constructor = cross_chain_test::constructors::new();
             let contract_acc_id = client
                 .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
@@ -70,10 +75,7 @@ mod cross_chain_test {
                 .await
                 .expect("instantiate `flipper` failed")
                 .account_id;
-            let flipper_ink_acc_id =
-                cross_chain_test::contract_types::ink_primitives::types::AccountId(
-                    flipper_acc_id.clone().into(),
-                );
+            let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
 
             let valid_selector = [0x63, 0x3A, 0xA5, 0x51];
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
@@ -91,11 +93,8 @@ mod cross_chain_test {
             assert!(call_result.value.is_ok());
             dbg!(&call_result.value);
 
-            // TODO: Figure out `Clone` impl for AccountId
-            let flipper_ink_acc_id =
-                cross_chain_test::contract_types::ink_primitives::types::AccountId(
-                    flipper_acc_id.into(),
-                );
+            // TODO: Figure out `Clone` impl for E2EAccountId
+            let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
 
             let call_result = client
                 .call(
@@ -115,8 +114,7 @@ mod cross_chain_test {
             // TODO: Need to figure out how to derive `PartialEq` for `e2e::LangError`
             match call_result.value.unwrap() {
                 Ok(_) => panic!("should've been an error"),
-                Err(cross_chain_test::contract_types::ink_primitives::LangError::CouldNotReadInput) => {
-                }
+                Err(E2ELangError::CouldNotReadInput) => {}
                 // TODO: Need to figure out how to make `e2e::LangError` `non_exhaustive`
                 #[allow(unreachable_patterns)]
                 Err(_) => panic!("should've been a different error"),
