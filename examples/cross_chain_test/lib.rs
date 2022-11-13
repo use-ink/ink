@@ -54,21 +54,9 @@ mod cross_chain_test {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(additional_contracts = "../flipper/Cargo.toml")]
-        async fn e2e_cross_chain_test(
+        async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            use cross_chain_test::contract_types::ink_primitives::{
-                types::AccountId as E2EAccountId,
-                LangError as E2ELangError,
-            };
-
-            let constructor = cross_chain_test::constructors::new();
-            let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
-
             let flipper_constructor = flipper::constructors::default();
             let flipper_acc_id = client
                 .instantiate(&mut ink_e2e::alice(), flipper_constructor, 0, None)
@@ -76,7 +64,65 @@ mod cross_chain_test {
                 .expect("instantiate `flipper` failed")
                 .account_id;
 
-            // --- Can Flip Correctly ---
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::alice(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let initial_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+
+            let flip_call_result = client
+                .call(
+                    &mut ink_e2e::alice(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::flip(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::flip` failed");
+            assert!(flip_call_result.value.is_ok());
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::alice(),
+                    flipper_acc_id.clone(),
+                    flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let flipped_value = get_call_result
+                .value
+                .expect("Shouldn't fail since input is valid");
+            assert!(flipped_value == !initial_value);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../flipper/Cargo.toml")]
+        async fn e2e_message_error_reverts_state(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // TODO: If I use the same account here as in the above test  (so `ink_e2e::alice()`)
+            // then there's a problem with the tranaction priority which causes the test to panic.
+            //
+            // We should allow the same account to be used in tests, or at least do something
+            // better than just panicking with an obscure message.
+            let flipper_constructor = flipper::constructors::default();
+            let flipper_acc_id = client
+                .instantiate(&mut ink_e2e::bob(), flipper_constructor, 0, None)
+                .await
+                .expect("instantiate `flipper` failed")
+                .account_id;
 
             let get_call_result = client
                 .call(
@@ -92,17 +138,20 @@ mod cross_chain_test {
                 .value
                 .expect("Shouldn't fail since input is valid");
 
-            let flip_call_result = client
+            let err_flip_call_result = client
                 .call(
                     &mut ink_e2e::bob(),
                     flipper_acc_id.clone(),
-                    flipper::messages::flip(),
+                    flipper::messages::err_flip(),
                     0,
                     None,
                 )
                 .await
-                .expect("Calling `flipper::flip` failed");
-            assert!(flip_call_result.value.is_ok());
+                .expect("Calling `flipper::err_flip` failed");
+            let flipper_result = err_flip_call_result
+                .value
+                .expect("Call to `flipper::err_flip` failed");
+            assert!(flipper_result.is_err());
 
             let get_call_result = client
                 .call(
@@ -117,9 +166,33 @@ mod cross_chain_test {
             let flipped_value = get_call_result
                 .value
                 .expect("Shouldn't fail since input is valid");
-            assert!(flipped_value == !initial_value);
+            assert!(flipped_value == initial_value);
 
-            // --- Invalid Selector Can Be Handled ---
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../flipper/Cargo.toml")]
+        async fn e2e_invalid_selector_can_be_handled(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            use cross_chain_test::contract_types::ink_primitives::{
+                types::AccountId as E2EAccountId,
+                LangError as E2ELangError,
+            };
+
+            let constructor = cross_chain_test::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let flipper_constructor = flipper::constructors::default();
+            let flipper_acc_id = client
+                .instantiate(&mut ink_e2e::alice(), flipper_constructor, 0, None)
+                .await
+                .expect("instantiate `flipper` failed")
+                .account_id;
 
             let get_call_result = client
                 .call(
@@ -163,52 +236,6 @@ mod cross_chain_test {
                 #[allow(unreachable_patterns)]
                 Err(_) => panic!("should've been a different error"),
             };
-
-            let get_call_result = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    flipper_acc_id.clone(),
-                    flipper::messages::get(),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Calling `flipper::get` failed");
-            let flipped_value = get_call_result
-                .value
-                .expect("Shouldn't fail since input is valid");
-            assert!(flipped_value == initial_value);
-
-            // --- State is Reverted on Message Error ---
-
-            let get_call_result = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    flipper_acc_id.clone(),
-                    flipper::messages::get(),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Calling `flipper::get` failed");
-            let initial_value = get_call_result
-                .value
-                .expect("Shouldn't fail since input is valid");
-
-            let err_flip_call_result = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    flipper_acc_id.clone(),
-                    flipper::messages::err_flip(),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Calling `flipper::err_flip` failed");
-            let flipper_result = err_flip_call_result
-                .value
-                .expect("Call to `flipper::err_flip` failed");
-            assert!(flipper_result.is_err());
 
             let get_call_result = client
                 .call(
