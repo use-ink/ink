@@ -141,16 +141,12 @@ impl Metadata<'_> {
         let ret_ty = quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
                 Some(
-                    if #constructor_info ::IS_RESULT {
-                        ::ink::metadata::TypeSpec::of_type::<
-                            ::core::result::Result<
-                                (),
-                                #constructor_info ::Error
-                            >
-                        >()
-                    } else {
-                        ::ink::metadata::TypeSpec::of_type::< #constructor_info ::Output>()
-                    }
+                    ::ink::metadata::TypeSpec::of_type::<
+                        ::core::result::Result<
+                            (),
+                            #constructor_info ::Error
+                        >
+                    >()
                 )
             )
         );
