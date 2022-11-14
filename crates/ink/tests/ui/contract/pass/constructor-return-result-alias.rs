@@ -42,7 +42,7 @@ fn main() {
     assert_eq!("constructor", constructor.label());
     let type_spec = constructor.return_type().opt_type().unwrap();
     // todo: implement capturing type display name
-    assert_eq!("Result<Self>", format!("{}", type_spec.display_name()));
+    assert_eq!("core::result::Result", format!("{}", type_spec.display_name()));
     let ty = metadata.registry().resolve(type_spec.ty().id()).unwrap();
 
     // todo: prettify and generalise this to a helper `fn assert_result()` to share with other UI tests

@@ -140,18 +140,19 @@ impl Metadata<'_> {
         );
         let ret_ty = quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
-                Some(
-                    if #constructor_info ::IS_RESULT {
-                        ::ink::metadata::TypeSpec::of_type::<
-                            ::core::result::Result<
-                                (),
-                                #constructor_info ::Error
-                            >
-                        >()
-                    } else {
-                        ::ink::metadata::TypeSpec::of_type::< #constructor_info ::Output>()
-                    }
+                if #constructor_info ::IS_RESULT {
+                    Some(::ink::metadata::TypeSpec::with_name_str::<
+                        ::core::result::Result<
+                            (),
+                            #constructor_info ::Error
+                        >
+                    >(
+                        &"core::result::Result"
+                    )
                 )
+                } else {
+                    None
+                }
             )
         );
         quote_spanned!(span=>
