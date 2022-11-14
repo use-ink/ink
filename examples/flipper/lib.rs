@@ -41,6 +41,7 @@ pub mod flipper {
         ///
         /// We should see the state being reverted here, no write should occur.
         #[ink(message)]
+        #[allow(clippy::result_unit_err)]
         pub fn err_flip(&mut self) -> Result<(), ()> {
             self.value = !self.value;
             Err(())
