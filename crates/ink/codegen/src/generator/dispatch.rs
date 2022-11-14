@@ -603,7 +603,7 @@ impl Dispatch<'_> {
                         },
                         ::core::result::Result::Err(err) => {
                            ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
-                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Err(err)
+                                ::ink::env::ReturnFlags::default().set_reverted(true), &::core::result::Result::Err(err)
                             )
                         }
                     }
