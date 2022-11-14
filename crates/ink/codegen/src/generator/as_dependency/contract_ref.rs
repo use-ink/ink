@@ -344,8 +344,7 @@ impl ContractRef<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        let output_arrow = message.output().map(|_| quote! { -> });
-        let output_type = message.output();
+        let output_type = message.output().map(|ty| quote! { -> #ty });
         let wrapped_output_type = message.wrapped_output();
         quote_spanned!(span=>
             #( #attrs )*
@@ -353,7 +352,7 @@ impl ContractRef<'_> {
             pub fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
-            ) #output_arrow #output_type {
+            ) #output_type {
                 self.#checked_message_ident( #( #input_bindings, )* )
                     .unwrap_or_else(|error| ::core::panic!(
                         "encountered error while calling {}::{}: {:?}",
