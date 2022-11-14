@@ -598,12 +598,14 @@ impl Dispatch<'_> {
                             );
                             // On success we return the `Ok(())` value for callers.
                             ::ink::env::return_value::<::core::result::Result<&(), ()>>(
-                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Ok(&())
+                                ::ink::env::ReturnFlags::default().set_reverted(false),
+                                &::core::result::Result::Ok(&())
                             )
                         },
                         ::core::result::Result::Err(err) => {
                            ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
-                                ::ink::env::ReturnFlags::default(), &::core::result::Result::Err(err)
+                                ::ink::env::ReturnFlags::default().set_reverted(true),
+                                &::core::result::Result::Err(err)
                             )
                         }
                     }
