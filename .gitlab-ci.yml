@@ -140,7 +140,7 @@ fmt:
     - rustfmt +nightly --verbose --check ./examples/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
 
-.clippy-std:
+clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
