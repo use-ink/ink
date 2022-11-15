@@ -10,7 +10,7 @@ ink = { path = "../../../crates/ink", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
-integration_flipper = { path = "../integration_flipper", default-features = false, features = ["ink-as-dependency"] }
+integration_flipper = { path = "../integration-flipper", default-features = false, features = ["ink-as-dependency"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../../crates/e2e" }

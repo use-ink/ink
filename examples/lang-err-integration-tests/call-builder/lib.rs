@@ -61,7 +61,7 @@ mod call_builder {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "../integration_flipper/Cargo.toml")]
+        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
         async fn e2e_invalid_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {

@@ -5,11 +5,11 @@ mod contract_ref {
     use integration_flipper::FlipperRef;
 
     #[ink(storage)]
-    pub struct CrossChainRef {
+    pub struct ContractRef {
         flipper: FlipperRef,
     }
 
-    impl CrossChainRef {
+    impl ContractRef {
         #[ink(constructor)]
         pub fn new(version: u32, flipper_code_hash: Hash) -> Self {
             let salt = version.to_le_bytes();
@@ -54,7 +54,7 @@ mod contract_ref {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "../integration_flipper/Cargo.toml")]
+        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
         async fn e2e_ref_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
