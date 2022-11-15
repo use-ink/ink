@@ -32,7 +32,9 @@ mod contract_ref {
 
         #[ink(message)]
         pub fn flip_check(&mut self) {
-            self.flipper.flip_checked().unwrap();
+            self.flipper
+                .flip_checked()
+                .expect("The ink! codegen should've produced a valid call.");
         }
 
         #[ink(message)]
@@ -42,7 +44,9 @@ mod contract_ref {
 
         #[ink(message)]
         pub fn get_check(&mut self) -> bool {
-            self.flipper.get_checked().unwrap()
+            self.flipper
+                .get_checked()
+                .expect("The ink! codegen should've produced a valid call.")
         }
     }
 
@@ -50,10 +54,16 @@ mod contract_ref {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "../flipper/Cargo.toml")]
-        async fn e2e_contract_ref(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        #[ink_e2e::test(additional_contracts = "../integration_flipper/Cargo.toml")]
+        async fn e2e_ref_can_flip_correctly(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
             let flipper_hash: ink_e2e::H256 = client
-                .upload(&mut ink_e2e::alice(), flipper::CONTRACT_PATH, None)
+                .upload(
+                    &mut ink_e2e::alice(),
+                    integration_flipper::CONTRACT_PATH,
+                    None,
+                )
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
@@ -107,7 +117,7 @@ mod contract_ref {
                     None,
                 )
                 .await
-                .expect("Calling `get` failed");
+                .expect("Calling `get_check` failed");
             let flipped_value = get_call_result
                 .value
                 .expect("Input is valid, call must not fail.");
