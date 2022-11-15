@@ -29,7 +29,7 @@ log = { version = "0.4" }
 env_logger = { version = "0.9" }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 # TODO we need to use `subxt` `master` until the next release 0.25 is published.
-subxt = { git = "https://github.com/paritytech/subxt", branch = "aj/update-substrate-crates", package = "subxt" }
+subxt = { git = "https://github.com/paritytech/subxt", branch = "polkadot-v0.9.33", package = "subxt" }
 
 # Substrate
 sp-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "sp-rpc" }
