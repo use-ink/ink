@@ -363,7 +363,7 @@ examples-test:
     - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
