@@ -4,7 +4,7 @@ set -ex
 
 F="${1:-pass}"
 
-cargo contract build --manifest-path examples/flipper/Cargo.toml
+cargo contract build --manifest-path examples/flipper/Cargo.toml --offline
 cargo contract instantiate \
     --manifest-path examples/flipper/Cargo.toml \
     --suri //Alice --output-json \
@@ -15,14 +15,14 @@ cargo contract instantiate \
 FLIPPER_ADDRESS=$(tail -n +2 /tmp/deployment-output.json | jq --raw-output .contract)
 echo $FLIPPER_ADDRESS
 
-cargo contract build --manifest-path examples/cross_chain_test/Cargo.toml
+cargo contract build --manifest-path examples/lang_err_integration_tests/Cargo.toml --offline
 cargo contract instantiate \
-     --manifest-path examples/cross_chain_test/Cargo.toml \
+     --manifest-path examples/lang_err_integration_tests/Cargo.toml \
      --suri //Alice --output-json \
      --salt $(date +%s) \
      --skip-confirm > /tmp/deployment-output.json
 
- CROSS_ADDRESS=$(tail -n +2 /tmp/deployment-output.json | jq --raw-output .contract)
- echo $CROSS_ADDRESS
+ INTEGRATION_ADDRESS=$(tail -n +2 /tmp/deployment-output.json | jq --raw-output .contract)
+ echo $INTEGRATION_ADDRESS
 
- ./call-contract.sh $F $CROSS_ADDRESS $FLIPPER_ADDRESS
+ ./call-contract.sh $F $INTEGRATION_ADDRESS $FLIPPER_ADDRESS

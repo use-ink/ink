@@ -13,7 +13,7 @@ args=()
 args+=( --contract ${CROSS_CONTRACT_ADDR} )
 args+=( --message call )
 args+=( --suri //Alice )
-args+=( --manifest-path ./examples/cross_chain_test/Cargo.toml )
+args+=( --manifest-path ./examples/lang_err_integration_tests/Cargo.toml )
 args+=( --verbose )
 args+=( --skip-confirm )
 

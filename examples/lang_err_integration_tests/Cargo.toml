@@ -1,8 +1,9 @@
 [package]
-name = "cross_chain_test"
-version = "0.1.0"
-authors = ["[your_name] <[your_email]>"]
+name = "lang_err_integration_tests"
+version = "4.0.0-alpha.3"
+authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
+publish = false
 
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
@@ -14,7 +15,7 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "cross_chain_test"
+name = "lang_err_integration_tests"
 path = "lib.rs"
 crate-type = [
 	# Used for normal contract Wasm blobs.

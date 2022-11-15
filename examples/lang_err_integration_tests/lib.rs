@@ -1,15 +1,15 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::contract]
-mod cross_chain_test {
+mod lang_err_integration_tests {
 
     #[ink(storage)]
     #[derive(Default)]
-    pub struct CrossChainTest {
+    pub struct LangErrIntegrationTests {
         value: bool,
     }
 
-    impl CrossChainTest {
+    impl LangErrIntegrationTests {
         #[ink(constructor)]
         pub fn new() -> Self {
             Default::default()
@@ -39,7 +39,10 @@ mod cross_chain_test {
                 .fire()
                 .expect("seal error");
 
-            ink::env::debug_println!("cross_contract::call output: {:?}", &result);
+            ink::env::debug_println!(
+                "lang_err_integration_tests::call output: {:?}",
+                &result
+            );
             match result {
                 Ok(_) => None,
                 Err(e @ ink::LangError::CouldNotReadInput) => {
@@ -82,18 +85,18 @@ mod cross_chain_test {
         async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = cross_chain_test::constructors::new();
+            let constructor = lang_err_integration_tests::constructors::new();
             let contract_acc_id = client
                 .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
                 .await
-                .expect("Instantiate `cross_chain_test` failed")
+                .expect("Instantiate `lang_err_integration_tests` failed")
                 .account_id;
 
             let get_call_result = client
                 .call(
                     &mut ink_e2e::alice(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::get(),
+                    lang_err_integration_tests::messages::get(),
                     0,
                     None,
                 )
@@ -107,7 +110,7 @@ mod cross_chain_test {
                 .call(
                     &mut ink_e2e::alice(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::flip(),
+                    lang_err_integration_tests::messages::flip(),
                     0,
                     None,
                 )
@@ -122,7 +125,7 @@ mod cross_chain_test {
                 .call(
                     &mut ink_e2e::alice(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::get(),
+                    lang_err_integration_tests::messages::get(),
                     0,
                     None,
                 )
@@ -145,7 +148,7 @@ mod cross_chain_test {
             //
             // We should allow the same account to be used in tests, or at least do something
             // better than just panicking with an obscure message.
-            let constructor = cross_chain_test::constructors::new();
+            let constructor = lang_err_integration_tests::constructors::new();
             let contract_acc_id = client
                 .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
                 .await
@@ -156,7 +159,7 @@ mod cross_chain_test {
                 .call(
                     &mut ink_e2e::bob(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::get(),
+                    lang_err_integration_tests::messages::get(),
                     0,
                     None,
                 )
@@ -170,7 +173,7 @@ mod cross_chain_test {
                 .call(
                     &mut ink_e2e::bob(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::err_flip(),
+                    lang_err_integration_tests::messages::err_flip(),
                     0,
                     None,
                 )
@@ -185,7 +188,7 @@ mod cross_chain_test {
                 .call(
                     &mut ink_e2e::bob(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::get(),
+                    lang_err_integration_tests::messages::get(),
                     0,
                     None,
                 )
@@ -203,12 +206,12 @@ mod cross_chain_test {
         async fn e2e_invalid_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            use cross_chain_test::contract_types::ink_primitives::{
+            use lang_err_integration_tests::contract_types::ink_primitives::{
                 types::AccountId as E2EAccountId,
                 LangError as E2ELangError,
             };
 
-            let constructor = cross_chain_test::constructors::new();
+            let constructor = lang_err_integration_tests::constructors::new();
             let contract_acc_id = client
                 .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
                 .await
@@ -242,7 +245,7 @@ mod cross_chain_test {
                 .call(
                     &mut ink_e2e::charlie(),
                     contract_acc_id.clone(),
-                    cross_chain_test::messages::call(
+                    lang_err_integration_tests::messages::call(
                         flipper_ink_acc_id,
                         invalid_selector,
                     ),
@@ -250,11 +253,11 @@ mod cross_chain_test {
                     None,
                 )
                 .await
-                .expect("Calling `cross_chain_test::call` failed");
+                .expect("Calling `lang_err_integration_tests::call` failed");
 
             let flipper_result = call_result
                 .value
-                .expect("Call to `cross_chain_test::call` failed");
+                .expect("Call to `lang_err_integration_tests::call` failed");
 
             assert!(matches!(
                 flipper_result,
