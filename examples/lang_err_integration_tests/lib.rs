@@ -134,7 +134,7 @@ mod lang_err_integration_tests {
             let flipped_value = get_call_result
                 .value
                 .expect("Input is valid, call must not fail.");
-            assert!(flipped_value == !initial_value);
+            assert!(flipped_value != initial_value);
 
             Ok(())
         }
