@@ -1,10 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::flipper::{
-    Flipper,
-    FlipperRef,
-};
-
 #[ink::contract]
 pub mod flipper {
     #[ink(storage)]
