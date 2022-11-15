@@ -1,7 +1,7 @@
 [package]
 name = "contract_ref"
-version = "0.1.0"
-authors = ["[your_name] <[your_email]>"]
+version = "4.0.0-alpha.3"
+authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
 [dependencies]

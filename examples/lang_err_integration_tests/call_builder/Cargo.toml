@@ -18,8 +18,8 @@ ink_e2e = { path = "../../../crates/e2e" }
 name = "call_builder"
 path = "lib.rs"
 crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
+    # Used for normal contract Wasm blobs.
+    "cdylib",
 ]
 
 [features]
