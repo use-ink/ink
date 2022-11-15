@@ -115,7 +115,7 @@ fmt:
     - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
-examples-fmt:
+.examples-fmt:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -140,7 +140,7 @@ examples-fmt:
     - rustfmt +nightly --verbose --check ./examples/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
 
-clippy-std:
+.clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -149,7 +149,7 @@ clippy-std:
         cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
 
-clippy-wasm:
+.clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -159,7 +159,7 @@ clippy-wasm:
       done
   allow_failure:                   true
 
-examples-clippy-std:
+.examples-clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -181,7 +181,7 @@ examples-clippy-std:
     - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
-examples-clippy-wasm:
+.examples-clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -206,7 +206,7 @@ examples-clippy-wasm:
 
 #### stage:                        check
 
-check-std:
+.check-std:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -215,7 +215,7 @@ check-std:
         cargo check --verbose --all-features --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-check-wasm:
+.check-wasm:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -224,7 +224,7 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-dylint:
+.dylint:
     stage:                           check
     <<:                              *docker-env
     <<:                              *test-refs
@@ -242,7 +242,7 @@ dylint:
 
 #### stage:                        workspace
 
-build-std:
+.build-std:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -254,7 +254,7 @@ build-std:
         cargo build --verbose --all-features --release --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-build-wasm:
+.build-wasm:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -283,7 +283,7 @@ test:
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace --doc
 
-docs:
+.docs:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -316,7 +316,7 @@ docs:
     - chown -R nonroot:nonroot ./crate-docs
 
 
-codecov:
+.codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -417,7 +417,7 @@ examples-contract-build:
       done
     - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
-examples-docs:
+.examples-docs:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -447,7 +447,7 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
@@ -464,7 +464,7 @@ ink-waterfall:
 
 #### stage:                        publish
 
-publish-docs:
+.publish-docs:
   stage:                           publish
   <<:                              *kubernetes-env
   image:                           paritytech/tools:latest
