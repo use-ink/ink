@@ -787,14 +787,14 @@ impl Dispatch<'_> {
                         // We return early here since there is no need to push back the
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
-                        ::ink::env::return_value::<::core::result::Result::<#message_output, ::ink::LangError>>(
+                        ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
                             ::ink::env::ReturnFlags::default().set_reverted(true), &return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
-                    ::ink::env::return_value::<::core::result::Result::<#message_output, ::ink::LangError>>(
+                    ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
                         ::ink::env::ReturnFlags::default(), &return_value
                     )
                 }

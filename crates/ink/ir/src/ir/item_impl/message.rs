@@ -302,7 +302,7 @@ impl Message {
             .unwrap_or_else(|| quote::quote! { () });
 
         syn::parse_quote! {
-            ::core::result::Result<#return_type, ::ink::LangError>
+            ::ink::MessageResult<#return_type>
         }
     }
 

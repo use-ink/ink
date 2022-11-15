@@ -42,8 +42,11 @@ pub use self::{
     },
 };
 
-/// An error that comes from the smart contracting language, but not necessarily the smart contract
-/// itself nor the underlying execution environment.
+/// An error emitted by the smart contracting language.
+///
+/// This is different than errors from:
+/// - Errors from the contract, which are programmer defined
+/// - Errors from the underlying execution environment (e.g `pallet-contracts`)
 #[non_exhaustive]
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, ::scale::Encode, ::scale::Decode)]
@@ -52,3 +55,7 @@ pub enum LangError {
     /// Failed to read execution input for the dispatchable.
     CouldNotReadInput = 1u32,
 }
+
+/// The `Result` type for ink! messages.
+#[doc(hidden)]
+pub type MessageResult<T> = ::core::result::Result<T, LangError>;
