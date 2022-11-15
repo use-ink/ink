@@ -143,7 +143,7 @@ like the following excerpt:
 ```rust
 #[link(wasm_import_module = "seal0")]
 extern "C" {
-    pub fn seal_get_storage(
+    pub fn get_storage(
         key_ptr: Ptr32<[u8]>,
         output_ptr: Ptr32Mut<[u8]>,
         output_len_ptr: Ptr32Mut<u32>,
@@ -152,7 +152,7 @@ extern "C" {
 
 #[link(wasm_import_module = "seal1")]
 extern "C" {
-    pub fn seal_set_storage(
+    pub fn set_storage(
         key_ptr: Ptr32<[u8]>,
         value_ptr: Ptr32<[u8]>,
         value_len: u32,
@@ -165,7 +165,7 @@ old API functions ‒ otherwise smart contracts that are deployed on-chain would
 
 Hence there is this version mechanism. Functions start out at version `seal0` and for
 each new released iteration of the function there is a new version of it introduced.
-In the example above you can see that we changed the function `seal_set_storage` at
+In the example above you can see that we changed the function `set_storage` at
 one point.
 
 The prefix `seal` here is for historic reasons. There is some analogy to sealing a

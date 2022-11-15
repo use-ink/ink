@@ -130,7 +130,7 @@ cfg_if::cfg_if! {
         ///
         /// # Note
         ///
-        /// This depends on the `seal_debug_message` interface which requires the
+        /// This depends on the `debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_print {
@@ -142,7 +142,7 @@ cfg_if::cfg_if! {
         ///
         /// # Note
         ///
-        /// This depends on the `seal_debug_message` interface which requires the
+        /// This depends on the `debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_println {
