@@ -363,7 +363,11 @@ examples-test:
     - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+        if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
+          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+        else
+          cargo test --verbose --manifest-path ${example}/Cargo.toml;
+        fi;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
