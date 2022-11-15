@@ -1,3 +1,10 @@
+//! # Integration Tests for `LangError`
+//!
+//! This contract is used to ensure that the behaviour around `LangError`s works as expected.
+//!
+//! It makes use of ink!'s end-to-end testing features, so ensure that you have a node which
+//! includes the Contract's pallet running alongside your tests.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::contract]
@@ -15,6 +22,10 @@ mod lang_err_integration_tests {
             Default::default()
         }
 
+        /// Call a contract using the `CallBuilder`.
+        ///
+        /// Since we can't use the `CallBuilder` in a test environment directly we need this
+        /// wrapper to test things like crafting calls with invalid selectors.
         #[ink(message)]
         pub fn call(
             &mut self,
@@ -35,37 +46,31 @@ mod lang_err_integration_tests {
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<Result<(), ::ink::LangError>>()
-                // .returns::<()>()
                 .fire()
-                .expect("seal error");
+                .expect("Error from the Contracts pallet.");
 
-            ink::env::debug_println!(
-                "lang_err_integration_tests::call output: {:?}",
-                &result
-            );
             match result {
                 Ok(_) => None,
-                Err(e @ ink::LangError::CouldNotReadInput) => {
-                    ink::env::debug_println!("CouldNotReadInput");
-                    Some(e)
+                Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
+                Err(_) => {
+                    unimplemented!("No other `LangError` variants exist at the moment.")
                 }
-                Err(_) => unimplemented!(),
             }
         }
 
-        /// Returns the current value of the Flipper's boolean.
+        /// Returns the current value of the LangErrIntegrationTests's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
         }
 
-        /// Flips the current value of the Flipper's boolean.
+        /// Flips the current value of the LangErrIntegrationTests's boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
-        /// Flips the current value of the Flipper's boolean.
+        /// Flips the current value of the LangErrIntegrationTests's boolean.
         ///
         /// We should see the state being reverted here, no write should occur.
         #[ink(message)]
