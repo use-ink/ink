@@ -111,7 +111,7 @@ where
         &self.docs
     }
 
-    /// Returns the contract error type.
+    /// Returns the language error type.
     pub fn lang_error(&self) -> &TypeSpec<F> {
         &self.lang_error
     }
