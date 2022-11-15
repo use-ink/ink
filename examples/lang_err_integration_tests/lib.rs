@@ -1,6 +1,6 @@
 //! # Integration Tests for `LangError`
 //!
-//! This contract is used to ensure that the behaviour around `LangError`s works as expected.
+//! This contract is used to ensure that the behavior around `LangError`s works as expected.
 //!
 //! It makes use of ink!'s end-to-end testing features, so ensure that you have a node which
 //! includes the Contract's pallet running alongside your tests.
@@ -58,19 +58,19 @@ mod lang_err_integration_tests {
             }
         }
 
-        /// Returns the current value of the LangErrIntegrationTests's boolean.
+        /// Returns the current value of the `LangErrIntegrationTests`'s boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
         }
 
-        /// Flips the current value of the LangErrIntegrationTests's boolean.
+        /// Flips the current value of the `LangErrIntegrationTests`'s boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
-        /// Flips the current value of the LangErrIntegrationTests's boolean.
+        /// Flips the current value of the `LangErrIntegrationTests`'s boolean.
         ///
         /// We should see the state being reverted here, no write should occur.
         #[ink(message)]
