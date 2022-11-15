@@ -80,7 +80,6 @@ mod lang_err_integration_tests {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        // TODO: Log issue about macro ordering
         #[ink_e2e::test(additional_contracts = "../flipper/Cargo.toml")]
         async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
@@ -143,11 +142,6 @@ mod lang_err_integration_tests {
         async fn e2e_message_error_reverts_state(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            // TODO: If I use the same account here as in the above test  (so `ink_e2e::alice()`)
-            // then there's a problem with the tranaction priority which causes the test to panic.
-            //
-            // We should allow the same account to be used in tests, or at least do something
-            // better than just panicking with an obscure message.
             let constructor = lang_err_integration_tests::constructors::new();
             let contract_acc_id = client
                 .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
