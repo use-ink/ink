@@ -123,6 +123,7 @@ examples-fmt:
     # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang_err_integration_tests/" ]; then continue; fi;
         cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -165,6 +166,7 @@ examples-clippy-std:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang_err_integration_tests/" ]; then continue; fi;
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -186,6 +188,7 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang_err_integration_tests/" ]; then continue; fi;
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -373,6 +376,7 @@ examples-test:
     - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang_err_integration_tests/" ]; then continue; fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
           cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
@@ -399,6 +403,7 @@ examples-contract-build:
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang_err_integration_tests/" ]; then continue; fi;
         pushd $example &&
         cargo +stable contract build &&
         popd;
@@ -425,6 +430,7 @@ examples-docs:
     # of this flag.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang_err_integration_tests/" ]; then continue; fi;
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
