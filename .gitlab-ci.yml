@@ -34,6 +34,7 @@ variables:
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
+  LANG_ERR_INTEGRATION_CONTRACTS:  "integration_flipper call_builder contract_ref"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
@@ -130,6 +131,9 @@ examples-fmt:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
       done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +nightly fmt --verbose --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml -- --check;
+      done
     - cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./examples/psp22-extension/runtime/psp22-extension-example.rs
@@ -169,6 +173,9 @@ examples-clippy-std:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clippy --verbose --all-targets --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+      done
     - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
@@ -186,6 +193,9 @@ examples-clippy-wasm:
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clippy --verbose --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
@@ -375,6 +385,9 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo test --verbose --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml;
+      done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
@@ -393,6 +406,9 @@ examples-contract-build:
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +stable contract build --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml;
       done
     - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
@@ -416,6 +432,9 @@ examples-docs:
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo doc --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - cargo doc --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
