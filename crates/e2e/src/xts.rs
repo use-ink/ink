@@ -21,10 +21,7 @@ use super::{
     Signer,
     Verify,
 };
-use ink_env::{
-    Environment,
-    Gas,
-};
+use ink_env::Environment;
 
 use core::marker::PhantomData;
 use jsonrpsee::{
@@ -40,14 +37,12 @@ use sp_core::{
     Bytes,
     H256,
 };
+use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
     tx::ExtrinsicParams,
     OnlineClient,
 };
-
-/// The gas limit for contract instantiate and call dry runs.
-const DRY_RUN_GAS_LIMIT: u64 = 500_000_000_000;
 
 // TODO(#1422) Should be fetched automatically.
 #[subxt::subxt(
@@ -61,8 +56,7 @@ pub(super) mod api {}
 pub struct InstantiateWithCode<B> {
     #[codec(compact)]
     value: B,
-    #[codec(compact)]
-    gas_limit: Gas,
+    gas_limit: Weight,
     storage_deposit_limit: Option<B>,
     code: Vec<u8>,
     data: Vec<u8>,
@@ -75,8 +69,7 @@ pub struct Call<C: subxt::Config, B> {
     dest: sp_runtime::MultiAddress<C::AccountId, ()>,
     #[codec(compact)]
     value: B,
-    #[codec(compact)]
-    gas_limit: Gas,
+    gas_limit: Weight,
     storage_deposit_limit: Option<B>,
     data: Vec<u8>,
 }
@@ -94,7 +87,7 @@ pub struct UploadCode<B> {
 struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
-    gas_limit: Gas,
+    gas_limit: Option<Weight>,
     storage_deposit_limit: Option<E::Balance>,
     code: Code,
     data: Vec<u8>,
@@ -122,7 +115,7 @@ struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     dest: C::AccountId,
     value: E::Balance,
-    gas_limit: Gas,
+    gas_limit: Option<Weight>,
     storage_deposit_limit: Option<E::Balance>,
     input_data: Vec<u8>,
 }
@@ -194,7 +187,7 @@ where
         let call_request = RpcInstantiateRequest::<C, E> {
             origin: signer.account_id().clone(),
             value,
-            gas_limit: DRY_RUN_GAS_LIMIT,
+            gas_limit: None,
             storage_deposit_limit,
             code,
             data,
@@ -222,7 +215,7 @@ where
     pub async fn instantiate_with_code(
         &self,
         value: E::Balance,
-        gas_limit: Gas,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
         code: Vec<u8>,
         data: Vec<u8>,
@@ -361,7 +354,7 @@ where
             origin,
             dest: contract,
             value,
-            gas_limit: DRY_RUN_GAS_LIMIT,
+            gas_limit: None,
             storage_deposit_limit,
             input_data,
         };
@@ -386,7 +379,7 @@ where
         &self,
         contract: sp_runtime::MultiAddress<C::AccountId, ()>,
         value: E::Balance,
-        gas_limit: Gas,
+        gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,
