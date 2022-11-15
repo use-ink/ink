@@ -390,7 +390,7 @@ examples-test:
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo test --verbose --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path ./examples/lang_err_integration_tests/${contract}/Cargo.toml --features e2e-tests;
       done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
