@@ -61,7 +61,7 @@ mod call_builder {
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "../flipper/Cargo.toml")]
+        #[ink_e2e::test(additional_contracts = "../integration_flipper/Cargo.toml")]
         async fn e2e_invalid_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -77,7 +77,7 @@ mod call_builder {
                 .expect("instantiate failed")
                 .account_id;
 
-            let flipper_constructor = flipper::constructors::default();
+            let flipper_constructor = integration_flipper::constructors::default();
             let flipper_acc_id = client
                 .instantiate(&mut ink_e2e::charlie(), flipper_constructor, 0, None)
                 .await
@@ -88,7 +88,7 @@ mod call_builder {
                 .call(
                     &mut ink_e2e::charlie(),
                     flipper_acc_id.clone(),
-                    flipper::messages::get(),
+                    integration_flipper::messages::get(),
                     0,
                     None,
                 )
@@ -124,7 +124,7 @@ mod call_builder {
                 .call(
                     &mut ink_e2e::charlie(),
                     flipper_acc_id.clone(),
-                    flipper::messages::get(),
+                    integration_flipper::messages::get(),
                     0,
                     None,
                 )
