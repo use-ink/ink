@@ -54,7 +54,7 @@ fn main() {
             let ok_field = &ok_variant.fields()[0];
             let ok_ty = metadata.registry().resolve(ok_field.ty().id()).unwrap();
             let unit_ty = scale_info::TypeDef::Tuple(
-                scale_info::TypeDefTuple::new_portable(vec![])
+                scale_info::TypeDefTuple::new_portable(vec![]),
             );
             assert_eq!("Ok", ok_variant.name());
             assert_eq!(
@@ -69,7 +69,8 @@ fn main() {
             assert_eq!("Err", err_variant.name());
             assert!(
                 err_ty_result.is_some(),
-                "Error variant must be encoded with SCALE");
+                "Error variant must be encoded with SCALE"
+            );
         }
         td => panic!("Expected a Variant type def enum, got {:?}", td),
     }
