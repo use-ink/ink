@@ -21,6 +21,8 @@
 
 mod client;
 mod default_accounts;
+#[cfg(test)]
+mod tests;
 pub mod utils;
 mod xts;
 
