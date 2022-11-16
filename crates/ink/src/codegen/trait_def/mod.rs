@@ -24,5 +24,6 @@ pub use self::{
     trait_message::{
         TraitMessagePayable,
         TraitMessageSelector,
+        TraitAllowReentrancy,
     },
 };

@@ -98,6 +98,8 @@ pub struct Message {
     pub(super) item: syn::ImplItemMethod,
     /// If the ink! message can receive funds.
     is_payable: bool,
+    /// If the ink! message is allowed to be reentrant.
+    allow_reentrancy: bool,
     /// An optional user provided selector.
     ///
     /// # Note

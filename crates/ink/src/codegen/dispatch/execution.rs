@@ -44,6 +44,17 @@ where
     Ok(())
 }
 
+#[inline]
+pub fn deny_reentrancy<E>() -> Result<(), DispatchError>
+where
+    E: Environment,
+{
+    if ink_env::reentrant_count::<E>() > 0 {
+        return Err(DispatchError::ReentrancyDenied)
+    }
+    Ok(())
+}
+
 /// Executes the given ink! constructor.
 ///
 /// # Note

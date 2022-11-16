@@ -22,6 +22,8 @@
 /// the same ink! message as defined by the ink! trait message.
 pub struct TraitMessagePayable<const IS_PAYABLE: bool>;
 
+pub struct TraitMessageAllowReentrancy<const ALLOW_REENTRANCY: bool>;
+
 /// Used as `selector` property guard for ink! trait messages.
 ///
 /// # Note
