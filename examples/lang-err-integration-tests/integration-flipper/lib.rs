@@ -53,6 +53,30 @@ pub mod integration_flipper {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
+        async fn e2e_constructor_returns_result(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = integration_flipper::constructors::default();
+            let instantiate = client
+                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("Instantiate `integration_flipper` failed");
+
+            let data = instantiate
+                .dry_run
+                .result
+                .expect("Dispatch to Contracts pallet failed.")
+                .result
+                .data;
+            let constructor_output: Result<(), ()> = scale::Decode::decode(&mut &data[..])
+                .expect("We expect a `Result` from constructors now, so this should be decodable.");
+
+            assert!(matches!(constructor_output, Ok(())));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
         async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
