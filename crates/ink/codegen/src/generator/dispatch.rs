@@ -451,7 +451,7 @@ impl Dispatch<'_> {
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
-                        ::ink::env::return_value::<::core::result::Result<(), ::ink::LangError>>(
+                        ::ink::env::return_value::<::ink::MessageResult<()>>(
                             ::ink::env::ReturnFlags::default().set_reverted(true),
                             &error,
                         );
