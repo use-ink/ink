@@ -388,7 +388,15 @@ pub trait ConstructorOutput<C>: private::Sealed {
     fn as_result(&self) -> Result<&C, &Self::Error>;
 }
 
-/// todo: docs
+/// Stores the actual value of the constructor return type.
+///
+/// # Note
+///
+/// Currently the only allowed types are `()` and `Result<(), E>`
+/// where `E` is some unspecified error type.
+/// If the contract initializer returns `Result::Err` the utility
+/// method that is used to initialize an ink! smart contract will
+/// revert the state of the contract instantiation.
 pub struct ConstructorOutputValue<T>(T);
 
 impl<T> ConstructorOutputValue<T> {

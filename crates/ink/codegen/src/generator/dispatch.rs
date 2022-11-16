@@ -594,7 +594,7 @@ impl Dispatch<'_> {
                         ::core::result::Result::Ok(contract) => {
                             ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                                 &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
-                                &contract,
+                                contract,
                             );
                             // On success we return the `Ok(())` value for callers.
                             ::ink::env::return_value::<::core::result::Result<&(), ()>>(

@@ -20,7 +20,10 @@ use ir::{
     HexLiteral,
     IsDocAttribute,
 };
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::{
     quote,
     quote_spanned,
@@ -133,23 +136,8 @@ impl Metadata<'_> {
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
-        // let ret_ty = Self::generate_constructor_return_type(constructor.output());
         let storage_ident = self.contract.module().storage().ident();
-        let constructor_info = quote_spanned!(span =>
-            < #storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>>
-        );
-        let ret_ty = quote_spanned!(span=>
-            ::ink::metadata::ReturnTypeSpec::new(
-                Some(
-                    ::ink::metadata::TypeSpec::of_type::<
-                        ::core::result::Result<
-                            (),
-                            #constructor_info ::Error
-                        >
-                    >()
-                )
-            )
-        );
+        let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
@@ -336,6 +324,34 @@ impl Metadata<'_> {
                 }
             }
         }
+    }
+
+    /// Generates ink! metadata for the storage with given selector and indentation.
+    fn generate_constructor_return_type(
+        storage_ident: &Ident,
+        selector_id: u32,
+    ) -> TokenStream2 {
+        let span = storage_ident.span();
+        let constructor_info = quote_spanned!(span =>
+            < #storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>>
+        );
+        quote_spanned!(span=>
+            ::ink::metadata::ReturnTypeSpec::new(
+                if #constructor_info ::IS_RESULT {
+                    Some(::ink::metadata::TypeSpec::with_name_str::<
+                        ::core::result::Result<
+                            (),
+                            #constructor_info ::Error
+                        >
+                    >(
+                        "core::result::Result"
+                    )
+                )
+                } else {
+                    None
+                }
+            )
+        )
     }
 
     /// Generates ink! metadata for all user provided ink! event definitions.
