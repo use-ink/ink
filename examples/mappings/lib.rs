@@ -32,9 +32,7 @@ mod mappings {
         #[ink(message)]
         pub fn get_balance(&self) -> Option<Balance> {
             let caller = Self::env().caller();
-            let value = self.balances.get(caller);
-            ink::env::debug_println!("Balance: {:?}", value);
-            value
+            self.balances.get(caller)
         }
 
         /// Demonstrates the usage of `Mappings::insert()`.
