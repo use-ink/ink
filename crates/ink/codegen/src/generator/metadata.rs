@@ -93,6 +93,10 @@ impl Metadata<'_> {
             .attrs()
             .iter()
             .filter_map(|attr| attr.extract_docs());
+        let error_ty = syn::parse_quote! {
+            ::ink::LangError
+        };
+        let error = Self::generate_type_spec(&error_ty);
         quote! {
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -107,6 +111,9 @@ impl Metadata<'_> {
                 .docs([
                     #( #docs ),*
                 ])
+                .lang_error(
+                     #error
+                )
                 .done()
         }
     }
@@ -172,6 +179,7 @@ impl Metadata<'_> {
         fn without_display_name(ty: &syn::Type) -> TokenStream2 {
             quote! { ::ink::metadata::TypeSpec::of_type::<#ty>() }
         }
+
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
                 return without_display_name(ty)
@@ -256,7 +264,7 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
-                let ret_ty = Self::generate_return_type(message.output());
+                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 quote_spanned!(span =>
                     ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([

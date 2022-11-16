@@ -36,6 +36,6 @@ error[E0277]: the trait bound `contract::Error: TypeInfo` is not satisfied
             (A, B, C, D)
             (A, B, C, D, E)
             (A, B, C, D, E, F)
-          and 64 others
+          and $N others
   = note: required for `Result<(), contract::Error>` to implement `ConstructorReturnSpec`
   = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
