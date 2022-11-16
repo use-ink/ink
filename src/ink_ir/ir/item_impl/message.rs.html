@@ -782,6 +782,26 @@
 <span id="780">780</span>
 <span id="781">781</span>
 <span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1075,6 +1095,21 @@
         }
     }
 
+    <span class="doccomment">/// Returns the return type of the message, but wrapped within a `Result`.
+    ///
+    /// This is used to to allow callers to handle certain types of errors which are not exposed
+    /// by messages.
+    </span><span class="kw">pub fn </span>wrapped_output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Type {
+        <span class="kw">let </span>return_type = <span class="self">self
+            </span>.output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| <span class="macro">quote::quote! </span>{ () });
+
+        <span class="macro">syn::parse_quote! </span>{
+            ::ink::MessageResult&lt;#return_type&gt;
+        }
+    }
+
     <span class="doccomment">/// Returns a local ID unique to the ink! message with respect to its implementation block.
     ///
     /// # Note
@@ -1084,6 +1119,11 @@
     /// solely by the identifier of the ink! message.
     </span><span class="kw">pub fn </span>local_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         utils::local_message_id(<span class="self">self</span>.ident())
+    }
+
+    <span class="doccomment">/// Returns the identifier of the message with an additional `_checked` suffix attached.
+    </span><span class="kw">pub fn </span>checked_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ident {
+        <span class="macro">quote::format_ident!</span>(<span class="string">&quot;{}_checked&quot;</span>, <span class="self">self</span>.ident())
     }
 }
 

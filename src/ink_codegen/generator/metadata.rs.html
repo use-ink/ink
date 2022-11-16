@@ -545,6 +545,14 @@
 <span id="543">543</span>
 <span id="544">544</span>
 <span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -640,6 +648,10 @@
             .attrs()
             .iter()
             .filter_map(|attr| attr.extract_docs());
+        <span class="kw">let </span>error_ty = <span class="macro">syn::parse_quote! </span>{
+            ::ink::LangError
+        };
+        <span class="kw">let </span>error = <span class="self">Self</span>::generate_type_spec(<span class="kw-2">&amp;</span>error_ty);
         <span class="macro">quote! </span>{
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -654,6 +666,9 @@
                 .docs([
                     #( #docs ),*
                 ])
+                .lang_error(
+                     #error
+                )
                 .done()
         }
     }
@@ -719,6 +734,7 @@
         <span class="kw">fn </span>without_display_name(ty: <span class="kw-2">&amp;</span>syn::Type) -&gt; TokenStream2 {
             <span class="macro">quote! </span>{ ::ink::metadata::TypeSpec::of_type::&lt;#ty&gt;() }
         }
+
         <span class="kw">if let </span>syn::Type::Path(type_path) = ty {
             <span class="kw">if </span>type_path.qself.is_some() {
                 <span class="kw">return </span>without_display_name(ty)
@@ -803,7 +819,7 @@
                 <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
                 <span class="kw">let </span>ident = message.ident();
                 <span class="kw">let </span>args = message.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
-                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(message.output());
+                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>message.wrapped_output()));
                 <span class="macro">quote_spanned!</span>(span =&gt;
                     ::ink::metadata::MessageSpec::from_label(<span class="macro">::core::stringify!</span>(#ident))
                         .selector([

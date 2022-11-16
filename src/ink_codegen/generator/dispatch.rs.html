@@ -920,6 +920,23 @@
 <span id="918">918</span>
 <span id="919">919</span>
 <span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1357,16 +1374,34 @@
                         .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, error))
                 }
 
-                ::ink::env::decode_input::&lt;
-                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type&gt;()
-                    .map_err(|<span class="kw">_</span>| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type
-                            <span class="kw">as </span>::ink::reflect::ExecuteDispatchable&gt;::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! message failed: {}&quot;</span>, error)
-                    })
+                <span class="kw">let </span>dispatchable = <span class="kw">match </span>::ink::env::decode_input::&lt;
+                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type,
+                &gt;() {
+                    ::core::result::Result::Ok(decoded_dispatchable) =&gt; {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) =&gt; {
+                        <span class="kw">use </span>::core::default::Default;
+                        <span class="kw">let </span>error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
+
+                        <span class="comment">// At this point we&#39;re unable to set the `Ok` variant to be the any &quot;real&quot;
+                        // message output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we&#39;re going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        </span>::ink::env::return_value::&lt;::ink::MessageResult&lt;()&gt;&gt;(
+                            ::ink::env::ReturnFlags::default().set_reverted(<span class="bool-val">true</span>),
+                            <span class="kw-2">&amp;</span>error,
+                        );
+                    }
+                };
+
+                &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractMessageDecoder&gt;::Type
+                    <span class="kw">as </span>::ink::reflect::ExecuteDispatchable&gt;::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! message failed: {}&quot;</span>, error)
+                })
             }
         )
     }
@@ -1683,23 +1718,24 @@
                     <span class="kw">let </span>failure = <span class="macro">::ink::is_result_type!</span>(#message_output)
                         &amp;&amp; <span class="macro">::ink::is_result_err!</span>(result);
 
+                    <span class="comment">// Currently no `LangError`s are raised at this level of the dispatch logic
+                    // so `Ok` is always returned to the caller.
+                    </span><span class="kw">let </span>return_value = ::core::result::Result::Ok(result);
+
                     <span class="kw">if </span>failure {
                         <span class="comment">// We return early here since there is no need to push back the
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
-                        </span>::ink::env::return_value::&lt;#message_output&gt;(
-                            ::ink::env::ReturnFlags::default().set_reverted(<span class="bool-val">true</span>), <span class="kw-2">&amp;</span>result
+                        </span>::ink::env::return_value::&lt;::ink::MessageResult::&lt;#message_output&gt;&gt;(
+                            ::ink::env::ReturnFlags::default().set_reverted(<span class="bool-val">true</span>), <span class="kw-2">&amp;</span>return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
-                    <span class="kw">if </span>::core::any::TypeId::of::&lt;#message_output&gt;() != ::core::any::TypeId::of::&lt;()&gt;() {
-                        <span class="comment">// In case the return type is `()` we do not return a value.
-                        </span>::ink::env::return_value::&lt;#message_output&gt;(
-                            ::ink::env::ReturnFlags::default(), <span class="kw-2">&amp;</span>result
-                        )
-                    }
+                    ::ink::env::return_value::&lt;::ink::MessageResult::&lt;#message_output&gt;&gt;(
+                        ::ink::env::ReturnFlags::default(), <span class="kw-2">&amp;</span>return_value
+                    )
                 }
             )
         });
@@ -1770,8 +1806,6 @@
                         <span class="kw">match </span><span class="self">self </span>{
                             #( #message_execute ),*
                         };
-
-                        ::core::result::Result::Ok(())
                     }
                 }
 

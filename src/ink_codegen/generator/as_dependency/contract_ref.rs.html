@@ -416,6 +416,23 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -754,6 +771,7 @@
             .filter_attr(message.attrs().to_vec());
         <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
         <span class="kw">let </span>message_ident = message.ident();
+        <span class="kw">let </span>checked_message_ident = message.checked_ident();
         <span class="kw">let </span>call_operator = <span class="kw">match </span>message.receiver() {
             ir::Receiver::Ref =&gt; <span class="macro">quote! </span>{ call },
             ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ call_mut },
@@ -762,6 +780,7 @@
         <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>output_type = message.output().map(|ty| <span class="macro">quote! </span>{ -&gt; #ty });
+        <span class="kw">let </span>wrapped_output_type = message.wrapped_output();
         <span class="macro">quote_spanned!</span>(span=&gt;
             #( #attrs )*
             <span class="attribute">#[inline]
@@ -769,6 +788,21 @@
                 &amp; #mut_token <span class="self">self
                 </span>#( , #input_bindings : #input_types )*
             ) #output_type {
+                <span class="self">self</span>.#checked_message_ident( #( #input_bindings, )* )
+                    .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(
+                        <span class="string">&quot;encountered error while calling {}::{}: {:?}&quot;</span>,
+                        <span class="macro">::core::stringify!</span>(#storage_ident),
+                        <span class="macro">::core::stringify!</span>(#message_ident),
+                        error,
+                    ))
+            }
+
+            #( #attrs )*
+            <span class="attribute">#[inline]
+            </span><span class="kw">pub fn </span>#checked_message_ident(
+                &amp; #mut_token <span class="self">self
+                </span>#( , #input_bindings : #input_types )*
+            ) -&gt; #wrapped_output_type {
                 &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_operator(<span class="self">self</span>)
                     .#message_ident( #( #input_bindings ),* )
                     .fire()
