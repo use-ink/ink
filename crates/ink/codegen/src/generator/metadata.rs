@@ -326,7 +326,7 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates ink! metadata for the storage with given selector and ident.
+    /// Generates ink! metadata for the storage with given selector and indentation.
     fn generate_constructor_return_type(
         storage_ident: &Ident,
         selector_id: u32,
