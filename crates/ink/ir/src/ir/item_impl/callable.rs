@@ -116,6 +116,10 @@ where
         <C as Callable>::is_payable(self.callable)
     }
 
+    fn allow_reentrancy(&self) -> bool {
+        <C as Callable>::allow_reentrancy(self.callable)
+    }
+
     fn has_wildcard_selector(&self) -> bool {
         <C as Callable>::has_wildcard_selector(self.callable)
     }

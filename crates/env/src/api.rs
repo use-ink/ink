@@ -689,8 +689,7 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
+/// Returns how many times caller exists on call stack.
 pub fn reentrant_count() -> u32 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::reentrant_count(instance)
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.reentrant_count())
 }

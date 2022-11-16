@@ -655,7 +655,7 @@ where
     pub fn allow_reentrancy(
         self,
         allow_reentrancy: bool,
-    ) -> MessageSpecBuilder<F, S, M, state::IsPayable, AR, R> {
+    ) -> MessageSpecBuilder<F, S, M, P, state::AllowReentrancy, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 allow_reentrancy,

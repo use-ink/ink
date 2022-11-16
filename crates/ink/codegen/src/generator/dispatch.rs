@@ -750,7 +750,7 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
-            let deny_reentrancy: quote_spanned!(message_span=>
+            let deny_reentrancy = quote_spanned!(message_span=>
                 !<#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES

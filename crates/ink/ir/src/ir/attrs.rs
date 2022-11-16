@@ -28,7 +28,10 @@ use proc_macro2::{
     TokenStream as TokenStream2,
     TokenTree as TokenTree2,
 };
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fmt::write,
+};
 use syn::spanned::Spanned;
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -356,6 +359,8 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
+    /// `#[ink(allow_reentrancy)]`
+    AllowReentrancy,
     /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
@@ -468,6 +473,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
+            Self::AllowReentrancy => write!(f, "allow_reentrancy"),
             Self::Selector => {
                 write!(f, "selector = S:[u8; 4] || _")
             }
@@ -495,6 +501,7 @@ impl AttributeArg {
             Self::Message => AttributeArgKind::Message,
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
+            Self::AllowReentrancy => AttributeArgKind::AllowReentrancy,
             Self::Selector(_) => AttributeArgKind::Selector,
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
