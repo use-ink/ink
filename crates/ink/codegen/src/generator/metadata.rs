@@ -344,7 +344,7 @@ impl Metadata<'_> {
                             #constructor_info ::Error
                         >
                     >(
-                        &"core::result::Result"
+                        "core::result::Result"
                     )
                 )
                 } else {
