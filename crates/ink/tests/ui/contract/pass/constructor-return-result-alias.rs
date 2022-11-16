@@ -35,13 +35,14 @@ fn generate_metadata() -> InkProject {
 fn main() {
     let metadata = generate_metadata();
 
-    let constructor = metadata.spec().constructors().iter()
-        .next()
-        .unwrap();
+    let constructor = metadata.spec().constructors().iter().next().unwrap();
 
     assert_eq!("constructor", constructor.label());
     let type_spec = constructor.return_type().opt_type().unwrap();
-    assert_eq!("core::result::Result", format!("{}", type_spec.display_name()));
+    assert_eq!(
+        "core::result::Result",
+        format!("{}", type_spec.display_name())
+    );
     let ty = metadata.registry().resolve(type_spec.ty().id()).unwrap();
 
     assert_eq!("Result", format!("{}", ty.path()));
@@ -52,16 +53,24 @@ fn main() {
             let ok_variant = &variant.variants()[0];
             let ok_field = &ok_variant.fields()[0];
             let ok_ty = metadata.registry().resolve(ok_field.ty().id()).unwrap();
-            let unit_ty = scale_info::TypeDef::Tuple(scale_info::TypeDefTuple::new_portable(vec![]));
+            let unit_ty = scale_info::TypeDef::Tuple(
+                scale_info::TypeDefTuple::new_portable(vec![])
+            );
             assert_eq!("Ok", ok_variant.name());
-            assert_eq!(&unit_ty, ok_ty.type_def(), "Ok variant should be a unit `()` type");
+            assert_eq!(
+                &unit_ty,
+                ok_ty.type_def(),
+                "Ok variant should be a unit `()` type"
+            );
 
             let err_variant = &variant.variants()[1];
             let err_field = &err_variant.fields()[0];
             let err_ty_result = metadata.registry().resolve(err_field.ty().id());
             assert_eq!("Err", err_variant.name());
-            assert!(err_ty_result.is_some(), "Error variant must be encoded with SCALE");
+            assert!(
+                err_ty_result.is_some(),
+                "Error variant must be encoded with SCALE");
         }
-        td => panic!("Expected a Variant type def enum, got {:?}", td)
+        td => panic!("Expected a Variant type def enum, got {:?}", td),
     }
 }
