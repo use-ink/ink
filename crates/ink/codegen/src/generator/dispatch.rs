@@ -414,16 +414,34 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
-                ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! constructor failed: {}", error)
-                    })
+                let dispatchable = match ::ink::env::decode_input::<
+                    <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        use ::core::default::Default;
+                        let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
+
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // construcotr output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        ::ink::env::return_value::<::ink::ConstructorResult<()>>(
+                            ::ink::env::ReturnFlags::default().set_reverted(true),
+                            &error,
+                        );
+                    }
+                };
+
+                <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
+                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
             }
 
             #[cfg(not(test))]

@@ -61,6 +61,8 @@ where
     let result = ManuallyDrop::new(private::Seal(f()));
     match result.as_result() {
         Ok(contract) => {
+            let return_value = ::core::result::Result::Ok(());
+
             // Constructor is infallible or is fallible but succeeded.
             //
             // This requires us to sync back the changes of the contract storage.
@@ -68,15 +70,22 @@ where
                 &Contract::KEY,
                 contract,
             );
-            ink_env::return_value(ReturnFlags::default().set_reverted(false), &());
+            ink_env::return_value::<::ink_primitives::ConstructorResult<()>>(
+                ReturnFlags::default().set_reverted(false),
+                &return_value,
+            );
         }
         Err(error) => {
+            let return_value = ::core::result::Result::Ok(error);
+
             // Constructor is fallible and failed.
             //
             // We need to revert the state of the transaction.
             ink_env::return_value::<
-                <private::Seal<R> as ConstructorReturnType<Contract>>::Error,
-            >(ReturnFlags::default().set_reverted(true), error)
+                ::ink_primitives::ConstructorResult<
+                    &<private::Seal<R> as ConstructorReturnType<Contract>>::Error,
+                >,
+            >(ReturnFlags::default().set_reverted(true), &return_value)
         }
     }
 }
