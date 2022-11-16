@@ -19,6 +19,13 @@ pub mod integration_flipper {
             Self { value: init_value }
         }
 
+        /// Creates a new integration_flipper smart contract initialized with the given value.
+        #[ink(constructor)]
+        #[allow(clippy::result_unit_err)]
+        pub fn try_new(init_value: bool) -> Result<Self, ()> {
+            Ok(Self { value: init_value })
+        }
+
         /// Creates a new integration_flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn default() -> Self {
@@ -58,9 +65,11 @@ pub mod integration_flipper {
         ) -> E2EResult<()> {
             let constructor = integration_flipper::constructors::default();
             let instantiate = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
                 .await
                 .expect("Instantiate `integration_flipper` failed");
+
+            // dbg!(&instantiate.dry_run);
 
             let data = instantiate
                 .dry_run
@@ -72,6 +81,55 @@ pub mod integration_flipper {
                 .expect("We expect a `Result` from constructors now, so this should be decodable.");
 
             assert!(matches!(constructor_output, Ok(())));
+
+            let constructor = integration_flipper::constructors::try_new(true);
+            let instantiate = client
+                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("Instantiate `integration_flipper` failed");
+            dbg!(&instantiate.dry_run);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_constructor_returns_result_of_result(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = integration_flipper::constructors::try_new(true);
+            let instantiate = client
+                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
+                .await
+                .expect("Instantiate `integration_flipper` failed");
+
+            // This comes back as:
+            //
+            //
+            // InstantiateReturnValue {
+            //     result: ExecReturnValue {
+            //         flags: (empty),
+            //         data: [
+            //             0,
+            //         ],
+            //     },
+            //     account_id: 4fa8528f2bed2d8fc186075067b6940f0d3229c7b977f3a4d0378c1781b3c1e8 (5Ds9eCso...),
+            // }
+            //
+            // Pretty sure we should have another thing for the wrapped `Result` beyond just `0`.
+            //
+            // The metadata between `new` and `try_new` look the same, which is suspicious...
+            dbg!(&instantiate.dry_run);
+
+            let data = instantiate
+                .dry_run
+                .result
+                .expect("Dispatch to Contracts pallet failed.")
+                .result
+                .data;
+            let constructor_output: Result<Result<(), ()>, ()> = scale::Decode::decode(&mut &data[..])
+                .expect("We expect a `Result` from constructors now, so this should be decodable.");
+
+            assert!(matches!(constructor_output, Ok(Ok(()))));
 
             Ok(())
         }
