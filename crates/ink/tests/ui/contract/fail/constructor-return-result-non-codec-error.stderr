@@ -1,8 +1,10 @@
 error[E0277]: the trait bound `contract::Error: WrapperTypeEncode` is not satisfied
   --> tests/ui/contract/fail/constructor-return-result-non-codec-error.rs:13:9
    |
-13 |         pub fn constructor() -> Result<Self, Error> {
-   |         ^^^ the trait `WrapperTypeEncode` is not implemented for `contract::Error`
+13 | /         pub fn constructor() -> Result<Self, Error> {
+14 | |             Ok(Self {})
+15 | |         }
+   | |_________^ the trait `WrapperTypeEncode` is not implemented for `contract::Error`
    |
    = help: the following other types implement trait `WrapperTypeEncode`:
              &T
@@ -36,6 +38,6 @@ error[E0277]: the trait bound `contract::Error: TypeInfo` is not satisfied
             (A, B, C, D)
             (A, B, C, D, E)
             (A, B, C, D, E, F)
-          and 64 others
+          and $N others
   = note: required for `Result<(), contract::Error>` to implement `ConstructorReturnSpec`
   = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)

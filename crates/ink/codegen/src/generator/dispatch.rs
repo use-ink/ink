@@ -385,7 +385,7 @@ impl Dispatch<'_> {
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                         const PAYABLE: ::core::primitive::bool = #payable;
-                        const ALLOW_REENTRANCY: ::core::primitive::bool: #allow_reentrancy;
+                        const ALLOW_REENTRANCY: ::core::primitive::bool = #allow_reentrancy;
                         const MUTATES: ::core::primitive::bool = #mutates;
                         const LABEL: &'static ::core::primitive::str = #label;
                     }

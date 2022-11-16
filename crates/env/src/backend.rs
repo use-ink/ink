@@ -28,8 +28,6 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
-use std::unimplemented;
-
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
 pub struct ReturnFlags {

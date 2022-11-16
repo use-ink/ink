@@ -28,10 +28,7 @@ use proc_macro2::{
     TokenStream as TokenStream2,
     TokenTree as TokenTree2,
 };
-use std::{
-    collections::HashMap,
-    fmt::write,
-};
+use std::collections::HashMap;
 use syn::spanned::Spanned;
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.

@@ -1,0 +1,5 @@
+error: unknown ink! attribute argument (name = value)
+ --> tests/ui/trait_def/fail/message-allow-reentrancy-invalid.rs:3:20
+  |
+3 |     #[ink(message, allow_reentrancy = false)]
+  |                    ^^^^^^^^^^^^^^^^^^^^^^^^

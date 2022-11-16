@@ -592,6 +592,10 @@ mod tests {
                 #[ink(event)]
                 fn my_constructor() -> Self {}
             },
+            syn::parse_quote! {
+                #[ink(constructor, allow_reentrancy)]
+                fn my_constructor() -> Self {}
+            },
         ];
         for item_method in item_methods {
             assert_try_from_fails(

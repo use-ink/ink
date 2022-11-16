@@ -1,0 +1,5 @@
+error: encountered conflicting ink! attribute argument
+ --> tests/ui/contract/fail/constructor-allow-reentrancy-invalid.rs:7:28
+  |
+7 |         #[ink(constructor, allow_reentrancy)]
+  |                            ^^^^^^^^^^^^^^^^

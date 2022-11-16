@@ -1,0 +1,5 @@
+error: unknown ink! attribute argument (name = value)
+  --> tests/ui/contract/fail/message-allow-reentrancy-invalid.rs:12:24
+   |
+12 |         #[ink(message, allow_reentrancy = true)]
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^

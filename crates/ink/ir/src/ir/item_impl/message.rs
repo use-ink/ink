@@ -450,6 +450,52 @@ mod tests {
     }
 
     #[test]
+    fn allow_reentrancy_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // Not payable.
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // Normalized ink! attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message, allow_reentrancy)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+            // Different ink! attributes.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    #[ink(allow_reeentrancy)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+            // Another ink! attribute, separate and normalized attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    #[ink(selector = 0xDEADBEEF, allow_reentrancy)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+        ];
+        for (expect_allow_reentrancy, item_method) in test_inputs {
+            let allow_reentrancy = <ir::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .allow_reentrancy();
+            assert_eq!(allow_reentrancy, expect_allow_reentrancy);
+        }
+    }
+
+    #[test]
     fn receiver_works() {
         let test_inputs: Vec<(Receiver, syn::ImplItemMethod)> = vec![
             (
@@ -551,6 +597,26 @@ mod tests {
             // &mut self + payable
             syn::parse_quote! {
                 #[ink(message, payable)]
+                fn my_message(&mut self) {}
+            },
+            // &self + allow_reentrancy
+            syn::parse_quote! {
+                #[ink(message, allow_reentrancy)]
+                fn my_message(&self) {}
+            },
+            // &mut self + allow_reentrancy
+            syn::parse_quote! {
+                #[ink(message, allow_reentrancy)]
+                fn my_message(&mut self) {}
+            },
+            // &self + payable + allow_reentrancy
+            syn::parse_quote! {
+                #[ink(message, payable, allow_reentrancy)]
+                fn my_message(&self) {}
+            },
+            // &mut self + payable + allow_reentrancy
+            syn::parse_quote! {
+                #[ink(message, payable, allow_reentrancy)]
                 fn my_message(&mut self) {}
             },
             // &self + many inputs + output works
@@ -778,6 +844,12 @@ mod tests {
             syn::parse_quote! {
                 #[ink(message)]
                 #[ink(event)]
+                fn my_message(&self) {}
+            },
+            // event + allow_reentrancy
+            syn::parse_quote! {
+                #[ink(event)]
+                #[ink(allow_reentrancy)]
                 fn my_message(&self) {}
             },
         ];
