@@ -166,6 +166,8 @@ pub trait Callable {
     /// Flagging as payable is done using the `#[ink(payable)]` attribute.
     fn is_payable(&self) -> bool;
 
+    fn allow_reentrancy(&self) -> bool;
+
     /// Returns `true` if the ink! callable is flagged as a wildcard selector.
     fn has_wildcard_selector(&self) -> bool;
 

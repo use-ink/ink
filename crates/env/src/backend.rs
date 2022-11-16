@@ -28,6 +28,7 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
+use std::unimplemented;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -55,12 +56,23 @@ impl ReturnFlags {
 
 /// The flags used to change the behavior of a contract call.
 #[must_use]
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug)]
 pub struct CallFlags {
     forward_input: bool,
     clone_input: bool,
     tail_call: bool,
-    allow_reentry: bool,
+    deny_reentry: bool,
+}
+
+impl Default for CallFlags {
+    fn default() -> Self {
+        Self {
+            forward_input: false,
+            clone_input: false,
+            tail_call: false,
+            deny_reentry: true,
+        }
+    }
 }
 
 impl CallFlags {
@@ -107,8 +119,8 @@ impl CallFlags {
     /// Without this flag any reentrancy into the current contract that originates from
     /// the callee (or any of its callees) is denied. This includes the first callee:
     /// You cannot call into yourself with this flag set.
-    pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
-        self.allow_reentry = allow_reentry;
+    pub const fn set_deny_reentry(mut self, deny_reentry: bool) -> Self {
+        self.deny_reentry = deny_reentry;
         self
     }
 
@@ -120,7 +132,7 @@ impl CallFlags {
         self.forward_input as u32
             | ((self.clone_input as u32) << 1)
             | ((self.tail_call as u32) << 2)
-            | ((self.allow_reentry as u32) << 3)
+            | ((self.deny_reentry as u32) << 3)
     }
 
     /// Returns `true` if input forwarding is set.
@@ -154,9 +166,9 @@ impl CallFlags {
     ///
     /// # Note
     ///
-    /// See [`Self::set_allow_reentry`] for more information.
-    pub const fn allow_reentry(&self) -> bool {
-        self.allow_reentry
+    /// See [`Self::set_deny_reentry`] for more information.
+    pub const fn deny_reentry(&self) -> bool {
+        self.deny_reentry
     }
 }
 
@@ -323,6 +335,8 @@ pub trait EnvBackend {
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
+
+    fn reentrant_count(&mut self) -> u32;
 }
 
 /// Environmental contract functionality.

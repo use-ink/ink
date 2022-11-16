@@ -469,6 +469,8 @@ pub struct MessageSpec<F: Form = MetaForm> {
     mutates: bool,
     /// If the message accepts any `value` from the caller.
     payable: bool,
+    /// If the message is allowed to be reentrant.
+    allow_reentrancy: bool,
     /// The parameters of the message.
     args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
@@ -491,6 +493,8 @@ mod state {
     pub struct Mutates;
     /// Type state for telling if the message is payable.
     pub struct IsPayable;
+    /// Type state for telling if the message allows reentrancy.
+    pub struct AllowReentrancy;
     /// Type state for the message return type.
     pub struct Returns;
 }
@@ -507,6 +511,7 @@ where
         Missing<state::Selector>,
         Missing<state::Mutates>,
         Missing<state::IsPayable>,
+        Missing<state::AllowReentrancy>,
         Missing<state::Returns>,
     > {
         MessageSpecBuilder {
@@ -515,6 +520,7 @@ where
                 selector: Selector::default(),
                 mutates: false,
                 payable: false,
+                allow_reentrancy: false,
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
@@ -576,15 +582,15 @@ where
 /// debug code-gen macros.
 #[allow(clippy::type_complexity)]
 #[must_use]
-pub struct MessageSpecBuilder<F, Selector, Mutates, IsPayable, Returns>
+pub struct MessageSpecBuilder<F, Selector, Mutates, IsPayable, AllowReentrancy, Returns>
 where
     F: Form,
 {
     spec: MessageSpec<F>,
-    marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, Returns)>,
+    marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, AllowReentrancy, Returns)>,
 }
 
-impl<F, M, P, R> MessageSpecBuilder<F, Missing<state::Selector>, M, P, R>
+impl<F, M, P, AR, R> MessageSpecBuilder<F, Missing<state::Selector>, M, P, AR, R>
 where
     F: Form,
 {
@@ -592,7 +598,7 @@ where
     pub fn selector(
         self,
         selector: [u8; 4],
-    ) -> MessageSpecBuilder<F, state::Selector, M, P, R> {
+    ) -> MessageSpecBuilder<F, state::Selector, M, P, AR, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector: selector.into(),
@@ -603,7 +609,7 @@ where
     }
 }
 
-impl<F, S, P, R> MessageSpecBuilder<F, S, Missing<state::Mutates>, P, R>
+impl<F, S, P, AR, R> MessageSpecBuilder<F, S, Missing<state::Mutates>, P, AR, R>
 where
     F: Form,
 {
@@ -611,7 +617,7 @@ where
     pub fn mutates(
         self,
         mutates: bool,
-    ) -> MessageSpecBuilder<F, S, state::Mutates, P, R> {
+    ) -> MessageSpecBuilder<F, S, state::Mutates, P, AR, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 mutates,
@@ -622,7 +628,7 @@ where
     }
 }
 
-impl<F, S, M, R> MessageSpecBuilder<F, S, M, Missing<state::IsPayable>, R>
+impl<F, S, M, AR, R> MessageSpecBuilder<F, S, M, Missing<state::IsPayable>, AR, R>
 where
     F: Form,
 {
@@ -630,7 +636,7 @@ where
     pub fn payable(
         self,
         is_payable: bool,
-    ) -> MessageSpecBuilder<F, S, M, state::IsPayable, R> {
+    ) -> MessageSpecBuilder<F, S, M, state::IsPayable, AR, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 payable: is_payable,
@@ -641,7 +647,26 @@ where
     }
 }
 
-impl<F, M, S, P> MessageSpecBuilder<F, S, M, P, Missing<state::Returns>>
+impl<F, S, M, P, R> MessageSpecBuilder<F, S, M, P, Missing<state::AllowReentrancy>, R>
+where
+    F: Form,
+{
+    /// Sets if the message is payable, thus accepting value for the caller.
+    pub fn allow_reentrancy(
+        self,
+        allow_reentrancy: bool,
+    ) -> MessageSpecBuilder<F, S, M, state::IsPayable, AR, R> {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                allow_reentrancy,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, M, S, P, AR> MessageSpecBuilder<F, S, M, P, AR, Missing<state::Returns>>
 where
     F: Form,
 {
@@ -649,7 +674,7 @@ where
     pub fn returns(
         self,
         return_type: ReturnTypeSpec<F>,
-    ) -> MessageSpecBuilder<F, S, M, P, state::Returns> {
+    ) -> MessageSpecBuilder<F, S, M, P, AR, state::Returns> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 return_type,
@@ -660,7 +685,7 @@ where
     }
 }
 
-impl<F, S, M, P, R> MessageSpecBuilder<F, S, M, P, R>
+impl<F, S, M, P, AR, R> MessageSpecBuilder<F, S, M, P, AR, R>
 where
     F: Form,
 {
@@ -693,6 +718,7 @@ impl<F>
         state::Selector,
         state::Mutates,
         state::IsPayable,
+        state::AllowReentrancy,
         state::Returns,
     >
 where
@@ -713,6 +739,7 @@ impl IntoPortable for MessageSpec {
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
+            allow_reentrancy: self.allow_reentrancy,
             args: self
                 .args
                 .into_iter()

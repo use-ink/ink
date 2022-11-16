@@ -45,6 +45,7 @@ pub use self::{
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,
+        TraitMessageAllowReentrancy,
         TraitMessagePayable,
         TraitMessageSelector,
     },

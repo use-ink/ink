@@ -298,6 +298,7 @@ impl Dispatch<'_> {
                 let message_span = message.span();
                 let message_ident = message.ident();
                 let payable = message.is_payable();
+                let allow_reentrancy = message.allow_reentrancy();
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
@@ -320,6 +321,7 @@ impl Dispatch<'_> {
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const PAYABLE: ::core::primitive::bool = #payable;
+                        const ALLOW_REENTRANCY: ::core::primitive::bool = #allow_reentrancy;
                         const MUTATES: ::core::primitive::bool = #mutates;
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
                     }
@@ -350,6 +352,11 @@ impl Dispatch<'_> {
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
+                let allow_reentrancy = quote! {{
+                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink::reflect::TraitMessageInfo<#local_id>>::ALLOW_REENTRANCY
+                }};
                 let selector = quote! {{
                     <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
@@ -378,6 +385,7 @@ impl Dispatch<'_> {
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                         const PAYABLE: ::core::primitive::bool = #payable;
+                        const ALLOW_REENTRANCY: ::core::primitive::bool: #allow_reentrancy;
                         const MUTATES: ::core::primitive::bool = #mutates;
                         const LABEL: &'static ::core::primitive::str = #label;
                     }
@@ -715,6 +723,8 @@ impl Dispatch<'_> {
         };
         let any_message_accept_payment =
             self.any_message_accepts_payment_expr(message_spans);
+        let any_message_allows_reentrancy =
+            self.any_message_allows_reentrancy_expr(message_spans);
 
         let message_execute = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
@@ -740,6 +750,13 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
+            let deny_reentrancy: quote_spanned!(message_span=>
+                !<#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::ALLOW_REENTRANCY
+            );
             let mutates_storage = quote_spanned!(message_span=>
                 <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
@@ -755,6 +772,11 @@ impl Dispatch<'_> {
                     if #any_message_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
+                    }
+
+                    if #any_message_allows_reentrancy && #deny_reentrancy {
+                        ::ink::codegen::deny_reentrancy::<
+                        <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
 
                     let result: #message_output = #message_callable(&mut contract, input);
@@ -886,6 +908,30 @@ impl Dispatch<'_> {
         });
         quote_spanned!(span=>
             { false #( || #message_is_payable )* }
+        )
+    }
+
+    fn any_message_allows_reentrancy_expr(
+        &self,
+        message_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
+        assert_eq!(message_spans.len(), self.query_amount_messages());
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_messages = self.query_amount_messages();
+        let message_allows_reentrancy = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            quote_spanned!(message_span=>
+                <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::ALLOW_REENTRANCY
+            )
+        });
+        quote_spanned!(span=>
+            { false #( || #message_allows_reentrancy )* }
         )
     }
 

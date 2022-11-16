@@ -187,6 +187,7 @@ impl Message {
                 match arg.kind() {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::AllowReentrancy
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
@@ -204,9 +205,11 @@ impl TryFrom<syn::ImplItemMethod> for Message {
         Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
+        let allow_reentrancy = ink_attrs.allow_reentrancy();
         let selector = ink_attrs.selector();
         Ok(Self {
             is_payable,
+            allow_reentrancy,
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
@@ -241,6 +244,10 @@ impl Callable for Message {
 
     fn is_payable(&self) -> bool {
         self.is_payable
+    }
+
+    fn allow_reentrancy(&self) -> bool {
+        self.allow_reentrancy
     }
 
     fn visibility(&self) -> Visibility {

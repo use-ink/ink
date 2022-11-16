@@ -88,6 +88,7 @@ impl<'a> InkTraitMessage<'a> {
                         Err(Some(format_err!(arg.span(), "wildcard selectors are only supported for inherent ink! messages or constructors, not for traits."))),
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::AllowReentrancy
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }

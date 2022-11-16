@@ -127,6 +127,9 @@ pub trait TraitMessageInfo<const TRAIT_LOCAL_MESSAGE_ID: u32> {
     /// Is `true` if the ink! trait message has been annotated with `#[ink(payable)]`.
     const PAYABLE: bool;
 
+    /// Is `true` if the ink! trait message has been annotated with `#[ink(allow_reentrancy)]`.
+    const ALLOW_REENTRANCY: bool;
+
     /// The unique selector of the ink! trait message.
     ///
     /// This might have been adjusted using `#[ink(selector = N:u32)]` at the
