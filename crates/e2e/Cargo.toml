@@ -21,7 +21,6 @@ ink_env = { version = "4.0.0-alpha.3", path = "../env" }
 contract-metadata = { version = "2.0.0-alpha.4" }
 impl-serde = { version = "0.3.1", default-features = false }
 jsonrpsee = { version = "0.16.0", features = ["ws-client"] }
-pallet-contracts-primitives = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "pallet-contracts-primitives" }
 serde = { version = "1.0.137", default-features = false, features = ["derive"] }
 serde_json = { version = "1.0.81" }
 tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
@@ -29,14 +28,14 @@ log = { version = "0.4" }
 env_logger = { version = "0.9" }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 # TODO we need to use `subxt` `master` until the next release 0.25 is published.
-subxt = { git = "https://github.com/paritytech/subxt", branch = "polkadot-v0.9.33", package = "subxt" }
+subxt = { git = "https://github.com/paritytech/subxt", branch = "master", package = "subxt" }
 
 # Substrate
-sp-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "sp-rpc" }
-sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "sp-core" }
-sp-keyring = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "sp-keyring" }
-sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "sp-runtime" }
-sp-weights = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.33", package = "sp-weights" }
+pallet-contracts-primitives = "7.0.0"
+sp-core = "7.0.0"
+sp-keyring = "7.0.0"
+sp-runtime = "7.0.0"
+sp-weights = "4.0.0"
 
 # TODO(#1421) `smart-bench_macro` needs to be forked.
 smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp-cross-contract", package = "smart-bench-macro" }
