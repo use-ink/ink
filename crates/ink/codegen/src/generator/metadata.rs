@@ -142,7 +142,8 @@ impl Metadata<'_> {
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
-        let ret_ty = Self::generate_constructor_return_type(constructor.output());
+        let ret_ty =
+            Self::generate_constructor_return_type(Some(&constructor.wrapped_output()));
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
