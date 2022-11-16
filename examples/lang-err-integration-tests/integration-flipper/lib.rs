@@ -37,7 +37,7 @@ pub mod integration_flipper {
             self.value
         }
 
-        /// Flips the current value of the `CallBuilder`'s boolean.
+        /// Flips the current value of the Flipper's boolean.
         ///
         /// We should see the state being reverted here, no write should occur.
         #[ink(message)]
