@@ -321,6 +321,35 @@ where
         Ok(ret)
     }
 
+    /// Dry run contract instantiation using the given constructor.
+    pub async fn instantiate_dry_run<CO: InkConstructor>(
+        &mut self,
+        signer: &Signer<C>,
+        constructor: &CO,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<C::AccountId, E::Balance>
+        where
+            CO: InkConstructor,
+    {
+        let mut data = CO::SELECTOR.to_vec();
+        <CO as scale::Encode>::encode_to(constructor, &mut data);
+
+        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
+        let salt = Self::salt();
+        self
+            .api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code.clone(),
+                data.clone(),
+                salt.clone(),
+                signer,
+            )
+            .await
+    }
+
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<CO: InkConstructor>(
         &mut self,
@@ -337,13 +366,7 @@ where
         ));
         <CO as scale::Encode>::encode_to(constructor, &mut data);
 
-        let salt = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
-            .as_millis()
-            .as_u128()
-            .to_le_bytes()
-            .to_vec();
+        let salt = Self::salt();
 
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
@@ -427,6 +450,17 @@ where
             account_id: account_id.expect("cannot extract `account_id` from events"),
             events: tx_events,
         })
+    }
+
+    /// Generate a unique salt based on the system time.
+    fn salt() -> Vec<u8> {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
+            .as_millis()
+            .as_u128()
+            .to_le_bytes()
+            .to_vec()
     }
 
     /// This function extracts the metadata of the contract at the file path
