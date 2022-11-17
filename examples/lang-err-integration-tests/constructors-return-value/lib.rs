@@ -180,6 +180,35 @@ pub mod constructors_return_value {
             Ok(())
         }
 
-        // async fn e2e_fallible_constructor_fail(
+        #[ink_e2e::test]
+        async fn e2e_fallible_constructor_fails(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = constructors_return_value::constructors::try_new(false);
+
+            let result = client
+                .instantiate_dry_run(&ink_e2e::charlie(), &constructor, 0, None)
+                .await
+                .result
+                .expect("Instantiate dry run should succeed");
+
+            let decoded_result = Result::<(), super::ConstructorError>::decode(
+                &mut &result.result.data[..],
+            )
+            .expect("Failed to decode fallible constructor Result");
+
+            assert!(
+                decoded_result.is_err(),
+                "Fallible constructor should have failed"
+            );
+
+            let result = client
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .await;
+
+            assert!(result.is_err(), "Constructor should fail");
+
+            Ok(())
+        }
     }
 }
