@@ -270,8 +270,8 @@ impl Dispatch<'_> {
                         type Input = #input_tuple_type;
                         type Output = #output_type;
                         type Storage = #storage_ident;
-                        type Error = #constructor_return_type :: Error;
-                        const IS_RESULT: ::core::primitive::bool = #constructor_return_type :: IS_RESULT;
+                        type Error = #constructor_return_type::Error;
+                        const IS_RESULT: ::core::primitive::bool = #constructor_return_type::IS_RESULT;
 
                         const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
@@ -625,14 +625,15 @@ impl Dispatch<'_> {
                     let result: #constructor_output = #constructor_callable(input);
                     let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
 
-                    match #constructor_value :: as_result(&output_value) {
+                    match #constructor_value::as_result(&output_value) {
                         ::core::result::Result::Ok(contract) => {
                             ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                                 &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                                 contract,
                             );
+
                             // only fallible constructors return success `Ok` back to the caller.
-                            if #constructor_value :: IS_RESULT {
+                            if #constructor_value::IS_RESULT {
                                 ::ink::env::return_value::<::core::result::Result<&(), ()>>(
                                     ::ink::env::ReturnFlags::new_with_reverted(false),
                                     &::core::result::Result::Ok(&())
@@ -642,7 +643,7 @@ impl Dispatch<'_> {
                             }
                         },
                         ::core::result::Result::Err(err) => {
-                           ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
+                           ::ink::env::return_value::<::core::result::Result<(), & #constructor_value::Error>>(
                                 ::ink::env::ReturnFlags::new_with_reverted(true),
                                 &::core::result::Result::Err(err)
                             )
