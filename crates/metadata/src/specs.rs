@@ -1049,42 +1049,6 @@ where
     }
 }
 
-/// Implementing this trait for some type `T` indicates what the return spec of
-/// `T` will be in the metadata, given `T` is used as the result of a constructor.
-pub trait ConstructorReturnSpec {
-    /// Generates the type spec.
-    ///
-    /// Note:
-    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
-    /// be used directly for constructor returning `Self`.
-    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
-    where
-        S: IntoIterator<Item = &'static str>,
-    {
-        if let Some(segments) = segments_opt {
-            TypeSpec::with_name_segs::<(), S>(segments)
-        } else {
-            TypeSpec::of_type::<()>()
-        }
-    }
-}
-
-impl<O, E> ConstructorReturnSpec for Result<O, E>
-where
-    E: TypeInfo + 'static,
-{
-    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
-    where
-        S: IntoIterator<Item = &'static str>,
-    {
-        if let Some(segments) = segments_opt {
-            TypeSpec::with_name_segs::<core::result::Result<(), E>, S>(segments)
-        } else {
-            TypeSpec::of_type::<core::result::Result<(), E>>()
-        }
-    }
-}
-
 /// Describes a pair of parameter label and type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
