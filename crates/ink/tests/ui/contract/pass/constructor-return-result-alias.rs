@@ -33,6 +33,24 @@ fn generate_metadata() -> InkProject {
 }
 
 fn main() {
+    use contract::Contract;
+    use std::any::TypeId;
+
+    const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
+        { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
+    >>::IDS[0];
+
+    assert_eq!(
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+        true
+    );
+    assert_eq!(
+        TypeId::of::<
+            <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+        >(),
+        TypeId::of::<contract::Error>(),
+    );
+
     let metadata = generate_metadata();
 
     let constructor = metadata.spec().constructors().iter().next().unwrap();
