@@ -19,13 +19,6 @@ pub mod integration_flipper {
             Self { value: init_value }
         }
 
-        /// Creates a new integration_flipper smart contract initialized with the given value.
-        #[ink(constructor)]
-        #[allow(clippy::result_unit_err)]
-        pub fn try_new(init_value: bool) -> Result<Self, ()> {
-            Ok(Self { value: init_value })
-        }
-
         /// Creates a new integration_flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn default() -> Self {
@@ -58,65 +51,6 @@ pub mod integration_flipper {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        #[ink_e2e::test]
-        async fn e2e_constructor_returns_result(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let constructor = integration_flipper::constructors::default();
-            let instantiate = client
-                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
-                .await
-                .expect("Instantiate `integration_flipper` failed");
-
-            // dbg!(&instantiate.dry_run);
-
-            let data = instantiate
-                .dry_run
-                .result
-                .expect("Dispatch to Contracts pallet failed.")
-                .result
-                .data;
-            let constructor_output: Result<(), ()> = scale::Decode::decode(&mut &data[..])
-                .expect("We expect a `Result` from constructors now, so this should be decodable.");
-
-            assert!(matches!(constructor_output, Ok(())));
-
-            let constructor = integration_flipper::constructors::try_new(true);
-            let instantiate = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
-                .await
-                .expect("Instantiate `integration_flipper` failed");
-            dbg!(&instantiate.dry_run);
-
-            Ok(())
-        }
-
-        #[ink_e2e::test]
-        async fn e2e_constructor_returns_result_of_result(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let constructor = integration_flipper::constructors::try_new(true);
-            let instantiate = client
-                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
-                .await
-                .expect("Instantiate `integration_flipper` failed");
-
-            dbg!(&instantiate.dry_run);
-
-            let data = instantiate
-                .dry_run
-                .result
-                .expect("Dispatch to Contracts pallet failed.")
-                .result
-                .data;
-            let constructor_output: Result<Result<(), ()>, ()> = scale::Decode::decode(&mut &data[..])
-                .expect("We expect a `Result` from constructors now, so this should be decodable.");
-
-            assert!(matches!(constructor_output, Ok(Ok(()))));
-
-            Ok(())
-        }
 
         #[ink_e2e::test]
         async fn e2e_can_flip_correctly(
