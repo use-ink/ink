@@ -37,6 +37,53 @@ use scale::{
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
+/// # Examples
+/// ```
+/// #![cfg_attr(not(feature = "std"), no_std)]
+/// 
+/// use ink_lang as ink;
+/// 
+/// // In order to correctly initialize a Mapping we need two things:
+/// // 1. An implementation of the SpreadAllocate trait on our storage struct
+/// // 2. The ink_lang::utils::initalize_contract initializer
+/// #[ink::contract]
+/// mod mycontract {
+///     use ink_storage::traits::SpreadAllocate;
+/// 
+///     #[ink(storage)]
+///     #[derive(SpreadAllocate)] // 1. An implementation of the SpreadAllocate trait on our storage struct
+///     pub struct MyContract {
+///         // Store a mapping from AccountIds to a u32
+///         map: ink_storage::Mapping<AccountId, u32>,
+///     }
+/// 
+///     impl MyContract {
+///         #[ink(constructor)]
+///         pub fn new(count: u32) -> Self {
+///             // 2. The ink_lang::utils::initalize_contract initializer
+///             ink_lang::utils::initialize_contract(|contract: &mut Self| {
+///                 let caller = Self::env().caller();
+///                 contract.map.insert(&caller, &count);
+///             })
+///         }
+/// 
+///         #[ink(constructor)]
+///         pub fn default() -> Self {
+///             // Even though we're not explicitly initializing the `Mapping`,
+///             // we still need to call this
+///             ink_lang::utils::initialize_contract(|_| {})
+///         }
+/// 
+///         // Grab the number at the caller's AccountID, if it exists
+///         #[ink(message)]
+///         pub fn get(&self) -> u32 {
+///             let caller = Self::env().caller();
+///             self.map.get(&caller).unwrap_or_default()
+///         }
+///     }
+/// }
+/// ```
+/// 
 /// # Important
 ///
 /// The mapping requires its own pre-defined storage key where to store values. By default,
