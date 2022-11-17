@@ -36,6 +36,11 @@ pub struct ReturnFlags {
 }
 
 impl ReturnFlags {
+    /// Initialize [`ReturnFlags`] with the reverted flag.
+    pub fn new_with_reverted(has_reverted: bool) -> Self {
+        Self::default().set_reverted(has_reverted)
+    }
+
     /// Sets the bit to indicate that the execution is going to be reverted.
     #[must_use]
     pub fn set_reverted(mut self, has_reverted: bool) -> Self {
