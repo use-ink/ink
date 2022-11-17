@@ -376,15 +376,16 @@ impl Metadata<'_> {
             Some(syn::Type::Path(syn::TypePath { qself: None, path }))
                 if path.is_ident("Self") =>
             {
-                quote! { ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)}
+                quote! {
+                    ::ink::metadata::ReturnTypeSpec::new(::core::option::Option::None)
+                }
             }
             Some(ty) => {
-                let type_token = Self::replace_self_with_unit(ty);
-                let segments = Self::generate_constructor_type_segments(ty);
+                let ty = Self::replace_self_with_unit(ty);
+                let ty: syn::Type = syn::parse2(ty).unwrap();
+                let type_spec = Self::generate_type_spec(&ty);
                 quote! {
-                    ::ink::metadata::ReturnTypeSpec::new(
-                        <#type_token as ::ink::metadata::ConstructorReturnSpec>::generate(#segments)
-                    )
+                    ::ink::metadata::ReturnTypeSpec::new(#type_spec)
                 }
             }
         }
