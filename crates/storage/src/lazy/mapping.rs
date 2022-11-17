@@ -38,7 +38,7 @@ use scale::{
 /// A mapping of key-value pairs directly into contract storage.
 ///
 /// # Examples
-/// ```
+/// ```rust
 /// #![cfg_attr(not(feature = "std"), no_std)]
 /// 
 /// use ink_lang as ink;
