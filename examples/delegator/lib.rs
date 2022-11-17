@@ -181,7 +181,8 @@ mod delegator {
                 )
                 .await
                 .expect("calling `get` failed")
-                .value;
+                .value
+                .expect("calling `get` returned a `LangError`");
             assert_eq!(value, 1234);
             let _ = client
                 .call(
@@ -205,7 +206,8 @@ mod delegator {
                 )
                 .await
                 .expect("calling `get` failed")
-                .value;
+                .value
+                .expect("calling `get` returned a `LangError`");
             assert_eq!(value, 1234 + 6);
 
             // when
@@ -241,7 +243,8 @@ mod delegator {
                 )
                 .await
                 .expect("calling `get` failed")
-                .value;
+                .value
+                .expect("calling `get` returned a `LangError`");
             assert_eq!(value, 1234 + 6 - 3);
 
             Ok(())

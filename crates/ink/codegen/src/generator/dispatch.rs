@@ -441,16 +441,34 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
-                ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! message failed: {}", error)
-                    })
+                let dispatchable = match ::ink::env::decode_input::<
+                    <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        use ::core::default::Default;
+                        let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
+
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // message output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        ::ink::env::return_value::<::ink::MessageResult<()>>(
+                            ::ink::env::ReturnFlags::default().set_reverted(true),
+                            &error,
+                        );
+                    }
+                };
+
+                <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
+                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
             }
         )
     }
@@ -800,23 +818,24 @@ impl Dispatch<'_> {
                     let failure = ::ink::is_result_type!(#message_output)
                         && ::ink::is_result_err!(result);
 
+                    // Currently no `LangError`s are raised at this level of the dispatch logic
+                    // so `Ok` is always returned to the caller.
+                    let return_value = ::core::result::Result::Ok(result);
+
                     if failure {
                         // We return early here since there is no need to push back the
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
-                        ::ink::env::return_value::<#message_output>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true), &result
+                        ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
+                            ::ink::env::ReturnFlags::default().set_reverted(true), &return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
-                    if ::core::any::TypeId::of::<#message_output>() != ::core::any::TypeId::of::<()>() {
-                        // In case the return type is `()` we do not return a value.
-                        ::ink::env::return_value::<#message_output>(
-                            ::ink::env::ReturnFlags::default(), &result
-                        )
-                    }
+                    ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
+                        ::ink::env::ReturnFlags::default(), &return_value
+                    )
                 }
             )
         });
@@ -887,8 +906,6 @@ impl Dispatch<'_> {
                         match self {
                             #( #message_execute ),*
                         };
-
-                        ::core::result::Result::Ok(())
                     }
                 }
 
