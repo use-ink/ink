@@ -44,6 +44,48 @@ pub mod constructors_return_value {
         }
     }
 
+    #[cfg(test)]
+    mod tests {
+        use super::ConstructorsReturnValue as Contract;
+        use std::any::TypeId;
+
+        #[test]
+        fn infallible_constructor_reflection() {
+            const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
+                { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
+            >>::IDS[0];
+
+            assert_eq!(
+                <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+                false
+            );
+            assert_eq!(
+                TypeId::of::<
+                    <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+                >(),
+                TypeId::of::<&()>(),
+            )
+        }
+
+        #[test]
+        fn fallible_constructor_reflection() {
+            const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
+                { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
+            >>::IDS[1];
+
+            assert_eq!(
+                <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+                true
+            );
+            assert_eq!(
+                TypeId::of::<
+                    <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+                >(),
+                TypeId::of::<super::ConstructorError>(),
+            )
+        }
+    }
+
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
