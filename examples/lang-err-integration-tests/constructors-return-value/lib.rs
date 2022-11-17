@@ -42,6 +42,12 @@ pub mod constructors_return_value {
         ) -> Result<(), ConstructorError> {
             todo!()
         }
+
+        /// Returns the current value of the contract storage.
+        #[ink(message)]
+        pub fn get_value(&self) -> bool {
+            self.value
+        }
     }
 
     #[cfg(test)]
@@ -94,6 +100,8 @@ pub mod constructors_return_value {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
+        use scale::Decode as _;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
@@ -122,5 +130,56 @@ pub mod constructors_return_value {
 
             Ok(())
         }
+
+        #[ink_e2e::test]
+        async fn e2e_fallible_constructor_succeed(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = constructors_return_value::constructors::try_new(true);
+
+            let result = client
+                .instantiate_dry_run(&ink_e2e::bob(), &constructor, 0, None)
+                .await
+                .result
+                .expect("Instantiate dry run should succeed");
+
+            let decoded_result = Result::<(), super::ConstructorError>::decode(
+                &mut &result.result.data[..],
+            )
+            .expect("Failed to decode fallible constructor Result");
+
+            assert!(
+                decoded_result.is_ok(),
+                "Fallible constructor should have succeeded"
+            );
+
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let value = client
+                .call(
+                    &mut ink_e2e::bob(),
+                    contract_acc_id.clone(),
+                    constructors_return_value::messages::get_value(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `get_value` failed")
+                .value
+                .expect("Input is valid, call must not fail.");
+
+            assert_eq!(
+                true, value,
+                "Contract success should write to contract storage"
+            );
+
+            Ok(())
+        }
+
+        // async fn e2e_fallible_constructor_fail(
     }
 }
