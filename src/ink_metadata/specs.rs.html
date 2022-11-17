@@ -1297,42 +1297,6 @@
 <span id="1295">1295</span>
 <span id="1296">1296</span>
 <span id="1297">1297</span>
-<span id="1298">1298</span>
-<span id="1299">1299</span>
-<span id="1300">1300</span>
-<span id="1301">1301</span>
-<span id="1302">1302</span>
-<span id="1303">1303</span>
-<span id="1304">1304</span>
-<span id="1305">1305</span>
-<span id="1306">1306</span>
-<span id="1307">1307</span>
-<span id="1308">1308</span>
-<span id="1309">1309</span>
-<span id="1310">1310</span>
-<span id="1311">1311</span>
-<span id="1312">1312</span>
-<span id="1313">1313</span>
-<span id="1314">1314</span>
-<span id="1315">1315</span>
-<span id="1316">1316</span>
-<span id="1317">1317</span>
-<span id="1318">1318</span>
-<span id="1319">1319</span>
-<span id="1320">1320</span>
-<span id="1321">1321</span>
-<span id="1322">1322</span>
-<span id="1323">1323</span>
-<span id="1324">1324</span>
-<span id="1325">1325</span>
-<span id="1326">1326</span>
-<span id="1327">1327</span>
-<span id="1328">1328</span>
-<span id="1329">1329</span>
-<span id="1330">1330</span>
-<span id="1331">1331</span>
-<span id="1332">1332</span>
-<span id="1333">1333</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2381,42 +2345,6 @@
     <span class="doccomment">/// Creates a new type specification for a given type and display name.
     </span><span class="kw">pub fn </span>new(ty: &lt;F <span class="kw">as </span>Form&gt;::Type, display_name: DisplayName&lt;F&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ ty, display_name }
-    }
-}
-
-<span class="doccomment">/// Implementing this trait for some type `T` indicates what the return spec of
-/// `T` will be in the metadata, given `T` is used as the result of a constructor.
-</span><span class="kw">pub trait </span>ConstructorReturnSpec {
-    <span class="doccomment">/// Generates the type spec.
-    ///
-    /// Note:
-    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
-    /// be used directly for constructor returning `Self`.
-    </span><span class="kw">fn </span>generate&lt;S&gt;(segments_opt: <span class="prelude-ty">Option</span>&lt;S&gt;) -&gt; TypeSpec
-    <span class="kw">where
-        </span>S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
-    {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(segments) = segments_opt {
-            TypeSpec::with_name_segs::&lt;(), S&gt;(segments)
-        } <span class="kw">else </span>{
-            TypeSpec::of_type::&lt;()&gt;()
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;O, E&gt; ConstructorReturnSpec <span class="kw">for </span><span class="prelude-ty">Result</span>&lt;O, E&gt;
-<span class="kw">where
-    </span>E: TypeInfo + <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">fn </span>generate&lt;S&gt;(segments_opt: <span class="prelude-ty">Option</span>&lt;S&gt;) -&gt; TypeSpec
-    <span class="kw">where
-        </span>S: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
-    {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(segments) = segments_opt {
-            TypeSpec::with_name_segs::&lt;core::result::Result&lt;(), E&gt;, S&gt;(segments)
-        } <span class="kw">else </span>{
-            TypeSpec::of_type::&lt;core::result::Result&lt;(), E&gt;&gt;()
-        }
     }
 }
 

@@ -500,6 +500,11 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -538,6 +543,11 @@
 }
 
 <span class="kw">impl </span>ReturnFlags {
+    <span class="doccomment">/// Initialize [`ReturnFlags`] with the reverted flag.
+    </span><span class="kw">pub fn </span>new_with_reverted(has_reverted: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::default().set_reverted(has_reverted)
+    }
+
     <span class="doccomment">/// Sets the bit to indicate that the execution is going to be reverted.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>set_reverted(<span class="kw-2">mut </span><span class="self">self</span>, has_reverted: bool) -&gt; <span class="self">Self </span>{

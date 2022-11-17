@@ -937,6 +937,45 @@
 <span id="935">935</span>
 <span id="936">936</span>
 <span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1195,16 +1234,22 @@
                 <span class="kw">let </span>payable = constructor.is_payable();
                 <span class="kw">let </span>selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 <span class="kw">let </span>selector_bytes = constructor.composed_selector().hex_lits();
-                <span class="kw">let </span>output_tuple_type = constructor.output().map(quote::ToTokens::to_token_stream)
+                <span class="kw">let </span>output_type = constructor.output().map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| <span class="macro">quote! </span>{ () });
                 <span class="kw">let </span>input_bindings = generator::input_bindings(constructor.inputs());
                 <span class="kw">let </span>input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 <span class="kw">let </span>input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+                <span class="kw">let </span>constructor_return_type = <span class="macro">quote_spanned!</span>(constructor_span=&gt;
+                    &lt;::ink::reflect::ConstructorOutputValue&lt;#output_type&gt;
+                        <span class="kw">as </span>::ink::reflect::ConstructorOutput&lt;#storage_ident&gt;&gt;
+                );
                 <span class="macro">quote_spanned!</span>(constructor_span=&gt;
                     <span class="kw">impl </span>::ink::reflect::DispatchableConstructorInfo&lt;#selector_id&gt; <span class="kw">for </span>#storage_ident {
                         <span class="kw">type </span>Input = #input_tuple_type;
-                        <span class="kw">type </span>Output = #output_tuple_type;
+                        <span class="kw">type </span>Output = #output_type;
                         <span class="kw">type </span>Storage = #storage_ident;
+                        <span class="kw">type </span>Error = #constructor_return_type :: Error;
+                        <span class="kw">const </span>IS_RESULT: ::core::primitive::bool = #constructor_return_type :: IS_RESULT;
 
                         <span class="kw">const </span>CALLABLE: <span class="kw">fn</span>(<span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
@@ -1381,7 +1426,6 @@
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) =&gt; {
-                        <span class="kw">use </span>::core::default::Default;
                         <span class="kw">let </span>error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
 
                         <span class="comment">// At this point we&#39;re unable to set the `Ok` variant to be the any &quot;real&quot;
@@ -1391,7 +1435,7 @@
                         // This is okay since we&#39;re going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         </span>::ink::env::return_value::&lt;::ink::MessageResult&lt;()&gt;&gt;(
-                            ::ink::env::ReturnFlags::default().set_reverted(<span class="bool-val">true</span>),
+                            ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">true</span>),
                             <span class="kw-2">&amp;</span>error,
                         );
                     }
@@ -1512,6 +1556,13 @@
                     }&gt;&gt;::IDS[#index]
                 }&gt;&gt;::CALLABLE
             );
+            <span class="kw">let </span>constructor_output = <span class="macro">quote_spanned!</span>(constructor_span=&gt;
+                &lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
+                    &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
+                        &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractAmountDispatchables&gt;::CONSTRUCTORS
+                    }&gt;&gt;::IDS[#index]
+                }&gt;&gt;::Output
+            );
             <span class="kw">let </span>deny_payment = <span class="macro">quote_spanned!</span>(constructor_span=&gt;
                 !&lt;#storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;{
                     &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractDispatchableConstructors&lt;{
@@ -1519,6 +1570,11 @@
                     }&gt;&gt;::IDS[#index]
                 }&gt;&gt;::PAYABLE
             );
+            <span class="kw">let </span>constructor_value = <span class="macro">quote_spanned!</span>(constructor_span=&gt;
+                &lt;::ink::reflect::ConstructorOutputValue&lt;#constructor_output&gt;
+                    <span class="kw">as </span>::ink::reflect::ConstructorOutput::&lt;#storage_ident&gt;&gt;
+            );
+
             <span class="macro">quote_spanned!</span>(constructor_span=&gt;
                 <span class="self">Self</span>::#constructor_ident(input) =&gt; {
                     <span class="kw">if </span>#any_constructor_accept_payment &amp;&amp; #deny_payment {
@@ -1526,9 +1582,32 @@
                             &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;()<span class="question-mark">?</span>;
                     }
 
-                    ::ink::codegen::execute_constructor::&lt;#storage_ident, <span class="kw">_</span>, <span class="kw">_</span>&gt;(
-                        <span class="kw">move </span>|| { #constructor_callable(input) }
-                    )
+                    <span class="kw">let </span>result: #constructor_output = #constructor_callable(input);
+                    <span class="kw">let </span>output_value = ::ink::reflect::ConstructorOutputValue::new(result);
+
+                    <span class="kw">match </span>#constructor_value :: as_result(<span class="kw-2">&amp;</span>output_value) {
+                        ::core::result::Result::Ok(contract) =&gt; {
+                            ::ink::env::set_contract_storage::&lt;::ink::primitives::Key, #storage_ident&gt;(
+                                <span class="kw-2">&amp;</span>&lt;#storage_ident <span class="kw">as </span>::ink::storage::traits::StorageKey&gt;::KEY,
+                                contract,
+                            );
+                            <span class="comment">// only fallible constructors return success `Ok` back to the caller.
+                            </span><span class="kw">if </span>#constructor_value :: IS_RESULT {
+                                ::ink::env::return_value::&lt;::core::result::Result&lt;<span class="kw-2">&amp;</span>(), ()&gt;&gt;(
+                                    ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">false</span>),
+                                    <span class="kw-2">&amp;</span>::core::result::Result::Ok(<span class="kw-2">&amp;</span>())
+                                )
+                            } <span class="kw">else </span>{
+                                ::core::result::Result::Ok(())
+                            }
+                        },
+                        ::core::result::Result::Err(err) =&gt; {
+                           ::ink::env::return_value::&lt;::core::result::Result&lt;(), &amp; #constructor_value :: Error&gt;&gt;(
+                                ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">true</span>),
+                                <span class="kw-2">&amp;</span>::core::result::Result::Err(err)
+                            )
+                        }
+                    }
                 }
             )
         });
@@ -1707,8 +1786,6 @@
 
             <span class="macro">quote_spanned!</span>(message_span=&gt;
                 <span class="self">Self</span>::#message_ident(input) =&gt; {
-                    <span class="kw">use </span>::core::default::Default;
-
                     <span class="kw">if </span>#any_message_accept_payment &amp;&amp; #deny_payment {
                         ::ink::codegen::deny_payment::&lt;
                             &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;()<span class="question-mark">?</span>;
@@ -1727,14 +1804,15 @@
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
                         </span>::ink::env::return_value::&lt;::ink::MessageResult::&lt;#message_output&gt;&gt;(
-                            ::ink::env::ReturnFlags::default().set_reverted(<span class="bool-val">true</span>), <span class="kw-2">&amp;</span>return_value
+                            ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">true</span>),
+                            <span class="kw-2">&amp;</span>return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
                     ::ink::env::return_value::&lt;::ink::MessageResult::&lt;#message_output&gt;&gt;(
-                        ::ink::env::ReturnFlags::default(), <span class="kw-2">&amp;</span>return_value
+                        ::ink::env::ReturnFlags::new_with_reverted(<span class="bool-val">false</span>), <span class="kw-2">&amp;</span>return_value
                     )
                 }
             )
