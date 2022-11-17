@@ -329,16 +329,15 @@ where
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
-        where
-            CO: InkConstructor,
+    where
+        CO: InkConstructor,
     {
         let mut data = CO::SELECTOR.to_vec();
         <CO as scale::Encode>::encode_to(constructor, &mut data);
 
         let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
         let salt = Self::salt();
-        self
-            .api
+        self.api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
