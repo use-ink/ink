@@ -343,20 +343,28 @@ impl Metadata<'_> {
         let constructor_info = quote_spanned!(span =>
             < #storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>>
         );
+
         quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
                 if #constructor_info::IS_RESULT {
                     ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
-                        ::core::result::Result<
+                        ::ink::ConstructorResult<::core::result::Result<
                             (),
-                            #constructor_info ::Error
-                        >
+                            #constructor_info::Error
+                        >>
                     >(
-                        "core::result::Result"
+                        "ink_primitives::ConstructorResult"
                     )
                 )
                 } else {
-                    ::core::option::Option::None
+                    ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                        ::ink::ConstructorResult<
+                            (),
+                        >
+                    >(
+                        "ink_primitives::ConstructorResult"
+                    )
+                )
                 }
             )
         )
