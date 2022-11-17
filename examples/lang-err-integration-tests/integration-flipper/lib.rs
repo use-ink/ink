@@ -102,22 +102,6 @@ pub mod integration_flipper {
                 .await
                 .expect("Instantiate `integration_flipper` failed");
 
-            // This comes back as:
-            //
-            //
-            // InstantiateReturnValue {
-            //     result: ExecReturnValue {
-            //         flags: (empty),
-            //         data: [
-            //             0,
-            //         ],
-            //     },
-            //     account_id: 4fa8528f2bed2d8fc186075067b6940f0d3229c7b977f3a4d0378c1781b3c1e8 (5Ds9eCso...),
-            // }
-            //
-            // Pretty sure we should have another thing for the wrapped `Result` beyond just `0`.
-            //
-            // The metadata between `new` and `try_new` look the same, which is suspicious...
             dbg!(&instantiate.dry_run);
 
             let data = instantiate

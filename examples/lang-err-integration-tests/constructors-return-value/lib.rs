@@ -13,7 +13,7 @@ pub mod constructors_return_value {
         value: bool,
     }
 
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(scale::Encode, scale::Decode, Debug)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct ConstructorError;
 
@@ -107,9 +107,12 @@ pub mod constructors_return_value {
                 .result
                 .expect("Instantiate dry run should succeed");
 
+            let data = infallible_constructor_result.result.data;
+            let decoded_result = Result::<(), ::ink::LangError>::decode(&mut &data[..])
+                .expect("Failed to decode constructor Result");
             assert!(
-                infallible_constructor_result.result.data.is_empty(),
-                "Infallible constructor should return no data"
+                decoded_result.is_ok(),
+                "Constructor dispatch should have succeeded"
             );
 
             let success = client
@@ -134,13 +137,19 @@ pub mod constructors_return_value {
                 .result
                 .expect("Instantiate dry run should succeed");
 
-            let decoded_result = Result::<(), super::ConstructorError>::decode(
-                &mut &result.result.data[..],
-            )
+            let decoded_result = Result::<
+                Result<(), super::ConstructorError>,
+                ink::LangError,
+            >::decode(&mut &result.result.data[..])
             .expect("Failed to decode fallible constructor Result");
 
             assert!(
                 decoded_result.is_ok(),
+                "Constructor dispatch should have succeeded"
+            );
+
+            assert!(
+                decoded_result.unwrap().is_ok(),
                 "Fallible constructor should have succeeded"
             );
 
@@ -183,21 +192,21 @@ pub mod constructors_return_value {
                 .result
                 .expect("Instantiate dry run should succeed");
 
-            let decoded_result = Result::<(), super::ConstructorError>::decode(
-                &mut &result.result.data[..],
-            )
+            let decoded_result = Result::<
+                Result<(), super::ConstructorError>,
+                ink::LangError,
+            >::decode(&mut &result.result.data[..])
             .expect("Failed to decode fallible constructor Result");
 
             assert!(
-                decoded_result.is_err(),
-                "Fallible constructor should have failed"
+                decoded_result.is_ok(),
+                "Constructor dispatch should have succeeded"
             );
 
-            let result = client
-                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
-                .await;
-
-            assert!(result.is_err(), "Constructor should fail");
+            assert!(
+                decoded_result.unwrap().is_err(),
+                "Fallible constructor should have failed"
+            );
 
             Ok(())
         }
