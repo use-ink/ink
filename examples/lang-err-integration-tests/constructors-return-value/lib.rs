@@ -51,9 +51,12 @@ pub mod constructors_return_value {
 
         #[test]
         fn infallible_constructor_reflection() {
-            const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
-            >>::IDS[0];
+            const ID: u32 =
+                <Contract as ::ink::reflect::ContractDispatchableConstructors<
+                    {
+                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    },
+                >>::IDS[0];
 
             assert_eq!(
                 <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
@@ -69,9 +72,12 @@ pub mod constructors_return_value {
 
         #[test]
         fn fallible_constructor_reflection() {
-            const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
-            >>::IDS[1];
+            const ID: u32 =
+                <Contract as ::ink::reflect::ContractDispatchableConstructors<
+                    {
+                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    },
+                >>::IDS[1];
 
             assert_eq!(
                 <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
