@@ -582,6 +582,8 @@ impl Dispatch<'_> {
 
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
+                    use ::core::default::Default;
+
                     if #any_constructor_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;

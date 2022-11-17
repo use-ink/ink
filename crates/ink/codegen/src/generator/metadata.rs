@@ -338,7 +338,7 @@ impl Metadata<'_> {
         quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
                 if #constructor_info ::IS_RESULT {
-                    Some(::ink::metadata::TypeSpec::with_name_str::<
+                    ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
                         ::core::result::Result<
                             (),
                             #constructor_info ::Error
@@ -348,7 +348,7 @@ impl Metadata<'_> {
                     )
                 )
                 } else {
-                    None
+                    ::core::option::Option::None
                 }
             )
         )
