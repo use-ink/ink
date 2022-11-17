@@ -34,15 +34,6 @@ pub mod constructors_return_value {
             }
         }
 
-        /// Invoke the fallible constructor via a contract ref
-        #[ink(message)]
-        pub fn call_fallible_constructor(
-            &self,
-            _succeed: bool,
-        ) -> Result<(), ConstructorError> {
-            todo!()
-        }
-
         /// Returns the current value of the contract storage.
         #[ink(message)]
         pub fn get_value(&self) -> bool {
