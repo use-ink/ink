@@ -448,7 +448,6 @@ impl Dispatch<'_> {
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
-                        use ::core::default::Default;
                         let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
@@ -458,7 +457,7 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true),
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
                             &error,
                         );
                     }
@@ -600,8 +599,6 @@ impl Dispatch<'_> {
 
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
-                    use ::core::default::Default;
-
                     if #any_constructor_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
@@ -618,13 +615,13 @@ impl Dispatch<'_> {
                             );
                             // On success we return the `Ok(())` value for callers.
                             ::ink::env::return_value::<::core::result::Result<&(), ()>>(
-                                ::ink::env::ReturnFlags::default().set_reverted(false),
+                                ::ink::env::ReturnFlags::new_with_reverted(false),
                                 &::core::result::Result::Ok(&())
                             )
                         },
                         ::core::result::Result::Err(err) => {
                            ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
-                                ::ink::env::ReturnFlags::default().set_reverted(true),
+                                ::ink::env::ReturnFlags::new_with_reverted(true),
                                 &::core::result::Result::Err(err)
                             )
                         }
@@ -807,8 +804,6 @@ impl Dispatch<'_> {
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    use ::core::default::Default;
-
                     if #any_message_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
@@ -827,14 +822,15 @@ impl Dispatch<'_> {
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true), &return_value
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            &return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
                     ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                        ::ink::env::ReturnFlags::default(), &return_value
+                        ::ink::env::ReturnFlags::new_with_reverted(false), &return_value
                     )
                 }
             )
