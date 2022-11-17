@@ -427,17 +427,16 @@ impl Dispatch<'_> {
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
-                        use ::core::default::Default;
                         let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
-                        // construcotr output since we were unable to figure out what the caller wanted
+                        // constructor output since we were unable to figure out what the caller wanted
                         // to dispatch in the first place, so we set it to `()`.
                         //
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::ConstructorResult<()>>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true),
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
                             &error,
                         );
                     }
@@ -634,20 +633,23 @@ impl Dispatch<'_> {
 
                             // only fallible constructors return success `Ok` back to the caller.
                             if #constructor_value::IS_RESULT {
-                                ::ink::env::return_value::<::core::result::Result<&(), ()>>(
+                                ::ink::env::return_value::<::ink::ConstructorResult<::core::result::Result<(), ()>>>(
                                     ::ink::env::ReturnFlags::new_with_reverted(false),
-                                    &::core::result::Result::Ok(&())
+                                    &::core::result::Result::Ok(::core::result::Result::Ok(())),
                                 )
                             } else {
-                                ::core::result::Result::Ok(())
+                                ::ink::env::return_value::<::ink::ConstructorResult<()>>(
+                                    ::ink::env::ReturnFlags::new_with_reverted(false),
+                                    &::core::result::Result::Ok(()),
+                                )
                             }
-                        },
-                        ::core::result::Result::Err(err) => {
-                           ::ink::env::return_value::<::core::result::Result<(), & #constructor_value::Error>>(
-                                ::ink::env::ReturnFlags::new_with_reverted(true),
-                                &::core::result::Result::Err(err)
-                            )
                         }
+                        ::core::result::Result::Err(err) => ::ink::env::return_value::<
+                            ::ink::ConstructorResult<::core::result::Result<(), &#constructor_value::Error>>,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(false),
+                            &::core::result::Result::Ok(::core::result::Result::Err(err)),
+                        ),
                     }
                 }
             )

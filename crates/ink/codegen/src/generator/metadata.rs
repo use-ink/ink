@@ -345,7 +345,7 @@ impl Metadata<'_> {
         );
         quote_spanned!(span=>
             ::ink::metadata::ReturnTypeSpec::new(
-                if #constructor_info ::IS_RESULT {
+                if #constructor_info::IS_RESULT {
                     ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
                         ::core::result::Result<
                             (),
