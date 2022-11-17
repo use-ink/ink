@@ -620,7 +620,7 @@ impl Dispatch<'_> {
                                     &::core::result::Result::Ok(&())
                                 )
                             } else {
-                                Ok(())
+                                ::core::result::Result::Ok(())
                             }
                         },
                         ::core::result::Result::Err(err) => {
