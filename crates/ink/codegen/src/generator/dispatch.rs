@@ -613,11 +613,15 @@ impl Dispatch<'_> {
                                 &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                                 contract,
                             );
-                            // On success we return the `Ok(())` value for callers.
-                            ::ink::env::return_value::<::core::result::Result<&(), ()>>(
-                                ::ink::env::ReturnFlags::new_with_reverted(false),
-                                &::core::result::Result::Ok(&())
-                            )
+                            // only fallible constructors return success `Ok` back to the caller.
+                            if #constructor_value :: IS_RESULT {
+                                ::ink::env::return_value::<::core::result::Result<&(), ()>>(
+                                    ::ink::env::ReturnFlags::new_with_reverted(false),
+                                    &::core::result::Result::Ok(&())
+                                )
+                            } else {
+                                Ok(())
+                            }
                         },
                         ::core::result::Result::Err(err) => {
                            ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
