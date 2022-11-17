@@ -28,6 +28,8 @@ pub mod layout;
 mod specs;
 mod utils;
 
+pub use ink_primitives::LangError;
+
 pub use self::specs::{
     ConstructorReturnSpec,
     ConstructorSpec,

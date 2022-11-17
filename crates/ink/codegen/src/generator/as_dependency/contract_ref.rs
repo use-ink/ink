@@ -336,6 +336,7 @@ impl ContractRef<'_> {
             .filter_attr(message.attrs().to_vec());
         let storage_ident = self.contract.module().storage().ident();
         let message_ident = message.ident();
+        let checked_message_ident = message.checked_ident();
         let call_operator = match message.receiver() {
             ir::Receiver::Ref => quote! { call },
             ir::Receiver::RefMut => quote! { call_mut },
@@ -344,6 +345,7 @@ impl ContractRef<'_> {
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let output_type = message.output().map(|ty| quote! { -> #ty });
+        let wrapped_output_type = message.wrapped_output();
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
@@ -351,6 +353,21 @@ impl ContractRef<'_> {
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) #output_type {
+                self.#checked_message_ident( #( #input_bindings, )* )
+                    .unwrap_or_else(|error| ::core::panic!(
+                        "encountered error while calling {}::{}: {:?}",
+                        ::core::stringify!(#storage_ident),
+                        ::core::stringify!(#message_ident),
+                        error,
+                    ))
+            }
+
+            #( #attrs )*
+            #[inline]
+            pub fn #checked_message_ident(
+                & #mut_token self
+                #( , #input_bindings : #input_types )*
+            ) -> #wrapped_output_type {
                 <Self as ::ink::codegen::TraitCallBuilder>::#call_operator(self)
                     .#message_ident( #( #input_bindings ),* )
                     .fire()
