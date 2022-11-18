@@ -577,6 +577,50 @@ where
         M: InkMessage,
         <M as InkMessage>::ReturnType: scale::Decode,
     {
+        let call_result = self
+            .call_raw(
+                signer,
+                account_id,
+                contract_call,
+                value,
+                storage_deposit_limit,
+            )
+            .await?;
+        let value: <M as InkMessage>::ReturnType = scale::Decode::decode(
+            &mut call_result.value.as_ref(),
+        )
+        .unwrap_or_else(|err| {
+            panic!(
+                "decoding dry run result to ink! message return type failed: {}",
+                err
+            )
+        });
+
+        Ok(CallResult {
+            value,
+            dry_run: call_result.dry_run,
+            events: call_result.events,
+        })
+    }
+
+    /// Executes a `call` for the contract at `account_id`.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    ///
+    /// The raw bytes of the
+    pub async fn call_raw<M>(
+        &mut self,
+        signer: &mut Signer<C>,
+        account_id: C::AccountId,
+        contract_call: M,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> Result<CallResult<C, E, Vec<u8>>, Error<C, E>>
+    where
+        M: InkMessage,
+        <M as InkMessage>::ReturnType: scale::Decode,
+    {
         let contract_call: EncodedMessage = contract_call.into();
         log_info(&format!("call: {:02X?}", contract_call.0));
 
@@ -633,17 +677,10 @@ where
             }
         }
 
-        let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: <M as InkMessage>::ReturnType =
-            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-                panic!(
-                    "decoding dry run result to ink! message return type failed: {}",
-                    err
-                )
-            });
+        let bytes = dry_run.result.as_ref().unwrap().data.clone();
 
         Ok(CallResult {
-            value,
+            value: bytes,
             dry_run,
             events: tx_events,
         })
