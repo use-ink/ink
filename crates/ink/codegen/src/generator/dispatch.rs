@@ -427,7 +427,7 @@ impl Dispatch<'_> {
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
-                        let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
+                        let error = ::ink::ConstructorResult::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
                         // constructor output since we were unable to figure out what the caller wanted
@@ -465,7 +465,7 @@ impl Dispatch<'_> {
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
-                        let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
+                        let error = ::ink::MessageResult::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
                         // message output since we were unable to figure out what the caller wanted
@@ -625,7 +625,7 @@ impl Dispatch<'_> {
                     let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
                     let output_result = #constructor_value::as_result(&output_value);
 
-                    if let Ok(contract) = output_result.as_ref() {
+                    if let ::core::result::Result::Ok(contract) = output_result.as_ref() {
                         ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                             &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                             contract,
@@ -638,6 +638,8 @@ impl Dispatch<'_> {
                         >,
                     >(
                         ::ink::env::ReturnFlags::new_with_reverted(output_result.is_err()),
+                        // Currently no `LangError`s are raised at this level of the
+                        // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
                     );
                 }
