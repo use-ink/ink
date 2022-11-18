@@ -824,27 +824,19 @@ impl Dispatch<'_> {
                     }
 
                     let result: #message_output = #message_callable(&mut contract, input);
-                    let failure = ::ink::is_result_type!(#message_output)
+                    let is_reverted = ::ink::is_result_type!(#message_output)
                         && ::ink::is_result_err!(result);
 
-                    // Currently no `LangError`s are raised at this level of the dispatch logic
-                    // so `Ok` is always returned to the caller.
-                    let return_value = ::core::result::Result::Ok(result);
-
-                    if failure {
-                        // We return early here since there is no need to push back the
-                        // intermediate results of the contract - the transaction is going to be
-                        // reverted anyways.
-                        ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
-                            &return_value
-                        )
+                    // no need to push back results: transaction gets reverted anyways
+                    if !is_reverted {
+                        push_contract(contract, #mutates_storage);
                     }
 
-                    push_contract(contract, #mutates_storage);
-
                     ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                        ::ink::env::ReturnFlags::new_with_reverted(false), &return_value
+                        ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                        // Currently no `LangError`s are raised at this level of the
+                        // dispatch logic so `Ok` is always returned to the caller.
+                        &::ink::MessageResult::Ok(result),
                     )
                 }
             )
