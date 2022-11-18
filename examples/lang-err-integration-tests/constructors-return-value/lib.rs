@@ -208,6 +208,15 @@ pub mod constructors_return_value {
                 "Fallible constructor should have failed"
             );
 
+            let result = client
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .await;
+
+            assert!(
+                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                "Constructor should fail"
+            );
+
             Ok(())
         }
     }
