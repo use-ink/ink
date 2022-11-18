@@ -55,13 +55,66 @@ mod call_builder {
                 }
             }
         }
+
+        #[ink(message)]
+        pub fn call_instantiate(
+            &mut self,
+            code_hash: Hash,
+            selector: [u8; 4],
+            init_value: bool,
+        ) -> Option<::ink::LangError> {
+            use ink::env::{
+                call::{
+                    build_create,
+                    ExecutionInput,
+                    Selector,
+                },
+                DefaultEnvironment,
+            };
+
+            // let _my_contract: constructors_return_value::ConstructorsReturnValueRef =
+            let result = build_create::<
+                DefaultEnvironment,
+                constructors_return_value::ConstructorsReturnValueRef,
+            >()
+            .code_hash(code_hash)
+            .gas_limit(0)
+            .endowment(0)
+            .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
+            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+            .params()
+            .instantiate();
+            ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
+            let contract: constructors_return_value::ConstructorsReturnValueRef =
+                result.expect("Error from the Contracts pallet.");
+
+            None
+
+            // let result = build_call::<DefaultEnvironment>()
+            //     .call_type(Call::new().callee(address))
+            //     .exec_input(ExecutionInput::new(Selector::new(selector)))
+            //     .returns::<Result<(), ::ink::LangError>>()
+            //     .fire()
+            //     .expect("Error from the Contracts pallet.");
+
+            // match result {
+            //     Ok(_) => None,
+            //     Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
+            //     Err(_) => {
+            //         unimplemented!("No other `LangError` variants exist at the moment.")
+            //     }
+            // }
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
+        // TODO: Add to open issue that only the first `additional_contract` arg works
+        #[ink_e2e::test(
+            additional_contracts = "../integration-flipper/Cargo.toml ../constructors-return-value/Cargo.toml"
+        )]
         async fn e2e_invalid_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -134,6 +187,105 @@ mod call_builder {
                 .value
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value == initial_value);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        async fn e2e_valid_constructor_create_builder(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            use call_builder::contract_types::ink_primitives::{
+                types::AccountId as E2EAccountId,
+                LangError as E2ELangError,
+            };
+
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let code_hash = client
+                .upload(
+                    &mut ink_e2e::dave(),
+                    constructors_return_value::CONTRACT_PATH,
+                    None,
+                )
+                .await
+                .expect("upload `constructors_return_value` failed")
+                .code_hash;
+
+            let new_selector = [0x9B, 0xAE, 0x9D, 0x5E];
+            let _invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call_result = client
+                .call(
+                    &mut ink_e2e::dave(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call_instantiate(
+                        ink_e2e::utils::runtime_hash_to_ink_hash::<
+                            ink::env::DefaultEnvironment,
+                        >(&code_hash),
+                        new_selector,
+                        true,
+                    ),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `call_builder::call_instantiate` failed");
+            dbg!(&call_result.value);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        async fn e2e_invalid_constructor_create_builder(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            use call_builder::contract_types::ink_primitives::{
+                types::AccountId as E2EAccountId,
+                LangError as E2ELangError,
+            };
+
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::eve(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let code_hash = client
+                .upload(
+                    &mut ink_e2e::eve(),
+                    constructors_return_value::CONTRACT_PATH,
+                    None,
+                )
+                .await
+                .expect("upload `constructors_return_value` failed")
+                .code_hash;
+
+            // let new_selector = [0x9B, 0xAE, 0x9D, 0x5E];
+            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call_result = client
+                .call(
+                    &mut ink_e2e::eve(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call_instantiate(
+                        ink_e2e::utils::runtime_hash_to_ink_hash::<
+                            ink::env::DefaultEnvironment,
+                        >(&code_hash),
+                        invalid_selector,
+                        true,
+                    ),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `call_builder::call_instantiate` failed");
+            dbg!(&call_result.dry_run);
+            dbg!(&call_result.value);
 
             Ok(())
         }
