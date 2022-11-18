@@ -623,34 +623,23 @@ impl Dispatch<'_> {
 
                     let result: #constructor_output = #constructor_callable(input);
                     let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
+                    let output_result = #constructor_value::as_result(&output_value);
 
-                    match #constructor_value::as_result(&output_value) {
-                        ::core::result::Result::Ok(contract) => {
-                            ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
-                                &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
-                                contract,
-                            );
-
-                            // only fallible constructors return success `Ok` back to the caller.
-                            if #constructor_value::IS_RESULT {
-                                ::ink::env::return_value::<::ink::ConstructorResult<::core::result::Result<(), ()>>>(
-                                    ::ink::env::ReturnFlags::new_with_reverted(false),
-                                    &::core::result::Result::Ok(::core::result::Result::Ok(())),
-                                )
-                            } else {
-                                ::ink::env::return_value::<::ink::ConstructorResult<()>>(
-                                    ::ink::env::ReturnFlags::new_with_reverted(false),
-                                    &::core::result::Result::Ok(()),
-                                )
-                            }
-                        }
-                        ::core::result::Result::Err(err) => ::ink::env::return_value::<
-                            ::ink::ConstructorResult<::core::result::Result<(), &#constructor_value::Error>>,
-                        >(
-                            ::ink::env::ReturnFlags::new_with_reverted(false),
-                            &::core::result::Result::Ok(::core::result::Result::Err(err)),
-                        ),
+                    if let Ok(contract) = output_result.as_ref() {
+                        ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
+                            &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
+                            contract,
+                        );
                     }
+
+                    ::ink::env::return_value::<
+                        ::ink::ConstructorResult<
+                            ::core::result::Result<(), &#constructor_value::Error>
+                        >,
+                    >(
+                        ::ink::env::ReturnFlags::new_with_reverted(output_result.is_err()),
+                        &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
+                    );
                 }
             )
         });
