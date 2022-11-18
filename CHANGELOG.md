@@ -4,13 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-- Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
-- Checks if `#[ink_e2e::test(ws_url = "…")]` is reachable and throws meaningful error otherwise - [#1490](https://github.com/paritytech/ink/pull/1490)
-- Fix E2E dry-run for `Mapping::insert()` - [#1494](https://github.com/paritytech/ink/pull/1494)
+## Version 4.0.0-beta
+
+The focus of the first `beta` release is to establish the stable ABI for the final `4.0.0`
+release. It means that whilst subsequent `beta` releases may contain breaking contract
+*code* changes, the ABI will remain the same so that any contract compiled and deployed 
+with `4.0.0-beta` continue to be compatible with all future `4.0.0` versions.
 
 ### Breaking Changes
 
+## Constructors and Messages return types
+
+TODO: Describe update to Result with LangError return types: https://github.com/paritytech/ink/issues/1207
+
+## Random function removed
 We had to remove [`ink_env::random`](https://docs.rs/ink_env/3.3.1/ink_env/fn.random.html)
 with [#1442](https://github.com/paritytech/ink/pull/1442).
 This function allowed contract developers getting random entropy.
@@ -28,11 +35,12 @@ protocol for future versions of Polkadot.
 
 ### Added
 - Allow using `Result<Self, Error>` as a return type in constructors ‒ [#1446](https://github.com/paritytech/ink/pull/1446)
-- Introduce conditional compilation for messages, constructors and events ‒ [#1458](https://github.com/paritytech/ink/pull/1458)
 - Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
 
 
 ### Changed
+- Add support for language level errors (`LangError`) ‒ [#1450](https://github.com/paritytech/ink/pull/1450)
+- Return `LangError`s from constructors ‒ [#1467](https://github.com/paritytech/ink/pull/1504)
 - Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
 - Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
 
