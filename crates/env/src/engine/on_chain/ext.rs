@@ -821,6 +821,6 @@ pub fn own_code_hash(output: &mut [u8]) {
     }
 }
 
-pub fn reentrant_count() {
+pub fn reentrant_count() -> u32 {
     unsafe { sys::reentrant_count() }
 }
