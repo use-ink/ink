@@ -256,16 +256,22 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
-                let output_tuple_type = constructor.output().map(quote::ToTokens::to_token_stream)
+                let output_type = constructor.output().map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(constructor.inputs());
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+                let constructor_return_type = quote_spanned!(constructor_span=>
+                    <::ink::reflect::ConstructorOutputValue<#output_type>
+                        as ::ink::reflect::ConstructorOutput<#storage_ident>>
+                );
                 quote_spanned!(constructor_span=>
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
-                        type Output = #output_tuple_type;
+                        type Output = #output_type;
                         type Storage = #storage_ident;
+                        type Error = #constructor_return_type :: Error;
+                        const IS_RESULT: ::core::primitive::bool = #constructor_return_type :: IS_RESULT;
 
                         const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
@@ -450,7 +456,6 @@ impl Dispatch<'_> {
                         decoded_dispatchable
                     }
                     ::core::result::Result::Err(_decoding_error) => {
-                        use ::core::default::Default;
                         let error = ::core::result::Result::Err(::ink::LangError::CouldNotReadInput);
 
                         // At this point we're unable to set the `Ok` variant to be the any "real"
@@ -460,7 +465,7 @@ impl Dispatch<'_> {
                         // This is okay since we're going to only be encoding the `Err` variant
                         // into the output buffer anyways.
                         ::ink::env::return_value::<::ink::MessageResult<()>>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true),
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
                             &error,
                         );
                     }
@@ -581,6 +586,13 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
+            let constructor_output = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::Output
+            );
             let deny_payment = quote_spanned!(constructor_span=>
                 !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
@@ -588,6 +600,11 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
+            let constructor_value = quote_spanned!(constructor_span=>
+                <::ink::reflect::ConstructorOutputValue<#constructor_output>
+                    as ::ink::reflect::ConstructorOutput::<#storage_ident>>
+            );
+
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
@@ -595,9 +612,32 @@ impl Dispatch<'_> {
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
 
-                    ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
-                        move || { #constructor_callable(input) }
-                    )
+                    let result: #constructor_output = #constructor_callable(input);
+                    let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
+
+                    match #constructor_value :: as_result(&output_value) {
+                        ::core::result::Result::Ok(contract) => {
+                            ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
+                                &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
+                                contract,
+                            );
+                            // only fallible constructors return success `Ok` back to the caller.
+                            if #constructor_value :: IS_RESULT {
+                                ::ink::env::return_value::<::core::result::Result<&(), ()>>(
+                                    ::ink::env::ReturnFlags::new_with_reverted(false),
+                                    &::core::result::Result::Ok(&())
+                                )
+                            } else {
+                                ::core::result::Result::Ok(())
+                            }
+                        },
+                        ::core::result::Result::Err(err) => {
+                           ::ink::env::return_value::<::core::result::Result<(), & #constructor_value :: Error>>(
+                                ::ink::env::ReturnFlags::new_with_reverted(true),
+                                &::core::result::Result::Err(err)
+                            )
+                        }
+                    }
                 }
             )
         });
@@ -785,8 +825,6 @@ impl Dispatch<'_> {
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    use ::core::default::Default;
-
                     if #any_message_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
@@ -810,14 +848,15 @@ impl Dispatch<'_> {
                         // intermediate results of the contract - the transaction is going to be
                         // reverted anyways.
                         ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true), &return_value
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            &return_value
                         )
                     }
 
                     push_contract(contract, #mutates_storage);
 
                     ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
-                        ::ink::env::ReturnFlags::default(), &return_value
+                        ::ink::env::ReturnFlags::new_with_reverted(false), &return_value
                     )
                 }
             )
