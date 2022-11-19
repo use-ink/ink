@@ -116,12 +116,13 @@ where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: FromAccountId<E>,
+    R: scale::Decode,
+    // R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
     pub fn instantiate(&self) -> Result<R, crate::Error> {
-        crate::instantiate_contract(self).map(FromAccountId::from_account_id)
+        crate::instantiate_contract(self) //.map(FromAccountId::from_account_id)
     }
 }
 
@@ -135,7 +136,7 @@ where
     endowment: Endowment,
     exec_input: Args,
     salt: Salt,
-    return_type: ReturnType<R>,
+    return_type: R,
     _phantom: PhantomData<fn() -> E>,
 }
 
@@ -195,11 +196,12 @@ pub fn build_create<E, R>() -> CreateBuilder<
     Unset<E::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<state::Salt>,
-    R,
+    Unset<ReturnType<R>>,
 >
 where
     E: Environment,
-    R: FromAccountId<E>,
+    R: scale::Decode,
+    // R: FromAccountId<E>,
 {
     CreateBuilder {
         code_hash: Default::default(),
@@ -281,6 +283,34 @@ where
     }
 }
 
+impl<E, CodeHash, GasLimit, Endowment, Args, Salt>
+    CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, Unset<ReturnType<()>>>
+where
+    E: Environment,
+{
+    /// Sets the type of the returned value upon the execution of the call.
+    ///
+    /// # Note
+    ///
+    /// Either use `.returns::<()>` to signal that the call does not return a value
+    /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
+    #[inline]
+    pub fn returns<R>(
+        self,
+    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, Set<ReturnType<R>>>
+    {
+        CreateBuilder {
+            code_hash: self.code_hash,
+            gas_limit: self.gas_limit,
+            endowment: self.endowment,
+            exec_input: self.exec_input,
+            salt: self.salt,
+            return_type: Set(Default::default()),
+            _phantom: Default::default(),
+        }
+    }
+}
+
 impl<E, CodeHash, GasLimit, Endowment, Salt, R>
     CreateBuilder<
         E,
@@ -347,7 +377,7 @@ impl<E, GasLimit, Args, Salt, R>
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        R,
+        Set<ReturnType<R>>,
     >
 where
     E: Environment,
@@ -362,7 +392,7 @@ where
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt.value(),
-            _return_type: self.return_type,
+            _return_type: Default::default(),
         }
     }
 }
@@ -375,14 +405,15 @@ impl<E, GasLimit, Args, Salt, R>
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        R,
+        Set<ReturnType<R>>,
     >
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: FromAccountId<E>,
+    R: scale::Decode,
+    // R: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]

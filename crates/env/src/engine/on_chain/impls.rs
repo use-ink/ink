@@ -479,14 +479,16 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, Args, Salt, C, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+    ) -> Result<R>
+    // ) -> Result<E::AccountId>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        R: scale::Decode,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -503,7 +505,9 @@ impl TypedEnvBackend for EnvInstance {
         // This should change in the future but for that we need to add support
         // for constructors that may return values.
         // This is useful to support fallible constructors for example.
-        ext::instantiate(
+        //
+        // TODO: Support this output buffer?
+        let instantiate_result = ext::instantiate(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -511,9 +515,31 @@ impl TypedEnvBackend for EnvInstance {
             out_address,
             out_return_value,
             salt,
-        )?;
-        let account_id = scale::Decode::decode(&mut &out_address[..])?;
-        Ok(account_id)
+        );
+
+        match instantiate_result {
+            Ok(()) => {
+                // The Ok case always needs to decode into an address
+                //
+                // This decodes to an `E::AccountId`
+                //
+                // But here I want an `Ok(E::AccountId)`
+                let account_id = scale::Decode::decode(&mut &out_address[..])?;
+                Ok(account_id)
+
+                // let out = scale::Decode::decode(&mut &out_return_value[..])?;
+                // Ok(out)
+            }
+            Err(ext::Error::CalleeReverted) => {
+                // This decodes to an `Err(CouldNotReadInput)`
+                let out = scale::Decode::decode(&mut &out_return_value[..])?;
+                Ok(out)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
+
+        // let account_id = scale::Decode::decode(&mut &out_address[..])?;
+        // Ok(account_id)
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !

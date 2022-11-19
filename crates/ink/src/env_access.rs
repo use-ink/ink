@@ -469,15 +469,17 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, Salt, C>(
+    pub fn instantiate_contract<Args, Salt, C, R>(
         self,
         params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+    ) -> Result<R>
+    // ) -> Result<E::AccountId>
     where
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        R: scale::Decode,
     {
-        ink_env::instantiate_contract::<E, Args, Salt, C>(params)
+        ink_env::instantiate_contract::<E, Args, Salt, C, R>(params)
     }
 
     /// Invokes a contract message and returns its result.

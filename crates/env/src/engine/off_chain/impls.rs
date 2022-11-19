@@ -469,14 +469,16 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, Args, Salt, C, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+    ) -> Result<R>
+    // ) -> Result<E::AccountId>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        R: scale::Decode,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();

@@ -439,14 +439,16 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, Args, Salt, C, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+    ) -> Result<R>
+    // ) -> Result<E::AccountId>
     where
         E: Environment,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>;
+        Salt: AsRef<[u8]>,
+        R: scale::Decode;
 
     /// Terminates a smart contract.
     ///

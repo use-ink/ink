@@ -62,24 +62,35 @@ mod call_builder {
             code_hash: Hash,
             selector: [u8; 4],
             init_value: bool,
-        ) -> Option<AccountId> {
+        ) -> Option<::ink::LangError> {
             use ink::env::call::build_create;
 
             let result = build_create::<
                 DefaultEnvironment,
-                constructors_return_value::ConstructorsReturnValueRef,
+                _,
+                // constructors_return_value::ConstructorsReturnValueRef,
             >()
             .code_hash(code_hash)
             .gas_limit(0)
             .endowment(0)
             .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
             .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+            .returns::<Result<
+                constructors_return_value::ConstructorsReturnValueRef,
+                ::ink::LangError,
+            >>()
             .params()
-            .instantiate();
+            .instantiate()
+            .expect("Error from the Contracts pallet.");
+            ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
-            // NOTE: Right now we can't handle any `LangError` from `instantiate`, we can only tell
-            // that our contract reverted (i.e we see error from the Contracts pallet).
-            result.ok().map(|id| ink::ToAccountId::to_account_id(&id))
+            match result {
+                Ok(_) => None,
+                Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
+                Err(_) => {
+                    unimplemented!("No other `LangError` variants exist at the moment.")
+                }
+            }
         }
     }
 
@@ -205,14 +216,8 @@ mod call_builder {
                     None,
                 )
                 .await
-                .expect("Client failed to call `call_builder::call_instantiate`.")
-                .value
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
-
-            assert!(
-                call_result.is_some(),
-                "Call using valid selector failed, when it should've succeeded."
-            );
+                .expect("Calling `call_builder::call_instantiate` failed");
+            dbg!(&call_result.value);
 
             Ok(())
         }
@@ -254,14 +259,8 @@ mod call_builder {
                     None,
                 )
                 .await
-                .expect("Client failed to call `call_builder::call_instantiate`.")
-                .value
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
-
-            assert!(
-                call_result.is_none(),
-                "Call using invalid selector succeeded, when it should've failed."
-            );
+                .expect("Client failed to call `call_builder::call_instantiate`.");
+            dbg!(&call_result.value);
 
             Ok(())
         }
