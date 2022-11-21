@@ -365,7 +365,7 @@ where
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
-                return_type: ReturnTypeSpec::new(None),
+                return_type: ReturnTypeSpec::new(TypeSpec::of_type::<()>()),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -1169,6 +1169,11 @@ where
 }
 
 /// Describes the contract message return type.
+///
+/// # Developer Note
+///
+/// Messages and constructors are considered to always have a return type in the form of a language
+/// result (i.e their return type is `Result<original_return_type, LangError>`.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
 #[serde(bound(
@@ -1178,7 +1183,7 @@ where
 #[must_use]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
-    opt_type: Option<TypeSpec<F>>,
+    ty: TypeSpec<F>,
 }
 
 impl IntoPortable for ReturnTypeSpec {
@@ -1186,9 +1191,7 @@ impl IntoPortable for ReturnTypeSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ReturnTypeSpec {
-            opt_type: self
-                .opt_type
-                .map(|opt_type| opt_type.into_portable(registry)),
+            ty: self.ty.into_portable(registry),
         }
     }
 }
@@ -1197,26 +1200,24 @@ impl<F> ReturnTypeSpec<F>
 where
     F: Form,
 {
-    /// Creates a new return type specification from the given type or `None`.
+    /// Creates a new return type specification from the given type.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
-    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(None); // no return type;
+    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(TypeSpec::of_type::<()>());
     /// ```
     pub fn new<T>(ty: T) -> Self
     where
-        T: Into<Option<TypeSpec<F>>>,
+        T: Into<TypeSpec<F>>,
     {
-        Self {
-            opt_type: ty.into(),
-        }
+        Self { ty: ty.into() }
     }
 
     /// Returns the optional return type
-    pub fn opt_type(&self) -> Option<&TypeSpec<F>> {
-        self.opt_type.as_ref()
+    pub fn opt_type(&self) -> &TypeSpec<F> {
+        &self.ty
     }
 }
 
