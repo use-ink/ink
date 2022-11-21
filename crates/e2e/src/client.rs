@@ -341,9 +341,9 @@ where
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
-                code.clone(),
-                data.clone(),
-                salt.clone(),
+                code,
+                data,
+                salt,
                 signer,
             )
             .await
