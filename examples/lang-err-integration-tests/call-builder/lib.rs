@@ -88,8 +88,85 @@ mod call_builder {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(
-            additional_contracts = "../constructors-return-value/Cargo.toml ../integration-flipper/Cargo.toml"
+            additional_contracts = "../integration-flipper/Cargo.toml ../constructors-return-value/Cargo.toml"
         )]
+        async fn e2e_invalid_message_selector_can_be_handled(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            use call_builder::contract_types::ink_primitives::{
+                types::AccountId as E2EAccountId,
+                LangError as E2ELangError,
+            };
+
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let flipper_constructor = integration_flipper::constructors::default();
+            let flipper_acc_id = client
+                .instantiate(&mut ink_e2e::charlie(), flipper_constructor, 0, None)
+                .await
+                .expect("instantiate `flipper` failed")
+                .account_id;
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::charlie(),
+                    flipper_acc_id.clone(),
+                    integration_flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let initial_value = get_call_result
+                .value
+                .expect("Input is valid, call must not fail.");
+
+            let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
+            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call_result = client
+                .call(
+                    &mut ink_e2e::charlie(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call(flipper_ink_acc_id, invalid_selector),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `call_builder::call` failed");
+
+            let flipper_result = call_result
+                .value
+                .expect("Call to `call_builder::call` failed");
+
+            assert!(matches!(
+                flipper_result,
+                Some(E2ELangError::CouldNotReadInput)
+            ));
+
+            let get_call_result = client
+                .call(
+                    &mut ink_e2e::charlie(),
+                    flipper_acc_id.clone(),
+                    integration_flipper::messages::get(),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Calling `flipper::get` failed");
+            let flipped_value = get_call_result
+                .value
+                .expect("Input is valid, call must not fail.");
+            assert!(flipped_value == initial_value);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
         async fn e2e_create_builder_works_with_valid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -183,88 +260,6 @@ mod call_builder {
                 call_result.is_none(),
                 "Call using invalid selector succeeded, when it should've failed."
             );
-
-            Ok(())
-        }
-    }
-
-    #[cfg(all(test, feature = "e2e-tests"))]
-    mod e2e_message_tests {
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
-        async fn e2e_invalid_message_selector_can_be_handled(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            use call_builder::contract_types::ink_primitives::{
-                types::AccountId as E2EAccountId,
-                LangError as E2ELangError,
-            };
-
-            let constructor = call_builder::constructors::new();
-            let contract_acc_id = client
-                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
-
-            let flipper_constructor = integration_flipper::constructors::default();
-            let flipper_acc_id = client
-                .instantiate(&mut ink_e2e::charlie(), flipper_constructor, 0, None)
-                .await
-                .expect("instantiate `flipper` failed")
-                .account_id;
-
-            let get_call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    flipper_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Calling `flipper::get` failed");
-            let initial_value = get_call_result
-                .value
-                .expect("Input is valid, call must not fail.");
-
-            let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
-            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
-            let call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call(flipper_ink_acc_id, invalid_selector),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Calling `call_builder::call` failed");
-
-            let flipper_result = call_result
-                .value
-                .expect("Call to `call_builder::call` failed");
-
-            assert!(matches!(
-                flipper_result,
-                Some(E2ELangError::CouldNotReadInput)
-            ));
-
-            let get_call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    flipper_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Calling `flipper::get` failed");
-            let flipped_value = get_call_result
-                .value
-                .expect("Input is valid, call must not fail.");
-            assert!(flipped_value == initial_value);
 
             Ok(())
         }
