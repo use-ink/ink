@@ -9,6 +9,14 @@
 
 #[ink::contract]
 mod call_builder {
+    use ink::env::{
+        call::{
+            Call,
+            ExecutionInput,
+            Selector,
+        },
+        DefaultEnvironment,
+    };
 
     #[ink(storage)]
     #[derive(Default)]
@@ -30,15 +38,7 @@ mod call_builder {
             address: AccountId,
             selector: [u8; 4],
         ) -> Option<::ink::LangError> {
-            use ink::env::{
-                call::{
-                    build_call,
-                    Call,
-                    ExecutionInput,
-                    Selector,
-                },
-                DefaultEnvironment,
-            };
+            use ink::env::call::build_call;
 
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
@@ -63,14 +63,7 @@ mod call_builder {
             selector: [u8; 4],
             init_value: bool,
         ) -> Option<AccountId> {
-            use ink::env::{
-                call::{
-                    build_create,
-                    ExecutionInput,
-                    Selector,
-                },
-                DefaultEnvironment,
-            };
+            use ink::env::call::build_create;
 
             let result = build_create::<
                 DefaultEnvironment,
