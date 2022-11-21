@@ -126,7 +126,9 @@ mod call_builder {
                 .value
                 .expect("Input is valid, call must not fail.");
 
-            let flipper_ink_acc_id = E2EAccountId(flipper_acc_id.clone().into());
+            let flipper_ink_acc_id =
+                ink::primitives::AccountId::try_from(flipper_acc_id.clone().as_ref())
+                    .unwrap();
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call_result = client
                 .call(
