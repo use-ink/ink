@@ -536,9 +536,7 @@ mod erc20 {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn e2e_transfer(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
+        async fn e2e_transfer(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
             let constructor = erc20::constructors::new(total_supply);
@@ -561,11 +559,15 @@ mod erc20 {
                 .expect("total_supply failed");
 
             let bob_account = AccountId::try_from(
-                ink_e2e::bob::<ink_e2e::SubstrateConfig>().account_id().as_ref()
-            ).unwrap();
+                ink_e2e::bob::<ink_e2e::SubstrateConfig>()
+                    .account_id()
+                    .as_ref(),
+            )
+            .unwrap();
 
             let transfer_to_bob = 500_000_000u128;
-            let transfer = erc20::messages::transfer(bob_account.clone(), transfer_to_bob);
+            let transfer =
+                erc20::messages::transfer(bob_account.clone(), transfer_to_bob);
             let _transfer_res = client
                 .call(
                     &mut ink_e2e::alice(),
@@ -589,14 +591,19 @@ mod erc20 {
                 .expect("balance_of failed");
 
             // then
-            assert_eq!(total_supply, total_supply_res.value.unwrap(), "total_supply");
+            assert_eq!(
+                total_supply,
+                total_supply_res.value.unwrap(),
+                "total_supply"
+            );
             assert_eq!(transfer_to_bob, balance_of_res.value.unwrap(), "balance_of");
 
             Ok(())
         }
 
+        // todo: allowance tests
         // #[ink_e2e::test]
-        // async fn e2e_contract_must_transfer_value_to_sender(
+        // async fn e2e_allowances(
         //     mut client: ink_e2e::Client<C, E>,
         // ) -> E2EResult<()> {
         //     // given
@@ -639,5 +646,4 @@ mod erc20 {
         //     Ok(())
         // }
     }
-
 }
