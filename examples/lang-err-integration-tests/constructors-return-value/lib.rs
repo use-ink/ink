@@ -55,9 +55,8 @@ pub mod constructors_return_value {
                     },
                 >>::IDS[0];
 
-            assert_eq!(
-                <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
-                false
+            assert!(
+                !<Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
             );
             assert_eq!(
                 TypeId::of::<
@@ -76,9 +75,8 @@ pub mod constructors_return_value {
                     },
                 >>::IDS[1];
 
-            assert_eq!(
+            assert!(
                 <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
-                true
             );
             assert_eq!(
                 TypeId::of::<
