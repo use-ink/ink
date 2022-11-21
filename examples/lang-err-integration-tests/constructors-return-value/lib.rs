@@ -47,6 +47,7 @@ pub mod constructors_return_value {
         use std::any::TypeId;
 
         #[test]
+        #[allow(clippy::assertions_on_constants)]
         fn infallible_constructor_reflection() {
             const ID: u32 =
                 <Contract as ::ink::reflect::ContractDispatchableConstructors<
@@ -67,6 +68,7 @@ pub mod constructors_return_value {
         }
 
         #[test]
+        #[allow(clippy::assertions_on_constants)]
         fn fallible_constructor_reflection() {
             const ID: u32 =
                 <Contract as ::ink::reflect::ContractDispatchableConstructors<
