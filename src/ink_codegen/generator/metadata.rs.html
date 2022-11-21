@@ -486,11 +486,6 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -827,7 +822,7 @@
         }
     }
 
-    <span class="doccomment">/// Generates ink! metadata for the storage with given selector and indentation.
+    <span class="doccomment">/// Generates ink! metadata for the storage with given selector and ident.
     </span><span class="kw">fn </span>generate_constructor_return_type(
         storage_ident: <span class="kw-2">&amp;</span>Ident,
         selector_id: u32,
@@ -836,22 +831,17 @@
         <span class="kw">let </span>constructor_info = <span class="macro">quote_spanned!</span>(span =&gt;
             &lt; #storage_ident <span class="kw">as </span>::ink::reflect::DispatchableConstructorInfo&lt;#selector_id&gt;&gt;
         );
+
         <span class="macro">quote_spanned!</span>(span=&gt;
-            ::ink::metadata::ReturnTypeSpec::new(
-                <span class="kw">if </span>#constructor_info ::IS_RESULT {
-                    ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::&lt;
-                        ::core::result::Result&lt;
-                            (),
-                            #constructor_info ::Error
-                        &gt;
-                    &gt;(
-                        <span class="string">&quot;core::result::Result&quot;
-                    </span>)
-                )
-                } <span class="kw">else </span>{
-                    ::core::option::Option::None
-                }
-            )
+            ::ink::metadata::ReturnTypeSpec::new(<span class="kw">if </span>#constructor_info::IS_RESULT {
+                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::&lt;
+                    ::ink::ConstructorResult&lt;::core::result::Result&lt;(), #constructor_info::Error&gt;&gt;,
+                &gt;(<span class="string">&quot;ink_primitives::ConstructorResult&quot;</span>))
+            } <span class="kw">else </span>{
+                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::&lt;
+                    ::ink::ConstructorResult&lt;()&gt;,
+                &gt;(<span class="string">&quot;ink_primitives::ConstructorResult&quot;</span>))
+            })
         )
     }
 
