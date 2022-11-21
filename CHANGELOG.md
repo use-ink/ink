@@ -11,6 +11,22 @@ release. It means that whilst subsequent `beta` releases may contain breaking co
 *code* changes, the ABI will remain the same so that any contract compiled and deployed
 with `4.0.0-beta` continue to be compatible with all future `4.0.0` versions.
 
+### Compatibility
+In order to build contracts which use ink! `v4.0.0-beta` you need to use
+`cargo-contract`
+[`v2.0.0-beta`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0-beta).
+You can install it as follows:
+
+`cargo install cargo-contract --version 2.0.0-beta`
+
+You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [265e3f1](https://github.com/paritytech/substrate/commit/265e3f12a2937fe4f71280b3652471627609d04f)
+(Nov 3, 2022) in your node.
+
+The [`v0.22.1`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.22.1)
+release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) is
+compatible with the ink! `4.0.0-beta` release.
+
 ### Breaking Changes
 
 ## Constructors and Messages now return `LangError`s
