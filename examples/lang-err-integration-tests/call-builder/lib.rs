@@ -90,6 +90,57 @@ mod call_builder {
         #[ink_e2e::test(
             additional_contracts = "../integration-flipper/Cargo.toml ../constructors-return-value/Cargo.toml"
         )]
+        async fn e2e_create_builder_fails_with_invalid_selector(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::eve(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let code_hash = client
+                .upload(
+                    &mut ink_e2e::eve(),
+                    constructors_return_value::CONTRACT_PATH,
+                    None,
+                )
+                .await
+                .expect("upload `constructors_return_value` failed")
+                .code_hash;
+
+            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call_result = client
+                .call(
+                    &mut ink_e2e::eve(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call_instantiate(
+                        ink_e2e::utils::runtime_hash_to_ink_hash::<
+                            ink::env::DefaultEnvironment,
+                        >(&code_hash),
+                        invalid_selector,
+                        true,
+                    ),
+                    0,
+                    None,
+                )
+                .await
+                .expect("Client failed to call `call_builder::call_instantiate`.")
+                .value
+                .expect("Dispatching `call_builder::call_instantiate` failed.");
+
+            assert!(
+                call_result.is_none(),
+                "Call using invalid selector succeeded, when it should've failed."
+            );
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(
+            additional_contracts = "../integration-flipper/Cargo.toml ../constructors-return-value/Cargo.toml"
+        )]
         async fn e2e_invalid_message_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -210,55 +261,6 @@ mod call_builder {
             assert!(
                 call_result.is_some(),
                 "Call using valid selector failed, when it should've succeeded."
-            );
-
-            Ok(())
-        }
-
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
-        async fn e2e_create_builder_fails_with_invalid_selector(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
-            let contract_acc_id = client
-                .instantiate(&mut ink_e2e::eve(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
-
-            let code_hash = client
-                .upload(
-                    &mut ink_e2e::eve(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
-                .await
-                .expect("upload `constructors_return_value` failed")
-                .code_hash;
-
-            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
-            let call_result = client
-                .call(
-                    &mut ink_e2e::eve(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call_instantiate(
-                        ink_e2e::utils::runtime_hash_to_ink_hash::<
-                            ink::env::DefaultEnvironment,
-                        >(&code_hash),
-                        invalid_selector,
-                        true,
-                    ),
-                    0,
-                    None,
-                )
-                .await
-                .expect("Client failed to call `call_builder::call_instantiate`.")
-                .value
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
-
-            assert!(
-                call_result.is_none(),
-                "Call using invalid selector succeeded, when it should've failed."
             );
 
             Ok(())
