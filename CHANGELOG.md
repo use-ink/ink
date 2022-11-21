@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
+
 ## Version 4.0.0-beta
 
 The focus of the first `beta` release is to establish the stable ABI for the final `4.0.0`
@@ -76,19 +79,7 @@ We hope to bring this function back in a future release of ink!, the
 best hope right now is that it could come back with [Sassafras](https://wiki.polkadot.network/docs/learn-consensus#badass-babe-sassafras), a block production
 protocol for future versions of Polkadot.
 
-### End-to-End Testing
-
-You can now use the `ink_e2e` crate and accompanying `#[ink_e2e::test]` macro to write
-integration tests directly in Rust 🎉
-
-The contracts in the `examples/lang-err-integration-tests` folder make use of the
-end-to-end testing framework, so check it out if you need some example usage.
-
-Note that it's still pretty fresh off the press, so there are some sharp edges. Feel free
-to file an issue if you come across any.
-
 ### Added
-- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
 - Allow using `Result<Self, Error>` as a return type in constructors ‒ [#1446](https://github.com/paritytech/ink/pull/1446)
 - Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
 
