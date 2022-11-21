@@ -33,7 +33,7 @@ mod call_builder {
         /// Since we can't use the `CallBuilder` in a test environment directly we need this
         /// wrapper to test things like crafting calls with invalid selectors.
         #[ink(message)]
-        pub fn call(
+        pub fn call_build(
             &mut self,
             address: AccountId,
             selector: [u8; 4],
@@ -183,7 +183,10 @@ mod call_builder {
                 .call(
                     &mut ink_e2e::charlie(),
                     contract_acc_id.clone(),
-                    call_builder::messages::call(flipper_ink_acc_id, invalid_selector),
+                    call_builder::messages::call_build(
+                        flipper_ink_acc_id,
+                        invalid_selector,
+                    ),
                     0,
                     None,
                 )
