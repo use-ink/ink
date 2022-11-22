@@ -238,7 +238,7 @@ dylint:
     - cargo clippy --verbose -- -D warnings;
     # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
     - unset RUSTC_WRAPPER
-    - cargo test --verbose --all-features
+    - cargo nextest run --verbose --all-features
 
 #### stage:                        workspace
 
@@ -280,7 +280,7 @@ test:
       # at the same time, hence we use this workaround.
       QUICKCHECK_TESTS:            0
   script:
-    - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo nextest run --verbose --all-features --no-fail-fast --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace --doc
 
 docs:
@@ -350,7 +350,7 @@ codecov:
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo nextest run --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch
         --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -378,24 +378,24 @@ examples-test:
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
-          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+          cargo nextest run --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
-          cargo test --verbose --manifest-path ${example}/Cargo.toml;
+          cargo nextest run --verbose --manifest-path ${example}/Cargo.toml;
         fi;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
+        cargo nextest run --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+        cargo nextest run --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
     # TODO (#1502): We need to clean before running, otherwise the CI fails with a
     # linking error.
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clean --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
-        cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
+        cargo nextest run --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
-    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+    - cargo nextest run --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -541,7 +541,7 @@ publish-docs:
     - for crate in ${ALL_CRATES}; do
         if grep "ink-fuzz-tests =" ./crates/${crate}/Cargo.toml;
         then
-          cargo test --verbose --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+          cargo nextest run --verbose --features ink-fuzz-tests --manifest-path ./crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
           all_tests_passed=$(( all_tests_passed | exit_code ));
         fi
       done
