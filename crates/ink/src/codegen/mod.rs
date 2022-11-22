@@ -24,7 +24,6 @@ pub mod utils;
 pub use self::{
     dispatch::{
         deny_payment,
-        execute_constructor,
         ContractCallBuilder,
         DispatchInput,
         DispatchOutput,

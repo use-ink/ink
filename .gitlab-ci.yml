@@ -34,6 +34,7 @@ variables:
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
   UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
+  LANG_ERR_INTEGRATION_CONTRACTS:  "integration-flipper call-builder contract-ref constructors-return-value"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
@@ -122,6 +123,7 @@ examples-fmt:
     # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -129,6 +131,9 @@ examples-fmt:
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +nightly fmt --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
       done
     - cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
@@ -161,6 +166,7 @@ examples-clippy-std:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -168,6 +174,9 @@ examples-clippy-std:
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clippy --verbose --all-targets --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
@@ -179,6 +188,7 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -186,6 +196,9 @@ examples-clippy-wasm:
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clippy --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
@@ -363,6 +376,7 @@ examples-test:
     - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
           cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
@@ -375,6 +389,12 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
+    # TODO (#1502): We need to clean before running, otherwise the CI fails with a
+    # linking error.
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clean --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
+      done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
@@ -386,6 +406,7 @@ examples-contract-build:
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         pushd $example &&
         cargo +stable contract build &&
         popd;
@@ -393,6 +414,9 @@ examples-contract-build:
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +stable contract build --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
       done
     - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
@@ -409,6 +433,7 @@ examples-docs:
     # of this flag.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -417,12 +442,17 @@ examples-docs:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo doc --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
     - cargo doc --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+# Temporarily disabled until https://github.com/paritytech/ink-waterfall/issues/41
+# is fixed.
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env

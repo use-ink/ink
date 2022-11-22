@@ -256,16 +256,22 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
-                let output_tuple_type = constructor.output().map(quote::ToTokens::to_token_stream)
+                let output_type = constructor.output().map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(constructor.inputs());
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+                let constructor_return_type = quote_spanned!(constructor_span=>
+                    <::ink::reflect::ConstructorOutputValue<#output_type>
+                        as ::ink::reflect::ConstructorOutput<#storage_ident>>
+                );
                 quote_spanned!(constructor_span=>
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
-                        type Output = #output_tuple_type;
+                        type Output = #output_type;
                         type Storage = #storage_ident;
+                        type Error = #constructor_return_type::Error;
+                        const IS_RESULT: ::core::primitive::bool = #constructor_return_type::IS_RESULT;
 
                         const CALLABLE: fn(Self::Input) -> Self::Output = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
@@ -414,16 +420,33 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
-                ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! constructor failed: {}", error)
-                    })
+                let dispatchable = match ::ink::env::decode_input::<
+                    <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        let error = ::ink::ConstructorResult::Err(::ink::LangError::CouldNotReadInput);
+
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // constructor output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        ::ink::env::return_value::<::ink::ConstructorResult<()>>(
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            &error,
+                        );
+                    }
+                };
+
+                <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
+                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
             }
 
             #[cfg(not(test))]
@@ -435,16 +458,33 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
-                ::ink::env::decode_input::<
-                        <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type>()
-                    .map_err(|_| ::ink::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
-                            as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! message failed: {}", error)
-                    })
+                let dispatchable = match ::ink::env::decode_input::<
+                    <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
+                >() {
+                    ::core::result::Result::Ok(decoded_dispatchable) => {
+                        decoded_dispatchable
+                    }
+                    ::core::result::Result::Err(_decoding_error) => {
+                        let error = ::ink::MessageResult::Err(::ink::LangError::CouldNotReadInput);
+
+                        // At this point we're unable to set the `Ok` variant to be the any "real"
+                        // message output since we were unable to figure out what the caller wanted
+                        // to dispatch in the first place, so we set it to `()`.
+                        //
+                        // This is okay since we're going to only be encoding the `Err` variant
+                        // into the output buffer anyways.
+                        ::ink::env::return_value::<::ink::MessageResult<()>>(
+                            ::ink::env::ReturnFlags::new_with_reverted(true),
+                            &error,
+                        );
+                    }
+                };
+
+                <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
+                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
+                .unwrap_or_else(|error| {
+                    ::core::panic!("dispatching ink! message failed: {}", error)
+                })
             }
         )
     }
@@ -555,6 +595,13 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
+            let constructor_output = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::Output
+            );
             let deny_payment = quote_spanned!(constructor_span=>
                 !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
@@ -562,6 +609,11 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
+            let constructor_value = quote_spanned!(constructor_span=>
+                <::ink::reflect::ConstructorOutputValue<#constructor_output>
+                    as ::ink::reflect::ConstructorOutput::<#storage_ident>>
+            );
+
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
@@ -569,9 +621,27 @@ impl Dispatch<'_> {
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
 
-                    ::ink::codegen::execute_constructor::<#storage_ident, _, _>(
-                        move || { #constructor_callable(input) }
-                    )
+                    let result: #constructor_output = #constructor_callable(input);
+                    let output_value = ::ink::reflect::ConstructorOutputValue::new(result);
+                    let output_result = #constructor_value::as_result(&output_value);
+
+                    if let ::core::result::Result::Ok(contract) = output_result.as_ref() {
+                        ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
+                            &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
+                            contract,
+                        );
+                    }
+
+                    ::ink::env::return_value::<
+                        ::ink::ConstructorResult<
+                            ::core::result::Result<(), &#constructor_value::Error>
+                        >,
+                    >(
+                        ::ink::env::ReturnFlags::new_with_reverted(output_result.is_err()),
+                        // Currently no `LangError`s are raised at this level of the
+                        // dispatch logic so `Ok` is always returned to the caller.
+                        &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
+                    );
                 }
             )
         });
@@ -750,34 +820,26 @@ impl Dispatch<'_> {
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    use ::core::default::Default;
-
                     if #any_message_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
                     }
 
                     let result: #message_output = #message_callable(&mut contract, input);
-                    let failure = ::ink::is_result_type!(#message_output)
+                    let is_reverted = ::ink::is_result_type!(#message_output)
                         && ::ink::is_result_err!(result);
 
-                    if failure {
-                        // We return early here since there is no need to push back the
-                        // intermediate results of the contract - the transaction is going to be
-                        // reverted anyways.
-                        ::ink::env::return_value::<#message_output>(
-                            ::ink::env::ReturnFlags::default().set_reverted(true), &result
-                        )
+                    // no need to push back results: transaction gets reverted anyways
+                    if !is_reverted {
+                        push_contract(contract, #mutates_storage);
                     }
 
-                    push_contract(contract, #mutates_storage);
-
-                    if ::core::any::TypeId::of::<#message_output>() != ::core::any::TypeId::of::<()>() {
-                        // In case the return type is `()` we do not return a value.
-                        ::ink::env::return_value::<#message_output>(
-                            ::ink::env::ReturnFlags::default(), &result
-                        )
-                    }
+                    ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
+                        ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                        // Currently no `LangError`s are raised at this level of the
+                        // dispatch logic so `Ok` is always returned to the caller.
+                        &::ink::MessageResult::Ok(result),
+                    )
                 }
             )
         });
@@ -848,8 +910,6 @@ impl Dispatch<'_> {
                         match self {
                             #( #message_execute ),*
                         };
-
-                        ::core::result::Result::Ok(())
                     }
                 }
 

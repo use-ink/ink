@@ -4,14 +4,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-- Allows to use `Result<Self, Error>` as a return type in constructors - [#1446](https://github.com/paritytech/ink/pull/1446)
+## Unreleased
+- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
 - Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
-- Checks if `#[ink_e2e::test(ws_url = "…")]` is reachable and throws meaningful error otherwise - [#1490](https://github.com/paritytech/ink/pull/1490)
-- Fix E2E dry-run for `Mapping::insert()` - [#1494](https://github.com/paritytech/ink/pull/1494)
+
+## Version 4.0.0-beta
+
+The focus of the first `beta` release is to establish the stable ABI for the final `4.0.0`
+release. It means that whilst subsequent `beta` releases may contain breaking contract
+*code* changes, the ABI will remain the same so that any contract compiled and deployed
+with `4.0.0-beta` continue to be compatible with all future `4.0.0` versions.
+
+### Compatibility
+In order to build contracts which use ink! `v4.0.0-beta` you need to use
+`cargo-contract`
+[`v2.0.0-beta`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0-beta).
+You can install it as follows:
+
+`cargo install cargo-contract --version 2.0.0-beta`
+
+You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [265e3f1](https://github.com/paritytech/substrate/commit/265e3f12a2937fe4f71280b3652471627609d04f)
+(Nov 3, 2022) in your node.
+
+The [`v0.22.1`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.22.1)
+release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) is
+compatible with the ink! `4.0.0-beta` release.
 
 ### Breaking Changes
 
+## Constructors and Messages now return `LangError`s
+
+We have added a way to handle errors that are neither specific to a particular contract,
+nor from the underlying execution environment (e.g `pallet-contracts`). Instead these are
+errors that may come from the smart contracting language itself.
+
+For example, take the case where a contract message is called using an invalid selector.
+This is not something a smart contract author should need to define as failure case, nor
+is it something that the Contracts pallet needs to be aware of.
+
+Previously, the contract execution would trap if an invalid selector was used, leaving
+callers with no way to handle the error gracefully. This can now be handled with the help
+of the newly added `LangError`.
+
+In short, this change means that all ink! messages and constructors now return a
+`Result<R, LangError>`, where `R` is the original return type. Contract callers can
+choose to handle the `LangError`.
+
+In order to make this error compatible with other languages we have also added a
+`lang_error` field to the metadata format. This will be the central registry of all the
+different error variants which languages may want to emit in the future.
+
+Related pull-requests:
+- https://github.com/paritytech/ink/pull/1450
+- https://github.com/paritytech/ink/pull/1504
+
+Related discussions:
+- https://github.com/paritytech/ink/issues/1207
+- https://github.com/paritytech/substrate/issues/11018
+- https://github.com/paritytech/ink/issues/1002
+
+## Random function removed
 We had to remove [`ink_env::random`](https://docs.rs/ink_env/3.3.1/ink_env/fn.random.html)
 with [#1442](https://github.com/paritytech/ink/pull/1442).
 This function allowed contract developers getting random entropy.
@@ -29,11 +82,11 @@ protocol for future versions of Polkadot.
 
 ### Added
 - Allow using `Result<Self, Error>` as a return type in constructors ‒ [#1446](https://github.com/paritytech/ink/pull/1446)
-- Introduce conditional compilation for messages, constructors and events ‒ [#1458](https://github.com/paritytech/ink/pull/1458)
 - Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
 
-
 ### Changed
+- Add support for language level errors (`LangError`) ‒ [#1450](https://github.com/paritytech/ink/pull/1450)
+- Return `LangError`s from constructors ‒ [#1504](https://github.com/paritytech/ink/pull/1504)
 - Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
 - Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
 
