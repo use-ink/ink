@@ -13,7 +13,7 @@ pub mod constructors_return_value {
         value: bool,
     }
 
-    #[derive(scale::Encode, scale::Decode)]
+    #[derive(scale::Encode, scale::Decode, Debug)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct ConstructorError;
 
@@ -47,6 +47,7 @@ pub mod constructors_return_value {
         use std::any::TypeId;
 
         #[test]
+        #[allow(clippy::assertions_on_constants)]
         fn infallible_constructor_reflection() {
             const ID: u32 =
                 <Contract as ::ink::reflect::ContractDispatchableConstructors<
@@ -55,9 +56,8 @@ pub mod constructors_return_value {
                     },
                 >>::IDS[0];
 
-            assert_eq!(
-                <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
-                false
+            assert!(
+                !<Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
             );
             assert_eq!(
                 TypeId::of::<
@@ -68,6 +68,7 @@ pub mod constructors_return_value {
         }
 
         #[test]
+        #[allow(clippy::assertions_on_constants)]
         fn fallible_constructor_reflection() {
             const ID: u32 =
                 <Contract as ::ink::reflect::ContractDispatchableConstructors<
@@ -76,9 +77,8 @@ pub mod constructors_return_value {
                     },
                 >>::IDS[1];
 
-            assert_eq!(
+            assert!(
                 <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
-                true
             );
             assert_eq!(
                 TypeId::of::<
@@ -107,9 +107,12 @@ pub mod constructors_return_value {
                 .result
                 .expect("Instantiate dry run should succeed");
 
+            let data = infallible_constructor_result.result.data;
+            let decoded_result = Result::<(), ::ink::LangError>::decode(&mut &data[..])
+                .expect("Failed to decode constructor Result");
             assert!(
-                infallible_constructor_result.result.data.is_empty(),
-                "Infallible constructor should return no data"
+                decoded_result.is_ok(),
+                "Constructor dispatch should have succeeded"
             );
 
             let success = client
@@ -134,13 +137,19 @@ pub mod constructors_return_value {
                 .result
                 .expect("Instantiate dry run should succeed");
 
-            let decoded_result = Result::<(), super::ConstructorError>::decode(
-                &mut &result.result.data[..],
-            )
+            let decoded_result = Result::<
+                Result<(), super::ConstructorError>,
+                ink::LangError,
+            >::decode(&mut &result.result.data[..])
             .expect("Failed to decode fallible constructor Result");
 
             assert!(
                 decoded_result.is_ok(),
+                "Constructor dispatch should have succeeded"
+            );
+
+            assert!(
+                decoded_result.unwrap().is_ok(),
                 "Fallible constructor should have succeeded"
             );
 
@@ -183,13 +192,19 @@ pub mod constructors_return_value {
                 .result
                 .expect("Instantiate dry run should succeed");
 
-            let decoded_result = Result::<(), super::ConstructorError>::decode(
-                &mut &result.result.data[..],
-            )
+            let decoded_result = Result::<
+                Result<(), super::ConstructorError>,
+                ink::LangError,
+            >::decode(&mut &result.result.data[..])
             .expect("Failed to decode fallible constructor Result");
 
             assert!(
-                decoded_result.is_err(),
+                decoded_result.is_ok(),
+                "Constructor dispatch should have succeeded"
+            );
+
+            assert!(
+                decoded_result.unwrap().is_err(),
                 "Fallible constructor should have failed"
             );
 
@@ -197,7 +212,10 @@ pub mod constructors_return_value {
                 .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
                 .await;
 
-            assert!(result.is_err(), "Constructor should fail");
+            assert!(
+                matches!(result, Err(ink_e2e::Error::InstantiateExtrinsic(_))),
+                "Constructor should fail"
+            );
 
             Ok(())
         }

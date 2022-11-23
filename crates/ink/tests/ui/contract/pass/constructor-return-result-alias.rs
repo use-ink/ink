@@ -58,7 +58,7 @@ fn main() {
     assert_eq!("constructor", constructor.label());
     let type_spec = constructor.return_type().opt_type().unwrap();
     assert_eq!(
-        "core::result::Result",
+        "ink_primitives::ConstructorResult",
         format!("{}", type_spec.display_name())
     );
     let ty = metadata.registry().resolve(type_spec.ty().id()).unwrap();
@@ -68,16 +68,39 @@ fn main() {
         scale_info::TypeDef::Variant(variant) => {
             assert_eq!(2, variant.variants().len());
 
-            let ok_variant = &variant.variants()[0];
-            let ok_field = &ok_variant.fields()[0];
-            let ok_ty = metadata.registry().resolve(ok_field.ty().id()).unwrap();
+            // Outer Result
+            let outer_ok_variant = &variant.variants()[0];
+            let outer_ok_field = &outer_ok_variant.fields()[0];
+            let outer_ok_ty = metadata
+                .registry()
+                .resolve(outer_ok_field.ty().id())
+                .unwrap();
+            assert_eq!("Ok", outer_ok_variant.name());
+
+            // Inner Result
+            let inner_ok_ty = match outer_ok_ty.type_def() {
+                scale_info::TypeDef::Variant(variant) => {
+                    assert_eq!(2, variant.variants().len());
+
+                    let inner_ok_variant = &variant.variants()[0];
+                    assert_eq!("Ok", inner_ok_variant.name());
+
+                    let inner_ok_field = &inner_ok_variant.fields()[0];
+                    metadata
+                        .registry()
+                        .resolve(inner_ok_field.ty().id())
+                        .unwrap()
+                }
+                td => panic!("Expected a Variant type def enum, got {:?}", td),
+            };
+
             let unit_ty = scale_info::TypeDef::Tuple(
                 scale_info::TypeDefTuple::new_portable(vec![]),
             );
-            assert_eq!("Ok", ok_variant.name());
+
             assert_eq!(
                 &unit_ty,
-                ok_ty.type_def(),
+                inner_ok_ty.type_def(),
                 "Ok variant should be a unit `()` type"
             );
 

@@ -72,6 +72,7 @@ pub use ink_macro::{
     trait_definition,
 };
 pub use ink_primitives::{
+    ConstructorResult,
     LangError,
     MessageResult,
 };

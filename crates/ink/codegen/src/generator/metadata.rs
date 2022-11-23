@@ -334,7 +334,7 @@ impl Metadata<'_> {
         }
     }
 
-    /// Generates ink! metadata for the storage with given selector and indentation.
+    /// Generates ink! metadata for the storage with given selector and ident.
     fn generate_constructor_return_type(
         storage_ident: &Ident,
         selector_id: u32,
@@ -343,22 +343,17 @@ impl Metadata<'_> {
         let constructor_info = quote_spanned!(span =>
             < #storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>>
         );
+
         quote_spanned!(span=>
-            ::ink::metadata::ReturnTypeSpec::new(
-                if #constructor_info ::IS_RESULT {
-                    ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
-                        ::core::result::Result<
-                            (),
-                            #constructor_info ::Error
-                        >
-                    >(
-                        "core::result::Result"
-                    )
-                )
-                } else {
-                    ::core::option::Option::None
-                }
-            )
+            ::ink::metadata::ReturnTypeSpec::new(if #constructor_info::IS_RESULT {
+                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                    ::ink::ConstructorResult<::core::result::Result<(), #constructor_info::Error>>,
+                >("ink_primitives::ConstructorResult"))
+            } else {
+                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                    ::ink::ConstructorResult<()>,
+                >("ink_primitives::ConstructorResult"))
+            })
         )
     }
 
