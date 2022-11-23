@@ -94,7 +94,7 @@ where
 
     /// The raw encoded input data.
     #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
 }
@@ -106,7 +106,7 @@ where
 {
     /// The salt for determining the hash for the contract account ID.
     #[inline]
-    pub(crate) fn salt_bytes(&self) -> &Salt {
+    pub fn salt_bytes(&self) -> &Salt {
         &self.salt_bytes
     }
 }

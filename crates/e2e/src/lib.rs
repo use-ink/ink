@@ -33,8 +33,6 @@ pub use client::{
 pub use default_accounts::*;
 pub use env_logger;
 pub use ink_e2e_macro::test;
-// TODO(#1421) `smart-bench_macro` needs to be forked.
-pub use smart_bench_macro;
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{

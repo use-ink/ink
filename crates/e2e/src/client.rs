@@ -30,16 +30,21 @@ use super::{
     ContractExecResult,
     ContractInstantiateResult,
     ContractsApi,
-    InkConstructor,
     InkMessage,
     Signer,
 };
+use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
 };
+use std::{
+    collections::BTreeMap,
+    path::Path,
+};
+use scale::Encode;
 use subxt::{
     blocks::ExtrinsicEvents,
     ext::bitvec::macros::internal::funty::Fundamental,
@@ -172,6 +177,8 @@ where
     E: Environment,
     <E as Environment>::Balance: core::fmt::Debug,
 {
+    /// No contract with the given name found in scope.
+    ContractNotFound(String),
     /// The `instantiate_with_code` dry run failed.
     InstantiateDryRun(ContractInstantiateResult<C::AccountId, E::Balance>),
     /// The `instantiate_with_code` extrinsic failed.
@@ -197,6 +204,9 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match &self {
+            Error::ContractNotFound(name) => {
+                f.write_str(&format!("ContractNotFound: {}", name))
+            }
             Error::InstantiateDryRun(res) => {
                 f.write_str(&format!(
                     "InstantiateDryRun: {}",
@@ -254,6 +264,7 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
+    contracts: BTreeMap<String, ContractMetadata>,
 }
 
 impl<C, E> Client<C, E>
@@ -275,7 +286,10 @@ where
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
-    pub async fn new(url: &str) -> Self {
+    pub async fn new(
+        url: &str,
+        contracts: impl IntoIterator<Item = &str>,
+    ) -> Self {
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
@@ -289,9 +303,25 @@ where
                 );
                 panic!("Unable to create client: {:?}", err);
             });
+        let contracts = contracts
+            .into_iter()
+            .map(|path| {
+                let path = Path::new(path);
+                let contract = ContractMetadata::load(&path)
+                    .unwrap_or_else(|err| {
+                        panic!(
+                            "Error loading contract metadata {}: {}",
+                            path.display(),
+                            err
+                        )
+                    });
+                (contract.contract.name.clone(), contract)
+            })
+            .collect();
 
         Self {
             api: ContractsApi::new(client, url).await,
+            contracts,
         }
     }
 
@@ -303,40 +333,45 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<CO>(
+    pub async fn instantiate<Args>(
         &mut self,
+        contract_name: &str,
         signer: &mut Signer<C>,
-        constructor: CO,
+        constructor: ink_env::call::CreateParams<E, Args, Vec<u8>, ()>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
-        CO: InkConstructor,
+        Args: scale::Encode
     {
-        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
+        let contract_metadata = self.contracts.get(contract_name).
+            ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
+        let code = crate::utils::extract_wasm(contract_metadata);
         let ret = self
-            .exec_instantiate(signer, value, storage_deposit_limit, code, &constructor)
+            .exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<CO: InkConstructor>(
+    pub async fn instantiate_dry_run<Args>(
         &mut self,
+        contract_name: &str,
         signer: &Signer<C>,
-        constructor: &CO,
+        constructor: ink_env::call::CreateParams<E, Args, Vec<u8>, ()>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
     where
-        CO: InkConstructor,
+        Args: scale::Encode
     {
-        let mut data = CO::SELECTOR.to_vec();
-        <CO as scale::Encode>::encode_to(constructor, &mut data);
+        let contract_metadata = self.contracts.get(contract_name).
+            unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
+        let code = crate::utils::extract_wasm(contract_metadata);
+        let data = constructor.exec_input().encode();
 
-        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
-        let salt = Self::salt();
+        let salt = Self::salt(); // todo: check for user supplied salt?
         self.api
             .instantiate_with_code_dry_run(
                 value,
@@ -350,22 +385,23 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<CO: InkConstructor>(
+    async fn exec_instantiate<Args>(
         &mut self,
         signer: &mut Signer<C>,
+        code: Vec<u8>,
+        constructor: ink_env::call::CreateParams<E, Args, Vec<u8>, ()>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-        code: Vec<u8>,
-        constructor: &CO,
-    ) -> Result<InstantiationResult<C, E>, Error<C, E>> {
-        let mut data = CO::SELECTOR.to_vec();
-        log_info(&format!(
-            "instantiating with selector: {:02X?}",
-            CO::SELECTOR
-        ));
-        <CO as scale::Encode>::encode_to(constructor, &mut data);
-
-        let salt = Self::salt();
+    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
+    where
+        Args: Encode,
+    {
+        let salt = if constructor.salt_bytes().is_empty() {
+            Self::salt()
+        } else {
+            constructor.salt_bytes().clone()
+        };
+        let data = constructor.exec_input().encode();
 
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
@@ -462,8 +498,7 @@ where
             .to_vec()
     }
 
-    /// This function extracts the metadata of the contract at the file path
-    /// `target/ink/$contract_name.contract`.
+    /// This function extracts the wasm of the contract for the specified contract.
     ///
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
@@ -473,10 +508,12 @@ where
     pub async fn upload(
         &mut self,
         signer: &mut Signer<C>,
-        contract_path: &str,
+        contract_name: &str,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
-        let code = crate::utils::extract_wasm(contract_path);
+        let contract_metadata = self.contracts.get(contract_name).
+            ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
+        let code = crate::utils::extract_wasm(contract_metadata);
         let ret = self
             .exec_upload(signer, code, storage_deposit_limit)
             .await?;
@@ -484,8 +521,8 @@ where
         Ok(ret)
     }
 
-    /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_upload(
+    /// Executes an `upload` call and captures the resulting events.
+    pub async fn exec_upload(
         &mut self,
         signer: &mut Signer<C>,
         code: Vec<u8>,
