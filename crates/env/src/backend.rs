@@ -338,8 +338,6 @@ pub trait EnvBackend {
     ///
     /// - If the supplied `code_hash` cannot be found on-chain.
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()>;
-
-    fn reentrant_count(&mut self) -> u32;
 }
 
 /// Environmental contract functionality.
@@ -514,4 +512,6 @@ pub trait TypedEnvBackend: EnvBackend {
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment;
+
+    fn reentrant_count(&mut self) -> u32;
 }

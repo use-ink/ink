@@ -411,6 +411,8 @@ mod sys {
             out_ptr: Ptr32Mut<[u8]>,
             out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
+        pub fn reentrant_count() -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal2")]
@@ -432,11 +434,6 @@ mod sys {
             value_ptr: Ptr32<[u8]>,
             value_len: u32,
         ) -> ReturnCode;
-    }
-
-    #[link(wasm_import_module = "__unstable__")]
-    extern "C" {
-        pub fn reentrant_count() -> u32;
     }
 }
 
@@ -822,5 +819,6 @@ pub fn own_code_hash(output: &mut [u8]) {
 }
 
 pub fn reentrant_count() -> u32 {
-    unsafe { sys::reentrant_count() }
+    let ret_val = unsafe { sys::reentrant_count() };
+    ret_val.into_u32()
 }

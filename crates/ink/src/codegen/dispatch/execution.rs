@@ -37,7 +37,7 @@ pub fn deny_reentrancy<E>() -> Result<(), DispatchError>
 where
     E: Environment,
 {
-    if ink_env::reentrant_count() > 0 {
+    if ink_env::reentrant_count::<E>() > 0 {
         return Err(DispatchError::ReentranceDenied)
     }
     Ok(())
