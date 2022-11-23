@@ -366,10 +366,6 @@ impl EnvBackend for EnvInstance {
     fn set_code_hash(&mut self, code_hash_ptr: &[u8]) -> Result<()> {
         ext::set_code_hash(code_hash_ptr).map_err(Into::into)
     }
-
-    fn reentrant_count(&mut self) -> u32 {
-        ext::reentrant_count()
-    }
 }
 
 impl TypedEnvBackend for EnvInstance {
@@ -582,5 +578,12 @@ impl TypedEnvBackend for EnvInstance {
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
+    }
+
+    fn reentrant_count<E>(&mut self) -> u32
+    where
+        E: Environment,
+    {
+        ext::reentrant_count()
     }
 }

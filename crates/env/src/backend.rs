@@ -513,5 +513,7 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    fn reentrant_count(&mut self) -> u32;
+    fn reentrant_count<E>(&mut self) -> u32
+    where
+        E: Environment;
 }
