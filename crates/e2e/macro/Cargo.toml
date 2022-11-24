@@ -22,7 +22,7 @@ proc-macro = true
 [dependencies]
 ink_ir = { version = "4.0.0-beta", path = "../../ink/ir" }
 derive_more = "0.99.17"
-env_logger = "0.9.1"
+env_logger = "0.10.0"
 log = "0.4.17"
 serde_json = "1.0.85"
 syn = "1"
