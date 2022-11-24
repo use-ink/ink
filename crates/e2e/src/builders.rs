@@ -27,6 +27,7 @@ use ink_env::{
     },
     Environment,
 };
+use ink::codegen::TraitCallBuilder;
 use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the execution
@@ -82,13 +83,14 @@ where
     pub fn build<F, Ref, Args>(account_id: E::AccountId, message: F) -> Message<E, RetType>
     where
         E: Environment,
-        Ref: ink::codegen::TraitCallBuilder + FromAccountId<E>,
+        Ref: TraitCallBuilder + FromAccountId<E>,
         Args: scale::Encode,
-        F: FnOnce(&Ref) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>,
+        F: FnOnce(&<Ref as TraitCallBuilder>::Builder) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>,
         RetType: scale::Decode,
     {
         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
-        let builder = message(&contract_ref);
+        let call_builder = <Ref as ::ink::codegen::TraitCallBuilder>::call(&contract_ref);
+        let builder = message(&call_builder);
         let exec_input = builder.params().exec_input().encode();
         Message { account_id, exec_input, marker: Default::default() }
     }

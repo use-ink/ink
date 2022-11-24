@@ -39,10 +39,7 @@ use super::{
 };
 use contract_metadata::ContractMetadata;
 use ink_env::{
-    call::{
-        self,
-        CallParams
-    },
+    call,
     Environment
 };
 
@@ -292,9 +289,9 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: core::fmt::Debug + scale::Encode + serde::Serialize,
+    E::Balance: Debug + scale::Encode + serde::Serialize,
 
-    Call<C, E::Balance>: scale::Encode,
+    Call<E, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
@@ -616,7 +613,7 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn call<Ref, Args, RetType>(
+    pub async fn call<RetType>(
         &mut self,
         signer: &mut Signer<C>,
         message: Message<E, RetType>,
@@ -632,7 +629,7 @@ where
             .api
             .call_dry_run(
                 signer.account_id().clone(),
-                message,
+                &message,
                 value,
                 None,
             )
@@ -649,11 +646,11 @@ where
         let tx_events = self
             .api
             .call(
-                sp_runtime::MultiAddress::Id(account_id),
+                sp_runtime::MultiAddress::Id(message.account_id().clone()),
                 value,
                 dry_run.gas_required,
                 storage_deposit_limit,
-                contract_call.0.clone(),
+                message.exec_input().to_vec(),
                 signer,
             )
             .await;
