@@ -90,7 +90,6 @@ pub mod just_terminates {
             let contains_event = |pallet_name: &str, variant_name: &str| {
                 call_res.events.iter().any(|evt| {
                     let evt = evt.unwrap();
-                    // println!("{} {}", evt.pallet_name(), evt.variant_name());
                     evt.pallet_name() == pallet_name && evt.variant_name() == variant_name
                 })
             };
