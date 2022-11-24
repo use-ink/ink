@@ -4,7 +4,8 @@
 )]
 async fn fail_initialization_with_no_node() {
     let _ = crate::Client::<crate::PolkadotConfig, ink_env::DefaultEnvironment>::new(
-        "ws://0.0.0.0:9944", [],
+        "ws://0.0.0.0:9944",
+        [],
     )
     .await;
 }

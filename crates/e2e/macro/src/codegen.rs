@@ -109,11 +109,12 @@ impl InkE2ETest {
             "built contract artifacts must exist here"
         );
 
-        let contracts = already_built_contracts.iter().map(|(_manifest_path, bundle_path)| {
-            quote! {
-                stringify!(#bundle_path);
-            }
-        });
+        let contracts =
+            already_built_contracts
+                .iter()
+                .map(|(_manifest_path, bundle_path)| {
+                    quote! { stringify!(#bundle_path) }
+                });
 
         quote! {
             #( #attrs )*

@@ -19,6 +19,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod builders;
 mod client;
 mod default_accounts;
 #[cfg(test)]

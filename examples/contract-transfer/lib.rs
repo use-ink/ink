@@ -190,15 +190,15 @@ pub mod give_me {
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
-            let constructor = contract_transfer::constructors::new();
+            let constructor = GiveMeRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 1000, None)
+                .instantiate("contract_transfer", &mut ink_e2e::alice(), constructor, 1000, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             // when
-            let transfer = contract_transfer::messages::give_me(120);
+            let transfer = GiveMeRef::give_me(120);
             let call_res = client
                 .call(
                     &mut ink_e2e::bob(),
@@ -227,9 +227,9 @@ pub mod give_me {
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
-            let constructor = contract_transfer::constructors::new();
+            let constructor = GiveMeRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::bob(), constructor, 1337, None)
+                .instantiate("contract_transfer", &mut ink_e2e::bob(), constructor, 1337, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -239,7 +239,7 @@ pub mod give_me {
                 .expect("getting balance failed");
 
             // when
-            let transfer = contract_transfer::messages::give_me(120);
+            let transfer = GiveMeRef::give_me(120);
             let call_res = client
                 .call(
                     &mut ink_e2e::eve(),
