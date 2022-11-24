@@ -31,7 +31,10 @@ pub use client::{
     Client,
     Error,
 };
-pub use builders::Message;
+pub use builders::{
+    Message,
+    MessageBuilder,
+};
 pub use default_accounts::*;
 pub use env_logger;
 pub use ink_e2e_macro::test;

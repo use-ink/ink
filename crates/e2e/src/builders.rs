@@ -89,7 +89,7 @@ where
         RetType: scale::Decode,
     {
         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
-        let call_builder = <Ref as ::ink::codegen::TraitCallBuilder>::call(&contract_ref);
+        let call_builder = <Ref as TraitCallBuilder>::call(&contract_ref);
         let builder = message(&call_builder);
         let exec_input = builder.params().exec_input().encode();
         Message { account_id, exec_input, marker: Default::default() }
@@ -104,41 +104,34 @@ where
     }
 }
 
-// /// The type returned from `ContractRef` constructors, partially initialized with the execution
-// /// input arguments.
-// type CallBuilderUninit<E> = CallBuilder<
-//     E,
-//     Unset<Call<E>>,
-//     Unset<ExecutionInput<EmptyArgumentList>>,
-//     Unset<ReturnType<()>>,
-// >;
-//
-// pub struct MessageBuilder<E: Environment, Ref, RetType> {
-//     account_id: E::AccountId,
-//     contract_ref: Ref,
-//     marker: std::marker::PhantomData<RetType>,
-// }
-//
-// impl<E, Ref, RetType> MessageBuilder<E, Ref, RetType>
-// where
-//     E: Environment,
-//     Ref: ink::codegen::TraitCallBuilder + FromAccountId<E>,
-//     RetType: scale::Decode,
-// {
-//     pub fn from_account_id(account_id: E::AccountId) -> Self {
-//         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
-//         Self { account_id, contract_ref, marker: Default::default() }
-//     }
-//
-//     pub fn account_id(&self) -> &E::AccountId {
-//         &self.account_id
-//     }
-//
-//     pub fn call<F, Args>(self, f: F) -> CallParams<E, Call<E>, Args, RetType>
-//     where
-//         F: FnOnce(&Ref) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
-//     {
-//         let call_builder = f(&self.contract_ref);
-//         call_builder.params()
-//     }
-// }
+pub struct MessageBuilder<E: Environment, Ref> {
+    account_id: E::AccountId,
+    contract_ref: Ref,
+}
+
+impl<E, Ref> MessageBuilder<E, Ref>
+where
+    E: Environment,
+    Ref: TraitCallBuilder + FromAccountId<E>,
+{
+    pub fn from_account_id(account_id: E::AccountId) -> Self {
+        let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
+        Self { account_id, contract_ref }
+    }
+
+    pub fn account_id(&self) -> &E::AccountId {
+        &self.account_id
+    }
+
+    pub fn call<F, Args, RetType>(mut self, mut message: F) -> Message<E, RetType>
+    where
+        F: FnMut(&mut <Ref as TraitCallBuilder>::Builder) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>,
+        Args: scale::Encode,
+        RetType: scale::Decode,
+    {
+        let mut call_builder = <Ref as TraitCallBuilder>::call_mut(&mut self.contract_ref);
+        let builder = message(call_builder);
+        let exec_input = builder.params().exec_input().encode();
+        Message { account_id: self.account_id.clone(), exec_input, marker: Default::default() }
+    }
+}

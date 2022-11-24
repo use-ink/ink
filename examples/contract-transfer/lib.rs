@@ -204,7 +204,9 @@ pub mod give_me {
                 .account_id;
 
             // when
-            let transfer = ink_e2e::Message::build(contract_acc_id, |contract: &<GiveMeRef as ink::codegen::TraitCallBuilder>::Builder| contract.give_me(120));
+            let message_builder: ink_e2e::MessageBuilder<_, GiveMeRef> = ink_e2e::MessageBuilder::from_account_id(contract_acc_id);
+            // let transfer = message_builder.call(|contract: &mut <GiveMeRef as ::ink::codegen::TraitCallBuilder>::Builder| contract.give_me(120));
+            let transfer = message_builder.call(|contract| contract.give_me(120));
 
             let call_res = client
                 .call(
