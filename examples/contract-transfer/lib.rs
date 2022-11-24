@@ -192,13 +192,24 @@ pub mod give_me {
             // given
             let constructor = GiveMeRef::new();
             let contract_acc_id = client
-                .instantiate("contract_transfer", &mut ink_e2e::alice(), constructor, 1000, None)
+                .instantiate(
+                    "contract_transfer",
+                    &mut ink_e2e::alice(),
+                    constructor,
+                    1000,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             // when
-            let transfer = GiveMeRef::give_me(120);
+            let contract = <GiveMeRef as ink::env::call::FromAccountId<
+                ink::env::DefaultEnvironment,
+            >>::from_account_id(contract_acc_id);
+            let transfer = <GiveMeRef as ink::codegen::TraitCallBuilder>::call(&contract)
+                .give_me(120);
+
             let call_res = client
                 .call(
                     &mut ink_e2e::bob(),
@@ -229,7 +240,13 @@ pub mod give_me {
             // given
             let constructor = GiveMeRef::new();
             let contract_acc_id = client
-                .instantiate("contract_transfer", &mut ink_e2e::bob(), constructor, 1337, None)
+                .instantiate(
+                    "contract_transfer",
+                    &mut ink_e2e::bob(),
+                    constructor,
+                    1337,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use scale::Encode;
 use ink_env::{
     call::{
         utils::{
@@ -23,6 +22,7 @@ use ink_env::{
     },
     Environment,
 };
+use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the execution
 /// input arguments.
@@ -53,12 +53,10 @@ pub struct ConstructorBuilder<E: Environment, Args: Encode, R> {
 }
 
 impl<E: Environment, Args: Encode, R> From<CreateBuilderPartial<E, Args, R>>
-for ConstructorBuilder<E, Args, R>
+    for ConstructorBuilder<E, Args, R>
 {
     fn from(inner: CreateBuilderPartial<E, Args, R>) -> Self {
-        Self {
-            inner
-        }
+        Self { inner }
     }
 }
 

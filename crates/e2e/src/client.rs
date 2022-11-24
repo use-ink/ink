@@ -44,6 +44,7 @@ use sp_runtime::traits::{
 };
 use std::{
     collections::BTreeMap,
+    fmt::Debug,
     path::Path,
 };
 use subxt::{
@@ -82,7 +83,7 @@ where
 /// Result of a contract instantiation.
 pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     /// The account id at which the contract was instantiated.
-    pub account_id: C::AccountId,
+    pub account_id: E::AccountId,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
@@ -124,7 +125,8 @@ impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
     E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    <E as Environment>::AccountId: Debug,
+    <E as Environment>::Balance: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
@@ -225,16 +227,16 @@ where
 
 /// A contract was successfully instantiated.
 #[derive(Debug, scale::Decode, scale::Encode)]
-struct ContractInstantiatedEvent<C: subxt::Config> {
+struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
-    pub deployer: C::AccountId,
+    pub deployer: E::AccountId,
     /// Account id where the contract was instantiated to.
-    pub contract: C::AccountId,
+    pub contract: E::AccountId,
 }
 
-impl<C> subxt::events::StaticEvent for ContractInstantiatedEvent<C>
+impl<E> subxt::events::StaticEvent for ContractInstantiatedEvent<E>
 where
-    C: subxt::Config,
+    E: Environment,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "Instantiated";
@@ -341,6 +343,7 @@ where
     where
         CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: scale::Encode,
+        E::AccountId: Debug,
     {
         let contract_metadata = self
             .contracts
@@ -398,6 +401,7 @@ where
     where
         CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: Encode,
+        E::AccountId: Debug,
     {
         let salt = Self::salt();
         let data = constructor.into().exec_input();
@@ -443,7 +447,7 @@ where
             });
 
             if let Some(instantiated) = evt
-                .as_event::<ContractInstantiatedEvent<C>>()
+                .as_event::<ContractInstantiatedEvent<E>>()
                 .unwrap_or_else(|err| {
                     panic!("event conversion to `Instantiated` failed: {:?}", err);
                 })
