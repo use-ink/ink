@@ -204,18 +204,10 @@ pub mod give_me {
                 .account_id;
 
             // when
-            let message_builder: ink_e2e::MessageBuilder<_, GiveMeRef> = ink_e2e::MessageBuilder::from_account_id(contract_acc_id);
-            // let transfer = message_builder.call(|contract: &mut <GiveMeRef as ::ink::codegen::TraitCallBuilder>::Builder| contract.give_me(120));
-            let transfer = message_builder.call(|contract| contract.give_me(120));
+            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
+                .call(|contract| contract.give_me(120));
 
-            let call_res = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    transfer,
-                    10,
-                    None,
-                )
-                .await;
+            let call_res = client.call(&mut ink_e2e::bob(), transfer, 10, None).await;
 
             // then
             assert!(call_res.is_err());

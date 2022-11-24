@@ -40,7 +40,7 @@ use super::{
 use contract_metadata::ContractMetadata;
 use ink_env::{
     call,
-    Environment
+    Environment,
 };
 
 use scale::Encode;
@@ -627,12 +627,7 @@ where
 
         let dry_run = self
             .api
-            .call_dry_run(
-                signer.account_id().clone(),
-                &message,
-                value,
-                None,
-            )
+            .call_dry_run(signer.account_id().clone(), &message, value, None)
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
         log_info(&format!(

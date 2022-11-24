@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use ink::codegen::TraitCallBuilder;
 use ink_env::{
     call::{
         utils::{
+            ReturnType,
             Set,
             Unset,
-            ReturnType
         },
-        ExecutionInput,
-        FromAccountId,
-        CreateBuilder,
         Call,
         CallBuilder,
+        CreateBuilder,
+        ExecutionInput,
+        FromAccountId,
     },
     Environment,
 };
-use ink::codegen::TraitCallBuilder;
 use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the execution
@@ -73,26 +73,40 @@ impl<E: Environment, Args: Encode, R> ConstructorBuilder<E, Args, R> {
 pub struct Message<E: Environment, RetType> {
     account_id: E::AccountId,
     exec_input: Vec<u8>,
-    marker: std::marker::PhantomData<RetType>
+    marker: std::marker::PhantomData<RetType>,
 }
 
 impl<E, RetType> Message<E, RetType>
 where
     E: Environment,
 {
-    pub fn build<F, Ref, Args>(account_id: E::AccountId, message: F) -> Message<E, RetType>
+    pub fn build<F, Ref, Args>(
+        account_id: E::AccountId,
+        message: F,
+    ) -> Message<E, RetType>
     where
         E: Environment,
         Ref: TraitCallBuilder + FromAccountId<E>,
         Args: scale::Encode,
-        F: FnOnce(&<Ref as TraitCallBuilder>::Builder) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>,
+        F: FnOnce(
+            &<Ref as TraitCallBuilder>::Builder,
+        ) -> CallBuilder<
+            E,
+            Set<Call<E>>,
+            Set<ExecutionInput<Args>>,
+            Set<ReturnType<RetType>>,
+        >,
         RetType: scale::Decode,
     {
         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
         let call_builder = <Ref as TraitCallBuilder>::call(&contract_ref);
         let builder = message(&call_builder);
         let exec_input = builder.params().exec_input().encode();
-        Message { account_id, exec_input, marker: Default::default() }
+        Message {
+            account_id,
+            exec_input,
+            marker: Default::default(),
+        }
     }
 
     pub fn account_id(&self) -> &E::AccountId {
@@ -104,6 +118,17 @@ where
     }
 }
 
+/// Convenience method for building messages for the default environment
+pub fn build_message<Ref>(
+    account_id: <ink_env::DefaultEnvironment as Environment>::AccountId,
+) -> MessageBuilder<ink_env::DefaultEnvironment, Ref>
+where
+    Ref: TraitCallBuilder + FromAccountId<ink_env::DefaultEnvironment>,
+{
+    MessageBuilder::from_account_id(account_id)
+}
+
+/// Build messages using a contract ref.
 pub struct MessageBuilder<E: Environment, Ref> {
     account_id: E::AccountId,
     contract_ref: Ref,
@@ -116,7 +141,10 @@ where
 {
     pub fn from_account_id(account_id: E::AccountId) -> Self {
         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
-        Self { account_id, contract_ref }
+        Self {
+            account_id,
+            contract_ref,
+        }
     }
 
     pub fn account_id(&self) -> &E::AccountId {
@@ -125,13 +153,24 @@ where
 
     pub fn call<F, Args, RetType>(mut self, mut message: F) -> Message<E, RetType>
     where
-        F: FnMut(&mut <Ref as TraitCallBuilder>::Builder) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>,
+        F: FnMut(
+            &mut <Ref as TraitCallBuilder>::Builder,
+        ) -> CallBuilder<
+            E,
+            Set<Call<E>>,
+            Set<ExecutionInput<Args>>,
+            Set<ReturnType<RetType>>,
+        >,
         Args: scale::Encode,
         RetType: scale::Decode,
     {
-        let mut call_builder = <Ref as TraitCallBuilder>::call_mut(&mut self.contract_ref);
+        let call_builder = <Ref as TraitCallBuilder>::call_mut(&mut self.contract_ref);
         let builder = message(call_builder);
         let exec_input = builder.params().exec_input().encode();
-        Message { account_id: self.account_id.clone(), exec_input, marker: Default::default() }
+        Message {
+            account_id: self.account_id.clone(),
+            exec_input,
+            marker: Default::default(),
+        }
     }
 }

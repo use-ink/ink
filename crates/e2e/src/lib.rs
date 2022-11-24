@@ -27,13 +27,13 @@ mod tests;
 pub mod utils;
 mod xts;
 
+pub use builders::{
+    build_message,
+    MessageBuilder,
+};
 pub use client::{
     Client,
     Error,
-};
-pub use builders::{
-    Message,
-    MessageBuilder,
 };
 pub use default_accounts::*;
 pub use env_logger;
