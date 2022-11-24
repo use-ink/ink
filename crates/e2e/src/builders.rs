@@ -17,8 +17,13 @@ use ink_env::{
         utils::{
             Set,
             Unset,
+            ReturnType
         },
         ExecutionInput,
+        FromAccountId,
+        CreateBuilder,
+        Call,
+        CallBuilder,
     },
     Environment,
 };
@@ -26,7 +31,7 @@ use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the execution
 /// input arguments.
-type CreateBuilderPartial<E, Args, R> = ink_env::call::CreateBuilder<
+type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     E,
     Unset<<E as Environment>::Hash>,
     Unset<u64>,
@@ -35,17 +40,6 @@ type CreateBuilderPartial<E, Args, R> = ink_env::call::CreateBuilder<
     Unset<ink_env::call::state::Salt>,
     R,
 >;
-
-// /// Fully initialized builder, allowing access to the
-// type CreateBuilderReady<E: Environment, Args, R> = ink_env::call::CreateBuilder<
-//     E,
-//     Set<E::Hash>,
-//     Set<u64>,
-//     Set<E::Balance>,
-//     Set<ExecutionInput<Args>>,
-//     Set<ink_env::call::state::Salt>,
-//     R,
-// >;
 
 /// Shim onto the `CreateBuilder` to allow access to the `ExecutionInput` args.
 pub struct ConstructorBuilder<E: Environment, Args: Encode, R> {
@@ -73,3 +67,76 @@ impl<E: Environment, Args: Encode, R> ConstructorBuilder<E, Args, R> {
             .encode()
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct Message<E: Environment, RetType> {
+    account_id: E::AccountId,
+    exec_input: Vec<u8>,
+    marker: std::marker::PhantomData<RetType>
+}
+
+impl<E, RetType> Message<E, RetType>
+where
+    E: Environment,
+{
+    pub fn build<F, Ref, Args>(account_id: E::AccountId, message: F) -> Message<E, RetType>
+    where
+        E: Environment,
+        Ref: ink::codegen::TraitCallBuilder + FromAccountId<E>,
+        Args: scale::Encode,
+        F: FnOnce(&Ref) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>,
+        RetType: scale::Decode,
+    {
+        let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
+        let builder = message(&contract_ref);
+        let exec_input = builder.params().exec_input().encode();
+        Message { account_id, exec_input, marker: Default::default() }
+    }
+
+    pub fn account_id(&self) -> &E::AccountId {
+        &self.account_id
+    }
+
+    pub fn exec_input(&self) -> &[u8] {
+        &self.exec_input
+    }
+}
+
+// /// The type returned from `ContractRef` constructors, partially initialized with the execution
+// /// input arguments.
+// type CallBuilderUninit<E> = CallBuilder<
+//     E,
+//     Unset<Call<E>>,
+//     Unset<ExecutionInput<EmptyArgumentList>>,
+//     Unset<ReturnType<()>>,
+// >;
+//
+// pub struct MessageBuilder<E: Environment, Ref, RetType> {
+//     account_id: E::AccountId,
+//     contract_ref: Ref,
+//     marker: std::marker::PhantomData<RetType>,
+// }
+//
+// impl<E, Ref, RetType> MessageBuilder<E, Ref, RetType>
+// where
+//     E: Environment,
+//     Ref: ink::codegen::TraitCallBuilder + FromAccountId<E>,
+//     RetType: scale::Decode,
+// {
+//     pub fn from_account_id(account_id: E::AccountId) -> Self {
+//         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
+//         Self { account_id, contract_ref, marker: Default::default() }
+//     }
+//
+//     pub fn account_id(&self) -> &E::AccountId {
+//         &self.account_id
+//     }
+//
+//     pub fn call<F, Args>(self, f: F) -> CallParams<E, Call<E>, Args, RetType>
+//     where
+//         F: FnOnce(&Ref) -> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
+//     {
+//         let call_builder = f(&self.contract_ref);
+//         call_builder.params()
+//     }
+// }

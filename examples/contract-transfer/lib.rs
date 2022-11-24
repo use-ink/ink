@@ -204,11 +204,7 @@ pub mod give_me {
                 .account_id;
 
             // when
-            let contract = <GiveMeRef as ink::env::call::FromAccountId<
-                ink::env::DefaultEnvironment,
-            >>::from_account_id(contract_acc_id);
-            let transfer = <GiveMeRef as ink::codegen::TraitCallBuilder>::call(&contract)
-                .give_me(120);
+            let ink_e2e::Message::build(contract_acc_id, |contract: &GiveMeRef| contract.give_me(120));
 
             let call_res = client
                 .call(

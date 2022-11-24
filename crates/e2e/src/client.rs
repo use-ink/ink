@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use super::{
-    builders::ConstructorBuilder,
+    builders::{
+        ConstructorBuilder,
+        Message,
+    },
     client::api::runtime_types::{
         frame_system::AccountInfo,
         pallet_balances::AccountData,
@@ -35,7 +38,13 @@ use super::{
     Signer,
 };
 use contract_metadata::ContractMetadata;
-use ink_env::Environment;
+use ink_env::{
+    call::{
+        self,
+        CallParams
+    },
+    Environment
+};
 
 use scale::Encode;
 use sp_runtime::traits::{
@@ -362,7 +371,7 @@ where
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: ink_env::call::CreateParams<E, Args, Vec<u8>, ()>,
+        constructor: call::CreateParams<E, Args, Vec<u8>, ()>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
@@ -607,29 +616,25 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn call<M>(
+    pub async fn call<Ref, Args, RetType>(
         &mut self,
         signer: &mut Signer<C>,
-        account_id: C::AccountId,
-        contract_call: M,
+        message: Message<E, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<C, E, <M as InkMessage>::ReturnType>, Error<C, E>>
+    ) -> Result<CallResult<C, E, RetType>, Error<C, E>>
     where
-        M: InkMessage,
-        <M as InkMessage>::ReturnType: scale::Decode,
+        RetType: scale::Decode,
     {
-        let contract_call: EncodedMessage = contract_call.into();
-        log_info(&format!("call: {:02X?}", contract_call.0));
+        log_info(&format!("call: {:02X?}", message.exec_input()));
 
         let dry_run = self
             .api
             .call_dry_run(
                 signer.account_id().clone(),
-                account_id.clone(),
+                message,
                 value,
                 None,
-                contract_call.0.clone(),
             )
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
@@ -676,7 +681,7 @@ where
         }
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: <M as InkMessage>::ReturnType =
+        let value: RetType =
             scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
                 panic!(
                     "decoding dry run result to ink! message return type failed: {}",

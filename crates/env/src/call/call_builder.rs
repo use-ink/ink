@@ -61,7 +61,7 @@ where
 
     /// Returns the execution input.
     #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
 }
