@@ -127,7 +127,7 @@ where
 }
 
 /// Builds up contract instantiations.
-pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
+pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -136,7 +136,7 @@ where
     endowment: Endowment,
     exec_input: Args,
     salt: Salt,
-    return_type: R,
+    return_type: RetType,
     _phantom: PhantomData<fn() -> E>,
 }
 
@@ -189,18 +189,17 @@ where
 ///           support in the off-chain testing environment. However, this code
 ///           should work fine in on-chain environments.
 #[allow(clippy::type_complexity)]
-pub fn build_create<E, R>() -> CreateBuilder<
+pub fn build_create<E>() -> CreateBuilder<
     E,
     Unset<E::Hash>,
     Unset<u64>,
     Unset<E::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<state::Salt>,
-    Unset<ReturnType<R>>,
+    Unset<ReturnType<()>>,
 >
 where
     E: Environment,
-    R: scale::Decode,
     // R: FromAccountId<E>,
 {
     CreateBuilder {
@@ -214,8 +213,8 @@ where
     }
 }
 
-impl<E, GasLimit, Endowment, Args, Salt, R>
-    CreateBuilder<E, Unset<E::Hash>, GasLimit, Endowment, Args, Salt, R>
+impl<E, GasLimit, Endowment, Args, Salt, RetType>
+    CreateBuilder<E, Unset<E::Hash>, GasLimit, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -224,7 +223,7 @@ where
     pub fn code_hash(
         self,
         code_hash: E::Hash,
-    ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, Salt, R> {
+    ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, Salt, RetType> {
         CreateBuilder {
             code_hash: Set(code_hash),
             gas_limit: self.gas_limit,
@@ -237,8 +236,8 @@ where
     }
 }
 
-impl<E, CodeHash, Endowment, Args, Salt, R>
-    CreateBuilder<E, CodeHash, Unset<u64>, Endowment, Args, Salt, R>
+impl<E, CodeHash, Endowment, Args, Salt, RetType>
+    CreateBuilder<E, CodeHash, Unset<u64>, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -247,7 +246,7 @@ where
     pub fn gas_limit(
         self,
         gas_limit: u64,
-    ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, Salt, R> {
+    ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, Salt, RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             gas_limit: Set(gas_limit),
@@ -260,8 +259,8 @@ where
     }
 }
 
-impl<E, CodeHash, GasLimit, Args, Salt, R>
-    CreateBuilder<E, CodeHash, GasLimit, Unset<E::Balance>, Args, Salt, R>
+impl<E, CodeHash, GasLimit, Args, Salt, RetType>
+    CreateBuilder<E, CodeHash, GasLimit, Unset<E::Balance>, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -270,13 +269,78 @@ where
     pub fn endowment(
         self,
         endowment: E::Balance,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, Salt, R> {
+    ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, Salt, RetType> {
         CreateBuilder {
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: Set(endowment),
             exec_input: self.exec_input,
             salt: self.salt,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, CodeHash, GasLimit, Endowment, Salt, RetType>
+    CreateBuilder<
+        E,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Salt,
+        RetType,
+    >
+where
+    E: Environment,
+{
+    /// Sets the value transferred upon the execution of the call.
+    #[inline]
+    pub fn exec_input<Args>(
+        self,
+        exec_input: ExecutionInput<Args>,
+    ) -> CreateBuilder<
+        E,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Set<ExecutionInput<Args>>,
+        Salt,
+        RetType,
+    > {
+        CreateBuilder {
+            code_hash: self.code_hash,
+            gas_limit: self.gas_limit,
+            endowment: self.endowment,
+            exec_input: Set(exec_input),
+            salt: self.salt,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, CodeHash, GasLimit, Endowment, Args, RetType>
+    CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Unset<state::Salt>, RetType>
+where
+    E: Environment,
+{
+    /// Sets the value transferred upon the execution of the call.
+    #[inline]
+    pub fn salt_bytes<Salt>(
+        self,
+        salt: Salt,
+    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, RetType>
+    where
+        Salt: AsRef<[u8]>,
+    {
+        CreateBuilder {
+            code_hash: self.code_hash,
+            gas_limit: self.gas_limit,
+            endowment: self.endowment,
+            exec_input: self.exec_input,
+            salt: Set(salt),
             return_type: self.return_type,
             _phantom: Default::default(),
         }
@@ -311,65 +375,7 @@ where
     }
 }
 
-impl<E, CodeHash, GasLimit, Endowment, Salt, R>
-    CreateBuilder<
-        E,
-        CodeHash,
-        GasLimit,
-        Endowment,
-        Unset<ExecutionInput<EmptyArgumentList>>,
-        Salt,
-        R,
-    >
-where
-    E: Environment,
-{
-    /// Sets the value transferred upon the execution of the call.
-    #[inline]
-    pub fn exec_input<Args>(
-        self,
-        exec_input: ExecutionInput<Args>,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, Salt, R>
-    {
-        CreateBuilder {
-            code_hash: self.code_hash,
-            gas_limit: self.gas_limit,
-            endowment: self.endowment,
-            exec_input: Set(exec_input),
-            salt: self.salt,
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-}
-
-impl<E, CodeHash, GasLimit, Endowment, Args, R>
-    CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Unset<state::Salt>, R>
-where
-    E: Environment,
-{
-    /// Sets the value transferred upon the execution of the call.
-    #[inline]
-    pub fn salt_bytes<Salt>(
-        self,
-        salt: Salt,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, R>
-    where
-        Salt: AsRef<[u8]>,
-    {
-        CreateBuilder {
-            code_hash: self.code_hash,
-            gas_limit: self.gas_limit,
-            endowment: self.endowment,
-            exec_input: self.exec_input,
-            salt: Set(salt),
-            return_type: self.return_type,
-            _phantom: Default::default(),
-        }
-    }
-}
-
-impl<E, GasLimit, Args, Salt, R>
+impl<E, GasLimit, Args, Salt, RetType>
     CreateBuilder<
         E,
         Set<E::Hash>,
@@ -377,15 +383,15 @@ impl<E, GasLimit, Args, Salt, R>
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        Set<ReturnType<R>>,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
 {
-    /// Sets the value transferred upon the execution of the call.
+    /// Finalizes the create builder, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, Args, Salt, R> {
+    pub fn params(self) -> CreateParams<E, Args, Salt, RetType> {
         CreateParams {
             code_hash: self.code_hash.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
@@ -397,7 +403,7 @@ where
     }
 }
 
-impl<E, GasLimit, Args, Salt, R>
+impl<E, GasLimit, Args, Salt, RetType>
     CreateBuilder<
         E,
         Set<E::Hash>,
@@ -405,19 +411,19 @@ impl<E, GasLimit, Args, Salt, R>
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        Set<ReturnType<R>>,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: scale::Decode,
+    RetType: scale::Decode,
     // R: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]
-    pub fn instantiate(self) -> Result<R, Error> {
+    pub fn instantiate(self) -> Result<RetType, Error> {
         self.params().instantiate()
     }
 }
