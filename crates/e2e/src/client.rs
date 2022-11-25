@@ -315,7 +315,7 @@ where
                 let path = Path::new(path);
                 let contract = ContractMetadata::load(&path).unwrap_or_else(|err| {
                     panic!(
-                        "Error loading contract metadata {}: {}",
+                        "Error loading contract metadata {}: {:?}",
                         path.display(),
                         err
                     )
