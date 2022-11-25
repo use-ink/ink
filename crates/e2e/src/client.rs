@@ -289,6 +289,7 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
+    E::AccountId: Debug,
     E::Balance: Debug + scale::Encode + serde::Serialize,
 
     Call<E, E::Balance>: scale::Encode,
@@ -349,7 +350,6 @@ where
     where
         CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: scale::Encode,
-        E::AccountId: Debug,
     {
         let contract_metadata = self
             .contracts
@@ -407,7 +407,6 @@ where
     where
         CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: Encode,
-        E::AccountId: Debug,
     {
         let salt = Self::salt();
         let data = constructor.into().exec_input();
@@ -691,7 +690,7 @@ where
     /// Returns the balance of `account_id`.
     pub async fn balance(
         &self,
-        account_id: C::AccountId,
+        account_id: E::AccountId,
     ) -> Result<E::Balance, Error<C, E>> {
         let account_addr = subxt::storage::StaticStorageAddress::<
             DecodeStaticType<AccountInfo<C::Index, AccountData<E::Balance>>>,
