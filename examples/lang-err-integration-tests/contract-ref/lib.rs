@@ -52,55 +52,42 @@ mod contract_ref {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
+        use super::ContractRefRef;
+        use ink_e2e::build_message;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
         async fn e2e_ref_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let flipper_hash: ink_e2e::H256 = client
-                .upload(
-                    &mut ink_e2e::alice(),
-                    integration_flipper::CONTRACT_PATH,
-                    None,
-                )
+            let flipper_hash = client
+                .upload("integration_flipper", &mut ink_e2e::alice(), None)
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
-            let flipper_hash = ink_e2e::utils::runtime_hash_to_ink_hash::<
-                ink::env::DefaultEnvironment,
-            >(&flipper_hash);
 
-            let constructor =
-                contract_ref::constructors::new(Default::default(), flipper_hash);
+            let constructor = ContractRefRef::new(0, flipper_hash);
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("contract_ref", &mut ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
+            let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
+                .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    contract_ref::messages::get_check(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), get_check, 0, None)
                 .await
                 .expect("Calling `get_check` failed");
             let initial_value = get_call_result
                 .value
                 .expect("Input is valid, call must not fail.");
 
+            let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
+                .call(|contract| contract.flip_check());
             let flip_call_result = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    contract_ref::messages::flip_check(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), flip_check, 0, None)
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -108,14 +95,10 @@ mod contract_ref {
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
+            let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
+                .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    contract_ref::messages::get_check(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), get_check, 0, None)
                 .await
                 .expect("Calling `get_check` failed");
             let flipped_value = get_call_result
