@@ -42,7 +42,7 @@ type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     R,
 >;
 
-/// Shim onto the `CreateBuilder` to allow access to the `ExecutionInput` args.
+/// Shim onto the `CreateBuilder` to allow access to the `ExecutionInput` arguments.
 pub struct ConstructorBuilder<E: Environment, Args: Encode, R> {
     inner: CreateBuilderPartial<E, Args, R>,
 }
@@ -56,7 +56,7 @@ impl<E: Environment, Args: Encode, R> From<CreateBuilderPartial<E, Args, R>>
 }
 
 impl<E: Environment, Args: Encode, R> ConstructorBuilder<E, Args, R> {
-    /// Returns encoded constructor args.
+    /// Returns encoded constructor arguments.
     pub fn exec_input(self) -> Vec<u8> {
         // set all the other properties to default values, we only require the `exec_input`.
         self.inner

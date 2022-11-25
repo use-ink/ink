@@ -506,7 +506,7 @@ where
             .to_vec()
     }
 
-    /// This function extracts the wasm of the contract for the specified contract.
+    /// This function extracts the Wasm of the contract for the specified contract.
     ///
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
