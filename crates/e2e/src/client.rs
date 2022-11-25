@@ -382,7 +382,7 @@ where
         let code = crate::utils::extract_wasm(contract_metadata);
         let data = constructor.into().exec_input().encode();
 
-        let salt = Self::salt(); // todo: check for user supplied salt?
+        let salt = Self::salt();
         self.api
             .instantiate_with_code_dry_run(
                 value,
