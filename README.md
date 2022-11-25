@@ -244,7 +244,7 @@ The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`ex
 
 ## Developer Documentation
 
-We have [a very comprehensive documentation portal](https://ink.substrate.io),
+We have [a very comprehensive documentation portal](https://use.ink),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 
