@@ -113,7 +113,7 @@ impl InkE2ETest {
             already_built_contracts
                 .iter()
                 .map(|(_manifest_path, bundle_path)| {
-                    quote! { stringify!(#bundle_path) }
+                    quote! { #bundle_path }
                 });
 
         quote! {
