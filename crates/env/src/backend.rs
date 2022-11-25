@@ -442,7 +442,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<R>
+    ) -> Result<::ink_primitives::ConstructorResult<R>>
     // ) -> Result<E::AccountId>
     where
         E: Environment,

@@ -121,7 +121,9 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
-    pub fn instantiate(&self) -> Result<R, crate::Error> {
+    pub fn instantiate(
+        &self,
+    ) -> Result<::ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self) //.map(FromAccountId::from_account_id)
     }
 }
@@ -423,7 +425,9 @@ where
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]
-    pub fn instantiate(self) -> Result<RetType, Error> {
+    pub fn instantiate(
+        self,
+    ) -> Result<::ink_primitives::ConstructorResult<RetType>, Error> {
         self.params().instantiate()
     }
 }

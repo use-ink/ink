@@ -264,7 +264,7 @@ where
     /// # Example
     ///
     /// ```
-    ///
+    /// 
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -342,7 +342,7 @@ where
     /// # Example
     ///
     /// ```
-    ///
+    /// 
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
@@ -472,7 +472,7 @@ where
     pub fn instantiate_contract<Args, Salt, R>(
         self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<R>
+    ) -> Result<::ink_primitives::ConstructorResult<R>>
     // ) -> Result<E::AccountId>
     where
         Args: scale::Encode,

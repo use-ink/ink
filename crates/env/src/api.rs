@@ -321,7 +321,7 @@ where
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, Args, Salt, R>(
     params: &CreateParams<E, Args, Salt, R>,
-) -> Result<R>
+) -> Result<::ink_primitives::ConstructorResult<R>>
 // ) -> Result<E::AccountId>
 where
     E: Environment,

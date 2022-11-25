@@ -67,7 +67,6 @@ mod call_builder {
 
             let result = build_create::<
                 DefaultEnvironment,
-                _,
                 // constructors_return_value::ConstructorsReturnValueRef,
             >()
             .code_hash(code_hash)
@@ -75,10 +74,7 @@ mod call_builder {
             .endowment(0)
             .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
             .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-            .returns::<Result<
-                constructors_return_value::ConstructorsReturnValueRef,
-                ::ink::LangError,
-            >>()
+            .returns::<constructors_return_value::ConstructorsReturnValueRef>()
             .params()
             .instantiate()
             .expect("Error from the Contracts pallet.");
@@ -104,10 +100,7 @@ mod call_builder {
         async fn e2e_invalid_message_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            use call_builder::contract_types::ink_primitives::{
-                types::AccountId as E2EAccountId,
-                LangError as E2ELangError,
-            };
+            use call_builder::contract_types::ink_primitives::LangError as E2ELangError;
 
             let constructor = call_builder::constructors::new();
             let contract_acc_id = client

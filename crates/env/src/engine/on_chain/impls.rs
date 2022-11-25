@@ -482,7 +482,7 @@ impl TypedEnvBackend for EnvInstance {
     fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<R>
+    ) -> Result<::ink_primitives::ConstructorResult<R>>
     // ) -> Result<E::AccountId>
     where
         E: Environment,
@@ -501,12 +501,7 @@ impl TypedEnvBackend for EnvInstance {
         let out_address = &mut scoped.take(1024);
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
-        // We currently do nothing with the `out_return_value` buffer.
-        // This should change in the future but for that we need to add support
-        // for constructors that may return values.
-        // This is useful to support fallible constructors for example.
-        //
-        // TODO: Support this output buffer?
+
         let instantiate_result = ext::instantiate(
             enc_code_hash,
             gas_limit,
@@ -525,7 +520,7 @@ impl TypedEnvBackend for EnvInstance {
                 //
                 // But here I want an `Ok(E::AccountId)`
                 let account_id = scale::Decode::decode(&mut &out_address[..])?;
-                Ok(account_id)
+                Ok(Ok(account_id))
 
                 // let out = scale::Decode::decode(&mut &out_return_value[..])?;
                 // Ok(out)
