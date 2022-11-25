@@ -264,7 +264,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -342,7 +342,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
@@ -469,9 +469,9 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, Salt, C, R>(
+    pub fn instantiate_contract<Args, Salt, R>(
         self,
-        params: &CreateParams<E, Args, Salt, C>,
+        params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<R>
     // ) -> Result<E::AccountId>
     where
@@ -479,7 +479,7 @@ where
         Salt: AsRef<[u8]>,
         R: scale::Decode,
     {
-        ink_env::instantiate_contract::<E, Args, Salt, C, R>(params)
+        ink_env::instantiate_contract::<E, Args, Salt, R>(params)
     }
 
     /// Invokes a contract message and returns its result.
