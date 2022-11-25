@@ -380,7 +380,7 @@ where
             .get(contract_name)
             .unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
         let code = crate::utils::extract_wasm(contract_metadata);
-        let data = constructor.into().exec_input().encode();
+        let data = constructor.into().exec_input();
 
         let salt = Self::salt();
         self.api
