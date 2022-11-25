@@ -273,7 +273,7 @@ where
         signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CodeUploadResult<C::Hash, E::Balance> {
+    ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: signer.account_id().clone(),
             code,

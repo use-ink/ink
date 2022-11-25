@@ -29,17 +29,19 @@ pub fn extract_wasm(contract: &contract_metadata::ContractMetadata) -> Vec<u8> {
     code.0
 }
 
-/// Converts a `H256` runtime hash to the hash type of the
-/// given ink! environment.
-pub fn runtime_hash_to_ink_hash<'a, E>(
-    runtime_hash: &'a super::H256,
-) -> <E as ink_env::Environment>::Hash
-where
-    E: ink_env::Environment,
-    <E as ink_env::Environment>::Hash: TryFrom<&'a [u8]>,
-{
-    let runtime_hash_slice: &[u8] = runtime_hash.as_ref();
-    TryFrom::try_from(runtime_hash_slice).unwrap_or_else(|_|
-        panic!("unable to convert hash slice from runtime into default ink! environment hash type")
-    )
-}
+// /// Converts a runtime hash to the hash type of the
+// /// given ink! environment.
+// pub fn runtime_hash_to_ink_hash<'a, C, E>(
+//     runtime_hash: &'a C::Hash,
+// ) -> <E as ink_env::Environment>::Hash
+// where
+//     C: subxt::Config,
+//     E: ink_env::Environment,
+//     <E as ink_env::Environment>::Hash: From<&'a [u8; 32]>,
+// {
+//     let runtime_hash: &[u8; 32] = runtime_hash.as_ref();
+//     From::from(runtime_hash)
+//     TryFrom::try_from(runtime_hash_slice).unwrap_or_else(|_|
+//         panic!("unable to convert hash slice from runtime into default ink! environment hash type")
+//     )
+// }

@@ -151,7 +151,7 @@ impl InkE2ETest {
                         ink::env::DefaultEnvironment
                     >::new(
                         &#ws_url,
-                        [ #( #contracts )* ]
+                        [ #( #contracts ),* ]
                     ).await;
 
                     let __ret = {

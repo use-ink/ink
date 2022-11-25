@@ -100,21 +100,22 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
 /// Result of a contract upload.
 pub struct UploadResult<C: subxt::Config, E: Environment> {
     /// The hash with which the contract can be instantiated.
-    pub code_hash: C::Hash,
+    pub code_hash: E::Hash,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: CodeUploadResult<C::Hash, E::Balance>,
+    pub dry_run: CodeUploadResult<E::Hash, E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
 }
 
 /// We implement a custom `Debug` here, to avoid requiring the trait
 /// bound `Debug` for `E`.
-impl<C, E> core::fmt::Debug for UploadResult<C, E>
+impl<C, E> Debug for UploadResult<C, E>
 where
     C: subxt::Config,
     E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    <E as Environment>::Balance: Debug,
+    <E as Environment>::Hash: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("UploadResult")
@@ -193,7 +194,7 @@ where
     /// The `instantiate_with_code` extrinsic failed.
     InstantiateExtrinsic(subxt::error::DispatchError),
     /// The `upload` dry run failed.
-    UploadDryRun(CodeUploadResult<C::Hash, E::Balance>),
+    UploadDryRun(CodeUploadResult<E::Hash, E::Balance>),
     /// The `upload` extrinsic failed.
     UploadExtrinsic(subxt::error::DispatchError),
     /// The `call` dry run failed.
@@ -250,14 +251,14 @@ where
 
 /// Code with the specified hash has been stored.
 #[derive(Debug, scale::Decode, scale::Encode)]
-struct CodeStoredEvent<C: subxt::Config> {
+struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
-    pub code_hash: C::Hash,
+    pub code_hash: E::Hash,
 }
 
-impl<C> subxt::events::StaticEvent for CodeStoredEvent<C>
+impl<E> subxt::events::StaticEvent for CodeStoredEvent<E>
 where
-    C: subxt::Config,
+    E: Environment,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "CodeStored";
@@ -291,6 +292,7 @@ where
     E: Environment,
     E::AccountId: Debug,
     E::Balance: Debug + scale::Encode + serde::Serialize,
+    E::Hash: Debug + scale::Encode,
 
     Call<E, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
@@ -515,8 +517,8 @@ where
     /// instance is reused!
     pub async fn upload(
         &mut self,
-        signer: &mut Signer<C>,
         contract_name: &str,
+        signer: &mut Signer<C>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
         let contract_metadata = self
@@ -557,7 +559,7 @@ where
             });
 
             if let Some(uploaded) =
-                evt.as_event::<CodeStoredEvent<C>>().unwrap_or_else(|err| {
+                evt.as_event::<CodeStoredEvent<E>>().unwrap_or_else(|err| {
                     panic!("event conversion to `Uploaded` failed: {:?}", err);
                 })
             {
