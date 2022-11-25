@@ -38,10 +38,7 @@ use super::{
     Signer,
 };
 use contract_metadata::ContractMetadata;
-use ink_env::{
-    call,
-    Environment,
-};
+use ink_env::Environment;
 
 use scale::Encode;
 use sp_runtime::traits::{
@@ -366,15 +363,16 @@ where
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<Args>(
+    pub async fn instantiate_dry_run<CO, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: call::CreateParams<E, Args, Vec<u8>, ()>,
+        constructor: CO,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
     where
+        CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: scale::Encode,
     {
         let contract_metadata = self
@@ -382,7 +380,7 @@ where
             .get(contract_name)
             .unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
         let code = crate::utils::extract_wasm(contract_metadata);
-        let data = constructor.exec_input().encode();
+        let data = constructor.into().exec_input().encode();
 
         let salt = Self::salt(); // todo: check for user supplied salt?
         self.api
