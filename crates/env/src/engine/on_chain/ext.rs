@@ -318,6 +318,13 @@ mod sys {
             public_key_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn take_storage(
+            key_ptr: Ptr32<[u8]>,
+            key_len: u32,
+            out_ptr: Ptr32Mut<[u8]>,
+            out_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal1")]
@@ -383,29 +390,6 @@ mod sys {
         //
         // `ReturnCode::KeyNotFound`
         pub fn get_storage(
-            key_ptr: Ptr32<[u8]>,
-            key_len: u32,
-            out_ptr: Ptr32Mut<[u8]>,
-            out_len_ptr: Ptr32Mut<u32>,
-        ) -> ReturnCode;
-    }
-
-    #[link(wasm_import_module = "__unstable__")]
-    extern "C" {
-        /// Retrieve and remove the value under the given key from storage.
-        ///
-        /// # Parameters
-        ///
-        /// - `key_ptr`: pointer into the linear memory where the key of the requested value is placed.
-        /// - `key_len`: the length of the key in bytes.
-        /// - `out_ptr`: pointer to the linear memory where the value is written to.
-        /// - `out_len_ptr`: in-out pointer into linear memory where the buffer length is read from and
-        ///   the value length is written to.
-        ///
-        /// # Errors
-        ///
-        /// `ReturnCode::KeyNotFound`
-        pub fn take_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,
             out_ptr: Ptr32Mut<[u8]>,
