@@ -116,41 +116,6 @@ impl Metadata<'_> {
         )
     }
 
-    fn generate_contract(&self) -> TokenStream2 {
-        let constructors = self.generate_constructors();
-        let messages = self.generate_messages();
-        let events = self.generate_events();
-        let docs = self
-            .contract
-            .module()
-            .attrs()
-            .iter()
-            .filter_map(|attr| attr.extract_docs());
-        let error_ty = syn::parse_quote! {
-            ::ink::LangError
-        };
-        let error = Self::generate_type_spec(&error_ty);
-        quote! {
-            ::ink::metadata::ContractSpec::new()
-                .constructors([
-                    #( #constructors ),*
-                ])
-                .messages([
-                    #( #messages ),*
-                ])
-                .events([
-                    #( #events ),*
-                ])
-                .docs([
-                    #( #docs ),*
-                ])
-                .lang_error(
-                     #error
-                )
-                .done()
-        }
-    }
-
     /// Generates ink! metadata for all ink! smart contract constructors.
     #[allow(clippy::redundant_closure)] // We are getting arcane lifetime errors otherwise.
     fn generate_constructors(&self) -> impl Iterator<Item = TokenStream2> + '_ {
