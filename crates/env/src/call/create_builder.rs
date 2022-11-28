@@ -124,7 +124,7 @@ where
         &self,
     ) -> Result<::ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self)
-            .and_then(|inner| Ok(inner.map(FromAccountId::from_account_id)))
+            .map(|inner| inner.map(FromAccountId::from_account_id))
     }
 }
 
