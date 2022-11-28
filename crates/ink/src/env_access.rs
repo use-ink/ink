@@ -444,7 +444,7 @@ where
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment, OtherContractRef>()
+    ///     let create_params = build_create::<DefaultEnvironment>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)
@@ -452,11 +452,20 @@ where
     ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32])
-    ///             )
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
     ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .returns::<OtherContractRef>()
     ///         .params();
-    ///     self.env().instantiate_contract(&create_params).unwrap_or_else(|err| panic!("instantiation must succeed: {:?}", err))
+    ///     self.env()
+    ///         .instantiate_contract(&create_params)
+    ///         .unwrap_or_else(|error| {
+    ///             panic!(
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 error
+    ///             )
+    ///         })
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
     /// }
     /// #
     /// #     }
