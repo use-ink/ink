@@ -65,19 +65,18 @@ mod call_builder {
         ) -> Option<::ink::LangError> {
             use ink::env::call::build_create;
 
-            let result = build_create::<
-                DefaultEnvironment,
-                // constructors_return_value::ConstructorsReturnValueRef,
-            >()
-            .code_hash(code_hash)
-            .gas_limit(0)
-            .endowment(0)
-            .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
-            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-            .returns::<constructors_return_value::ConstructorsReturnValueRef>()
-            .params()
-            .instantiate()
-            .expect("Error from the Contracts pallet.");
+            let result = build_create::<DefaultEnvironment>()
+                .code_hash(code_hash)
+                .gas_limit(0)
+                .endowment(0)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(selector)).push_arg(init_value),
+                )
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .returns::<constructors_return_value::ConstructorsReturnValueRef>()
+                .params()
+                .instantiate()
+                .expect("Error from the Contracts pallet.");
             ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
             match result {
