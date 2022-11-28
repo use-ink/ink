@@ -322,12 +322,10 @@ where
 pub fn instantiate_contract<E, Args, Salt, R>(
     params: &CreateParams<E, Args, Salt, R>,
 ) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
-// ) -> Result<E::AccountId>
 where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    // R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::<E, Args, Salt, R>(instance, params)

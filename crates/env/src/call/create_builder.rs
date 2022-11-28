@@ -116,7 +116,6 @@ where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    // R: scale::Decode,
     R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
@@ -203,7 +202,6 @@ pub fn build_create<E>() -> CreateBuilder<
 >
 where
     E: Environment,
-    // R: FromAccountId<E>,
 {
     CreateBuilder {
         code_hash: Default::default(),
@@ -359,8 +357,11 @@ where
     ///
     /// # Note
     ///
-    /// Either use `.returns::<()>` to signal that the call does not return a value
-    /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
+    /// Constructors are not able to return arbitrary values. Instead a succesful call to a
+    /// constructor returns the address at which the contract was instantiated.
+    ///
+    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract you're trying
+    /// to instantiate.
     #[inline]
     pub fn returns<R>(
         self,
@@ -421,9 +422,7 @@ where
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    // RetType: scale::Decode,
     RetType: FromAccountId<E>,
-    // R: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]

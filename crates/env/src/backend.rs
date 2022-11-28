@@ -443,12 +443,10 @@ pub trait TypedEnvBackend: EnvBackend {
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
-    // ) -> Result<E::AccountId>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>;
-    // R: scale::Decode;
 
     /// Terminates a smart contract.
     ///

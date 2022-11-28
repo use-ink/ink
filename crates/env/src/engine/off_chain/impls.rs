@@ -473,12 +473,10 @@ impl TypedEnvBackend for EnvInstance {
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
-    // ) -> Result<E::AccountId>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        // R: scale::Decode,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();

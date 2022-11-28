@@ -482,11 +482,9 @@ where
         self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
-    // ) -> Result<E::AccountId>
     where
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        // R: scale::Decode,
     {
         ink_env::instantiate_contract::<E, Args, Salt, R>(params)
     }
