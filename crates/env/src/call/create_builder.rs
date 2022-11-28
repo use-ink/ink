@@ -357,7 +357,7 @@ where
     ///
     /// # Note
     ///
-    /// Constructors are not able to return arbitrary values. Instead a succesful call to a
+    /// Constructors are not able to return arbitrary values. Instead a successful call to a
     /// constructor returns the address at which the contract was instantiated.
     ///
     /// Therefore this must always be a reference (i.e `ContractRef`) to the contract you're trying
