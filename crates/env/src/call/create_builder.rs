@@ -120,7 +120,23 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
-    pub fn instantiate(
+    pub fn instantiate(&self) -> Result<R, crate::Error> {
+        crate::instantiate_contract(self)
+            .map(|inner| {
+                inner.unwrap_or_else(|error| {
+                    panic!("Received a `LangError` while instatiating: {:?}", error)
+                })
+            })
+            .map(FromAccountId::from_account_id)
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    #[inline]
+    pub fn try_instantiate(
         &self,
     ) -> Result<::ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self)
@@ -426,9 +442,19 @@ where
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]
-    pub fn instantiate(
+    pub fn instantiate(self) -> Result<RetType, Error> {
+        self.params().instantiate()
+    }
+
+    /// Instantiates the contract using the given instantiation parameters.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    #[inline]
+    pub fn try_instantiate(
         self,
     ) -> Result<::ink_primitives::ConstructorResult<RetType>, Error> {
-        self.params().instantiate()
+        self.params().try_instantiate()
     }
 }
