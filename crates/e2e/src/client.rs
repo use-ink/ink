@@ -279,6 +279,11 @@ where
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
+                if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
+                    let error_msg = format!("Error establishing connection to a node at {}. Make sure you run a node behind the given url!", url);
+                    log_error(&error_msg);
+                    panic!("{}", error_msg);
+                }
                 log_error(
                     "Unable to create client! Please check that your node is running.",
                 );
@@ -316,6 +321,34 @@ where
         Ok(ret)
     }
 
+    /// Dry run contract instantiation using the given constructor.
+    pub async fn instantiate_dry_run<CO: InkConstructor>(
+        &mut self,
+        signer: &Signer<C>,
+        constructor: &CO,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> ContractInstantiateResult<C::AccountId, E::Balance>
+    where
+        CO: InkConstructor,
+    {
+        let mut data = CO::SELECTOR.to_vec();
+        <CO as scale::Encode>::encode_to(constructor, &mut data);
+
+        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
+        let salt = Self::salt();
+        self.api
+            .instantiate_with_code_dry_run(
+                value,
+                storage_deposit_limit,
+                code,
+                data,
+                salt,
+                signer,
+            )
+            .await
+    }
+
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<CO: InkConstructor>(
         &mut self,
@@ -332,13 +365,7 @@ where
         ));
         <CO as scale::Encode>::encode_to(constructor, &mut data);
 
-        let salt = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
-            .as_millis()
-            .as_u128()
-            .to_le_bytes()
-            .to_vec();
+        let salt = Self::salt();
 
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
@@ -422,6 +449,17 @@ where
             account_id: account_id.expect("cannot extract `account_id` from events"),
             events: tx_events,
         })
+    }
+
+    /// Generate a unique salt based on the system time.
+    fn salt() -> Vec<u8> {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
+            .as_millis()
+            .as_u128()
+            .to_le_bytes()
+            .to_vec()
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -544,7 +582,13 @@ where
 
         let dry_run = self
             .api
-            .call_dry_run(account_id.clone(), value, None, contract_call.0.clone())
+            .call_dry_run(
+                signer.account_id().clone(),
+                account_id.clone(),
+                value,
+                None,
+                contract_call.0.clone(),
+            )
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
         log_info(&format!(

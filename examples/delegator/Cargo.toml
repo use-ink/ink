@@ -1,6 +1,6 @@
 [package]
 name = "delegator"
-version = "4.0.0-alpha.3"
+version = "4.0.0-beta"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -35,6 +35,7 @@ std = [
     "accumulator/std",
 ]
 ink-as-dependency = []
+e2e-tests = []
 
 [workspace]
 members = [

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::specs::ConstructorReturnSpec;
-
 use super::*;
 use pretty_assertions::assert_eq;
 use scale_info::{
@@ -57,9 +55,6 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
 #[test]
 fn spec_contract_json() {
-    let seg = ["core", "result", "Result"].iter().map(AsRef::as_ref);
-    let spec = <Result<u8, ()> as ConstructorReturnSpec>::generate(Some(seg.clone()));
-
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -85,7 +80,11 @@ fn spec_contract_json() {
                 .selector([6u8, 3u8, 55u8, 123u8])
                 .payable(Default::default())
                 .args(Vec::new())
-                .returns(ReturnTypeSpec::new(spec))
+                .returns(ReturnTypeSpec::new(Some(TypeSpec::with_name_str::<
+                    Result<(), ()>,
+                >(
+                    "core::result::Result"
+                ))))
                 .docs(Vec::new())
                 .done(),
         ])
@@ -112,6 +111,12 @@ fn spec_contract_json() {
                 .done(),
         ])
         .events(Vec::new())
+        .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
+            ::core::iter::Iterator::map(
+                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                ::core::convert::AsRef::as_ref,
+            ),
+        ))
         .done();
 
     let mut registry = Registry::new();
@@ -168,6 +173,13 @@ fn spec_contract_json() {
             ],
             "docs": [],
             "events": [],
+            "lang_error": {
+              "displayName": [
+                "ink",
+                "LangError"
+              ],
+              "type": 3
+            },
             "messages": [
                 {
                     "args": [

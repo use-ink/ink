@@ -35,6 +35,8 @@ pub use self::{
         ContractReference,
     },
     dispatch::{
+        ConstructorOutput,
+        ConstructorOutputValue,
         ContractAmountDispatchables,
         ContractConstructorDecoder,
         ContractDispatchableConstructors,

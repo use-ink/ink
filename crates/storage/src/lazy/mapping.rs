@@ -131,20 +131,10 @@ where
     KeyType: StorageKey,
 {
     /// Insert the given `value` to the contract storage.
-    #[inline]
-    pub fn insert<Q, R>(&mut self, key: Q, value: &R)
-    where
-        Q: scale::EncodeLike<K>,
-        R: Storable + scale::EncodeLike<V>,
-    {
-        ink_env::set_contract_storage(&(&KeyType::KEY, key), value);
-    }
-
-    /// Insert the given `value` to the contract storage.
     ///
-    /// Returns the size of the pre-existing value at the specified key if any.
+    /// Returns the size in bytes of the pre-existing value at the specified key if any.
     #[inline]
-    pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
         R: Storable + scale::EncodeLike<V>,

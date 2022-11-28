@@ -57,6 +57,8 @@ pub struct ContractSpec<F: Form = MetaForm> {
     events: Vec<EventSpec<F>>,
     /// The contract documentation.
     docs: Vec<F::String>,
+    /// The language specific error type.
+    lang_error: TypeSpec<F>,
 }
 
 impl IntoPortable for ContractSpec {
@@ -79,7 +81,8 @@ impl IntoPortable for ContractSpec {
                 .into_iter()
                 .map(|event| event.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs.into_iter().map(|s| s.into()).collect(),
+            docs: registry.map_into_portable(self.docs),
+            lang_error: self.lang_error.into_portable(registry),
         }
     }
 }
@@ -106,6 +109,11 @@ where
     /// Returns the contract documentation.
     pub fn docs(&self) -> &[F::String] {
         &self.docs
+    }
+
+    /// Returns the language error type.
+    pub fn lang_error(&self) -> &TypeSpec<F> {
+        &self.lang_error
     }
 }
 
@@ -193,6 +201,17 @@ where
             ..self
         }
     }
+
+    /// Sets the language error of the contract specification
+    pub fn lang_error(self, lang_error: TypeSpec<F>) -> Self {
+        Self {
+            spec: ContractSpec {
+                lang_error,
+                ..self.spec
+            },
+            ..self
+        }
+    }
 }
 
 impl<F> ContractSpecBuilder<F, Valid>
@@ -216,6 +235,7 @@ where
 impl<F> ContractSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Creates a new contract specification.
     pub fn new() -> ContractSpecBuilder<F, Invalid> {
@@ -225,6 +245,7 @@ where
                 messages: Vec::new(),
                 events: Vec::new(),
                 docs: Vec::new(),
+                lang_error: Default::default(),
             },
             marker: PhantomData,
         }
@@ -1138,42 +1159,6 @@ where
     /// Creates a new type specification for a given type and display name.
     pub fn new(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
         Self { ty, display_name }
-    }
-}
-
-/// Implementing this trait for some type `T` indicates what the return spec of
-/// `T` will be in the metadata, given `T` is used as the result of a constructor.
-pub trait ConstructorReturnSpec {
-    /// Generates the type spec.
-    ///
-    /// Note:
-    /// The default implementation generates [`TypeSpec`] for `()`, hence it can
-    /// be used directly for constructor returning `Self`.
-    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
-    where
-        S: IntoIterator<Item = &'static str>,
-    {
-        if let Some(segments) = segments_opt {
-            TypeSpec::with_name_segs::<(), S>(segments)
-        } else {
-            TypeSpec::of_type::<()>()
-        }
-    }
-}
-
-impl<O, E> ConstructorReturnSpec for Result<O, E>
-where
-    E: TypeInfo + 'static,
-{
-    fn generate<S>(segments_opt: Option<S>) -> TypeSpec
-    where
-        S: IntoIterator<Item = &'static str>,
-    {
-        if let Some(segments) = segments_opt {
-            TypeSpec::with_name_segs::<core::result::Result<(), E>, S>(segments)
-        } else {
-            TypeSpec::of_type::<core::result::Result<(), E>>()
-        }
     }
 }
 
