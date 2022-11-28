@@ -514,27 +514,17 @@ impl TypedEnvBackend for EnvInstance {
 
         match instantiate_result {
             Ok(()) => {
-                // The Ok case always needs to decode into an address
-                //
-                // This decodes to an `E::AccountId`
-                //
-                // But here I want an `Ok(E::AccountId)`
                 let account_id = scale::Decode::decode(&mut &out_address[..])?;
                 Ok(Ok(account_id))
-
-                // let out = scale::Decode::decode(&mut &out_return_value[..])?;
-                // Ok(out)
             }
             Err(ext::Error::CalleeReverted) => {
-                // This decodes to an `Err(CouldNotReadInput)`
+                // We don't wrap manually with an extra `Err` like we do in the `Ok` case since the
+                // buffer already comes back in the form of `Err(LangError)`
                 let out = scale::Decode::decode(&mut &out_return_value[..])?;
                 Ok(out)
             }
             Err(actual_error) => Err(actual_error.into()),
         }
-
-        // let account_id = scale::Decode::decode(&mut &out_address[..])?;
-        // Ok(account_id)
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
