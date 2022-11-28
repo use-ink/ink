@@ -19,7 +19,10 @@ mod contract_ref {
                 .salt_bytes(salt)
                 .instantiate()
                 .unwrap_or_else(|error| {
-                    panic!("failed at instantiating the Flipper contract: {:?}", error)
+                    panic!("Received an error from the Contracts pallet while instantiating Flipper {:?}", error)
+                })
+                .unwrap_or_else(|error| {
+                    panic!("Received a `LangError` while instatiating Flipper: {:?}", error)
                 });
 
             Self { flipper }
