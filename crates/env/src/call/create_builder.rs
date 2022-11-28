@@ -116,15 +116,16 @@ where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: scale::Decode,
-    // R: FromAccountId<E>,
+    // R: scale::Decode,
+    R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
     pub fn instantiate(
         &self,
     ) -> Result<::ink_primitives::ConstructorResult<R>, crate::Error> {
-        crate::instantiate_contract(self) //.map(FromAccountId::from_account_id)
+        crate::instantiate_contract(self)
+            .and_then(|inner| Ok(inner.map(FromAccountId::from_account_id)))
     }
 }
 
@@ -420,7 +421,8 @@ where
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    RetType: scale::Decode,
+    // RetType: scale::Decode,
+    RetType: FromAccountId<E>,
     // R: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.

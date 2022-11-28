@@ -74,6 +74,7 @@ mod call_builder {
                 )
                 .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
                 .returns::<constructors_return_value::ConstructorsReturnValueRef>()
+                // .returns::<()>()
                 .params()
                 .instantiate()
                 .expect("Error from the Contracts pallet.");

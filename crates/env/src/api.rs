@@ -321,13 +321,13 @@ where
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, Args, Salt, R>(
     params: &CreateParams<E, Args, Salt, R>,
-) -> Result<::ink_primitives::ConstructorResult<R>>
+) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
 // ) -> Result<E::AccountId>
 where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: scale::Decode,
+    // R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::<E, Args, Salt, R>(instance, params)
