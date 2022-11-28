@@ -227,21 +227,6 @@ impl Constructor {
             syn::ReturnType::Type(_, return_type) => Some(return_type),
         }
     }
-
-    /// Returns the return type of the constructor, but wrapped within a `Result`.
-    ///
-    /// This is used to to allow callers to handle certain types of errors which are not exposed
-    /// by constructors.
-    pub fn wrapped_output(&self) -> syn::Type {
-        let return_type = self
-            .output()
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote::quote! { Self });
-
-        syn::parse_quote! {
-            ::ink::ConstructorResult<#return_type>
-        }
-    }
 }
 
 #[cfg(test)]
