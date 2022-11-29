@@ -55,7 +55,7 @@ where
 {
     /// Returns the call flags.
     #[inline]
-    pub(crate) fn call_flags(&self) -> &CallFlags {
+    pub fn call_flags(&self) -> &CallFlags {
         &self.call_flags
     }
 
@@ -72,19 +72,19 @@ where
 {
     /// Returns the account ID of the called contract instance.
     #[inline]
-    pub(crate) fn callee(&self) -> &E::AccountId {
+    pub fn callee(&self) -> &E::AccountId {
         &self.call_type.callee
     }
 
     /// Returns the chosen gas limit for the called contract execution.
     #[inline]
-    pub(crate) fn gas_limit(&self) -> Gas {
+    pub fn gas_limit(&self) -> Gas {
         self.call_type.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
     #[inline]
-    pub(crate) fn transferred_value(&self) -> &E::Balance {
+    pub fn transferred_value(&self) -> &E::Balance {
         &self.call_type.transferred_value
     }
 }
@@ -95,7 +95,7 @@ where
 {
     /// Returns the code hash which we use to perform a delegate call.
     #[inline]
-    pub(crate) fn code_hash(&self) -> &E::Hash {
+    pub fn code_hash(&self) -> &E::Hash {
         &self.call_type.code_hash
     }
 }
