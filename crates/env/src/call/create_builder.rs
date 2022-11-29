@@ -388,6 +388,8 @@ where
     pub fn returns<R>(
         self,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, Set<ReturnType<R>>>
+    where
+        R: FromAccountId<E>,
     {
         CreateBuilder {
             code_hash: self.code_hash,
