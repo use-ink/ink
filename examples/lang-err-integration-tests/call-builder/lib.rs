@@ -207,7 +207,14 @@ mod call_builder {
                     None,
                 )
                 .await
-                .expect("Calling `call_builder::call_instantiate` failed");
+                .expect("Calling `call_builder::call_instantiate` failed")
+                .value
+                .expect("Dispatching `call_builder::call_instantiate` failed.");
+
+            assert!(
+                call_result.is_none(),
+                "Call using valid selector failed, when it should've succeeded."
+            );
 
             Ok(())
         }
@@ -216,6 +223,8 @@ mod call_builder {
         async fn e2e_create_builder_fails_with_invalid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            use call_builder::contract_types::ink_primitives::LangError as E2ELangError;
+
             let constructor = call_builder::constructors::new();
             let contract_acc_id = client
                 .instantiate(&mut ink_e2e::eve(), constructor, 0, None)
@@ -249,7 +258,14 @@ mod call_builder {
                     None,
                 )
                 .await
-                .expect("Client failed to call `call_builder::call_instantiate`.");
+                .expect("Client failed to call `call_builder::call_instantiate`.")
+                .value
+                .expect("Dispatching `call_builder::call_instantiate` failed.");
+
+            assert!(
+                matches!(call_result, Some(E2ELangError::CouldNotReadInput)),
+                "Call using invalid selector succeeded, when it should've failed."
+            );
 
             Ok(())
         }
