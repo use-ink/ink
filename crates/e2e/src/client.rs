@@ -14,7 +14,8 @@
 
 use super::{
     builders::{
-        ConstructorBuilder,
+        constructor_exec_input,
+        CreateBuilderPartial,
         Message,
     },
     client::api::runtime_types::{
@@ -337,16 +338,15 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<CO, Args, R>(
+    pub async fn instantiate<Args, R>(
         &mut self,
         contract_name: &str,
         signer: &mut Signer<C>,
-        constructor: CO,
+        constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
-        CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: scale::Encode,
     {
         let contract_metadata = self
@@ -362,16 +362,15 @@ where
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<CO, Args, R>(
+    pub async fn instantiate_dry_run<Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CO,
+        constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
     where
-        CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: scale::Encode,
     {
         let contract_metadata = self
@@ -379,7 +378,7 @@ where
             .get(contract_name)
             .unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
         let code = crate::utils::extract_wasm(contract_metadata);
-        let data = constructor.into().exec_input();
+        let data = constructor_exec_input(constructor);
 
         let salt = Self::salt();
         self.api
@@ -395,20 +394,19 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<CO, Args, R>(
+    async fn exec_instantiate<Args, R>(
         &mut self,
         signer: &mut Signer<C>,
         code: Vec<u8>,
-        constructor: CO,
+        constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
-        CO: Into<ConstructorBuilder<E, Args, R>>,
         Args: scale::Encode,
     {
         let salt = Self::salt();
-        let data = constructor.into().exec_input();
+        let data = constructor_exec_input(constructor.into());
 
         // dry run the instantiate to calculate the gas limit
         let dry_run = self

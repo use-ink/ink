@@ -32,7 +32,7 @@ use scale::Encode;
 
 /// The type returned from `ContractRef` constructors, partially initialized with the execution
 /// input arguments.
-type CreateBuilderPartial<E, Args, R> = CreateBuilder<
+pub type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     E,
     Unset<<E as Environment>::Hash>,
     Unset<u64>,
@@ -42,31 +42,18 @@ type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     R,
 >;
 
-/// Shim onto the `CreateBuilder` to allow access to the `ExecutionInput` arguments.
-pub struct ConstructorBuilder<E: Environment, Args: Encode, R> {
-    inner: CreateBuilderPartial<E, Args, R>,
-}
-
-impl<E: Environment, Args: Encode, R> From<CreateBuilderPartial<E, Args, R>>
-    for ConstructorBuilder<E, Args, R>
-{
-    fn from(inner: CreateBuilderPartial<E, Args, R>) -> Self {
-        Self { inner }
-    }
-}
-
-impl<E: Environment, Args: Encode, R> ConstructorBuilder<E, Args, R> {
-    /// Returns encoded constructor arguments.
-    pub fn exec_input(self) -> Vec<u8> {
-        // set all the other properties to default values, we only require the `exec_input`.
-        self.inner
-            .endowment(0u32.into())
-            .code_hash(ink_primitives::Clear::clear())
-            .salt_bytes(Vec::new())
-            .params()
-            .exec_input()
-            .encode()
-    }
+/// Get the encoded constructor args from the partially initialized `CreateBuilder`
+pub fn constructor_exec_input<E: Environment, Args: Encode, R>(
+    builder: CreateBuilderPartial<E, Args, R>,
+) -> Vec<u8> {
+    // set all the other properties to default values, we only require the `exec_input`.
+    builder
+        .endowment(0u32.into())
+        .code_hash(ink_primitives::Clear::clear())
+        .salt_bytes(Vec::new())
+        .params()
+        .exec_input()
+        .encode()
 }
 
 #[derive(Debug, Clone)]
