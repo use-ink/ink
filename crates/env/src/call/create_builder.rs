@@ -124,7 +124,7 @@ where
         crate::instantiate_contract(self)
             .map(|inner| {
                 inner.unwrap_or_else(|error| {
-                    panic!("Received a `LangError` while instatiating: {:?}", error)
+                    panic!("Received a `LangError` while instantiating: {:?}", error)
                 })
             })
             .map(FromAccountId::from_account_id)
@@ -370,7 +370,7 @@ impl<E, CodeHash, GasLimit, Endowment, Args, Salt>
 where
     E: Environment,
 {
-    /// Sets the type of the returned value upon the execution of the call.
+    /// Sets the type of the returned value upon the execution of the constructor.
     ///
     /// # Note
     ///
