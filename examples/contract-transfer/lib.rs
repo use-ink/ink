@@ -190,24 +190,24 @@ pub mod give_me {
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
-            let constructor = contract_transfer::constructors::new();
+            let constructor = GiveMeRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 1000, None)
+                .instantiate(
+                    "contract_transfer",
+                    &mut ink_e2e::alice(),
+                    constructor,
+                    1000,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             // when
-            let transfer = contract_transfer::messages::give_me(120);
-            let call_res = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    contract_acc_id.clone(),
-                    transfer,
-                    10,
-                    None,
-                )
-                .await;
+            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
+                .call(|contract| contract.give_me(120));
+
+            let call_res = client.call(&mut ink_e2e::bob(), transfer, 10, None).await;
 
             // then
             assert!(call_res.is_err());
@@ -227,9 +227,15 @@ pub mod give_me {
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             // given
-            let constructor = contract_transfer::constructors::new();
+            let constructor = GiveMeRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::bob(), constructor, 1337, None)
+                .instantiate(
+                    "contract_transfer",
+                    &mut ink_e2e::bob(),
+                    constructor,
+                    1337,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -239,15 +245,11 @@ pub mod give_me {
                 .expect("getting balance failed");
 
             // when
-            let transfer = contract_transfer::messages::give_me(120);
+            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
+                .call(|contract| contract.give_me(120));
+
             let call_res = client
-                .call(
-                    &mut ink_e2e::eve(),
-                    contract_acc_id.clone(),
-                    transfer,
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::eve(), transfer, 0, None)
                 .await
                 .expect("call failed");
 
