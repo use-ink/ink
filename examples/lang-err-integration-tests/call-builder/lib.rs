@@ -77,7 +77,6 @@ mod call_builder {
                 .params()
                 .try_instantiate()
                 .expect("Error from the Contracts pallet.");
-            ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
             match result {
                 Ok(_) => None,
@@ -209,7 +208,6 @@ mod call_builder {
                 )
                 .await
                 .expect("Calling `call_builder::call_instantiate` failed");
-            dbg!(&call_result.value);
 
             Ok(())
         }
@@ -252,7 +250,6 @@ mod call_builder {
                 )
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.");
-            dbg!(&call_result.value);
 
             Ok(())
         }
