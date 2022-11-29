@@ -76,19 +76,19 @@ where
 {
     /// The code hash of the contract.
     #[inline]
-    pub(crate) fn code_hash(&self) -> &E::Hash {
+    pub fn code_hash(&self) -> &E::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
     #[inline]
-    pub(crate) fn gas_limit(&self) -> u64 {
+    pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
     #[inline]
-    pub(crate) fn endowment(&self) -> &E::Balance {
+    pub fn endowment(&self) -> &E::Balance {
         &self.endowment
     }
 
