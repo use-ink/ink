@@ -187,7 +187,7 @@ where
 /// # impl FromAccountId<DefaultEnvironment> for MyContract {
 /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
 /// # }
-/// let my_contract: MyContract = build_create::<DefaultEnvironment, MyContract>()
+/// let my_contract: MyContract = build_create::<DefaultEnvironment>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
@@ -198,6 +198,7 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+///     .returns::<MyContract>()
 ///     .params()
 ///     .instantiate()
 ///     .unwrap();
