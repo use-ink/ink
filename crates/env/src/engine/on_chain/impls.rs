@@ -518,7 +518,11 @@ impl TypedEnvBackend for EnvInstance {
             Err(ext::Error::CalleeReverted) => {
                 // We don't wrap manually with an extra `Err` like we do in the `Ok` case since the
                 // buffer already comes back in the form of `Err(LangError)`
-                let out = scale::Decode::decode(&mut &out_return_value[..])?;
+                let out: ::ink_primitives::ConstructorResult<E::AccountId> =
+                    scale::Decode::decode(&mut &out_return_value[..])?;
+
+                // Should only be handling `LangError` from this arm.
+                assert!(out.is_err(), "nice try haxx0r");
                 Ok(out)
             }
             Err(actual_error) => Err(actual_error.into()),
