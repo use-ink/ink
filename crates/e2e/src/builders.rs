@@ -56,6 +56,8 @@ pub fn constructor_exec_input<E: Environment, Args: Encode, R>(
         .encode()
 }
 
+/// Captures the encoded input for an `ink!` message call, together with the account id of the
+/// contract being called.
 #[derive(Debug, Clone)]
 pub struct Message<E: Environment, RetType> {
     account_id: E::AccountId,
@@ -67,10 +69,12 @@ impl<E, RetType> Message<E, RetType>
 where
     E: Environment,
 {
+    /// The account id of the contract being called to invoke the message.
     pub fn account_id(&self) -> &E::AccountId {
         &self.account_id
     }
 
+    /// The encoded message data, comprised of the selector and the message arguments.
     pub fn exec_input(&self) -> &[u8] {
         &self.exec_input
     }
@@ -97,6 +101,7 @@ where
     E: Environment,
     Ref: TraitCallBuilder + FromAccountId<E>,
 {
+    /// Create a new [`MessageBuilder`] to invoke a message on the given contract.
     pub fn from_account_id(account_id: E::AccountId) -> Self {
         let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
         Self {
@@ -105,10 +110,8 @@ where
         }
     }
 
-    pub fn account_id(&self) -> &E::AccountId {
-        &self.account_id
-    }
-
+    /// Build an encoded call for a message from a [`CallBuilder`] instance returned from a
+    /// contract ref method.
     pub fn call<F, Args, RetType>(mut self, mut message: F) -> Message<E, RetType>
     where
         F: FnMut(
