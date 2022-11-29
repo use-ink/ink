@@ -190,7 +190,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
-        build_mode: BuildMode::Release,
+        build_mode: BuildMode::Debug,
         network: Default::default(),
         build_artifact: BuildArtifacts::All,
         unstable_flags: Default::default(),
