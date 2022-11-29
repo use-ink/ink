@@ -42,7 +42,7 @@ pub type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     R,
 >;
 
-/// Get the encoded constructor args from the partially initialized `CreateBuilder`
+/// Get the encoded constructor arguments from the partially initialized `CreateBuilder`
 pub fn constructor_exec_input<E: Environment, Args: Encode, R>(
     builder: CreateBuilderPartial<E, Args, R>,
 ) -> Vec<u8> {
@@ -83,8 +83,9 @@ where
 /// Convenience method for building messages for the default environment.
 ///
 /// # Note
+///
 /// This is hardcoded to [`ink_env::DefaultEnvironment`] so the user does not have to specify this
-/// generic parameter, which currently is hardcoded in the e2e test `codegen`.
+/// generic parameter, which currently is hardcoded in the E2E testing suite.
 pub fn build_message<Ref>(
     account_id: <ink_env::DefaultEnvironment as Environment>::AccountId,
 ) -> MessageBuilder<ink_env::DefaultEnvironment, Ref>
