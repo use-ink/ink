@@ -105,7 +105,7 @@ where
         Message {
             account_id,
             exec_input,
-            marker: Default::default(),
+            _return_type: Default::default(),
         }
     }
 
@@ -170,7 +170,7 @@ where
         Message {
             account_id: self.account_id.clone(),
             exec_input,
-            marker: Default::default(),
+            _return_type: Default::default(),
         }
     }
 }
