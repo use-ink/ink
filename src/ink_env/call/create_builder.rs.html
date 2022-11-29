@@ -470,25 +470,25 @@
 {
     <span class="doccomment">/// The code hash of the contract.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Hash {
+    </span><span class="kw">pub fn </span>code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Hash {
         <span class="kw-2">&amp;</span><span class="self">self</span>.code_hash
     }
 
     <span class="doccomment">/// The gas limit for the contract instantiation.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>gas_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+    </span><span class="kw">pub fn </span>gas_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.gas_limit
     }
 
     <span class="doccomment">/// The endowment for the instantiated contract.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>endowment(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Balance {
+    </span><span class="kw">pub fn </span>endowment(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Balance {
         <span class="kw-2">&amp;</span><span class="self">self</span>.endowment
     }
 
     <span class="doccomment">/// The raw encoded input data.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>exec_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ExecutionInput&lt;Args&gt; {
+    </span><span class="kw">pub fn </span>exec_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ExecutionInput&lt;Args&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.exec_input
     }
 }
@@ -500,7 +500,7 @@
 {
     <span class="doccomment">/// The salt for determining the hash for the contract account ID.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>salt_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Salt {
+    </span><span class="kw">pub fn </span>salt_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Salt {
         <span class="kw-2">&amp;</span><span class="self">self</span>.salt_bytes
     }
 }

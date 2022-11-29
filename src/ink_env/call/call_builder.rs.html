@@ -702,13 +702,13 @@
 {
     <span class="doccomment">/// Returns the call flags.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>call_flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CallFlags {
+    </span><span class="kw">pub fn </span>call_flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CallFlags {
         <span class="kw-2">&amp;</span><span class="self">self</span>.call_flags
     }
 
     <span class="doccomment">/// Returns the execution input.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>exec_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ExecutionInput&lt;Args&gt; {
+    </span><span class="kw">pub fn </span>exec_input(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ExecutionInput&lt;Args&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.exec_input
     }
 }
@@ -719,19 +719,19 @@
 {
     <span class="doccomment">/// Returns the account ID of the called contract instance.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::AccountId {
+    </span><span class="kw">pub fn </span>callee(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::AccountId {
         <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.callee
     }
 
     <span class="doccomment">/// Returns the chosen gas limit for the called contract execution.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>gas_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Gas {
+    </span><span class="kw">pub fn </span>gas_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Gas {
         <span class="self">self</span>.call_type.gas_limit
     }
 
     <span class="doccomment">/// Returns the transferred value for the called contract.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>transferred_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Balance {
+    </span><span class="kw">pub fn </span>transferred_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Balance {
         <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.transferred_value
     }
 }
@@ -742,7 +742,7 @@
 {
     <span class="doccomment">/// Returns the code hash which we use to perform a delegate call.
     </span><span class="attribute">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Hash {
+    </span><span class="kw">pub fn </span>code_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>E::Hash {
         <span class="kw-2">&amp;</span><span class="self">self</span>.call_type.code_hash
     }
 }
