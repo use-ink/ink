@@ -40,7 +40,6 @@ use super::{
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 
-use scale::Encode;
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
@@ -406,7 +405,7 @@ where
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
         CO: Into<ConstructorBuilder<E, Args, R>>,
-        Args: Encode,
+        Args: scale::Encode,
     {
         let salt = Self::salt();
         let data = constructor.into().exec_input();
