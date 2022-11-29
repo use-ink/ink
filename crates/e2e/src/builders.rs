@@ -67,35 +67,6 @@ impl<E, RetType> Message<E, RetType>
 where
     E: Environment,
 {
-    pub fn build<F, Ref, Args>(
-        account_id: E::AccountId,
-        message: F,
-    ) -> Message<E, RetType>
-    where
-        E: Environment,
-        Ref: TraitCallBuilder + FromAccountId<E>,
-        Args: scale::Encode,
-        F: FnOnce(
-            &<Ref as TraitCallBuilder>::Builder,
-        ) -> CallBuilder<
-            E,
-            Set<Call<E>>,
-            Set<ExecutionInput<Args>>,
-            Set<ReturnType<RetType>>,
-        >,
-        RetType: scale::Decode,
-    {
-        let contract_ref = <Ref as FromAccountId<E>>::from_account_id(account_id.clone());
-        let call_builder = <Ref as TraitCallBuilder>::call(&contract_ref);
-        let builder = message(&call_builder);
-        let exec_input = builder.params().exec_input().encode();
-        Message {
-            account_id,
-            exec_input,
-            _return_type: Default::default(),
-        }
-    }
-
     pub fn account_id(&self) -> &E::AccountId {
         &self.account_id
     }
