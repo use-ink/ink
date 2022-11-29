@@ -116,6 +116,15 @@ where
 
     /// Build an encoded call for a message from a [`CallBuilder`] instance returned from a
     /// contract ref method.
+    ///
+    /// This utilizes the generated message inherent methods on the contract ref implementation,
+    /// which returns a [`CallBuilder`] initialized with the selector and message arguments.
+    ///
+    /// # Example
+    /// ```no_compile
+    /// MessageBuilder::<ink::env::DefaultEnvironment, FlipperRef>::from_account_id(contract_acc_id)
+    ///     .call(|contract| contract.flip());
+    /// ```
     pub fn call<F, Args, RetType>(mut self, mut message: F) -> Message<E, RetType>
     where
         F: FnMut(
