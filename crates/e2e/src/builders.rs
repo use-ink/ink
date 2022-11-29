@@ -73,7 +73,7 @@ impl<E: Environment, Args: Encode, R> ConstructorBuilder<E, Args, R> {
 pub struct Message<E: Environment, RetType> {
     account_id: E::AccountId,
     exec_input: Vec<u8>,
-    marker: std::marker::PhantomData<RetType>,
+    _return_type: std::marker::PhantomData<RetType>,
 }
 
 impl<E, RetType> Message<E, RetType>
