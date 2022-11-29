@@ -119,6 +119,11 @@ where
     R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
     #[inline]
     pub fn instantiate(&self) -> Result<R, crate::Error> {
         crate::instantiate_contract(self)
@@ -442,6 +447,11 @@ where
     RetType: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
     #[inline]
     pub fn instantiate(self) -> Result<RetType, Error> {
         self.params().instantiate()
