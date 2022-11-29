@@ -39,6 +39,10 @@ sp-keyring = "7.0.0"
 sp-runtime = "7.0.0"
 sp-weights = "4.0.0"
 
+[dev-dependencies]
+# Required for the doctest of `MessageBuilder::call`
+scale-info = { version = "2.3", default-features = false, features = ["derive"] }
+
 [features]
 default = ["std"]
 std = []

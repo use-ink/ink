@@ -83,7 +83,7 @@ where
 /// Convenience method for building messages for the default environment.
 ///
 /// # Note
-/// This is hardcoded to `ink_env::DefaultEnvironment` so the user does not have to specify this
+/// This is hardcoded to [`ink_env::DefaultEnvironment`] so the user does not have to specify this
 /// generic parameter, which currently is hardcoded in the e2e test `codegen`.
 pub fn build_message<Ref>(
     account_id: <ink_env::DefaultEnvironment as Environment>::AccountId,
@@ -121,10 +121,34 @@ where
     /// which returns a [`CallBuilder`] initialized with the selector and message arguments.
     ///
     /// # Example
-    /// ```no_compile
-    /// MessageBuilder::<ink::env::DefaultEnvironment, FlipperRef>::from_account_id(contract_acc_id)
-    ///     .call(|contract| contract.flip());
     /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #         #[ink(message)]
+    /// #         pub fn message(&self) {}
+    /// #     }
+    /// # }
+    /// #
+    /// # fn message_builder_doc_test() {
+    /// #     use my_contract::MyContractRef;
+    /// #     let contract_acc_id = ink_primitives::AccountId::from([0x00; 32]);
+    /// ink_e2e::MessageBuilder::<ink::env::DefaultEnvironment, MyContractRef>::from_account_id(
+    ///     contract_acc_id,
+    /// )
+    /// .call(|contract| contract.message());
+    /// # }
+    /// ```
+
     pub fn call<F, Args, RetType>(mut self, mut message: F) -> Message<E, RetType>
     where
         F: FnMut(
