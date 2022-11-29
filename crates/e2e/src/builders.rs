@@ -80,7 +80,11 @@ where
     }
 }
 
-/// Convenience method for building messages for the default environment
+/// Convenience method for building messages for the default environment.
+///
+/// # Note
+/// This is hardcoded to `ink_env::DefaultEnvironment` so the user does not have to specify this
+/// generic parameter, which currently is hardcoded in the e2e test `codegen`.
 pub fn build_message<Ref>(
     account_id: <ink_env::DefaultEnvironment as Environment>::AccountId,
 ) -> MessageBuilder<ink_env::DefaultEnvironment, Ref>
