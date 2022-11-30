@@ -109,7 +109,23 @@ where
     /// Invokes the contract with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    pub fn invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    pub fn invoke(&self) -> Result<R, crate::Error> {
+        crate::invoke_contract(self).map(|inner| inner.unwrap())
+    }
+
+    /// Invokes the contract with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
         crate::invoke_contract(self)
     }
 }
@@ -189,6 +205,7 @@ where
 ///    2. a `bool` with value `true`
 ///    3. an array of 32 `u8` with value `0x10`
 ///
+/// // TODO: Check these docs tests
 /// ```should_panic
 /// # use ::ink_env::{
 /// #     Environment,
@@ -597,8 +614,22 @@ where
     E: Environment,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<ink_primitives::MessageResult<()>, Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
+    pub fn fire(self) -> Result<(), Error> {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    pub fn try_fire(self) -> Result<ink_primitives::MessageResult<()>, Error> {
+        self.params().try_invoke()
     }
 }
 
@@ -626,8 +657,22 @@ where
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<ink_primitives::MessageResult<R>, Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
+    pub fn fire(self) -> Result<R, Error> {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call and returns the result.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    pub fn try_fire(self) -> Result<ink_primitives::MessageResult<R>, Error> {
+        self.params().try_invoke()
     }
 }
 

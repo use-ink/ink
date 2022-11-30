@@ -44,7 +44,7 @@ mod call_builder {
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
-                .fire()
+                .try_fire()
                 .expect("Error from the Contracts pallet.");
 
             match result {
