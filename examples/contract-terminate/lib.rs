@@ -67,7 +67,7 @@ pub mod just_terminates {
             let contract_acc_id = client
                 .instantiate(
                     "contract_terminate",
-                    &ink_e2e_e2e::alice(),
+                    &ink_e2e::alice(),
                     constructor,
                     0,
                     None,
