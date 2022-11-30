@@ -35,7 +35,6 @@ use super::{
     ContractExecResult,
     ContractInstantiateResult,
     ContractsApi,
-    InkMessage,
     Signer,
 };
 use contract_metadata::ContractMetadata;
@@ -61,27 +60,6 @@ use subxt::{
     },
     tx::ExtrinsicParams,
 };
-
-/// An encoded `#[ink(message)]`.
-#[derive(Clone)]
-pub struct EncodedMessage(Vec<u8>);
-
-impl EncodedMessage {
-    fn new<M: InkMessage>(call: &M) -> Self {
-        let mut call_data = M::SELECTOR.to_vec();
-        <M as scale::Encode>::encode_to(call, &mut call_data);
-        Self(call_data)
-    }
-}
-
-impl<M> From<M> for EncodedMessage
-where
-    M: InkMessage,
-{
-    fn from(msg: M) -> Self {
-        EncodedMessage::new(&msg)
-    }
-}
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<C: subxt::Config, E: Environment> {
@@ -368,7 +346,7 @@ where
     pub async fn instantiate<Args, R>(
         &mut self,
         contract_name: &str,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -423,7 +401,7 @@ where
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<Args, R>(
         &mut self,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         code: Vec<u8>,
         constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
@@ -540,7 +518,7 @@ where
     pub async fn upload(
         &mut self,
         contract_name: &str,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
         let contract_metadata = self
@@ -558,7 +536,7 @@ where
     /// Executes an `upload` call and captures the resulting events.
     pub async fn exec_upload(
         &mut self,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
@@ -638,7 +616,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call<RetType>(
         &mut self,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         message: Message<E, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,

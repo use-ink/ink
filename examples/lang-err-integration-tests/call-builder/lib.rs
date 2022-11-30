@@ -99,13 +99,7 @@ mod call_builder {
         ) -> E2EResult<()> {
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(
-                    "call_builder",
-                    &mut ink_e2e::charlie(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("call_builder", &ink_e2e::charlie(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -114,7 +108,7 @@ mod call_builder {
             let flipper_acc_id = client
                 .instantiate(
                     "integration_flipper",
-                    &mut ink_e2e::charlie(),
+                    &ink_e2e::charlie(),
                     flipper_constructor,
                     0,
                     None,
@@ -126,7 +120,7 @@ mod call_builder {
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
                 .call(|contract| contract.get());
             let get_call_result = client
-                .call(&mut ink_e2e::charlie(), flipper_get, 0, None)
+                .call(&ink_e2e::charlie(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
             let initial_value = get_call_result
@@ -137,7 +131,7 @@ mod call_builder {
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
                 .call(|contract| contract.call(flipper_acc_id, invalid_selector));
             let call_result = client
-                .call(&mut ink_e2e::charlie(), call, 0, None)
+                .call(&ink_e2e::charlie(), call, 0, None)
                 .await
                 .expect("Calling `call_builder::call` failed");
 
@@ -153,7 +147,7 @@ mod call_builder {
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
                 .call(|contract| contract.get());
             let get_call_result = client
-                .call(&mut ink_e2e::charlie(), flipper_get, 0, None)
+                .call(&ink_e2e::charlie(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
             let flipped_value = get_call_result
@@ -170,13 +164,13 @@ mod call_builder {
         ) -> E2EResult<()> {
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &mut ink_e2e::dave(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::dave(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &mut ink_e2e::dave(), None)
+                .upload("constructors_return_value", &ink_e2e::dave(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -187,7 +181,7 @@ mod call_builder {
                     contract.call_instantiate(code_hash, new_selector, true)
                 });
             let call_result = client
-                .call(&mut ink_e2e::dave(), call, 0, None)
+                .call(&ink_e2e::dave(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value()
@@ -207,13 +201,13 @@ mod call_builder {
         ) -> E2EResult<()> {
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &mut ink_e2e::eve(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::eve(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &mut ink_e2e::eve(), None)
+                .upload("constructors_return_value", &ink_e2e::eve(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -224,7 +218,7 @@ mod call_builder {
                     contract.call_instantiate(code_hash, invalid_selector, true)
                 });
             let call_result = client
-                .call(&mut ink_e2e::eve(), call, 0, None)
+                .call(&ink_e2e::eve(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value()
