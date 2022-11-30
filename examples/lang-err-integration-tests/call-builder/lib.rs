@@ -293,30 +293,36 @@ mod call_builder {
                 .code_hash;
 
             let revert_new_selector = [0x90, 0xC9, 0xFE, 0x94];
-            let call_result = dbg!(
-                client
-                    .call(
-                        &mut ink_e2e::ferdie(),
-                        contract_acc_id.clone(),
-                        call_builder::messages::call_instantiate(
-                            ink_e2e::utils::runtime_hash_to_ink_hash::<
-                                ink::env::DefaultEnvironment,
-                            >(&code_hash),
-                            revert_new_selector,
-                            false,
-                        ),
-                        0,
-                        None,
-                    )
-                    .await
-                    .expect("Calling `call_builder::call_instantiate` failed")
-                    .value
-            )
-            .expect("Dispatching `call_builder::call_instantiate` failed.");
+            let call_result = client
+                .call(
+                    &mut ink_e2e::ferdie(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call_instantiate(
+                        ink_e2e::utils::runtime_hash_to_ink_hash::<
+                            ink::env::DefaultEnvironment,
+                        >(&code_hash),
+                        revert_new_selector,
+                        false,
+                    ),
+                    0,
+                    None,
+                )
+                .await;
 
             assert!(
-                call_result.is_none(),
-                "Call using valid selector failed, when it should've succeeded."
+                call_result.is_err(),
+                "Call execution should've failed, but didn't."
+            );
+            let contains_err_msg = match call_result.unwrap_err() {
+                ink_e2e::Error::CallDryRun(dry_run) => {
+                    String::from_utf8_lossy(&dry_run.debug_message)
+                        .contains("The callee reverted, but did not encode an error in the output buffer.")
+                }
+                _ => false,
+            };
+            assert!(
+                contains_err_msg,
+                "Call execution failed for an unexpected reason."
             );
 
             Ok(())
