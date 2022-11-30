@@ -19,6 +19,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod builders;
 mod client;
 mod default_accounts;
 #[cfg(test)]
@@ -26,6 +27,10 @@ mod tests;
 pub mod utils;
 mod xts;
 
+pub use builders::{
+    build_message,
+    MessageBuilder,
+};
 pub use client::{
     Client,
     Error,
@@ -33,8 +38,6 @@ pub use client::{
 pub use default_accounts::*;
 pub use env_logger;
 pub use ink_e2e_macro::test;
-// TODO(#1421) `smart-bench_macro` needs to be forked.
-pub use smart_bench_macro;
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{
