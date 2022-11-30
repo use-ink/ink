@@ -157,6 +157,8 @@ where
     /// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
+    /// **WARNING**: this method uses the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
     #[inline]
     pub fn take<Q>(&self, key: Q) -> Option<V>
     where

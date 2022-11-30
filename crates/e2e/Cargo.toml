@@ -17,7 +17,9 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 ink_e2e_macro = { version = "4.0.0-beta", path = "./macro" }
+ink = { version = "4.0.0-beta", path = "../ink" }
 ink_env = { version = "4.0.0-beta", path = "../env" }
+ink_primitives = { version = "4.0.0-beta", path = "../primitives" }
 
 contract-metadata = { version = "2.0.0-beta" }
 impl-serde = { version = "0.3.1", default-features = false }
@@ -37,8 +39,9 @@ sp-keyring = "7.0.0"
 sp-runtime = "7.0.0"
 sp-weights = "4.0.0"
 
-# TODO(#1421) `smart-bench_macro` needs to be forked.
-smart-bench-macro = { git = "https://github.com/paritytech/smart-bench", branch = "cmichi-ink-e2e-test-mvp-cross-contract", package = "smart-bench-macro" }
+[dev-dependencies]
+# Required for the doctest of `MessageBuilder::call`
+scale-info = { version = "2.3", default-features = false, features = ["derive"] }
 
 [features]
 default = ["std"]
