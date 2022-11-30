@@ -319,7 +319,7 @@ where
     pub async fn instantiate<Args, R>(
         &mut self,
         contract_name: &str,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
@@ -374,7 +374,7 @@ where
     /// Executes an `instantiate_with_code` call and captures the resulting events.
     async fn exec_instantiate<Args, R>(
         &mut self,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         code: Vec<u8>,
         constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
@@ -491,7 +491,7 @@ where
     pub async fn upload(
         &mut self,
         contract_name: &str,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
         let contract_metadata = self
@@ -509,7 +509,7 @@ where
     /// Executes an `upload` call and captures the resulting events.
     pub async fn exec_upload(
         &mut self,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
@@ -589,7 +589,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call<RetType>(
         &mut self,
-        signer: &mut Signer<C>,
+        signer: &Signer<C>,
         message: Message<E, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,

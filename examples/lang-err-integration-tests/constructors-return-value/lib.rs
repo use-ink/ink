@@ -125,7 +125,7 @@ pub mod constructors_return_value {
             let success = client
                 .instantiate(
                     "constructors_return_value",
-                    &mut ink_e2e::alice(),
+                    &ink_e2e::alice(),
                     constructor,
                     0,
                     None,
@@ -175,7 +175,7 @@ pub mod constructors_return_value {
             let contract_acc_id = client
                 .instantiate(
                     "constructors_return_value",
-                    &mut ink_e2e::bob(),
+                    &ink_e2e::bob(),
                     constructor,
                     0,
                     None,
@@ -188,7 +188,7 @@ pub mod constructors_return_value {
                 ink_e2e::build_message::<ConstructorsReturnValueRef>(contract_acc_id)
                     .call(|contract| contract.get_value());
             let value = client
-                .call(&mut ink_e2e::bob(), get, 0, None)
+                .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("Calling `get_value` failed")
                 .value
@@ -240,7 +240,7 @@ pub mod constructors_return_value {
             let result = client
                 .instantiate(
                     "constructors_return_value",
-                    &mut ink_e2e::charlie(),
+                    &ink_e2e::charlie(),
                     constructor,
                     0,
                     None,
