@@ -92,8 +92,8 @@ pub mod just_terminates {
 
             let contains_event = |pallet_name: &str, variant_name: &str| {
                 call_res.events.iter().any(|event| {
-                    let evt = evt.unwrap();
-                    evt.pallet_name() == pallet_name && evt.variant_name() == variant_name
+                    let event = event.unwrap();
+                    event.pallet_name() == pallet_name && event.variant_name() == variant_name
                 })
             };
 
