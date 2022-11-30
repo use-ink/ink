@@ -688,7 +688,8 @@ where
         }
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: Result<RetType, scale::Error> = scale::Decode::decode(&mut bytes.as_ref());
+        let value: Result<RetType, scale::Error> =
+            scale::Decode::decode(&mut bytes.as_ref());
 
         Ok(CallResult {
             value,
