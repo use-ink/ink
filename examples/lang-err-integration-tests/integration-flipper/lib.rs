@@ -112,13 +112,7 @@ pub mod integration_flipper {
         ) -> E2EResult<()> {
             let constructor = FlipperRef::default();
             let contract_acc_id = client
-                .instantiate(
-                    "integration_flipper",
-                    &ink_e2e::bob(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("integration_flipper", &ink_e2e::bob(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;

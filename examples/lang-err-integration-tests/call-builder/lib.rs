@@ -99,13 +99,7 @@ mod call_builder {
         ) -> E2EResult<()> {
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(
-                    "call_builder",
-                    &ink_e2e::charlie(),
-                    constructor,
-                    0,
-                    None,
-                )
+                .instantiate("call_builder", &ink_e2e::charlie(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
