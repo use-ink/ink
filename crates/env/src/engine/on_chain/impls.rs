@@ -450,7 +450,6 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    // TODO: Also set this return type
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         params: &CallParams<E, DelegateCall<E>, Args, R>,
