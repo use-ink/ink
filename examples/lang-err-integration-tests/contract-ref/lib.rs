@@ -62,14 +62,14 @@ mod contract_ref {
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             let flipper_hash = client
-                .upload("integration_flipper", &mut ink_e2e::alice(), None)
+                .upload("integration_flipper", &ink_e2e::alice(), None)
                 .await
                 .expect("uploading `flipper` failed")
                 .code_hash;
 
             let constructor = ContractRefRef::new(0, flipper_hash);
             let contract_acc_id = client
-                .instantiate("contract_ref", &mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("contract_ref", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -77,7 +77,7 @@ mod contract_ref {
             let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
                 .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(&mut ink_e2e::alice(), get_check, 0, None)
+                .call(&ink_e2e::alice(), get_check, 0, None)
                 .await
                 .expect("Calling `get_check` failed");
             let initial_value = get_call_result
@@ -87,7 +87,7 @@ mod contract_ref {
             let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
                 .call(|contract| contract.flip_check());
             let flip_call_result = client
-                .call(&mut ink_e2e::alice(), flip_check, 0, None)
+                .call(&ink_e2e::alice(), flip_check, 0, None)
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -98,7 +98,7 @@ mod contract_ref {
             let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
                 .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(&mut ink_e2e::alice(), get_check, 0, None)
+                .call(&ink_e2e::alice(), get_check, 0, None)
                 .await
                 .expect("Calling `get_check` failed");
             let flipped_value = get_call_result

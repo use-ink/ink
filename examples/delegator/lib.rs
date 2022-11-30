@@ -136,19 +136,19 @@ mod delegator {
         async fn e2e_delegator(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let accumulator_hash = client
-                .upload("accumulator", &mut ink_e2e::alice(), None)
+                .upload("accumulator", &ink_e2e::alice(), None)
                 .await
                 .expect("uploading `accumulator` failed")
                 .code_hash;
 
             let adder_hash = client
-                .upload("adder", &mut ink_e2e::alice(), None)
+                .upload("adder", &ink_e2e::alice(), None)
                 .await
                 .expect("uploading `adder` failed")
                 .code_hash;
 
             let subber_hash = client
-                .upload("subber", &mut ink_e2e::alice(), None)
+                .upload("subber", &ink_e2e::alice(), None)
                 .await
                 .expect("uploading `subber` failed")
                 .code_hash;
@@ -162,7 +162,7 @@ mod delegator {
             );
 
             let delegator_acc_id = client
-                .instantiate("delegator", &mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("delegator", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -171,7 +171,7 @@ mod delegator {
             let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.get());
             let value = client
-                .call(&mut ink_e2e::bob(), get, 0, None)
+                .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("calling `get` failed")
                 .value
@@ -180,7 +180,7 @@ mod delegator {
             let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.change(6));
             let _ = client
-                .call(&mut ink_e2e::bob(), change, 0, None)
+                .call(&ink_e2e::bob(), change, 0, None)
                 .await
                 .expect("calling `change` failed");
 
@@ -188,7 +188,7 @@ mod delegator {
             let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.get());
             let value = client
-                .call(&mut ink_e2e::bob(), get, 0, None)
+                .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("calling `get` failed")
                 .value
@@ -199,13 +199,13 @@ mod delegator {
             let switch = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.switch());
             let _ = client
-                .call(&mut ink_e2e::bob(), switch, 0, None)
+                .call(&ink_e2e::bob(), switch, 0, None)
                 .await
                 .expect("calling `switch` failed");
             let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.change(3));
             let _ = client
-                .call(&mut ink_e2e::bob(), change, 0, None)
+                .call(&ink_e2e::bob(), change, 0, None)
                 .await
                 .expect("calling `change` failed");
 
@@ -213,7 +213,7 @@ mod delegator {
             let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.get());
             let value = client
-                .call(&mut ink_e2e::bob(), get, 0, None)
+                .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("calling `get` failed")
                 .value
