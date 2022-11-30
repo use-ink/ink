@@ -440,7 +440,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract<E, Args, R>(
         &mut self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,

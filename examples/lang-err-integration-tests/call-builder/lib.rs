@@ -43,7 +43,7 @@ mod call_builder {
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<Result<(), ::ink::LangError>>()
+                .returns::<()>()
                 .fire()
                 .expect("Error from the Contracts pallet.");
 

@@ -109,7 +109,7 @@ where
     /// Invokes the contract with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    pub fn invoke(&self) -> Result<R, crate::Error> {
+    pub fn invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
         crate::invoke_contract(self)
     }
 }
@@ -597,7 +597,7 @@ where
     E: Environment,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
+    pub fn fire(self) -> Result<ink_primitives::MessageResult<()>, Error> {
         self.params().invoke()
     }
 }
@@ -626,7 +626,7 @@ where
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R, Error> {
+    pub fn fire(self) -> Result<ink_primitives::MessageResult<R>, Error> {
         self.params().invoke()
     }
 }

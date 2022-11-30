@@ -532,7 +532,7 @@ where
     pub fn invoke_contract<Args, R>(
         self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
         R: scale::Decode,
