@@ -67,7 +67,7 @@ pub mod just_terminates {
             let contract_acc_id = client
                 .instantiate(
                     "contract_terminate",
-                    &mut ink_e2e::alice(),
+                    &ink_e2e_e2e::alice(),
                     constructor,
                     0,
                     None,
@@ -81,7 +81,7 @@ pub mod just_terminates {
                 ink_e2e::build_message::<JustTerminateRef>(contract_acc_id)
                     .call(|contract| contract.terminate_me());
             let call_res = client
-                .call(&mut ink_e2e::alice(), terminate_me, 0, None)
+                .call(&ink_e2e::alice(), terminate_me, 0, None)
                 .await
                 .expect("terminate_me messages failed");
 
