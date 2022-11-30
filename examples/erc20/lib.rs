@@ -542,7 +542,7 @@ mod erc20 {
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
             let contract_acc_id = client
-                .instantiate("erc20", &mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("erc20", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -551,7 +551,7 @@ mod erc20 {
             let total_supply_msg = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.total_supply());
             let total_supply_res = client
-                .call(&mut ink_e2e::bob(), total_supply_msg, 0, None)
+                .call(&ink_e2e::bob(), total_supply_msg, 0, None)
                 .await
                 .expect("total_supply failed");
 
@@ -560,14 +560,14 @@ mod erc20 {
             let transfer = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.transfer(bob_account.clone(), transfer_to_bob));
             let _transfer_res = client
-                .call(&mut ink_e2e::alice(), transfer, 0, None)
+                .call(&ink_e2e::alice(), transfer, 0, None)
                 .await
                 .expect("transfer failed");
 
             let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.balance_of(bob_account));
             let balance_of_res = client
-                .call(&mut ink_e2e::alice(), balance_of, 0, None)
+                .call(&ink_e2e::alice(), balance_of, 0, None)
                 .await
                 .expect("balance_of failed");
 
@@ -590,7 +590,7 @@ mod erc20 {
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
             let contract_acc_id = client
-                .instantiate("erc20", &mut ink_e2e::bob(), constructor, 0, None)
+                .instantiate("erc20", &ink_e2e::bob(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
@@ -605,7 +605,7 @@ mod erc20 {
                 .call(|erc20| erc20.transfer_from(bob_account.clone(), charlie_account.clone(), amount));
 
             let transfer_from_result = client
-                .call(&mut ink_e2e::bob(), transfer_from, 0, None)
+                .call(&ink_e2e::bob(), transfer_from, 0, None)
                 .await;
 
             assert!(transfer_from_result.is_err(), "unapproved transfer_from should fail");
@@ -615,7 +615,7 @@ mod erc20 {
             let approve_call = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.approve(charlie_account.clone(), approved_value));
             client
-                .call(&mut ink_e2e::bob(), approve_call, 0, None)
+                .call(&ink_e2e::bob(), approve_call, 0, None)
                 .await
                 .expect("approve failed");
 
@@ -625,7 +625,7 @@ mod erc20 {
             let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.balance_of(bob_account));
             let balance_of_res = client
-                .call(&mut ink_e2e::alice(), balance_of, 0, None)
+                .call(&ink_e2e::alice(), balance_of, 0, None)
                 .await
                 .expect("balance_of failed");
 
