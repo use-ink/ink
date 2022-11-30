@@ -533,60 +533,41 @@ mod erc20 {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink_e2e::build_message;
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
         async fn e2e_transfer(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
-            let constructor = erc20::constructors::new(total_supply);
+            let constructor = Erc20Ref::new(total_supply);
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("erc20", &mut ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             // when
+            let total_supply_msg = build_message::<Erc20Ref>(contract_acc_id.clone())
+                .call(|erc20| erc20.total_supply());
             let total_supply_res = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    contract_acc_id.clone(),
-                    erc20::messages::total_supply(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::bob(), total_supply_msg, 0, None)
                 .await
                 .expect("total_supply failed");
 
-            let bob_account = AccountId::try_from(
-                ink_e2e::bob::<ink_e2e::SubstrateConfig>()
-                    .account_id()
-                    .as_ref(),
-            )
-            .unwrap();
-
+            let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
-            let transfer =
-                erc20::messages::transfer(bob_account.clone(), transfer_to_bob);
+            let transfer = build_message::<Erc20Ref>(contract_acc_id.clone())
+                .call(|erc20| erc20.transfer(bob_account.clone(), transfer_to_bob));
             let _transfer_res = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    transfer,
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), transfer, 0, None)
                 .await
                 .expect("transfer failed");
 
+            let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
+                .call(|erc20| erc20.balance_of(bob_account));
             let balance_of_res = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    erc20::messages::balance_of(bob_account.clone()),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), balance_of, 0, None)
                 .await
                 .expect("balance_of failed");
 
@@ -601,7 +582,6 @@ mod erc20 {
             Ok(())
         }
 
-        // todo: allowance tests
         // #[ink_e2e::test]
         // async fn e2e_allowances(
         //     mut client: ink_e2e::Client<C, E>,
