@@ -81,7 +81,7 @@ mod contract_ref {
                 .await
                 .expect("Calling `get_check` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
@@ -102,7 +102,7 @@ mod contract_ref {
                 .await
                 .expect("Calling `get_check` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value != initial_value);
 

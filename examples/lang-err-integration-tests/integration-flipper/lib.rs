@@ -78,7 +78,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let flip = build_message::<FlipperRef>(contract_acc_id)
@@ -99,7 +99,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value != initial_value);
 
@@ -130,7 +130,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let err_flip = build_message::<FlipperRef>(contract_acc_id)
@@ -150,7 +150,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value == initial_value);
 
