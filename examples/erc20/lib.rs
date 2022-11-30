@@ -590,27 +590,37 @@ mod erc20 {
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
             let contract_acc_id = client
-                .instantiate("erc20", &mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("erc20", &mut ink_e2e::bob(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             // when
-            let total_supply_msg = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.total_supply());
-            let total_supply_res = client
-                .call(&mut ink_e2e::bob(), total_supply_msg, 0, None)
-                .await
-                .expect("total_supply failed");
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
-            let transfer_to_bob = 500_000_000u128;
-            let transfer = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.transfer(bob_account.clone(), transfer_to_bob));
-            let _transfer_res = client
-                .call(&mut ink_e2e::alice(), transfer, 0, None)
+            let charlie_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Charlie);
+
+            let amount = 500_000_000u128;
+            let transfer_from = build_message::<Erc20Ref>(contract_acc_id.clone())
+                .call(|erc20| erc20.transfer_from(bob_account.clone(), charlie_account.clone(), amount));
+
+            let transfer_from_result = client
+                .call(&mut ink_e2e::bob(), transfer_from, 0, None)
+                .await;
+
+            assert!(transfer_from_result.is_err(), "unapproved transfer_from should fail");
+
+            // Bob approves Charlie to transfer up to amount on his behalf
+            let approved_value = 1000u128;
+            let approve_call = build_message::<Erc20Ref>(contract_acc_id.clone())
+                .call(|erc20| erc20.approve(charlie_account.clone(), approved_value));
+            client
+                .call(&mut ink_e2e::bob(), approve_call, 0, None)
                 .await
-                .expect("transfer failed");
+                .expect("approve failed");
+
+            // todo: transfer approved_value from bob to charlie succeeds
+            // todo: check updated balance
 
             let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.balance_of(bob_account));
@@ -619,13 +629,15 @@ mod erc20 {
                 .await
                 .expect("balance_of failed");
 
+            // todo: try transfer_from again, exceed allowance and fail
+
             // then
-            assert_eq!(
-                total_supply,
-                total_supply_res.value.unwrap(),
-                "total_supply"
-            );
-            assert_eq!(transfer_to_bob, balance_of_res.value.unwrap(), "balance_of");
+            // assert_eq!(
+            //     total_supply,
+            //     total_supply_res.value.unwrap(),
+            //     "total_supply"
+            // );
+            // assert_eq!(amount, balance_of_res.value.unwrap(), "balance_of");
 
             Ok(())
         }
