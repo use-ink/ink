@@ -15,38 +15,16 @@
 use super::log_info;
 
 /// Extracts the Wasm blob from a contract bundle.
-pub fn extract_wasm(contract_path: &str) -> Vec<u8> {
-    log_info(&format!("opening {:?}", contract_path));
-    let reader = std::fs::File::open(contract_path).unwrap_or_else(|err| {
-        panic!("contract path cannot be opened: {:?}", err);
-    });
-    let contract: contract_metadata::ContractMetadata = serde_json::from_reader(reader)
-        .unwrap_or_else(|err| {
-            panic!("error reading metadata: {:?}", err);
-        });
+pub fn extract_wasm(contract: &contract_metadata::ContractMetadata) -> Vec<u8> {
     let code = contract
         .source
         .wasm
+        .clone()
         .expect("contract bundle is missing `source.wasm`");
     log_info(&format!(
         "{:?} has {} KiB",
-        contract_path,
+        contract.contract.name,
         code.0.len() / 1024
     ));
     code.0
-}
-
-/// Converts a `H256` runtime hash to the hash type of the
-/// given ink! environment.
-pub fn runtime_hash_to_ink_hash<'a, E>(
-    runtime_hash: &'a super::H256,
-) -> <E as ink_env::Environment>::Hash
-where
-    E: ink_env::Environment,
-    <E as ink_env::Environment>::Hash: TryFrom<&'a [u8]>,
-{
-    let runtime_hash_slice: &[u8] = runtime_hash.as_ref();
-    TryFrom::try_from(runtime_hash_slice).unwrap_or_else(|_|
-        panic!("unable to convert hash slice from runtime into default ink! environment hash type")
-    )
 }
