@@ -189,7 +189,7 @@ where
 ///     )
 ///     .returns::<()>()
 ///     .fire()
-///     .unwrap();
+///     .expect("Got an error from the Contract's pallet.");
 /// ```
 ///
 /// ## Example 2: With Return Value
@@ -205,7 +205,6 @@ where
 ///    2. a `bool` with value `true`
 ///    3. an array of 32 `u8` with value `0x10`
 ///
-/// // TODO: Check these docs tests
 /// ```should_panic
 /// # use ::ink_env::{
 /// #     Environment,
@@ -226,7 +225,7 @@ where
 ///     )
 ///     .returns::<i32>()
 ///     .fire()
-///     .unwrap();
+///     .expect("Got an error from the Contract's pallet.");
 /// ```
 ///
 /// ## Example 3: Delegate call
@@ -254,7 +253,47 @@ where
 ///     )
 ///     .returns::<i32>()
 ///     .fire()
-///     .unwrap();
+///     .expect("Got an error from the Contract's pallet.");
+/// ```
+///
+/// # Handling `LangError`s
+///
+/// It is also important to note that there are certains types of errors which can happen during
+/// cross-contract calls which can be handled know as [`LangError`][`ink_primitives::LangError`].
+///
+/// If you want to handle these errors use the [`CallBuilder::try_fire`] methods instead of the
+/// [`CallBuilder::fire`] ones.
+///
+/// **Note:** The shown examples panic because there is currently no cross-calling
+///           support in the off-chain testing environment. However, this code
+///           should work fine in on-chain environments.
+///
+/// ## Example: Handling a `LangError`
+///
+/// ```
+/// # use ::ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// #     call::{build_call, Selector, ExecutionInput}
+/// # };
+/// # use ink_env::call::Call;
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// # type Balance = <DefaultEnvironment as Environment>::Balance;
+/// let call_result = build_call::<DefaultEnvironment>()
+///     .call_type(
+///         Call::new()
+///             .callee(AccountId::from([0x42; 32]))
+///             .gas_limit(5000)
+///             .transferred_value(10),
+///     )
+///     .try_fire()
+///     .expect("Got an error from the Contract's pallet.");
+///
+/// match call_result {
+///     Ok(_) => unimplemented!(),
+///     Err(e @ ink_primitives::LangError::CouldNotReadInput) => unimplemented!(),
+///     Err(_) => unimplemented!(),
+/// }
 /// ```
 #[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
