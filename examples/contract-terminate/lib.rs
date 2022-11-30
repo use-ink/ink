@@ -90,17 +90,10 @@ pub mod just_terminates {
                 "Terminated contract never returns"
             );
 
-            let contains_event = |pallet_name: &str, variant_name: &str| {
-                call_res.events.iter().any(|event| {
-                    let event = event.unwrap();
-                    event.pallet_name() == pallet_name && event.variant_name() == variant_name
-                })
-            };
-
             // then
-            assert!(contains_event("System", "KilledAccount"));
-            assert!(contains_event("Balances", "Withdraw"));
-            assert!(contains_event("Contracts", "Terminated"));
+            assert!(call_res.contains_event("System", "KilledAccount"));
+            assert!(call_res.contains_event("Balances", "Withdraw"));
+            assert!(call_res.contains_event("Contracts", "Terminated"));
 
             Ok(())
         }

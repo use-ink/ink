@@ -172,6 +172,14 @@ where
             )
         })
     }
+
+    /// Returns true if the specified event was triggered by the call.
+    pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
+        self.events.iter().any(|event| {
+            let event = event.unwrap();
+            event.pallet_name() == pallet_name && event.variant_name() == variant_name
+        })
+    }
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
