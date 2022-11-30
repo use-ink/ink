@@ -35,7 +35,6 @@ use super::{
     ContractExecResult,
     ContractInstantiateResult,
     ContractsApi,
-    InkMessage,
     Signer,
 };
 use contract_metadata::ContractMetadata;
@@ -61,27 +60,6 @@ use subxt::{
     },
     tx::ExtrinsicParams,
 };
-
-/// An encoded `#[ink(message)]`.
-#[derive(Clone)]
-pub struct EncodedMessage(Vec<u8>);
-
-impl EncodedMessage {
-    fn new<M: InkMessage>(call: &M) -> Self {
-        let mut call_data = M::SELECTOR.to_vec();
-        <M as scale::Encode>::encode_to(call, &mut call_data);
-        Self(call_data)
-    }
-}
-
-impl<M> From<M> for EncodedMessage
-where
-    M: InkMessage,
-{
-    fn from(msg: M) -> Self {
-        EncodedMessage::new(&msg)
-    }
-}
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<C: subxt::Config, E: Environment> {
