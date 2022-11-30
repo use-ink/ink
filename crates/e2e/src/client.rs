@@ -148,11 +148,30 @@ pub struct CallResult<C: subxt::Config, E: Environment, V> {
     pub dry_run: ContractExecResult<E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
-    /// Contains the return value of the called function.
+    /// Contains the result of decoding the return value of the called
+    /// function.
+    pub value: Result<V, scale::Error>,
+    /// Returns the bytes of the encoded dry-run return value.
+    pub data: Vec<u8>,
+}
+
+impl<C, E, V> CallResult<C, E, V>
+where
+    C: subxt::Config,
+    E: Environment,
+{
+    /// Returns the decoded return value of the message from the dry-run.
     ///
-    /// This field contains the decoded `data` from the dry-run,
-    /// the raw data is available under `dry_run.result.data`.
-    pub value: V,
+    /// Panics if the value could not be decoded. The raw bytes can be accessed
+    /// via [`return_data`].
+    pub fn return_value(self) -> V {
+        self.value.unwrap_or_else(|err| {
+            panic!(
+                "decoding dry run result to ink! message return type failed: {}",
+                err
+            )
+        })
+    }
 }
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
@@ -669,16 +688,11 @@ where
         }
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: RetType =
-            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-                panic!(
-                    "decoding dry run result to ink! message return type failed: {}",
-                    err
-                )
-            });
+        let value: Result<RetType, scale::Error> = scale::Decode::decode(&mut bytes.as_ref());
 
         Ok(CallResult {
             value,
+            data: bytes.clone(),
             dry_run,
             events: tx_events,
         })

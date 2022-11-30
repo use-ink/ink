@@ -81,12 +81,12 @@ pub mod just_terminates {
                 ink_e2e::build_message::<JustTerminateRef>(contract_acc_id)
                     .call(|contract| contract.terminate_me());
             let call_res = client
-                .call_raw(&mut ink_e2e::alice(), terminate_me, 0, None)
+                .call(&mut ink_e2e::alice(), terminate_me, 0, None)
                 .await
                 .expect("terminate_me messages failed");
 
             assert!(
-                call_res.value.is_empty(),
+                call_res.data.is_empty(),
                 "Terminated contract never returns"
             );
 
