@@ -583,9 +583,7 @@ mod erc20 {
         }
 
         #[ink_e2e::test]
-        async fn e2e_allowances(
-            mut client: ink_e2e::Client<C, E>,
-        ) -> E2EResult<()> {
+        async fn e2e_allowances(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
@@ -601,17 +599,25 @@ mod erc20 {
             let charlie_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Charlie);
 
             let amount = 500_000_000u128;
-            let transfer_from = build_message::<Erc20Ref>(contract_acc_id.clone())
-                .call(|erc20| erc20.transfer_from(bob_account.clone(), charlie_account.clone(), amount));
-
+            let transfer_from =
+                build_message::<Erc20Ref>(contract_acc_id.clone()).call(|erc20| {
+                    erc20.transfer_from(
+                        bob_account.clone(),
+                        charlie_account.clone(),
+                        amount,
+                    )
+                });
             let transfer_from_result = client
-                .call(&ink_e2e::bob(), transfer_from, 0, None)
+                .call(&ink_e2e::charlie(), transfer_from, 0, None)
                 .await;
 
-            assert!(transfer_from_result.is_err(), "unapproved transfer_from should fail");
+            assert!(
+                transfer_from_result.is_err(),
+                "unapproved transfer_from should fail"
+            );
 
             // Bob approves Charlie to transfer up to amount on his behalf
-            let approved_value = 1000u128;
+            let approved_value = 1_000u128;
             let approve_call = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.approve(charlie_account.clone(), approved_value));
             client
@@ -619,8 +625,22 @@ mod erc20 {
                 .await
                 .expect("approve failed");
 
-            // todo: transfer approved_value from bob to charlie succeeds
-            // todo: check updated balance
+            // `transfer_from` the approved amount
+            let transfer_from =
+                build_message::<Erc20Ref>(contract_acc_id.clone()).call(|erc20| {
+                    erc20.transfer_from(
+                        bob_account.clone(),
+                        charlie_account.clone(),
+                        approved_value,
+                    )
+                });
+            let transfer_from_result = client
+                .call(&ink_e2e::charlie(), transfer_from, 0, None)
+                .await;
+            assert!(
+                transfer_from_result.is_ok(),
+                "approved transfer_from should succeed"
+            );
 
             let balance_of = build_message::<Erc20Ref>(contract_acc_id.clone())
                 .call(|erc20| erc20.balance_of(bob_account));
@@ -629,15 +649,24 @@ mod erc20 {
                 .await
                 .expect("balance_of failed");
 
-            // todo: try transfer_from again, exceed allowance and fail
+            // `transfer_from` again, this time exceeding the approved amount
+            let transfer_from =
+                build_message::<Erc20Ref>(contract_acc_id.clone()).call(|erc20| {
+                    erc20.transfer_from(bob_account.clone(), charlie_account.clone(), 1)
+                });
+            let transfer_from_result = client
+                .call(&ink_e2e::charlie(), transfer_from, 0, None)
+                .await;
+            assert!(
+                transfer_from_result.is_err(),
+                "transfer_from exceeding the approved amount should fail"
+            );
 
-            // then
-            // assert_eq!(
-            //     total_supply,
-            //     total_supply_res.value.unwrap(),
-            //     "total_supply"
-            // );
-            // assert_eq!(amount, balance_of_res.value.unwrap(), "balance_of");
+            assert_eq!(
+                total_supply - approved_value,
+                balance_of_res.value.unwrap(),
+                "balance_of"
+            );
 
             Ok(())
         }
