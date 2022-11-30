@@ -194,7 +194,7 @@ pub mod give_me {
             let contract_acc_id = client
                 .instantiate(
                     "contract_transfer",
-                    &mut ink_e2e::alice(),
+                    &ink_e2e::alice(),
                     constructor,
                     1000,
                     None,
@@ -207,7 +207,7 @@ pub mod give_me {
             let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
                 .call(|contract| contract.give_me(120));
 
-            let call_res = client.call(&mut ink_e2e::bob(), transfer, 10, None).await;
+            let call_res = client.call(&ink_e2e::bob(), transfer, 10, None).await;
 
             // then
             assert!(call_res.is_err());
@@ -231,7 +231,7 @@ pub mod give_me {
             let contract_acc_id = client
                 .instantiate(
                     "contract_transfer",
-                    &mut ink_e2e::bob(),
+                    &ink_e2e::bob(),
                     constructor,
                     1337,
                     None,
@@ -249,7 +249,7 @@ pub mod give_me {
                 .call(|contract| contract.give_me(120));
 
             let call_res = client
-                .call(&mut ink_e2e::eve(), transfer, 0, None)
+                .call(&ink_e2e::eve(), transfer, 0, None)
                 .await
                 .expect("call failed");
 

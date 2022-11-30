@@ -93,27 +93,6 @@ pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
 /// cryptography.
 pub type Signer<C> = PairSigner<C, sr25519::Pair>;
 
-/// Trait for contract constructors.
-// TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
-pub trait InkConstructor: scale::Encode {
-    /// Return type of the constructor.
-    type ReturnType;
-    /// An ink! selector consists of four bytes.
-    const SELECTOR: [u8; 4];
-    /// Path to the contract bundle.
-    const CONTRACT_PATH: &'static str;
-}
-
-/// Trait for contract messages.
-pub trait InkMessage: scale::Encode {
-    /// Return type of the message.
-    type ReturnType;
-    /// An ink! selector consists of four bytes.
-    const SELECTOR: [u8; 4];
-    /// Path to the contract bundle.
-    const CONTRACT_PATH: &'static str;
-}
-
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
 
