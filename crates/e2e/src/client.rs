@@ -13,6 +13,11 @@
 // limitations under the License.
 
 use super::{
+    builders::{
+        constructor_exec_input,
+        CreateBuilderPartial,
+        Message,
+    },
     client::api::runtime_types::{
         frame_system::AccountInfo,
         pallet_balances::AccountData,
@@ -30,15 +35,20 @@ use super::{
     ContractExecResult,
     ContractInstantiateResult,
     ContractsApi,
-    InkConstructor,
     InkMessage,
     Signer,
 };
+use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
+};
+use std::{
+    collections::BTreeMap,
+    fmt::Debug,
+    path::Path,
 };
 use subxt::{
     blocks::ExtrinsicEvents,
@@ -76,7 +86,7 @@ where
 /// Result of a contract instantiation.
 pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     /// The account id at which the contract was instantiated.
-    pub account_id: C::AccountId,
+    pub account_id: E::AccountId,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
@@ -87,21 +97,22 @@ pub struct InstantiationResult<C: subxt::Config, E: Environment> {
 /// Result of a contract upload.
 pub struct UploadResult<C: subxt::Config, E: Environment> {
     /// The hash with which the contract can be instantiated.
-    pub code_hash: C::Hash,
+    pub code_hash: E::Hash,
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: CodeUploadResult<C::Hash, E::Balance>,
+    pub dry_run: CodeUploadResult<E::Hash, E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
 }
 
 /// We implement a custom `Debug` here, to avoid requiring the trait
 /// bound `Debug` for `E`.
-impl<C, E> core::fmt::Debug for UploadResult<C, E>
+impl<C, E> Debug for UploadResult<C, E>
 where
     C: subxt::Config,
     E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    <E as Environment>::Balance: Debug,
+    <E as Environment>::Hash: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("UploadResult")
@@ -118,7 +129,8 @@ impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
     E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    <E as Environment>::AccountId: Debug,
+    <E as Environment>::Balance: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
@@ -172,12 +184,14 @@ where
     E: Environment,
     <E as Environment>::Balance: core::fmt::Debug,
 {
+    /// No contract with the given name found in scope.
+    ContractNotFound(String),
     /// The `instantiate_with_code` dry run failed.
     InstantiateDryRun(ContractInstantiateResult<C::AccountId, E::Balance>),
     /// The `instantiate_with_code` extrinsic failed.
     InstantiateExtrinsic(subxt::error::DispatchError),
     /// The `upload` dry run failed.
-    UploadDryRun(CodeUploadResult<C::Hash, E::Balance>),
+    UploadDryRun(CodeUploadResult<E::Hash, E::Balance>),
     /// The `upload` extrinsic failed.
     UploadExtrinsic(subxt::error::DispatchError),
     /// The `call` dry run failed.
@@ -197,6 +211,9 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match &self {
+            Error::ContractNotFound(name) => {
+                f.write_str(&format!("ContractNotFound: {}", name))
+            }
             Error::InstantiateDryRun(res) => {
                 f.write_str(&format!(
                     "InstantiateDryRun: {}",
@@ -214,16 +231,16 @@ where
 
 /// A contract was successfully instantiated.
 #[derive(Debug, scale::Decode, scale::Encode)]
-struct ContractInstantiatedEvent<C: subxt::Config> {
+struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
-    pub deployer: C::AccountId,
+    pub deployer: E::AccountId,
     /// Account id where the contract was instantiated to.
-    pub contract: C::AccountId,
+    pub contract: E::AccountId,
 }
 
-impl<C> subxt::events::StaticEvent for ContractInstantiatedEvent<C>
+impl<E> subxt::events::StaticEvent for ContractInstantiatedEvent<E>
 where
-    C: subxt::Config,
+    E: Environment,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "Instantiated";
@@ -231,14 +248,14 @@ where
 
 /// Code with the specified hash has been stored.
 #[derive(Debug, scale::Decode, scale::Encode)]
-struct CodeStoredEvent<C: subxt::Config> {
+struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
-    pub code_hash: C::Hash,
+    pub code_hash: E::Hash,
 }
 
-impl<C> subxt::events::StaticEvent for CodeStoredEvent<C>
+impl<E> subxt::events::StaticEvent for CodeStoredEvent<E>
 where
-    C: subxt::Config,
+    E: Environment,
 {
     const PALLET: &'static str = "Contracts";
     const EVENT: &'static str = "CodeStored";
@@ -254,6 +271,7 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
+    contracts: BTreeMap<String, ContractMetadata>,
 }
 
 impl<C, E> Client<C, E>
@@ -269,13 +287,15 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: core::fmt::Debug + scale::Encode + serde::Serialize,
+    E::AccountId: Debug,
+    E::Balance: Debug + scale::Encode + serde::Serialize,
+    E::Hash: Debug + scale::Encode,
 
-    Call<C, E::Balance>: scale::Encode,
+    Call<E, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
-    pub async fn new(url: &str) -> Self {
+    pub async fn new(url: &str, contracts: impl IntoIterator<Item = &str>) -> Self {
         let client = subxt::OnlineClient::from_url(url)
             .await
             .unwrap_or_else(|err| {
@@ -289,9 +309,24 @@ where
                 );
                 panic!("Unable to create client: {:?}", err);
             });
+        let contracts = contracts
+            .into_iter()
+            .map(|path| {
+                let path = Path::new(path);
+                let contract = ContractMetadata::load(&path).unwrap_or_else(|err| {
+                    panic!(
+                        "Error loading contract metadata {}: {:?}",
+                        path.display(),
+                        err
+                    )
+                });
+                (contract.contract.name.clone(), contract)
+            })
+            .collect();
 
         Self {
             api: ContractsApi::new(client, url).await,
+            contracts,
         }
     }
 
@@ -303,69 +338,75 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<CO>(
+    pub async fn instantiate<Args, R>(
         &mut self,
+        contract_name: &str,
         signer: &mut Signer<C>,
-        constructor: CO,
+        constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
-        CO: InkConstructor,
+        Args: scale::Encode,
     {
-        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
+        let contract_metadata = self
+            .contracts
+            .get(contract_name)
+            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
+        let code = crate::utils::extract_wasm(contract_metadata);
         let ret = self
-            .exec_instantiate(signer, value, storage_deposit_limit, code, &constructor)
+            .exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<CO: InkConstructor>(
+    pub async fn instantiate_dry_run<Args, R>(
         &mut self,
+        contract_name: &str,
         signer: &Signer<C>,
-        constructor: &CO,
+        constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
     where
-        CO: InkConstructor,
+        Args: scale::Encode,
     {
-        let mut data = CO::SELECTOR.to_vec();
-        <CO as scale::Encode>::encode_to(constructor, &mut data);
+        let contract_metadata = self
+            .contracts
+            .get(contract_name)
+            .unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
+        let code = crate::utils::extract_wasm(contract_metadata);
+        let data = constructor_exec_input(constructor);
 
-        let code = crate::utils::extract_wasm(CO::CONTRACT_PATH);
         let salt = Self::salt();
         self.api
             .instantiate_with_code_dry_run(
                 value,
                 storage_deposit_limit,
-                code.clone(),
-                data.clone(),
-                salt.clone(),
+                code,
+                data,
+                salt,
                 signer,
             )
             .await
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<CO: InkConstructor>(
+    async fn exec_instantiate<Args, R>(
         &mut self,
         signer: &mut Signer<C>,
+        code: Vec<u8>,
+        constructor: CreateBuilderPartial<E, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-        code: Vec<u8>,
-        constructor: &CO,
-    ) -> Result<InstantiationResult<C, E>, Error<C, E>> {
-        let mut data = CO::SELECTOR.to_vec();
-        log_info(&format!(
-            "instantiating with selector: {:02X?}",
-            CO::SELECTOR
-        ));
-        <CO as scale::Encode>::encode_to(constructor, &mut data);
-
+    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
+    where
+        Args: scale::Encode,
+    {
         let salt = Self::salt();
+        let data = constructor_exec_input(constructor.into());
 
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
@@ -408,7 +449,7 @@ where
             });
 
             if let Some(instantiated) = evt
-                .as_event::<ContractInstantiatedEvent<C>>()
+                .as_event::<ContractInstantiatedEvent<E>>()
                 .unwrap_or_else(|err| {
                     panic!("event conversion to `Instantiated` failed: {:?}", err);
                 })
@@ -462,8 +503,7 @@ where
             .to_vec()
     }
 
-    /// This function extracts the metadata of the contract at the file path
-    /// `target/ink/$contract_name.contract`.
+    /// This function extracts the Wasm of the contract for the specified contract.
     ///
     /// The function subsequently uploads and instantiates an instance of the contract.
     ///
@@ -472,11 +512,15 @@ where
     /// instance is reused!
     pub async fn upload(
         &mut self,
+        contract_name: &str,
         signer: &mut Signer<C>,
-        contract_path: &str,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
-        let code = crate::utils::extract_wasm(contract_path);
+        let contract_metadata = self
+            .contracts
+            .get(contract_name)
+            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
+        let code = crate::utils::extract_wasm(contract_metadata);
         let ret = self
             .exec_upload(signer, code, storage_deposit_limit)
             .await?;
@@ -484,8 +528,8 @@ where
         Ok(ret)
     }
 
-    /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_upload(
+    /// Executes an `upload` call and captures the resulting events.
+    pub async fn exec_upload(
         &mut self,
         signer: &mut Signer<C>,
         code: Vec<u8>,
@@ -510,7 +554,7 @@ where
             });
 
             if let Some(uploaded) =
-                evt.as_event::<CodeStoredEvent<C>>().unwrap_or_else(|err| {
+                evt.as_event::<CodeStoredEvent<E>>().unwrap_or_else(|err| {
                     panic!("event conversion to `Uploaded` failed: {:?}", err);
                 })
             {
@@ -565,74 +609,21 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn call<M>(
+    pub async fn call<RetType>(
         &mut self,
         signer: &mut Signer<C>,
-        account_id: C::AccountId,
-        contract_call: M,
+        message: Message<E, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<C, E, <M as InkMessage>::ReturnType>, Error<C, E>>
+    ) -> Result<CallResult<C, E, RetType>, Error<C, E>>
     where
-        M: InkMessage,
-        <M as InkMessage>::ReturnType: scale::Decode,
+        RetType: scale::Decode,
     {
-        let call_result = self
-            .call_raw(
-                signer,
-                account_id,
-                contract_call,
-                value,
-                storage_deposit_limit,
-            )
-            .await?;
-        let value: <M as InkMessage>::ReturnType = scale::Decode::decode(
-            &mut call_result.value.as_ref(),
-        )
-        .unwrap_or_else(|err| {
-            panic!(
-                "decoding dry run result to ink! message return type failed: {}",
-                err
-            )
-        });
-
-        Ok(CallResult {
-            value,
-            dry_run: call_result.dry_run,
-            events: call_result.events,
-        })
-    }
-
-    /// Executes a `call` for the contract at `account_id`.
-    ///
-    /// Returns when the transaction is included in a block. The return value
-    /// contains all events that are associated with this transaction.
-    ///
-    /// The raw bytes of the
-    pub async fn call_raw<M>(
-        &mut self,
-        signer: &mut Signer<C>,
-        account_id: C::AccountId,
-        contract_call: M,
-        value: E::Balance,
-        storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<CallResult<C, E, Vec<u8>>, Error<C, E>>
-    where
-        M: InkMessage,
-        <M as InkMessage>::ReturnType: scale::Decode,
-    {
-        let contract_call: EncodedMessage = contract_call.into();
-        log_info(&format!("call: {:02X?}", contract_call.0));
+        log_info(&format!("call: {:02X?}", message.exec_input()));
 
         let dry_run = self
             .api
-            .call_dry_run(
-                signer.account_id().clone(),
-                account_id.clone(),
-                value,
-                None,
-                contract_call.0.clone(),
-            )
+            .call_dry_run(signer.account_id().clone(), &message, value, None)
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
         log_info(&format!(
@@ -646,11 +637,11 @@ where
         let tx_events = self
             .api
             .call(
-                sp_runtime::MultiAddress::Id(account_id),
+                sp_runtime::MultiAddress::Id(message.account_id().clone()),
                 value,
                 dry_run.gas_required,
                 storage_deposit_limit,
-                contract_call.0.clone(),
+                message.exec_input().to_vec(),
                 signer,
             )
             .await;
@@ -677,10 +668,17 @@ where
             }
         }
 
-        let bytes = dry_run.result.as_ref().unwrap().data.clone();
+        let bytes = &dry_run.result.as_ref().unwrap().data;
+        let value: RetType =
+            scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
+                panic!(
+                    "decoding dry run result to ink! message return type failed: {}",
+                    err
+                )
+            });
 
         Ok(CallResult {
-            value: bytes,
+            value,
             dry_run,
             events: tx_events,
         })
@@ -689,7 +687,7 @@ where
     /// Returns the balance of `account_id`.
     pub async fn balance(
         &self,
-        account_id: C::AccountId,
+        account_id: E::AccountId,
     ) -> Result<E::Balance, Error<C, E>> {
         let account_addr = subxt::storage::StaticStorageAddress::<
             DecodeStaticType<AccountInfo<C::Index, AccountData<E::Balance>>>,

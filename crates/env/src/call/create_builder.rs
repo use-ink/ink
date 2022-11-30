@@ -76,25 +76,25 @@ where
 {
     /// The code hash of the contract.
     #[inline]
-    pub(crate) fn code_hash(&self) -> &E::Hash {
+    pub fn code_hash(&self) -> &E::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
     #[inline]
-    pub(crate) fn gas_limit(&self) -> u64 {
+    pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
     #[inline]
-    pub(crate) fn endowment(&self) -> &E::Balance {
+    pub fn endowment(&self) -> &E::Balance {
         &self.endowment
     }
 
     /// The raw encoded input data.
     #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
 }
@@ -106,7 +106,7 @@ where
 {
     /// The salt for determining the hash for the contract account ID.
     #[inline]
-    pub(crate) fn salt_bytes(&self) -> &Salt {
+    pub fn salt_bytes(&self) -> &Salt {
         &self.salt_bytes
     }
 }

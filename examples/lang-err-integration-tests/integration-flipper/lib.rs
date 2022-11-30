@@ -50,41 +50,41 @@ pub mod integration_flipper {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
+        use super::FlipperRef;
+        use ink_e2e::build_message;
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
         async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = integration_flipper::constructors::default();
+            let constructor = FlipperRef::default();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate(
+                    "integration_flipper",
+                    &mut ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
                 .await
                 .expect("Instantiate `integration_flipper` failed")
                 .account_id;
 
+            let get = build_message::<FlipperRef>(contract_acc_id.clone())
+                .call(|contract| contract.get());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), get, 0, None)
                 .await
                 .expect("Calling `get` failed");
             let initial_value = get_call_result
                 .value
                 .expect("Input is valid, call must not fail.");
 
+            let flip = build_message::<FlipperRef>(contract_acc_id)
+                .call(|contract| contract.flip());
             let flip_call_result = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    integration_flipper::messages::flip(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), flip, 0, None)
                 .await
                 .expect("Calling `flip` failed");
             assert!(
@@ -92,14 +92,10 @@ pub mod integration_flipper {
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
+            let get = build_message::<FlipperRef>(contract_acc_id.clone())
+                .call(|contract| contract.get());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::alice(),
-                    contract_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::alice(), get, 0, None)
                 .await
                 .expect("Calling `get` failed");
             let flipped_value = get_call_result
@@ -114,50 +110,43 @@ pub mod integration_flipper {
         async fn e2e_message_error_reverts_state(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = integration_flipper::constructors::default();
+            let constructor = FlipperRef::default();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
+                .instantiate(
+                    "integration_flipper",
+                    &mut ink_e2e::bob(),
+                    constructor,
+                    0,
+                    None,
+                )
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
+            let get = build_message::<FlipperRef>(contract_acc_id.clone())
+                .call(|contract| contract.get());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    contract_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("Calling `get` failed");
             let initial_value = get_call_result
                 .value
                 .expect("Input is valid, call must not fail.");
 
-            let err_flip_call_result = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    contract_acc_id.clone(),
-                    integration_flipper::messages::err_flip(),
-                    0,
-                    None,
-                )
-                .await;
+            let err_flip = build_message::<FlipperRef>(contract_acc_id)
+                .call(|contract| contract.err_flip());
+            let err_flip_call_result =
+                client.call(&mut ink_e2e::bob(), err_flip, 0, None).await;
 
             assert!(matches!(
                 err_flip_call_result,
                 Err(ink_e2e::Error::CallExtrinsic(_))
             ));
 
+            let get = build_message::<FlipperRef>(contract_acc_id.clone())
+                .call(|contract| contract.get());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::bob(),
-                    contract_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
+                .call(&mut ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("Calling `get` failed");
             let flipped_value = get_call_result
