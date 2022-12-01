@@ -45,13 +45,6 @@ use subxt::{
     OnlineClient,
 };
 
-// TODO(#1422) Should be fetched automatically.
-#[subxt::subxt(
-    crate = "crate::subxt",
-    runtime_metadata_path = "metadata/contracts-node.scale"
-)]
-pub(super) mod api {}
-
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct InstantiateWithCode<B> {
