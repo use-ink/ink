@@ -196,6 +196,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         keep_debug_symbols: false,
         lint: false,
         output_type: Default::default(),
+        skip_wasm_validation: false,
     };
 
     match contract_build::execute(args) {
