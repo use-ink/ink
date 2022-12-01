@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::ir;
+use contract_build::OptimizationPasses;
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -180,6 +181,10 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         BuildMode,
         ExecuteArgs,
         ManifestPath,
+        Network,
+        OptimizationPasses,
+        OutputType,
+        UnstableFlags,
         Verbosity,
     };
 
@@ -190,13 +195,13 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         manifest_path,
         verbosity: Verbosity::Default,
         build_mode: BuildMode::Debug,
-        network: Default::default(),
+        network: Network::Online,
         build_artifact: BuildArtifacts::All,
-        unstable_flags: Default::default(),
-        optimization_passes: Default::default(),
+        unstable_flags: UnstableFlags::default(),
+        optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,
         lint: false,
-        output_type: Default::default(),
+        output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
     };
 
