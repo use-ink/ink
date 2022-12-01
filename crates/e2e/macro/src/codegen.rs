@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use crate::ir;
-use contract_build::OptimizationPasses;
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
