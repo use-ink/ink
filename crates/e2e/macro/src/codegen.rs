@@ -183,8 +183,9 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         Verbosity,
     };
 
-    let manifest_path =
-        ManifestPath::new(path_to_cargo_toml).expect("Invalid manifest path");
+    let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
+        panic!("Invalid manifest path {}: {}", path_to_cargo_toml, err)
+    });
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
