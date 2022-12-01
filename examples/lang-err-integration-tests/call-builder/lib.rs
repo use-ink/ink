@@ -327,5 +327,53 @@ mod call_builder {
 
             Ok(())
         }
+
+        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        async fn e2e_create_builder_can_handle_contract_defined_constructor_error(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::ferdie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let code_hash = client
+                .upload(
+                    &mut ink_e2e::ferdie(),
+                    constructors_return_value::CONTRACT_PATH,
+                    None,
+                )
+                .await
+                .expect("upload `constructors_return_value` failed")
+                .code_hash;
+
+            let selector = ink::selector_bytes!("try_new");
+            let call_result = dbg!(
+                client
+                    .call(
+                        &mut ink_e2e::ferdie(),
+                        contract_acc_id.clone(),
+                        call_builder::messages::call_instantiate(
+                            ink_e2e::utils::runtime_hash_to_ink_hash::<
+                                ink::env::DefaultEnvironment,
+                            >(&code_hash),
+                            selector,
+                            false,
+                        ),
+                        0,
+                        None,
+                    )
+                    .await
+            )
+            .expect("Calling `call_builder::call_instantiate` failed")
+            .value
+            .expect("Dispatching `call_builder::call_instantiate` failed.");
+
+            assert!(call_result.is_none(), "TODO");
+
+            Ok(())
+        }
     }
 }
