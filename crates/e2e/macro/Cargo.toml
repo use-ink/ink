@@ -21,8 +21,7 @@ proc-macro = true
 
 [dependencies]
 ink_ir = { version = "4.0.0-beta", path = "../../ink/ir" }
-# todo: switch to crates.io package once released
-contract-build = { version = "2.0.0-beta", git = "https://github.com/paritytech/cargo-contract", package = "contract-build" }
+contract-build = "2.0.0-beta"
 derive_more = "0.99.17"
 env_logger = "0.10.0"
 log = "0.4.17"
