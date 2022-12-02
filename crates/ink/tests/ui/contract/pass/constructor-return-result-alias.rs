@@ -22,14 +22,17 @@ mod contract {
     }
 }
 
-use ink::metadata::InkProject;
+use ink::metadata::{
+    EventSpec,
+    InkProject,
+};
 
 fn generate_metadata() -> InkProject {
     extern "Rust" {
-        fn __ink_generate_metadata() -> InkProject;
+        fn __ink_generate_metadata(events: Vec<EventSpec>) -> InkProject;
     }
 
-    unsafe { __ink_generate_metadata() }
+    unsafe { __ink_generate_metadata(vec![]) }
 }
 
 fn main() {
