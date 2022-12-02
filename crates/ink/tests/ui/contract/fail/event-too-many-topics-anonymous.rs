@@ -21,22 +21,25 @@ mod contract {
     #[ink(storage)]
     pub struct Contract {}
 
-    #[ink(event, anonymous)]
-    pub struct Event {
-        #[ink(topic)]
-        arg_1: i8,
-        #[ink(topic)]
-        arg_2: i16,
-        #[ink(topic)]
-        arg_3: i32,
-        #[ink(topic)]
-        arg_4: i32,
+    #[ink::event_definition]
+    pub enum Event {
+        #[ink(anonymous)]
+        Event {
+            #[ink(topic)]
+            arg_1: i8,
+            #[ink(topic)]
+            arg_2: i16,
+            #[ink(topic)]
+            arg_3: i32,
+            #[ink(topic)]
+            arg_4: i32,
+        }
     }
 
     impl Contract {
         #[ink(constructor)]
         pub fn constructor() -> Self {
-            Self::env().emit_event(Event {
+            Self::env().emit_event(Event::Event {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
@@ -47,7 +50,7 @@ mod contract {
 
         #[ink(message)]
         pub fn message(&self) {
-            self.env().emit_event(Event {
+            self.env().emit_event(Event::Event {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
