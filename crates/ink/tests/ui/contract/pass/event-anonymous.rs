@@ -3,77 +3,75 @@ mod contract {
     #[ink(storage)]
     pub struct Contract {}
 
-    #[ink(event, anonymous)]
-    pub struct Event0 {}
-
-    #[ink(event, anonymous)]
-    pub struct Event1 {
-        #[ink(topic)]
-        arg_1: i8,
-    }
-
-    #[ink(event, anonymous)]
-    pub struct Event2 {
-        #[ink(topic)]
-        arg_1: i8,
-        #[ink(topic)]
-        arg_2: i16,
-    }
-
-    #[ink(event, anonymous)]
-    pub struct Event3 {
-        #[ink(topic)]
-        arg_1: i8,
-        #[ink(topic)]
-        arg_2: i16,
-        #[ink(topic)]
-        arg_3: i32,
-    }
-
-    #[ink(event, anonymous)]
-    pub struct Event4 {
-        #[ink(topic)]
-        arg_1: i8,
-        #[ink(topic)]
-        arg_2: i16,
-        #[ink(topic)]
-        arg_3: i32,
-        #[ink(topic)]
-        arg_4: i64,
-    }
-
-    #[ink(event, anonymous)]
-    pub struct Event5 {
-        #[ink(topic)]
-        arg_1: i8,
-        #[ink(topic)]
-        arg_2: i16,
-        #[ink(topic)]
-        arg_3: i32,
-        #[ink(topic)]
-        arg_4: i64,
-        // #[ink(topic)] <- Cannot have more than 4 topics by default.
-        arg_5: i128,
+    #[ink::event_definition]
+    pub enum Event {
+        #[ink(anonymous)]
+        Event0 {},
+        #[ink(anonymous)]
+        Event1 {
+            #[ink(topic)]
+            arg_1: i8,
+        },
+        #[ink(anonymous)]
+        Event2 {
+            #[ink(topic)]
+            arg_1: i8,
+            #[ink(topic)]
+            arg_2: i16,
+        },
+        #[ink(anonymous)]
+        Event3 {
+            #[ink(topic)]
+            arg_1: i8,
+            #[ink(topic)]
+            arg_2: i16,
+            #[ink(topic)]
+            arg_3: i32,
+        },
+        #[ink(anonymous)]
+        Event4 {
+            #[ink(topic)]
+            arg_1: i8,
+            #[ink(topic)]
+            arg_2: i16,
+            #[ink(topic)]
+            arg_3: i32,
+            #[ink(topic)]
+            arg_4: i64,
+        },
+        #[ink(anonymous)]
+        Event5 {
+            #[ink(topic)]
+            arg_1: i8,
+            #[ink(topic)]
+            arg_2: i16,
+            #[ink(topic)]
+            arg_3: i32,
+            #[ink(topic)]
+            arg_4: i64,
+            // #[ink(topic)] <- Cannot have more than 4 topics by default.
+            arg_5: i128,
+        }
     }
 
     impl Contract {
         #[ink(constructor)]
         pub fn constructor() -> Self {
-            Self::env().emit_event(Event0 {});
-            Self::env().emit_event(Event1 { arg_1: 1 });
-            Self::env().emit_event(Event2 { arg_1: 1, arg_2: 2 });
-            Self::env().emit_event(Event3 {
+            Self::env().emit_event(Event::Event0 {});
+            Self::env().emit_event(Event::Event1 { arg_1: 1 });
+            Self::env().emit_event(Event::Event2 { arg_1: 1, arg_2: 2 });
+            Self::env().emit_event(Event::Event3 {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
             });
-            Self::env().emit_event(Event4 {
+            Self::env().emit_event(Event::Event4 {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
                 arg_4: 4,
             });
-            Self::env().emit_event(Event5 {
+            Self::env().emit_event(Event::Event5 {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
@@ -85,21 +83,21 @@ mod contract {
 
         #[ink(message)]
         pub fn message(&self) {
-            self.env().emit_event(Event0 {});
-            self.env().emit_event(Event1 { arg_1: 1 });
-            self.env().emit_event(Event2 { arg_1: 1, arg_2: 2 });
-            self.env().emit_event(Event3 {
+            self.env().emit_event(Event::Event0 {});
+            self.env().emit_event(Event::Event1 { arg_1: 1 });
+            self.env().emit_event(Event::Event2 { arg_1: 1, arg_2: 2 });
+            self.env().emit_event(Event::Event3 {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
             });
-            self.env().emit_event(Event4 {
+            self.env().emit_event(Event::Event4 {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
                 arg_4: 4,
             });
-            self.env().emit_event(Event5 {
+            self.env().emit_event(Event::Event5 {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
