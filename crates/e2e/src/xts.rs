@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::{
+    builders::Message,
     log_info,
     sr25519,
     ContractExecResult,
@@ -65,8 +66,8 @@ pub struct InstantiateWithCode<B> {
 
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Encode, scale::Decode)]
-pub struct Call<C: subxt::Config, B> {
-    dest: sp_runtime::MultiAddress<C::AccountId, ()>,
+pub struct Call<E: Environment, B> {
+    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
     value: B,
     gas_limit: Weight,
@@ -113,7 +114,7 @@ where
 #[serde(rename_all = "camelCase")]
 struct RpcCallRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
-    dest: C::AccountId,
+    dest: E::AccountId,
     value: E::Balance,
     gas_limit: Option<Weight>,
     storage_deposit_limit: Option<E::Balance>,
@@ -153,7 +154,7 @@ where
     E: Environment,
     E::Balance: scale::Encode + serde::Serialize,
 
-    Call<C, E::Balance>: scale::Encode,
+    Call<E, E::Balance>: scale::Encode,
     InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`ContractsApi`] instance.
@@ -272,7 +273,7 @@ where
         signer: &Signer<C>,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> CodeUploadResult<C::Hash, E::Balance> {
+    ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
             origin: signer.account_id().clone(),
             code,
@@ -342,21 +343,20 @@ where
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
-    pub async fn call_dry_run(
+    pub async fn call_dry_run<RetType>(
         &self,
         origin: C::AccountId,
-        contract: C::AccountId,
+        message: &Message<E, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-        input_data: Vec<u8>,
     ) -> ContractExecResult<E::Balance> {
         let call_request = RpcCallRequest::<C, E> {
             origin,
-            dest: contract,
+            dest: message.account_id().clone(),
             value,
             gas_limit: None,
             storage_deposit_limit,
-            input_data,
+            input_data: message.exec_input().to_vec(),
         };
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
@@ -377,7 +377,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call(
         &self,
-        contract: sp_runtime::MultiAddress<C::AccountId, ()>,
+        contract: sp_runtime::MultiAddress<E::AccountId, ()>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
@@ -387,7 +387,7 @@ where
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
             "call",
-            Call::<C, E::Balance> {
+            Call::<E, E::Balance> {
                 dest: contract,
                 value,
                 gas_limit,

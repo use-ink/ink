@@ -85,6 +85,10 @@ mod call_builder {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
+        use super::CallBuilderTestRef;
+        use ink_e2e::build_message;
+        use integration_flipper::FlipperRef;
+
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(
@@ -93,51 +97,41 @@ mod call_builder {
         async fn e2e_invalid_message_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            use call_builder::contract_types::ink_primitives::{
-                types::AccountId as E2EAccountId,
-                LangError as E2ELangError,
-            };
-
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::charlie(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
-            let flipper_constructor = integration_flipper::constructors::default();
+            let flipper_constructor = FlipperRef::default();
             let flipper_acc_id = client
-                .instantiate(&mut ink_e2e::charlie(), flipper_constructor, 0, None)
+                .instantiate(
+                    "integration_flipper",
+                    &ink_e2e::charlie(),
+                    flipper_constructor,
+                    0,
+                    None,
+                )
                 .await
                 .expect("instantiate `flipper` failed")
                 .account_id;
 
+            let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
+                .call(|contract| contract.get());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    flipper_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
+                .call(&ink_e2e::charlie(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
             let initial_value = get_call_result
                 .value
                 .expect("Input is valid, call must not fail.");
 
-            let flipper_ink_acc_id =
-                ink::primitives::AccountId::try_from(flipper_acc_id.clone().as_ref())
-                    .unwrap();
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call = build_message::<CallBuilderTestRef>(contract_acc_id)
+                .call(|contract| contract.call(flipper_acc_id, invalid_selector));
             let call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call(flipper_ink_acc_id, invalid_selector),
-                    0,
-                    None,
-                )
+                .call(&ink_e2e::charlie(), call, 0, None)
                 .await
                 .expect("Calling `call_builder::call` failed");
 
@@ -147,17 +141,13 @@ mod call_builder {
 
             assert!(matches!(
                 flipper_result,
-                Some(E2ELangError::CouldNotReadInput)
+                Some(::ink::LangError::CouldNotReadInput)
             ));
 
+            let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
+                .call(|contract| contract.get());
             let get_call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    flipper_acc_id.clone(),
-                    integration_flipper::messages::get(),
-                    0,
-                    None,
-                )
+                .call(&ink_e2e::charlie(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
             let flipped_value = get_call_result
@@ -172,38 +162,26 @@ mod call_builder {
         async fn e2e_create_builder_works_with_valid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::dave(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::dave(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::dave(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let new_selector = [0x9B, 0xAE, 0x9D, 0x5E];
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate(code_hash, new_selector, true)
+                });
             let call_result = client
-                .call(
-                    &mut ink_e2e::dave(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call_instantiate(
-                        ink_e2e::utils::runtime_hash_to_ink_hash::<
-                            ink::env::DefaultEnvironment,
-                        >(&code_hash),
-                        new_selector,
-                        true,
-                    ),
-                    0,
-                    None,
-                )
+                .call(&ink_e2e::dave(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .value
@@ -221,38 +199,26 @@ mod call_builder {
         async fn e2e_create_builder_fails_with_invalid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::eve(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::eve(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::eve(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::eve(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate(code_hash, invalid_selector, true)
+                });
             let call_result = client
-                .call(
-                    &mut ink_e2e::eve(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call_instantiate(
-                        ink_e2e::utils::runtime_hash_to_ink_hash::<
-                            ink::env::DefaultEnvironment,
-                        >(&code_hash),
-                        invalid_selector,
-                        true,
-                    ),
-                    0,
-                    None,
-                )
+                .call(&ink_e2e::eve(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .value

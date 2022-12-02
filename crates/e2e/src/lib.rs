@@ -19,6 +19,7 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
+mod builders;
 mod client;
 mod default_accounts;
 #[cfg(test)]
@@ -26,6 +27,10 @@ mod tests;
 pub mod utils;
 mod xts;
 
+pub use builders::{
+    build_message,
+    MessageBuilder,
+};
 pub use client::{
     Client,
     Error,
@@ -33,8 +38,6 @@ pub use client::{
 pub use default_accounts::*;
 pub use env_logger;
 pub use ink_e2e_macro::test;
-// TODO(#1421) `smart-bench_macro` needs to be forked.
-pub use smart_bench_macro;
 pub use sp_core::H256;
 pub use sp_keyring::AccountKeyring;
 pub use subxt::{
@@ -89,27 +92,6 @@ pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
 /// The E2E testing can only be used with nodes that support `sr25519`
 /// cryptography.
 pub type Signer<C> = PairSigner<C, sr25519::Pair>;
-
-/// Trait for contract constructors.
-// TODO(#1421) Merge this with `InkMessage` to be just `InkSelector`. Requires forking `smart-bench-macro`.
-pub trait InkConstructor: scale::Encode {
-    /// Return type of the constructor.
-    type ReturnType;
-    /// An ink! selector consists of four bytes.
-    const SELECTOR: [u8; 4];
-    /// Path to the contract bundle.
-    const CONTRACT_PATH: &'static str;
-}
-
-/// Trait for contract messages.
-pub trait InkMessage: scale::Encode {
-    /// Return type of the message.
-    type ReturnType;
-    /// An ink! selector consists of four bytes.
-    const SELECTOR: [u8; 4];
-    /// Path to the contract bundle.
-    const CONTRACT_PATH: &'static str;
-}
 
 /// We use this to only initialize `env_logger` once.
 pub static INIT: Once = Once::new();
