@@ -87,6 +87,38 @@ mod call_builder {
                 }
             }
         }
+
+        #[ink(message)]
+        pub fn call_instantiate_with_result(
+            &mut self,
+            code_hash: Hash,
+            selector: [u8; 4],
+            init_value: bool,
+        ) -> Option<::ink::LangError> {
+            use ink::env::call::build_create;
+
+            let result = build_create::<DefaultEnvironment>()
+                .code_hash(code_hash)
+                .gas_limit(0)
+                .endowment(0)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(selector)).push_arg(init_value),
+                )
+                .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+                .returns::<Result<constructors_return_value::ConstructorsReturnValueRef, ()>>()
+                .params()
+                .try_instantiate()
+                .expect("Error from the Contracts pallet.");
+            ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
+
+            match result {
+                Ok(_) => None,
+                Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
+                Err(_) => {
+                    unimplemented!("No other `LangError` variants exist at the moment.")
+                }
+            }
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
