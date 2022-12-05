@@ -149,6 +149,31 @@ where
     }
 }
 
+impl<E, Args, Salt, R, ContractError>
+    CreateParams<E, Args, Salt, Result<R, ContractError>>
+where
+    E: Environment,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    R: FromAccountId<E>,
+    ContractError: scale::Decode,
+{
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    #[inline]
+    pub fn try_instantiate_with_result(
+        &self,
+    ) -> Result<
+        ::ink_primitives::ConstructorResult<Result<E::AccountId, ContractError>>,
+        crate::Error,
+    > {
+        crate::instantiate_contract_with_result(self)
+    }
+}
+
 /// Builds up contract instantiations.
 pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, RetType>
 where
@@ -388,8 +413,8 @@ where
     pub fn returns<R>(
         self,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, Set<ReturnType<R>>>
-    where
-        R: FromAccountId<E>,
+// where
+    //     R: FromAccountId<E>,
     {
         CreateBuilder {
             code_hash: self.code_hash,
@@ -469,5 +494,41 @@ where
         self,
     ) -> Result<::ink_primitives::ConstructorResult<RetType>, Error> {
         self.params().try_instantiate()
+    }
+}
+
+impl<E, GasLimit, Args, Salt, RetType, ContractError>
+    CreateBuilder<
+        E,
+        Set<E::Hash>,
+        GasLimit,
+        Set<E::Balance>,
+        Set<ExecutionInput<Args>>,
+        Set<Salt>,
+        Set<ReturnType<::core::result::Result<RetType, ContractError>>>,
+    >
+where
+    E: Environment,
+    GasLimit: Unwrap<Output = u64>,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    RetType: FromAccountId<E>,
+    ContractError: scale::Decode,
+{
+    /// Instantiates the contract using the given instantiation parameters.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    #[inline]
+    pub fn try_instantiate_with_result(
+        self,
+    ) -> Result<
+        ::ink_primitives::ConstructorResult<
+            ::core::result::Result<E::AccountId, ContractError>,
+        >,
+        Error,
+    > {
+        self.params().try_instantiate_with_result()
     }
 }

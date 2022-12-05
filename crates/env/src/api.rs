@@ -332,6 +332,27 @@ where
     })
 }
 
+/// TODO
+pub fn instantiate_contract_with_result<E, Args, Salt, R, ContractError>(
+    params: &CreateParams<E, Args, Salt, R>,
+) -> Result<
+    ::ink_primitives::ConstructorResult<
+        ::core::result::Result<E::AccountId, ContractError>,
+    >,
+>
+where
+    E: Environment,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    ContractError: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::instantiate_contract_with_result::<E, Args, Salt, R, ContractError>(
+            instance, params,
+        )
+    })
+}
+
 /// Terminates the existence of the currently executed smart contract.
 ///
 /// This removes the calling account and transfers all remaining balance

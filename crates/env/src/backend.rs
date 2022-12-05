@@ -448,6 +448,21 @@ pub trait TypedEnvBackend: EnvBackend {
         Args: scale::Encode,
         Salt: AsRef<[u8]>;
 
+    /// TODO
+    fn instantiate_contract_with_result<E, Args, Salt, R, ContractError>(
+        &mut self,
+        params: &CreateParams<E, Args, Salt, R>,
+    ) -> Result<
+        ::ink_primitives::ConstructorResult<
+            ::core::result::Result<E::AccountId, ContractError>,
+        >,
+    >
+    where
+        E: Environment,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        ContractError: scale::Decode;
+
     /// Terminates a smart contract.
     ///
     /// # Note

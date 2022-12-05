@@ -264,7 +264,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -342,7 +342,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
@@ -487,6 +487,26 @@ where
         Salt: AsRef<[u8]>,
     {
         ink_env::instantiate_contract::<E, Args, Salt, R>(params)
+    }
+
+    /// TODO
+    pub fn instantiate_contract_with_result<Args, Salt, R, ContractError>(
+        self,
+        params: &CreateParams<E, Args, Salt, R>,
+    ) -> Result<
+        ::ink_primitives::ConstructorResult<
+            ::core::result::Result<E::AccountId, ContractError>,
+        >,
+    >
+    where
+        E: Environment,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        ContractError: scale::Decode,
+    {
+        ink_env::instantiate_contract_with_result::<E, Args, Salt, R, ContractError>(
+            params,
+        )
     }
 
     /// Invokes a contract message and returns its result.
