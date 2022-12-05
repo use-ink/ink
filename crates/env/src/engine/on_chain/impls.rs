@@ -529,6 +529,103 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
+    fn instantiate_contract_with_result<E, Args, Salt, R, ContractError>(
+        &mut self,
+        params: &CreateParams<E, Args, Salt, R>,
+    ) -> Result<
+        ::ink_primitives::ConstructorResult<
+            ::core::result::Result<E::AccountId, ContractError>,
+        >,
+    >
+    where
+        E: Environment,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        ContractError: scale::Decode,
+    {
+        let mut scoped = self.scoped_buffer();
+        let gas_limit = params.gas_limit();
+        let enc_code_hash = scoped.take_encoded(params.code_hash());
+        let enc_endowment = scoped.take_encoded(params.endowment());
+        let enc_input = scoped.take_encoded(params.exec_input());
+        // We support `AccountId` types with an encoding that requires up to
+        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
+        // In the default configuration encoded `AccountId` require 32 bytes.
+        let out_address = &mut scoped.take(1024);
+        let salt = params.salt_bytes().as_ref();
+        let out_return_value = &mut scoped.take_rest();
+
+        let instantiate_result = ext::instantiate(
+            enc_code_hash,
+            gas_limit,
+            enc_endowment,
+            enc_input,
+            out_address,
+            out_return_value,
+            salt,
+        );
+
+        use scale::Decode;
+        match instantiate_result {
+            Ok(()) => {
+                let account_id: E::AccountId =
+                    scale::Decode::decode(&mut &out_address[..])?;
+                Ok(ink_primitives::ConstructorResult::Ok(Ok(account_id)))
+            }
+            Err(ext::Error::CalleeReverted) => {
+                // First, we check if dispatch even succeeded based off buffer decoding.
+                let out =
+                    <ink_primitives::ConstructorResult<()> as scale::Decode>::decode(
+                        &mut &out_return_value[..],
+                    );
+
+                match out {
+                    Ok(decoded_value) => {
+                        // We were able to decode the buffer, which means dispatch probably failed.
+                        match decoded_value {
+                            ink_primitives::ConstructorResult::Ok(()) =>
+                                unreachable!("If dispatch failed, we shouldn't have an Ok encoded into the buffer."),
+                            ink_primitives::ConstructorResult::Err(lang_err) => {
+                                Ok(ink_primitives::ConstructorResult::Err(lang_err))
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        // We were unable to decode the buffer which means dispatch probably
+                        // succeeded.
+                        //
+                        // Try decoding the buffer differently for the success dispatch case.
+                        let out = ink_primitives::ConstructorResult::<
+                            ::core::result::Result<(), ContractError>,
+                        >::decode(
+                            &mut &out_return_value[..]
+                        );
+
+                        match out {
+                            Ok(output_result) => {
+                                match output_result {
+                                    ink_primitives::ConstructorResult::Ok(contract_error) => {
+                                        // This should only be an Err(ContractError), because if we
+                                        // had succeeded we'd be going down the decoding into an
+                                        // `AccountId` branch, not the revert branch
+                                        //
+                                        // Unwrapping the error is here to satisfy the type checker
+                                        let contract_error = contract_error.unwrap_err();
+                                        Ok(ink_primitives::ConstructorResult::Ok(Err(contract_error)))
+                                    }
+                                    ink_primitives::ConstructorResult::Err(_) =>
+                                        unreachable!("We only encode the Ok case, so somebody probably manually wrote to the buffer."),
+                                }
+                            }
+                            Err(_) => unreachable!("Unable to decode this, so somebody probably manually wrote to the buffer."),
+                        }
+                    }
+                }
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
+    }
+
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
     where
         E: Environment,
