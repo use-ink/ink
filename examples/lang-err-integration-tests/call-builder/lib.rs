@@ -105,9 +105,12 @@ mod call_builder {
                     ExecutionInput::new(Selector::new(selector)).push_arg(init_value),
                 )
                 .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .returns::<Result<constructors_return_value::ConstructorsReturnValueRef, ()>>()
+                .returns::<Result<
+                    constructors_return_value::ConstructorsReturnValueRef,
+                    constructors_return_value::ConstructorError,
+                >>()
                 .params()
-                .try_instantiate()
+                .try_instantiate_with_result()
                 .expect("Error from the Contracts pallet.");
             ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
@@ -303,6 +306,7 @@ mod call_builder {
             Ok(())
         }
 
+        // TODO: Also add something similar for fallible constructors
         #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
         async fn e2e_create_builder_with_revert_constructor(
             mut client: ink_e2e::Client<C, E>,
@@ -366,14 +370,14 @@ mod call_builder {
         ) -> E2EResult<()> {
             let constructor = call_builder::constructors::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::ferdie(), constructor, 0, None)
+                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
                 .upload(
-                    &mut ink_e2e::ferdie(),
+                    &mut ink_e2e::alice(),
                     constructors_return_value::CONTRACT_PATH,
                     None,
                 )
@@ -386,7 +390,7 @@ mod call_builder {
             let call_result = dbg!(
                 client
                     .call(
-                        &mut ink_e2e::ferdie(),
+                        &mut ink_e2e::alice(),
                         contract_acc_id.clone(),
                         call_builder::messages::call_instantiate_with_result(
                             ink_e2e::utils::runtime_hash_to_ink_hash::<
@@ -415,14 +419,14 @@ mod call_builder {
         ) -> E2EResult<()> {
             let constructor = call_builder::constructors::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::ferdie(), constructor, 0, None)
+                .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
                 .upload(
-                    &mut ink_e2e::ferdie(),
+                    &mut ink_e2e::bob(),
                     constructors_return_value::CONTRACT_PATH,
                     None,
                 )
@@ -435,7 +439,7 @@ mod call_builder {
             let call_result = dbg!(
                 client
                     .call(
-                        &mut ink_e2e::ferdie(),
+                        &mut ink_e2e::bob(),
                         contract_acc_id.clone(),
                         call_builder::messages::call_instantiate_with_result(
                             ink_e2e::utils::runtime_hash_to_ink_hash::<
