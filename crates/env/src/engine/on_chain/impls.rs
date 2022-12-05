@@ -566,7 +566,6 @@ impl TypedEnvBackend for EnvInstance {
             salt,
         );
 
-        use scale::Decode;
         match instantiate_result {
             Ok(()) => {
                 let account_id: E::AccountId =
