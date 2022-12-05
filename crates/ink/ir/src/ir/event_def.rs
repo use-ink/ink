@@ -141,14 +141,16 @@ impl quote::ToTokens for InkEventDefinition {
 impl InkEventDefinition {
     /// Create an [`InkEventDefinition`] for a event defined externally to a contract.
     ///
-    /// This will be an enum annotated with the `#[ink::event_def]` attribute.
+    /// This will be an enum annotated with the `#[ink::event_definition]` attribute.
     pub fn from_event_def_tokens(
         config: TokenStream2,
         input: TokenStream2,
     ) -> Result<Self> {
-        let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
-        let item = syn::parse2::<syn::ItemEnum>(input)?;
-        // let item = InkItemTrait::new(&config, parsed_item)?;
+        let attr_span = config.span();
+        // todo: remove this, or do we need config attrs?
+        // let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
+        let item = syn::parse2::<syn::ItemEnum>(input)
+            .map_err(|err| err.into_combine(format_err!(attr_span, "ink! event definitions must be enums")))?;
         Self::try_from(item)
     }
 

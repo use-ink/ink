@@ -1,0 +1,13 @@
+error: expected `enum`
+ --> tests/ui/contract/fail/event-struct.rs:2:5
+  |
+2 | pub struct Event {}
+  |     ^^^^^^
+
+error: ink! event definitions must be enums
+ --> tests/ui/contract/fail/event-struct.rs:1:1
+  |
+1 | #[ink::event_definition]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `ink::event_definition` (in Nightly builds, run with -Z macro-backtrace for more info)
