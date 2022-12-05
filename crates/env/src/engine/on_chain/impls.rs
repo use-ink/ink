@@ -522,6 +522,7 @@ impl TypedEnvBackend for EnvInstance {
                 let out = ink_primitives::ConstructorResult::<E::AccountId>::decode(
                     &mut &out_return_value[..],
                 )?;
+                // TODO: Remove this
                 assert!(out.is_err(), "The callee reverted, but did not encode an error in the output buffer.");
                 Ok(out)
             }
@@ -573,52 +574,38 @@ impl TypedEnvBackend for EnvInstance {
                 Ok(ink_primitives::ConstructorResult::Ok(Ok(account_id)))
             }
             Err(ext::Error::CalleeReverted) => {
-                // First, we check if dispatch even succeeded based off buffer decoding.
                 let out =
                     <ink_primitives::ConstructorResult<()> as scale::Decode>::decode(
                         &mut &out_return_value[..],
-                    );
+                    )
+                    .expect("Failed to decode into `ConstructorResult<()>`");
 
                 match out {
-                    Ok(decoded_value) => {
-                        // We were able to decode the buffer, which means dispatch probably failed.
-                        match decoded_value {
-                            ink_primitives::ConstructorResult::Ok(()) =>
-                                unreachable!("If dispatch failed, we shouldn't have an Ok encoded into the buffer."),
-                            ink_primitives::ConstructorResult::Err(lang_err) => {
-                                Ok(ink_primitives::ConstructorResult::Err(lang_err))
-                            }
-                        }
-                    }
-                    Err(_) => {
-                        // We were unable to decode the buffer which means dispatch probably
-                        // succeeded.
-                        //
-                        // Try decoding the buffer differently for the success dispatch case.
-                        let out = ink_primitives::ConstructorResult::<
-                            ::core::result::Result<(), ContractError>,
-                        >::decode(
+                    ink_primitives::ConstructorResult::Ok(()) => {
+                        let out = <ink_primitives::ConstructorResult<
+                            core::result::Result<(), ContractError>,
+                        > as scale::Decode>::decode(
                             &mut &out_return_value[..]
-                        );
+                        )
+                        .expect("Failed to decode into a `ContractError`");
 
                         match out {
-                            Ok(output_result) => {
-                                match output_result {
-                                    ink_primitives::ConstructorResult::Ok(contract_error) => {
-                                        // This should only be an Err(ContractError), because if we
-                                        // had succeeded we'd be going down the decoding into an
-                                        // `AccountId` branch, not the revert branch
-                                        //
-                                        // Unwrapping the error is here to satisfy the type checker
-                                        let contract_error = contract_error.unwrap_err();
-                                        Ok(ink_primitives::ConstructorResult::Ok(Err(contract_error)))
-                                    }
-                                    ink_primitives::ConstructorResult::Err(_) =>
-                                        unreachable!("We only encode the Ok case, so somebody probably manually wrote to the buffer."),
-                                }
+                            ink_primitives::ConstructorResult::Ok(contract_error) => {
+                                // This should only be an Err(ContractError), because if the call
+                                // to the constructor had succeeded we've be doing down the
+                                // "decoding into an `AccountId`" branch.
+                                //
+                                // Unwrapping the error is here to satisfy the type checker
+                                let contract_error = contract_error.unwrap_err();
+                                Ok(ink_primitives::ConstructorResult::Ok(Err(
+                                    contract_error,
+                                )))
                             }
-                            Err(_) => unreachable!("Unable to decode this, so somebody probably manually wrote to the buffer."),
+                            _ => unreachable!("We already decoded into a `ConstructorResult::Ok` earlier."),
                         }
+                    }
+                    ink_primitives::ConstructorResult::Err(lang_err) => {
+                        Ok(ink_primitives::ConstructorResult::Err(lang_err))
                     }
                 }
             }
