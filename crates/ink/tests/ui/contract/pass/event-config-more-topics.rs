@@ -21,34 +21,37 @@ mod contract {
     #[ink(storage)]
     pub struct Contract {}
 
-    #[ink(event, anonymous)]
-    pub struct EventWithManyTopics {
-        #[ink(topic)]
-        arg_1: i8,
-        #[ink(topic)]
-        arg_2: i16,
-        #[ink(topic)]
-        arg_3: i32,
-        #[ink(topic)]
-        arg_4: i64,
-        #[ink(topic)]
-        arg_5: i128,
-        #[ink(topic)]
-        arg_6: u8,
-        #[ink(topic)]
-        arg_7: u16,
-        #[ink(topic)]
-        arg_8: u32,
-        #[ink(topic)]
-        arg_9: u64,
-        #[ink(topic)]
-        arg_10: u128,
+    #[ink::event_definition]
+    pub enum Event {
+        #[ink(anonymous)]
+        EventWithManyTopics {
+            #[ink(topic)]
+            arg_1: i8,
+            #[ink(topic)]
+            arg_2: i16,
+            #[ink(topic)]
+            arg_3: i32,
+            #[ink(topic)]
+            arg_4: i64,
+            #[ink(topic)]
+            arg_5: i128,
+            #[ink(topic)]
+            arg_6: u8,
+            #[ink(topic)]
+            arg_7: u16,
+            #[ink(topic)]
+            arg_8: u32,
+            #[ink(topic)]
+            arg_9: u64,
+            #[ink(topic)]
+            arg_10: u128,
+        }
     }
 
     impl Contract {
         #[ink(constructor)]
         pub fn constructor() -> Self {
-            Self::env().emit_event(EventWithManyTopics {
+            Self::env().emit_event(Event::EventWithManyTopics {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,
@@ -65,7 +68,7 @@ mod contract {
 
         #[ink(message)]
         pub fn message(&self) {
-            self.env().emit_event(EventWithManyTopics {
+            self.env().emit_event(Event::EventWithManyTopics {
                 arg_1: 1,
                 arg_2: 2,
                 arg_3: 3,

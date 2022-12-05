@@ -3,8 +3,8 @@ mod contract {
     #[ink(storage)]
     pub struct Contract {}
 
-    #[ink(event)]
-    pub struct Event0 {}
+    #[ink::event_definition]
+    pub enum Event0 {}
 
     impl Contract {
         #[ink(constructor)]
