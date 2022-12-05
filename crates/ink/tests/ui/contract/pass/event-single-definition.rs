@@ -4,7 +4,9 @@ mod contract {
     pub struct Contract {}
 
     #[ink::event_definition]
-    pub enum Event0 {}
+    pub enum Event {
+        Event0 {}
+    }
 
     impl Contract {
         #[ink(constructor)]
