@@ -1,0 +1,5 @@
+error: ink! event enum definitions must have at least one variant
+ --> tests/ui/contract/fail/event-no-variants.rs:2:1
+  |
+2 | pub enum Event {}
+  | ^^^^^^^^^^^^^^^^^

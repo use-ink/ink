@@ -44,6 +44,12 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                 "ink! event enum definitions must be declared as `pub`"
             ))
         }
+        if item_enum.variants.is_empty() {
+            return Err(format_err_spanned!(
+                item_enum,
+                "ink! event enum definitions must have at least one variant"
+            ))
+        }
 
         let mut variants = Vec::new();
         for (index, variant) in item_enum.variants.iter_mut().enumerate() {
