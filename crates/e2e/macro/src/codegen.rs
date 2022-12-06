@@ -108,16 +108,13 @@ impl InkE2ETest {
             !already_built_contracts.is_empty(),
             "built contract artifacts must exist here"
         );
-        let meta: Vec<TokenStream2> = already_built_contracts
-            .iter()
-            .map(|(_manifest_path, bundle_path)| {
-                let path = syn::LitStr::new(bundle_path, proc_macro2::Span::call_site());
-                quote! {
-                    // TODO(#1421) `smart-bench_macro` needs to be forked.
-                    ::ink_e2e::smart_bench_macro::contract!(#path);
-                }
-            })
-            .collect();
+
+        let contracts =
+            already_built_contracts
+                .iter()
+                .map(|(_manifest_path, bundle_path)| {
+                    quote! { #bundle_path }
+                });
 
         quote! {
             #( #attrs )*
@@ -135,7 +132,7 @@ impl InkE2ETest {
                     let check_async = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         ink::env::DefaultEnvironment
-                    >::new(&#ws_url);
+                    >::new(&#ws_url, []);
 
                     ::ink_e2e::tokio::runtime::Builder::new_current_thread()
                         .enable_all()
@@ -145,8 +142,6 @@ impl InkE2ETest {
                         .block_on(check_async);
                 });
 
-                #( #meta )*
-
                 log_info("creating new client");
 
                 let run = async {
@@ -154,7 +149,10 @@ impl InkE2ETest {
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         ink::env::DefaultEnvironment
-                    >::new(&#ws_url).await;
+                    >::new(
+                        &#ws_url,
+                        [ #( #contracts ),* ]
+                    ).await;
 
                     let __ret = {
                         #block
