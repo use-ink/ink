@@ -489,7 +489,7 @@ where
         ink_env::instantiate_contract::<E, Args, Salt, R>(params)
     }
 
-    /// TODO
+    /// TODO: Docs
     pub fn instantiate_fallible_contract<Args, Salt, R, ContractError>(
         self,
         params: &CreateParams<E, Args, Salt, R>,

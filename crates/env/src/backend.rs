@@ -448,7 +448,7 @@ pub trait TypedEnvBackend: EnvBackend {
         Args: scale::Encode,
         Salt: AsRef<[u8]>;
 
-    /// TODO
+    /// TODO: Docs
     fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,

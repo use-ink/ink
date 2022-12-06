@@ -332,7 +332,7 @@ where
     })
 }
 
-/// TODO
+/// TODO: Docs
 pub fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
     params: &CreateParams<E, Args, Salt, R>,
 ) -> Result<
