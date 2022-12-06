@@ -262,7 +262,7 @@ mod call_builder {
                 .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(
-                matches!(call_result, Some(E2ELangError::CouldNotReadInput)),
+                matches!(call_result, Some(ink::LangError::CouldNotReadInput)),
                 "Call using invalid selector succeeded, when it should've failed."
             );
 
@@ -273,39 +273,26 @@ mod call_builder {
         async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::ferdie(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::ferdie(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::ferdie(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::ferdie(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let revert_new_selector = [0x90, 0xC9, 0xFE, 0x94];
-            let call_result = client
-                .call(
-                    &mut ink_e2e::ferdie(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call_instantiate(
-                        ink_e2e::utils::runtime_hash_to_ink_hash::<
-                            ink::env::DefaultEnvironment,
-                        >(&code_hash),
-                        revert_new_selector,
-                        false,
-                    ),
-                    0,
-                    None,
-                )
-                .await;
+            let init_value = false;
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate(code_hash, revert_new_selector, init_value)
+                });
+            let call_result = client.call(&mut ink_e2e::ferdie(), call, 0, None).await;
 
             assert!(
                 call_result.is_err(),
@@ -330,45 +317,31 @@ mod call_builder {
         async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::alice(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::alice(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::alice(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let selector = ink::selector_bytes!("try_new");
             let success = true;
-            let call_result = dbg!(
-                client
-                    .call(
-                        &mut ink_e2e::alice(),
-                        contract_acc_id.clone(),
-                        call_builder::messages::call_instantiate_with_result(
-                            ink_e2e::utils::runtime_hash_to_ink_hash::<
-                                ink::env::DefaultEnvironment,
-                            >(&code_hash),
-                            selector,
-                            success,
-                        ),
-                        0,
-                        None,
-                    )
-                    .await
-                    .expect("Calling `call_builder::call_instantiate` failed")
-                    .value
-            )
-            .expect("Dispatching `call_builder::call_instantiate` failed.");
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate_with_result(code_hash, selector, success)
+                });
+            let call_result = client
+                .call(&mut ink_e2e::alice(), call, 0, None)
+                .await
+                .expect("Calling `call_builder::call_instantiate` failed")
+                .value
+                .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(
                 call_result.unwrap().is_ok(),
@@ -382,45 +355,31 @@ mod call_builder {
         async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::bob(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::bob(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::bob(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::bob(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let selector = ink::selector_bytes!("try_new");
             let success = false;
-            let call_result = dbg!(
-                client
-                    .call(
-                        &mut ink_e2e::bob(),
-                        contract_acc_id.clone(),
-                        call_builder::messages::call_instantiate_with_result(
-                            ink_e2e::utils::runtime_hash_to_ink_hash::<
-                                ink::env::DefaultEnvironment,
-                            >(&code_hash),
-                            selector,
-                            success,
-                        ),
-                        0,
-                        None,
-                    )
-                    .await
-                    .expect("Calling `call_builder::call_instantiate` failed")
-                    .value
-            )
-            .expect("Dispatching `call_builder::call_instantiate` failed.");
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate_with_result(code_hash, selector, success)
+                });
+            let call_result = client
+                .call(&mut ink_e2e::alice(), call, 0, None)
+                .await
+                .expect("Calling `call_builder::call_instantiate` failed")
+                .value
+                .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(
                 call_result.unwrap().is_err(),
@@ -434,40 +393,26 @@ mod call_builder {
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::charlie(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::charlie(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::charlie(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let selector = ink::selector_bytes!("try_revert_new");
             let init_value = true;
-            let call_result = client
-                .call(
-                    &mut ink_e2e::charlie(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call_instantiate_with_result(
-                        ink_e2e::utils::runtime_hash_to_ink_hash::<
-                            ink::env::DefaultEnvironment,
-                        >(&code_hash),
-                        selector,
-                        init_value,
-                    ),
-                    0,
-                    None,
-                )
-                .await;
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate_with_result(code_hash, selector, init_value)
+                });
+            let call_result = client.call(&mut ink_e2e::charlie(), call, 0, None).await;
 
             assert!(
                 call_result.is_err(),
@@ -496,40 +441,26 @@ mod call_builder {
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = call_builder::constructors::new();
+            let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
+                .instantiate("call_builder", &ink_e2e::dave(), constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload(
-                    &mut ink_e2e::dave(),
-                    constructors_return_value::CONTRACT_PATH,
-                    None,
-                )
+                .upload("constructors_return_value", &ink_e2e::dave(), None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
             let selector = ink::selector_bytes!("try_revert_new");
             let init_value = false;
-            let call_result = client
-                .call(
-                    &mut ink_e2e::dave(),
-                    contract_acc_id.clone(),
-                    call_builder::messages::call_instantiate_with_result(
-                        ink_e2e::utils::runtime_hash_to_ink_hash::<
-                            ink::env::DefaultEnvironment,
-                        >(&code_hash),
-                        selector,
-                        init_value,
-                    ),
-                    0,
-                    None,
-                )
-                .await;
+            let call =
+                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
+                    contract.call_instantiate_with_result(code_hash, selector, init_value)
+                });
+            let call_result = client.call(&mut ink_e2e::dave(), call, 0, None).await;
 
             assert!(
                 call_result.is_err(),
