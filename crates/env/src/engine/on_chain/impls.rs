@@ -522,7 +522,6 @@ impl TypedEnvBackend for EnvInstance {
                 let out = ink_primitives::ConstructorResult::<E::AccountId>::decode(
                     &mut &out_return_value[..],
                 )?;
-                // TODO: Remove this
                 assert!(out.is_err(), "The callee reverted, but did not encode an error in the output buffer.");
                 Ok(out)
             }
