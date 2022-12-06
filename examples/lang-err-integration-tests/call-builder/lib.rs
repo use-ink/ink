@@ -461,5 +461,128 @@ mod call_builder {
 
             Ok(())
         }
+
+        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::charlie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let code_hash = client
+                .upload(
+                    &mut ink_e2e::charlie(),
+                    constructors_return_value::CONTRACT_PATH,
+                    None,
+                )
+                .await
+                .expect("upload `constructors_return_value` failed")
+                .code_hash;
+
+            let selector = ink::selector_bytes!("try_revert_new");
+            let init_value = true;
+            let call_result = client
+                .call(
+                    &mut ink_e2e::charlie(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call_instantiate_with_result(
+                        ink_e2e::utils::runtime_hash_to_ink_hash::<
+                            ink::env::DefaultEnvironment,
+                        >(&code_hash),
+                        selector,
+                        init_value,
+                    ),
+                    0,
+                    None,
+                )
+                .await;
+
+            assert!(
+                call_result.is_err(),
+                "Call execution should've failed, but didn't."
+            );
+
+            let contains_err_msg = match call_result.unwrap_err() {
+                ink_e2e::Error::CallDryRun(dry_run) => {
+                    String::from_utf8_lossy(&dry_run.debug_message)
+                        .contains(
+                            "Since the contract reverted, we only expect an `Error` from the constructor. \
+                             Otherwise we would be in the `AccountId` branch."
+                        )
+                }
+                _ => false,
+            };
+            assert!(
+                contains_err_msg,
+                "Call execution failed for an unexpected reason."
+            );
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = call_builder::constructors::new();
+            let contract_acc_id = client
+                .instantiate(&mut ink_e2e::dave(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let code_hash = client
+                .upload(
+                    &mut ink_e2e::dave(),
+                    constructors_return_value::CONTRACT_PATH,
+                    None,
+                )
+                .await
+                .expect("upload `constructors_return_value` failed")
+                .code_hash;
+
+            let selector = ink::selector_bytes!("try_revert_new");
+            let init_value = false;
+            let call_result = client
+                .call(
+                    &mut ink_e2e::dave(),
+                    contract_acc_id.clone(),
+                    call_builder::messages::call_instantiate_with_result(
+                        ink_e2e::utils::runtime_hash_to_ink_hash::<
+                            ink::env::DefaultEnvironment,
+                        >(&code_hash),
+                        selector,
+                        init_value,
+                    ),
+                    0,
+                    None,
+                )
+                .await;
+
+            assert!(
+                call_result.is_err(),
+                "Call execution should've failed, but didn't."
+            );
+
+            let contains_err_msg = match call_result.unwrap_err() {
+                ink_e2e::Error::CallDryRun(dry_run) => {
+                    String::from_utf8_lossy(&dry_run.debug_message).contains(
+                        "If dispatch had failed, we shouldn't have been able to decode \
+                         the nested `Result`.",
+                    )
+                }
+                _ => false,
+            };
+            assert!(
+                contains_err_msg,
+                "Call execution failed for an unexpected reason."
+            );
+
+            Ok(())
+        }
     }
 }
