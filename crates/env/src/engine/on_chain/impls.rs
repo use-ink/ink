@@ -573,38 +573,39 @@ impl TypedEnvBackend for EnvInstance {
                 Ok(ink_primitives::ConstructorResult::Ok(Ok(account_id)))
             }
             Err(ext::Error::CalleeReverted) => {
-                let out =
-                    <ink_primitives::ConstructorResult<()> as scale::Decode>::decode(
-                        &mut &out_return_value[..],
-                    )
-                    .expect("Failed to decode into `ConstructorResult<()>`");
+                let decoding_result = <ink_primitives::ConstructorResult<
+                    core::result::Result<(), ContractError>,
+                > as scale::Decode>::decode(
+                    &mut &out_return_value[..]
+                );
 
-                match out {
-                    ink_primitives::ConstructorResult::Ok(()) => {
-                        let out = <ink_primitives::ConstructorResult<
-                            core::result::Result<(), ContractError>,
-                        > as scale::Decode>::decode(
-                            &mut &out_return_value[..]
-                        )
-                        .expect("Failed to decode into a `ContractError`");
+                match decoding_result {
+                    Ok(constructor_result) => {
+                        let contract_result = constructor_result.expect(
+                            "If dispatch had failed, we shouldn't have been able to decode \
+                             the nested `Result`."
+                         );
 
-                        match out {
-                            ink_primitives::ConstructorResult::Ok(contract_error) => {
-                                // This should only be an Err(ContractError), because if the call
-                                // to the constructor had succeeded we've be doing down the
-                                // "decoding into an `AccountId`" branch.
-                                //
-                                // Unwrapping the error is here to satisfy the type checker
-                                let contract_error = contract_error.unwrap_err();
-                                Ok(ink_primitives::ConstructorResult::Ok(Err(
-                                    contract_error,
-                                )))
-                            }
-                            _ => unreachable!("We already decoded into a `ConstructorResult::Ok` earlier."),
-                        }
+                        let contract_error = contract_result.expect_err(
+                            "Since the contract reverted, we only expect an `Error` from the constructor. \
+                             Otherwise we would be in the `AccountId` branch.");
+
+                        Ok(ink_primitives::ConstructorResult::Ok(Err(contract_error)))
                     }
-                    ink_primitives::ConstructorResult::Err(lang_err) => {
-                        Ok(ink_primitives::ConstructorResult::Err(lang_err))
+                    Err(_) => {
+                        // If we hit this branch it likely means dispatch failed, but we need to
+                        // check the buffer again to confirm.
+                        let out =
+                            <ink_primitives::ConstructorResult<()> as scale::Decode>::decode(
+                                &mut &out_return_value[..],
+                            )?;
+
+                        let lang_error = out.expect_err(
+                            "If dispatch had succeeded, we would either be in the `AccountId` branch \
+                             or we would've been able to decode into a nested `Result` earlier."
+                        );
+
+                        Ok(ink_primitives::ConstructorResult::Err(lang_error))
                     }
                 }
             }
