@@ -529,7 +529,7 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract_with_result<E, Args, Salt, R, ContractError>(
+    fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<

@@ -333,7 +333,7 @@ where
 }
 
 /// TODO
-pub fn instantiate_contract_with_result<E, Args, Salt, R, ContractError>(
+pub fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
     params: &CreateParams<E, Args, Salt, R>,
 ) -> Result<
     ::ink_primitives::ConstructorResult<
@@ -347,7 +347,7 @@ where
     ContractError: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract_with_result::<E, Args, Salt, R, ContractError>(
+        TypedEnvBackend::instantiate_fallible_contract::<E, Args, Salt, R, ContractError>(
             instance, params,
         )
     })

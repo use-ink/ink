@@ -164,13 +164,13 @@ where
     ///
     /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
     #[inline]
-    pub fn try_instantiate_with_result(
+    pub fn try_instantiate_fallible(
         &self,
     ) -> Result<
         ::ink_primitives::ConstructorResult<Result<E::AccountId, ContractError>>,
         crate::Error,
     > {
-        crate::instantiate_contract_with_result(self)
+        crate::instantiate_fallible_contract(self)
     }
 }
 
@@ -521,7 +521,7 @@ where
     ///
     /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
     #[inline]
-    pub fn try_instantiate_with_result(
+    pub fn try_instantiate_fallible(
         self,
     ) -> Result<
         ::ink_primitives::ConstructorResult<
@@ -529,6 +529,6 @@ where
         >,
         Error,
     > {
-        self.params().try_instantiate_with_result()
+        self.params().try_instantiate_fallible()
     }
 }

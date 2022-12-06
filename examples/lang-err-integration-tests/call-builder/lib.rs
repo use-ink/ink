@@ -89,7 +89,7 @@ mod call_builder {
         }
 
         #[ink(message)]
-        pub fn call_instantiate_with_result(
+        pub fn call_instantiate_fallible(
             &mut self,
             code_hash: Hash,
             selector: [u8; 4],
@@ -111,7 +111,7 @@ mod call_builder {
                     constructors_return_value::ConstructorError,
                 >>()
                 .params()
-                .try_instantiate_with_result()
+                .try_instantiate_fallible()
                 .expect("Error from the Contracts pallet.")
                 .expect("Dispatch should have succeeded.");
             ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
@@ -336,7 +336,7 @@ mod call_builder {
             let init_value = true;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_with_result(code_hash, selector, init_value)
+                    contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client
                 .call(&mut ink_e2e::eve(), call, 0, None)
@@ -374,7 +374,7 @@ mod call_builder {
             let init_value = false;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_with_result(code_hash, selector, init_value)
+                    contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client
                 .call(&mut ink_e2e::ferdie(), call, 0, None)
@@ -412,7 +412,7 @@ mod call_builder {
             let init_value = true;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_with_result(code_hash, selector, init_value)
+                    contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client.call(&mut ink_e2e::alice(), call, 0, None).await;
 
@@ -460,7 +460,7 @@ mod call_builder {
             let init_value = false;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_with_result(code_hash, selector, init_value)
+                    contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client.call(&mut ink_e2e::bob(), call, 0, None).await;
 

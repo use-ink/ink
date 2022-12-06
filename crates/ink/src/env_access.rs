@@ -490,7 +490,7 @@ where
     }
 
     /// TODO
-    pub fn instantiate_contract_with_result<Args, Salt, R, ContractError>(
+    pub fn instantiate_fallible_contract<Args, Salt, R, ContractError>(
         self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<
@@ -504,9 +504,7 @@ where
         Salt: AsRef<[u8]>,
         ContractError: scale::Decode,
     {
-        ink_env::instantiate_contract_with_result::<E, Args, Salt, R, ContractError>(
-            params,
-        )
+        ink_env::instantiate_fallible_contract::<E, Args, Salt, R, ContractError>(params)
     }
 
     /// Invokes a contract message and returns its result.
