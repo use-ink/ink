@@ -164,9 +164,9 @@ mod call_builder {
                 .value
                 .expect("Input is valid, call must not fail.");
 
-            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let selector = ink::selector_bytes!("invalid_selector");
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
-                .call(|contract| contract.call(flipper_acc_id, invalid_selector));
+                .call(|contract| contract.call(flipper_acc_id, selector));
             let call_result = client
                 .call(&ink_e2e::charlie(), call, 0, None)
                 .await
@@ -212,10 +212,11 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let new_selector = [0x9B, 0xAE, 0x9D, 0x5E];
+            let selector = ink::selector_bytes!("new");
+            let init_value = true;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate(code_hash, new_selector, true)
+                    contract.call_instantiate(code_hash, selector, init_value)
                 });
             let call_result = client
                 .call(&ink_e2e::dave(), call, 0, None)
@@ -249,10 +250,11 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let selector = ink::selector_bytes!("invalid_selector");
+            let init_value = true;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate(code_hash, invalid_selector, true)
+                    contract.call_instantiate(code_hash, selector, init_value)
                 });
             let call_result = client
                 .call(&ink_e2e::eve(), call, 0, None)
@@ -286,11 +288,11 @@ mod call_builder {
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
 
-            let revert_new_selector = [0x90, 0xC9, 0xFE, 0x94];
+            let selector = ink::selector_bytes!("revert_new");
             let init_value = false;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate(code_hash, revert_new_selector, init_value)
+                    contract.call_instantiate(code_hash, selector, init_value)
                 });
             let call_result = client.call(&mut ink_e2e::ferdie(), call, 0, None).await;
 
@@ -331,10 +333,10 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("try_new");
-            let success = true;
+            let init_value = true;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_with_result(code_hash, selector, success)
+                    contract.call_instantiate_with_result(code_hash, selector, init_value)
                 });
             let call_result = client
                 .call(&mut ink_e2e::alice(), call, 0, None)
@@ -369,10 +371,10 @@ mod call_builder {
                 .code_hash;
 
             let selector = ink::selector_bytes!("try_new");
-            let success = false;
+            let init_value = false;
             let call =
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_with_result(code_hash, selector, success)
+                    contract.call_instantiate_with_result(code_hash, selector, init_value)
                 });
             let call_result = client
                 .call(&mut ink_e2e::alice(), call, 0, None)
