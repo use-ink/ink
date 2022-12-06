@@ -94,7 +94,8 @@ mod call_builder {
             code_hash: Hash,
             selector: [u8; 4],
             init_value: bool,
-        ) -> Option<::ink::LangError> {
+        ) -> Option<Result<AccountId, constructors_return_value::ConstructorError>>
+        {
             use ink::env::call::build_create;
 
             let result = build_create::<DefaultEnvironment>()
@@ -111,16 +112,11 @@ mod call_builder {
                 >>()
                 .params()
                 .try_instantiate_with_result()
-                .expect("Error from the Contracts pallet.");
+                .expect("Error from the Contracts pallet.")
+                .expect("Dispatch should have succeeded.");
             ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
-            match result {
-                Ok(_) => None,
-                Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
-                Err(_) => {
-                    unimplemented!("No other `LangError` variants exist at the moment.")
-                }
-            }
+            Some(result)
         }
     }
 
@@ -306,9 +302,8 @@ mod call_builder {
             Ok(())
         }
 
-        // TODO: Also add something similar for fallible constructors
         #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
-        async fn e2e_create_builder_with_revert_constructor(
+        async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             let constructor = call_builder::constructors::new();
@@ -365,7 +360,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
-        async fn e2e_create_builder_can_handle_contract_defined_constructor_success(
+        async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             let constructor = call_builder::constructors::new();
@@ -408,13 +403,16 @@ mod call_builder {
             )
             .expect("Dispatching `call_builder::call_instantiate` failed.");
 
-            assert!(call_result.is_none(), "TODO");
+            assert!(
+                call_result.unwrap().is_ok(),
+                "Call to falliable constructor failed, when it should have succeeded."
+            );
 
             Ok(())
         }
 
         #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
-        async fn e2e_create_builder_can_handle_contract_defined_constructor_error(
+        async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             let constructor = call_builder::constructors::new();
@@ -457,7 +455,10 @@ mod call_builder {
             )
             .expect("Dispatching `call_builder::call_instantiate` failed.");
 
-            assert!(call_result.is_none(), "TODO");
+            assert!(
+                call_result.unwrap().is_err(),
+                "Call to falliable constructor succeeded, when it should have failed."
+            );
 
             Ok(())
         }
