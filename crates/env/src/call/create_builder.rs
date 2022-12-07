@@ -515,7 +515,28 @@ where
     RetType: FromAccountId<E>,
     ContractError: scale::Decode,
 {
-    /// Instantiates the contract using the given instantiation parameters.
+    /// Attempts to instantiate the contract, returning the execution result back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate_fallible`][`CreateParams::try_instantiate_fallible`] method instead.
+    #[inline]
+    pub fn instantiate_fallible(
+        self,
+    ) -> Result<::core::result::Result<RetType, ContractError>, Error> {
+        self.params()
+            .try_instantiate_fallible()
+            .map(|constructor_result| {
+                constructor_result
+                    .unwrap_or_else(|error| {
+                        panic!("Received a `LangError` while instantiating: {:?}", error)
+                    })
+                    .map(FromAccountId::from_account_id)
+            })
+    }
+
+    /// Attempts to instantiate the contract, returning the execution result back to the caller.
     ///
     /// # Note
     ///
