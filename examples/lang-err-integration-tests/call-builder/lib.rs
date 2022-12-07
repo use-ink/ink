@@ -116,7 +116,7 @@ mod call_builder {
                 .expect("Dispatch should have succeeded.");
             ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
-            Some(result)
+            Some(result.map(|inner| ink::ToAccountId::to_account_id(&inner)))
         }
     }
 
