@@ -525,10 +525,16 @@ where
         self,
     ) -> Result<
         ::ink_primitives::ConstructorResult<
-            ::core::result::Result<E::AccountId, ContractError>,
+            ::core::result::Result<RetType, ContractError>,
         >,
         Error,
     > {
-        self.params().try_instantiate_fallible()
+        self.params()
+            .try_instantiate_fallible()
+            .map(|constructor_result| {
+                constructor_result.map(|contract_result| {
+                    contract_result.map(FromAccountId::from_account_id)
+                })
+            })
     }
 }
