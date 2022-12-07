@@ -158,7 +158,24 @@ where
     R: FromAccountId<E>,
     ContractError: scale::Decode,
 {
-    /// Instantiates the contract and returns its account ID back to the caller.
+    /// Attempts to instantiate the contract, returning the execution result back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate_fallible`][`CreateParams::try_instantiate_fallible`] method instead.
+    #[inline]
+    pub fn instantiate_fallible(&self) -> Result<Result<R, ContractError>, crate::Error> {
+        crate::instantiate_fallible_contract(self).map(|constructor_result| {
+            constructor_result
+                .unwrap_or_else(|error| {
+                    panic!("Received a `LangError` while instantiating: {:?}", error)
+                })
+                .map(FromAccountId::from_account_id)
+        })
+    }
+
+    /// Attempts to instantiate the contract, returning the execution result back to the caller.
     ///
     /// # Note
     ///
@@ -166,11 +183,13 @@ where
     #[inline]
     pub fn try_instantiate_fallible(
         &self,
-    ) -> Result<
-        ::ink_primitives::ConstructorResult<Result<E::AccountId, ContractError>>,
-        crate::Error,
-    > {
-        crate::instantiate_fallible_contract(self)
+    ) -> Result<::ink_primitives::ConstructorResult<Result<R, ContractError>>, crate::Error>
+    {
+        crate::instantiate_fallible_contract(self).map(|constructor_result| {
+            constructor_result.map(|contract_result| {
+                contract_result.map(FromAccountId::from_account_id)
+            })
+        })
     }
 }
 
@@ -525,15 +544,7 @@ where
     pub fn instantiate_fallible(
         self,
     ) -> Result<::core::result::Result<RetType, ContractError>, Error> {
-        self.params()
-            .try_instantiate_fallible()
-            .map(|constructor_result| {
-                constructor_result
-                    .unwrap_or_else(|error| {
-                        panic!("Received a `LangError` while instantiating: {:?}", error)
-                    })
-                    .map(FromAccountId::from_account_id)
-            })
+        self.params().instantiate_fallible()
     }
 
     /// Attempts to instantiate the contract, returning the execution result back to the caller.
@@ -550,12 +561,6 @@ where
         >,
         Error,
     > {
-        self.params()
-            .try_instantiate_fallible()
-            .map(|constructor_result| {
-                constructor_result.map(|contract_result| {
-                    contract_result.map(FromAccountId::from_account_id)
-                })
-            })
+        self.params().try_instantiate_fallible()
     }
 }
