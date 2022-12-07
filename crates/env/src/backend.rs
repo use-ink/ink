@@ -448,7 +448,12 @@ pub trait TypedEnvBackend: EnvBackend {
         Args: scale::Encode,
         Salt: AsRef<[u8]>;
 
-    /// TODO: Docs
+    /// Attempts to instantiate another contract, returning the instantiation result back to the
+    /// caller.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`instantiate_fallible_contract`][`crate::instantiate_fallible_contract`]
     fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,

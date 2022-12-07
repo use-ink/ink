@@ -332,7 +332,22 @@ where
     })
 }
 
-/// TODO: Docs
+/// Attempts to instantiate another contract, returning the instantiation result back to the
+/// caller.
+///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the code hash is invalid.
+/// - If the arguments passed to the instantiation process are invalid.
+/// - If the instantiation process traps.
+/// - If the instantiation process runs out of gas.
+/// - If given insufficient endowment.
+/// - If the returned account ID failed to decode properly.
 pub fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
     params: &CreateParams<E, Args, Salt, R>,
 ) -> Result<

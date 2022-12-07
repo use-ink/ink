@@ -174,8 +174,6 @@ mod contract_ref {
             let instantiate_result = client
                 .instantiate("contract_ref", &ink_e2e::charlie(), constructor, 0, None)
                 .await;
-            // .expect("instantiate failed")
-            // .account_id;
 
             assert!(
                 instantiate_result.is_err(),
