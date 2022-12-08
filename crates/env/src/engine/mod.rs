@@ -38,27 +38,24 @@ cfg_if! {
     }
 }
 
-use ink_primitives::ConstructorResult;
 use crate::{
     Environment,
     Result as EnvResult,
 };
+use ink_primitives::ConstructorResult;
 
 pub(crate) fn decode_fallible_constructor_reverted_return_value<I, E, ContractError>(
     out_return_value: &mut I,
-) -> EnvResult<
-    ConstructorResult<
-        Result<E::AccountId, ContractError>,
-    >,
->
-    where
-        I: scale::Input,
-        E: Environment,
-        ContractError: scale::Decode,
+) -> EnvResult<ConstructorResult<Result<E::AccountId, ContractError>>>
+where
+    I: scale::Input,
+    E: Environment,
+    ContractError: scale::Decode,
 {
-    let decoding_result = <ConstructorResult<
-        Result<(), ContractError>,
-    > as scale::Decode>::decode(out_return_value);
+    let decoding_result =
+        <ConstructorResult<Result<(), ContractError>> as scale::Decode>::decode(
+            out_return_value,
+        );
 
     match decoding_result {
         Ok(constructor_result) => {
@@ -100,8 +97,25 @@ mod tests {
 
     #[test]
     fn fallible_constructor_reverted_contract_error() {
-        let encoded_return_value = ConstructorResult::Ok(Result::<ink_primitives::AccountId, ContractError>::Err(ContractError("Constructor error".to_owned()))).encode();
-        let decoded_result = decode_fallible_constructor_reverted_return_value::<_, crate::DefaultEnvironment, ContractError>(&mut &encoded_return_value[..]);
-        assert!(matches!(decoded_result, Ok(Ok(Result::<ink_primitives::AccountId, ContractError>::Err(ContractError(_))))))
+        let encoded_return_value = ConstructorResult::Ok(Result::<
+            ink_primitives::AccountId,
+            ContractError,
+        >::Err(ContractError(
+            "Constructor error".to_owned(),
+        )))
+        .encode();
+
+        let decoded_result = decode_fallible_constructor_reverted_return_value::<
+            _,
+            crate::DefaultEnvironment,
+            ContractError,
+        >(&mut &encoded_return_value[..]);
+
+        assert!(matches!(
+            decoded_result,
+            Ok(Ok(Result::<ink_primitives::AccountId, ContractError>::Err(
+                ContractError(_)
+            )))
+        ))
     }
 }
