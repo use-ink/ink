@@ -115,7 +115,7 @@ mod fallible_constructor_reverted_tests {
     }
 
     #[test]
-    fn inner_contract_error() {
+    fn err_inner_contract() {
         let return_value = Ok(Err(ContractError("Constructor error".to_owned())));
 
         let decoded_result = roundtrip_return_value(return_value);
@@ -123,8 +123,9 @@ mod fallible_constructor_reverted_tests {
         assert!(matches!(decoded_result, Ok(Ok(Err(ContractError(_))))))
     }
 
+    // todo: FAILS! Is my test incorrect or is the impl incorrect?
     #[test]
-    fn outer_lang_error() {
+    fn err_outer_lang() {
         let return_value = Err(ink_primitives::LangError::CouldNotReadInput);
 
         let decoded_result = roundtrip_return_value(return_value);
