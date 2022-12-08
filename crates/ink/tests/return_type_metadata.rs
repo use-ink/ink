@@ -37,14 +37,6 @@ mod contract {
             42
         }
     }
-
-    #[cfg(test)]
-    mod tests {
-        #[ink::test]
-        fn foo() {
-            assert!(true)
-        }
-    }
 }
 
 #[cfg(test)]
