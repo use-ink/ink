@@ -384,7 +384,7 @@ where
         Args: scale::Encode,
     {
         let salt = Self::salt();
-        let data = constructor_exec_input(constructor.into());
+        let data = constructor_exec_input(constructor);
 
         // dry run the instantiate to calculate the gas limit
         let dry_run = self
