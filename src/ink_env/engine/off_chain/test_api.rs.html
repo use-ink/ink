@@ -383,19 +383,6 @@
 <span id="381">381</span>
 <span id="382">382</span>
 <span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -570,19 +557,6 @@
         instance
             .engine
             .get_contract_storage_rw(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id))
-    })
-}
-
-<span class="doccomment">/// Sets the balance of `account_id` to `new_balance`.
-</span><span class="kw">pub fn </span>set_balance&lt;T&gt;(account_id: T::AccountId, new_balance: T::Balance)
-<span class="kw">where
-    </span>T: Environment&lt;Balance = u128&gt;, <span class="comment">// Just temporary for the MVP!
-    </span>&lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
-{
-    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(<span class="kw-2">&amp;</span>account_id), new_balance);
     })
 }
 
