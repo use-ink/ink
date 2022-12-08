@@ -97,13 +97,11 @@ mod tests {
 
     #[test]
     fn fallible_constructor_reverted_contract_error() {
-        let encoded_return_value = ConstructorResult::Ok(Result::<
-            ink_primitives::AccountId,
-            ContractError,
-        >::Err(ContractError(
-            "Constructor error".to_owned(),
-        )))
-        .encode();
+        let return_value = Ok(Err(ContractError("Constructor error".to_owned())));
+        let encoded_return_value =
+            <ConstructorResult<Result<(), ContractError>> as Encode>::encode(
+                &return_value,
+            );
 
         let decoded_result = decode_fallible_constructor_reverted_return_value::<
             _,
@@ -113,9 +111,29 @@ mod tests {
 
         assert!(matches!(
             decoded_result,
-            Ok(Ok(Result::<ink_primitives::AccountId, ContractError>::Err(
-                ContractError(_)
-            )))
+            Ok(Ok(Err(ContractError(
+                _
+            ))))
+        ))
+    }
+
+    #[test]
+    fn fallible_constructor_reverted_lang_error() {
+        let return_value = Err(ink_primitives::LangError::CouldNotReadInput);
+        let encoded_return_value =
+            <ConstructorResult<Result<(), ContractError>> as Encode>::encode(
+                &return_value,
+            );
+
+        let decoded_result = decode_fallible_constructor_reverted_return_value::<
+            _,
+            crate::DefaultEnvironment,
+            ContractError,
+        >(&mut &encoded_return_value[..]);
+
+        assert!(matches!(
+            decoded_result,
+            Ok(Err(ink_primitives::LangError::CouldNotReadInput))
         ))
     }
 }
