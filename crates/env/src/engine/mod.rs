@@ -54,38 +54,22 @@ where
     E: Environment,
     ContractError: scale::Decode,
 {
-    let decoding_result =
-        <ConstructorResult<Result<(), ContractError>> as scale::Decode>::decode(
-            out_return_value,
-        );
+    let out = <ConstructorResult<Result<(), ContractError>> as scale::Decode>::decode(
+        out_return_value,
+    )?;
 
-    match decoding_result {
-        Ok(constructor_result) => {
-            let contract_result = constructor_result.expect(
-                "If dispatch had failed, we shouldn't have been able to decode \
-                             the nested `Result`.",
-            );
-
-            let contract_error = contract_result.expect_err(
-                "Since the contract reverted, we only expect an `Error` from the constructor. \
-                             Otherwise we would be in the `AccountId` branch.");
-
-            Ok(Ok(Err(contract_error)))
+    match out {
+        ConstructorResult::Ok(ContractResult::Ok(())) => {
+            // Since the contract reverted we don't expect an `Ok` return value from the
+            // constructor, otherwise we'd be in the `AccountId` decoding branch.
+            Err(crate::Error::Decode(
+                "TODO: probably shouldn't be a `Decode` error".into(),
+            ))
         }
-        Err(_) => {
-            // If we hit this branch it likely means dispatch failed, but we need to
-            // check the buffer again to confirm.
-            let out = <ink_primitives::ConstructorResult<()> as scale::Decode>::decode(
-                out_return_value,
-            )?;
-
-            let lang_error = out.expect_err(
-                "If dispatch had succeeded, we would either be in the `AccountId` branch \
-                             or we would've been able to decode into a nested `Result` earlier."
-            );
-
-            Ok(Err(lang_error))
+        ConstructorResult::Ok(ContractResult::Err(contract_error)) => {
+            Ok(ConstructorResult::Ok(ContractResult::Err(contract_error)))
         }
+        ConstructorResult::Err(lang_error) => Ok(ConstructorResult::Err(lang_error)),
     }
 }
 
@@ -121,9 +105,9 @@ mod fallible_constructor_reverted_tests {
     fn revert_branch_rejects_valid_output_buffer_with_success_case() {
         let return_value = ConstructorResult::Ok(ContractResult::Ok(()));
 
-        let _decoded_result = roundtrip_return_value(return_value);
+        let decoded_result = roundtrip_return_value(return_value);
 
-        todo!("This should fail.")
+        assert!(matches!(decoded_result, Err(crate::Error::Decode(_))))
     }
 
     #[test]
