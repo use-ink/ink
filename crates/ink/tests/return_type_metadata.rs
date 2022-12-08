@@ -49,6 +49,11 @@ mod contract {
 
 #[cfg(test)]
 mod tests {
+    use scale_info::{
+        form::PortableForm,
+        Type,
+    };
+
     fn generate_metadata() -> ink_metadata::InkProject {
         extern "Rust" {
             fn __ink_generate_metadata() -> ink_metadata::InkProject;
@@ -57,15 +62,14 @@ mod tests {
         unsafe { __ink_generate_metadata() }
     }
 
-    #[test]
-    fn trait_message_metadata_return_value_is_result() {
-        let metadata = generate_metadata();
-
-        let message = metadata.spec().messages().iter().next().unwrap();
-        assert_eq!("TraitDefinition::get_value", message.label());
-
-        let type_spec = message.return_type().opt_type().unwrap();
-        let ty = metadata.registry().resolve(type_spec.ty().id()).unwrap();
+    /// Extract the type defs of the `Ok` and `Error` variants of a `Result` type.
+    ///
+    /// Panics if the type def is not a valid result
+    fn extract_result(
+        metadata: &ink_metadata::InkProject,
+        type_id: u32,
+    ) -> (&Type<PortableForm>, &Type<PortableForm>) {
+        let ty = resolve_type(metadata, type_id);
         assert_eq!(
             "Result",
             format!("{}", ty.path()),
@@ -76,16 +80,45 @@ mod tests {
                 assert_eq!(2, variant.variants().len());
                 let ok_variant = &variant.variants()[0];
                 let ok_field = &ok_variant.fields()[0];
-                let ok_ty = metadata.registry().resolve(ok_field.ty().id()).unwrap();
-
+                let ok_ty = resolve_type(metadata, ok_field.ty().id());
                 assert_eq!("Ok", ok_variant.name());
-                assert_eq!(
-                    &scale_info::TypeDef::Primitive(scale_info::TypeDefPrimitive::U32),
-                    ok_ty.type_def()
-                )
+
+                let err_variant = &variant.variants()[1];
+                let err_field = &err_variant.fields()[0];
+                let err_ty = resolve_type(metadata, err_field.ty().id());
+                assert_eq!("Err", err_variant.name());
+
+                (ok_ty, err_ty)
             }
             td => panic!("Expected a Variant type def enum, got {:?}", td),
         }
+    }
+
+    /// Resolve a type with the given id from the type registry
+    fn resolve_type(
+        metadata: &ink_metadata::InkProject,
+        type_id: u32,
+    ) -> &Type<PortableForm> {
+        metadata
+            .registry()
+            .resolve(type_id)
+            .unwrap_or_else(|| panic!("No type found in registry with id {}", type_id))
+    }
+
+    #[test]
+    fn trait_message_metadata_return_value_is_result() {
+        let metadata = generate_metadata();
+
+        let message = metadata.spec().messages().iter().next().unwrap();
+        assert_eq!("TraitDefinition::get_value", message.label());
+
+        let type_spec = message.return_type().opt_type().unwrap();
+        let (ok_ty, _) = extract_result(&metadata, type_spec.ty().id());
+
+        assert_eq!(
+            &scale_info::TypeDef::Primitive(scale_info::TypeDefPrimitive::U32),
+            ok_ty.type_def()
+        );
     }
 
     #[test]
