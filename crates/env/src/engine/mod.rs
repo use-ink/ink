@@ -102,6 +102,7 @@ mod fallible_constructor_reverted_tests {
     ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
     {
         let encoded_return_value = return_value.encode();
+        dbg!(&encoded_return_value);
         decode_return_value(&mut &encoded_return_value[..])
     }
 
@@ -117,9 +118,18 @@ mod fallible_constructor_reverted_tests {
     }
 
     #[test]
-    fn err_inner_contract() {
+    fn revert_branch_rejects_valid_output_buffer_with_success_case() {
+        let return_value = ConstructorResult::Ok(ContractResult::Ok(()));
+
+        let _decoded_result = roundtrip_return_value(return_value);
+
+        todo!("This should fail.")
+    }
+
+    #[test]
+    fn succesful_dispatch_with_error_from_contract_constructor() {
         let return_value = ConstructorResult::Ok(ContractResult::Err(ContractError(
-            "Constructor error".to_owned(),
+            "Contract's constructor failed.".to_owned(),
         )));
 
         let decoded_result = roundtrip_return_value(return_value);
@@ -132,7 +142,7 @@ mod fallible_constructor_reverted_tests {
 
     // todo: FAILS! Is my test incorrect or is the impl incorrect?
     #[test]
-    fn err_outer_lang() {
+    fn dispatch_error_gets_decoded_correctly() {
         let return_value =
             ConstructorResult::Err(ink_primitives::LangError::CouldNotReadInput);
 
@@ -147,7 +157,7 @@ mod fallible_constructor_reverted_tests {
     }
 
     #[test]
-    fn err_decoding_return_value() {
+    fn invalid_bytes_in_output_buffer_fail_decoding() {
         let invalid_encoded_return_value = vec![69];
 
         let decoded_result = decode_return_value(&mut &invalid_encoded_return_value[..]);
