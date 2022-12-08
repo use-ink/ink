@@ -785,7 +785,7 @@
                         <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
                         <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#local_id&gt;&gt;::SELECTOR
                 }};
-                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(message.output());
+                <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>message.wrapped_output()));
                 <span class="kw">let </span>label = [trait_ident.to_string(), message_ident.to_string()].join(<span class="string">&quot;::&quot;</span>);
                 <span class="macro">quote_spanned!</span>(message_span=&gt;
                     ::ink::metadata::MessageSpec::from_label(#label)
