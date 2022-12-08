@@ -26,8 +26,8 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self {}
+        pub fn try_new() -> Result<Self, u8> {
+            Err(1)
         }
     }
 
@@ -58,7 +58,7 @@ mod tests {
     }
 
     #[test]
-    fn trait_message_return_value_is_result() {
+    fn trait_message_metadata_return_value_is_result() {
         let metadata = generate_metadata();
 
         let message = metadata.spec().messages().iter().next().unwrap();
@@ -83,6 +83,73 @@ mod tests {
                     &scale_info::TypeDef::Primitive(scale_info::TypeDefPrimitive::U32),
                     ok_ty.type_def()
                 )
+            }
+            td => panic!("Expected a Variant type def enum, got {:?}", td),
+        }
+    }
+
+    #[test]
+    fn fallible_constructor_metadata_is_nested_result() {
+        let metadata = generate_metadata();
+        let constructor = metadata.spec().constructors().iter().next().unwrap();
+
+        assert_eq!("try_new", constructor.label());
+        let type_spec = constructor.return_type().opt_type().unwrap();
+        assert_eq!(
+            "ink_primitives::ConstructorResult",
+            format!("{}", type_spec.display_name())
+        );
+        let ty = metadata.registry().resolve(type_spec.ty().id()).unwrap();
+
+        assert_eq!("Result", format!("{}", ty.path()));
+        match ty.type_def() {
+            scale_info::TypeDef::Variant(variant) => {
+                assert_eq!(2, variant.variants().len());
+
+                // Outer Result
+                let outer_ok_variant = &variant.variants()[0];
+                let outer_ok_field = &outer_ok_variant.fields()[0];
+                let outer_ok_ty = metadata
+                    .registry()
+                    .resolve(outer_ok_field.ty().id())
+                    .unwrap();
+                assert_eq!("Ok", outer_ok_variant.name());
+
+                // Inner Result
+                let inner_ok_ty = match outer_ok_ty.type_def() {
+                    scale_info::TypeDef::Variant(variant) => {
+                        assert_eq!(2, variant.variants().len());
+
+                        let inner_ok_variant = &variant.variants()[0];
+                        assert_eq!("Ok", inner_ok_variant.name());
+
+                        let inner_ok_field = &inner_ok_variant.fields()[0];
+                        metadata
+                            .registry()
+                            .resolve(inner_ok_field.ty().id())
+                            .unwrap()
+                    }
+                    td => panic!("Expected a Variant type def enum, got {:?}", td),
+                };
+
+                let unit_ty = scale_info::TypeDef::Tuple(
+                    scale_info::TypeDefTuple::new_portable(vec![]),
+                );
+
+                assert_eq!(
+                    &unit_ty,
+                    inner_ok_ty.type_def(),
+                    "Ok variant should be a unit `()` type"
+                );
+
+                let err_variant = &variant.variants()[1];
+                let err_field = &err_variant.fields()[0];
+                let err_ty_result = metadata.registry().resolve(err_field.ty().id());
+                assert_eq!("Err", err_variant.name());
+                assert!(
+                    err_ty_result.is_some(),
+                    "Error variant must be encoded with SCALE"
+                );
             }
             td => panic!("Expected a Variant type def enum, got {:?}", td),
         }
