@@ -52,6 +52,9 @@ mod tests {
     use scale_info::{
         form::PortableForm,
         Type,
+        TypeDef,
+        TypeDefPrimitive,
+        TypeDefTuple,
     };
 
     fn generate_metadata() -> ink_metadata::InkProject {
@@ -65,18 +68,17 @@ mod tests {
     /// Extract the type defs of the `Ok` and `Error` variants of a `Result` type.
     ///
     /// Panics if the type def is not a valid result
-    fn extract_result(
-        metadata: &ink_metadata::InkProject,
-        type_id: u32,
-    ) -> (&Type<PortableForm>, &Type<PortableForm>) {
-        let ty = resolve_type(metadata, type_id);
+    fn extract_result<'a>(
+        metadata: &'a ink_metadata::InkProject,
+        ty: &'a Type<PortableForm>,
+    ) -> (&'a Type<PortableForm>, &'a Type<PortableForm>) {
         assert_eq!(
             "Result",
             format!("{}", ty.path()),
             "Message return type should be a Result"
         );
         match ty.type_def() {
-            scale_info::TypeDef::Variant(variant) => {
+            TypeDef::Variant(variant) => {
                 assert_eq!(2, variant.variants().len());
                 let ok_variant = &variant.variants()[0];
                 let ok_field = &ok_variant.fields()[0];
@@ -113,12 +115,10 @@ mod tests {
         assert_eq!("TraitDefinition::get_value", message.label());
 
         let type_spec = message.return_type().opt_type().unwrap();
-        let (ok_ty, _) = extract_result(&metadata, type_spec.ty().id());
+        let ty = resolve_type(&metadata, type_spec.ty().id());
+        let (ok_ty, _) = extract_result(&metadata, ty);
 
-        assert_eq!(
-            &scale_info::TypeDef::Primitive(scale_info::TypeDefPrimitive::U32),
-            ok_ty.type_def()
-        );
+        assert_eq!(&TypeDef::Primitive(TypeDefPrimitive::U32), ok_ty.type_def());
     }
 
     #[test]
@@ -132,59 +132,21 @@ mod tests {
             "ink_primitives::ConstructorResult",
             format!("{}", type_spec.display_name())
         );
-        let ty = metadata.registry().resolve(type_spec.ty().id()).unwrap();
 
-        assert_eq!("Result", format!("{}", ty.path()));
-        match ty.type_def() {
-            scale_info::TypeDef::Variant(variant) => {
-                assert_eq!(2, variant.variants().len());
+        let outer_result_ty = resolve_type(&metadata, type_spec.ty().id());
+        let (outer_ok_ty, outer_err_ty) = extract_result(&metadata, outer_result_ty);
+        let (inner_ok_ty, _) = extract_result(&metadata, outer_ok_ty);
 
-                // Outer Result
-                let outer_ok_variant = &variant.variants()[0];
-                let outer_ok_field = &outer_ok_variant.fields()[0];
-                let outer_ok_ty = metadata
-                    .registry()
-                    .resolve(outer_ok_field.ty().id())
-                    .unwrap();
-                assert_eq!("Ok", outer_ok_variant.name());
+        assert_eq!(
+            format!("{}", outer_err_ty.path()),
+            "ink_primitives::LangError"
+        );
 
-                // Inner Result
-                let inner_ok_ty = match outer_ok_ty.type_def() {
-                    scale_info::TypeDef::Variant(variant) => {
-                        assert_eq!(2, variant.variants().len());
-
-                        let inner_ok_variant = &variant.variants()[0];
-                        assert_eq!("Ok", inner_ok_variant.name());
-
-                        let inner_ok_field = &inner_ok_variant.fields()[0];
-                        metadata
-                            .registry()
-                            .resolve(inner_ok_field.ty().id())
-                            .unwrap()
-                    }
-                    td => panic!("Expected a Variant type def enum, got {:?}", td),
-                };
-
-                let unit_ty = scale_info::TypeDef::Tuple(
-                    scale_info::TypeDefTuple::new_portable(vec![]),
-                );
-
-                assert_eq!(
-                    &unit_ty,
-                    inner_ok_ty.type_def(),
-                    "Ok variant should be a unit `()` type"
-                );
-
-                let err_variant = &variant.variants()[1];
-                let err_field = &err_variant.fields()[0];
-                let err_ty_result = metadata.registry().resolve(err_field.ty().id());
-                assert_eq!("Err", err_variant.name());
-                assert!(
-                    err_ty_result.is_some(),
-                    "Error variant must be encoded with SCALE"
-                );
-            }
-            td => panic!("Expected a Variant type def enum, got {:?}", td),
-        }
+        let unit_ty = TypeDef::Tuple(TypeDefTuple::new_portable(vec![]));
+        assert_eq!(
+            &unit_ty,
+            inner_ok_ty.type_def(),
+            "Ok variant should be a unit `()` type"
+        );
     }
 }
