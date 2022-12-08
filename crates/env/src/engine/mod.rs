@@ -88,52 +88,59 @@ where
 }
 
 #[cfg(test)]
-mod tests {
+mod fallible_constructor_reverted_tests {
     use super::*;
     use scale::Encode;
 
     #[derive(scale::Encode, scale::Decode)]
     struct ContractError(String);
 
-    #[test]
-    fn fallible_constructor_reverted_inner_contract_error() {
-        let return_value = Ok(Err(ContractError("Constructor error".to_owned())));
-        let encoded_return_value =
-            <ConstructorResult<Result<(), ContractError>> as Encode>::encode(
-                &return_value,
-            );
+    fn roundtrip_return_value(
+        return_value: ConstructorResult<Result<(), ContractError>>,
+    ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
+    {
+        let encoded_return_value = return_value.encode();
+        decode_return_value(&mut &encoded_return_value[..])
+    }
 
-        let decoded_result = decode_fallible_constructor_reverted_return_value::<
-            _,
+    fn decode_return_value<I: scale::Input>(
+        input: &mut I,
+    ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
+    {
+        decode_fallible_constructor_reverted_return_value::<
+            I,
             crate::DefaultEnvironment,
             ContractError,
-        >(&mut &encoded_return_value[..]);
-
-        assert!(matches!(
-            decoded_result,
-            Ok(Ok(Err(ContractError(
-                _
-            ))))
-        ))
+        >(input)
     }
 
     #[test]
-    fn fallible_constructor_reverted_outer_lang_error() {
-        let return_value = Err(ink_primitives::LangError::CouldNotReadInput);
-        let encoded_return_value =
-            <ConstructorResult<Result<(), ContractError>> as Encode>::encode(
-                &return_value,
-            );
+    fn inner_contract_error() {
+        let return_value = Ok(Err(ContractError("Constructor error".to_owned())));
 
-        let decoded_result = decode_fallible_constructor_reverted_return_value::<
-            _,
-            crate::DefaultEnvironment,
-            ContractError,
-        >(&mut &encoded_return_value[..]);
+        let decoded_result = roundtrip_return_value(return_value);
+
+        assert!(matches!(decoded_result, Ok(Ok(Err(ContractError(_))))))
+    }
+
+    #[test]
+    fn outer_lang_error() {
+        let return_value = Err(ink_primitives::LangError::CouldNotReadInput);
+
+        let decoded_result = roundtrip_return_value(return_value);
 
         assert!(matches!(
             decoded_result,
             Ok(Err(ink_primitives::LangError::CouldNotReadInput))
         ))
+    }
+
+    #[test]
+    fn err_decoding_return_value() {
+        let invalid_encoded_return_value = vec![69];
+
+        let decoded_result = decode_return_value(&mut &invalid_encoded_return_value[..]);
+
+        assert!(matches!(decoded_result, Err(crate::Error::Decode(_))))
     }
 }
