@@ -44,6 +44,8 @@ use crate::{
 };
 use ink_primitives::ConstructorResult;
 
+type ContractResult<T, E> = core::result::Result<T, E>;
+
 pub(crate) fn decode_fallible_constructor_reverted_return_value<I, E, ContractError>(
     out_return_value: &mut I,
 ) -> EnvResult<ConstructorResult<Result<E::AccountId, ContractError>>>
@@ -116,23 +118,31 @@ mod fallible_constructor_reverted_tests {
 
     #[test]
     fn err_inner_contract() {
-        let return_value = Ok(Err(ContractError("Constructor error".to_owned())));
-
-        let decoded_result = roundtrip_return_value(return_value);
-
-        assert!(matches!(decoded_result, Ok(Ok(Err(ContractError(_))))))
-    }
-
-    // todo: FAILS! Is my test incorrect or is the impl incorrect?
-    #[test]
-    fn err_outer_lang() {
-        let return_value = Err(ink_primitives::LangError::CouldNotReadInput);
+        let return_value = ConstructorResult::Ok(ContractResult::Err(ContractError(
+            "Constructor error".to_owned(),
+        )));
 
         let decoded_result = roundtrip_return_value(return_value);
 
         assert!(matches!(
             decoded_result,
-            Ok(Err(ink_primitives::LangError::CouldNotReadInput))
+            EnvResult::Ok(ConstructorResult::Ok(ContractResult::Err(ContractError(_))))
+        ))
+    }
+
+    // todo: FAILS! Is my test incorrect or is the impl incorrect?
+    #[test]
+    fn err_outer_lang() {
+        let return_value =
+            ConstructorResult::Err(ink_primitives::LangError::CouldNotReadInput);
+
+        let decoded_result = roundtrip_return_value(return_value);
+
+        assert!(matches!(
+            decoded_result,
+            EnvResult::Ok(ConstructorResult::Err(
+                ink_primitives::LangError::CouldNotReadInput
+            ))
         ))
     }
 
