@@ -96,7 +96,7 @@ mod tests {
     struct ContractError(String);
 
     #[test]
-    fn fallible_constructor_reverted_contract_error() {
+    fn fallible_constructor_reverted_inner_contract_error() {
         let return_value = Ok(Err(ContractError("Constructor error".to_owned())));
         let encoded_return_value =
             <ConstructorResult<Result<(), ContractError>> as Encode>::encode(
@@ -118,7 +118,7 @@ mod tests {
     }
 
     #[test]
-    fn fallible_constructor_reverted_lang_error() {
+    fn fallible_constructor_reverted_outer_lang_error() {
         let return_value = Err(ink_primitives::LangError::CouldNotReadInput);
         let encoded_return_value =
             <ConstructorResult<Result<(), ContractError>> as Encode>::encode(
