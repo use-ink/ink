@@ -48,7 +48,7 @@ type ContractResult<T, E> = core::result::Result<T, E>;
 
 pub(crate) fn decode_fallible_constructor_reverted_return_value<I, E, ContractError>(
     out_return_value: &mut I,
-) -> EnvResult<ConstructorResult<Result<E::AccountId, ContractError>>>
+) -> EnvResult<ConstructorResult<ContractResult<E::AccountId, ContractError>>>
 where
     I: scale::Input,
     E: Environment,
@@ -124,7 +124,6 @@ mod fallible_constructor_reverted_tests {
         ))
     }
 
-    // todo: FAILS! Is my test incorrect or is the impl incorrect?
     #[test]
     fn dispatch_error_gets_decoded_correctly() {
         let return_value =
