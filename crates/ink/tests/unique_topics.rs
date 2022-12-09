@@ -26,8 +26,6 @@ mod my_contract {
             v1: Balance,
             #[ink(topic)]
             v2: bool,
-            #[ink(topic)]
-            v3: bool,
         },
     }
 
@@ -48,7 +46,6 @@ mod my_contract {
                 v0: None,
                 v1: 0,
                 v2: false,
-                v3: false,
             });
         }
     }
