@@ -41,6 +41,10 @@ mod contract {
 
 #[cfg(test)]
 mod tests {
+    use ink::metadata::{
+        EventSpec,
+        InkProject,
+    };
     use scale_info::{
         form::PortableForm,
         Type,
@@ -49,19 +53,19 @@ mod tests {
         TypeDefTuple,
     };
 
-    fn generate_metadata() -> ink_metadata::InkProject {
+    fn generate_metadata() -> InkProject {
         extern "Rust" {
-            fn __ink_generate_metadata() -> ink_metadata::InkProject;
+            fn __ink_generate_metadata(events: Vec<EventSpec>) -> InkProject;
         }
 
-        unsafe { __ink_generate_metadata() }
+        unsafe { __ink_generate_metadata(vec![]) }
     }
 
     /// Extract the type defs of the `Ok` and `Error` variants of a `Result` type.
     ///
     /// Panics if the type def is not a valid result
     fn extract_result<'a>(
-        metadata: &'a ink_metadata::InkProject,
+        metadata: &'a InkProject,
         ty: &'a Type<PortableForm>,
     ) -> (&'a Type<PortableForm>, &'a Type<PortableForm>) {
         assert_eq!(
@@ -90,7 +94,7 @@ mod tests {
 
     /// Resolve a type with the given id from the type registry
     fn resolve_type(
-        metadata: &ink_metadata::InkProject,
+        metadata: &InkProject,
         type_id: u32,
     ) -> &Type<PortableForm> {
         metadata
