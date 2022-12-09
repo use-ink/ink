@@ -432,7 +432,7 @@ impl TypedEnvBackend for EnvInstance {
         Event: Topics + scale::Encode,
     {
         let builder = TopicsBuilder::default();
-        let enc_topics = event.topics::<E, _>(builder.into());
+        let enc_topics = event.topics(builder.into());
         let enc_data = &scale::Encode::encode(&event)[..];
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }

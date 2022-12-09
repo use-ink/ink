@@ -149,8 +149,12 @@ impl InkEventDefinition {
         let attr_span = config.span();
         // todo: remove this, or do we need config attrs?
         // let _parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
-        let item = syn::parse2::<syn::ItemEnum>(input)
-            .map_err(|err| err.into_combine(format_err!(attr_span, "ink! event definitions must be enums")))?;
+        let item = syn::parse2::<syn::ItemEnum>(input).map_err(|err| {
+            err.into_combine(format_err!(
+                attr_span,
+                "ink! event definitions must be enums"
+            ))
+        })?;
         Self::try_from(item)
     }
 

@@ -93,10 +93,7 @@ mod tests {
     }
 
     /// Resolve a type with the given id from the type registry
-    fn resolve_type(
-        metadata: &InkProject,
-        type_id: u32,
-    ) -> &Type<PortableForm> {
+    fn resolve_type(metadata: &InkProject, type_id: u32) -> &Type<PortableForm> {
         metadata
             .registry()
             .resolve(type_id)

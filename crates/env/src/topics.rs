@@ -189,14 +189,16 @@ impl EventTopicsAmount for state::NoRemainingTopics {
 ///
 /// Normally this trait should be implemented automatically via the ink! codegen.
 pub trait Topics {
+    /// The environment type.
+    type Env: Environment;
+
     /// Guides event topic serialization using the given topics builder.
-    fn topics<E, B>(
+    fn topics<B>(
         &self,
-        builder: TopicsBuilder<state::Uninit, E, B>,
-    ) -> <B as TopicsBuilderBackend<E>>::Output
+        builder: TopicsBuilder<state::Uninit, Self::Env, B>,
+    ) -> <B as TopicsBuilderBackend<Self::Env>>::Output
     where
-        E: Environment,
-        B: TopicsBuilderBackend<E>;
+        B: TopicsBuilderBackend<Self::Env>;
 }
 
 /// For each topic a hash is generated. This hash must be unique
@@ -230,4 +232,82 @@ where
         self.prefix.encode_to(dest);
         self.value.encode_to(dest);
     }
+}
+
+use core::marker::PhantomData;
+
+/// Guards that an ink! event definitions respects the topic limit.
+///
+/// # Usage
+///
+/// ```
+/// // #[ink(event)]
+/// pub struct ExampleEvent {}
+///
+/// /// The amount of the topics of the example event struct.
+/// const LEN_TOPICS: usize = 3;
+///
+/// /// The limit for the amount of topics per ink! event definition.
+/// const TOPICS_LIMIT: usize = 4;
+///
+/// impl ::ink::codegen::EventLenTopics for ExampleEvent {
+///     type LenTopics = ::ink::codegen::EventTopics<LEN_TOPICS>;
+/// }
+///
+/// // The below code only compiles successfully if the example ink! event
+/// // definitions respects the topic limitation: it must have an amount of
+/// // topics less than or equal to the topic limit.
+/// const _: () = ::ink::codegen::utils::consume_type::<
+///     ::ink::codegen::EventRespectsTopicLimit<
+///         ExampleEvent,
+///         TOPICS_LIMIT,
+///     >
+/// >();
+/// ```
+pub struct EventRespectsTopicLimit<Event, const LEN_MAX_TOPICS: usize>
+where
+    Event: EventLenTopics,
+    <Event as EventLenTopics>::LenTopics: RespectTopicLimit<LEN_MAX_TOPICS>,
+{
+    marker: PhantomData<fn() -> Event>,
+}
+
+/// Guards that an amount of event topics respects the event topic limit.
+///
+/// # Note
+///
+/// Implemented by `EventTopics<M>` if M is less or equal to N.
+/// Automatically implemented for up to 12 event topics.
+pub trait RespectTopicLimit<const N: usize> {}
+
+/// Represents an the amount of topics for an ink! event definition.
+pub struct EventTopics<const N: usize>;
+
+macro_rules! impl_is_smaller_or_equals {
+    ( $first:literal $( , $rest:literal )* $(,)? ) => {
+        impl RespectTopicLimit<$first> for EventTopics<$first> {}
+        $(
+            impl RespectTopicLimit<$rest> for EventTopics<$first> {}
+        )*
+
+        impl_is_smaller_or_equals! { $( $rest ),* }
+    };
+    ( ) => {};
+}
+impl_is_smaller_or_equals! {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+}
+
+/// Stores the number of event topics of the ink! event definition.
+pub trait EventLenTopics {
+    /// Type denoting the number of event topics.
+    ///
+    /// # Note
+    ///
+    /// We use an associated type instead of an associated constant here
+    /// because Rust does not yet allow for generics in constant parameter
+    /// position which would be required in the `EventRespectsTopicLimit`
+    /// trait definition.
+    /// As soon as this is possible in Rust we might change this to a constant.
+    type LenTopics;
 }

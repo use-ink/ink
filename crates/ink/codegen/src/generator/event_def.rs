@@ -106,11 +106,21 @@ impl<'a> EventDefinition<'a> {
         let event_ident = self.event_def.ident();
         // todo: [AJ] check if event signature topic should be included here (it is now, wasn't before)
         let len_topics = self.event_def.max_len_topics();
-
+        let max_len_topics = quote_spanned!(span=>
+            <<#event_ident as ::ink::env::Topics>::Env
+                as ::ink::env::Environment>::MAX_EVENT_TOPICS
+        );
         quote_spanned!(span=>
             impl ::ink::codegen::EventLenTopics for #event_ident {
                 type LenTopics = ::ink::codegen::EventTopics<#len_topics>;
             }
+
+            const _: () = ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::EventRespectsTopicLimit<
+                    #event_ident,
+                    { #max_len_topics },
+                >
+            >();
         )
     }
 
@@ -192,13 +202,14 @@ impl<'a> EventDefinition<'a> {
         quote_spanned!(span =>
             const _: () = {
                 impl ::ink::env::Topics for #event_ident {
-                    fn topics<E, B>(
+                    type Env = ::ink::env::DefaultEnvironment; // todo: configure environment?
+
+                    fn topics<B>(
                         &self,
-                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, Self::Env, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<Self::Env>>::Output
                     where
-                        E: ::ink::env::Environment,
-                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                        B: ::ink::env::topics::TopicsBuilderBackend<Self::Env>,
                     {
                         match self {
                             #(
