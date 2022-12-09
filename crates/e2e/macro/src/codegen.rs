@@ -179,23 +179,30 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         BuildArtifacts,
         BuildMode,
         ExecuteArgs,
+        Features,
         ManifestPath,
+        Network,
+        OptimizationPasses,
+        OutputType,
+        UnstableFlags,
         Verbosity,
     };
 
-    let manifest_path =
-        ManifestPath::new(path_to_cargo_toml).expect("Invalid manifest path");
+    let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
+        panic!("Invalid manifest path {}: {}", path_to_cargo_toml, err)
+    });
     let args = ExecuteArgs {
         manifest_path,
         verbosity: Verbosity::Default,
         build_mode: BuildMode::Debug,
-        network: Default::default(),
+        features: Features::default(),
+        network: Network::Online,
         build_artifact: BuildArtifacts::All,
-        unstable_flags: Default::default(),
-        optimization_passes: Default::default(),
+        unstable_flags: UnstableFlags::default(),
+        optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,
         lint: false,
-        output_type: Default::default(),
+        output_type: OutputType::HumanReadable,
         skip_wasm_validation: false,
     };
 

@@ -264,7 +264,7 @@ impl Metadata<'_> {
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
-                let ret_ty = Self::generate_return_type(message.output());
+                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
                     ::ink::metadata::MessageSpec::from_label(#label)

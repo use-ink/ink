@@ -175,19 +175,6 @@ where
     })
 }
 
-/// Sets the balance of `account_id` to `new_balance`.
-pub fn set_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&account_id), new_balance);
-    })
-}
-
 /// Sets the value transferred from the caller to the callee as part of the call.
 ///
 /// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
