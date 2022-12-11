@@ -45,7 +45,7 @@ mod contract {
             arg_4: i64,
             // #[ink(topic)] <- Cannot have more than 4 topics by default.
             arg_5: i128,
-        }
+        },
     }
 
     impl Contract {
