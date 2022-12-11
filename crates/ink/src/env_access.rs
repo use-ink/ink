@@ -481,7 +481,7 @@ where
     pub fn instantiate_contract<Args, Salt, R>(
         self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
+    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
     where
         Args: scale::Encode,
         Salt: AsRef<[u8]>,

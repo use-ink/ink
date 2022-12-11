@@ -38,8 +38,8 @@ pub mod constructors_return_value {
         /// return value.
         #[ink(constructor)]
         pub fn revert_new(_init_value: bool) -> Self {
-            ::ink::env::return_value::<ink::ConstructorResult<AccountId>>(
-                ::ink::env::ReturnFlags::new_with_reverted(true),
+            ink::env::return_value::<ink::ConstructorResult<AccountId>>(
+                ink::env::ReturnFlags::new_with_reverted(true),
                 &Ok(AccountId::from([0u8; 32])),
             )
         }
@@ -54,9 +54,9 @@ pub mod constructors_return_value {
                 Err(ink::LangError::CouldNotReadInput)
             };
 
-            ::ink::env::return_value::<
+            ink::env::return_value::<
                 ink::ConstructorResult<Result<AccountId, ConstructorError>>,
-            >(::ink::env::ReturnFlags::new_with_reverted(true), &value)
+            >(ink::env::ReturnFlags::new_with_reverted(true), &value)
         }
 
         /// Returns the current value of the contract storage.
@@ -139,7 +139,7 @@ pub mod constructors_return_value {
                 .expect("Instantiate dry run should succeed");
 
             let data = infallible_constructor_result.result.data;
-            let decoded_result = Result::<(), ::ink::LangError>::decode(&mut &data[..])
+            let decoded_result = Result::<(), ink::LangError>::decode(&mut &data[..])
                 .expect("Failed to decode constructor Result");
             assert!(
                 decoded_result.is_ok(),

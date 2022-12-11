@@ -472,7 +472,7 @@ impl TypedEnvBackend for EnvInstance {
     fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
+    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
     where
         E: Environment,
         Args: scale::Encode,
