@@ -55,9 +55,8 @@ where
     E: crate::Environment,
     ContractError: scale::Decode,
 {
-    let out = <ConstructorResult<Result<(), ContractError>> as scale::Decode>::decode(
-        out_return_value,
-    )?;
+    let out: ConstructorResult<Result<(), ContractError>> =
+        scale::Decode::decode(out_return_value)?;
 
     match out {
         ConstructorResult::Ok(ContractResult::Ok(())) => {
