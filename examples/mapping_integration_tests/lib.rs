@@ -2,11 +2,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::mapping_integration_tests::{
-    Mappings,
-    MappingsRef,
-};
-
 #[ink::contract]
 mod mapping_integration_tests {
     use ink::storage::Mapping;
@@ -103,7 +98,7 @@ mod mapping_integration_tests {
             let constructor = MappingsRef::new();
             let contract_id = client
                 .instantiate(
-                    "mapping_integration_tests",
+                    "mapping-integration-tests",
                     &ink_e2e::alice(),
                     constructor,
                     0,
@@ -147,7 +142,7 @@ mod mapping_integration_tests {
             let constructor = MappingsRef::new();
             let contract_id = client
                 .instantiate(
-                    "mapping_integration_tests",
+                    "mapping-integration-tests",
                     &ink_e2e::bob(),
                     constructor,
                     0,
@@ -188,7 +183,7 @@ mod mapping_integration_tests {
             let constructor = MappingsRef::new();
             let contract_id = client
                 .instantiate(
-                    "mapping_integration_tests",
+                    "mapping-integration-tests",
                     &ink_e2e::charlie(),
                     constructor,
                     0,
@@ -242,7 +237,7 @@ mod mapping_integration_tests {
             let constructor = MappingsRef::new();
             let contract_id = client
                 .instantiate(
-                    "mapping_integration_tests",
+                    "mapping-integration-tests",
                     &ink_e2e::dave(),
                     constructor,
                     0,
@@ -292,7 +287,7 @@ mod mapping_integration_tests {
             let constructor = MappingsRef::new();
             let contract_id = client
                 .instantiate(
-                    "mapping_integration_tests",
+                    "mapping-integration-tests",
                     &ink_e2e::eve(),
                     constructor,
                     0,
