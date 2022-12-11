@@ -211,6 +211,12 @@ where
 ///
 /// # Example
 ///
+/// **Note:** The shown examples panic because there is currently no cross-calling
+///           support in the off-chain testing environment. However, this code
+///           should work fine in on-chain environments.
+///
+/// ## Example 1: Returns Address of Instantiated Contract
+///
 /// The below example shows instantiation of contract of type `MyContract`.
 ///
 /// The used constructor:
@@ -253,9 +259,43 @@ where
 ///     .unwrap();
 /// ```
 ///
-/// **Note:** The shown example panics because there is currently no cross-calling
-///           support in the off-chain testing environment. However, this code
-///           should work fine in on-chain environments.
+/// ## Example 2: Handles Result from Fallible Constructor
+///
+/// ```should_panic
+/// # use ::ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
+/// # };
+/// # type Hash = <DefaultEnvironment as Environment>::Hash;
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// # type Salt = &'static [u8];
+/// # struct MyContract;
+/// # impl FromAccountId<DefaultEnvironment> for MyContract {
+/// #     fn from_account_id(account_id: AccountId) -> Self { Self }
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, Debug)]
+/// # #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+/// # pub struct ConstructorError;
+/// let my_contract: MyContract = build_create::<DefaultEnvironment>()
+///     .code_hash(Hash::from([0x42; 32]))
+///     .gas_limit(4000)
+///     .endowment(25)
+///     .exec_input(
+///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///             .push_arg(42)
+///             .push_arg(true)
+///             .push_arg(&[0x10u8; 32])
+///     )
+///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+///     .returns::<Result<MyContract, ConstructorError>>()
+///     .params()
+///     .instantiate_fallible()
+///     .unwrap()
+///     .unwrap();
+/// ```
+///
+/// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
 #[allow(clippy::type_complexity)]
 pub fn build_create<E>() -> CreateBuilder<
     E,
