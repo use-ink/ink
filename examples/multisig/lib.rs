@@ -360,7 +360,8 @@ mod multisig {
             ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
             self.is_owner.insert(new_owner, &());
             self.owners.push(new_owner);
-            self.env().emit_event(Event::OwnerAddition { owner: new_owner });
+            self.env()
+                .emit_event(Event::OwnerAddition { owner: new_owner });
         }
 
         /// Remove an owner from the contract.
@@ -404,8 +405,10 @@ mod multisig {
             self.is_owner.remove(old_owner);
             self.is_owner.insert(new_owner, &());
             self.clean_owner_confirmations(&old_owner);
-            self.env().emit_event(Event::OwnerRemoval { owner: old_owner });
-            self.env().emit_event(Event::OwnerAddition { owner: new_owner });
+            self.env()
+                .emit_event(Event::OwnerRemoval { owner: old_owner });
+            self.env()
+                .emit_event(Event::OwnerAddition { owner: new_owner });
         }
 
         /// Change the requirement to a new value.
@@ -420,7 +423,8 @@ mod multisig {
             self.ensure_from_wallet();
             ensure_requirement_is_valid(self.owners.len() as u32, new_requirement);
             self.requirement = new_requirement;
-            self.env().emit_event(Event::RequirementChange { new_requirement });
+            self.env()
+                .emit_event(Event::RequirementChange { new_requirement });
         }
 
         /// Add a new transaction candidate to the contract.
