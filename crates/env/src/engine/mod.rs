@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::backend::{
-    EnvBackend,
-    TypedEnvBackend,
+use crate::{
+    backend::{
+        EnvBackend,
+        TypedEnvBackend,
+    },
+    Result as EnvResult,
 };
 use cfg_if::cfg_if;
+use ink_primitives::ConstructorResult;
 
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
@@ -38,12 +42,10 @@ cfg_if! {
     }
 }
 
-use crate::Result as EnvResult;
-use ink_primitives::ConstructorResult;
-
+// The `Result` type used to represent the programmer defined contract output.
 type ContractResult<T, E> = core::result::Result<T, E>;
 
-// We only use this function when 1) compiling to Wasm 2) compiling for tests
+// We only use this function when 1) compiling to Wasm 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
 pub(crate) fn decode_fallible_constructor_reverted_return_value<I, E, ContractError>(
     out_return_value: &mut I,
@@ -85,7 +87,6 @@ mod fallible_constructor_reverted_tests {
     ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
     {
         let encoded_return_value = return_value.encode();
-        dbg!(&encoded_return_value);
         decode_return_value(&mut &encoded_return_value[..])
     }
 
