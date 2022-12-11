@@ -490,8 +490,8 @@ impl TypedEnvBackend for EnvInstance {
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<
-        ::ink_primitives::ConstructorResult<
-            ::core::result::Result<E::AccountId, ContractError>,
+        ink_primitives::ConstructorResult<
+            core::result::Result<E::AccountId, ContractError>,
         >,
     >
     where

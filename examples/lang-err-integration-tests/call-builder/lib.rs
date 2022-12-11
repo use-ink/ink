@@ -37,13 +37,13 @@ mod call_builder {
             &mut self,
             address: AccountId,
             selector: [u8; 4],
-        ) -> Option<::ink::LangError> {
+        ) -> Option<ink::LangError> {
             use ink::env::call::build_call;
 
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
-                .returns::<Result<(), ::ink::LangError>>()
+                .returns::<Result<(), ink::LangError>>()
                 .fire()
                 .expect("Error from the Contracts pallet.");
 
@@ -62,7 +62,7 @@ mod call_builder {
             code_hash: Hash,
             selector: [u8; 4],
             init_value: bool,
-        ) -> Option<::ink::LangError> {
+        ) -> Option<ink::LangError> {
             use ink::env::call::build_create;
 
             let result = build_create::<DefaultEnvironment>()
@@ -183,7 +183,7 @@ mod call_builder {
 
             assert!(matches!(
                 flipper_result,
-                Some(::ink::LangError::CouldNotReadInput)
+                Some(ink::LangError::CouldNotReadInput)
             ));
 
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)

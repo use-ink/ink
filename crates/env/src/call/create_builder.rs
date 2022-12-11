@@ -143,7 +143,7 @@ where
     #[inline]
     pub fn try_instantiate(
         &self,
-    ) -> Result<::ink_primitives::ConstructorResult<R>, crate::Error> {
+    ) -> Result<ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self)
             .map(|inner| inner.map(FromAccountId::from_account_id))
     }
@@ -183,7 +183,7 @@ where
     #[inline]
     pub fn try_instantiate_fallible(
         &self,
-    ) -> Result<::ink_primitives::ConstructorResult<Result<R, ContractError>>, crate::Error>
+    ) -> Result<ink_primitives::ConstructorResult<Result<R, ContractError>>, crate::Error>
     {
         crate::instantiate_fallible_contract(self).map(|constructor_result| {
             constructor_result.map(|contract_result| {
@@ -511,7 +511,7 @@ where
     #[inline]
     pub fn try_instantiate(
         self,
-    ) -> Result<::ink_primitives::ConstructorResult<RetType>, Error> {
+    ) -> Result<ink_primitives::ConstructorResult<RetType>, Error> {
         self.params().try_instantiate()
     }
 }
@@ -524,7 +524,7 @@ impl<E, GasLimit, Args, Salt, RetType, ContractError>
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        Set<ReturnType<::core::result::Result<RetType, ContractError>>>,
+        Set<ReturnType<Result<RetType, ContractError>>>,
     >
 where
     E: Environment,
@@ -541,9 +541,7 @@ where
     /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
     /// those use the [`try_instantiate_fallible`][`CreateParams::try_instantiate_fallible`] method instead.
     #[inline]
-    pub fn instantiate_fallible(
-        self,
-    ) -> Result<::core::result::Result<RetType, ContractError>, Error> {
+    pub fn instantiate_fallible(self) -> Result<Result<RetType, ContractError>, Error> {
         self.params().instantiate_fallible()
     }
 
@@ -555,12 +553,8 @@ where
     #[inline]
     pub fn try_instantiate_fallible(
         self,
-    ) -> Result<
-        ::ink_primitives::ConstructorResult<
-            ::core::result::Result<RetType, ContractError>,
-        >,
-        Error,
-    > {
+    ) -> Result<ink_primitives::ConstructorResult<Result<RetType, ContractError>>, Error>
+    {
         self.params().try_instantiate_fallible()
     }
 }

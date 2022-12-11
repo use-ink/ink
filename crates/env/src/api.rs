@@ -321,7 +321,7 @@ where
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, Args, Salt, R>(
     params: &CreateParams<E, Args, Salt, R>,
-) -> Result<::ink_primitives::ConstructorResult<E::AccountId>>
+) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -351,9 +351,7 @@ where
 pub fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
     params: &CreateParams<E, Args, Salt, R>,
 ) -> Result<
-    ::ink_primitives::ConstructorResult<
-        ::core::result::Result<E::AccountId, ContractError>,
-    >,
+    ink_primitives::ConstructorResult<core::result::Result<E::AccountId, ContractError>>,
 >
 where
     E: Environment,
