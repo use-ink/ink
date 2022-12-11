@@ -94,11 +94,15 @@ mod call_builder {
             code_hash: Hash,
             selector: [u8; 4],
             init_value: bool,
-        ) -> Option<Result<AccountId, constructors_return_value::ConstructorError>>
-        {
+        ) -> Option<
+            Result<
+                Result<AccountId, constructors_return_value::ConstructorError>,
+                ink::LangError,
+            >,
+        > {
             use ink::env::call::build_create;
 
-            let result = build_create::<DefaultEnvironment>()
+            let lang_result = build_create::<DefaultEnvironment>()
                 .code_hash(code_hash)
                 .gas_limit(0)
                 .endowment(0)
@@ -112,11 +116,12 @@ mod call_builder {
                 >>()
                 .params()
                 .try_instantiate_fallible()
-                .expect("Error from the Contracts pallet.")
-                .expect("Dispatch should have succeeded.");
-            ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
+                .expect("Error from the Contracts pallet.");
+            ::ink::env::debug_println!("Result from `instantiate` {:?}", &lang_result);
 
-            Some(result.map(|inner| ink::ToAccountId::to_account_id(&inner)))
+            Some(lang_result.map(|contract_result| {
+                contract_result.map(|inner| ink::ToAccountId::to_account_id(&inner))
+            }))
         }
     }
 
@@ -341,9 +346,9 @@ mod call_builder {
             let call_result = client
                 .call(&mut ink_e2e::eve(), call, 0, None)
                 .await
-                .expect("Calling `call_builder::call_instantiate` failed")
+                .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .value
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
+                .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
 
             assert!(
                 call_result.unwrap().is_ok(),
@@ -379,13 +384,20 @@ mod call_builder {
             let call_result = client
                 .call(&mut ink_e2e::ferdie(), call, 0, None)
                 .await
-                .expect("Calling `call_builder::call_instantiate` failed")
+                .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .value
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
+                .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
+
+            let contract_result = call_result
+                .unwrap()
+                .expect("Dispatching `constructors_return_value::try_new` failed.");
 
             assert!(
-                call_result.unwrap().is_err(),
-                "Call to falliable constructor succeeded, when it should have failed."
+                matches!(
+                    contract_result,
+                    Err(constructors_return_value::ConstructorError)
+                ),
+                "Got an unexpected error from the contract."
             );
 
             Ok(())
@@ -424,10 +436,7 @@ mod call_builder {
             let contains_err_msg = match call_result.unwrap_err() {
                 ink_e2e::Error::CallDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains(
-                            "Since the contract reverted, we only expect an `Error` from the constructor. \
-                             Otherwise we would be in the `AccountId` branch."
-                        )
+                        .contains("Error from the Contracts pallet.: Decode(Error)")
                 }
                 _ => false,
             };
@@ -462,25 +471,19 @@ mod call_builder {
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
                     contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
-            let call_result = client.call(&mut ink_e2e::bob(), call, 0, None).await;
+            let call_result = client
+                .call(&mut ink_e2e::bob(), call, 0, None)
+                .await
+                .expect(
+                    "Client failed to call `call_builder::call_instantiate_fallible`.",
+                )
+                .value
+                .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
 
             assert!(
-                call_result.is_err(),
-                "Call execution should've failed, but didn't."
-            );
-
-            let contains_err_msg = match call_result.unwrap_err() {
-                ink_e2e::Error::CallDryRun(dry_run) => {
-                    String::from_utf8_lossy(&dry_run.debug_message).contains(
-                        "If dispatch had failed, we shouldn't have been able to decode \
-                         the nested `Result`.",
-                    )
-                }
-                _ => false,
-            };
-            assert!(
-                contains_err_msg,
-                "Call execution failed for an unexpected reason."
+                matches!(call_result, Some(Err(ink::LangError::CouldNotReadInput))),
+                "The callee manually encoded `CouldNotReadInput` to the output buffer, we should've
+                 gotten that back."
             );
 
             Ok(())
