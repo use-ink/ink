@@ -38,20 +38,19 @@ cfg_if! {
     }
 }
 
-use crate::{
-    Environment,
-    Result as EnvResult,
-};
+use crate::Result as EnvResult;
 use ink_primitives::ConstructorResult;
 
 type ContractResult<T, E> = core::result::Result<T, E>;
 
+// We only use this function when 1) compiling to Wasm 2) compiling for tests
+#[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
 pub(crate) fn decode_fallible_constructor_reverted_return_value<I, E, ContractError>(
     out_return_value: &mut I,
 ) -> EnvResult<ConstructorResult<ContractResult<E::AccountId, ContractError>>>
 where
     I: scale::Input,
-    E: Environment,
+    E: crate::Environment,
     ContractError: scale::Decode,
 {
     let out = <ConstructorResult<Result<(), ContractError>> as scale::Decode>::decode(
@@ -81,7 +80,7 @@ mod fallible_constructor_reverted_tests {
     #[derive(scale::Encode, scale::Decode)]
     struct ContractError(String);
 
-    fn roundtrip_return_value(
+    fn encode_and_decode_return_value(
         return_value: ConstructorResult<Result<(), ContractError>>,
     ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
     {
@@ -105,7 +104,7 @@ mod fallible_constructor_reverted_tests {
     fn revert_branch_rejects_valid_output_buffer_with_success_case() {
         let return_value = ConstructorResult::Ok(ContractResult::Ok(()));
 
-        let decoded_result = roundtrip_return_value(return_value);
+        let decoded_result = encode_and_decode_return_value(return_value);
 
         assert!(matches!(decoded_result, Err(crate::Error::Decode(_))))
     }
@@ -116,7 +115,7 @@ mod fallible_constructor_reverted_tests {
             "Contract's constructor failed.".to_owned(),
         )));
 
-        let decoded_result = roundtrip_return_value(return_value);
+        let decoded_result = encode_and_decode_return_value(return_value);
 
         assert!(matches!(
             decoded_result,
@@ -129,7 +128,7 @@ mod fallible_constructor_reverted_tests {
         let return_value =
             ConstructorResult::Err(ink_primitives::LangError::CouldNotReadInput);
 
-        let decoded_result = roundtrip_return_value(return_value);
+        let decoded_result = encode_and_decode_return_value(return_value);
 
         assert!(matches!(
             decoded_result,

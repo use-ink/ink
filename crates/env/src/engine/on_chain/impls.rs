@@ -572,9 +572,11 @@ impl TypedEnvBackend for EnvInstance {
                 Ok(ink_primitives::ConstructorResult::Ok(Ok(account_id)))
             }
             Err(ext::Error::CalleeReverted) => {
-                decode_fallible_constructor_reverted_return_value::<_, E, ContractError>(
-                    &mut &out_return_value[..],
-                )
+                crate::engine::decode_fallible_constructor_reverted_return_value::<
+                    _,
+                    E,
+                    ContractError,
+                >(&mut &out_return_value[..])
             }
             Err(actual_error) => Err(actual_error.into()),
         }
