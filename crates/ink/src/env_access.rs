@@ -449,7 +449,7 @@ where
     ///         .gas_limit(4000)
     ///         .endowment(25)
     ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32]),
@@ -489,13 +489,88 @@ where
         ink_env::instantiate_contract::<E, Args, Salt, R>(params)
     }
 
-    /// TODO: Docs
+    /// Attempts to instantiate a contract, returning the execution result back to the caller.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// # // In order for this to actually work with another contract we'd need a way
+    /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
+    /// # // can't do.
+    /// # //
+    /// # // Instead we use our own contract's `Ref`, which is fine for this example
+    /// # // (just need something that implements the `ContractRef` trait).
+    /// # pub mod other_contract {
+    /// #     pub use super::MyContractRef as OtherContractRef;
+    /// #     pub use super::ConstructorError as OtherConstructorError;
+    /// # }
+    /// use ink::env::{
+    ///     DefaultEnvironment,
+    ///     call::{build_create, Selector, ExecutionInput}
+    /// };
+    /// use other_contract::{OtherContractRef, OtherConstructorError};
+    ///
+    /// # #[derive(scale::Encode, scale::Decode, Debug)]
+    /// # #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    /// # pub struct ConstructorError;
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn try_new() -> Result<Self, ConstructorError> {
+    /// #             Ok(Self {})
+    /// #         }
+    /// #
+    /// /// Attempts to instantiate a contract, returning the `AccountId` back to the caller.
+    /// #[ink(message)]
+    /// pub fn instantiate_fallible_contract(&self) -> AccountId {
+    ///     let create_params = build_create::<DefaultEnvironment>()
+    ///         .code_hash(Hash::from([0x42; 32]))
+    ///         .gas_limit(4000)
+    ///         .endowment(25)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("try_new")))
+    ///                 .push_arg(42)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
+    ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .returns::<Result<OtherContractRef, OtherConstructorError>>()
+    ///         .params();
+    ///     self.env()
+    ///         .instantiate_fallible_contract(&create_params)
+    ///         .unwrap_or_else(|error| {
+    ///             panic!(
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 error
+    ///             )
+    ///         })
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
+    ///         .unwrap_or_else(|error: ConstructorError| {
+    ///             panic!(
+    ///                 "Received a `ConstructorError` while instatiating: {:?}",
+    ///                 error
+    ///             )
+    ///         })
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::instantiate_fallible_contract`]
     pub fn instantiate_fallible_contract<Args, Salt, R, ContractError>(
         self,
         params: &CreateParams<E, Args, Salt, R>,
     ) -> Result<
-        ::ink_primitives::ConstructorResult<
-            ::core::result::Result<E::AccountId, ContractError>,
+        ink_primitives::ConstructorResult<
+            core::result::Result<E::AccountId, ContractError>,
         >,
     >
     where
