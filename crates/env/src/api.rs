@@ -309,7 +309,9 @@ where
 /// # Note
 ///
 /// This is a low level way to instantiate another smart contract.
-/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
 ///
 /// # Errors
 ///
@@ -338,7 +340,9 @@ where
 /// # Note
 ///
 /// This is a low level way to instantiate another smart contract.
-/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
 ///
 /// # Errors
 ///
