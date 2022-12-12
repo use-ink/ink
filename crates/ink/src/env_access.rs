@@ -414,7 +414,7 @@ where
     where
         Event: ink_env::Topics + scale::Encode,
     {
-        ink_env::emit_event::<E, Event>(event)
+        ink_env::emit_event::<Event>(event)
     }
 
     /// Instantiates another contract.

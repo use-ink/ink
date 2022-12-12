@@ -30,7 +30,7 @@ mod contract {
             arg_3: i32,
             arg_4: i64,
             arg_5: i128,
-        }
+        },
     }
 
     impl Contract {

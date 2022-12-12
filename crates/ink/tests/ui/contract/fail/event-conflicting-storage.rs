@@ -6,7 +6,7 @@ mod contract {
     #[ink::event_definition]
     #[ink(storage)]
     pub enum Event {
-        Event {}
+        Event {},
     }
 
     impl Contract {

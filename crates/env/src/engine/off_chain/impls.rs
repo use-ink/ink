@@ -426,9 +426,8 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<Event>(&mut self, event: Event)
     where
-        E: Environment,
         Event: Topics + scale::Encode,
     {
         let builder = TopicsBuilder::default();

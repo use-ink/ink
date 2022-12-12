@@ -45,7 +45,7 @@ mod contract {
             arg_9: u64,
             #[ink(topic)]
             arg_10: u128,
-        }
+        },
     }
 
     impl Contract {

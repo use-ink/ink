@@ -690,9 +690,9 @@ ink! 3.0-rc4 is compatible with
 - [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) version `0.1.0` or newer.
     - Install the newest version using `cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force`.
 
-The documentation on our [Documentation Portal](https://ink.substrate.io)
+The documentation on our [Documentation Portal](https://use.ink)
 is up-to-date with this release candidate. Since the last release candidate we notably
-added a number of [Frequently Asked Questions](https://ink.substrate.io/faq)
+added a number of [Frequently Asked Questions](https://use.ink/faq)
 there.
 
 ### Quality Assurance
@@ -721,7 +721,7 @@ of key improvements to our testing setup:
 - Implemented the (unstable) `seal_rent_status` API ‒ [#798](https://github.com/paritytech/ink/pull/798).
 - Implemented the (unstable) `seal_debug_message` API ‒ [#792](https://github.com/paritytech/ink/pull/792).
     - Printing debug messages can now be achieved via `ink_env::debug_println!(…)`.
-    - See [our documentation](https://ink.substrate.io/faq#how-do-i-print-something-to-the-console-from-the-runtime)
+    - See [our documentation](https://use.ink/faq#how-do-i-print-something-to-the-console-from-the-runtime)
       for more information.
     - The examples have been updated to reflect this new way of printing debug messages.
 - Added usage comments with code examples to the `ink_env` API ‒ [#797](https://github.com/paritytech/ink/pull/797).
@@ -782,7 +782,7 @@ ink! 3.0-rc3 is compatible with
 ### Added
 
 - Implemented chain extensions feature for ink!.
-- ink!'s official documentation portal: https://ink.substrate.io/
+- ink!'s official documentation portal: https://use.ink/
 - It is now possible to pass a `salt` argument to contract instantiations.
 - Implemented fuzz testing for the ink! codebase.
 

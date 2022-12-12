@@ -33,7 +33,7 @@ mod contract {
             arg_3: i32,
             #[ink(topic)]
             arg_4: i32,
-        }
+        },
     }
 
     impl Contract {
