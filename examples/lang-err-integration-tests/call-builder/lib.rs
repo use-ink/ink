@@ -3,7 +3,7 @@
 //! This contract is used to ensure that the behavior around `LangError`s works as expected.
 //!
 //! In particular, it exercises the codepaths that stem from the usage of the
-//! [`CallBuilder`](`ink_env::call::CallBuilder`) and [`CreateBuilder`](`ink_env::call::CreateBuilder`)
+//! [`CallBuilder`](`ink::env::call::CallBuilder`) and [`CreateBuilder`](`ink::env::call::CreateBuilder`)
 //! structs.
 //!
 //! This differs from the codepath used by external tooling, such as `cargo-contract` or the
