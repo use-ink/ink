@@ -436,7 +436,7 @@ mod call_builder {
             let contains_err_msg = match call_result.unwrap_err() {
                 ink_e2e::Error::CallDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains("Error from the Contracts pallet.: Decode(Error)")
+                        .contains("The callee reverted, but did not encode an error in the output buffer.")
                 }
                 _ => false,
             };

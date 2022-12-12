@@ -62,9 +62,12 @@ where
         ConstructorResult::Ok(ContractResult::Ok(())) => {
             // Since the contract reverted we don't expect an `Ok` return value from the
             // constructor, otherwise we'd be in the `AccountId` decoding branch.
-            Err(crate::Error::Decode(
-                "TODO: probably shouldn't be a `Decode` error".into(),
-            ))
+            //
+            // While we could handle this more gracefully, e.g through a `LangError`, we're going to
+            // be defensive for now and trap.
+            panic!(
+                "The callee reverted, but did not encode an error in the output buffer."
+            )
         }
         ConstructorResult::Ok(ContractResult::Err(contract_error)) => {
             Ok(ConstructorResult::Ok(ContractResult::Err(contract_error)))
@@ -101,12 +104,13 @@ mod fallible_constructor_reverted_tests {
     }
 
     #[test]
+    #[should_panic(
+        expected = "The callee reverted, but did not encode an error in the output buffer."
+    )]
     fn revert_branch_rejects_valid_output_buffer_with_success_case() {
         let return_value = ConstructorResult::Ok(ContractResult::Ok(()));
 
-        let decoded_result = encode_and_decode_return_value(return_value);
-
-        assert!(matches!(decoded_result, Err(crate::Error::Decode(_))))
+        let _decoded_result = encode_and_decode_return_value(return_value);
     }
 
     #[test]
