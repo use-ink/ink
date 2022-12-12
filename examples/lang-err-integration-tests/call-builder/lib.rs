@@ -2,8 +2,16 @@
 //!
 //! This contract is used to ensure that the behavior around `LangError`s works as expected.
 //!
-//! It makes use of ink!'s end-to-end testing features, so ensure that you have a node which
-//! includes the Contract's pallet running alongside your tests.
+//! In particular, it exercises the codepaths that stem from the usage of the
+//! [`CallBuilder`](`ink_env::call::CallBuilder`) and [`CreateBuilder`](`ink_env::call::CreateBuilder`)
+//! structs.
+//!
+//! This differs from the codepath used by external tooling, such as `cargo-contract` or the
+//! `Contracts-UI` which instead depend on methods from the Contracts pallet which are exposed via
+//! RPC.
+//!
+//! Note that during testing we make use of ink!'s end-to-end testing features, so ensure that you
+//! have a node which includes the Contracts pallet running alongside your tests.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -11,6 +19,8 @@
 mod call_builder {
     use ink::env::{
         call::{
+            build_call,
+            build_create,
             Call,
             ExecutionInput,
             Selector,
@@ -32,14 +42,15 @@ mod call_builder {
         ///
         /// Since we can't use the `CallBuilder` in a test environment directly we need this
         /// wrapper to test things like crafting calls with invalid selectors.
+        ///
+        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
+        /// contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call(
             &mut self,
             address: AccountId,
             selector: [u8; 4],
         ) -> Option<ink::LangError> {
-            use ink::env::call::build_call;
-
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
@@ -56,6 +67,13 @@ mod call_builder {
             }
         }
 
+        /// Instantiate a contract using the `CreateBuilder`.
+        ///
+        /// Since we can't use the `CreateBuilder` in a test environment directly we need this
+        /// wrapper to test things like crafting calls with invalid selectors.
+        ///
+        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
+        /// contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call_instantiate(
             &mut self,
@@ -63,8 +81,6 @@ mod call_builder {
             selector: [u8; 4],
             init_value: bool,
         ) -> Option<ink::LangError> {
-            use ink::env::call::build_create;
-
             let result = build_create::<DefaultEnvironment>()
                 .code_hash(code_hash)
                 .gas_limit(0)
@@ -77,7 +93,6 @@ mod call_builder {
                 .params()
                 .try_instantiate()
                 .expect("Error from the Contracts pallet.");
-            ::ink::env::debug_println!("Result from `instantiate` {:?}", &result);
 
             match result {
                 Ok(_) => None,
@@ -88,6 +103,13 @@ mod call_builder {
             }
         }
 
+        /// Attempt to instantiate a contract using the `CreateBuilder`.
+        ///
+        /// Since we can't use the `CreateBuilder` in a test environment directly we need this
+        /// wrapper to test things like crafting calls with invalid selectors.
+        ///
+        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
+        /// contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call_instantiate_fallible(
             &mut self,
@@ -100,8 +122,6 @@ mod call_builder {
                 ink::LangError,
             >,
         > {
-            use ink::env::call::build_create;
-
             let lang_result = build_create::<DefaultEnvironment>()
                 .code_hash(code_hash)
                 .gas_limit(0)
@@ -117,7 +137,6 @@ mod call_builder {
                 .params()
                 .try_instantiate_fallible()
                 .expect("Error from the Contracts pallet.");
-            ::ink::env::debug_println!("Result from `instantiate` {:?}", &lang_result);
 
             Some(lang_result.map(|contract_result| {
                 contract_result.map(|inner| ink::ToAccountId::to_account_id(&inner))
