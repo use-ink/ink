@@ -310,7 +310,7 @@ mod mapping_integration_tests {
             let take = ink_e2e::build_message::<MappingsRef>(contract_id)
                 .call(|contract| contract.take_balance());
             let balance = client
-                .call(&ink_e2e::dave(), take, 0, None)
+                .call(&ink_e2e::eve(), take, 0, None)
                 .await
                 .expect("Calling `take_balance` failed")
                 .value
