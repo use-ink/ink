@@ -6,7 +6,7 @@ pub trait RuntimeReadWrite {
     type ErrorCode = ReadWriteErrorCode;
 
     /// Reads from runtime storage.
-    #[ink(extension = 1, returns_result = false)]
+    #[ink(extension = 1)]
     fn read(key: &[u8]) -> Vec<u8>;
 
     /// Reads from runtime storage.
@@ -22,11 +22,11 @@ pub trait RuntimeReadWrite {
     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
 
     /// Writes into runtime storage.
-    #[ink(extension = 3, returns_result = false)]
+    #[ink(extension = 3)]
     fn write(key: &[u8], value: &[u8]);
 
     /// Returns the access allowed for the key for the caller.
-    #[ink(extension = 4, returns_result = false, handle_status = false)]
+    #[ink(extension = 4, handle_status = false)]
     fn access(key: &[u8]) -> Option<Access>;
 
     /// Unlocks previously aquired permission to access key.

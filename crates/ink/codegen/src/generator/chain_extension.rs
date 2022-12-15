@@ -73,7 +73,6 @@ impl ChainExtension<'_> {
         };
 
         let handle_status = method.handle_status();
-        let returns_result = method.returns_result();
 
         let error_code_handling = if handle_status {
             quote_spanned!(span=>
@@ -85,55 +84,50 @@ impl ChainExtension<'_> {
             )
         };
 
-        let result_handling = if returns_result {
+        let returned_type = if handle_status {
             quote_spanned!(span=>
-                .output_result::<
-                    <#output_type as ::ink::IsResultType>::Ok,
-                    <#output_type as ::ink::IsResultType>::Err,
-                >()
+                ::core::result::Result<#output_type, #error_code>
             )
         } else {
             quote_spanned!(span=>
-                .output::<#output_type>()
+                #output_type
             )
         };
 
-        let returned_type = match (returns_result, handle_status) {
-            (false, true) => {
-                quote_spanned!(span=>
-                    ::core::result::Result<#output_type, #error_code>
-                )
-            }
-            _ => {
-                quote_spanned!(span=>
-                    #output_type
-                )
-            }
-        };
-
-        let where_output_is_result = Some(quote_spanned!(span=>
-            #output_type: ::ink::IsResultType,
-        ))
-        .filter(|_| returns_result);
-
         let where_output_impls_from_error_code = Some(quote_spanned!(span=>
             <#output_type as ::ink::IsResultType>::Err: ::core::convert::From<#error_code>,
-        )).filter(|_| returns_result && handle_status);
+        )).filter(|_|  handle_status);
 
         quote_spanned!(span=>
-            #( #attrs )*
-            #[inline]
-            pub fn #ident(self, #inputs) -> #returned_type
-            where
-                #where_output_is_result
-                #where_output_impls_from_error_code
-            {
-                ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
-                    .input::<#compound_input_type>()
-                    #result_handling
-                    #error_code_handling
-                    .call(&#compound_input_bindings)
-            }
+            const #ident : #ident = if ::ink::is_result_type!(#output_type) {
+                #( #attrs )*
+                #[inline]
+                pub fn #ident(self, #inputs) -> #returned_type
+                where
+                    #output_type: ::ink::IsResultType,
+                    #where_output_impls_from_error_code
+                {
+                    ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                        .input::<#compound_input_type>()
+                        .output_result::<
+                            <#output_type as ::ink::IsResultType>::Ok,
+                            <#output_type as ::ink::IsResultType>::Err,
+                        >()
+                        #error_code_handling
+                        .call(&#compound_input_bindings)
+                }
+            } else {
+                #( #attrs )*
+                #[inline]
+                pub fn #ident(self, #inputs) -> #output_type
+                {
+                    ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                        .input::<#compound_input_type>()
+                        .output::<#output_type>()
+                        #error_code_handling
+                        .call(&#compound_input_bindings)
+                }
+            };
         )
     }
 }
