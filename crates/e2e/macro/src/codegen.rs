@@ -109,12 +109,9 @@ impl InkE2ETest {
             "built contract artifacts must exist here"
         );
 
-        let contracts =
-            already_built_contracts
-                .iter()
-                .map(|(_manifest_path, bundle_path)| {
-                    quote! { #bundle_path }
-                });
+        let contracts = already_built_contracts.values().map(|bundle_path| {
+            quote! { #bundle_path }
+        });
 
         quote! {
             #( #attrs )*
@@ -174,47 +171,52 @@ impl InkE2ETest {
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
 /// bundle build artifact.
-fn build_contract(manifest_path: &str) -> String {
-    use std::process::{
-        Command,
-        Stdio,
+fn build_contract(path_to_cargo_toml: &str) -> String {
+    use contract_build::{
+        BuildArtifacts,
+        BuildMode,
+        ExecuteArgs,
+        Features,
+        ManifestPath,
+        Network,
+        OptimizationPasses,
+        OutputType,
+        UnstableFlags,
+        Verbosity,
     };
-    let output = Command::new("cargo")
-        .args([
-            "+stable",
-            "contract",
-            "build",
-            "--output-json",
-            &format!("--manifest-path={}", manifest_path),
-        ])
-        .env("RUST_LOG", "")
-        .stderr(Stdio::inherit())
-        .output()
-        .unwrap_or_else(|err| {
-            panic!("failed to execute `cargo-contract` build process: {}", err)
-        });
 
-    log::info!("`cargo-contract` returned status: {}", output.status);
-    log::info!(
-        "`cargo-contract` stdout: {}",
-        String::from_utf8_lossy(&output.stdout)
-    );
-    if !output.status.success() {
-        log::error!(
-            "`cargo-contract` stderr: {}",
-            String::from_utf8_lossy(&output.stderr)
-        );
+    let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
+        panic!("Invalid manifest path {}: {}", path_to_cargo_toml, err)
+    });
+    let args = ExecuteArgs {
+        manifest_path,
+        verbosity: Verbosity::Default,
+        build_mode: BuildMode::Debug,
+        features: Features::default(),
+        network: Network::Online,
+        build_artifact: BuildArtifacts::All,
+        unstable_flags: UnstableFlags::default(),
+        optimization_passes: Some(OptimizationPasses::default()),
+        keep_debug_symbols: false,
+        lint: false,
+        output_type: OutputType::HumanReadable,
+        skip_wasm_validation: false,
+    };
+
+    match contract_build::execute(args) {
+        Ok(build_result) => {
+            let metadata_result = build_result
+                .metadata_result
+                .expect("Metadata artifacts not generated");
+            metadata_result
+                .dest_bundle
+                .canonicalize()
+                .expect("Invalid dest bundle path")
+                .to_string_lossy()
+                .into()
+        }
+        Err(err) => {
+            panic!("contract build for {} failed: {}", path_to_cargo_toml, err)
+        }
     }
-
-    assert!(
-        output.status.success(),
-        "contract build for {} failed",
-        manifest_path
-    );
-
-    let json = String::from_utf8_lossy(&output.stdout);
-    let metadata: serde_json::Value = serde_json::from_str(&json)
-        .unwrap_or_else(|err| panic!("cannot convert json to utf8: {}", err));
-    let dest_metadata = metadata["metadata_result"]["dest_bundle"].to_string();
-    dest_metadata.trim_matches('"').to_string()
 }

@@ -124,7 +124,7 @@ mod call_builder {
                 .await
                 .expect("Calling `flipper::get` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
@@ -136,7 +136,7 @@ mod call_builder {
                 .expect("Calling `call_builder::call` failed");
 
             let flipper_result = call_result
-                .value
+                .return_value()
                 .expect("Call to `call_builder::call` failed");
 
             assert!(matches!(
@@ -151,7 +151,7 @@ mod call_builder {
                 .await
                 .expect("Calling `flipper::get` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value == initial_value);
 
@@ -184,7 +184,7 @@ mod call_builder {
                 .call(&ink_e2e::dave(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .value
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(
@@ -221,7 +221,7 @@ mod call_builder {
                 .call(&ink_e2e::eve(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .value
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(
