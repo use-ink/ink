@@ -110,9 +110,7 @@ impl InkE2ETest {
         );
 
         let contracts =
-            already_built_contracts
-                .iter()
-                .map(|(_manifest_path, bundle_path)| {
+            already_built_contracts.values().map(|bundle_path| {
                     quote! { #bundle_path }
                 });
 
