@@ -51,7 +51,6 @@ use std::{
 };
 use subxt::{
     blocks::ExtrinsicEvents,
-    ext::bitvec::macros::internal::funty::Fundamental,
     metadata::DecodeStaticType,
     storage::address::{
         StorageHasher,
@@ -472,6 +471,8 @@ where
 
     /// Generate a unique salt based on the system time.
     fn salt() -> Vec<u8> {
+        use funty::Fundamental as _;
+
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
