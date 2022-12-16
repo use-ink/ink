@@ -16,13 +16,13 @@ categories.workspace = true
 include.workspace = true
 
 [dependencies]
-ink_prelude = { version = "4.0.0-alpha.3", path = "../prelude/", default-features = false }
-ink_primitives = { version = "4.0.0-alpha.3", path = "../primitives/", default-features = false }
+ink_prelude = { version = "4.0.0-beta", path = "../prelude/", default-features = false }
+ink_primitives = { version = "4.0.0-beta", path = "../primitives/", default-features = false }
 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 impl-serde = "0.4.0"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive", "serde", "decode"] }
 
 [dev-dependencies]
 pretty_assertions = "1"
@@ -35,6 +35,7 @@ default = [
 ]
 std = [
     "ink_prelude/std",
+    "ink_primitives/std",
     "serde/std",
     "scale-info/std",
 ]

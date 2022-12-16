@@ -19,8 +19,8 @@ include.workspace = true
 name = "ink_codegen"
 
 [dependencies]
-ink_primitives = { version = "4.0.0-alpha.3", path = "../../primitives" }
-ir = { version = "4.0.0-alpha.3", package = "ink_ir", path = "../ir", default-features = false }
+ink_primitives = { version = "4.0.0-beta", path = "../../primitives" }
+ir = { version = "4.0.0-beta", package = "ink_ir", path = "../ir", default-features = false }
 quote = "1"
 syn = { version = "1.0", features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = "1.0"
@@ -31,6 +31,12 @@ blake2 = "0.10"
 heck = "0.4.0"
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 impl-serde = "0.4.0"
+
+serde = { version = "1.0.137", default-features = false, features = ["derive"] }
+serde_json = "1.0.81"
+
+log = "0.4"
+env_logger = "0.10"
 
 [features]
 default = ["std"]

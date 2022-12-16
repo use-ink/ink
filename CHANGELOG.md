@@ -4,7 +4,93 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
+
+## Version 4.0.0-beta
+
+The focus of the first `beta` release is to establish the stable ABI for the final `4.0.0`
+release. It means that whilst subsequent `beta` releases may contain breaking contract
+*code* changes, the ABI will remain the same so that any contract compiled and deployed
+with `4.0.0-beta` continue to be compatible with all future `4.0.0` versions.
+
+### Compatibility
+In order to build contracts which use ink! `v4.0.0-beta` you need to use
+`cargo-contract`
+[`v2.0.0-beta`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0-beta).
+You can install it as follows:
+
+`cargo install cargo-contract --version 2.0.0-beta`
+
+You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [265e3f1](https://github.com/paritytech/substrate/commit/265e3f12a2937fe4f71280b3652471627609d04f)
+(Nov 3, 2022) in your node.
+
+The [`v0.22.1`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.22.1)
+release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) is
+compatible with the ink! `4.0.0-beta` release.
+
+### Breaking Changes
+
+## Constructors and Messages now return `LangError`s
+
+We have added a way to handle errors that are neither specific to a particular contract,
+nor from the underlying execution environment (e.g `pallet-contracts`). Instead these are
+errors that may come from the smart contracting language itself.
+
+For example, take the case where a contract message is called using an invalid selector.
+This is not something a smart contract author should need to define as failure case, nor
+is it something that the Contracts pallet needs to be aware of.
+
+Previously, the contract execution would trap if an invalid selector was used, leaving
+callers with no way to handle the error gracefully. This can now be handled with the help
+of the newly added `LangError`.
+
+In short, this change means that all ink! messages and constructors now return a
+`Result<R, LangError>`, where `R` is the original return type. Contract callers can
+choose to handle the `LangError`.
+
+In order to make this error compatible with other languages we have also added a
+`lang_error` field to the metadata format. This will be the central registry of all the
+different error variants which languages may want to emit in the future.
+
+Related pull-requests:
+- https://github.com/paritytech/ink/pull/1450
+- https://github.com/paritytech/ink/pull/1504
+
+Related discussions:
+- https://github.com/paritytech/ink/issues/1207
+- https://github.com/paritytech/substrate/issues/11018
+- https://github.com/paritytech/ink/issues/1002
+
+## Random function removed
+We had to remove [`ink_env::random`](https://docs.rs/ink_env/3.3.1/ink_env/fn.random.html)
+with [#1442](https://github.com/paritytech/ink/pull/1442).
+This function allowed contract developers getting random entropy.
+There is unfortunately no way how this can be done safely enough
+with built-in Substrate primitives on-chain currently. We're
+following the recommendation of our auditors to remove it.
+
+The alternative right now is to provide random entropy off-chain to
+the contract, to use a random entropy oracle, or to have a chain-extension
+that does this, in case the chain has a possibility to do so.
+
+We hope to bring this function back in a future release of ink!, the
+best hope right now is that it could come back with [Sassafras](https://wiki.polkadot.network/docs/learn-consensus#badass-babe-sassafras), a block production
+protocol for future versions of Polkadot.
+
+### Added
+- Allow using `Result<Self, Error>` as a return type in constructors ‒ [#1446](https://github.com/paritytech/ink/pull/1446)
+- Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
+
+### Changed
+- Add support for language level errors (`LangError`) ‒ [#1450](https://github.com/paritytech/ink/pull/1450)
+- Return `LangError`s from constructors ‒ [#1504](https://github.com/paritytech/ink/pull/1504)
+- Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
+- Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
+
+### Removed
+- Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
 
 ## Version 4.0.0-alpha.3
 
@@ -22,7 +108,7 @@ crate. All existing sub-crates are reexported and should be used via the new `in
   - Replace all usages of individual crates with reexports, e.g. `ink_env` ➜ `ink::env`.
 
 #### Storage Rework
-[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys 
+[#1331](https://github.com/paritytech/ink/pull/1331) changes the way `ink!` works with contract storage. Storage keys
 are generated at compile-time, and user facing abstractions which determine how contract data is laid out in storage
 have changed.
 
@@ -604,9 +690,9 @@ ink! 3.0-rc4 is compatible with
 - [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) version `0.1.0` or newer.
     - Install the newest version using `cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force`.
 
-The documentation on our [Documentation Portal](https://ink.substrate.io)
+The documentation on our [Documentation Portal](https://use.ink)
 is up-to-date with this release candidate. Since the last release candidate we notably
-added a number of [Frequently Asked Questions](https://ink.substrate.io/faq)
+added a number of [Frequently Asked Questions](https://use.ink/faq)
 there.
 
 ### Quality Assurance
@@ -635,7 +721,7 @@ of key improvements to our testing setup:
 - Implemented the (unstable) `seal_rent_status` API ‒ [#798](https://github.com/paritytech/ink/pull/798).
 - Implemented the (unstable) `seal_debug_message` API ‒ [#792](https://github.com/paritytech/ink/pull/792).
     - Printing debug messages can now be achieved via `ink_env::debug_println!(…)`.
-    - See [our documentation](https://ink.substrate.io/faq#how-do-i-print-something-to-the-console-from-the-runtime)
+    - See [our documentation](https://use.ink/faq#how-do-i-print-something-to-the-console-from-the-runtime)
       for more information.
     - The examples have been updated to reflect this new way of printing debug messages.
 - Added usage comments with code examples to the `ink_env` API ‒ [#797](https://github.com/paritytech/ink/pull/797).
@@ -696,7 +782,7 @@ ink! 3.0-rc3 is compatible with
 ### Added
 
 - Implemented chain extensions feature for ink!.
-- ink!'s official documentation portal: https://ink.substrate.io/
+- ink!'s official documentation portal: https://use.ink/
 - It is now possible to pass a `salt` argument to contract instantiations.
 - Implemented fuzz testing for the ink! codebase.
 

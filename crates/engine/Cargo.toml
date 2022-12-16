@@ -16,7 +16,7 @@ categories.workspace = true
 include.workspace = true
 
 [dependencies]
-ink_primitives = { version = "4.0.0-alpha.3", path = "../../crates/primitives", default-features = false }
+ink_primitives = { version = "4.0.0-beta", path = "../../crates/primitives", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 
@@ -24,10 +24,8 @@ sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 blake2 = { version = "0.10" }
 
-rand = { version = "0.8" }
-
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.24", features = ["recovery", "global-context"], optional = true }
+secp256k1 = { version = "0.25.0", features = ["recovery", "global-context"], optional = true }
 
 [features]
 default = ["std"]

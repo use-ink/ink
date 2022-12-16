@@ -20,6 +20,10 @@
 //!
 //! The `ink_prelude` crate guarantees a stable interface between `std` and `no_std` mode.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(not(feature = "std"))]

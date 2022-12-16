@@ -20,7 +20,10 @@ use ir::{
     HexLiteral,
     IsDocAttribute,
 };
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Ident,
+    TokenStream as TokenStream2,
+};
 use quote::{
     quote,
     quote_spanned,
@@ -89,6 +92,10 @@ impl Metadata<'_> {
             .attrs()
             .iter()
             .filter_map(|attr| attr.extract_docs());
+        let error_ty = syn::parse_quote! {
+            ::ink::LangError
+        };
+        let error = Self::generate_type_spec(&error_ty);
         quote! {
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -103,6 +110,9 @@ impl Metadata<'_> {
                 .docs([
                     #( #docs ),*
                 ])
+                .lang_error(
+                     #error
+                )
                 .done()
         }
     }
@@ -114,11 +124,12 @@ impl Metadata<'_> {
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_constructors())
-            .map(|constructor| Self::generate_constructor(constructor))
+            .map(|constructor| self.generate_constructor(constructor))
     }
 
     /// Generates ink! metadata for a single ink! constructor.
     fn generate_constructor(
+        &self,
         constructor: ir::CallableWithSelector<ir::Constructor>,
     ) -> TokenStream2 {
         let span = constructor.span();
@@ -127,10 +138,13 @@ impl Metadata<'_> {
             .iter()
             .filter_map(|attr| attr.extract_docs());
         let selector_bytes = constructor.composed_selector().hex_lits();
+        let selector_id = constructor.composed_selector().into_be_u32();
         let is_payable = constructor.is_payable();
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
+        let storage_ident = self.contract.module().storage().ident();
+        let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
         quote_spanned!(span=>
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
@@ -140,6 +154,7 @@ impl Metadata<'_> {
                     #( #args ),*
                 ])
                 .payable(#is_payable)
+                .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
                 ])
@@ -164,8 +179,9 @@ impl Metadata<'_> {
     /// Generates the ink! metadata for the given type.
     fn generate_type_spec(ty: &syn::Type) -> TokenStream2 {
         fn without_display_name(ty: &syn::Type) -> TokenStream2 {
-            quote! { ::ink::metadata::TypeSpec::new::<#ty>() }
+            quote! { ::ink::metadata::TypeSpec::of_type::<#ty>() }
         }
+
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
                 return without_display_name(ty)
@@ -181,8 +197,10 @@ impl Metadata<'_> {
                 .collect::<Vec<_>>();
             quote! {
                 ::ink::metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
-                        .map(::core::convert::AsRef::as_ref)
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ]),
+                        ::core::convert::AsRef::as_ref
+                    )
                 )
             }
         } else {
@@ -219,7 +237,7 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
-                let ret_ty = Self::generate_return_type(message.output());
+                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 quote_spanned!(span =>
                     ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([
@@ -279,7 +297,7 @@ impl Metadata<'_> {
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
-                let ret_ty = Self::generate_return_type(message.output());
+                let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
                     ::ink::metadata::MessageSpec::from_label(#label)
@@ -314,6 +332,29 @@ impl Metadata<'_> {
                 }
             }
         }
+    }
+
+    /// Generates ink! metadata for the storage with given selector and ident.
+    fn generate_constructor_return_type(
+        storage_ident: &Ident,
+        selector_id: u32,
+    ) -> TokenStream2 {
+        let span = storage_ident.span();
+        let constructor_info = quote_spanned!(span =>
+            < #storage_ident as ::ink::reflect::DispatchableConstructorInfo<#selector_id>>
+        );
+
+        quote_spanned!(span=>
+            ::ink::metadata::ReturnTypeSpec::new(if #constructor_info::IS_RESULT {
+                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                    ::ink::ConstructorResult<::core::result::Result<(), #constructor_info::Error>>,
+                >("ink_primitives::ConstructorResult"))
+            } else {
+                ::core::option::Option::Some(::ink::metadata::TypeSpec::with_name_str::<
+                    ::ink::ConstructorResult<()>,
+                >("ink_primitives::ConstructorResult"))
+            })
+        )
     }
 
     /// Generates ink! metadata for all user provided ink! event definitions.

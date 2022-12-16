@@ -251,6 +251,23 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let output = &mut buffer.take_rest();
+        match ext::take_storage(key, output) {
+            Ok(_) => (),
+            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = Storable::decode(&mut &output[..])?;
+        Ok(Some(decoded))
+    }
+
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -521,17 +538,6 @@ impl TypedEnvBackend for EnvInstance {
         let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
         ext::weight_to_fee(gas, &mut result.as_mut());
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
-    }
-
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_subject = scope.take_bytes(subject);
-        let output = &mut scope.take_rest();
-        ext::random(enc_subject, output);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn is_contract<E>(&mut self, account_id: &E::AccountId) -> bool

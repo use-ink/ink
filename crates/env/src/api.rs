@@ -214,6 +214,21 @@ where
     })
 }
 
+/// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+///
+/// # Errors
+///
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
+where
+    K: scale::Encode,
+    R: Storable,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::take_contract_storage::<K, R>(instance, key)
+    })
+}
+
 /// Checks whether there is a value stored under the given storage key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
@@ -402,34 +417,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::return_value::<R>(instance, return_flags, return_value)
-    })
-}
-
-/// Returns a random hash seed and the block number since which it was determinable
-/// by chain observers.
-///
-/// # Note
-///
-/// - The subject buffer can be used to further randomize the hash.
-/// - Within the same execution returns the same random hash for the same subject.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-///
-/// # Important
-///
-/// The returned seed should only be used to distinguish commitments made before
-/// the returned block number. If the block number is too early (i.e. commitments were
-/// made afterwards), then ensure no further commitments may be made and repeatedly
-/// call this on later blocks until the block number returned is later than the latest
-/// commitment.
-pub fn random<E>(subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::random::<E>(instance, subject)
     })
 }
 
@@ -624,7 +611,7 @@ where
 ///
 /// 3. If a contract calls into itself after changing its code the new call would use
 /// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `seal_set_code_hash` and the next caller would use
+/// would revert the changes made by `set_code_hash` and the next caller would use
 /// the old code.
 ///
 /// # Errors

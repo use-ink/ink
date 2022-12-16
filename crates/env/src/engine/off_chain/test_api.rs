@@ -98,18 +98,6 @@ where
     })
 }
 
-/// Set the entropy hash of the current block.
-///
-/// # Note
-///
-/// This allows to control what [`random`][`crate::random`] returns.
-pub fn set_block_entropy<T>(_entropy: T::Hash) -> Result<()>
-where
-    T: Environment,
-{
-    unimplemented!("off-chain environment does not yet support `set_block_entropy`");
-}
-
 /// Returns the contents of the past performed environmental debug messages in order.
 pub fn recorded_debug_messages() -> RecordedDebugMessages {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -170,7 +158,8 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let callee = instance.engine.get_callee();
-        scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
+        scale::Decode::decode(&mut &callee[..])
+            .unwrap_or_else(|err| panic!("encoding failed: {}", err))
     })
 }
 
@@ -183,19 +172,6 @@ where
         instance
             .engine
             .get_contract_storage_rw(scale::Encode::encode(&account_id))
-    })
-}
-
-/// Sets the balance of `account_id` to `new_balance`.
-pub fn set_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
-where
-    T: Environment<Balance = u128>, // Just temporary for the MVP!
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&account_id), new_balance);
     })
 }
 
@@ -388,10 +364,11 @@ pub fn assert_contract_termination<T, F>(
         .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
     let (value_transferred, encoded_beneficiary): (T::Balance, Vec<u8>) =
-        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
+        scale::Decode::decode(&mut &encoded_input[..])
+            .unwrap_or_else(|err| panic!("input can not be decoded: {}", err));
     let beneficiary =
         <T::AccountId as scale::Decode>::decode(&mut &encoded_beneficiary[..])
-            .expect("input can not be decoded");
+            .unwrap_or_else(|err| panic!("input can not be decoded: {}", err));
     assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
 }

@@ -1,6 +1,6 @@
 [package]
 name = "delegator"
-version = "4.0.0-alpha.3"
+version = "4.0.0-beta"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -9,11 +9,14 @@ publish = false
 ink = { path = "../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 adder = { path = "adder", default-features = false, features = ["ink-as-dependency"] }
 subber = { path = "subber", default-features = false, features = ["ink-as-dependency"] }
 accumulator = { path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
 name = "delegator"
@@ -32,6 +35,7 @@ std = [
     "accumulator/std",
 ]
 ink-as-dependency = []
+e2e-tests = []
 
 [workspace]
 members = [

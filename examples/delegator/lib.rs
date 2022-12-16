@@ -122,4 +122,105 @@ mod delegator {
             }
         }
     }
+
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::DelegatorRef;
+        use ink_e2e::build_message;
+
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test(
+            additional_contracts = "accumulator/Cargo.toml adder/Cargo.toml subber/Cargo.toml"
+        )]
+        async fn e2e_delegator(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // given
+            let accumulator_hash = client
+                .upload("accumulator", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `accumulator` failed")
+                .code_hash;
+
+            let adder_hash = client
+                .upload("adder", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `adder` failed")
+                .code_hash;
+
+            let subber_hash = client
+                .upload("subber", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `subber` failed")
+                .code_hash;
+
+            let constructor = DelegatorRef::new(
+                1234, // initial value
+                1337, // salt
+                accumulator_hash,
+                adder_hash,
+                subber_hash,
+            );
+
+            let delegator_acc_id = client
+                .instantiate("delegator", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.get());
+            let value = client
+                .call(&ink_e2e::bob(), get, 0, None)
+                .await
+                .expect("calling `get` failed")
+                .value
+                .expect("calling `get` returned a `LangError`");
+            assert_eq!(value, 1234);
+            let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.change(6));
+            let _ = client
+                .call(&ink_e2e::bob(), change, 0, None)
+                .await
+                .expect("calling `change` failed");
+
+            // then
+            let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.get());
+            let value = client
+                .call(&ink_e2e::bob(), get, 0, None)
+                .await
+                .expect("calling `get` failed")
+                .value
+                .expect("calling `get` returned a `LangError`");
+            assert_eq!(value, 1234 + 6);
+
+            // when
+            let switch = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.switch());
+            let _ = client
+                .call(&ink_e2e::bob(), switch, 0, None)
+                .await
+                .expect("calling `switch` failed");
+            let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.change(3));
+            let _ = client
+                .call(&ink_e2e::bob(), change, 0, None)
+                .await
+                .expect("calling `change` failed");
+
+            // then
+            let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.get());
+            let value = client
+                .call(&ink_e2e::bob(), get, 0, None)
+                .await
+                .expect("calling `get` failed")
+                .value
+                .expect("calling `get` returned a `LangError`");
+            assert_eq!(value, 1234 + 6 - 3);
+
+            Ok(())
+        }
+    }
 }

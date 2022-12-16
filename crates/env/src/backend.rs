@@ -36,6 +36,11 @@ pub struct ReturnFlags {
 }
 
 impl ReturnFlags {
+    /// Initialize [`ReturnFlags`] with the reverted flag.
+    pub fn new_with_reverted(has_reverted: bool) -> Self {
+        Self::default().set_reverted(has_reverted)
+    }
+
     /// Sets the bit to indicate that the execution is going to be reverted.
     #[must_use]
     pub fn set_reverted(mut self, has_reverted: bool) -> Self {
@@ -176,6 +181,17 @@ pub trait EnvBackend {
     ///
     /// - If the decoding of the typed value failed
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable;
+
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage if
+    /// any.
+    ///
+    /// # Errors
+    ///
+    /// - If the decoding of the typed value failed
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
         K: scale::Encode,
         R: Storable;
@@ -447,15 +463,6 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
-    where
-        E: Environment;
-
-    /// Returns a random hash seed.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`random`][`crate::random`]
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
     where
         E: Environment;
 

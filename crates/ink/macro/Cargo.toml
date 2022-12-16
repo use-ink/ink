@@ -16,9 +16,9 @@ categories.workspace = true
 include.workspace = true
 
 [dependencies]
-ink_ir = { version = "4.0.0-alpha.3", path = "../ir", default-features = false }
-ink_codegen = { version = "4.0.0-alpha.3", path = "../codegen", default-features = false }
-ink_primitives = { version = "4.0.0-alpha.3", path = "../../primitives/", default-features = false }
+ink_ir = { version = "4.0.0-beta", path = "../ir", default-features = false }
+ink_codegen = { version = "4.0.0-beta", path = "../codegen", default-features = false }
+ink_primitives = { version = "4.0.0-beta", path = "../../primitives/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 syn = "1"
@@ -32,7 +32,7 @@ ink = { path = ".." }
 ink_metadata = { path = "../../metadata" }
 ink_prelude = { path = "../../prelude" }
 ink_storage = { path = "../../storage" }
-scale-info = { version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"] }
 
 [lib]
 name = "ink_macro"

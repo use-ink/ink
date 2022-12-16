@@ -37,7 +37,7 @@ impl ChainExtension {
     /// Returns the Rust attributes of the ink! chain extension.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
         let (_, attrs) = ir::partition_attributes(self.item.attrs.iter().cloned())
-            .expect("encountered unexpected invalid attributes for ink! chain extension");
+            .unwrap_or_else(|err| panic!("encountered unexpected invalid attributes for ink! chain extension: {}", err));
         attrs
     }
 

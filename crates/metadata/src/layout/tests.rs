@@ -14,6 +14,7 @@
 
 use super::*;
 use ink_primitives::Key;
+use scale_info::Path;
 
 #[test]
 fn layout_key_works() {
@@ -26,8 +27,8 @@ fn named_fields_struct_layout(key: &Key) -> Layout {
     StructLayout::new(
         "Struct",
         vec![
-            FieldLayout::new("a", LeafLayout::new::<i32>(LayoutKey::from(key))),
-            FieldLayout::new("b", LeafLayout::new::<i64>(LayoutKey::from(key))),
+            FieldLayout::new("a", LeafLayout::from_key::<i32>(LayoutKey::from(key))),
+            FieldLayout::new("b", LeafLayout::from_key::<i64>(LayoutKey::from(key))),
         ],
     )
     .into()
@@ -73,8 +74,8 @@ fn tuple_struct_layout(key: &Key) -> Layout {
     StructLayout::new(
         "(A, B)",
         vec![
-            FieldLayout::new("0", LeafLayout::new::<i32>(LayoutKey::from(key))),
-            FieldLayout::new("1", LeafLayout::new::<i64>(LayoutKey::from(key))),
+            FieldLayout::new("0", LeafLayout::from_key::<i32>(LayoutKey::from(key))),
+            FieldLayout::new("1", LeafLayout::from_key::<i64>(LayoutKey::from(key))),
         ],
     )
     .into()
@@ -175,11 +176,11 @@ fn mixed_enum_layout(key: &Key) -> Layout {
                         vec![
                             FieldLayout::new(
                                 "0",
-                                LeafLayout::new::<i32>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i32>(LayoutKey::from(variant_key)),
                             ),
                             FieldLayout::new(
                                 "1",
-                                LeafLayout::new::<i64>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i64>(LayoutKey::from(variant_key)),
                             ),
                         ],
                     ),
@@ -194,11 +195,11 @@ fn mixed_enum_layout(key: &Key) -> Layout {
                         vec![
                             FieldLayout::new(
                                 "a",
-                                LeafLayout::new::<i32>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i32>(LayoutKey::from(variant_key)),
                             ),
                             FieldLayout::new(
                                 "b",
-                                LeafLayout::new::<i64>(LayoutKey::from(variant_key)),
+                                LeafLayout::from_key::<i64>(LayoutKey::from(variant_key)),
                             ),
                         ],
                     ),
@@ -287,7 +288,7 @@ fn unbounded_hashing_layout(key: &Key) -> Layout {
             b"ink storage hashmap".to_vec(),
             Vec::new(),
         ),
-        LeafLayout::new::<(i32, bool)>(LayoutKey::from(root_key)),
+        LeafLayout::from_key::<(i32, bool)>(LayoutKey::from(root_key)),
     )
     .into()
 }
@@ -316,5 +317,37 @@ fn unbounded_layout_works() {
             }
         }
     };
+    assert_eq!(json, expected);
+}
+
+#[test]
+fn runtime_storage_layout_works() {
+    let key = LayoutKey::new(0u32);
+    let leaf: LeafLayout<PortableForm> = LeafLayout::new(key, 123.into());
+    let path: Path<PortableForm> = Path::from_segments_unchecked(["Storage".to_string()]);
+    let root_layout = Layout::Struct(StructLayout::new(
+        path.ident().unwrap(),
+        [FieldLayout::new("Field", leaf)],
+    ));
+
+    let json = serde_json::to_value(&root_layout).unwrap();
+    let expected = serde_json::json!(
+        {
+            "struct": {
+                "name": "Storage",
+                "fields": [
+                    {
+                    "name": "Field",
+                    "layout": {
+                      "leaf": {
+                        "key": "0x00000000",
+                        "ty": 123
+                      }
+                    }
+                    }
+                ]
+            }
+        }
+    );
     assert_eq!(json, expected);
 }

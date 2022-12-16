@@ -67,8 +67,22 @@ jobs:
           crate: dylint-link
           version: 1
 
+      - name: Download and run latest `substrate-contracts-node` binary
+        if: runner.os == 'macOS'
+        run: |
+            curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-mac' && \
+            unzip substrate-contracts-node.zip && \
+            chmod +x artifacts/substrate-contracts-node-mac/substrate-contracts-node &&
+            ./artifacts/substrate-contracts-node-mac/substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+
+      - name: Install and run latest `substrate-contracts-node` binary
+        if: runner.os == 'Windows'
+        run: |
+            cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked && \
+            substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+
       - name: Rust Cache
-        uses: Swatinem/rust-cache@v2.0.0
+        uses: Swatinem/rust-cache@v2.0.1
 
       - name: Install `cargo-contract` `master`
         uses: actions-rs/cargo@v1
@@ -98,6 +112,7 @@ jobs:
            cargo contract ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            foreach ($example in Get-ChildItem  -Directory "examples\*") {
                if ($example -Match 'upgradeable-contracts') { continue }
+               if ($example -Match 'lang-err-integration-tests') { continue }
                echo "Processing example: $example";
                cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
                cargo clean --manifest-path=$example/Cargo.toml;
@@ -117,6 +132,7 @@ jobs:
            cargo contract ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
            for example in examples/*/; do
                if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+               if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
                echo "Processing example: $example";
                cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            done

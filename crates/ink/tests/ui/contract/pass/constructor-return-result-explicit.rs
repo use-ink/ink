@@ -1,0 +1,41 @@
+#[ink::contract]
+mod contract {
+    #[ink(storage)]
+    pub struct Contract {}
+
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    pub enum Error {
+        Foo,
+    }
+
+    impl Contract {
+        #[ink(constructor)]
+        pub fn constructor() -> core::result::Result<Self, Error> {
+            Err(Error::Foo)
+        }
+
+        #[ink(message)]
+        pub fn message(&self) {}
+    }
+}
+
+fn main() {
+    use contract::Contract;
+    use std::any::TypeId;
+
+    const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
+        { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
+    >>::IDS[0];
+
+    assert_eq!(
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+        true
+    );
+    assert_eq!(
+        TypeId::of::<
+            <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+        >(),
+        TypeId::of::<contract::Error>(),
+    )
+}

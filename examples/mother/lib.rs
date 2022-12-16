@@ -150,6 +150,16 @@ mod mother {
             Default::default()
         }
 
+        /// Demonstrates the ability to fail a constructor safely.
+        #[ink(constructor)]
+        pub fn failed_new(fail: bool) -> Result<Self, Failure> {
+            if fail {
+                Err(Failure::Revert("Reverting instantiation".to_string()))
+            } else {
+                Ok(Default::default())
+            }
+        }
+
         /// Takes an auction data struct as input and returns it back.
         #[ink(message)]
         pub fn echo_auction(&mut self, auction: Auction) -> Auction {
@@ -206,10 +216,32 @@ mod mother {
         }
 
         #[ink::test]
+        fn constructor_works_or_fails() {
+            let contract = Mother::failed_new(true);
+            assert!(contract.is_err());
+            assert_eq!(
+                contract.err(),
+                Some(Failure::Revert("Reverting instantiation".to_string()))
+            );
+
+            let contract = Mother::failed_new(false);
+            assert!(contract.is_ok());
+        }
+
+        #[ink::test]
         #[should_panic]
         fn trap_works() {
             let mut contract = Mother::default();
             let _ = contract.revert_or_trap(Some(Failure::Panic));
         }
+    }
+
+    #[cfg(test)]
+    mod e2e_tests {
+        use super::*;
+
+        #[ink_e2e::test(ws_url = "ws:://0.0.0.0:9944")]
+        #[should_panic]
+        async fn e2e_must_fail_without_connection(mut client: ink_e2e::Client<C, E>) {}
     }
 }

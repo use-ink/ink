@@ -1,0 +1,36 @@
+[package]
+name = "contract_ref"
+version = "4.0.0-beta"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+
+integration_flipper = { path = "../integration-flipper", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../../crates/e2e" }
+
+[lib]
+name = "contract_ref"
+path = "lib.rs"
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+
+    "integration_flipper/std",
+]
+ink-as-dependency = []
+e2e-tests = []

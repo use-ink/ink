@@ -16,11 +16,11 @@ categories.workspace = true
 include.workspace = true
 
 [dependencies]
-ink_metadata = { version = "4.0.0-alpha.3", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "4.0.0-alpha.3", path = "../../primitives", default-features = false }
-ink_prelude = { version = "4.0.0-alpha.3", path = "../../prelude", default-features = false }
+ink_metadata = { version = "4.0.0-beta", path = "../../metadata", default-features = false, features = ["derive"], optional = true }
+ink_primitives = { version = "4.0.0-beta", path = "../../primitives", default-features = false }
+ink_prelude = { version = "4.0.0-beta", path = "../../prelude", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 syn = { version = "1", features = ["full"] }
 
 [dev-dependencies]

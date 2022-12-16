@@ -209,6 +209,24 @@ impl EnvBackend for EnvInstance {
         Ok(Some(decoded))
     }
 
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable,
+    {
+        let mut output: [u8; 9600] = [0; 9600];
+        match self
+            .engine
+            .take_storage(&key.encode(), &mut &mut output[..])
+        {
+            Ok(_) => (),
+            Err(ext::Error::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = Storable::decode(&mut &output[..])?;
+        Ok(Some(decoded))
+    }
+
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
@@ -227,14 +245,14 @@ impl EnvBackend for EnvInstance {
     where
         T: scale::Decode,
     {
-        unimplemented!("the off-chain env does not implement `seal_input`")
+        unimplemented!("the off-chain env does not implement `input`")
     }
 
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        unimplemented!("the off-chain env does not implement `seal_return_value`")
+        unimplemented!("the off-chain env does not implement `return_value`")
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -493,15 +511,6 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
             panic!("could not read `weight_to_fee` property: {:?}", error)
         })
-    }
-
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-    where
-        E: Environment,
-    {
-        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        self.engine.random(subject, &mut &mut output[..]);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn is_contract<E>(&mut self, _account: &E::AccountId) -> bool
