@@ -509,7 +509,7 @@
                 ))
             };
             <span class="comment">// Anonymous events require 1 fewer topics since they do not include their signature.
-            </span><span class="kw">let </span>anonymous_topics_offset = <span class="kw">if </span>event.anonymous { <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">1 </span>};
+            </span><span class="kw">let </span>anonymous_topics_offset = usize::from(!event.anonymous);
             <span class="kw">let </span>remaining_topics_ty = <span class="kw">match </span>len_topics + anonymous_topics_offset {
                 <span class="number">0 </span>=&gt; <span class="macro">quote_spanned!</span>(span=&gt; ::ink::env::topics::state::NoRemainingTopics),
                 n =&gt; <span class="macro">quote_spanned!</span>(span=&gt; [::ink::env::topics::state::HasRemainingTopics; #n]),
