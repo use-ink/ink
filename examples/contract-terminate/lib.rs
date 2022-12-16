@@ -52,4 +52,50 @@ pub mod just_terminates {
             );
         }
     }
+
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::JustTerminateRef;
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn e2e_contract_terminates(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = JustTerminateRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "contract_terminate",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let terminate_me =
+                ink_e2e::build_message::<JustTerminateRef>(contract_acc_id)
+                    .call(|contract| contract.terminate_me());
+            let call_res = client
+                .call(&ink_e2e::alice(), terminate_me, 0, None)
+                .await
+                .expect("terminate_me messages failed");
+
+            assert!(
+                call_res.data.is_empty(),
+                "Terminated contract never returns"
+            );
+
+            // then
+            assert!(call_res.contains_event("System", "KilledAccount"));
+            assert!(call_res.contains_event("Balances", "Withdraw"));
+            assert!(call_res.contains_event("Contracts", "Terminated"));
+
+            Ok(())
+        }
+    }
 }
