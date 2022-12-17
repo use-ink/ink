@@ -1,19 +1,21 @@
 # DNS Smart contract
 
-The DNS smart contract is our showcase for executing other smart contracts on-chain.
+The DNS smart contract is our showcase for decentralizing the Domain naming system. 
 
    
 
-> This is a port from the blog post's ink! 1.0 based version of the contract to ink! 2.0.
+> This contract compiles with ink! 4.0-beta version
 
 Domain name service contract inspired by
     [this blog post on medium](https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d).
 
 ### Description
-The main function of this contract is domain name resolution which refers to the retrieval of numeric values corresponding to readable and easily memorable names such as "polka.dot" which can be used to facilitate transfers, voting and DApp-related operations instead of resorting to long IP addresses that are hard to remember.
+The registration of a new Domain works by the function `register` defined in the contract which takes 2 parameters: name and hash. Client sends a request to the DNS system such as "polka.dot" which returns the resolver address as shown below. The "polka.dot" is resolved by mapping the it to a `hash value` from the function named `Get_address` in the `lib.rs` file. 
+
+<br>
 <br>
 
-![Image](dns_diagram.png)
+![Image](images/dns_diagram.png)
 
 ## Functionalities provided: 
 
@@ -21,13 +23,6 @@ The main function of this contract is domain name resolution which refers to the
 - Transfer the (already exsiting) owner to new Address
 - Change the Domain Name
 
-### Other functionalities to be implemented: 
-- Transfer bidding
-
-> __Note:__<br/>
-   > Depending on your Substrate version you might encounter [a ink_lang dependency error](https://github.com/paritytech/ink/issues/506) which is yet to address. 
-  
 
 
-
-
+ 
