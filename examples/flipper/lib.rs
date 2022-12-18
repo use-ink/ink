@@ -16,7 +16,7 @@ pub mod flipper {
 
         /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
-        pub fn default_value() -> Self {
+        pub fn new_default() -> Self {
             Self::new(Default::default())
         }
 
@@ -39,7 +39,7 @@ pub mod flipper {
 
         #[ink::test]
         fn default_works() {
-            let flipper = Flipper::default_value();
+            let flipper = Flipper::new_default();
             assert!(!flipper.get());
         }
 

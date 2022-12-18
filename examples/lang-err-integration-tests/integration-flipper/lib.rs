@@ -21,7 +21,7 @@ pub mod integration_flipper {
 
         /// Creates a new integration_flipper smart contract initialized to `false`.
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Self::new(Default::default())
         }
 
@@ -58,7 +58,7 @@ pub mod integration_flipper {
         async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::default();
+            let constructor = FlipperRef::new_default();
             let contract_acc_id = client
                 .instantiate(
                     "integration_flipper",
@@ -110,7 +110,7 @@ pub mod integration_flipper {
         async fn e2e_message_error_reverts_state(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::default();
+            let constructor = FlipperRef::new_default();
             let contract_acc_id = client
                 .instantiate("integration_flipper", &ink_e2e::bob(), constructor, 0, None)
                 .await

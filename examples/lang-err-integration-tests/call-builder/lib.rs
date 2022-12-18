@@ -104,7 +104,7 @@ mod call_builder {
                 .expect("instantiate failed")
                 .account_id;
 
-            let flipper_constructor = FlipperRef::default();
+            let flipper_constructor = FlipperRef::new_default();
             let flipper_acc_id = client
                 .instantiate(
                     "integration_flipper",
