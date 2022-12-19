@@ -223,7 +223,7 @@ impl<'a> Events<'a> {
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.
-            let anonymous_topics_offset = if event.anonymous { 0 } else { 1 };
+            let anonymous_topics_offset = usize::from(!event.anonymous);
             let remaining_topics_ty = match len_topics + anonymous_topics_offset {
                 0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
                 n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
