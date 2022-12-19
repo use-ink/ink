@@ -574,10 +574,14 @@ mod erc20 {
             // then
             assert_eq!(
                 total_supply,
-                total_supply_res.value.unwrap(),
+                total_supply_res.return_value().unwrap(),
                 "total_supply"
             );
-            assert_eq!(transfer_to_bob, balance_of_res.value.unwrap(), "balance_of");
+            assert_eq!(
+                transfer_to_bob,
+                balance_of_res.return_value().unwrap(),
+                "balance_of"
+            );
 
             Ok(())
         }
@@ -664,7 +668,7 @@ mod erc20 {
 
             assert_eq!(
                 total_supply - approved_value,
-                balance_of_res.value.unwrap(),
+                balance_of_res.return_value().unwrap(),
                 "balance_of"
             );
 
