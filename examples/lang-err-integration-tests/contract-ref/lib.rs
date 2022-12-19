@@ -13,7 +13,7 @@ mod contract_ref {
         #[ink(constructor)]
         pub fn new(version: u32, flipper_code_hash: Hash) -> Self {
             let salt = version.to_le_bytes();
-            let flipper = FlipperRef::default()
+            let flipper = FlipperRef::new_default()
                 .endowment(0)
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt)
