@@ -116,7 +116,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `insert_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             // then
             let get = ink_e2e::build_message::<MappingsRef>(contract_id)
@@ -126,7 +127,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `get_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             assert!(size.is_none());
             assert_eq!(balance, Some(1_000));
@@ -170,7 +172,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `contains_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             assert!(is_there);
 
@@ -210,7 +213,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `insert_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             // then
             assert!(size.is_some());
@@ -222,7 +226,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `get_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             assert_eq!(balance, Some(10_000));
 
@@ -255,7 +260,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `insert_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             let remove = ink_e2e::build_message::<MappingsRef>(contract_id)
                 .call(|contract| contract.remove_balance());
@@ -272,7 +278,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `get_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             assert_eq!(balance, None);
 
@@ -314,7 +321,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `take_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             // then
             assert_eq!(balance, Some(4_000));
@@ -326,7 +334,8 @@ mod mapping_integration_tests {
                 .await
                 .expect("Calling `contains_balance` failed")
                 .value
-                .expect("Input is valid, call must not fail.");
+                .expect("Input is valid, call must not fail.")
+                .expect("Execution should not fail.");
 
             assert!(!is_there);
 
