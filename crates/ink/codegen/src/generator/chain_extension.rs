@@ -110,26 +110,12 @@ impl ChainExtension<'_> {
                 where
                     #where_output_impls_from_error_code
                 {
-                    let is_result = ::ink::is_result_type!(#output_type);
-                    if is_result {
-                        println!("Return type is of Result");
-                        ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
-                            .input::<#compound_input_type>()
-                            //TODO: rewrite as a single method
-                            .output_result::<
-                                <#output_type as ::ink::IsResultType>::Ok,
-                                <#output_type as ::ink::IsResultType>::Err,
-                            >()
-                            #error_code_handling
-                            .call(&#compound_input_bindings)
-                    } else {
-                        println!("Return type is NOT of Result");
-                        ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
-                        .input::<#compound_input_type>()
-                        .output::<#output_type>()
-                        #error_code_handling
-                        .call(&#compound_input_bindings)
-                    }
+                    println!("Return type is NOT of Result");
+                    ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                    .input::<#compound_input_type>()
+                    .output::<#output_type, {::ink::is_result_type!(#output_type)}>()
+                    #error_code_handling
+                    .call(&#compound_input_bindings)
                 }
         )
     }

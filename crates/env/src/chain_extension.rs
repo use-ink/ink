@@ -19,10 +19,7 @@
 
 use crate::{
     backend::EnvBackend,
-    engine::{
-        EnvInstance,
-        OnInstance,
-    },
+    engine::{EnvInstance, OnInstance},
 };
 use core::marker::PhantomData;
 
@@ -75,13 +72,13 @@ pub trait FromStatusCode: Sized {
 ///     - **A:** The chain extension method returns a `Result<T, E>` type.
 ///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult<T>`
 #[derive(Debug)]
-pub struct ChainExtensionMethod<I, O, ErrorCode> {
+pub struct ChainExtensionMethod<I, O, ErrorCode, const IS_RESULT: bool> {
     func_id: u32,
     #[allow(clippy::type_complexity)]
     state: PhantomData<fn() -> (I, O, ErrorCode)>,
 }
 
-impl ChainExtensionMethod<(), (), ()> {
+impl ChainExtensionMethod<(), (), (), false> {
     /// Creates a new chain extension method instance.
     #[inline]
     pub fn build(func_id: u32) -> Self {
@@ -92,7 +89,9 @@ impl ChainExtensionMethod<(), (), ()> {
     }
 }
 
-impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
+impl<O, ErrorCode, const IS_RESULT: bool>
+    ChainExtensionMethod<(), O, ErrorCode, IS_RESULT>
+{
     /// Sets the input types of the chain extension method call to `I`.
     ///
     /// # Note
@@ -101,7 +100,7 @@ impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
     /// All tuple types that may act as input parameters for the chain extension method are valid.
     /// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
     #[inline]
-    pub fn input<I>(self) -> ChainExtensionMethod<I, O, ErrorCode>
+    pub fn input<I>(self) -> ChainExtensionMethod<I, O, ErrorCode, IS_RESULT>
     where
         I: scale::Encode,
     {
@@ -112,24 +111,7 @@ impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
     }
 }
 
-impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
-    /// Sets the output type of the chain extension method call to `Result<T, E>`.
-    ///
-    /// # Note
-    ///
-    /// This indicates that the chain extension method return value might represent a failure.
-    #[inline]
-    pub fn output_result<T, E>(self) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
-    where
-        Result<T, E>: scale::Decode,
-        E: From<scale::Error>,
-    {
-        ChainExtensionMethod {
-            func_id: self.func_id,
-            state: Default::default(),
-        }
-    }
-
+impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode, false> {
     /// Sets the output type of the chain extension method call to `O`.
     ///
     /// # Note
@@ -139,7 +121,9 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     /// this chain extension method the above constraint is enforced at
     /// compile time.
     #[inline]
-    pub fn output<O>(self) -> ChainExtensionMethod<I, state::NoResult<O>, ErrorCode>
+    pub fn output<O, const IS_RESULT: bool>(
+        self,
+    ) -> ChainExtensionMethod<I, O, ErrorCode, IS_RESULT>
     where
         O: scale::Decode,
     {
@@ -150,7 +134,7 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     }
 }
 
-impl<I, O> ChainExtensionMethod<I, O, ()> {
+impl<I, O, const IS_RESULT: bool> ChainExtensionMethod<I, O, (), IS_RESULT> {
     /// Makes the chain extension method call assume that the returned status code is always success.
     ///
     /// # Note
@@ -161,7 +145,9 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
     ///
     /// The output of the chain extension method call is always decoded and returned in this case.
     #[inline]
-    pub fn ignore_error_code(self) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode> {
+    pub fn ignore_error_code(
+        self,
+    ) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode, IS_RESULT> {
         ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
@@ -177,7 +163,7 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
     #[inline]
     pub fn handle_error_code<ErrorCode>(
         self,
-    ) -> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>>
+    ) -> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, IS_RESULT>
     where
         ErrorCode: FromStatusCode,
     {
@@ -211,12 +197,12 @@ pub mod state {
     }
 }
 
-impl<I, T, E, ErrorCode>
-    ChainExtensionMethod<I, Result<T, E>, state::HandleErrorCode<ErrorCode>>
+impl<I, O, ErrorCode> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, true>
 where
+    O: IsResultType,
     I: scale::Encode,
-    T: scale::Decode,
-    E: scale::Decode + From<ErrorCode> + From<scale::Error>,
+    <O as IsResultType>::Ok: scale::Decode,
+    <O as IsResultType>::Err: scale::Decode + From<ErrorCode> + From<scale::Error>,
     ErrorCode: FromStatusCode,
 {
     /// Calls the chain extension method for case 1.A described [here].
@@ -262,9 +248,16 @@ where
     /// # }
     /// ```
     #[inline]
-    pub fn call(self, input: &I) -> Result<T, E> {
+    pub fn call(self, input: &I) -> Result<<O as IsResultType>::Ok, <O as IsResultType>::Err> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
-            EnvBackend::call_chain_extension::<I, T, E, ErrorCode, _, _>(
+            EnvBackend::call_chain_extension::<
+                I,
+                <O as IsResultType>::Ok,
+                <O as IsResultType>::Err,
+                ErrorCode,
+                _,
+                _,
+            >(
                 instance,
                 self.func_id,
                 input,
@@ -275,11 +268,12 @@ where
     }
 }
 
-impl<I, T, E> ChainExtensionMethod<I, Result<T, E>, state::IgnoreErrorCode>
+impl<I, O> ChainExtensionMethod<I, O, state::IgnoreErrorCode, true>
 where
+    O: IsResultType,
     I: scale::Encode,
-    T: scale::Decode,
-    E: scale::Decode + From<scale::Error>,
+    <O as IsResultType>::Ok: scale::Decode,
+    <O as IsResultType>::Err: scale::Decode + From<scale::Error>,
 {
     /// Calls the chain extension method for case 2.A described [here].
     ///
@@ -316,9 +310,16 @@ where
     /// # }
     /// ```
     #[inline]
-    pub fn call(self, input: &I) -> Result<T, E> {
+    pub fn call(self, input: &I) -> Result<<O as IsResultType>::Ok, <O as IsResultType>::Err> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
-            EnvBackend::call_chain_extension::<I, T, E, E, _, _>(
+            EnvBackend::call_chain_extension::<
+                I,
+                <O as IsResultType>::Ok,
+                <O as IsResultType>::Err,
+                <O as IsResultType>::Err,
+                _,
+                _,
+            >(
                 instance,
                 self.func_id,
                 input,
@@ -330,7 +331,7 @@ where
 }
 
 impl<I, O, ErrorCode>
-    ChainExtensionMethod<I, state::NoResult<O>, state::HandleErrorCode<ErrorCode>>
+    ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, false>
 where
     I: scale::Encode,
     O: scale::Decode,
@@ -390,7 +391,7 @@ where
     }
 }
 
-impl<I, O> ChainExtensionMethod<I, state::NoResult<O>, state::IgnoreErrorCode>
+impl<I, O> ChainExtensionMethod<I, O, state::IgnoreErrorCode, false>
 where
     I: scale::Encode,
     O: scale::Decode,
@@ -437,4 +438,17 @@ where
             ).expect("assume the chain extension method never fails")
         })
     }
+}
+
+/// Extract `Ok` and `Err` variants from `Result` type
+pub trait IsResultType {
+    /// The `T` type of the `Result<T, E>`.
+    type Ok;
+    /// The `E` type of the `Result<T, E>`.
+    type Err;
+}
+
+impl<T, E> IsResultType for Result<T, E> {
+    type Ok = T;
+    type Err = E;
 }
