@@ -19,7 +19,10 @@
 
 use crate::{
     backend::EnvBackend,
-    engine::{EnvInstance, OnInstance},
+    engine::{
+        EnvInstance,
+        OnInstance,
+    },
 };
 use core::marker::PhantomData;
 
@@ -248,7 +251,10 @@ where
     /// # }
     /// ```
     #[inline]
-    pub fn call(self, input: &I) -> Result<<O as IsResultType>::Ok, <O as IsResultType>::Err> {
+    pub fn call(
+        self,
+        input: &I,
+    ) -> Result<<O as IsResultType>::Ok, <O as IsResultType>::Err> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<
                 I,
@@ -310,7 +316,10 @@ where
     /// # }
     /// ```
     #[inline]
-    pub fn call(self, input: &I) -> Result<<O as IsResultType>::Ok, <O as IsResultType>::Err> {
+    pub fn call(
+        self,
+        input: &I,
+    ) -> Result<<O as IsResultType>::Ok, <O as IsResultType>::Err> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<
                 I,
@@ -330,8 +339,7 @@ where
     }
 }
 
-impl<I, O, ErrorCode>
-    ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, false>
+impl<I, O, ErrorCode> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, false>
 where
     I: scale::Encode,
     O: scale::Decode,
