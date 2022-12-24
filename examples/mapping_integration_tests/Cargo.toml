@@ -1,5 +1,5 @@
 [package]
-name = "contract_terminate"
+name = "mapping-integration-tests"
 version = "4.0.0-beta"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -15,9 +15,12 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "contract_terminate"
+name = "mapping_integration_tests"
 path = "lib.rs"
-crate-type = ["cdylib"]
+crate-type = [
+	# Used for normal contract Wasm blobs.
+	"cdylib",
+]
 
 [features]
 default = ["std"]

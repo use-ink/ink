@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 - Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
+- Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
 
 ## Version 4.0.0-beta
 
