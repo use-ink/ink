@@ -369,7 +369,7 @@ where
     /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output::<i32, MyErrorCode, false>()
+    ///     .output::<i32, false>()
     ///     .handle_error_code::<MyErrorCode>()
     ///     .call(&(true, 42));
     /// # pub struct MyErrorCode {}
