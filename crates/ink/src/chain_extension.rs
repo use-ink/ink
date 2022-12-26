@@ -59,7 +59,7 @@ impl<T, E> IsResultType for Result<T, E> {
 /// Used to deduce the correct return type of a chain extension method at compile time
 /// based on 2 flags: `const IS_RESULT: bool` and `const HANDLE_STATUS: bool`.
 ///
-/// If `IS_RESULT` is set to `false`, `type ReturnType = Result<T, E>`,
+/// If `IS_RESULT` is set to `false` and `HANDLE_STATUS` is true, `type ReturnType = Result<T, E>`,
 /// otherwise it is `ReturnType = T`
 pub trait Output<const IS_RESULT: bool, const HANDLE_STATUS: bool, T, E>:
     private::OutputSealed

@@ -1167,11 +1167,11 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # #[ink::chain_extension]
 /// # pub trait RuntimeReadWrite {
 /// #     type ErrorCode = ReadWriteErrorCode;
-/// #     #[ink(extension = 1]
+/// #     #[ink(extension = 1)]
 /// #     fn read(key: &[u8]) -> Vec<u8>;
 /// #     #[ink(extension = 2)]
 /// #     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
-/// #     #[ink(extension = 3]
+/// #     #[ink(extension = 3)]
 /// #     fn write(key: &[u8], value: &[u8]);
 /// #     #[ink(extension = 4, handle_status = false)]
 /// #     fn access(key: &[u8]) -> Option<Access>;
