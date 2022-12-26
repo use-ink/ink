@@ -58,22 +58,21 @@ pub trait FromStatusCode: Sized {
 ///   All tuple types that may act as input parameters for the chain extension method are valid.
 ///   Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
 /// - `O` represents the return (or output) type of the chain extension method.
-///   Only `Result<T, E>` or `NoResult<O>` generic types are allowed for `O`.
-///   The `Result<T, E>` type says that the chain extension method returns a `Result` type
-///   whereas the `NoResult<O>` type says that the chain extension method returns a non-`Result` value
-///   of type `O`.
 /// - `ErrorCode` represents how the chain extension method handles the chain extension's error code.
 ///   Only `HandleErrorCode<E>` and `IgnoreErrorCode` types are allowed that each say to either properly
 ///   handle or ignore the chain extension's error code respectively.
+/// - `const IS_RESULT: bool` indicates if the `O` (output type) is of `Result<T, E>` type.
 ///
 /// The type states for type parameter `O` and `ErrorCode` represent 4 different states:
 ///
 /// 1. The chain extension method makes use of the chain extension's error code: `HandleErrorCode(E)`
-///     - **A:** The chain extension method returns a `Result<T, E>` type.
-///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult<T>`
+///     - **A:** The chain extension method returns a `Result<T, E>` type, i.e. `IS_RESULT` is set to `true`.
+///     - **B:** The chain extension method returns a type `O` that is not a `Result` type.
+///       The return type is still wrapped into `Result<O, E>`
 /// 2. The chain extension ignores the chain extension's error code: `IgnoreErrorCode`
-///     - **A:** The chain extension method returns a `Result<T, E>` type.
-///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult<T>`
+///     - **A:** The chain extension method returns a `Result<T, E>` type, i.e. `IS_RESULT` is set to `true`.
+///     - **B:** The chain extension method returns a type `O` that is not a `Result` type.
+///       The method just returns `O`.
 #[derive(Debug)]
 pub struct ChainExtensionMethod<I, O, ErrorCode, const IS_RESULT: bool> {
     func_id: u32,
@@ -115,14 +114,15 @@ impl<O, ErrorCode, const IS_RESULT: bool>
 }
 
 impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode, false> {
-    /// Sets the output type of the chain extension method call to `O`.
+    /// Sets the output type, `O`, of the chain extension method call.
+    ///
+    /// If `const IS_RESULT: bool` is set to `true`,
+    /// `O` is treated as `Result<T, E>`
     ///
     /// # Note
     ///
-    /// The set returned type `O` must not be of type `Result<T, E>`.
-    /// When using the `#[ink::chain_extension]` procedural macro to define
-    /// this chain extension method the above constraint is enforced at
-    /// compile time.
+    /// If `O` is incorrectly indicated as `Return<T, E>`,
+    /// the type will not satisfy trait bounds later in method builder pipeline.
     #[inline]
     pub fn output<O, const IS_RESULT: bool>(
         self,
@@ -190,14 +190,6 @@ pub mod state {
     pub struct HandleErrorCode<T> {
         error_code: PhantomData<fn() -> T>,
     }
-
-    /// Type state meaning that the chain extension method deliberately does not return a `Result` type.
-    ///
-    /// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.
-    #[derive(Debug)]
-    pub struct NoResult<T> {
-        no_result: PhantomData<fn() -> T>,
-    }
 }
 
 impl<I, O, ErrorCode> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, true>
@@ -224,6 +216,7 @@ where
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
     /// as input parameters and returns a `Result<i32, MyError>` upon completion.
+    /// Note how set const arg to `true` to indicate that return type is `Result<T, E>`.
     /// It will handle the shared error code from the chain extension.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -234,7 +227,7 @@ where
     /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output_result::<i32, MyError>()
+    ///     .output::<Result<i32, MyError>, true>()
     ///     .handle_error_code::<MyErrorCode>()
     ///     .call(&(true, 42));
     /// # #[derive(scale::Encode, scale::Decode)]
@@ -296,6 +289,7 @@ where
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
     /// as input parameters and returns a `Result<i32, MyError>` upon completion.
+    /// Note how set const arg to `true` to indicate that return type is `Result<T, E>`.
     /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -306,7 +300,7 @@ where
     /// # use ink_env::chain_extension::{ChainExtensionMethod};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output_result::<i32, MyError>()
+    ///     .output::<Result<i32, MyError>, true>()
     ///     .ignore_error_code()
     ///     .call(&(true, 42));
     /// # #[derive(scale::Encode, scale::Decode)]
@@ -362,7 +356,9 @@ where
     /// # Example
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion.
+    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion,
+    /// because `handle_status` flag is set.
+    /// We still need to indicate that the original type is not `Result<T, E>`, so `const IS_RESULT` set `false`.
     /// It will handle the shared error code from the chain extension.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -373,7 +369,7 @@ where
     /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output::<i32>()
+    ///     .output::<i32, MyErrorCode, false>()
     ///     .handle_error_code::<MyErrorCode>()
     ///     .call(&(true, 42));
     /// # pub struct MyErrorCode {}
@@ -415,7 +411,7 @@ where
     /// # Example
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion.
+    /// as input parameters and returns a `i32` upon completion. Hence, `const IS_RESULT` set `false`.
     /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -426,7 +422,7 @@ where
     /// # use ink_env::chain_extension::ChainExtensionMethod;
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output::<i32>()
+    ///     .output::<i32, false>()
     ///     .ignore_error_code()
     ///     .call(&(true, 42));
     /// ```
@@ -449,14 +445,20 @@ where
 }
 
 /// Extract `Ok` and `Err` variants from `Result` type
-pub trait IsResultType {
+pub trait IsResultType: private::IsResultTypeSealed {
     /// The `T` type of the `Result<T, E>`.
     type Ok;
     /// The `E` type of the `Result<T, E>`.
     type Err;
 }
 
+impl<T, E> private::IsResultTypeSealed for Result<T, E> {}
 impl<T, E> IsResultType for Result<T, E> {
     type Ok = T;
     type Err = E;
+}
+
+mod private {
+    /// Seals the `IsResultType` trait so that it cannot be implemented outside this module.
+    pub trait IsResultTypeSealed {}
 }

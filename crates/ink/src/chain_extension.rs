@@ -54,12 +54,21 @@ impl<T, E> IsResultType for Result<T, E> {
     type Err = E;
 }
 
+/// Only implemented for [ValueReturned]
+///
+/// Used to deduce the correct return type of a chain extension method at compile time
+/// based on 2 flags: `const IS_RESULT: bool` and `const HANDLE_STATUS: bool`.
+///
+/// If `IS_RESULT` is set to `false`, `type ReturnType = Result<T, E>`,
+/// otherwise it is `ReturnType = T`
 pub trait Output<const IS_RESULT: bool, const HANDLE_STATUS: bool, T, E>:
     private::OutputSealed
 {
     type ReturnType;
 }
 
+/// Represents some abstract value that is returned by a function.
+/// Currently acts as a placeholder.
 pub struct ValueReturned;
 impl private::OutputSealed for ValueReturned {}
 
@@ -82,5 +91,6 @@ impl<T, E> Output<true, true, T, E> for ValueReturned {
 mod private {
     /// Seals the `IsResultType` trait so that it cannot be implemented outside this module.
     pub trait IsResultSealed {}
+    /// Seals the `Output` trait so that it cannot be implemented outside this module.
     pub trait OutputSealed {}
 }

@@ -98,7 +98,7 @@ impl ChainExtension<'_> {
             <::ink::ValueReturned as ::ink::Output<{ ::ink::is_result_type!(#output_type) }, #handle_status_token, #output_type, #error_code>>::ReturnType
         );
 
-        // we not only need to check if handle status is set to true to enable this type bound
+        // we only need to check if handle status is set to true to enable this type bound
         let where_output_impls_from_error_code = Some(quote_spanned!(span=>
             <#return_type as ::ink::IsResultType>::Err: ::core::convert::From<#error_code>,
         )).filter(|_|  handle_status);
@@ -110,7 +110,6 @@ impl ChainExtension<'_> {
                 where
                     #where_output_impls_from_error_code
                 {
-                    println!("Return type is NOT of Result");
                     ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
                     .input::<#compound_input_type>()
                     .output::<#output_type, {::ink::is_result_type!(#output_type)}>()
