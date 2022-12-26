@@ -969,7 +969,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<Vec<u8>, Self::ErrorCode>`.
-///     #[ink(extension = 1]
+///     #[ink(extension = 1)]
 ///     fn read(key: &[u8]) -> Vec<u8>;
 ///
 ///     /// Reads from runtime storage.

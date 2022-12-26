@@ -216,7 +216,7 @@ where
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
     /// as input parameters and returns a `Result<i32, MyError>` upon completion.
-    /// Note how set const arg to `true` to indicate that return type is `Result<T, E>`.
+    /// Note how we set const constant argument to `true` to indicate that return type is `Result<T, E>`.
     /// It will handle the shared error code from the chain extension.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -289,7 +289,7 @@ where
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
     /// as input parameters and returns a `Result<i32, MyError>` upon completion.
-    /// Note how set const arg to `true` to indicate that return type is `Result<T, E>`.
+    /// Note how we set const constant argument to `true` to indicate that return type is `Result<T, E>`.
     /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.

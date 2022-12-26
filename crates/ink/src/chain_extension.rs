@@ -54,7 +54,7 @@ impl<T, E> IsResultType for Result<T, E> {
     type Err = E;
 }
 
-/// Only implemented for [ValueReturned]
+/// Only implemented for [`ValueReturned`]
 ///
 /// Used to deduce the correct return type of a chain extension method at compile time
 /// based on 2 flags: `const IS_RESULT: bool` and `const HANDLE_STATUS: bool`.
