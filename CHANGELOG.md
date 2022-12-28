@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 - Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
 - Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
+- Chain Extension: Evaluation of method return type at compile time - [#1569](https://github.com/paritytech/ink/pull/1569).
+  This PR introduces breaking changes to chain extension macro API: **`returns_result` flag has been removed**.
 
 ## Version 4.0.0-beta
 
