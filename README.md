@@ -180,7 +180,7 @@ first ink! smart contract.
 
 ## Examples
 
-In the `examples` folder you'll find a number of examples written in ink!.
+In the [`examples`](https://github.com/paritytech/ink/tree/master/examples) folder you'll find a number of examples written in ink!.
 
 Some of the most interesting ones:
 
