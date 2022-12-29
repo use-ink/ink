@@ -192,7 +192,7 @@ Some of the most interesting ones:
 
 To build a single example navigate to the root of the example and run:
 ```
-cargo contract build
+cargo contract +nightly build
 ```
 
 You should now have an `<name>.contract` file in the `target` folder of the contract.
