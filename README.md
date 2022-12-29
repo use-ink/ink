@@ -74,7 +74,7 @@ It's a simple Substrate blockchain which includes the Substrate module for smart
 
 We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-). Rococo is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
-testnet, follow the instructions in the
+testnet, follow the instructions in
 [our documentation](https://use.ink/testnet).
 
 For both types of chains the [Contracts UI](https://contracts-ui.substrate.io/)
