@@ -23,7 +23,7 @@
 [j1]: https://img.shields.io/badge/click-blue.svg
 [j2]: https://paritytech.github.io/ink/ink
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
-[k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
+[k2]: https://app.element.io/#/room/#ink:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
 [l2]: https://discord.com/invite/wGUDt2p
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
