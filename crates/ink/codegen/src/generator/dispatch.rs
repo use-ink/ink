@@ -79,12 +79,7 @@ impl GenerateCode for Dispatch<'_> {
             #contract_dispatchable_messages_infos
             #constructor_decoder_type
             #message_decoder_type
-
-            #[cfg(not(test))]
-            #[cfg(not(feature = "ink-as-dependency"))]
-            const _: () = {
-                #entry_points
-            };
+            #entry_points
         }
     }
 }
@@ -412,79 +407,57 @@ impl Dispatch<'_> {
             self.any_message_accepts_payment_expr(message_spans);
         quote_spanned!(span=>
             #[cfg(not(test))]
-            #[no_mangle]
-            #[allow(clippy::nonminimal_bool)]
-            fn deploy() {
-                if !#any_constructor_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
-                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+            #[cfg(not(feature = "ink-as-dependency"))]
+            const _: () = {
+                #[no_mangle]
+                #[allow(clippy::nonminimal_bool)]
+                fn deploy() {
+                    <#storage_ident as ::ink_env::contract::Entrypoint>::deploy()
                 }
 
-                let dispatchable = match ::ink::env::decode_input::<
-                    <#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type,
-                >() {
-                    ::core::result::Result::Ok(decoded_dispatchable) => {
-                        decoded_dispatchable
-                    }
-                    ::core::result::Result::Err(_decoding_error) => {
-                        let error = ::ink::ConstructorResult::Err(::ink::LangError::CouldNotReadInput);
-
-                        // At this point we're unable to set the `Ok` variant to be the any "real"
-                        // constructor output since we were unable to figure out what the caller wanted
-                        // to dispatch in the first place, so we set it to `()`.
-                        //
-                        // This is okay since we're going to only be encoding the `Err` variant
-                        // into the output buffer anyways.
-                        ::ink::env::return_value::<::ink::ConstructorResult<()>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
-                            &error,
-                        );
-                    }
-                };
-
-                <<#storage_ident as ::ink::reflect::ContractConstructorDecoder>::Type
-                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
-                .unwrap_or_else(|error| {
-                    ::core::panic!("dispatching ink! message failed: {}", error)
-                })
+                #[no_mangle]
+                #[allow(clippy::nonminimal_bool)]
+                fn call() {
+                    <#storage_ident as ::ink_env::contract::Entrypoint>::call()
+                }
             }
 
-            #[cfg(not(test))]
-            #[no_mangle]
-            #[allow(clippy::nonminimal_bool)]
-            fn call() {
-                if !#any_message_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
-                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+            impl ::ink_env::contract::Entrypoint for #storage_ident {
+                fn deploy() {
+                    if !#any_constructor_accept_payment {
+                        ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
+                            .unwrap_or_else(|error| ::core::panic!("{}", error))
+                    }
+
+                    ::ink_env::decode_input::<
+                            <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
+                        .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
+                        .and_then(|decoder| {
+                            <<#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type
+                                as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                        })
+                        .unwrap_or_else(|error| {
+                            ::core::panic!("dispatching ink! constructor failed: {}", error)
+                        })
                 }
 
-                let dispatchable = match ::ink::env::decode_input::<
-                    <#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type,
-                >() {
-                    ::core::result::Result::Ok(decoded_dispatchable) => {
-                        decoded_dispatchable
+                fn call() {
+                    if !#any_message_accept_payment {
+                        ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
+                            .unwrap_or_else(|error| ::core::panic!("{}", error))
                     }
-                    ::core::result::Result::Err(_decoding_error) => {
-                        let error = ::ink::MessageResult::Err(::ink::LangError::CouldNotReadInput);
 
-                        // At this point we're unable to set the `Ok` variant to be the any "real"
-                        // message output since we were unable to figure out what the caller wanted
-                        // to dispatch in the first place, so we set it to `()`.
-                        //
-                        // This is okay since we're going to only be encoding the `Err` variant
-                        // into the output buffer anyways.
-                        ::ink::env::return_value::<::ink::MessageResult<()>>(
-                            ::ink::env::ReturnFlags::new_with_reverted(true),
-                            &error,
-                        );
-                    }
-                };
-
-                <<#storage_ident as ::ink::reflect::ContractMessageDecoder>::Type
-                    as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(dispatchable)
-                .unwrap_or_else(|error| {
-                    ::core::panic!("dispatching ink! message failed: {}", error)
-                })
+                    ::ink_env::decode_input::<
+                            <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
+                        .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
+                        .and_then(|decoder| {
+                            <<#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type
+                                as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                        })
+                        .unwrap_or_else(|error| {
+                            ::core::panic!("dispatching ink! message failed: {}", error)
+                        })
+                }
             }
         )
     }

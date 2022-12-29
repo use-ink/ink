@@ -22,7 +22,7 @@ pub mod test_api;
 
 mod chain_extension;
 mod database;
-mod exec_context;
+pub mod exec_context;
 mod hashing;
 mod types;
 

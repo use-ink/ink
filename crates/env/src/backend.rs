@@ -30,7 +30,7 @@ use crate::{
 use ink_storage_traits::Storable;
 
 /// The flags to indicate further information about the end of a contract execution.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ReturnFlags {
     value: u32,
 }
@@ -49,6 +49,10 @@ impl ReturnFlags {
             false => self.value &= !has_reverted as u32,
         }
         self
+    }
+
+    pub fn is_reverted(&self) -> bool {
+        self.value & 1 > 0
     }
 
     /// Returns the underlying `u32` representation.
@@ -165,6 +169,12 @@ impl CallFlags {
     }
 }
 
+#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+pub type ReturnType = !;
+
+#[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
+pub type ReturnType = ();
+
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
     /// Writes the value to the contract storage under the given storage key.
@@ -244,7 +254,7 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ReturnType
     where
         R: scale::Encode;
 

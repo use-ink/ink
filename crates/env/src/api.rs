@@ -18,6 +18,7 @@ use crate::{
     backend::{
         EnvBackend,
         ReturnFlags,
+        ReturnType,
         TypedEnvBackend,
     },
     call::{
@@ -411,7 +412,7 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> ReturnType
 where
     R: scale::Encode,
 {
