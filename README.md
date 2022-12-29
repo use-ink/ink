@@ -109,7 +109,7 @@ In order to build the contract just execute this command in the `flipper` folder
 cargo +nightly contract build
 ```
 
-As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+As a result you'll get a `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
 The `.contract` file combines the Wasm and metadata into one file and needs to be used when instantiating the contract.
 
 
