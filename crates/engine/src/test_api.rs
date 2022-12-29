@@ -21,7 +21,10 @@ use crate::{
     AccountError,
     Error,
 };
-use std::collections::HashMap;
+use std::{
+    borrow::BorrowMut,
+    collections::HashMap,
+};
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -173,37 +176,57 @@ impl DebugInfo {
 impl Engine {
     /// Resets the environment.
     pub fn initialize_or_reset(&mut self) {
-        self.exec_context.reset();
-        self.database.clear();
-        self.debug_info.reset();
+        self.exec_context.borrow_mut().reset();
+        self.database.borrow_mut().clear();
+        self.debug_info.borrow_mut().reset();
     }
 
     /// Returns the total number of reads and writes of the contract's storage.
     pub fn get_contract_storage_rw(&self, account_id: Vec<u8>) -> (usize, usize) {
         let account_id = AccountId::from(account_id);
-        let reads = self.debug_info.count_reads.get(&account_id).unwrap_or(&0);
-        let writes = self.debug_info.count_writes.get(&account_id).unwrap_or(&0);
+        let reads = self
+            .debug_info
+            .borrow()
+            .count_reads
+            .get(&account_id)
+            .unwrap_or(&0);
+        let writes = self
+            .debug_info
+            .borrow()
+            .count_writes
+            .get(&account_id)
+            .unwrap_or(&0);
         (*reads, *writes)
     }
 
     /// Returns the total number of reads executed.
     pub fn count_reads(&self) -> usize {
-        self.debug_info.count_reads.values().sum()
+        self.debug_info
+            .borrow()
+            .count_reads
+            .iter()
+            .map(|(_, v)| v)
+            .sum()
     }
 
     /// Returns the total number of writes executed.
     pub fn count_writes(&self) -> usize {
-        self.debug_info.count_writes.values().sum()
+        self.debug_info
+            .borrow()
+            .count_writes
+            .iter()
+            .map(|(_, v)| v)
+            .sum()
     }
 
     /// Sets a caller for the next call.
     pub fn set_caller(&mut self, caller: Vec<u8>) {
-        self.exec_context.caller = Some(caller.into());
+        self.exec_context.borrow_mut().caller = Some(caller.into());
     }
 
     /// Sets the callee for the next call.
     pub fn set_callee(&mut self, callee: Vec<u8>) {
-        self.exec_context.callee = Some(callee.into());
+        self.exec_context.borrow_mut().callee = Some(callee.into());
     }
 
     /// Returns the amount of storage cells used by the account `account_id`.
@@ -212,6 +235,7 @@ impl Engine {
     pub fn count_used_storage_cells(&self, account_id: &[u8]) -> Result<usize, Error> {
         let cells = self
             .debug_info
+            .borrow()
             .cells_per_account
             .get(&account_id.to_owned().into())
             .ok_or_else(|| {
@@ -222,40 +246,44 @@ impl Engine {
 
     /// Advances the chain by a single block.
     pub fn advance_block(&mut self) {
-        self.exec_context.block_number += 1;
-        self.exec_context.block_timestamp += self.chain_spec.block_time;
+        self.exec_context.borrow_mut().block_number += 1;
+        self.exec_context.borrow_mut().block_timestamp +=
+            self.chain_spec.borrow().block_time;
     }
 
     /// Returns the callee, i.e. the currently executing contract.
     pub fn get_callee(&self) -> Vec<u8> {
-        self.exec_context.callee()
+        self.exec_context.borrow().callee()
     }
 
     /// Returns the contents of the past performed environmental `debug_message` in order.
     pub fn get_emitted_debug_messages(&self) -> RecordedDebugMessages {
-        self.debug_info.emitted_debug_messages.clone()
+        self.debug_info.borrow().emitted_debug_messages.clone()
     }
 
     /// Returns the recorded emitted events in order.
     pub fn get_emitted_events(&self) -> impl Iterator<Item = EmittedEvent> {
-        self.debug_info.emitted_events.clone().into_iter()
+        self.debug_info.borrow().emitted_events.clone().into_iter()
     }
 
     /// Returns the current balance of `account_id`.
     pub fn get_balance(&self, account_id: Vec<u8>) -> Result<Balance, Error> {
         self.database
+            .borrow()
             .get_balance(&account_id)
             .ok_or(Error::Account(AccountError::NoAccountForId(account_id)))
     }
 
     /// Sets the balance of `account_id` to `new_balance`.
     pub fn set_balance(&mut self, account_id: Vec<u8>, new_balance: Balance) {
-        self.database.set_balance(&account_id, new_balance);
+        self.database
+            .borrow_mut()
+            .set_balance(&account_id, new_balance);
     }
 
     /// Sets the value transferred from the caller to the callee as part of the call.
     pub fn set_value_transferred(&mut self, value: Balance) {
-        self.exec_context.value_transferred = value;
+        self.exec_context.borrow_mut().value_transferred = value;
     }
 }
 

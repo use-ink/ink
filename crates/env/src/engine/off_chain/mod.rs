@@ -29,6 +29,7 @@ use derive_more::From;
 use ink_engine::ext::Engine;
 
 /// The off-chain environment.
+#[derive(Clone)]
 pub struct EnvInstance {
     engine: Engine,
 }
@@ -38,15 +39,12 @@ impl OnInstance for EnvInstance {
     where
         F: FnOnce(&mut Self) -> R,
     {
-        use core::cell::RefCell;
         thread_local!(
-            static INSTANCE: RefCell<EnvInstance> = RefCell::new(
-                EnvInstance {
-                    engine: Engine::new()
-                }
-            )
+            static INSTANCE: EnvInstance = EnvInstance {
+                engine: Engine::new()
+            }
         );
-        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
+        INSTANCE.with(|instance| f(&mut instance.clone()))
     }
 }
 

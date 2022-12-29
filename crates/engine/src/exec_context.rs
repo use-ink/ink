@@ -43,6 +43,10 @@ pub struct ExecContext {
     pub block_number: BlockNumber,
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
+    /// The input of the call.
+    pub input: Vec<u8>,
+    /// The output buffer of the call.
+    pub output: Vec<u8>,
 }
 
 impl ExecContext {

@@ -27,6 +27,8 @@ use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 pub use super::call_data::CallData;
+use crate::contract::Entrypoint;
+use ink_engine::ext::Contract;
 pub use ink_engine::ChainExtension;
 
 /// Record for an emitted event.
@@ -323,6 +325,18 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
             .get_emitted_events()
             .into_iter()
             .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+    })
+}
+
+/// Registers the contract by the code hash. After registration, the contract can be instantiated.
+pub fn register_contract<C>(code_hash: &[u8]) -> Option<Contract>
+where
+    C: Entrypoint + ?Sized,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let deploy = C::deploy;
+        let call = C::call;
+        instance.engine.register_contract(code_hash, deploy, call)
     })
 }
 
