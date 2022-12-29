@@ -175,7 +175,7 @@ mod flipper {
 ```
 
 The [`flipper/src/lib.rs`](https://github.com/paritytech/ink/blob/master/examples/flipper/lib.rs)
-file in our examples folder contains exactly this code. Run `cargo contract build` to build your
+file in our examples folder contains exactly this code. Run `cargo +nightly contract build` to build your
 first ink! smart contract.
 
 ## Examples
