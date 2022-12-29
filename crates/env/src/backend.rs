@@ -51,6 +51,7 @@ impl ReturnFlags {
         self
     }
 
+    /// Returns `true` if the execution is going to be reverted.
     pub fn is_reverted(&self) -> bool {
         self.value & 1 > 0
     }
@@ -169,12 +170,6 @@ impl CallFlags {
     }
 }
 
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
-pub type ReturnType = !;
-
-#[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
-pub type ReturnType = ();
-
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
     /// Writes the value to the contract storage under the given storage key.
@@ -254,7 +249,13 @@ pub trait EnvBackend {
     ///
     /// The `flags` parameter can be used to revert the state changes of the
     /// entire execution if necessary.
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ReturnType
+    #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: scale::Encode;
+
+    #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ()
     where
         R: scale::Encode;
 

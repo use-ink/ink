@@ -18,7 +18,6 @@ use crate::{
     backend::{
         EnvBackend,
         ReturnFlags,
-        ReturnType,
         TypedEnvBackend,
     },
     call::{
@@ -412,7 +411,18 @@ where
 /// # Note
 ///
 /// This function  stops the execution of the contract immediately.
-pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> ReturnType
+#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> !
+where
+    R: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::return_value::<R>(instance, return_flags, return_value)
+    })
+}
+
+#[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
+pub fn return_value<R>(return_flags: ReturnFlags, return_value: &R) -> ()
 where
     R: scale::Encode,
 {
