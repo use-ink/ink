@@ -8,6 +8,7 @@ struct Graph {
     nodes: HashSet<Node>,
 }
 #[warn(clippy::redundant_closure)]
+// The graph is created from the list provided by file graph.in
 impl Graph {
     fn from_edge_list(edge_list: &[(Node, Node, Cost)]) -> Self {
         let mut adjacency_list: HashMap<Node, Vec<(Node, Cost)>> = HashMap::new();
