@@ -96,6 +96,7 @@ where
         instance
             .engine
             .chain_extension_handler
+            .borrow_mut()
             .register(Box::new(extension));
     })
 }
@@ -200,6 +201,7 @@ where
         let caller = instance
             .engine
             .exec_context
+            .borrow_mut()
             .caller
             .as_ref()
             .expect("no caller has been set")

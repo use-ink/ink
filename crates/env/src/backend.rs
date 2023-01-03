@@ -255,7 +255,7 @@ pub trait EnvBackend {
         R: scale::Encode;
 
     #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ()
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode;
 

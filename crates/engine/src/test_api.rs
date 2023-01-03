@@ -21,10 +21,7 @@ use crate::{
     AccountError,
     Error,
 };
-use std::{
-    borrow::BorrowMut,
-    collections::HashMap,
-};
+use std::collections::HashMap;
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -189,14 +186,16 @@ impl Engine {
             .borrow()
             .count_reads
             .get(&account_id)
-            .unwrap_or(&0);
+            .unwrap_or(&0)
+            .clone();
         let writes = self
             .debug_info
             .borrow()
             .count_writes
             .get(&account_id)
-            .unwrap_or(&0);
-        (*reads, *writes)
+            .unwrap_or(&0)
+            .clone();
+        (reads, writes)
     }
 
     /// Returns the total number of reads executed.
@@ -233,15 +232,16 @@ impl Engine {
     ///
     /// Returns `None` if the `account_id` is non-existent.
     pub fn count_used_storage_cells(&self, account_id: &[u8]) -> Result<usize, Error> {
-        let cells = self
+        let cells_len = self
             .debug_info
             .borrow()
             .cells_per_account
             .get(&account_id.to_owned().into())
             .ok_or_else(|| {
                 Error::Account(AccountError::NoAccountForId(account_id.to_vec()))
-            })?;
-        Ok(cells.len())
+            })?
+            .len();
+        Ok(cells_len)
     }
 
     /// Advances the chain by a single block.

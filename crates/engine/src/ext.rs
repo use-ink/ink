@@ -33,7 +33,6 @@ use crate::{
 };
 use scale::Encode;
 use std::{
-    borrow::BorrowMut,
     cell::RefCell,
     collections::HashMap,
     panic::panic_any,
@@ -142,6 +141,8 @@ pub struct Engine {
     pub chain_spec: Rc<RefCell<ChainSpec>>,
     /// Handler for registered chain extensions.
     pub chain_extension_handler: Rc<RefCell<ChainExtensionHandler>>,
+    /// Contracts' store.
+    pub contracts: Rc<RefCell<ContractStore>>,
 }
 
 /// The chain specification.
@@ -181,6 +182,7 @@ impl Engine {
             debug_info: Rc::new(RefCell::new(DebugInfo::new())),
             chain_spec: Rc::new(RefCell::new(ChainSpec::default())),
             chain_extension_handler: Rc::new(RefCell::new(ChainExtensionHandler::new())),
+            contracts: Rc::new(RefCell::new(ContractStore::default())),
         }
     }
 }
@@ -357,7 +359,7 @@ impl Engine {
             .caller
             .as_ref()
             .expect("no caller has been set")
-            .as_bytes();
+            .clone();
         set_output(output, caller.as_bytes());
     }
 
@@ -368,7 +370,8 @@ impl Engine {
             .borrow()
             .callee
             .as_ref()
-            .expect("no callee has been set");
+            .expect("no callee has been set")
+            .clone();
 
         let balance_in_storage = self
             .database
@@ -496,7 +499,7 @@ impl Engine {
         output: &mut &mut [u8],
     ) {
         let encoded_input = input.encode();
-        let chain_extension_handler = self.chain_extension_handler.borrow_mut();
+        let mut chain_extension_handler = self.chain_extension_handler.borrow_mut();
         let (status_code, out) = chain_extension_handler
             .eval(func_id, &encoded_input)
             .unwrap_or_else(|error| {

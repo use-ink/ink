@@ -14,7 +14,6 @@
 
 use super::EnvInstance;
 use crate::{
-    backend::ReturnType,
     call::{
         Call,
         CallParams,
@@ -47,6 +46,7 @@ use ink_engine::{
     ext::Engine,
 };
 use ink_storage_traits::Storable;
+use scale::Encode;
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -251,7 +251,19 @@ impl EnvBackend for EnvInstance {
             .map_err(|_| Error::CalleeTrapped)
     }
 
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> ReturnType
+    #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    where
+        R: scale::Encode,
+    {
+        if flags.is_reverted() {
+            panic!("the off-chain env does not implement revert in `seal_return_value`")
+        }
+        self.engine.exec_context.borrow_mut().output = return_value.encode();
+    }
+
+    #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
+    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,
     {
@@ -463,7 +475,7 @@ impl TypedEnvBackend for EnvInstance {
             caller: self.engine.exec_context.borrow().callee.clone(),
             callee: Some(callee.clone().into()),
             value_transferred: <u128 as scale::Decode>::decode(
-                &mut transferred_value.encode().as_slice(),
+                &mut scale::Encode::encode(transferred_value).as_slice(),
             )?,
             block_number: self.engine.exec_context.borrow().block_number,
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
@@ -546,7 +558,7 @@ impl TypedEnvBackend for EnvInstance {
             caller: self.engine.exec_context.borrow().callee.clone(),
             callee: Some(callee.clone().into()),
             value_transferred: <u128 as scale::Decode>::decode(
-                &mut endowment.encode().as_slice(),
+                &mut scale::Encode::encode(endowment).as_slice(),
             )?,
             block_number: self.engine.exec_context.borrow().block_number,
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,

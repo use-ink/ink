@@ -639,7 +639,7 @@ impl Dispatch<'_> {
                         );
                     }
 
-                    ::ink::env::return_value::<
+                    Ok(::ink::env::return_value::<
                         ::ink::ConstructorResult<
                             ::core::result::Result<(), &#constructor_value::Error>
                         >,
@@ -648,7 +648,7 @@ impl Dispatch<'_> {
                         // Currently no `LangError`s are raised at this level of the
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
-                    );
+                    ))
                 }
             )
         });
@@ -841,12 +841,12 @@ impl Dispatch<'_> {
                         push_contract(contract, #mutates_storage);
                     }
 
-                    ::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
+                    Ok(::ink::env::return_value::<::ink::MessageResult::<#message_output>>(
                         ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
                         // Currently no `LangError`s are raised at this level of the
                         // dispatch logic so `Ok` is always returned to the caller.
                         &::ink::MessageResult::Ok(result),
-                    )
+                    ))
                 }
             )
         });
@@ -916,7 +916,7 @@ impl Dispatch<'_> {
 
                         match self {
                             #( #message_execute ),*
-                        };
+                        }
                     }
                 }
 
