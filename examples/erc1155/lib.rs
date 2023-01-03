@@ -331,7 +331,7 @@ mod erc1155 {
             self.env().emit_event(TransferSingle {
                 operator: Some(caller),
                 from: Some(from),
-                to: Some(from),
+                to: Some(to),
                 token_id,
                 value,
             });
