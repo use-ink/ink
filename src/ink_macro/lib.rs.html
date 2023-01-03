@@ -1380,6 +1380,16 @@
 <span id="1379">1379</span>
 <span id="1380">1380</span>
 <span id="1381">1381</span>
+<span id="1382">1382</span>
+<span id="1383">1383</span>
+<span id="1384">1384</span>
+<span id="1385">1385</span>
+<span id="1386">1386</span>
+<span id="1387">1387</span>
+<span id="1388">1388</span>
+<span id="1389">1389</span>
+<span id="1390">1390</span>
+<span id="1391">1391</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2079,6 +2089,7 @@
 ///     feature = &quot;std&quot;,
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
 /// struct Packed {
 ///     s1: u128,
 ///     s2: Vec&lt;u128&gt;,
@@ -2092,6 +2103,7 @@
 ///     feature = &quot;std&quot;,
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
 /// struct PackedGeneric&lt;T: ink::storage::traits::Packed&gt; {
 ///     s1: (u128, bool),
 ///     s2: Vec&lt;T&gt;,
@@ -2100,6 +2112,7 @@
 ///
 /// // Example of how to define the non-packed type.
 /// #[ink::storage_item]
+/// #[derive(Default, Debug)]
 /// struct NonPacked {
 ///     s1: Mapping&lt;u32, u128&gt;,
 ///     s2: Lazy&lt;u128&gt;,
@@ -2112,7 +2125,12 @@
 ///     feature = &quot;std&quot;,
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
-/// struct NonPackedGeneric&lt;T: ink::storage::traits::Packed&gt; {
+/// #[derive(Default, Debug)]
+/// struct NonPackedGeneric&lt;T&gt;
+/// where
+///     T: Default + core::fmt::Debug,
+///     T: ink::storage::traits::Packed,
+/// {
 ///     s1: u32,
 ///     s2: T,
 ///     s3: Mapping&lt;u128, T&gt;,
@@ -2124,6 +2142,7 @@
 ///     feature = &quot;std&quot;,
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
 /// struct PackedComplex {
 ///     s1: u128,
 ///     s2: Vec&lt;u128&gt;,
@@ -2132,6 +2151,7 @@
 ///
 /// // Example of how to define a complex non-packed type.
 /// #[ink::storage_item]
+/// #[derive(Default, Debug)]
 /// struct NonPackedComplex&lt;KEY: StorageKey&gt; {
 ///     s1: (String, u128, Packed),
 ///     s2: Mapping&lt;u128, u128&gt;,
@@ -2161,8 +2181,8 @@
 ///     use ink::storage::traits::{
 ///         StorableHint,
 ///         StorageKey,
+///         Storable,
 ///     };
-///     use ink::storage::traits::Storable;
 ///
 ///     #[ink::storage_item(derive = false)]
 ///     #[derive(StorableHint, Storable, StorageKey)]

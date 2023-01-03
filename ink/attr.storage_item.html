@@ -38,6 +38,7 @@ the parent’s storage key allows one to achieve it.</p>
     feature = <span class="string">&quot;std&quot;</span>,
     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
+#[derive(Default, Debug)]
 </span><span class="kw">struct </span>Packed {
     s1: u128,
     s2: Vec&lt;u128&gt;,
@@ -51,6 +52,7 @@ the parent’s storage key allows one to achieve it.</p>
     feature = <span class="string">&quot;std&quot;</span>,
     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
+#[derive(Default, Debug)]
 </span><span class="kw">struct </span>PackedGeneric&lt;T: ink::storage::traits::Packed&gt; {
     s1: (u128, bool),
     s2: Vec&lt;T&gt;,
@@ -59,6 +61,7 @@ the parent’s storage key allows one to achieve it.</p>
 
 <span class="comment">// Example of how to define the non-packed type.
 </span><span class="attribute">#[ink::storage_item]
+#[derive(Default, Debug)]
 </span><span class="kw">struct </span>NonPacked {
     s1: Mapping&lt;u32, u128&gt;,
     s2: Lazy&lt;u128&gt;,
@@ -71,7 +74,12 @@ the parent’s storage key allows one to achieve it.</p>
     feature = <span class="string">&quot;std&quot;</span>,
     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
-</span><span class="kw">struct </span>NonPackedGeneric&lt;T: ink::storage::traits::Packed&gt; {
+#[derive(Default, Debug)]
+</span><span class="kw">struct </span>NonPackedGeneric&lt;T&gt;
+<span class="kw">where
+    </span>T: Default + core::fmt::Debug,
+    T: ink::storage::traits::Packed,
+{
     s1: u32,
     s2: T,
     s3: Mapping&lt;u128, T&gt;,
@@ -83,6 +91,7 @@ the parent’s storage key allows one to achieve it.</p>
     feature = <span class="string">&quot;std&quot;</span>,
     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 )]
+#[derive(Default, Debug)]
 </span><span class="kw">struct </span>PackedComplex {
     s1: u128,
     s2: Vec&lt;u128&gt;,
@@ -91,6 +100,7 @@ the parent’s storage key allows one to achieve it.</p>
 
 <span class="comment">// Example of how to define a complex non-packed type.
 </span><span class="attribute">#[ink::storage_item]
+#[derive(Default, Debug)]
 </span><span class="kw">struct </span>NonPackedComplex&lt;KEY: StorageKey&gt; {
     s1: (String, u128, Packed),
     s2: Mapping&lt;u128, u128&gt;,
@@ -116,8 +126,8 @@ all required storage traits.</p>
 <span class="kw">use </span>ink::storage::traits::{
     StorableHint,
     StorageKey,
+    Storable,
 };
-<span class="kw">use </span>ink::storage::traits::Storable;
 
 <span class="attribute">#[ink::storage_item(derive = <span class="bool-val">false</span>)]
 #[derive(StorableHint, Storable, StorageKey)]
