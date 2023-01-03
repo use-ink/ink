@@ -33,6 +33,8 @@ mod adder {
 
 #[cfg(test)]
 mod test {
+    use ink::primitives::Hash;
+
     #[test]
     fn it_works() {
         use super::*;
@@ -42,8 +44,8 @@ mod test {
         };
 
         // register Accumulator & Adder
-        let hash1 = ink::env::Hash::try_from([10u8; 32]).unwrap();
-        let hash2 = ink::env::Hash::try_from([20u8; 32]).unwrap();
+        let hash1 = Hash::from([10u8; 32]);
+        let hash2 = Hash::from([20u8; 32]);
         ink::env::test::register_contract::<Accumulator>(hash1.as_ref());
         ink::env::test::register_contract::<Adder>(hash2.as_ref());
 
