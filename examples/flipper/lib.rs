@@ -60,7 +60,7 @@ pub mod flipper {
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
-        async fn flip(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let constructor = FlipperRef::new(false);
             let contract_acc_id = client
@@ -98,7 +98,7 @@ pub mod flipper {
         }
 
         #[ink_e2e::test]
-        async fn default_constructor(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let constructor = FlipperRef::new_default();
 
