@@ -82,7 +82,7 @@ mod rand_extension {
         ///
         /// Constructors may delegate to other constructors.
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Self::new(Default::default())
         }
 
@@ -117,7 +117,7 @@ mod rand_extension {
         /// We test if the default constructor does its job.
         #[ink::test]
         fn default_works() {
-            let rand_extension = RandExtension::default();
+            let rand_extension = RandExtension::new_default();
             assert_eq!(rand_extension.get(), [0; 32]);
         }
 
@@ -144,7 +144,7 @@ mod rand_extension {
                 }
             }
             ink::env::test::register_chain_extension(MockedExtension);
-            let mut rand_extension = RandExtension::default();
+            let mut rand_extension = RandExtension::new_default();
             assert_eq!(rand_extension.get(), [0; 32]);
 
             // when

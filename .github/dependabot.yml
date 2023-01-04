@@ -8,3 +8,10 @@ updates:
     directory: '/'
     schedule:
       interval: daily
+  - ignore:
+    - dependency-name: sp-*
+      versions:
+      - ">= 0"
+    - dependency-name: pallet-*
+      versions:
+      - ">= 0"

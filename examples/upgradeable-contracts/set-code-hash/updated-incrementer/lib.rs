@@ -24,7 +24,7 @@ pub mod incrementer {
 
         /// Creates a new counter smart contract initialized to `0`.
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Self::new(0)
         }
 

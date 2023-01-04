@@ -14,7 +14,7 @@ mod incrementer {
         }
 
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Self::new(Default::default())
         }
 
@@ -35,7 +35,7 @@ mod incrementer {
 
         #[ink::test]
         fn default_works() {
-            let contract = Incrementer::default();
+            let contract = Incrementer::new_default();
             assert_eq!(contract.get(), 0);
         }
 

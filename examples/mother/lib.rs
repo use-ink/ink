@@ -146,7 +146,7 @@ mod mother {
         }
 
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Default::default()
         }
 
@@ -197,7 +197,7 @@ mod mother {
         #[ink::test]
         fn echo_auction_works() {
             let auction = Auction::default();
-            let mut contract = Mother::default();
+            let mut contract = Mother::new_default();
             assert_eq!(contract.echo_auction(auction.clone()), auction);
         }
 

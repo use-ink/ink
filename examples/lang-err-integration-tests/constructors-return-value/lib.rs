@@ -191,7 +191,7 @@ pub mod constructors_return_value {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("Calling `get_value` failed")
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             assert_eq!(
