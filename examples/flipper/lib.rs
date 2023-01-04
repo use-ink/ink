@@ -96,5 +96,29 @@ pub mod flipper {
 
             Ok(())
         }
+
+        #[ink_e2e::test]
+        async fn default_constructor(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // given
+            let constructor = FlipperRef::new_default();
+
+            // when
+            let contract_acc_id = client
+                .instantiate("flipper", &ink_e2e::bob(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // then
+            let get = build_message::<FlipperRef>(contract_acc_id.clone())
+                .call(|flipper| flipper.get());
+            let get_res = client
+                .call(&ink_e2e::bob(), get, 0, None)
+                .await
+                .expect("get failed");
+            assert!(matches!(get_res.return_value(), Ok(false)));
+
+            Ok(())
+        }
     }
 }
