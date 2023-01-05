@@ -93,9 +93,7 @@ where
     KeyType: StorageKey,
 {
     fn default() -> Self {
-        Self {
-            _marker: Default::default(),
-        }
+        Self::new()
     }
 }
 
@@ -105,9 +103,9 @@ where
     KeyType: StorageKey,
 {
     /// Creates a new empty `Mapping`.
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
-            _marker: Default::default(),
+            _marker: PhantomData,
         }
     }
 }
