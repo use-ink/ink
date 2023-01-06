@@ -69,9 +69,9 @@ impl<const KEY: Key, ParentKey: StorageKey> Debug for ManualKey<KEY, ParentKey> 
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct ResolverKey<L: StorageKey, R: StorageKey>(PhantomData<fn() -> (L, R)>);
 
-impl<L: StorageKey, R: StorageKey> StorageKey for ResolverKey<L, R> {
-    /// `KEY` of the `AutoKey` is zero. If left key is zero, then use right manual key.
-    const KEY: Key = if L::KEY == 0 { R::KEY } else { L::KEY };
+impl<L: StorageKey, const KEY: Key, ParentKey: StorageKey> StorageKey for ResolverKey<L, ManualKey<KEY, ParentKey>> {
+    /// `KEY` of the [`AutoKey`] and [`Packed`] are zero. If left key is zero, then use right manual key.
+    const KEY: Key = if L::KEY == 0 { KEY } else { L::KEY };
 }
 
 type FinalKey<T, const KEY: Key, ParentKey> =
