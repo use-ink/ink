@@ -113,12 +113,12 @@ pub fn log_prefix() -> String {
 
 /// Writes `msg` to stdout.
 pub fn log_info(msg: &str) {
-    log::info!("[{}] {}", log_prefix(), msg);
+    tracing::info!("[{}] {}", log_prefix(), msg);
 }
 
 /// Writes `msg` to stderr.
 pub fn log_error(msg: &str) {
-    log::error!("[{}] {}", log_prefix(), msg);
+    tracing::error!("[{}] {}", log_prefix(), msg);
 }
 
 /// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
