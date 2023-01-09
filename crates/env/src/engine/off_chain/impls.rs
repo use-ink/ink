@@ -47,7 +47,6 @@ use ink_engine::{
 };
 use ink_storage_traits::Storable;
 use scale::Encode;
-
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
@@ -262,13 +261,14 @@ impl EnvBackend for EnvInstance {
         self.engine.exec_context.borrow_mut().output = return_value.encode();
     }
 
+    // todo: check errors
     #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,
     {
         if flags.is_reverted() {
-            panic!("the off-chain env does not implement revert in `seal_return_value`")
+            unimplemented!("revert is not implemented yet")
         }
         self.engine.exec_context.borrow_mut().output = return_value.encode();
     }
@@ -382,8 +382,21 @@ impl EnvBackend for EnvInstance {
         Ok(decoded)
     }
 
-    fn set_code_hash(&mut self, _code_hash: &[u8]) -> Result<()> {
-        unimplemented!("off-chain environment does not support `set_code_hash`")
+    fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
+        let account_id = self
+            .engine
+            .exec_context
+            .borrow()
+            .callee
+            .clone()
+            .expect("callee is none");
+
+        self.engine
+            .contracts
+            .borrow_mut()
+            .instantiated
+            .insert(account_id.as_bytes().to_vec(), code_hash.to_vec());
+        Ok(())
     }
 }
 
@@ -466,10 +479,58 @@ impl TypedEnvBackend for EnvInstance {
     {
         let callee = params.callee().as_ref().to_vec();
         let _gas_limit = params.gas_limit();
-        // TODO: Add support of `call_flags`
-        let _call_flags = params.call_flags().into_u32();
+
+        let call_flags = params.call_flags().into_u32();
+
         let transferred_value = params.transferred_value();
         let input = params.exec_input();
+
+        let previous_call_flags = self.engine.exec_context.borrow().call_flags;
+
+        let forward_input = (previous_call_flags & 1) != 0;
+        let clone_input = ((previous_call_flags & 2) >> 1) != 0;
+        let tail_call = ((previous_call_flags & 4) >> 2) != 0;
+        let allow_reentry = ((previous_call_flags & 8) >> 3) != 0;
+
+        // todo: remove unwrap
+        let caller = self.engine.exec_context.borrow().callee.clone();
+
+        if caller.is_some() {
+            self.engine.contracts.borrow_mut().set_allow_reentry(
+                caller.clone().unwrap().as_bytes().to_vec(),
+                allow_reentry,
+            );
+        }
+
+        if !self
+            .engine
+            .contracts
+            .borrow()
+            .get_allow_reentry(callee.clone())
+            && self
+                .engine
+                .contracts
+                .borrow()
+                .get_entrance_count(callee.clone())
+                > 0
+        {
+            // todo: update error
+            return Err(Error::CalleeReverted)
+        }
+
+        self.engine
+            .contracts
+            .borrow_mut()
+            .increase_entrance(callee.clone())?;
+
+        let input = if forward_input {
+            // todo: maybe remove clone
+            self.engine.exec_context.borrow().input.clone()
+        } else if clone_input {
+            self.engine.exec_context.borrow().input.clone()
+        } else {
+            input.encode()
+        };
 
         let callee_context = ExecContext {
             caller: self.engine.exec_context.borrow().callee.clone(),
@@ -479,11 +540,12 @@ impl TypedEnvBackend for EnvInstance {
             )?,
             block_number: self.engine.exec_context.borrow().block_number,
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
-            input: input.encode(),
+            input,
             output: vec![],
+            call_flags,
         };
 
-        let previous_context = self.engine.exec_context.replace(callee_context);
+        let mut previous_context = self.engine.exec_context.replace(callee_context);
 
         let code_hash = self
             .engine
@@ -506,7 +568,24 @@ impl TypedEnvBackend for EnvInstance {
         call_fn();
 
         let return_value =
-            R::decode(&mut self.engine.exec_context.borrow().output.as_slice())?;
+            R::decode(&mut self.engine.exec_context.borrow().output.as_slice().clone())?;
+
+        if tail_call {
+            previous_context.output = self.engine.exec_context.borrow().output.clone();
+        }
+
+        self.engine
+            .contracts
+            .borrow_mut()
+            .decrease_entrance(callee)?;
+
+        if caller.is_some() {
+            self.engine
+                .contracts
+                .borrow_mut()
+                .allow_reentry
+                .remove(&caller.unwrap().as_bytes().to_vec());
+        }
 
         let _ = self.engine.exec_context.replace(previous_context);
 
@@ -564,6 +643,7 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input: input.encode(),
             output: vec![],
+            call_flags: 0,
         };
 
         let previous_context = self.engine.exec_context.replace(callee_context);
@@ -631,7 +711,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support cross-contract calls")
+        unimplemented!("off-chain environment does not support `seal_caller_is_origin`")
     }
 
     fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>

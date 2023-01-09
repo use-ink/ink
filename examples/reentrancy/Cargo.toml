@@ -1,0 +1,36 @@
+[package]
+name = "test"
+version = "4.0.0-beta"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+contract1 = { path = "./contract1", default-features = false, features = ["ink-as-dependency"] }
+contract2 = { path = "./contract2", default-features = false, features = ["ink-as-dependency"] }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+
+[lib]
+name = "test"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+    "contract1/std",
+    "contract2/std",
+]
+ink-as-dependency = []
+
+[workspace]
+members = [
+    "contract1",
+    "contract2"
+]

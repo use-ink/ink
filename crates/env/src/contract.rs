@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Contract's stuff related to the environment.
-
 /// Entrypoint of the contract to execute constructors or messages.
 pub trait Entrypoint {
     /// Entrypoint to run a constructor for the contract. It deploys the contract to the environment.

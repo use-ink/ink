@@ -118,7 +118,48 @@ impl ReturnCode {
 #[derive(Default)]
 pub struct ContractStore {
     pub instantiated: HashMap<Vec<u8>, Vec<u8>>,
+    pub entrance_count: HashMap<Vec<u8>, u32>,
+    pub allow_reentry: HashMap<Vec<u8>, bool>,
     pub deployed: HashMap<Vec<u8>, Contract>,
+}
+
+impl ContractStore {
+    pub fn get_entrance_count(&self, callee: Vec<u8>) -> u32 {
+        self.entrance_count.get(&callee).unwrap_or(&0).clone()
+    }
+
+    pub fn get_allow_reentry(&self, callee: Vec<u8>) -> bool {
+        self.allow_reentry.get(&callee).unwrap_or(&false).clone()
+    }
+
+    pub fn set_allow_reentry(&mut self, callee: Vec<u8>, allow: bool) {
+        if allow == false {
+            self.allow_reentry.remove(&callee);
+        } else {
+            self.allow_reentry.insert(callee, allow);
+        }
+    }
+
+    pub fn increase_entrance(&mut self, callee: Vec<u8>) -> Result {
+        let entrance = self.entrance_count.get(&callee).unwrap_or(&0).clone();
+
+        self.entrance_count.insert(callee, entrance + 1);
+
+        Ok(())
+    }
+
+    pub fn decrease_entrance(&mut self, callee: Vec<u8>) -> Result {
+        let entrance = self.entrance_count.get(&callee).unwrap_or(&0).clone();
+
+        if entrance == 0 {
+            // todo: update error
+            return Err(Error::Unknown)
+        }
+
+        self.entrance_count.insert(callee, entrance - 1);
+
+        Ok(())
+    }
 }
 
 pub struct Contract {
