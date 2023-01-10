@@ -33,7 +33,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 subxt = "0.25.0"
 
 # Substrate
-pallet-contracts-primitives = "7.0.0"
+pallet-contracts-primitives = "13.0.0"
 sp-core = "7.0.0"
 sp-keyring = "7.0.0"
 sp-runtime = "7.0.0"
