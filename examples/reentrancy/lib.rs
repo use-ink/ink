@@ -24,6 +24,7 @@ mod test {
             .salt_bytes([0u8; 0])
             .instantiate()
             .expect("failed at instantiating the `Contract1Ref` contract");
+
         let contract2 = Contract2Ref::new(contract1.clone())
             .code_hash(hash2.clone())
             .endowment(0)
@@ -35,14 +36,13 @@ mod test {
 
         let address2 = contract2.get_address();
 
-        println!("address1: {:?}", address1);
-        println!("address2: {:?}", address2);
-
         contract1.set_callee(address2);
 
         assert_eq!(contract1.get_callee(), address2);
         assert_eq!(contract2.get_callee(), address1);
 
-        assert_eq!(contract1.inc(), 2);
+        assert_eq!(contract1.inc(), Ok(2));
+        assert_eq!(contract1.get(), 2);
+        assert_eq!(contract2.get(), 0);
     }
 }

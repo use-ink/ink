@@ -118,6 +118,7 @@ impl ReturnCode {
 #[derive(Default)]
 pub struct ContractStore {
     pub instantiated: HashMap<Vec<u8>, Vec<u8>>,
+    pub storage_keys: HashMap<Vec<u8>, Vec<u8>>,
     pub entrance_count: HashMap<Vec<u8>, u32>,
     pub allow_reentry: HashMap<Vec<u8>, bool>,
     pub deployed: HashMap<Vec<u8>, Contract>,

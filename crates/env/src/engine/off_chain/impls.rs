@@ -268,7 +268,7 @@ impl EnvBackend for EnvInstance {
         R: scale::Encode,
     {
         if flags.is_reverted() {
-            unimplemented!("revert is not implemented yet")
+            self.engine.exec_context.borrow_mut().return_flags = 1;
         }
         self.engine.exec_context.borrow_mut().output = return_value.encode();
     }
@@ -497,7 +497,6 @@ impl TypedEnvBackend for EnvInstance {
                 caller.clone().unwrap().as_bytes().to_vec(),
                 allow_reentry,
             );
-            println!("set allow reentry for {:?} to {}", caller, allow_reentry);
         }
 
         if !self
@@ -512,20 +511,7 @@ impl TypedEnvBackend for EnvInstance {
                 .get_entrance_count(callee.clone())
                 > 0
         {
-            // todo: update error
-            panic!(
-                "reentrancy not allowed {} {} {}",
-                self.engine
-                    .contracts
-                    .borrow()
-                    .get_allow_reentry(callee.clone()),
-                self.engine
-                    .contracts
-                    .borrow()
-                    .get_entrance_count(callee.clone()),
-                allow_reentry
-            );
-            return Err(Error::CalleeReverted)
+            return Err(Error::ReentranceDenied)
         }
 
         self.engine
@@ -552,6 +538,7 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input,
             output: vec![],
+            return_flags: 0,
         };
 
         let mut previous_context = self.engine.exec_context.replace(callee_context);
@@ -562,10 +549,7 @@ impl TypedEnvBackend for EnvInstance {
             .borrow()
             .instantiated
             .get(&callee)
-            .ok_or_else(|| {
-                panic!("not callable");
-                Error::NotCallable
-            })?
+            .ok_or_else(|| Error::NotCallable)?
             .clone();
 
         let call_fn = self
@@ -574,13 +558,26 @@ impl TypedEnvBackend for EnvInstance {
             .borrow()
             .deployed
             .get(&code_hash)
-            .ok_or_else(|| {
-                panic!("code not found");
-                Error::CodeNotFound
-            })?
+            .ok_or_else(|| Error::CodeNotFound)?
             .call;
 
+        let storage = self
+            .engine
+            .database
+            .borrow()
+            .get_from_contract_storage(&callee.as_slice(), &[0; 4])
+            .expect("contract storage not found")
+            .clone();
+
         call_fn();
+
+        if self.engine.exec_context.borrow().return_flags & 1 > 0 {
+            self.engine
+                .database
+                .borrow_mut()
+                .insert_into_contract_storage(&callee.as_slice(), &[0; 4], storage)
+                .unwrap();
+        }
 
         let return_value =
             R::decode(&mut self.engine.exec_context.borrow().output.as_slice().clone())?;
@@ -658,6 +655,7 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input: input.encode(),
             output: vec![],
+            return_flags: 0,
         };
 
         let previous_context = self.engine.exec_context.replace(callee_context);

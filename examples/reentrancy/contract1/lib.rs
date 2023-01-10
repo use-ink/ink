@@ -5,17 +5,21 @@ extern crate core;
 pub use self::contract1::{
     Contract1,
     Contract1Ref,
+    Error,
 };
 
 #[ink::contract]
 mod contract1 {
-    use ink::env::{
-        call::{
-            build_call,
-            Call,
+    use ink::{
+        env::{
+            call::{
+                build_call,
+                Call,
+            },
+            CallFlags,
+            DefaultEnvironment,
         },
-        CallFlags,
-        DefaultEnvironment,
+        primitives::Key,
     };
     use std::mem::ManuallyDrop;
 
@@ -29,6 +33,13 @@ mod contract1 {
         value: u32,
 
         callee: AccountId,
+    }
+
+    #[derive(scale::Encode, scale::Decode, Debug, Ord, PartialOrd, Eq, PartialEq)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        CalleeReverted,
+        Unknown,
     }
 
     impl Contract1 {
@@ -59,12 +70,18 @@ mod contract1 {
         }
 
         #[ink(message)]
-        pub fn inc(&mut self) -> u32 {
+        pub fn get_key(&self) -> Key {
+            <Self as ink::storage::traits::StorageKey>::KEY
+        }
+
+        #[allow(unreachable_code)]
+        #[ink(message)]
+        pub fn inc(&mut self) -> Result<u32, Error> {
             self.value = self.value + 1;
             println!("value {}", self.value);
 
             if self.value > 1 {
-                return self.value
+                return Ok(self.value)
             }
 
             ink::env::set_contract_storage(
@@ -86,7 +103,7 @@ mod contract1 {
             core::mem::swap(self, &mut state);
             let _ = ManuallyDrop::new(state);
 
-            self.value
+            Ok(self.value)
         }
     }
 }

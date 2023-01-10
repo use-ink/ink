@@ -47,6 +47,8 @@ pub struct ExecContext {
     pub input: Vec<u8>,
     /// The output buffer of the call.
     pub output: Vec<u8>,
+    /// The return flags of the call
+    pub return_flags: u32,
 }
 
 impl ExecContext {

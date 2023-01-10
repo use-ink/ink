@@ -8,6 +8,7 @@ pub use self::contract2::{
 #[ink::contract]
 mod contract2 {
     use contract1::Contract1Ref;
+    use ink::primitives::Key;
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -48,9 +49,17 @@ mod contract2 {
             self.env().account_id()
         }
 
+        #[ink(message)]
+        pub fn get_key(&self) -> Key {
+            <Self as ink::storage::traits::StorageKey>::KEY
+        }
+
         #[ink(message, selector = _)]
         pub fn inc(&mut self) {
-            println!("{}", self.callee.get());
+            ink::env::set_contract_storage(
+                &<Self as ink::storage::traits::StorageKey>::KEY,
+                self,
+            );
             self.callee.inc();
         }
     }
