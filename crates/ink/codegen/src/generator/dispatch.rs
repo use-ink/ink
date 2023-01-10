@@ -484,7 +484,7 @@ impl Dispatch<'_> {
                                 ::ink::env::ReturnFlags::new_with_reverted(true),
                                 &error,
                             );
-                            panic!("execute_constructor reverted");
+                            panic!("execute_message reverted");
                         }
                     };
 

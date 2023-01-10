@@ -485,14 +485,11 @@ impl TypedEnvBackend for EnvInstance {
         let transferred_value = params.transferred_value();
         let input = params.exec_input();
 
-        let previous_call_flags = self.engine.exec_context.borrow().call_flags;
+        let forward_input = (call_flags & 1) != 0;
+        let clone_input = ((call_flags & 2) >> 1) != 0;
+        let tail_call = ((call_flags & 4) >> 2) != 0;
+        let allow_reentry = ((call_flags & 8) >> 3) != 0;
 
-        let forward_input = (previous_call_flags & 1) != 0;
-        let clone_input = ((previous_call_flags & 2) >> 1) != 0;
-        let tail_call = ((previous_call_flags & 4) >> 2) != 0;
-        let allow_reentry = ((previous_call_flags & 8) >> 3) != 0;
-
-        // todo: remove unwrap
         let caller = self.engine.exec_context.borrow().callee.clone();
 
         if caller.is_some() {
@@ -500,6 +497,7 @@ impl TypedEnvBackend for EnvInstance {
                 caller.clone().unwrap().as_bytes().to_vec(),
                 allow_reentry,
             );
+            println!("set allow reentry for {:?} to {}", caller, allow_reentry);
         }
 
         if !self
@@ -515,6 +513,18 @@ impl TypedEnvBackend for EnvInstance {
                 > 0
         {
             // todo: update error
+            panic!(
+                "reentrancy not allowed {} {} {}",
+                self.engine
+                    .contracts
+                    .borrow()
+                    .get_allow_reentry(callee.clone()),
+                self.engine
+                    .contracts
+                    .borrow()
+                    .get_entrance_count(callee.clone()),
+                allow_reentry
+            );
             return Err(Error::CalleeReverted)
         }
 
@@ -542,7 +552,6 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input,
             output: vec![],
-            call_flags,
         };
 
         let mut previous_context = self.engine.exec_context.replace(callee_context);
@@ -553,7 +562,10 @@ impl TypedEnvBackend for EnvInstance {
             .borrow()
             .instantiated
             .get(&callee)
-            .ok_or(Error::NotCallable)?
+            .ok_or_else(|| {
+                panic!("not callable");
+                Error::NotCallable
+            })?
             .clone();
 
         let call_fn = self
@@ -562,7 +574,10 @@ impl TypedEnvBackend for EnvInstance {
             .borrow()
             .deployed
             .get(&code_hash)
-            .ok_or(Error::CodeNotFound)?
+            .ok_or_else(|| {
+                panic!("code not found");
+                Error::CodeNotFound
+            })?
             .call;
 
         call_fn();
@@ -643,7 +658,6 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input: input.encode(),
             output: vec![],
-            call_flags: 0,
         };
 
         let previous_context = self.engine.exec_context.replace(callee_context);

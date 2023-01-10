@@ -48,8 +48,9 @@ mod contract2 {
             self.env().account_id()
         }
 
-        #[ink(message)]
+        #[ink(message, selector = _)]
         pub fn inc(&mut self) {
+            println!("{}", self.callee.get());
             self.callee.inc();
         }
     }

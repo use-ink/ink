@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+extern crate core;
+
 pub use self::contract1::{
     Contract1,
     Contract1Ref,
@@ -11,11 +13,11 @@ mod contract1 {
         call::{
             build_call,
             Call,
-            ExecutionInput,
         },
         CallFlags,
         DefaultEnvironment,
     };
+    use std::mem::ManuallyDrop;
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -56,21 +58,35 @@ mod contract1 {
             self.callee
         }
 
-        #[ink(message, selector = _)]
+        #[ink(message)]
         pub fn inc(&mut self) -> u32 {
             self.value = self.value + 1;
+            println!("value {}", self.value);
 
             if self.value > 1 {
                 return self.value
             }
 
+            ink::env::set_contract_storage(
+                &<Self as ink::storage::traits::StorageKey>::KEY,
+                self,
+            );
+
             build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(self.callee))
                 .call_flags(CallFlags::default().set_allow_reentry(true))
                 .fire()
-                .unwrap();
+                .unwrap_or_else(|err| panic!("failed to call callee: {:?}", err));
 
-            100
+            let mut state = ink::env::get_contract_storage(
+                &<Self as ink::storage::traits::StorageKey>::KEY,
+            )
+            .unwrap_or_else(|error| panic!("Failed to load contract state: {:?}", error))
+            .unwrap_or_else(|| panic!("Contract state is not initialized"));
+            core::mem::swap(self, &mut state);
+            let _ = ManuallyDrop::new(state);
+
+            self.value
         }
     }
 }
