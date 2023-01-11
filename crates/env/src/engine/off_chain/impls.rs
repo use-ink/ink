@@ -114,6 +114,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ext::Error::ReentranceDenied => Self::ReentranceDenied,
         }
     }
 }
@@ -261,7 +262,6 @@ impl EnvBackend for EnvInstance {
         self.engine.exec_context.borrow_mut().output = return_value.encode();
     }
 
-    // todo: check errors
     #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
@@ -483,50 +483,16 @@ impl TypedEnvBackend for EnvInstance {
         let call_flags = params.call_flags().into_u32();
 
         let transferred_value = params.transferred_value();
-        let input = params.exec_input();
-
-        let forward_input = (call_flags & 1) != 0;
-        let clone_input = ((call_flags & 2) >> 1) != 0;
-        let tail_call = ((call_flags & 4) >> 2) != 0;
-        let allow_reentry = ((call_flags & 8) >> 3) != 0;
 
         let caller = self.engine.exec_context.borrow().callee.clone();
 
-        if caller.is_some() {
-            self.engine.contracts.borrow_mut().set_allow_reentry(
-                caller.clone().unwrap().as_bytes().to_vec(),
-                allow_reentry,
-            );
-        }
-
-        if !self
-            .engine
-            .contracts
-            .borrow()
-            .get_allow_reentry(callee.clone())
-            && self
-                .engine
-                .contracts
-                .borrow()
-                .get_entrance_count(callee.clone())
-                > 0
-        {
-            return Err(Error::ReentranceDenied)
-        }
-
-        self.engine
-            .contracts
-            .borrow_mut()
-            .increase_entrance(callee.clone())?;
-
-        let input = if forward_input {
-            // todo: maybe remove clone
-            self.engine.exec_context.borrow().input.clone()
-        } else if clone_input {
-            self.engine.exec_context.borrow().input.clone()
-        } else {
-            input.encode()
-        };
+        // apply call flags before making a call and return the input that might be changed after that
+        let input = self.engine.apply_code_flags_before_call(
+            caller.clone(),
+            callee.clone(),
+            call_flags,
+            params.exec_input().encode(),
+        )?;
 
         let callee_context = ExecContext {
             caller: self.engine.exec_context.borrow().callee.clone(),
@@ -561,6 +527,7 @@ impl TypedEnvBackend for EnvInstance {
             .ok_or_else(|| Error::CodeNotFound)?
             .call;
 
+        // save previous version of storage in case call will revert
         let storage = self
             .engine
             .database
@@ -571,6 +538,7 @@ impl TypedEnvBackend for EnvInstance {
 
         call_fn();
 
+        // revert contract's state in case of error
         if self.engine.exec_context.borrow().return_flags & 1 > 0 {
             self.engine
                 .database
@@ -582,24 +550,16 @@ impl TypedEnvBackend for EnvInstance {
         let return_value =
             R::decode(&mut self.engine.exec_context.borrow().output.as_slice().clone())?;
 
-        if tail_call {
-            previous_context.output = self.engine.exec_context.borrow().output.clone();
-        }
+        let output = self.engine.exec_context.borrow().output.clone();
 
-        self.engine
-            .contracts
-            .borrow_mut()
-            .decrease_entrance(callee)?;
-
-        if caller.is_some() {
-            self.engine
-                .contracts
-                .borrow_mut()
-                .allow_reentry
-                .remove(&caller.unwrap().as_bytes().to_vec());
-        }
+        // if the call was reverted, previous one should be reverted too
+        previous_context.return_flags |= self.engine.exec_context.borrow().return_flags;
 
         let _ = self.engine.exec_context.replace(previous_context);
+
+        // apply code flags after the call
+        self.engine
+            .apply_code_flags_after_call(caller, callee, call_flags, output)?;
 
         Ok(return_value)
     }
@@ -629,13 +589,12 @@ impl TypedEnvBackend for EnvInstance {
         Salt: AsRef<[u8]>,
     {
         let code_hash = params.code_hash().as_ref().to_vec();
-        // Gas is not supported by off env.
+        // Gas is not supported by off-chain env.
         let _gas_limit = params.gas_limit();
         let endowment = params.endowment();
         let input = params.exec_input();
         let salt_bytes = params.salt_bytes();
 
-        // TODO: User ruels from the `contract-pallet` to create an `AccountId`.
         let mut callee = [0u8; 32];
         Sha2x256::hash(
             [code_hash.as_ref(), salt_bytes.as_ref()]

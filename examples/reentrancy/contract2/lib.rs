@@ -60,7 +60,7 @@ mod contract2 {
                 &<Self as ink::storage::traits::StorageKey>::KEY,
                 self,
             );
-            self.callee.inc();
+            self.callee.inc().unwrap();
         }
     }
 }

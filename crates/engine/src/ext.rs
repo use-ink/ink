@@ -102,6 +102,8 @@ define_error_codes! {
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed = 11,
+    /// Encountered the reentrancy that is not allowed
+    ReentranceDenied = 12,
 }
 
 /// The raw return code returned by the host side.
@@ -116,7 +118,7 @@ impl ReturnCode {
 }
 
 #[derive(Default)]
-pub struct ContractStore {
+pub struct ContractStorage {
     pub instantiated: HashMap<Vec<u8>, Vec<u8>>,
     pub storage_keys: HashMap<Vec<u8>, Vec<u8>>,
     pub entrance_count: HashMap<Vec<u8>, u32>,
@@ -124,7 +126,7 @@ pub struct ContractStore {
     pub deployed: HashMap<Vec<u8>, Contract>,
 }
 
-impl ContractStore {
+impl ContractStorage {
     pub fn get_entrance_count(&self, callee: Vec<u8>) -> u32 {
         self.entrance_count.get(&callee).unwrap_or(&0).clone()
     }
@@ -141,25 +143,29 @@ impl ContractStore {
         }
     }
 
-    pub fn increase_entrance(&mut self, callee: Vec<u8>) -> Result {
-        let entrance = self.entrance_count.get(&callee).unwrap_or(&0).clone();
-
-        self.entrance_count.insert(callee, entrance + 1);
+    pub fn increase_entrance_count(&mut self, callee: Vec<u8>) -> Result {
+        let entrance_count = self
+            .entrance_count
+            .get(&callee)
+            .map_or(1, |count| count + 1);
+        self.entrance_count.insert(callee, entrance_count);
 
         Ok(())
     }
 
-    pub fn decrease_entrance(&mut self, callee: Vec<u8>) -> Result {
-        let entrance = self.entrance_count.get(&callee).unwrap_or(&0).clone();
-
-        if entrance == 0 {
-            // todo: update error
-            return Err(Error::Unknown)
-        }
-
-        self.entrance_count.insert(callee, entrance - 1);
-
-        Ok(())
+    pub fn decrease_entrance_count(&mut self, callee: Vec<u8>) -> Result {
+        self.entrance_count.get(&callee).map_or_else(
+            || Err(Error::CalleeTrapped),
+            |count| {
+                if *count == 0 {
+                    self.entrance_count.remove(&callee);
+                    Err(Error::CalleeTrapped)
+                } else {
+                    self.entrance_count.insert(callee, count - 1);
+                    Ok(())
+                }
+            },
+        )
     }
 }
 
@@ -184,7 +190,7 @@ pub struct Engine {
     /// Handler for registered chain extensions.
     pub chain_extension_handler: Rc<RefCell<ChainExtensionHandler>>,
     /// Contracts' store.
-    pub contracts: Rc<RefCell<ContractStore>>,
+    pub contracts: Rc<RefCell<ContractStorage>>,
 }
 
 /// The chain specification.
@@ -224,7 +230,7 @@ impl Engine {
             debug_info: Rc::new(RefCell::new(DebugInfo::new())),
             chain_spec: Rc::new(RefCell::new(ChainSpec::default())),
             chain_extension_handler: Rc::new(RefCell::new(ChainExtensionHandler::new())),
-            contracts: Rc::new(RefCell::new(ContractStore::default())),
+            contracts: Rc::new(RefCell::new(ContractStorage::default())),
         }
     }
 }
@@ -613,6 +619,80 @@ impl Engine {
             .borrow_mut()
             .deployed
             .insert(hash.to_vec(), Contract { deploy, call })
+    }
+
+    /// Apply call flags for the call and return the input that might be changed
+    pub fn apply_code_flags_before_call(
+        &mut self,
+        caller: Option<AccountId>,
+        callee: Vec<u8>,
+        call_flags: u32,
+        input: Vec<u8>,
+    ) -> core::result::Result<Vec<u8>, Error> {
+        let forward_input = (call_flags & 1) != 0;
+        let clone_input = ((call_flags & 2) >> 1) != 0;
+        let allow_reentry = ((call_flags & 8) >> 3) != 0;
+
+        // Allow/deny reentrancy to the caller
+        if caller.is_some() {
+            self.contracts.borrow_mut().set_allow_reentry(
+                caller.clone().unwrap().as_bytes().to_vec(),
+                allow_reentry,
+            );
+        }
+
+        // Check if reentrance that is not allowed is encountered
+        if !self.contracts.borrow().get_allow_reentry(callee.clone())
+            && self.contracts.borrow().get_entrance_count(callee.clone()) > 0
+        {
+            return Err(Error::ReentranceDenied)
+        }
+
+        self.contracts
+            .borrow_mut()
+            .increase_entrance_count(callee.clone())?;
+
+        let new_input = if forward_input {
+            let previous_input = self.exec_context.borrow().input.clone();
+
+            // delete the input because we will forward it
+            self.exec_context.borrow_mut().input.clear();
+
+            previous_input
+        } else if clone_input {
+            self.exec_context.borrow().input.clone()
+        } else {
+            input
+        };
+
+        Ok(new_input)
+    }
+
+    /// Apply call flags after the call
+    pub fn apply_code_flags_after_call(
+        &mut self,
+        caller: Option<AccountId>,
+        callee: Vec<u8>,
+        call_flags: u32,
+        output: Vec<u8>,
+    ) -> core::result::Result<(), Error> {
+        let tail_call = ((call_flags & 4) >> 2) != 0;
+
+        if tail_call {
+            self.exec_context.borrow_mut().output = output.clone();
+        }
+
+        self.contracts
+            .borrow_mut()
+            .decrease_entrance_count(callee)?;
+
+        if caller.is_some() {
+            self.contracts
+                .borrow_mut()
+                .allow_reentry
+                .remove(&caller.unwrap().as_bytes().to_vec());
+        }
+        Ok(())
     }
 }
 
