@@ -136,7 +136,7 @@ where
     {
         let encoded = topic_value.encode();
         let len_encoded = encoded.len();
-        let mut result = <E as Environment>::Hash::clear();
+        let mut result = <E as Environment>::Hash::CLEAR_HASH;
         let len_result = result.as_ref().len();
         if len_encoded <= len_result {
             result.as_mut()[..len_encoded].copy_from_slice(&encoded[..]);
