@@ -4,13 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      - dependency-name: "sp-*"
+        update-types: ["minor", "patch"]
+      - dependency-name: "pallet-*"
+        update-types: ["minor", "patch"]
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
       interval: daily
-  - ignore:
-    - dependency-name: sp-core
-    - dependency-name: sp-keyring
-    - dependency-name: sp-runtime
-    - dependency-name: sp-weights
-    - dependency-name: pallet-contracts-primitives
