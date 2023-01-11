@@ -49,6 +49,8 @@ pub struct ExecContext {
     pub output: Vec<u8>,
     /// The return flags of the call
     pub return_flags: u32,
+    /// Origin of the call
+    pub origin: Option<Vec<u8>>,
 }
 
 impl ExecContext {

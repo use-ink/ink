@@ -494,6 +494,10 @@ impl TypedEnvBackend for EnvInstance {
             params.exec_input().encode(),
         )?;
 
+        if self.engine.exec_context.borrow().caller.clone().is_none() {
+            self.engine.exec_context.borrow_mut().origin = Some(callee.clone())
+        }
+
         let callee_context = ExecContext {
             caller: self.engine.exec_context.borrow().callee.clone(),
             callee: Some(callee.clone().into()),
@@ -505,6 +509,7 @@ impl TypedEnvBackend for EnvInstance {
             input,
             output: vec![],
             return_flags: 0,
+            origin: self.engine.exec_context.borrow().origin.clone(),
         };
 
         let mut previous_context = self.engine.exec_context.replace(callee_context);
@@ -604,6 +609,10 @@ impl TypedEnvBackend for EnvInstance {
         );
         let callee = callee.as_ref().to_vec();
 
+        if self.engine.exec_context.borrow().caller.clone().is_none() {
+            self.engine.exec_context.borrow_mut().origin = Some(callee.clone())
+        }
+
         let callee_context = ExecContext {
             caller: self.engine.exec_context.borrow().callee.clone(),
             callee: Some(callee.clone().into()),
@@ -615,6 +624,7 @@ impl TypedEnvBackend for EnvInstance {
             input: input.encode(),
             output: vec![],
             return_flags: 0,
+            origin: self.engine.exec_context.borrow().origin.clone(),
         };
 
         let previous_context = self.engine.exec_context.replace(callee_context);
@@ -682,7 +692,20 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `seal_caller_is_origin`")
+        self.engine
+            .exec_context
+            .borrow()
+            .origin
+            .clone()
+            .expect("stack should not be empty")
+            == self
+                .engine
+                .exec_context
+                .borrow()
+                .caller
+                .clone()
+                .expect("caller should exist")
+                .as_bytes()
     }
 
     fn code_hash<E>(&mut self, account: &E::AccountId) -> Result<E::Hash>
