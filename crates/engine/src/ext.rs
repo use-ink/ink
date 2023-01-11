@@ -161,11 +161,13 @@ impl ContractStorage {
                     self.entrance_count.remove(&callee);
                     Err(Error::CalleeTrapped)
                 } else {
-                    self.entrance_count.insert(callee, count - 1);
-                    Ok(())
+                    Ok(count - 1)
                 }
             },
-        )
+        )?;
+
+        self.entrance_count.insert(callee, entrance_count);
+        Ok(())
     }
 }
 
