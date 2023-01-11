@@ -8,9 +8,9 @@ updates:
     # automated Substrate releases cause dependabot PR spam, so these must be updated manually when required.
     ignore:
       - dependency-name: "sp-*"
-        update-types: ["version-update:semver-major"]
+        update-types: [ "version-update:semver-major" ]
       - dependency-name: "pallet-*"
-        update-types: ["version-update:semver-major"]
+        update-types: [ "version-update:semver-major" ]
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
