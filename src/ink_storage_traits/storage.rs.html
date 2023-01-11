@@ -116,8 +116,8 @@
 
 <span class="doccomment">/// Trait for representing types which can be read and written to storage.
 ///
-/// This trait is not the same as the `scale::Encode + scale::Decode`. Each type that implements
-/// `scale::Encode + scale::Decode` are storable by default and transferable between contracts.
+/// This trait is not the same as the [`scale::Codec`]. Each type that implements
+/// [`scale::Codec`] are storable by default and transferable between contracts.
 /// But not each storable type is transferable.
 </span><span class="kw">pub trait </span>Storable: Sized {
     <span class="doccomment">/// Convert self to a slice and append it to the destination.
@@ -131,7 +131,7 @@
 /// they can be written directly into the storage cell.
 </span><span class="kw">impl</span>&lt;P&gt; Storable <span class="kw">for </span>P
 <span class="kw">where
-    </span>P: scale::Encode + scale::Decode,
+    </span>P: scale::Codec,
 {
     <span class="attribute">#[inline]
     </span><span class="kw">fn </span>encode&lt;T: scale::Output + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, dest: <span class="kw-2">&amp;mut </span>T) {
@@ -157,9 +157,9 @@
 ///
 /// # Note
 ///
-/// The trait is automatically implemented for types that implement `scale::Encode`
-/// and `scale::Decode` via blanket implementation.
-</span><span class="kw">pub trait </span>Packed: Storable + scale::Decode + scale::Encode + private::Sealed {}
+/// The trait is automatically implemented for types that implement [`scale::Codec`]
+/// via blanket implementation.
+</span><span class="kw">pub trait </span>Packed: Storable + scale::Codec + private::Sealed {}
 
 <span class="doccomment">/// Holds storage key for the type.
 ///
