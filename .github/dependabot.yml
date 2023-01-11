@@ -9,9 +9,8 @@ updates:
     schedule:
       interval: daily
   - ignore:
-    - dependency-name: sp-*
-      versions:
-      - ">= 0"
-    - dependency-name: pallet-*
-      versions:
-      - ">= 0"
+      - dependency-name: sp-core
+      - dependency-name: sp-keyring
+      - dependency-name: sp-runtime
+      - dependency-name: sp-weights
+      - dependency-name: pallet-contracts-primitives
