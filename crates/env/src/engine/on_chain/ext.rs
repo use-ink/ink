@@ -240,7 +240,7 @@ mod sys {
         ) -> ReturnCode;
 
         pub fn input(buf_ptr: Ptr32Mut<[u8]>, buf_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_return(flags: u32, data_ptr: Ptr32<[u8]>, data_len: u32) -> !;
+        pub fn r#return(flags: u32, data_ptr: Ptr32<[u8]>, data_len: u32) -> !;
 
         pub fn caller(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
         pub fn block_number(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
@@ -631,7 +631,7 @@ pub fn input(output: &mut &mut [u8]) {
 
 pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     unsafe {
-        sys::seal_return(
+        sys::r#return(
             flags.into_u32(),
             Ptr32::from_slice(return_value),
             return_value.len() as u32,
