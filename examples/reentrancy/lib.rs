@@ -1,48 +1,48 @@
 #[cfg(test)]
 mod test {
-    use contract1::{
-        Contract1,
-        Contract1Ref,
-    };
-    use contract2::{
-        Contract2,
-        Contract2Ref,
+    use fallback_contract::{
+        FallbackContract,
+        FallbackContractRef,
     };
     use ink::primitives::Hash;
+    use main_contract::{
+        MainContract,
+        MainContractRef,
+    };
 
     #[test]
     pub fn reentrancy_works() {
         let hash1 = Hash::from([10u8; 32]);
         let hash2 = Hash::from([20u8; 32]);
 
-        ink::env::test::register_contract::<Contract1>(hash1.as_ref());
-        ink::env::test::register_contract::<Contract2>(hash2.as_ref());
+        ink::env::test::register_contract::<MainContract>(hash1.as_ref());
+        ink::env::test::register_contract::<FallbackContract>(hash2.as_ref());
 
-        let mut contract1 = Contract1Ref::new()
+        let mut main_contract = MainContractRef::new()
             .code_hash(hash1.clone())
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
-            .expect("failed at instantiating the `Contract1Ref` contract");
+            .expect("failed at instantiating the `main_contractRef` contract");
 
-        let contract2 = Contract2Ref::new(contract1.clone())
+        let fallback_contract = FallbackContractRef::new(main_contract.clone())
             .code_hash(hash2.clone())
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
-            .expect("failed at instantiating the `Contract2Ref` contract");
+            .expect("failed at instantiating the `fallback_contractRef` contract");
 
-        let address1 = contract1.get_address();
+        let address1 = main_contract.get_address();
 
-        let address2 = contract2.get_address();
+        let address2 = fallback_contract.get_address();
 
-        contract1.set_callee(address2);
+        main_contract.set_callee(address2);
 
-        assert_eq!(contract1.get_callee(), address2);
-        assert_eq!(contract2.get_callee(), address1);
+        assert_eq!(main_contract.get_callee(), address2);
+        assert_eq!(fallback_contract.get_callee(), address1);
 
-        assert_eq!(contract1.inc(), Ok(2));
-        assert_eq!(contract1.get(), 2);
-        assert_eq!(contract2.get(), 0);
+        assert_eq!(main_contract.inc(), Ok(2));
+        assert_eq!(main_contract.get(), 2);
+        assert_eq!(fallback_contract.get(), 0);
     }
 }

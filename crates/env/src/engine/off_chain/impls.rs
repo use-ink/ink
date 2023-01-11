@@ -268,7 +268,7 @@ impl EnvBackend for EnvInstance {
         R: scale::Encode,
     {
         if flags.is_reverted() {
-            self.engine.exec_context.borrow_mut().return_flags = 1;
+            self.engine.exec_context.borrow_mut().reverted = true;
         }
         self.engine.exec_context.borrow_mut().output = return_value.encode();
     }
@@ -481,9 +481,7 @@ impl TypedEnvBackend for EnvInstance {
         let _gas_limit = params.gas_limit();
 
         let call_flags = params.call_flags().into_u32();
-
         let transferred_value = params.transferred_value();
-
         let caller = self.engine.exec_context.borrow().callee.clone();
 
         // apply call flags before making a call and return the input that might be changed after that
@@ -508,7 +506,7 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input,
             output: vec![],
-            return_flags: 0,
+            reverted: false,
             origin: self.engine.exec_context.borrow().origin.clone(),
         };
 
@@ -544,7 +542,7 @@ impl TypedEnvBackend for EnvInstance {
         call_fn();
 
         // revert contract's state in case of error
-        if self.engine.exec_context.borrow().return_flags & 1 > 0 {
+        if self.engine.exec_context.borrow().reverted {
             self.engine
                 .database
                 .borrow_mut()
@@ -558,9 +556,9 @@ impl TypedEnvBackend for EnvInstance {
         let output = self.engine.exec_context.borrow().output.clone();
 
         // if the call was reverted, previous one should be reverted too
-        previous_context.return_flags |= self.engine.exec_context.borrow().return_flags;
+        previous_context.reverted |= self.engine.exec_context.borrow().reverted;
 
-        let _ = self.engine.exec_context.replace(previous_context);
+        self.engine.exec_context.replace(previous_context);
 
         // apply code flags after the call
         self.engine
@@ -623,7 +621,7 @@ impl TypedEnvBackend for EnvInstance {
             block_timestamp: self.engine.exec_context.borrow().block_timestamp,
             input: input.encode(),
             output: vec![],
-            return_flags: 0,
+            reverted: false,
             origin: self.engine.exec_context.borrow().origin.clone(),
         };
 
@@ -645,7 +643,7 @@ impl TypedEnvBackend for EnvInstance {
 
         deploy_fn();
 
-        let _ = self.engine.exec_context.replace(previous_context);
+        self.engine.exec_context.replace(previous_context);
 
         Ok(<_ as scale::Decode>::decode(&mut callee.as_slice())?)
     }

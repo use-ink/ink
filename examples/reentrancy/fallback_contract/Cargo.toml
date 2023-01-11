@@ -1,5 +1,5 @@
 [package]
-name = "contract1"
+name = "fallback_contract"
 version = "4.0.0-beta"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -8,11 +8,13 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 
+main_contract = { path = "../main_contract", default-features = false, features = ["ink-as-dependency"] }
+
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "contract1"
+name = "fallback_contract"
 path = "lib.rs"
 crate-type = ["cdylib", "rlib"]
 
@@ -22,5 +24,6 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+    "main_contract/std",
 ]
 ink-as-dependency = []

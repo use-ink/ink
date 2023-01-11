@@ -2,14 +2,14 @@
 
 extern crate core;
 
-pub use self::contract1::{
-    Contract1,
-    Contract1Ref,
+pub use self::main_contract::{
     Error,
+    MainContract,
+    MainContractRef,
 };
 
 #[ink::contract]
-mod contract1 {
+mod main_contract {
     use ink::{
         env::{
             call::{
@@ -28,7 +28,7 @@ mod contract1 {
     /// to add new static storage fields to your contract.
     #[derive(Default)]
     #[ink(storage)]
-    pub struct Contract1 {
+    pub struct MainContract {
         /// Stores a single `bool` value on the storage.
         value: u32,
 
@@ -42,7 +42,7 @@ mod contract1 {
         Unknown,
     }
 
-    impl Contract1 {
+    impl MainContract {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new() -> Self {

@@ -136,10 +136,10 @@ impl ContractStorage {
     }
 
     pub fn set_allow_reentry(&mut self, callee: Vec<u8>, allow: bool) {
-        if allow == false {
-            self.allow_reentry.remove(&callee);
-        } else {
+        if allow {
             self.allow_reentry.insert(callee, allow);
+        } else {
+            self.allow_reentry.remove(&callee);
         }
     }
 

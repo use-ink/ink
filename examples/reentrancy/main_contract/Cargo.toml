@@ -1,5 +1,5 @@
 [package]
-name = "contract2"
+name = "main_contract"
 version = "4.0.0-beta"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -8,13 +8,11 @@ publish = false
 [dependencies]
 ink = { path = "../../../crates/ink", default-features = false }
 
-contract1 = { path = "../contract1", default-features = false, features = ["ink-as-dependency"] }
-
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "contract2"
+name = "main_contract"
 path = "lib.rs"
 crate-type = ["cdylib", "rlib"]
 
@@ -24,6 +22,5 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
-    "contract1/std",
 ]
 ink-as-dependency = []

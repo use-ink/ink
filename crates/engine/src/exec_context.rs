@@ -47,9 +47,9 @@ pub struct ExecContext {
     pub input: Vec<u8>,
     /// The output buffer of the call.
     pub output: Vec<u8>,
-    /// The return flags of the call
-    pub return_flags: u32,
-    /// Origin of the call
+    /// Is contract reverted.
+    pub reverted: bool,
+    /// Origin of the call.
     pub origin: Option<Vec<u8>>,
 }
 

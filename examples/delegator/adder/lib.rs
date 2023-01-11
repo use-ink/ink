@@ -36,7 +36,7 @@ mod test {
     use ink::primitives::Hash;
 
     #[test]
-    fn it_works() {
+    fn cross_contract_call_works_off_chain() {
         use super::*;
         use accumulator::{
             Accumulator,
