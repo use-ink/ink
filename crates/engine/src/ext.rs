@@ -154,11 +154,10 @@ impl ContractStorage {
     }
 
     pub fn decrease_entrance_count(&mut self, callee: Vec<u8>) -> Result {
-        self.entrance_count.get(&callee).map_or_else(
+        let entrance_count = self.entrance_count.get(&callee).map_or_else(
             || Err(Error::CalleeTrapped),
             |count| {
                 if *count == 0 {
-                    self.entrance_count.remove(&callee);
                     Err(Error::CalleeTrapped)
                 } else {
                     Ok(count - 1)
