@@ -680,7 +680,7 @@
     {
         <span class="kw">let </span>encoded = topic_value.encode();
         <span class="kw">let </span>len_encoded = encoded.len();
-        <span class="kw">let </span><span class="kw-2">mut </span>result = &lt;E <span class="kw">as </span>Environment&gt;::Hash::clear();
+        <span class="kw">let </span><span class="kw-2">mut </span>result = &lt;E <span class="kw">as </span>Environment&gt;::Hash::CLEAR_HASH;
         <span class="kw">let </span>len_result = result.as_ref().len();
         <span class="kw">if </span>len_encoded &lt;= len_result {
             result.as_mut()[..len_encoded].copy_from_slice(<span class="kw-2">&amp;</span>encoded[..]);

@@ -72,7 +72,7 @@ should work fine in on-chain environments.</p>
 
 <div class="example-wrap should_panic"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="kw">let </span>my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
     .call_type(DelegateCall::new()
-                .code_hash(&lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::Hash::clear()))
+                .code_hash(&lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::Hash::CLEAR_HASH))
     .exec_input(
         ExecutionInput::new(Selector::new([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]))
             .push_arg(<span class="number">42u8</span>)

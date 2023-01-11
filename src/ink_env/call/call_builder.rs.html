@@ -874,7 +874,7 @@
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
 ///     .call_type(DelegateCall::new()
-///                 .code_hash(&lt;DefaultEnvironment as Environment&gt;::Hash::clear()))
+///                 .code_hash(&lt;DefaultEnvironment as Environment&gt;::Hash::CLEAR_HASH))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -968,16 +968,16 @@
 
 <span class="kw">impl</span>&lt;E: Environment&gt; DelegateCall&lt;E&gt; {
     <span class="doccomment">/// Returns a clean builder for [`DelegateCall`]
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        Default::default()
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        DelegateCall {
+            code_hash: E::Hash::CLEAR_HASH,
+        }
     }
 }
 
 <span class="kw">impl</span>&lt;E: Environment&gt; Default <span class="kw">for </span>DelegateCall&lt;E&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        DelegateCall {
-            code_hash: E::Hash::clear(),
-        }
+        <span class="self">Self</span>::new()
     }
 }
 

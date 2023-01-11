@@ -152,10 +152,6 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -287,30 +283,26 @@
 ///
 /// A hash that consists only of 0 bits is clear.
 </span><span class="kw">pub trait </span>Clear {
+    <span class="doccomment">/// The clear hash.
+    </span><span class="kw">const </span>CLEAR_HASH: <span class="self">Self</span>;
+
     <span class="doccomment">/// Returns `true` if the hash is clear.
     </span><span class="kw">fn </span>is_clear(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
-
-    <span class="doccomment">/// Returns a clear hash.
-    </span><span class="kw">fn </span>clear() -&gt; <span class="self">Self</span>;
 }
 
 <span class="kw">impl </span>Clear <span class="kw">for </span>[u8; <span class="number">32</span>] {
-    <span class="kw">fn </span>is_clear(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.as_ref().iter().all(|<span class="kw-2">&amp;</span>byte| byte == <span class="number">0x00</span>)
-    }
+    <span class="kw">const </span>CLEAR_HASH: <span class="self">Self </span>= [<span class="number">0x00</span>; <span class="number">32</span>];
 
-    <span class="kw">fn </span>clear() -&gt; <span class="self">Self </span>{
-        [<span class="number">0x00</span>; <span class="number">32</span>]
+    <span class="kw">fn </span>is_clear(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self </span>== <span class="kw-2">&amp;</span><span class="self">Self</span>::CLEAR_HASH
     }
 }
 
 <span class="kw">impl </span>Clear <span class="kw">for </span>Hash {
+    <span class="kw">const </span>CLEAR_HASH: <span class="self">Self </span>= <span class="self">Self</span>(&lt;[u8; <span class="number">32</span>] <span class="kw">as </span>Clear&gt;::CLEAR_HASH);
+
     <span class="kw">fn </span>is_clear(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         &lt;[u8; <span class="number">32</span>] <span class="kw">as </span>Clear&gt;::is_clear(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
-    }
-
-    <span class="kw">fn </span>clear() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(&lt;[u8; <span class="number">32</span>] <span class="kw">as </span>Clear&gt;::clear())
     }
 }
 </code></pre></div>

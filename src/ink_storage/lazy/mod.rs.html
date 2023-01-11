@@ -267,8 +267,6 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -371,9 +369,7 @@
     </span>KeyType: StorageKey,
 {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            _marker: Default::default(),
-        }
+        <span class="self">Self</span>::new()
     }
 }
 
@@ -382,9 +378,9 @@
     </span>KeyType: StorageKey,
 {
     <span class="doccomment">/// Creates a new empty `Lazy`.
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            _marker: Default::default(),
+            _marker: PhantomData,
         }
     }
 }

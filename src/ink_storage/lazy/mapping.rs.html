@@ -359,8 +359,6 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -456,9 +454,7 @@
     KeyType: StorageKey,
 {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            _marker: Default::default(),
-        }
+        <span class="self">Self</span>::new()
     }
 }
 
@@ -468,9 +464,9 @@
     KeyType: StorageKey,
 {
     <span class="doccomment">/// Creates a new empty `Mapping`.
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            _marker: Default::default(),
+            _marker: PhantomData,
         }
     }
 }

@@ -236,7 +236,7 @@ for a complete contract example.</p>
     <span class="kw">let </span>call_params = build_call::&lt;DefaultEnvironment&gt;()
             .call_type(
                 DelegateCall::new()
-                 .code_hash(&lt;DefaultEnvironment <span class="kw">as </span>ink::env::Environment&gt;::Hash::clear()))
+                 .code_hash(&lt;DefaultEnvironment <span class="kw">as </span>ink::env::Environment&gt;::Hash::CLEAR_HASH))
             .exec_input(
                 ExecutionInput::new(Selector::new([<span class="number">0xCA</span>, <span class="number">0xFE</span>, <span class="number">0xBA</span>, <span class="number">0xBE</span>]))
                  .push_arg(<span class="number">42u8</span>)
