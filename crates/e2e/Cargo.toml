@@ -21,7 +21,7 @@ ink = { version = "4.0.0-rc", path = "../ink" }
 ink_env = { version = "4.0.0-rc", path = "../env" }
 ink_primitives = { version = "4.0.0-rc", path = "../primitives" }
 
-contract-metadata = { version = "2.0.0-beta.1" }
+contract-metadata = { version = "2.0.0-rc" }
 impl-serde = { version = "0.3.1", default-features = false }
 jsonrpsee = { version = "0.16.0", features = ["ws-client"] }
 serde = { version = "1.0.137", default-features = false, features = ["derive"] }
