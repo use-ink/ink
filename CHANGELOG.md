@@ -23,8 +23,8 @@ This enables testing of a contract by deploying and calling it on a Substrate no
 - FFI: no more __unstable__ wasm import module [#1522](https://github.com/paritytech/ink/pull/1522)
 - Fix trait message return type metadata [#1531](https://github.com/paritytech/ink/pull/1531)
 - Bump Dylint dependencies [#1551](https://github.com/paritytech/ink/pull/1551)
-- stabilize take_storage [#1568](https://github.com/paritytech/ink/pull/1568)
-- make more functions be const [#1574](https://github.com/paritytech/ink/pull/1574)
+- Stabilize `take_storage` [#1568](https://github.com/paritytech/ink/pull/1568)
+- Make more functions be const [#1574](https://github.com/paritytech/ink/pull/1574)
 
 ## Version 4.0.0-beta
 
