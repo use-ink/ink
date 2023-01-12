@@ -113,8 +113,13 @@ impl StorageItem {
     }
 
     /// Returns the generics of the storage.
-    pub fn generics(&self) -> &syn::Generics {
-        &self.ast.generics
+    pub fn generics(&self) -> TokenStream2 {
+        let types = self.ast.generics.clone();
+        // `where_closure` is not included into `types`, so add it manually.
+        let (_, _, where_closure) = self.ast.generics.split_for_impl();
+        quote! {
+            #types #where_closure
+        }
     }
 
     /// Returns data of the storage.

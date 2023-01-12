@@ -569,7 +569,7 @@ where
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .call_type(
     ///                 DelegateCall::new()
-    ///                  .code_hash(<DefaultEnvironment as ink::env::Environment>::Hash::clear()))
+    ///                  .code_hash(<DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)

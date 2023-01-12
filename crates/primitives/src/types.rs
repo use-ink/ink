@@ -129,29 +129,25 @@ impl AsMut<[u8]> for Hash {
 ///
 /// A hash that consists only of 0 bits is clear.
 pub trait Clear {
+    /// The clear hash.
+    const CLEAR_HASH: Self;
+
     /// Returns `true` if the hash is clear.
     fn is_clear(&self) -> bool;
-
-    /// Returns a clear hash.
-    fn clear() -> Self;
 }
 
 impl Clear for [u8; 32] {
-    fn is_clear(&self) -> bool {
-        self.as_ref().iter().all(|&byte| byte == 0x00)
-    }
+    const CLEAR_HASH: Self = [0x00; 32];
 
-    fn clear() -> Self {
-        [0x00; 32]
+    fn is_clear(&self) -> bool {
+        self == &Self::CLEAR_HASH
     }
 }
 
 impl Clear for Hash {
+    const CLEAR_HASH: Self = Self(<[u8; 32] as Clear>::CLEAR_HASH);
+
     fn is_clear(&self) -> bool {
         <[u8; 32] as Clear>::is_clear(&self.0)
-    }
-
-    fn clear() -> Self {
-        Self(<[u8; 32] as Clear>::clear())
     }
 }
