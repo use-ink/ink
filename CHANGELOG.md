@@ -20,7 +20,7 @@ This enables testing of a contract by deploying and calling it on a Substrate no
 - Added missed `WhereClosure` for the generics into `storage_item` [#1536](https://github.com/paritytech/ink/pull/1536)
 
 ### Changed
-- FFI: no more __unstable__ wasm import module [#1522](https://github.com/paritytech/ink/pull/1522)
+- FFI: no more `__unstable__` wasm import module [#1522](https://github.com/paritytech/ink/pull/1522)
 - Fix trait message return type metadata [#1531](https://github.com/paritytech/ink/pull/1531)
 - Bump Dylint dependencies [#1551](https://github.com/paritytech/ink/pull/1551)
 - Stabilize `take_storage` [#1568](https://github.com/paritytech/ink/pull/1568)
