@@ -1,6 +1,6 @@
 [package]
 name = "ink_linting"
-version = "4.0.0-beta"
+version = "4.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
