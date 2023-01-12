@@ -4,9 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
-- Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
+## Version 4.0.0-rc
+
+The first release candidate for `4.0.0`. This is the first release which may become the final `4.0.0`.
+There may be further release candidates with breaking code changes before the final release.
+
+### E2E Testing Framework
+
+This release includes the first published version of the ["end-to-end" (E2E) testing framework](https://github.com/paritytech/ink/issues/1234). 
+This enables testing of a contract by deploying and calling it on a Substrate node with `pallet-contracts`. See 
+the [`erc20` example](./examples/erc20/lib.rs) for usage.
+
+### Fixed
+- Add Determinism enum from pallet-contracts [#1547](https://github.com/paritytech/ink/pull/1547)
+- Added missed `WhereClosure` for the generics into `storage_item` [#1536](https://github.com/paritytech/ink/pull/1536)
+
+### Changed
+- FFI: no more __unstable__ wasm import module [#1522](https://github.com/paritytech/ink/pull/1522)
+- Fix trait message return type metadata [#1531](https://github.com/paritytech/ink/pull/1531)
+- Bump Dylint dependencies [#1551](https://github.com/paritytech/ink/pull/1551)
+- stabilize take_storage [#1568](https://github.com/paritytech/ink/pull/1568)
+- make more functions be const [#1574](https://github.com/paritytech/ink/pull/1574)
 
 ## Version 4.0.0-beta
 
