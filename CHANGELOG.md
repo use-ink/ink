@@ -11,9 +11,8 @@ changes before the final release.
 
 ### E2E Testing Framework
 
-This release includes the first published version of the 
-["end-to-end" (E2E) testing framework](https://github.com/paritytech/ink/issues/1234). This enables testing of a 
-contract by deploying and calling it on a Substrate node with `pallet-contracts`. See the 
+This release includes the first published version of the ["end-to-end" (E2E) testing framework](https://github.com/paritytech/ink/issues/1234). 
+This enables testing of a contract by deploying and calling it on a Substrate node with `pallet-contracts`. See the 
 [`erc20` example](./examples/erc20/lib.rs) for usage.
 
 ### Fixed
