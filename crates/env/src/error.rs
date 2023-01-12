@@ -49,8 +49,6 @@ pub enum Error {
     LoggingDisabled,
     /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed,
-    /// Encountered reentrancy, that is not allowed
-    ReentranceDenied,
 }
 
 /// A result of environmental operations.

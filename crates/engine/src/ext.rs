@@ -102,8 +102,6 @@ define_error_codes! {
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed = 11,
-    /// Encountered the reentrancy that is not allowed
-    ReentranceDenied = 12,
 }
 
 /// The raw return code returned by the host side.
@@ -646,7 +644,7 @@ impl Engine {
         if !self.contracts.borrow().get_allow_reentry(callee.clone())
             && self.contracts.borrow().get_entrance_count(callee.clone()) > 0
         {
-            return Err(Error::ReentranceDenied)
+            return Err(Error::CalleeTrapped)
         }
 
         self.contracts

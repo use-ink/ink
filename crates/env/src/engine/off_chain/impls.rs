@@ -114,7 +114,6 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
-            ext::Error::ReentranceDenied => Self::ReentranceDenied,
         }
     }
 }
@@ -256,10 +255,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        if flags.is_reverted() {
-            panic!("the off-chain env does not implement revert in `seal_return_value`")
-        }
-        self.engine.exec_context.borrow_mut().output = return_value.encode();
+        panic!("the off-chain env does not implement revert in `seal_return_value`")
     }
 
     #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]

@@ -55,7 +55,7 @@ mod fallback_contract {
         }
 
         #[ink(message, selector = _)]
-        pub fn inc(&mut self) {
+        pub fn fallback(&mut self) {
             ink::env::set_contract_storage(
                 &<Self as ink::storage::traits::StorageKey>::KEY,
                 self,
