@@ -16,22 +16,26 @@ impl ink_env::Environment for EnvironmentMoreTopics {
     type ChainExtension = ();
 }
 
-#[ink::contract(env = super::EnvironmentMoreTopics)]
+#[ink::event_definition]
+// #[ink::event_definition(env = super::EnvironmentMoreTopics)]
+pub enum Event {
+    Event {
+        #[ink(topic)]
+        arg_1: i8,
+        #[ink(topic)]
+        arg_2: i16,
+        #[ink(topic)]
+        arg_3: i32,
+    },
+}
+
+#[ink::contract]
+// #[ink::contract(env = super::EnvironmentMoreTopics)]
 mod contract {
+    use super::Event;
+
     #[ink(storage)]
     pub struct Contract {}
-
-    #[ink::event_definition]
-    pub enum Event {
-        Event {
-            #[ink(topic)]
-            arg_1: i8,
-            #[ink(topic)]
-            arg_2: i16,
-            #[ink(topic)]
-            arg_3: i32,
-        },
-    }
 
     impl Contract {
         #[ink(constructor)]

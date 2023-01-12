@@ -401,9 +401,10 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<Event>(&mut self, event: Event)
+    fn emit_event<E, Event>(&mut self, event: Event)
     where
-        Event: Topics + scale::Encode,
+        E: Environment,
+        Event: Topics<Env = E> + scale::Encode,
     {
         let (mut scope, enc_topics) = event.topics(
             TopicsBuilder::<<Event as Topics>::Env>::from(self.scoped_buffer()).into(),
