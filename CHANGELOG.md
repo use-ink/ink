@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version 4.0.0-rc
 
-The first release candidate for `4.0.0`. This is the first release which may become the final `4.0.0`.
-There may be further release candidates with breaking code changes before the final release.
+This is the first release which may become the final `4.0.0`. There may be further release candidates with breaking code 
+changes before the final release.
 
 ### E2E Testing Framework
 
