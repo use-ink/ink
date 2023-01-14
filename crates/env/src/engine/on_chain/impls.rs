@@ -481,15 +481,16 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, RetType>(
+    fn instantiate_contract<E, Args, Salt, RetType, ContractRef>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, RetType>,
-    ) -> Result<ink_primitives::ConstructorResult<RetType>>
+        params: &CreateParams<E, Args, Salt, RetType, ContractRef>,
+    ) -> Result<ink_primitives::ConstructorResult<<RetType as InstantiateResult<RetType>>::Output<ContractRef>>>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        RetType:,
+        RetType: InstantiateResult<RetType>,
+        ContractRef: FromAccountId<E>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
