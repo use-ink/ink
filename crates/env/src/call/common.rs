@@ -15,8 +15,6 @@
 //! Utilities, types and abstractions common to call and instantiation routines.
 
 use core::marker::PhantomData;
-use crate::call::FromAccountId;
-use crate::Environment;
 
 /// Represents a return type.
 ///
@@ -54,12 +52,12 @@ mod private {
 /// If the contract initializer returns `Result::Err` the utility
 /// method that is used to initialize an ink! smart contract will
 /// revert the state of the contract instantiation.
-pub trait ConstructorOutput<C, Env: Environment>: private::Sealed {
+pub trait InstantiateResult<C>: private::Sealed {
     /// Is `true` if `Self` is `Result<C, E>`.
     const IS_RESULT: bool = false;
 
     /// Reflects the output type of the dispatchable ink! constructor.
-    type Output;
+    type Output<O>;
 
     /// The error type of the constructor return type.
     ///
@@ -69,68 +67,34 @@ pub trait ConstructorOutput<C, Env: Environment>: private::Sealed {
     /// constructors this is the actual return error type. Since we only ever
     /// return a value in case of `Result::Err` the `Result::Ok` value type
     /// does not matter.
-    type Error;
+    type Error: scale::Decode;
 
-    // todo: docs
-    fn from_account_id(account_id: Env::AccountId) -> Self::Output;
-
-    /// Converts the return value into a `Result` instance.
-    ///
-    /// # Note
-    ///
-    /// For infallible constructor returns this always yields `Ok`.
-    fn as_result(&self) -> Result<&C, &Self::Error>;
+    /// todo: docs!
+    fn output<O>(value: O) -> Self::Output<O>;
 }
 
-/// todo: comment
-pub struct ConstructorOutputValue<T, Env: Environment>(T, PhantomData<Env>);
+impl<T> private::Sealed for T {}
 
-impl<T, Env> ConstructorOutputValue<T, Env>
-where
-    Env: Environment,
-{
-    pub fn new(val: T) -> Self {
-        Self(val, PhantomData)
+impl<C> InstantiateResult<C> for C {
+    type Output<O> = O;
+    type Error = ();
+
+    fn output<O>(value: O) -> Self::Output<O> {
+        value
     }
 }
 
-impl<T, Env: Environment> private::Sealed for ConstructorOutputValue<T, Env> {}
-
-impl<C, Env> ConstructorOutput<C, Env> for ConstructorOutputValue<C, Env>
+impl<C, E> InstantiateResult<C> for Result<C, E>
 where
-    C: FromAccountId<Env>,
-    Env: Environment,
-{
-    type Output = C;
-    type Error = &'static ();
-
-    fn from_account_id(account_id: Env::AccountId) -> Self::Output {
-        C::from_account_id(account_id)
-    }
-
-    #[inline(always)]
-    fn as_result(&self) -> Result<&C, &Self::Error> {
-        Ok(&self.0)
-    }
-}
-
-impl<C, E, Env> ConstructorOutput<C, Env> for ConstructorOutputValue<Result<C, E>, Env>
-where
-    C: FromAccountId<Env>,
-    Env: Environment,
+    E: scale::Decode,
 {
     const IS_RESULT: bool = true;
 
-    type Output = Result<C, E>;
+    type Output<O> = Result<O, E>;
     type Error = E;
 
-    fn from_account_id(account_id: Env::AccountId) -> Self::Output {
-        Ok(C::from_account_id(account_id))
-    }
-
-    #[inline(always)]
-    fn as_result(&self) -> Result<&C, &Self::Error> {
-        self.0.as_ref()
+    fn output<O>(value: O) -> Self::Output<O> {
+        Ok(value)
     }
 }
 

@@ -420,7 +420,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Unset<Balance>,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
-                ::ink::env::call::utils::Set<::ink::env::call::utils::ConstructorOutputValue<#ret_type>>,
+                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
                 Self,
             > {
                 ::ink::env::call::build_create::<Environment>()
