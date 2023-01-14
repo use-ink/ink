@@ -21,10 +21,12 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
+        utils::InstantiateResult,
         Call,
         CallParams,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     engine::{
         EnvInstance,
@@ -40,7 +42,6 @@ use crate::{
     Result,
 };
 use ink_storage_traits::Storable;
-use crate::call::utils::InstantiateResult;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -322,17 +323,22 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, Args, Salt, R>(
-    params: &CreateParams<E, Args, Salt, R>,
-) -> Result<ink_primitives::ConstructorResult<<R as InstantiateResult<R>>::Output<E::AccountId>>>
+pub fn instantiate_contract<E, Args, Salt, R, ContractRef>(
+    params: &CreateParams<E, Args, Salt, R, ContractRef>,
+) -> Result<
+    ink_primitives::ConstructorResult<<R as InstantiateResult<R>>::Output<ContractRef>>,
+>
 where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: InstantiateResult<R>,
+    ContractRef: FromAccountId<E>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, Args, Salt, R>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, Args, Salt, R, ContractRef>(
+            instance, params,
+        )
     })
 }
 

@@ -15,11 +15,12 @@
 use super::EnvInstance;
 use crate::{
     call::{
+        utils::InstantiateResult,
         Call,
         CallParams,
         CreateParams,
         DelegateCall,
-        utils::InstantiateResult,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -470,15 +471,20 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, Args, Salt, R>(
+    fn instantiate_contract<E, Args, Salt, R, ContractRef>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<<R as InstantiateResult<R>>::Output<E::AccountId>>>
+        params: &CreateParams<E, Args, Salt, R, ContractRef>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as InstantiateResult<R>>::Output<ContractRef>,
+        >,
+    >
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: InstantiateResult<R>,
+        ContractRef: FromAccountId<E>,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();
