@@ -24,6 +24,10 @@ use crate::{
         CallParams,
         CreateParams,
         DelegateCall,
+        utils::{
+            ConstructorOutput,
+            ConstructorOutputValue,
+        }
     },
     hash::{
         Blake2x128,
@@ -41,6 +45,7 @@ use crate::{
     EnvBackend,
     Environment,
     Error,
+    FromAccountId,
     FromLittleEndian,
     Result,
     ReturnFlags,
@@ -482,11 +487,12 @@ impl TypedEnvBackend for EnvInstance {
     fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
+    ) -> Result<ink_primitives::ConstructorResult<ConstructorOutputValue<R>>>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        R: FromAccountId<E>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -513,17 +519,18 @@ impl TypedEnvBackend for EnvInstance {
         match instantiate_result {
             Ok(()) => {
                 let account_id = scale::Decode::decode(&mut &out_address[..])?;
-                Ok(Ok(account_id))
+                Ok(Ok(<R as FromAccountId<E>>::from_account_id(account_id)))
             }
             Err(ext::Error::CalleeReverted) => {
                 // We don't wrap manually with an extra `Err` like we do in the `Ok` case since the
                 // buffer already comes back in the form of `Err(LangError)` (assuming it's encoded
                 // by the ink! codegen and not the contract).
-                let out = ink_primitives::ConstructorResult::<E::AccountId>::decode(
-                    &mut &out_return_value[..],
-                )?;
-                assert!(out.is_err(), "The callee reverted, but did not encode an error in the output buffer.");
-                Ok(out)
+                // let out = ink_primitives::ConstructorResult::<E::AccountId>::decode(
+                //     &mut &out_return_value[..],
+                // )?;
+                // assert!(out.is_err(), "The callee reverted, but did not encode an error in the output buffer.");
+                // Ok(out)
+                todo!("custom decoding based on ConstructorOutputValue<R>")
             }
             Err(actual_error) => Err(actual_error.into()),
         }

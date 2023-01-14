@@ -17,7 +17,12 @@ use crate::{
         Call,
         CallParams,
         CreateParams,
+        FromAccountId,
         DelegateCall,
+        utils::{
+            ConstructorOutput,
+            ConstructorOutputValue,
+        }
     },
     hash::{
         CryptoHash,
@@ -442,11 +447,12 @@ pub trait TypedEnvBackend: EnvBackend {
     fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
+    ) -> Result<ink_primitives::ConstructorResult<ConstructorOutputValue<R, E>>>
     where
         E: Environment,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>;
+        Salt: AsRef<[u8]>,
+        R: FromAccountId<E>,;
 
     /// Attempts to instantiate another contract, returning the instantiation result back to the
     /// caller.

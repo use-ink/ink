@@ -15,6 +15,8 @@
 use crate::{
     call::{
         utils::{
+            ConstructorOutput,
+            ConstructorOutputValue,
             EmptyArgumentList,
             ReturnType,
             Set,
@@ -152,7 +154,6 @@ where
         &self,
     ) -> Result<ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self)
-            .map(|inner| inner.map(FromAccountId::from_account_id))
     }
 }
 

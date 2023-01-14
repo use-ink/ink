@@ -25,6 +25,8 @@ use crate::{
         CallParams,
         CreateParams,
         DelegateCall,
+        FromAccountId,
+        utils::ConstructorOutputValue,
     },
     engine::{
         EnvInstance,
@@ -325,11 +327,12 @@ where
 /// - If the returned account ID failed to decode properly.
 pub fn instantiate_contract<E, Args, Salt, R>(
     params: &CreateParams<E, Args, Salt, R>,
-) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
+) -> Result<ink_primitives::ConstructorResult<ConstructorOutputValue<R, E>>>
 where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
+    R: FromAccountId<E>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::instantiate_contract::<E, Args, Salt, R>(instance, params)
