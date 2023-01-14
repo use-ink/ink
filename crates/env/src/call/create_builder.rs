@@ -15,6 +15,8 @@
 use crate::{
     call::{
         utils::{
+            ConstructorOutput,
+            ConstructorOutputValue,
             EmptyArgumentList,
             ReturnType,
             Set,
@@ -132,7 +134,6 @@ where
                     panic!("Received a `LangError` while instantiating: {:?}", error)
                 })
             })
-            .map(FromAccountId::from_account_id)
     }
 
     /// Instantiates the contract and returns its account ID back to the caller.
@@ -145,7 +146,6 @@ where
         &self,
     ) -> Result<ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self)
-            .map(|inner| inner.map(FromAccountId::from_account_id))
     }
 }
 

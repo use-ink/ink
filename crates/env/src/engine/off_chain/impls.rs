@@ -18,7 +18,12 @@ use crate::{
         Call,
         CallParams,
         CreateParams,
+        FromAccountId,
         DelegateCall,
+        utils::{
+            ConstructorOutput,
+            ConstructorOutputValue,
+        }
     },
     hash::{
         Blake2x128,
@@ -472,11 +477,12 @@ impl TypedEnvBackend for EnvInstance {
     fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
         params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
+    ) -> Result<ink_primitives::ConstructorResult<ConstructorOutputValue<R, E>>>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        R: FromAccountId<E>,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();
