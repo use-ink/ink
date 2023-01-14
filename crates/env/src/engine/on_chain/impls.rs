@@ -24,10 +24,7 @@ use crate::{
         CallParams,
         CreateParams,
         DelegateCall,
-        utils::{
-            ConstructorOutput,
-            ConstructorOutputValue,
-        }
+        utils::InstantiateResult,
     },
     hash::{
         Blake2x128,
@@ -484,15 +481,15 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, R>(
+    fn instantiate_contract<E, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<ConstructorOutputValue<R>>>
+        params: &CreateParams<E, Args, Salt, RetType>,
+    ) -> Result<ink_primitives::ConstructorResult<RetType>>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        R: FromAccountId<E>,
+        RetType:
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -548,7 +545,6 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        ContractError: scale::Decode,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -571,6 +567,8 @@ impl TypedEnvBackend for EnvInstance {
             out_return_value,
             salt,
         );
+
+        // todo: <
 
         match instantiate_result {
             Ok(()) => {

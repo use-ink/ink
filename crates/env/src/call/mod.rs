@@ -24,8 +24,7 @@ mod selector;
 pub mod utils {
     pub use super::{
         common::{
-            ConstructorOutput,
-            ConstructorOutputValue,
+            InstantiateResult,
             ReturnType,
             Set,
             Unset,

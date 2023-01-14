@@ -15,8 +15,6 @@
 use crate::{
     call::{
         utils::{
-            ConstructorOutput,
-            ConstructorOutputValue,
             EmptyArgumentList,
             ReturnType,
             Set,
@@ -154,57 +152,6 @@ where
         &self,
     ) -> Result<ink_primitives::ConstructorResult<R>, crate::Error> {
         crate::instantiate_contract(self)
-    }
-}
-
-impl<E, Args, Salt, R, ContractError>
-    CreateParams<E, Args, Salt, Result<R, ContractError>>
-where
-    E: Environment,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
-    R: FromAccountId<E>,
-    ContractError: scale::Decode,
-{
-    /// Attempts to instantiate the contract, returning the execution result back to the caller.
-    ///
-    /// # Panics
-    ///
-    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_instantiate_fallible`][`CreateParams::try_instantiate_fallible`] method
-    /// instead.
-    #[inline]
-    pub fn instantiate_fallible(&self) -> Result<R, ContractError> {
-        crate::instantiate_fallible_contract(self)
-            .unwrap_or_else(|env_error| {
-                panic!("Cross-contract instantiation failed with {:?}", env_error)
-            })
-            .unwrap_or_else(|lang_error| {
-                panic!(
-                    "Received a `LangError` while instantiating: {:?}",
-                    lang_error
-                )
-            })
-            .map(FromAccountId::from_account_id)
-    }
-
-    /// Attempts to instantiate the contract, returning the execution result back to the caller.
-    ///
-    /// # Note
-    ///
-    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
-    #[inline]
-    pub fn try_instantiate_fallible(
-        &self,
-    ) -> Result<ink_primitives::ConstructorResult<Result<R, ContractError>>, crate::Error>
-    {
-        crate::instantiate_fallible_contract(self).map(|constructor_result| {
-            constructor_result.map(|contract_result| {
-                contract_result.map(FromAccountId::from_account_id)
-            })
-        })
     }
 }
 
