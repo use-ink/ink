@@ -20,11 +20,11 @@ use super::{
 };
 use crate::{
     call::{
+        utils::InstantiateResult,
         Call,
         CallParams,
         CreateParams,
         DelegateCall,
-        utils::InstantiateResult,
     },
     hash::{
         Blake2x128,
@@ -489,7 +489,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        RetType:
+        RetType:,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
