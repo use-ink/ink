@@ -13,7 +13,7 @@ mod contract_ref {
         #[ink(constructor)]
         pub fn new(version: u32, flipper_code_hash: Hash) -> Self {
             let salt = version.to_le_bytes();
-            let flipper = FlipperRef::default()
+            let flipper = FlipperRef::new_default()
                 .endowment(0)
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt)
@@ -81,7 +81,7 @@ mod contract_ref {
                 .await
                 .expect("Calling `get_check` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
@@ -102,7 +102,7 @@ mod contract_ref {
                 .await
                 .expect("Calling `get_check` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value != initial_value);
 

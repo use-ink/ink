@@ -23,7 +23,7 @@
 [j1]: https://img.shields.io/badge/click-blue.svg
 [j2]: https://paritytech.github.io/ink/ink
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
-[k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
+[k2]: https://app.element.io/#/room/#ink:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
 [l2]: https://discord.com/invite/wGUDt2p
 [s1]: https://img.shields.io/badge/click-white.svg?logo=StackExchange&label=ink!%20Support%20on%20StackExchange&labelColor=white&color=blue
@@ -34,7 +34,7 @@
 <br/>
 
 [Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/smart-contracts/)&nbsp;&nbsp;•&nbsp;&nbsp;
-[ink! Documentation Portal](https://ink.substrate.io)&nbsp;&nbsp;•&nbsp;&nbsp;
+[ink! Documentation Portal](https://use.ink)&nbsp;&nbsp;•&nbsp;&nbsp;
 [Developer Documentation](https://paritytech.github.io/ink/ink)
 
 
@@ -72,11 +72,10 @@ More relevant links:
 If you want to have a local setup you can use our [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) for a quickstart.
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
-We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-)
-called [Canvas](https://ink.substrate.io/canvas). Canvas is a Substrate based
+We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-). Rococo is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
-testnet, follow the instructions in the
-[our documentation](https://ink.substrate.io/canvas#rococo-deployment).
+testnet, follow the instructions in
+[our documentation](https://use.ink/testnet).
 
 For both types of chains the [Contracts UI](https://contracts-ui.substrate.io/)
 can be used to instantiate your contract to a chain and interact with it.
@@ -110,7 +109,7 @@ In order to build the contract just execute this command in the `flipper` folder
 cargo +nightly contract build
 ```
 
-As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+As a result you'll get a `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
 The `.contract` file combines the Wasm and metadata into one file and needs to be used when instantiating the contract.
 
 
@@ -176,12 +175,12 @@ mod flipper {
 ```
 
 The [`flipper/src/lib.rs`](https://github.com/paritytech/ink/blob/master/examples/flipper/lib.rs)
-file in our examples folder contains exactly this code. Run `cargo contract build` to build your
+file in our examples folder contains exactly this code. Run `cargo +nightly contract build` to build your
 first ink! smart contract.
 
 ## Examples
 
-In the `examples` folder you'll find a number of examples written in ink!.
+In the [`examples`](https://github.com/paritytech/ink/tree/master/examples) folder you'll find a number of examples written in ink!.
 
 Some of the most interesting ones:
 
@@ -193,7 +192,7 @@ Some of the most interesting ones:
 
 To build a single example navigate to the root of the example and run:
 ```
-cargo contract build
+cargo contract +nightly build
 ```
 
 You should now have an `<name>.contract` file in the `target` folder of the contract.
@@ -209,7 +208,7 @@ This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
 * ink! is a smart contract language which targets the API exposed by `contracts`.
 Hence ink! contracts are compiled to Wasm.
-* When executing `cargo contract build` an additional file `metadata.json` is created.
+* When executing `cargo contract +nightly build` an additional file `metadata.json` is created.
 It contains information about e.g. what methods the contract provides for others to call.
 
 ## ink! Macros & Attributes Overview
@@ -225,7 +224,7 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 | `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
 | `#[ink(event)]` | On `struct` definitions. | Defines an ink! event. A contract can define multiple such ink! events. |
 | `#[ink(anonymous)]` | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
-| `#[ink(topic)]` | Applicable on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
+| `#[ink(topic)]` | Applicable on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic fields. Similar semantics as to indexed event arguments in Solidity. |
 | `#[ink(payable)]` | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
 | `#[ink(selector = S:u32)]` | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
 | `#[ink(selector = _)]` | Applicable to ink! messages. | Specifies a fallback message that is invoked if no other ink! message matches a selector. |
@@ -245,7 +244,7 @@ The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`ex
 
 ## Developer Documentation
 
-We have [a very comprehensive documentation portal](https://ink.substrate.io),
+We have [a very comprehensive documentation portal](https://use.ink),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 
