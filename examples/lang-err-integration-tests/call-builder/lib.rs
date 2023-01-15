@@ -123,9 +123,7 @@ mod call_builder {
                 .call(&ink_e2e::charlie(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
-            let initial_value = get_call_result
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+            let initial_value = get_call_result.return_value();
 
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
@@ -135,9 +133,7 @@ mod call_builder {
                 .await
                 .expect("Calling `call_builder::call` failed");
 
-            let flipper_result = call_result
-                .return_value()
-                .expect("Call to `call_builder::call` failed");
+            let flipper_result = call_result.return_value();
 
             assert!(matches!(
                 flipper_result,
@@ -150,9 +146,7 @@ mod call_builder {
                 .call(&ink_e2e::charlie(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
-            let flipped_value = get_call_result
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+            let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
 
             Ok(())
