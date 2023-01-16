@@ -181,20 +181,18 @@ impl Engine {
     /// Returns the total number of reads and writes of the contract's storage.
     pub fn get_contract_storage_rw(&self, account_id: Vec<u8>) -> (usize, usize) {
         let account_id = AccountId::from(account_id);
-        let reads = self
+        let reads = *self
             .debug_info
             .borrow()
             .count_reads
             .get(&account_id)
-            .unwrap_or(&0)
-            .clone();
-        let writes = self
+            .unwrap_or(&0);
+        let writes = *self
             .debug_info
             .borrow()
             .count_writes
             .get(&account_id)
-            .unwrap_or(&0)
-            .clone();
+            .unwrap_or(&0);
         (reads, writes)
     }
 
