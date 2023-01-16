@@ -74,7 +74,7 @@ mod main_contract {
 
         #[ink(message)]
         pub fn inc(&mut self) -> Result<u32, Error> {
-            self.value = self.value + 1;
+            self.value += 1;
 
             if self.value > 1 {
                 return Ok(self.value)

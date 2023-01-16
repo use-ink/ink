@@ -19,14 +19,14 @@ mod test {
         ink::env::test::register_contract::<FallbackContract>(hash2.as_ref());
 
         let mut main_contract = MainContractRef::new()
-            .code_hash(hash1.clone())
+            .code_hash(hash1)
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
             .expect("failed at instantiating the `main_contractRef` contract");
 
         let fallback_contract = FallbackContractRef::new(main_contract.clone())
-            .code_hash(hash2.clone())
+            .code_hash(hash2)
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
