@@ -263,7 +263,7 @@ where
 ///
 /// # Handling `LangError`s
 ///
-/// It is also important to note that there are certains types of errors which can happen during
+/// It is also important to note that there are certain types of errors which can happen during
 /// cross-contract calls which can be handled know as [`LangError`][`ink_primitives::LangError`].
 ///
 /// If you want to handle these errors use the [`CallBuilder::try_fire`] methods instead of the
