@@ -365,7 +365,7 @@ mod erc1155 {
 
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
-                let params = build_call::<Environment>()
+                let result = build_call::<Environment>()
                     .call_type(Call::new().callee(to).gas_limit(5000))
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
@@ -376,9 +376,10 @@ mod erc1155 {
                             .push_arg(data),
                     )
                     .returns::<Vec<u8>>()
-                    .params();
+                    .params()
+                    .invoke();
 
-                match ink::env::invoke_contract(&params) {
+                match result {
                     Ok(v) => {
                         ink::env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",
