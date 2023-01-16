@@ -174,8 +174,7 @@ mod delegator {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("calling `get` failed")
-                .return_value()
-                .expect("calling `get` returned a `LangError`");
+                .return_value();
             assert_eq!(value, 1234);
             let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.change(6));
@@ -191,8 +190,7 @@ mod delegator {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("calling `get` failed")
-                .return_value()
-                .expect("calling `get` returned a `LangError`");
+                .return_value();
             assert_eq!(value, 1234 + 6);
 
             // when
@@ -216,8 +214,7 @@ mod delegator {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("calling `get` failed")
-                .return_value()
-                .expect("calling `get` returned a `LangError`");
+                .return_value();
             assert_eq!(value, 1234 + 6 - 3);
 
             Ok(())
