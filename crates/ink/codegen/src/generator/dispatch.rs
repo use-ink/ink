@@ -410,19 +410,18 @@ impl Dispatch<'_> {
             #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
-                #[allow(clippy::nonminimal_bool)]
                 fn deploy() {
                     <#storage_ident as ::ink::env::contract::Entrypoint>::deploy()
                 }
 
                 #[no_mangle]
-                #[allow(clippy::nonminimal_bool)]
                 fn call() {
                     <#storage_ident as ::ink::env::contract::Entrypoint>::call()
                 }
             };
 
             impl ::ink::env::contract::Entrypoint for #storage_ident {
+                #[allow(clippy::nonminimal_bool)]
                 fn deploy() {
                     if !#any_constructor_accept_payment {
                         ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
@@ -459,6 +458,7 @@ impl Dispatch<'_> {
                     })
                 }
 
+                #[allow(clippy::nonminimal_bool)]
                 fn call() {
                     if !#any_message_accept_payment {
                         ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
