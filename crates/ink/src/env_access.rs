@@ -264,7 +264,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -342,7 +342,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
@@ -519,7 +519,10 @@ where
     ///     )
     ///     .returns::<i32>()
     ///     .params();
-    ///     self.env().invoke_contract(&call_params).unwrap_or_else(|err| panic!("call invocation must succeed: {:?}", err))
+    ///
+    ///     self.env().invoke_contract(&call_params)
+    ///         .unwrap_or_else(|env_err| panic!("Received an error from the Environment: {:?}", env_err))
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
