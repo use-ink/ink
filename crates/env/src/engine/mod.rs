@@ -22,6 +22,7 @@ use crate::{
         FromAccountId,
     },
     Error as EnvError,
+    Error,
     Result as EnvResult,
 };
 use cfg_if::cfg_if;
@@ -90,7 +91,7 @@ where
                                 let err = <R as InstantiateResult<ContractStorage>>::err(contract_err);
                                 Ok(Ok(err))
                             }
-                            _ => panic!("Invalid inner constructor Result encoding, expected 0 or 1 as the first byte")
+                            _ => Err(Error::Decode("Invalid inner constructor Result encoding, expected 0 or 1 as the first byte".into()))
                         }
                     } else {
                         panic!("The callee reverted, but did not encode an error in the output buffer.")
@@ -101,7 +102,7 @@ where
                     let lang_err = <LangError as scale::Decode>::decode(out_return_value)?;
                     Ok(Err(lang_err))
                 }
-                _ => panic!("Invalid outer constructor Result encoding, expected 0 or 1 as the first byte")
+                _ => Err(Error::Decode("Invalid outer constructor Result encoding, expected 0 or 1 as the first byte".into()))
             }
         }
         Err(actual_error) => Err(actual_error.into()),
@@ -109,11 +110,11 @@ where
 }
 
 #[cfg(test)]
-mod fallible_constructor_reverted_tests {
+mod decode_instantiate_result_tests {
     use super::*;
     use crate::{
-        Error,
         Environment,
+        Error,
     };
     use scale::Encode;
 
@@ -160,11 +161,7 @@ mod fallible_constructor_reverted_tests {
             Result<(), ContractError>,
             (),
             TestContractRef<crate::DefaultEnvironment>,
-        >(
-            Err(Error::CalleeReverted),
-            out_address,
-            out_return_value,
-        )
+        >(Err(Error::CalleeReverted), out_address, out_return_value)
     }
 
     #[test]
