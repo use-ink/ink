@@ -21,10 +21,10 @@ use crate::{
         utils::InstantiateResult,
         FromAccountId,
     },
+    Error as EnvError,
     Result as EnvResult,
 };
 use cfg_if::cfg_if;
-use ink_engine::ext;
 use ink_primitives::{
     ConstructorResult,
     LangError,
@@ -53,7 +53,7 @@ cfg_if! {
 // We only use this function when 1) compiling to Wasm 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
 pub(crate) fn decode_instantiate_result<I, E, R, ContractStorage, ContractRef>(
-    instantiate_result: Result<(), ext::Error>,
+    instantiate_result: EnvResult<()>,
     out_address: &mut I,
     out_return_value: &mut I,
 ) -> EnvResult<
@@ -73,7 +73,7 @@ where
             let output = <R as InstantiateResult<ContractStorage>>::ok(contract_ref);
             Ok(Ok(output))
         }
-        Err(ext::Error::CalleeReverted) => {
+        Err(EnvError::CalleeReverted) => {
             let constructor_result_variant = out_return_value.read_byte()?;
             match constructor_result_variant {
                 // 0 == `ConstructorResult::Ok` variant
@@ -111,7 +111,10 @@ where
 #[cfg(test)]
 mod fallible_constructor_reverted_tests {
     use super::*;
-    use crate::Environment;
+    use crate::{
+        Error,
+        Environment,
+    };
     use scale::Encode;
 
     // The `Result` type used to represent the programmer defined contract output.
@@ -158,7 +161,7 @@ mod fallible_constructor_reverted_tests {
             (),
             TestContractRef<crate::DefaultEnvironment>,
         >(
-            Err(ext::Error::CalleeReverted),
+            Err(Error::CalleeReverted),
             out_address,
             out_return_value,
         )

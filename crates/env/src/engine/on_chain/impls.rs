@@ -25,6 +25,7 @@ use crate::{
         CallParams,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -42,7 +43,6 @@ use crate::{
     EnvBackend,
     Environment,
     Error,
-    FromAccountId,
     FromLittleEndian,
     Result,
     ReturnFlags,
@@ -508,7 +508,7 @@ impl TypedEnvBackend for EnvInstance {
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
-        let instantiate_result = out_addressext::instantiate(
+        let instantiate_result = ext::instantiate(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -519,7 +519,7 @@ impl TypedEnvBackend for EnvInstance {
         );
 
         crate::engine::decode_instantiate_result::<_, E, RetType, ContractError>(
-            instantiate_result,
+            instantiate_result.map_err(Into::into),
             &mut &out_address[..],
             &mut &out_return_value[..],
         )
