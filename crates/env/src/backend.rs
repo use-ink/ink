@@ -441,19 +441,19 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, Args, Salt, R, ContractRef>(
+    fn instantiate_contract<E, Args, Salt, R, ContractStorage, ContractRef>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R, ContractRef>,
+        params: &CreateParams<E, Args, Salt, R, ContractStorage, ContractRef>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as InstantiateResult<R>>::Output<ContractRef>,
+            <R as InstantiateResult<ContractStorage>>::Output<ContractRef>,
         >,
     >
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        R: InstantiateResult<R>,
+        R: InstantiateResult<ContractStorage>,
         ContractRef: FromAccountId<E>;
 
     /// Terminates a smart contract.

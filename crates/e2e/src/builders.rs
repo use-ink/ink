@@ -40,6 +40,7 @@ pub type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     Set<ExecutionInput<Args>>,
     Unset<ink_env::call::state::Salt>,
     Set<ReturnType<()>>,
+    R, // todo ContractStorage param?
     R,
 >;
 

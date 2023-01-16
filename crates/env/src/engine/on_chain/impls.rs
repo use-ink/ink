@@ -484,7 +484,11 @@ impl TypedEnvBackend for EnvInstance {
     fn instantiate_contract<E, Args, Salt, RetType, ContractRef>(
         &mut self,
         params: &CreateParams<E, Args, Salt, RetType, ContractRef>,
-    ) -> Result<ink_primitives::ConstructorResult<<RetType as InstantiateResult<RetType>>::Output<ContractRef>>>
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as InstantiateResult>::Output<ContractRef>,
+        >,
+    >
     where
         E: Environment,
         Args: scale::Encode,
@@ -504,7 +508,7 @@ impl TypedEnvBackend for EnvInstance {
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
 
-        let instantiate_result = ext::instantiate(
+        let instantiate_result = out_addressext::instantiate(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -514,19 +518,11 @@ impl TypedEnvBackend for EnvInstance {
             salt,
         );
 
-        match instantiate_result {
-            Ok(()) => {
-                let account_id = scale::Decode::decode(&mut &out_address[..])?;
-                let contract_ref = <ContractRef as FromAccountId<E>>::from_account_id(account_id);
-                let output = <RetType as InstantiateResult<RetType>>::output(contract_ref);
-                Ok(ink_primitives::ConstructorResult::Ok(output))
-            }
-            Err(ext::Error::CalleeReverted) => {
-                todo!("custom decoding based on InstantiateResult<R>")
-                // if InstantiateResult::IS_RESULT, attempt to decode Result manually by first byte
-            }
-            Err(actual_error) => Err(actual_error.into()),
-        }
+        crate::engine::decode_instantiate_result::<_, E, RetType, ContractError>(
+            instantiate_result,
+            &mut &out_address[..],
+            &mut &out_return_value[..],
+        )
     }
 
     // fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(

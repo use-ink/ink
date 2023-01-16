@@ -16,12 +16,12 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
+        utils::InstantiateResult,
         Call,
         CallParams,
         CreateParams,
         DelegateCall,
         FromAccountId,
-        utils::InstantiateResult,
     },
     hash::{
         CryptoHash,
@@ -480,17 +480,23 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, Salt, R, ContractRef>(
+    pub fn instantiate_contract<Args, Salt, R, ContractStorage, ContractRef>(
         self,
-        params: &CreateParams<E, Args, Salt, R, ContractRef>,
-    ) -> Result<ink_primitives::ConstructorResult<<R as InstantiateResult<R>>::Output<ContractRef>>>
+        params: &CreateParams<E, Args, Salt, R, ContractStorage, ContractRef>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as InstantiateResult<ContractStorage>>::Output<ContractRef>,
+        >,
+    >
     where
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        R: InstantiateResult<R>,
+        R: InstantiateResult<ContractStorage>,
         ContractRef: FromAccountId<E>,
     {
-        ink_env::instantiate_contract::<E, Args, Salt, R, ContractRef>(params)
+        ink_env::instantiate_contract::<E, Args, Salt, R, ContractStorage, ContractRef>(
+            params,
+        )
     }
 
     /// Invokes a contract message and returns its result.

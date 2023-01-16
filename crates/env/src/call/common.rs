@@ -60,17 +60,13 @@ pub trait InstantiateResult<C>: private::Sealed {
     type Output<O>;
 
     /// The error type of the constructor return type.
-    ///
-    /// # Note
-    ///
-    /// For infallible constructors this is `()` whereas for fallible
-    /// constructors this is the actual return error type. Since we only ever
-    /// return a value in case of `Result::Err` the `Result::Ok` value type
-    /// does not matter.
     type Error: scale::Decode;
 
-    /// todo: docs!
-    fn output<O>(value: O) -> Self::Output<O>;
+    /// Construct a success value of the `Output` type.
+    fn ok<O>(value: O) -> Self::Output<O>;
+
+    /// Construct an error value of the `Output` type.
+    fn err<O>(err: Self::Error) -> Self::Output<O>;
 }
 
 impl<T> private::Sealed for T {}
@@ -79,8 +75,13 @@ impl<C> InstantiateResult<C> for C {
     type Output<O> = O;
     type Error = ();
 
-    fn output<O>(value: O) -> Self::Output<O> {
+    fn ok<O>(value: O) -> Self::Output<O> {
         value
+    }
+
+    fn err<O>(_err: Self::Error) -> Self::Output<O> {
+        // todo!
+        unreachable!()
     }
 }
 
@@ -93,8 +94,12 @@ where
     type Output<O> = Result<O, E>;
     type Error = E;
 
-    fn output<O>(value: O) -> Self::Output<O> {
+    fn ok<O>(value: O) -> Self::Output<O> {
         Ok(value)
+    }
+
+    fn err<O>(err: Self::Error) -> Self::Output<O> {
+        Err(err)
     }
 }
 
@@ -167,3 +172,16 @@ impl<T> Unwrap for Set<T> {
         self.value()
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//
+//     #[test]
+//     fn instantiate_result_types() {
+//         static_assertions::assert_type_eq_all!(
+//             Result<(), u8>,
+//             <Result<(), u8> as InstantiateResult<()>>
+//         );
+//     }
+// }
