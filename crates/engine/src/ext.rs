@@ -717,9 +717,9 @@ mod test {
 
         let account = [0u8; 32].to_vec();
 
-        assert_eq!(storage.get_allow_reentry(account.clone()), false);
+        assert!(!storage.get_allow_reentry(account.clone()));
         storage.set_allow_reentry(account.clone(), true);
-        assert_eq!(storage.get_allow_reentry(account.clone()), true);
+        assert!(storage.get_allow_reentry(account.clone()));
 
         assert_eq!(storage.increase_entrance_count(account.clone()), Ok(()));
         assert_eq!(storage.get_entrance_count(account.clone()), 1);
