@@ -79,6 +79,8 @@ mod call_builder {
 
             // NOTE: Right now we can't handle any `LangError` from `instantiate`, we can only tell
             // that our contract reverted (i.e we see error from the Contracts pallet).
+            //
+            // This will be fixed with #1512.
             result.ok().map(|id| ink::ToAccountId::to_account_id(&id))
         }
     }
@@ -178,8 +180,7 @@ mod call_builder {
                 .call(&ink_e2e::dave(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .return_value()
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
+                .return_value();
 
             assert!(
                 call_result.is_some(),
@@ -215,8 +216,7 @@ mod call_builder {
                 .call(&ink_e2e::eve(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .return_value()
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
+                .return_value();
 
             assert!(
                 call_result.is_none(),
