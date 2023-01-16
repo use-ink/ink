@@ -514,7 +514,7 @@ impl TypedEnvBackend for EnvInstance {
             .borrow()
             .instantiated
             .get(&callee)
-            .ok_or_else(|| Error::NotCallable)?
+            .ok_or(Error::NotCallable)?
             .clone();
 
         let call_fn = self
@@ -523,7 +523,7 @@ impl TypedEnvBackend for EnvInstance {
             .borrow()
             .deployed
             .get(&code_hash)
-            .ok_or_else(|| Error::CodeNotFound)?
+            .ok_or(Error::CodeNotFound)?
             .call;
 
         // save previous version of storage in case call will revert
@@ -531,7 +531,7 @@ impl TypedEnvBackend for EnvInstance {
             .engine
             .database
             .borrow()
-            .get_from_contract_storage(&callee.as_slice(), &[0; 4])
+            .get_from_contract_storage(callee.as_slice(), &[0; 4])
             .expect("contract storage not found")
             .clone();
 
@@ -542,12 +542,12 @@ impl TypedEnvBackend for EnvInstance {
             self.engine
                 .database
                 .borrow_mut()
-                .insert_into_contract_storage(&callee.as_slice(), &[0; 4], storage)
+                .insert_into_contract_storage(callee.as_slice(), &[0; 4], storage)
                 .unwrap();
         }
 
         let return_value =
-            R::decode(&mut self.engine.exec_context.borrow().output.as_slice().clone())?;
+            R::decode(&mut self.engine.exec_context.borrow().output.clone().as_slice())?;
 
         let output = self.engine.exec_context.borrow().output.clone();
 

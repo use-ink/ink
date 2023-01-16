@@ -126,11 +126,11 @@ pub struct ContractStorage {
 
 impl ContractStorage {
     pub fn get_entrance_count(&self, callee: Vec<u8>) -> u32 {
-        self.entrance_count.get(&callee).unwrap_or(&0).clone()
+        *self.entrance_count.get(&callee).unwrap_or(&0)
     }
 
     pub fn get_allow_reentry(&self, callee: Vec<u8>) -> bool {
-        self.allow_reentry.get(&callee).unwrap_or(&false).clone()
+        *self.allow_reentry.get(&callee).unwrap_or(&false)
     }
 
     pub fn set_allow_reentry(&mut self, callee: Vec<u8>, allow: bool) {
@@ -633,11 +633,10 @@ impl Engine {
         let allow_reentry = ((call_flags & 8) >> 3) != 0;
 
         // Allow/deny reentrancy to the caller
-        if caller.is_some() {
-            self.contracts.borrow_mut().set_allow_reentry(
-                caller.clone().unwrap().as_bytes().to_vec(),
-                allow_reentry,
-            );
+        if let Some(caller) = caller {
+            self.contracts
+                .borrow_mut()
+                .set_allow_reentry(caller.as_bytes().to_vec(), allow_reentry);
         }
 
         // Check if reentrance that is not allowed is encountered
@@ -649,7 +648,7 @@ impl Engine {
 
         self.contracts
             .borrow_mut()
-            .increase_entrance_count(callee.clone())?;
+            .increase_entrance_count(callee)?;
 
         let new_input = if forward_input {
             let previous_input = self.exec_context.borrow().input.clone();
@@ -678,18 +677,18 @@ impl Engine {
         let tail_call = ((call_flags & 4) >> 2) != 0;
 
         if tail_call {
-            self.exec_context.borrow_mut().output = output.clone();
+            self.exec_context.borrow_mut().output = output;
         }
 
         self.contracts
             .borrow_mut()
             .decrease_entrance_count(callee)?;
 
-        if caller.is_some() {
+        if let Some(caller) = caller {
             self.contracts
                 .borrow_mut()
                 .allow_reentry
-                .remove(&caller.unwrap().as_bytes().to_vec());
+                .remove(&caller.as_bytes().to_vec());
         }
         Ok(())
     }

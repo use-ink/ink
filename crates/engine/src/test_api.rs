@@ -200,22 +200,12 @@ impl Engine {
 
     /// Returns the total number of reads executed.
     pub fn count_reads(&self) -> usize {
-        self.debug_info
-            .borrow()
-            .count_reads
-            .iter()
-            .map(|(_, v)| v)
-            .sum()
+        self.debug_info.borrow().count_reads.values().sum()
     }
 
     /// Returns the total number of writes executed.
     pub fn count_writes(&self) -> usize {
-        self.debug_info
-            .borrow()
-            .count_writes
-            .iter()
-            .map(|(_, v)| v)
-            .sum()
+        self.debug_info.borrow().count_writes.values().sum()
     }
 
     /// Sets a caller for the next call.
