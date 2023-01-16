@@ -17,10 +17,18 @@ use crate::{
         EnvBackend,
         TypedEnvBackend,
     },
+    call::{
+        utils::InstantiateResult,
+        FromAccountId,
+    },
     Result as EnvResult,
 };
 use cfg_if::cfg_if;
-use ink_primitives::ConstructorResult;
+use ink_engine::ext;
+use ink_primitives::{
+    ConstructorResult,
+    LangError,
+};
 
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
@@ -42,65 +50,118 @@ cfg_if! {
     }
 }
 
-// The `Result` type used to represent the programmer defined contract output.
-type ContractResult<T, E> = core::result::Result<T, E>;
-
 // We only use this function when 1) compiling to Wasm 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-pub(crate) fn decode_fallible_constructor_reverted_return_value<I, E, ContractError>(
+pub(crate) fn decode_instantiate_result<I, E, R, ContractStorage, ContractRef>(
+    instantiate_result: Result<(), ext::Error>,
+    out_address: &mut I,
     out_return_value: &mut I,
-) -> EnvResult<ConstructorResult<ContractResult<E::AccountId, ContractError>>>
+) -> EnvResult<
+    ConstructorResult<<R as InstantiateResult<ContractStorage>>::Output<ContractRef>>,
+>
 where
     I: scale::Input,
     E: crate::Environment,
-    ContractError: scale::Decode,
+    R: InstantiateResult<ContractStorage>,
+    ContractRef: FromAccountId<E>,
 {
-    let out: ConstructorResult<Result<(), ContractError>> =
-        scale::Decode::decode(out_return_value)?;
-
-    match out {
-        ConstructorResult::Ok(ContractResult::Ok(())) => {
-            // Since the contract reverted we don't expect an `Ok` return value from the
-            // constructor, otherwise we'd be in the `AccountId` decoding branch.
-            //
-            // While we could handle this more gracefully, e.g through a `LangError`, we're going to
-            // be defensive for now and trap.
-            panic!(
-                "The callee reverted, but did not encode an error in the output buffer."
-            )
+    match instantiate_result {
+        Ok(()) => {
+            let account_id = scale::Decode::decode(out_address)?;
+            let contract_ref =
+                <ContractRef as FromAccountId<E>>::from_account_id(account_id);
+            let output = <R as InstantiateResult<ContractStorage>>::ok(contract_ref);
+            Ok(Ok(output))
         }
-        ConstructorResult::Ok(ContractResult::Err(contract_error)) => {
-            Ok(ConstructorResult::Ok(ContractResult::Err(contract_error)))
+        Err(ext::Error::CalleeReverted) => {
+            let constructor_result_variant = out_return_value.read_byte()?;
+            match constructor_result_variant {
+                // 0 == `ConstructorResult::Ok` variant
+                0 => {
+                    if <R as InstantiateResult<ContractStorage>>::IS_RESULT {
+                        let result_variant = out_return_value.read_byte()?;
+                        match result_variant {
+                            // 0 == `Ok` variant
+                            0 => panic!("The callee reverted, but did not encode an error in the output buffer."),
+                            // 1 == `Err` variant
+                            1 => {
+                                let contract_err = <<R as InstantiateResult<ContractStorage>>::Error
+                                    as scale::Decode>::decode(out_return_value)?;
+                                let err = <R as InstantiateResult<ContractStorage>>::err(contract_err);
+                                Ok(Ok(err))
+                            }
+                            _ => panic!("Invalid inner constructor Result encoding, expected 0 or 1 as the first byte")
+                        }
+                    } else {
+                        panic!("The callee reverted, but did not encode an error in the output buffer.")
+                    }
+                }
+                // 1 == `ConstructorResult::Err` variant
+                1 => {
+                    let lang_err = <LangError as scale::Decode>::decode(out_return_value)?;
+                    Ok(Err(lang_err))
+                }
+                _ => panic!("Invalid outer constructor Result encoding, expected 0 or 1 as the first byte")
+            }
         }
-        ConstructorResult::Err(lang_error) => Ok(ConstructorResult::Err(lang_error)),
+        Err(actual_error) => Err(actual_error.into()),
     }
 }
 
 #[cfg(test)]
 mod fallible_constructor_reverted_tests {
     use super::*;
+    use crate::Environment;
     use scale::Encode;
+
+    // The `Result` type used to represent the programmer defined contract output.
+    type ContractResult<T, E> = Result<T, E>;
 
     #[derive(scale::Encode, scale::Decode)]
     struct ContractError(String);
 
-    fn encode_and_decode_return_value(
-        return_value: ConstructorResult<Result<(), ContractError>>,
-    ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
-    {
-        let encoded_return_value = return_value.encode();
-        decode_return_value(&mut &encoded_return_value[..])
+    struct TestContractRef<E: Environment>(<E as Environment>::AccountId);
+
+    impl<E: Environment> FromAccountId<E> for TestContractRef<E> {
+        fn from_account_id(account_id: <E as Environment>::AccountId) -> Self {
+            Self(account_id)
+        }
     }
 
-    fn decode_return_value<I: scale::Input>(
-        input: &mut I,
-    ) -> EnvResult<ConstructorResult<Result<ink_primitives::AccountId, ContractError>>>
-    {
-        decode_fallible_constructor_reverted_return_value::<
+    fn encode_and_decode_return_value(
+        return_value: ConstructorResult<Result<(), ContractError>>,
+    ) -> EnvResult<
+        ConstructorResult<
+            Result<TestContractRef<crate::DefaultEnvironment>, ContractError>,
+        >,
+    > {
+        let out_address = Vec::new();
+        let encoded_return_value = return_value.encode();
+        decode_return_value_fallible(
+            &mut &out_address[..],
+            &mut &encoded_return_value[..],
+        )
+    }
+
+    fn decode_return_value_fallible<I: scale::Input>(
+        out_address: &mut I,
+        out_return_value: &mut I,
+    ) -> EnvResult<
+        ConstructorResult<
+            Result<TestContractRef<crate::DefaultEnvironment>, ContractError>,
+        >,
+    > {
+        decode_instantiate_result::<
             I,
             crate::DefaultEnvironment,
-            ContractError,
-        >(input)
+            Result<(), ContractError>,
+            (),
+            TestContractRef<crate::DefaultEnvironment>,
+        >(
+            Err(ext::Error::CalleeReverted),
+            out_address,
+            out_return_value,
+        )
     }
 
     #[test]
@@ -144,9 +205,13 @@ mod fallible_constructor_reverted_tests {
 
     #[test]
     fn invalid_bytes_in_output_buffer_fail_decoding() {
+        let out_address = Vec::new();
         let invalid_encoded_return_value = vec![69];
 
-        let decoded_result = decode_return_value(&mut &invalid_encoded_return_value[..]);
+        let decoded_result = decode_return_value_fallible(
+            &mut &out_address[..],
+            &mut &invalid_encoded_return_value[..],
+        );
 
         assert!(matches!(decoded_result, Err(crate::Error::Decode(_))))
     }

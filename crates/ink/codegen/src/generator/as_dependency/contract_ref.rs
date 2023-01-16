@@ -407,6 +407,7 @@ impl ContractRef<'_> {
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
+        let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]
@@ -421,9 +422,10 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+                #storage_ident,
                 Self,
             > {
-                ::ink::env::call::build_create::<Environment, #ret_type, Self>()
+                ::ink::env::call::build_create::<Environment, #ret_type, #storage_ident, Self>()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
