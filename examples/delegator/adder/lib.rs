@@ -50,13 +50,13 @@ mod test {
         ink::env::test::register_contract::<Adder>(hash2.as_ref());
 
         let acc = AccumulatorRef::new(0)
-            .code_hash(hash1.clone())
+            .code_hash(hash1)
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
             .expect("failed at instantiating the `AccumulatorRef` contract");
         let mut adder = AdderRef::new(acc.clone())
-            .code_hash(hash2.clone())
+            .code_hash(hash2)
             .endowment(0)
             .salt_bytes([0u8; 0])
             .instantiate()
