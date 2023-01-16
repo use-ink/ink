@@ -17,7 +17,7 @@ The mechanism of work is the following:
 
 ## Testing
 
-You can run unit-test for this example by running the following command in fallback_contract:
+You can run unit-test for this example by running the following command:
 
 ```bash
 cargo test
