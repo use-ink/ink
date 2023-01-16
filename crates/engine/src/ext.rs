@@ -118,7 +118,6 @@ impl ReturnCode {
 #[derive(Default)]
 pub struct ContractStorage {
     pub instantiated: HashMap<Vec<u8>, Vec<u8>>,
-    pub storage_keys: HashMap<Vec<u8>, Vec<u8>>,
     pub entrance_count: HashMap<Vec<u8>, u32>,
     pub allow_reentry: HashMap<Vec<u8>, bool>,
     pub deployed: HashMap<Vec<u8>, Contract>,
@@ -706,4 +705,37 @@ fn set_output(output: &mut &mut [u8], slice: &[u8]) {
         output.len(),
     );
     output[..slice.len()].copy_from_slice(slice);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    pub fn contract_storage_works() {
+        let mut storage = ContractStorage::default();
+
+        let account = [0u8; 32].to_vec();
+
+        assert_eq!(storage.get_allow_reentry(account.clone()), false);
+        storage.set_allow_reentry(account.clone(), true);
+        assert_eq!(storage.get_allow_reentry(account.clone()), true);
+
+        assert_eq!(storage.increase_entrance_count(account.clone()), Ok(()));
+        assert_eq!(storage.get_entrance_count(account.clone()), 1);
+        assert_eq!(storage.decrease_entrance_count(account.clone()), Ok(()));
+        assert_eq!(storage.get_entrance_count(account), 0);
+    }
+
+    #[test]
+    pub fn decrease_entrance_count_fails() {
+        let mut storage = ContractStorage::default();
+
+        let account = [0u8; 32].to_vec();
+
+        assert_eq!(
+            storage.decrease_entrance_count(account),
+            Err(Error::CalleeTrapped)
+        );
+    }
 }
