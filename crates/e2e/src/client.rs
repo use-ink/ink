@@ -141,13 +141,18 @@ where
     /// via [`return_data`].
     pub fn return_value(self) -> V {
         self.value
-            .unwrap_or_else(|err| {
+            .unwrap_or_else(|env_err| {
                 panic!(
-                    "decoding dry run result to ink! message return type failed: {}",
-                    err
+                    "Decoding dry run result to ink! message return type failed: {}",
+                    env_err
                 )
             })
-            .expect("TODO: `LangError` ...")
+            .unwrap_or_else(|lang_err| {
+                panic!(
+                    "Encountered a `LangError` while decoding dry run result to ink! message: {:?}",
+                    lang_err
+                )
+            })
     }
 
     /// Returns true if the specified event was triggered by the call.
