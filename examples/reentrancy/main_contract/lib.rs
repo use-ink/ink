@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-extern crate core;
-
 pub use self::main_contract::{
     Error,
     MainContract,
@@ -10,6 +8,7 @@ pub use self::main_contract::{
 
 #[ink::contract]
 mod main_contract {
+    use core::mem::ManuallyDrop;
     use ink::{
         env::{
             call::{
@@ -21,7 +20,6 @@ mod main_contract {
         },
         primitives::Key,
     };
-    use std::mem::ManuallyDrop;
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -74,11 +72,9 @@ mod main_contract {
             <Self as ink::storage::traits::StorageKey>::KEY
         }
 
-        #[allow(unreachable_code)]
         #[ink(message)]
         pub fn inc(&mut self) -> Result<u32, Error> {
             self.value = self.value + 1;
-            println!("value {}", self.value);
 
             if self.value > 1 {
                 return Ok(self.value)
@@ -100,6 +96,7 @@ mod main_contract {
             )
             .unwrap_or_else(|error| panic!("Failed to load contract state: {:?}", error))
             .unwrap_or_else(|| panic!("Contract state is not initialized"));
+
             core::mem::swap(self, &mut state);
             let _ = ManuallyDrop::new(state);
 
