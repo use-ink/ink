@@ -37,7 +37,7 @@ pallet-contracts-primitives = "7.0.0"
 sp-core = "7.0.0"
 sp-keyring = "7.0.0"
 sp-runtime = "7.0.0"
-sp-weights = "4.0.0"
+sp-weights = "10.0.0"
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
