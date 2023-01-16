@@ -275,7 +275,7 @@ where
 ///
 /// ## Example: Handling a `LangError`
 ///
-/// ```
+/// ```should_panic
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
