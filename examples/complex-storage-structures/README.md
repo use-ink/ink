@@ -133,6 +133,68 @@ struct MyStruct {
 }
 ```
 
+- `StorageKey` is a trait that is used for calculating the storage key for types. It is implemented automatically for all types that implement `Packed` types.
+
+If you add generic that implements `StorageKey` to your type, it will be used as a storage key for this type, otherwise it will be 
+set to `AutoKey`. For example:
+```rust
+#[ink::storage_item]
+struct MyStruct {
+    first_field: u32,
+    second_field: Mapping<u32, u32>,
+}
+```
+In this case storage key will be calculated automatically. But if you want to customize it, you can do it like this:
+```rust
+#[ink::storage_item]
+struct MyStruct<KEY: StorageKey> {
+    first_field: u32,
+    second_field: Mapping<u32, u32, ManualKey<123>>,
+}
+```
+
+In this case, you can set storage key that you prefer for instances of this type.
+For example if you want to use it in contract, you can do it like this:
+```rust
+#[ink(storage)]
+struct MyContract {
+    my_struct: MyStruct<ManualKey<123>>,
+}
+```
+
+or
+
+```rust
+#[ink(storage)]
+struct MyContract {
+    my_struct: MyStruct<AutoKey>,
+}
+```
+
+After that, if you try to assign the new value to a field of this type, you will get an error, because after code generation,
+it will be another type with generated storage key:
+```rust
+#[ink(constructor)]
+pub fn new() -> Self {
+    let mut instance = Self::default();
+
+    instance.balances = Balances::<ManualKey<123>>::default();
+
+    instance
+}
+```
+
+You will get an error like this:
+```shell
+note: expected struct `Balances<ResolverKey<ManualKey<_, _>, ManualKey<4162912002>>>`
+found struct `Balances<ManualKey<_, _>>`
+```
+
+So, the way to fix it is to use `Default::default()` so it will generate right type:
+```rust
+instance.balances = Default::default();
+```
+
 ### Problems
 There is a problem with generic fields that are non-packed in structs. Example:
 ```rust
