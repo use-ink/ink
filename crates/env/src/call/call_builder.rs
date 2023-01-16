@@ -115,7 +115,12 @@ where
     /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
     /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     pub fn invoke(&self) -> Result<R, crate::Error> {
-        crate::invoke_contract(self).map(|inner| inner.unwrap())
+        crate::invoke_contract(self).map(|inner| {
+            inner.expect(
+                "Handling `LangError`s is not supported by `CallParams::invoke`, use \
+                `CallParams::try_invoke` instead.",
+            )
+        })
     }
 
     /// Invokes the contract with the given built-up call parameters.

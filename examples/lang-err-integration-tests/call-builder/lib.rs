@@ -56,6 +56,25 @@ mod call_builder {
             }
         }
 
+        /// Call a contract using the `CallBuilder`.
+        ///
+        /// Since we can't use the `CallBuilder` in a test environment directly we need this
+        /// wrapper to test things like crafting calls with invalid selectors.
+        ///
+        /// This message does not allow the caller to handle any `LangErrors`, for that use the
+        /// `call` message instead.
+        #[ink(message)]
+        pub fn fire(&mut self, address: AccountId, selector: [u8; 4]) {
+            use ink::env::call::build_call;
+
+            build_call::<DefaultEnvironment>()
+                .call_type(Call::new().callee(address))
+                .exec_input(ExecutionInput::new(Selector::new(selector)))
+                .returns::<()>()
+                .fire()
+                .expect("Error from the Contracts pallet.")
+        }
+
         #[ink(message)]
         pub fn call_instantiate(
             &mut self,
@@ -150,6 +169,53 @@ mod call_builder {
                 .expect("Calling `flipper::get` failed");
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
+        async fn e2e_invalid_message_selector_panics_on_fire(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = CallBuilderTestRef::new();
+            let contract_acc_id = client
+                .instantiate("call_builder", &ink_e2e::ferdie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let flipper_constructor = FlipperRef::new_default();
+            let flipper_acc_id = client
+                .instantiate(
+                    "integration_flipper",
+                    &ink_e2e::ferdie(),
+                    flipper_constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate `flipper` failed")
+                .account_id;
+
+            // Since `LangError`s can't be handled by the `CallBuilder::fire()` method we expect
+            // this to panic.
+            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call = build_message::<CallBuilderTestRef>(contract_acc_id)
+                .call(|contract| contract.fire(flipper_acc_id, invalid_selector));
+            let call_result = client.call(&ink_e2e::ferdie(), call, 0, None).await;
+
+            assert!(call_result.is_err());
+            let contains_err_msg = match call_result.unwrap_err() {
+                ink_e2e::Error::CallDryRun(dry_run) => {
+                    String::from_utf8_lossy(&dry_run.debug_message)
+                        .contains(
+                            "Handling `LangError`s is not supported by `CallParams::invoke`, use \
+                            `CallParams::try_invoke` instead.",
+                        )
+                }
+                _ => false,
+            };
+            assert!(contains_err_msg);
 
             Ok(())
         }
