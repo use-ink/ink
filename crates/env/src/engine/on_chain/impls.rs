@@ -481,19 +481,19 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, RetType, ContractStorage, ContractRef>(
+    fn instantiate_contract<E, Args, Salt, RetType, ContractRef>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, RetType, ContractStorage, ContractRef>,
+        params: &CreateParams<E, Args, Salt, RetType, ContractRef>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <RetType as InstantiateResult<ContractStorage>>::Output<ContractRef>,
+            <RetType as InstantiateResult<ContractRef>>::Output,
         >,
     >
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        RetType: InstantiateResult<ContractStorage>,
+        RetType: InstantiateResult<ContractRef>,
         ContractRef: FromAccountId<E>,
     {
         let mut scoped = self.scoped_buffer();
@@ -518,7 +518,7 @@ impl TypedEnvBackend for EnvInstance {
             salt,
         );
 
-        crate::engine::decode_instantiate_result::<_, E, RetType, ContractStorage, ContractRef>(
+        crate::engine::decode_instantiate_result::<_, E, RetType, ContractRef>(
             instantiate_result.map_err(Into::into),
             &mut &out_address[..],
             &mut &out_return_value[..],

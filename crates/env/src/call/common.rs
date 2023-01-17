@@ -57,48 +57,48 @@ pub trait InstantiateResult<C>: private::Sealed {
     const IS_RESULT: bool = false;
 
     /// Reflects the output type of the dispatchable ink! constructor.
-    type Output<O>;
+    type Output;
 
     /// The error type of the constructor return type.
     type Error: scale::Decode;
 
     /// Construct a success value of the `Output` type.
-    fn ok<O>(value: O) -> Self::Output<O>;
+    fn ok(value: C) -> Self::Output;
 
     /// Construct an error value of the `Output` type.
-    fn err<O>(err: Self::Error) -> Self::Output<O>;
+    fn err(err: Self::Error) -> Self::Output;
 }
 
 impl<T> private::Sealed for T {}
 
 impl<C> InstantiateResult<C> for C {
-    type Output<O> = O;
+    type Output = C;
     type Error = ();
 
-    fn ok<O>(value: O) -> Self::Output<O> {
+    fn ok(value: C) -> Self::Output {
         value
     }
 
-    fn err<O>(_err: Self::Error) -> Self::Output<O> {
+    fn err(_err: Self::Error) -> Self::Output {
         // todo!
         unreachable!()
     }
 }
 
-impl<C, E> InstantiateResult<C> for Result<C, E>
+impl<C, E> InstantiateResult<C> for core::result::Result<C, E>
 where
     E: scale::Decode,
 {
     const IS_RESULT: bool = true;
 
-    type Output<O> = Result<O, E>;
+    type Output = core::result::Result<C, E>;
     type Error = E;
 
-    fn ok<O>(value: O) -> Self::Output<O> {
+    fn ok(value: C) -> Self::Output {
         Ok(value)
     }
 
-    fn err<O>(err: Self::Error) -> Self::Output<O> {
+    fn err(err: Self::Error) -> Self::Output {
         Err(err)
     }
 }
