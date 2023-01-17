@@ -485,13 +485,13 @@ where
         params: &CreateParams<E, Args, Salt, R, ContractStorage, ContractRef>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as InstantiateResult<ContractStorage>>::Output<ContractRef>,
+            <R as InstantiateResult<ContractRef>>::Output<ContractRef>,
         >,
     >
     where
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        R: InstantiateResult<ContractStorage>,
+        R: InstantiateResult<ContractRef>,
         ContractRef: FromAccountId<E>,
     {
         ink_env::instantiate_contract::<E, Args, Salt, R, ContractStorage, ContractRef>(
