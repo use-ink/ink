@@ -172,16 +172,3 @@ impl<T> Unwrap for Set<T> {
         self.value()
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//
-//     #[test]
-//     fn instantiate_result_types() {
-//         static_assertions::assert_type_eq_all!(
-//             Result<(), u8>,
-//             <Result<(), u8> as InstantiateResult<()>>
-//         );
-//     }
-// }
