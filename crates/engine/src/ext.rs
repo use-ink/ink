@@ -670,14 +670,14 @@ impl Engine {
         &mut self,
         caller: Option<AccountId>,
         callee: Vec<u8>,
-        call_flags: u32,
-        output: Vec<u8>,
+        _call_flags: u32,
+        _output: Vec<u8>,
     ) -> core::result::Result<(), Error> {
-        let tail_call = ((call_flags & 4) >> 2) != 0;
-
-        if tail_call {
-            self.exec_context.borrow_mut().output = output;
-        }
+        // let _tail_call = ((call_flags & 4) >> 2) != 0;
+        //
+        // if _tail_call {
+        //     self.exec_context.borrow_mut().output = output;
+        // }
 
         self.contracts
             .borrow_mut()
