@@ -480,12 +480,12 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, Salt, R, ContractStorage, ContractRef>(
+    pub fn instantiate_contract<Args, Salt, R, ContractRef>(
         self,
-        params: &CreateParams<E, Args, Salt, R, ContractStorage, ContractRef>,
+        params: &CreateParams<E, Args, Salt, R, ContractRef>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <R as InstantiateResult<ContractRef>>::Output<ContractRef>,
+            <R as InstantiateResult<ContractRef>>::Output,
         >,
     >
     where
@@ -494,7 +494,7 @@ where
         R: InstantiateResult<ContractRef>,
         ContractRef: FromAccountId<E>,
     {
-        ink_env::instantiate_contract::<E, Args, Salt, R, ContractStorage, ContractRef>(
+        ink_env::instantiate_contract::<E, Args, Salt, R, ContractRef>(
             params,
         )
     }
