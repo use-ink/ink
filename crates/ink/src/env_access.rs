@@ -484,9 +484,7 @@ where
         self,
         params: &CreateParams<E, Args, Salt, R, ContractRef>,
     ) -> Result<
-        ink_primitives::ConstructorResult<
-            <R as InstantiateResult<ContractRef>>::Output,
-        >,
+        ink_primitives::ConstructorResult<<R as InstantiateResult<ContractRef>>::Output>,
     >
     where
         Args: scale::Encode,
@@ -494,9 +492,7 @@ where
         R: InstantiateResult<ContractRef>,
         ContractRef: FromAccountId<E>,
     {
-        ink_env::instantiate_contract::<E, Args, Salt, R, ContractRef>(
-            params,
-        )
+        ink_env::instantiate_contract::<E, Args, Salt, R, ContractRef>(params)
     }
 
     /// Invokes a contract message and returns its result.

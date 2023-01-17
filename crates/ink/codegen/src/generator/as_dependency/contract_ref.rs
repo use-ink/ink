@@ -407,7 +407,6 @@ impl ContractRef<'_> {
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
-        let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]

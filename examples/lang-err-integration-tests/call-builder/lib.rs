@@ -17,10 +17,10 @@
 
 #[ink::contract]
 mod call_builder {
+    use constructors_return_value::ConstructorsReturnValueRef;
     use ink::env::{
         call::{
             build_call,
-            build_create,
             Call,
             ExecutionInput,
             Selector,
@@ -99,16 +99,16 @@ mod call_builder {
             selector: [u8; 4],
             init_value: bool,
         ) -> Option<ink::LangError> {
-            let result = build_create::<DefaultEnvironment>()
+            let mut params = ConstructorsReturnValueRef::new(init_value)
                 .code_hash(code_hash)
                 .gas_limit(0)
                 .endowment(0)
-                .exec_input(
-                    ExecutionInput::new(Selector::new(selector)).push_arg(init_value),
-                )
                 .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .returns::<constructors_return_value::ConstructorsReturnValueRef>()
-                .params()
+                .params();
+
+            params.update_selector(Selector::new(selector));
+
+            let result = params
                 .try_instantiate()
                 .expect("Error from the Contracts pallet.");
 
@@ -140,20 +140,17 @@ mod call_builder {
                 ink::LangError,
             >,
         > {
-            let lang_result = build_create::<DefaultEnvironment>()
+            let mut params = ConstructorsReturnValueRef::try_new(init_value)
                 .code_hash(code_hash)
                 .gas_limit(0)
                 .endowment(0)
-                .exec_input(
-                    ExecutionInput::new(Selector::new(selector)).push_arg(init_value),
-                )
                 .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-                .returns::<Result<
-                    constructors_return_value::ConstructorsReturnValueRef,
-                    constructors_return_value::ConstructorError,
-                >>()
-                .params()
-                .try_instantiate_fallible()
+                .params();
+
+            params.update_selector(Selector::new(selector));
+
+            let lang_result = params
+                .try_instantiate()
                 .expect("Error from the Contracts pallet.");
 
             Some(lang_result.map(|contract_result| {
