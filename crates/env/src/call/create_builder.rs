@@ -23,6 +23,7 @@ use crate::{
             Unwrap,
         },
         ExecutionInput,
+        Selector,
     },
     Environment,
     Error,
@@ -99,6 +100,14 @@ where
     #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
+    }
+
+    /// Modify the selector.
+    ///
+    /// Useful when using the [`CreateParams`] generated as part of the
+    /// contract ref, but using a custom selector.
+    pub fn update_selector(&mut self, selector: Selector) {
+        self.exec_input.update_selector(selector)
     }
 }
 
