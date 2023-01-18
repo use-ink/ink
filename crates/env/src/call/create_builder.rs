@@ -242,8 +242,7 @@ pub struct CreateBuilder<
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<MyContract>()
-///     .params()
-///     .instantiate();
+///     .instantiate()
 /// ```
 ///
 /// ## Example 2: Handles Result from Fallible Constructor
@@ -276,9 +275,7 @@ pub struct CreateBuilder<
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<Result<MyContract, ConstructorError>>()
-///     .params()
-///     .instantiate_fallible()
-///     .expect("Constructor should've run without errors.");
+///     .instantiate();
 /// ```
 ///
 /// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
