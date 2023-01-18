@@ -50,7 +50,7 @@ pub fn constructor_exec_input<E: Environment, Args: Encode, R>(
     // set all the other properties to default values, we only require the `exec_input`.
     builder
         .endowment(0u32.into())
-        .code_hash(ink_primitives::Clear::clear())
+        .code_hash(ink_primitives::Clear::CLEAR_HASH)
         .salt_bytes(Vec::new())
         .params()
         .exec_input()

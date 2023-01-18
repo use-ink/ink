@@ -122,7 +122,7 @@ fn spec_contract_json() {
     let mut registry = Registry::new();
 
     // when
-    let json = serde_json::to_value(&contract.into_portable(&mut registry)).unwrap();
+    let json = serde_json::to_value(contract.into_portable(&mut registry)).unwrap();
 
     // then
     assert_eq!(

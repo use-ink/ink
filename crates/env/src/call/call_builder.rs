@@ -228,7 +228,7 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
 ///     .call_type(DelegateCall::new()
-///                 .code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+///                 .code_hash(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -322,16 +322,16 @@ pub struct DelegateCall<E: Environment> {
 
 impl<E: Environment> DelegateCall<E> {
     /// Returns a clean builder for [`DelegateCall`]
-    pub fn new() -> Self {
-        Default::default()
+    pub const fn new() -> Self {
+        DelegateCall {
+            code_hash: E::Hash::CLEAR_HASH,
+        }
     }
 }
 
 impl<E: Environment> Default for DelegateCall<E> {
     fn default() -> Self {
-        DelegateCall {
-            code_hash: E::Hash::clear(),
-        }
+        Self::new()
     }
 }
 
