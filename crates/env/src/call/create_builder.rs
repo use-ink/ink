@@ -274,14 +274,14 @@ pub struct CreateBuilder<
 ///
 /// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
 #[allow(clippy::type_complexity)]
-pub fn build_create<E, R, ContractRef>() -> CreateBuilder<
+pub fn build_create<E, ContractRef>() -> CreateBuilder<
     E,
     Unset<E::Hash>,
     Unset<u64>,
     Unset<E::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<state::Salt>,
-    Set<ReturnType<R>>,
+    Unset<ReturnType<()>>,
     ContractRef,
 >
 where
@@ -293,7 +293,7 @@ where
         endowment: Default::default(),
         exec_input: Default::default(),
         salt: Default::default(),
-        return_type: Set(Default::default()),
+        return_type: Default::default(),
         _phantom: Default::default(),
     }
 }
