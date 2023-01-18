@@ -366,7 +366,7 @@ mod call_builder {
                 .call(&mut ink_e2e::eve(), call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
-                .value
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
 
             assert!(
@@ -404,7 +404,7 @@ mod call_builder {
                 .call(&mut ink_e2e::ferdie(), call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
-                .value
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
 
             let contract_result = call_result
@@ -496,7 +496,7 @@ mod call_builder {
                 .expect(
                     "Client failed to call `call_builder::call_instantiate_fallible`.",
                 )
-                .value
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
 
             assert!(
