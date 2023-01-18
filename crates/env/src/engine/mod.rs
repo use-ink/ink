@@ -103,7 +103,7 @@ where
                 _ => Err(Error::Decode("Invalid outer constructor Result encoding, expected 0 or 1 as the first byte".into()))
             }
         }
-        Err(actual_error) => Err(actual_error.into()),
+        Err(actual_error) => Err(actual_error),
     }
 }
 
