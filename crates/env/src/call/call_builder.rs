@@ -116,10 +116,9 @@ where
     /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     pub fn invoke(&self) -> Result<R, crate::Error> {
         crate::invoke_contract(self).map(|inner| {
-            inner.expect(
-                "Handling `LangError`s is not supported by `CallParams::invoke`, use \
-                `CallParams::try_invoke` instead.",
-            )
+            inner.unwrap_or_else(|lang_error| {
+                panic!("Cross-contract call failed with {:?}", lang_error)
+            })
         })
     }
 

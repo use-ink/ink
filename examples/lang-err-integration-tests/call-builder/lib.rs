@@ -208,10 +208,7 @@ mod call_builder {
             let contains_err_msg = match call_result.unwrap_err() {
                 ink_e2e::Error::CallDryRun(dry_run) => {
                     String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains(
-                            "Handling `LangError`s is not supported by `CallParams::invoke`, use \
-                            `CallParams::try_invoke` instead.",
-                        )
+                        .contains("Cross-contract call failed with CouldNotReadInput")
                 }
                 _ => false,
             };
