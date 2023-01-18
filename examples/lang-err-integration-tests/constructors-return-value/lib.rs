@@ -34,7 +34,7 @@ pub mod constructors_return_value {
             }
         }
 
-        /// A constructor which reverts and fills the output buffer with an erronenously encoded
+        /// A constructor which reverts and fills the output buffer with an erroneously encoded
         /// return value.
         #[ink(constructor)]
         pub fn revert_new(_init_value: bool) -> Self {
@@ -44,7 +44,7 @@ pub mod constructors_return_value {
             )
         }
 
-        /// A constructor which reverts and fills the output buffer with an erronenously encoded
+        /// A constructor which reverts and fills the output buffer with an erroneously encoded
         /// return value.
         #[ink(constructor)]
         pub fn try_revert_new(init_value: bool) -> Result<Self, ConstructorError> {
