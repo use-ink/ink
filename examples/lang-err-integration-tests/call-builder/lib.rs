@@ -165,7 +165,7 @@ mod call_builder {
                 .expect("instantiate failed")
                 .account_id;
 
-            let flipper_constructor = FlipperRef::default();
+            let flipper_constructor = FlipperRef::new_default();
             let flipper_acc_id = client
                 .instantiate(
                     "integration_flipper",
@@ -185,7 +185,7 @@ mod call_builder {
                 .await
                 .expect("Calling `flipper::get` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let selector = ink::selector_bytes!("invalid_selector");
@@ -197,7 +197,7 @@ mod call_builder {
                 .expect("Calling `call_builder::call` failed");
 
             let flipper_result = call_result
-                .value
+                .return_value()
                 .expect("Call to `call_builder::call` failed");
 
             assert!(matches!(
@@ -212,7 +212,7 @@ mod call_builder {
                 .await
                 .expect("Calling `flipper::get` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value == initial_value);
 
@@ -245,8 +245,8 @@ mod call_builder {
             let call_result = client
                 .call(&ink_e2e::bob(), call, 0, None)
                 .await
-                .expect("Calling `call_builder::call_instantiate` failed")
-                .value
+                .expect("Client failed to call `call_builder::call_instantiate`.")
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(
@@ -284,7 +284,7 @@ mod call_builder {
                 .call(&ink_e2e::charlie(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .value
+                .return_value()
                 .expect("Dispatching `call_builder::call_instantiate` failed.");
 
             assert!(

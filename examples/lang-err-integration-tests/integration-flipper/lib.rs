@@ -25,7 +25,7 @@ pub mod integration_flipper {
 
         /// Creates a new integration_flipper smart contract initialized to `false`.
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Self::new(Default::default())
         }
 
@@ -73,7 +73,7 @@ pub mod integration_flipper {
         async fn e2e_can_flip_correctly(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::default();
+            let constructor = FlipperRef::new_default();
             let contract_acc_id = client
                 .instantiate(
                     "integration_flipper",
@@ -93,7 +93,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let flip = build_message::<FlipperRef>(contract_acc_id)
@@ -114,7 +114,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value != initial_value);
 
@@ -125,7 +125,7 @@ pub mod integration_flipper {
         async fn e2e_message_error_reverts_state(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let constructor = FlipperRef::default();
+            let constructor = FlipperRef::new_default();
             let contract_acc_id = client
                 .instantiate("integration_flipper", &ink_e2e::bob(), constructor, 0, None)
                 .await
@@ -139,7 +139,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let initial_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
 
             let err_flip = build_message::<FlipperRef>(contract_acc_id)
@@ -159,7 +159,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `get` failed");
             let flipped_value = get_call_result
-                .value
+                .return_value()
                 .expect("Input is valid, call must not fail.");
             assert!(flipped_value == initial_value);
 
