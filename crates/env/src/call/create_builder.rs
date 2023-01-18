@@ -233,7 +233,6 @@ pub struct CreateBuilder<
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<MyContract>()
-///     .params()
 ///     .instantiate()
 ///     .unwrap();
 /// ```
@@ -268,8 +267,7 @@ pub struct CreateBuilder<
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<Result<MyContract, ConstructorError>>()
-///     .params()
-///     .instantiate_fallible()
+///     .instantiate()
 ///     .unwrap()
 ///     .unwrap();
 /// ```
