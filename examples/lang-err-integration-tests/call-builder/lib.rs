@@ -72,7 +72,6 @@ mod call_builder {
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .fire()
-                .expect("Error from the Contracts pallet.")
         }
 
         #[ink(message)]

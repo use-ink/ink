@@ -112,14 +112,17 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
-    pub fn invoke(&self) -> Result<R, crate::Error> {
-        crate::invoke_contract(self).map(|inner| {
-            inner.unwrap_or_else(|lang_error| {
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    pub fn invoke(&self) -> R {
+        crate::invoke_contract(self)
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract call failed with {:?}", env_error)
+            })
+            .unwrap_or_else(|lang_error| {
                 panic!("Cross-contract call failed with {:?}", lang_error)
             })
-        })
     }
 
     /// Invokes the contract with the given built-up call parameters.
@@ -128,7 +131,8 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
     pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
         crate::invoke_contract(self)
     }
@@ -192,8 +196,7 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .returns::<()>()
-///     .fire()
-///     .expect("Got an error from the Contract's pallet.");
+///     .fire();
 /// ```
 ///
 /// ## Example 2: With Return Value
@@ -228,8 +231,7 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .returns::<i32>()
-///     .fire()
-///     .expect("Got an error from the Contract's pallet.");
+///     .fire();
 /// ```
 ///
 /// ## Example 3: Delegate call
@@ -660,9 +662,10 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
-    pub fn fire(self) -> Result<(), Error> {
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_fire`][`CallBuilder::try_fire`] method instead.
+    pub fn fire(self) {
         self.params().invoke()
     }
 
@@ -670,7 +673,8 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
     pub fn try_fire(self) -> Result<ink_primitives::MessageResult<()>, Error> {
         self.params().try_invoke()
     }
@@ -687,7 +691,7 @@ where
     E: Environment,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
+    pub fn fire(self) -> Result<(), crate::Error> {
         self.params().invoke()
     }
 }
@@ -703,9 +707,10 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
-    pub fn fire(self) -> Result<R, Error> {
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_fire`][`CallBuilder::try_fire`] method instead.
+    pub fn fire(self) -> R {
         self.params().invoke()
     }
 
@@ -713,7 +718,8 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
     pub fn try_fire(self) -> Result<ink_primitives::MessageResult<R>, Error> {
         self.params().try_invoke()
     }
