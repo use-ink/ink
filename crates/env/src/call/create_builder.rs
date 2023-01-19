@@ -119,8 +119,28 @@ where
     R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
+    /// handle those use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(&self) -> Result<R, crate::Error> {
+    pub fn instantiate(&self) -> R {
+        crate::instantiate_contract(self)
+            .map(FromAccountId::from_account_id)
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract instantiation failed with {:?}", env_error)
+            })
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
+    /// caller.
+    #[inline]
+    pub fn try_instantiate(&self) -> Result<R, crate::Error> {
         crate::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
 }
@@ -180,8 +200,7 @@ where
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .params()
-///     .instantiate()
-///     .unwrap();
+///     .instantiate();
 /// ```
 ///
 /// **Note:** The shown example panics because there is currently no cross-calling
@@ -384,9 +403,25 @@ where
     Salt: AsRef<[u8]>,
     R: FromAccountId<E>,
 {
-    /// Instantiates the contract using the given instantiation parameters.
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
+    /// handle those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(self) -> Result<R, Error> {
+    pub fn instantiate(self) -> R {
         self.params().instantiate()
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
+    /// caller.
+    #[inline]
+    pub fn try_instantiate(self) -> Result<R, Error> {
+        self.params().try_instantiate()
     }
 }

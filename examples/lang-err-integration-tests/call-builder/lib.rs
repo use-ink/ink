@@ -93,7 +93,7 @@ mod call_builder {
             .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
             .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
             .params()
-            .instantiate();
+            .try_instantiate();
 
             // NOTE: Right now we can't handle any `LangError` from `instantiate`, we can only tell
             // that our contract reverted (i.e we see error from the Contracts pallet).
