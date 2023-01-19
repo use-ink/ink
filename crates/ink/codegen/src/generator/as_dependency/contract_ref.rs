@@ -105,22 +105,12 @@ impl ContractRef<'_> {
             }
 
             const _: () = {
-                impl ::ink::reflect::ContractReference for #storage_ident {
+                impl ::ink::env::ContractReference for #storage_ident {
                     type Type = #ref_ident;
                 }
 
-                impl ::ink::env::call::ConstructorReturnType for #storage_ident {
-                    type ContractRef = #ref_ident;
-                    type Type = #ref_ident;
-                }
-
-                impl<E> ::ink::env::call::ConstructorReturnType for ::core::result::Result<#storage_ident, E> {
-                    type ContractRef = #ref_ident;
-                    type Type = ::core::result::Result<#ref_ident, E>;
-                }
-
-                impl ::ink::reflect::ContractEnv for #ref_ident {
-                    type Env = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
+                impl ::ink::env::ContractEnv for #ref_ident {
+                    type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
                 }
             };
         )
@@ -425,13 +415,13 @@ impl ContractRef<'_> {
                 #( #input_bindings : #input_types ),*
             ) -> ::ink::env::call::CreateBuilder<
                 Environment,
+                Self,
                 ::ink::env::call::utils::Unset<Hash>,
                 ::ink::env::call::utils::Unset<u64>,
                 ::ink::env::call::utils::Unset<Balance>,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
-                Self,
             > {
                 ::ink::env::call::build_create::<Environment, Self>()
                     .exec_input(

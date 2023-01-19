@@ -51,7 +51,7 @@ cfg_if! {
 
 // We only use this function when 1) compiling to Wasm 2) compiling for tests.
 #[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
-pub(crate) fn decode_instantiate_result<I, E, R, ContractRef>(
+pub(crate) fn decode_instantiate_result<I, E, ContractRef, R>(
     instantiate_result: EnvResult<()>,
     out_address: &mut I,
     out_return_value: &mut I,
@@ -59,8 +59,8 @@ pub(crate) fn decode_instantiate_result<I, E, R, ContractRef>(
 where
     I: scale::Input,
     E: crate::Environment,
-    R: ConstructorReturnType<ContractRef>,
     ContractRef: FromAccountId<E>,
+    R: ConstructorReturnType<ContractRef>,
 {
     match instantiate_result {
         Ok(()) => {
@@ -109,6 +109,7 @@ where
 mod decode_instantiate_result_tests {
     use super::*;
     use crate::{
+        DefaultEnvironment,
         Environment,
         Error,
     };
@@ -120,10 +121,15 @@ mod decode_instantiate_result_tests {
     #[derive(scale::Encode, scale::Decode)]
     struct ContractError(String);
 
-    struct TestContractRef<E: Environment>(<E as Environment>::AccountId);
+    type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    struct TestContractRef(AccountId);
 
-    impl<E: Environment> FromAccountId<E> for TestContractRef<E> {
-        fn from_account_id(account_id: <E as Environment>::AccountId) -> Self {
+    impl crate::ContractEnv for TestContractRef {
+        type Env = DefaultEnvironment;
+    }
+
+    impl FromAccountId<DefaultEnvironment> for TestContractRef {
+        fn from_account_id(account_id: AccountId) -> Self {
             Self(account_id)
         }
     }
@@ -132,7 +138,7 @@ mod decode_instantiate_result_tests {
         return_value: ConstructorResult<Result<(), ContractError>>,
     ) -> EnvResult<
         ConstructorResult<
-            Result<TestContractRef<crate::DefaultEnvironment>, ContractError>,
+            Result<TestContractRef, ContractError>,
         >,
     > {
         let out_address = Vec::new();
@@ -148,14 +154,14 @@ mod decode_instantiate_result_tests {
         out_return_value: &mut I,
     ) -> EnvResult<
         ConstructorResult<
-            Result<TestContractRef<crate::DefaultEnvironment>, ContractError>,
+            Result<TestContractRef, ContractError>,
         >,
     > {
         decode_instantiate_result::<
             I,
-            crate::DefaultEnvironment,
-            Result<TestContractRef<crate::DefaultEnvironment>, ContractError>,
-            TestContractRef<crate::DefaultEnvironment>,
+            DefaultEnvironment,
+            TestContractRef,
+            Result<TestContractRef, ContractError>,
         >(Err(Error::CalleeReverted), out_address, out_return_value)
     }
 

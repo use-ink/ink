@@ -62,7 +62,7 @@ impl Storage<'_> {
             const _: () = {
                 impl<'a> ::ink::codegen::Env for &'a #storage_ident {
                     type EnvAccess = ::ink::EnvAccess<
-                        'a, <#storage_ident as ::ink::reflect::ContractEnv>::Env>;
+                        'a, <#storage_ident as ::ink::env::ContractEnv>::Env>;
 
                     fn env(self) -> Self::EnvAccess {
                         <<Self as ::ink::codegen::Env>::EnvAccess
@@ -72,7 +72,7 @@ impl Storage<'_> {
 
                 impl<'a> ::ink::codegen::StaticEnv for #storage_ident {
                     type EnvAccess = ::ink::EnvAccess<
-                        'static, <#storage_ident as ::ink::reflect::ContractEnv>::Env>;
+                        'static, <#storage_ident as ::ink::env::ContractEnv>::Env>;
 
                     fn env() -> Self::EnvAccess {
                         <<Self as ::ink::codegen::StaticEnv>::EnvAccess
