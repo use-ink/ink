@@ -24,6 +24,7 @@ use crate::{
         ExecutionInput,
         Selector,
     },
+    ContractEnv,
     Environment,
     Error,
 };
@@ -76,9 +77,9 @@ pub trait ConstructorReturnType<C> {
     fn err(err: Self::Error) -> Self::Output;
 }
 
-impl<C, Env> ConstructorReturnType<C> for C
+impl<C> ConstructorReturnType<C> for C
 where
-    C: FromAccountId<Env>,
+    C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
 {
     type Contract = C;
     type Output = C;
@@ -94,9 +95,9 @@ where
     }
 }
 
-impl<C, E, Env> ConstructorReturnType<C> for core::result::Result<C, E>
+impl<C, E> ConstructorReturnType<C> for core::result::Result<C, E>
 where
-    C: FromAccountId<Env>,
+    C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
     E: scale::Decode,
 {
     const IS_RESULT: bool = true;
@@ -599,7 +600,7 @@ where
         Set<ReturnType<R>>,
     >
     where
-        ContractRef: FromAccountId<R>,
+        ContractRef: FromAccountId<E>,
         R: ConstructorReturnType<ContractRef>,
     {
         CreateBuilder {

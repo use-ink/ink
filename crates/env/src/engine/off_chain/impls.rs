@@ -471,18 +471,18 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, Args, Salt, R, ContractRef>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R, ContractRef>,
+        params: &CreateParams<E, ContractRef, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
     >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
         R: ConstructorReturnType<ContractRef>,
-        ContractRef: FromAccountId<E>,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();

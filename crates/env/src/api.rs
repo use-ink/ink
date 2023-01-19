@@ -325,20 +325,20 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, Args, Salt, R, ContractRef>(
-    params: &CreateParams<E, Args, Salt, R, ContractRef>,
+pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
+    params: &CreateParams<E, ContractRef, Args, Salt, R>,
 ) -> Result<
     ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
 where
     E: Environment,
+    ContractRef: FromAccountId<E>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
     R: ConstructorReturnType<ContractRef>,
-    ContractRef: FromAccountId<E>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, Args, Salt, R, ContractRef>(
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
             instance, params,
         )
     })
