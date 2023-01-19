@@ -953,6 +953,9 @@
 <span id="952">952</span>
 <span id="953">953</span>
 <span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1474,7 +1477,10 @@
     ///     )
     ///     .returns::&lt;i32&gt;()
     ///     .params();
-    ///     self.env().invoke_contract(&amp;call_params).unwrap_or_else(|err| panic!(&quot;call invocation must succeed: {:?}&quot;, err))
+    ///
+    ///     self.env().invoke_contract(&amp;call_params)
+    ///         .unwrap_or_else(|env_err| panic!(&quot;Received an error from the Environment: {:?}&quot;, env_err))
+    ///         .unwrap_or_else(|lang_err| panic!(&quot;Received a `LangError`: {:?}&quot;, lang_err))
     /// }
     /// #
     /// #     }
@@ -1487,7 +1493,7 @@
     </span><span class="kw">pub fn </span>invoke_contract&lt;Args, R&gt;(
         <span class="self">self</span>,
         params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
     <span class="kw">where
         </span>Args: scale::Encode,
         R: scale::Decode,

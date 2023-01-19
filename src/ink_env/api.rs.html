@@ -689,6 +689,8 @@
 <span id="688">688</span>
 <span id="689">689</span>
 <span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -959,7 +961,9 @@
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-</span><span class="kw">pub fn </span>invoke_contract&lt;E, Args, R&gt;(params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt;
+</span><span class="kw">pub fn </span>invoke_contract&lt;E, Args, R&gt;(
+    params: <span class="kw-2">&amp;</span>CallParams&lt;E, Call&lt;E&gt;, Args, R&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;&gt;
 <span class="kw">where
     </span>E: Environment,
     Args: scale::Encode,
