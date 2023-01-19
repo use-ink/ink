@@ -15,9 +15,9 @@
 use super::EnvInstance;
 use crate::{
     call::{
-        utils::InstantiateResult,
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
@@ -475,13 +475,13 @@ impl TypedEnvBackend for EnvInstance {
         &mut self,
         params: &CreateParams<E, Args, Salt, R, ContractRef>,
     ) -> Result<
-        ink_primitives::ConstructorResult<<R as InstantiateResult<ContractRef>>::Output>,
+        ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
     >
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        R: InstantiateResult<ContractRef>,
+        R: ConstructorReturnType<ContractRef>,
         ContractRef: FromAccountId<E>,
     {
         let _code_hash = params.code_hash();

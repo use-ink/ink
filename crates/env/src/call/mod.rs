@@ -24,7 +24,6 @@ mod selector;
 pub mod utils {
     pub use super::{
         common::{
-            InstantiateResult,
             ReturnType,
             Set,
             Unset,
@@ -54,6 +53,7 @@ pub use self::{
         CreateBuilder,
         CreateParams,
         FromAccountId,
+        ConstructorReturnType,
     },
     execution_input::ExecutionInput,
     selector::Selector,

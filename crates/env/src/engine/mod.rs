@@ -17,10 +17,7 @@ use crate::{
         EnvBackend,
         TypedEnvBackend,
     },
-    call::{
-        utils::InstantiateResult,
-        FromAccountId,
-    },
+    call::FromAccountId,
     Error as EnvError,
     Error,
     Result as EnvResult,
@@ -30,6 +27,7 @@ use ink_primitives::{
     ConstructorResult,
     LangError,
 };
+use crate::call::ConstructorReturnType;
 
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
@@ -57,11 +55,11 @@ pub(crate) fn decode_instantiate_result<I, E, R, ContractRef>(
     instantiate_result: EnvResult<()>,
     out_address: &mut I,
     out_return_value: &mut I,
-) -> EnvResult<ConstructorResult<<R as InstantiateResult<ContractRef>>::Output>>
+) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
 where
     I: scale::Input,
     E: crate::Environment,
-    R: InstantiateResult<ContractRef>,
+    R: ConstructorReturnType<ContractRef>,
     ContractRef: FromAccountId<E>,
 {
     match instantiate_result {
@@ -69,7 +67,7 @@ where
             let account_id = scale::Decode::decode(out_address)?;
             let contract_ref =
                 <ContractRef as FromAccountId<E>>::from_account_id(account_id);
-            let output = <R as InstantiateResult<ContractRef>>::ok(contract_ref);
+            let output = <R as ConstructorReturnType<ContractRef>>::ok(contract_ref);
             Ok(Ok(output))
         }
         Err(EnvError::CalleeReverted) => {
@@ -77,16 +75,16 @@ where
             match constructor_result_variant {
                 // 0 == `ConstructorResult::Ok` variant
                 0 => {
-                    if <R as InstantiateResult<ContractRef>>::IS_RESULT {
+                    if <R as ConstructorReturnType<ContractRef>>::IS_RESULT {
                         let result_variant = out_return_value.read_byte()?;
                         match result_variant {
                             // 0 == `Ok` variant
                             0 => panic!("The callee reverted, but did not encode an error in the output buffer."),
                             // 1 == `Err` variant
                             1 => {
-                                let contract_err = <<R as InstantiateResult<ContractRef>>::Error
+                                let contract_err = <<R as ConstructorReturnType<ContractRef>>::Error
                                     as scale::Decode>::decode(out_return_value)?;
-                                let err = <R as InstantiateResult<ContractRef>>::err(contract_err);
+                                let err = <R as ConstructorReturnType<ContractRef>>::err(contract_err);
                                 Ok(Ok(err))
                             }
                             _ => Err(Error::Decode("Invalid inner constructor Result encoding, expected 0 or 1 as the first byte".into()))

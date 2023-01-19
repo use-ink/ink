@@ -109,6 +109,16 @@ impl ContractRef<'_> {
                     type Type = #ref_ident;
                 }
 
+                impl ::ink::env::call::ConstructorReturnType for #storage_ident {
+                    type ContractRef = #ref_ident;
+                    type Type = #ref_ident;
+                }
+
+                impl<E> ::ink::env::call::ConstructorReturnType for ::core::result::Result<#storage_ident, E> {
+                    type ContractRef = #ref_ident;
+                    type Type = ::core::result::Result<#ref_ident, E>;
+                }
+
                 impl ::ink::reflect::ContractEnv for #ref_ident {
                     type Env = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
                 }
