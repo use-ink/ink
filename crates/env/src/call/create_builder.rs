@@ -341,19 +341,18 @@ pub struct CreateBuilder<
 ///
 /// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
 #[allow(clippy::type_complexity)]
-pub fn build_create<E, ContractRef>() -> CreateBuilder<
-    E,
+pub fn build_create<ContractRef>() -> CreateBuilder<
+    <ContractRef as ContractEnv>::Env,
     ContractRef,
-    Unset<E::Hash>,
+    Unset<<<ContractRef as ContractEnv>::Env as Environment>::Hash>,
     Unset<u64>,
-    Unset<E::Balance>,
+    Unset<<<ContractRef as ContractEnv>::Env as Environment>::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<state::Salt>,
     Unset<ReturnType<()>>,
 >
 where
-    E: Environment,
-    ContractRef: FromAccountId<E>,
+    ContractRef: ContractEnv,
 {
     CreateBuilder {
         code_hash: Default::default(),
