@@ -177,19 +177,8 @@ pub trait ContractEnv {
 /// // are of the same type.
 /// const _: IsSameType<<Contract as ContractReference>::Type> =
 ///     <IsSameType<ContractRef>>::new();
-/// const _: IsSameType<<Result<Contract, ()> as ContractReference>::Type> =
-///     <IsSameType<Result<ContractRef, ()>>>::new();
 /// ```
 pub trait ContractReference {
     /// The generated contract reference type.
     type Type;
-}
-
-/// Blanket impl for [`ContractRef`] for mapping to the equivalent [`Result`]
-/// type. Enables handling constructors which return a `Result`.
-impl<C, E> ContractReference for core::result::Result<C, E>
-where
-    C: ContractReference,
-{
-    type Type = core::result::Result<<C as ContractReference>::Type, E>;
 }
