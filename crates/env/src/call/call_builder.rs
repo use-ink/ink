@@ -144,11 +144,29 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Invokes the contract via delegated call with the given
-    /// built-up call parameters.
+    /// Invoke the contract using Delegate Call semantics with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    pub fn invoke(&self) -> Result<R, crate::Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] If you want to
+    /// handle those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    pub fn invoke(&self) -> R {
+        crate::invoke_contract_delegate(self).unwrap_or_else(|env_error| {
+            panic!("Cross-contract call failed with {:?}", env_error)
+        })
+    }
+
+    /// Invoke the contract using Delegate Call semantics with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
+    /// caller.
+    pub fn try_invoke(&self) -> Result<R, crate::Error> {
         crate::invoke_contract_delegate(self)
     }
 }
@@ -258,8 +276,7 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .returns::<i32>()
-///     .fire()
-///     .expect("Got an error from the Contract's pallet.");
+///     .fire();
 /// ```
 ///
 /// # Handling `LangError`s
@@ -690,9 +707,23 @@ impl<E>
 where
     E: Environment,
 {
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), crate::Error> {
+    /// Invokes the cross-chain function call using Delegate Call semantics.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
+    /// If you want to handle those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
+    pub fn fire(self) {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call using Delegate Call semantics.
+    ///
+    /// # Note
+    ///
+    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
+    pub fn try_fire(self) -> Result<(), Error> {
+        self.params().try_invoke()
     }
 }
 
@@ -732,8 +763,22 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R, Error> {
+    /// Invokes the cross-chain function call using Delegate Call semantics and returns the result.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
+    /// If you want to handle those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
+    pub fn fire(self) -> R {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call using Delegate Call semantics and returns the result.
+    ///
+    /// # Note
+    ///
+    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
+    pub fn try_fire(self) -> Result<R, Error> {
+        self.params().try_invoke()
     }
 }
