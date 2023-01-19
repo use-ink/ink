@@ -75,7 +75,7 @@ pub mod flipper {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("get failed");
-            assert!(matches!(get_res.return_value(), Ok(false)));
+            assert!(matches!(get_res.return_value(), false));
 
             // when
             let flip = build_message::<FlipperRef>(contract_acc_id.clone())
@@ -92,7 +92,7 @@ pub mod flipper {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("get failed");
-            assert!(matches!(get_res.return_value(), Ok(true)));
+            assert!(matches!(get_res.return_value(), true));
 
             Ok(())
         }
@@ -116,7 +116,7 @@ pub mod flipper {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("get failed");
-            assert!(matches!(get_res.return_value(), Ok(false)));
+            assert!(matches!(get_res.return_value(), false));
 
             Ok(())
         }
