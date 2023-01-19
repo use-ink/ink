@@ -600,7 +600,78 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let code_hash = params.code_hash().as_ref().to_vec();
-        unimplemented!()
+        let callee = self
+            .engine
+            .exec_context
+            .borrow()
+            .callee
+            .clone()
+            .unwrap_or_default()
+            .as_bytes()
+            .to_vec();
+
+        // apply call flags before making a call and return the input that might be changed after that
+        let input = self.engine.apply_code_flags_before_call(
+            caller.clone(),
+            callee.clone(),
+            call_flags,
+            params.exec_input().encode(),
+        )?;
+
+        let call_fn = self
+            .engine
+            .contracts
+            .borrow()
+            .deployed
+            .get(&code_hash)
+            .ok_or(Error::CodeNotFound)?
+            .call;
+
+        let mut previous_context = self.generate_callee_context(
+            callee.clone(),
+            params.exec_input().encode(),
+            <u128 as scale::Decode>::decode(
+                &mut scale::Encode::encode(params.transferred_value()).as_slice(),
+            )?,
+        );
+
+        let storage = self
+            .engine
+            .database
+            .borrow()
+            .get_from_contract_storage(callee.as_slice(), &[0; 4])
+            .expect("contract storage not found")
+            .clone();
+
+        call_fn();
+
+        if self.engine.exec_context.borrow().reverted {
+            self.engine
+                .database
+                .borrow_mut()
+                .insert_into_contract_storage(callee.as_slice(), &[0; 4], storage)
+                .unwrap();
+        }
+
+        let return_value =
+            R::decode(&mut self.engine.exec_context.borrow().output.clone().as_slice())?;
+
+        let output = self.engine.exec_context.borrow().output.clone();
+
+        // if the call was reverted, previous one should be reverted too
+        previous_context.reverted |= self.engine.exec_context.borrow().reverted;
+
+        self.engine.exec_context.replace(previous_context);
+
+        // apply code flags after the call
+        self.engine.apply_code_flags_after_call(
+            callee.clone(),
+            callee,
+            call_flags,
+            output,
+        )?;
+
+        Ok(return_value)
     }
 
     fn instantiate_contract<E, Args, Salt, C>(
