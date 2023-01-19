@@ -14,7 +14,7 @@
 /// # Usage: Default Environment
 ///
 /// ```
-///
+/// 
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]
@@ -103,7 +103,7 @@ pub trait ContractEnv {
 /// # Usage
 ///
 /// ```
-///
+/// 
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]

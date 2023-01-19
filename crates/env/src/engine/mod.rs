@@ -17,7 +17,10 @@ use crate::{
         EnvBackend,
         TypedEnvBackend,
     },
-    call::FromAccountId,
+    call::{
+        ConstructorReturnType,
+        FromAccountId,
+    },
     Error as EnvError,
     Error,
     Result as EnvResult,
@@ -27,7 +30,6 @@ use ink_primitives::{
     ConstructorResult,
     LangError,
 };
-use crate::call::ConstructorReturnType;
 
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
@@ -136,11 +138,7 @@ mod decode_instantiate_result_tests {
 
     fn encode_and_decode_return_value(
         return_value: ConstructorResult<Result<(), ContractError>>,
-    ) -> EnvResult<
-        ConstructorResult<
-            Result<TestContractRef, ContractError>,
-        >,
-    > {
+    ) -> EnvResult<ConstructorResult<Result<TestContractRef, ContractError>>> {
         let out_address = Vec::new();
         let encoded_return_value = return_value.encode();
         decode_return_value_fallible(
@@ -152,11 +150,7 @@ mod decode_instantiate_result_tests {
     fn decode_return_value_fallible<I: scale::Input>(
         out_address: &mut I,
         out_return_value: &mut I,
-    ) -> EnvResult<
-        ConstructorResult<
-            Result<TestContractRef, ContractError>,
-        >,
-    > {
+    ) -> EnvResult<ConstructorResult<Result<TestContractRef, ContractError>>> {
         decode_instantiate_result::<
             I,
             DefaultEnvironment,

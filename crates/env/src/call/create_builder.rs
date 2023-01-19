@@ -79,7 +79,7 @@ pub trait ConstructorReturnType<C> {
 
 impl<C> ConstructorReturnType<C> for C
 where
-    C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>
+    C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
 {
     type Contract = C;
     type Output = C;
@@ -222,7 +222,9 @@ where
     pub fn try_instantiate(
         &self,
     ) -> Result<
-        ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
         crate::Error,
     > {
         crate::instantiate_contract(self)
@@ -373,7 +375,7 @@ impl<E, ContractRef, GasLimit, Endowment, Args, Salt, RetType>
         Endowment,
         Args,
         Salt,
-        RetType
+        RetType,
     >
 where
     E: Environment,
@@ -391,7 +393,7 @@ where
         Endowment,
         Args,
         Salt,
-        RetType
+        RetType,
     > {
         CreateBuilder {
             code_hash: Set(code_hash),
@@ -438,7 +440,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Args, Salt, RetType>
         Unset<E::Balance>,
         Args,
         Salt,
-        RetType
+        RetType,
     >
 where
     E: Environment,
@@ -456,7 +458,7 @@ where
         Set<E::Balance>,
         Args,
         Salt,
-        RetType
+        RetType,
     > {
         CreateBuilder {
             code_hash: self.code_hash,
@@ -479,7 +481,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Salt, RetType>
         Endowment,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Salt,
-        RetType
+        RetType,
     >
 where
     E: Environment,
@@ -497,7 +499,7 @@ where
         Endowment,
         Set<ExecutionInput<Args>>,
         Salt,
-        RetType
+        RetType,
     > {
         CreateBuilder {
             code_hash: self.code_hash,
@@ -520,7 +522,7 @@ impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, RetType>
         Endowment,
         Args,
         Unset<state::Salt>,
-        RetType
+        RetType,
     >
 where
     E: Environment,
@@ -538,7 +540,7 @@ where
         Endowment,
         Args,
         Set<Salt>,
-        RetType
+        RetType,
     >
     where
         Salt: AsRef<[u8]>,
@@ -589,7 +591,7 @@ where
         Endowment,
         Args,
         Salt,
-        Set<ReturnType<R>>
+        Set<ReturnType<R>>,
     >
     where
         ContractRef: FromAccountId<E>,
