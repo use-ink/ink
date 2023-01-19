@@ -27,7 +27,7 @@ pub type BlockTimestamp = u64;
 pub type Balance = u128;
 
 /// The Account Id type used by this crate.
-#[derive(Debug, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Default, Debug, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct AccountId(Vec<u8>);
 

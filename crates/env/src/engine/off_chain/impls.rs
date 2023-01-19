@@ -47,6 +47,7 @@ use ink_engine::{
 };
 use ink_storage_traits::Storable;
 use scale::Encode;
+
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
@@ -181,6 +182,52 @@ impl EnvInstance {
         let full_scope = &mut &mut full_scope[..];
         ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
+    }
+
+    fn generate_address(
+        &mut self,
+        caller: Vec<u8>,
+        code_hash: Vec<u8>,
+        input_data: Vec<u8>,
+        salt: Vec<u8>,
+    ) -> [u8; 32] {
+        let mut output = [0u8; 32];
+        Sha2x256::hash(
+            [caller, code_hash, input_data, salt].concat().as_slice(),
+            &mut output,
+        );
+        output
+    }
+
+    /// Generates new execution context, replaces it as current and returns previous one
+    fn generate_callee_context(
+        &mut self,
+        callee: Vec<u8>,
+        input: Vec<u8>,
+        transferred_value: u128,
+    ) -> ExecContext {
+        let callee_context = ExecContext {
+            caller: self.engine.exec_context.borrow().callee.clone(),
+            callee: Some(callee.clone().into()),
+            value_transferred: transferred_value,
+            block_number: self.engine.exec_context.borrow().block_number,
+            block_timestamp: self.engine.exec_context.borrow().block_timestamp,
+            input,
+            output: vec![],
+            reverted: false,
+            origin: Some(
+                self.engine
+                    .exec_context
+                    .borrow()
+                    .origin
+                    .clone()
+                    .unwrap_or(callee.clone()),
+            ),
+        };
+
+        let previous_context = self.engine.exec_context.replace(callee_context);
+
+        previous_context
     }
 }
 
@@ -480,25 +527,13 @@ impl TypedEnvBackend for EnvInstance {
             params.exec_input().encode(),
         )?;
 
-        if self.engine.exec_context.borrow().caller.clone().is_none() {
-            self.engine.exec_context.borrow_mut().origin = Some(callee.clone())
-        }
-
-        let callee_context = ExecContext {
-            caller: self.engine.exec_context.borrow().callee.clone(),
-            callee: Some(callee.clone().into()),
-            value_transferred: <u128 as scale::Decode>::decode(
+        let mut previous_context = self.generate_callee_context(
+            callee.clone(),
+            input.clone(),
+            <u128 as scale::Decode>::decode(
                 &mut scale::Encode::encode(transferred_value).as_slice(),
             )?,
-            block_number: self.engine.exec_context.borrow().block_number,
-            block_timestamp: self.engine.exec_context.borrow().block_timestamp,
-            input,
-            output: vec![],
-            reverted: false,
-            origin: self.engine.exec_context.borrow().origin.clone(),
-        };
-
-        let mut previous_context = self.engine.exec_context.replace(callee_context);
+        );
 
         let code_hash = self
             .engine
@@ -564,10 +599,8 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        let _code_hash = params.code_hash();
-        unimplemented!(
-            "off-chain environment does not support delegated contract invocation"
-        )
+        let code_hash = params.code_hash().as_ref().to_vec();
+        unimplemented!()
     }
 
     fn instantiate_contract<E, Args, Salt, C>(
@@ -582,38 +615,27 @@ impl TypedEnvBackend for EnvInstance {
         let code_hash = params.code_hash().as_ref().to_vec();
         // Gas is not supported by off-chain env.
         let _gas_limit = params.gas_limit();
+        let caller = self.engine.exec_context.borrow().callee.clone();
         let endowment = params.endowment();
         let input = params.exec_input();
         let salt_bytes = params.salt_bytes();
 
-        let mut callee = [0u8; 32];
-        Sha2x256::hash(
-            [code_hash.as_ref(), salt_bytes.as_ref()]
-                .concat()
-                .as_slice(),
-            &mut callee,
-        );
-        let callee = callee.as_ref().to_vec();
+        let callee = self
+            .generate_address(
+                caller.unwrap_or_default().clone().as_bytes().to_vec(),
+                code_hash.clone(),
+                input.encode().clone(),
+                salt_bytes.as_ref().to_vec(),
+            )
+            .to_vec();
 
-        if self.engine.exec_context.borrow().caller.clone().is_none() {
-            self.engine.exec_context.borrow_mut().origin = Some(callee.clone())
-        }
-
-        let callee_context = ExecContext {
-            caller: self.engine.exec_context.borrow().callee.clone(),
-            callee: Some(callee.clone().into()),
-            value_transferred: <u128 as scale::Decode>::decode(
+        let previous_context = self.generate_callee_context(
+            callee.clone(),
+            input.clone().encode(),
+            <u128 as scale::Decode>::decode(
                 &mut scale::Encode::encode(endowment).as_slice(),
             )?,
-            block_number: self.engine.exec_context.borrow().block_number,
-            block_timestamp: self.engine.exec_context.borrow().block_timestamp,
-            input: input.encode(),
-            output: vec![],
-            reverted: false,
-            origin: self.engine.exec_context.borrow().origin.clone(),
-        };
-
-        let previous_context = self.engine.exec_context.replace(callee_context);
+        );
 
         let deploy_fn = self
             .engine
@@ -623,6 +645,7 @@ impl TypedEnvBackend for EnvInstance {
             .get(&code_hash)
             .ok_or(Error::CodeNotFound)?
             .deploy;
+
         self.engine
             .contracts
             .borrow_mut()
