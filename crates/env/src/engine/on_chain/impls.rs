@@ -20,9 +20,9 @@ use super::{
 };
 use crate::{
     call::{
-        utils::InstantiateResult,
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
         FromAccountId,
@@ -481,20 +481,20 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, RetType, ContractRef>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, RetType, ContractRef>,
+        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            <RetType as InstantiateResult<ContractRef>>::Output,
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
         >,
     >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        RetType: InstantiateResult<ContractRef>,
-        ContractRef: FromAccountId<E>,
+        RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -518,7 +518,7 @@ impl TypedEnvBackend for EnvInstance {
             salt,
         );
 
-        crate::engine::decode_instantiate_result::<_, E, RetType, ContractRef>(
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
             instantiate_result.map_err(Into::into),
             &mut &out_address[..],
             &mut &out_return_value[..],

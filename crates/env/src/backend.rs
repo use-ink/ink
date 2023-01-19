@@ -445,7 +445,9 @@ pub trait TypedEnvBackend: EnvBackend {
         &mut self,
         params: &CreateParams<E, ContractRef, Args, Salt, R>,
     ) -> Result<
-        ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
     >
     where
         E: Environment,
