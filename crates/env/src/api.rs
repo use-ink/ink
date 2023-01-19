@@ -21,10 +21,10 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
-        utils::InstantiateResult,
         Call,
         CallParams,
         CreateParams,
+        ConstructorReturnType,
         DelegateCall,
         FromAccountId,
     },
@@ -326,13 +326,13 @@ where
 pub fn instantiate_contract<E, Args, Salt, R, ContractRef>(
     params: &CreateParams<E, Args, Salt, R, ContractRef>,
 ) -> Result<
-    ink_primitives::ConstructorResult<<R as InstantiateResult<ContractRef>>::Output>,
+    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
 where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: InstantiateResult<ContractRef>,
+    R: ConstructorReturnType<ContractRef>,
     ContractRef: FromAccountId<E>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
