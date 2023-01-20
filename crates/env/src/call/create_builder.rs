@@ -69,7 +69,11 @@ pub trait ConstructorReturnType<C> {
     fn ok(value: C) -> Self::Output;
 
     /// Construct an error value of the `Output` type.
-    fn err(err: Self::Error) -> Self::Output;
+    ///
+    /// `Result` impls should return `Some(Err(err))`, otherwise default to `None`.
+    fn err(_err: Self::Error) -> Option<Self::Output> {
+        None
+    }
 }
 
 impl<C> ConstructorReturnType<C> for C
@@ -81,11 +85,6 @@ where
 
     fn ok(value: C) -> Self::Output {
         value
-    }
-
-    fn err(_err: Self::Error) -> Self::Output {
-        // todo!
-        unreachable!()
     }
 }
 
@@ -103,12 +102,10 @@ where
         Ok(value)
     }
 
-    fn err(err: Self::Error) -> Self::Output {
-        Err(err)
+    fn err(err: Self::Error) -> Option<Self::Output> {
+        Some(Err(err))
     }
 }
-
-// pub type InstantiateOutput<Env, R> = <<R as ConstructorReturnType<Env>>::Type as Instantiate
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
