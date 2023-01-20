@@ -12,22 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    call::{
-        utils::{
-            EmptyArgumentList,
-            ReturnType,
-            Set,
-            Unset,
-            Unwrap,
-        },
-        ExecutionInput,
-        Selector,
+use crate::{call::{
+    utils::{
+        EmptyArgumentList,
+        ReturnType,
+        Set,
+        Unset,
+        Unwrap,
     },
-    ContractEnv,
-    Environment,
-    Error,
-};
+    ExecutionInput,
+    Selector,
+}, ContractEnv, Environment, Error};
 use core::marker::PhantomData;
 
 pub mod state {

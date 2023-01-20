@@ -109,6 +109,40 @@ impl ContractRef<'_> {
                     type Type = #ref_ident;
                 }
 
+                impl ::ink::env::call::ConstructorReturnType<#ref_ident> for #storage_ident {
+                    type Contract = #ref_ident;
+                    type Output = #ref_ident;
+                    type Error = ();
+
+                    fn ok(value: #ref_ident) -> Self::Output {
+                        value
+                    }
+
+                    fn err(_err: Self::Error) -> Self::Output {
+                        // todo!
+                        unreachable!()
+                    }
+                }
+
+                impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident> for Result<#storage_ident, E>
+                where
+                    E: ::scale::Decode
+                {
+                    const IS_RESULT: bool = true;
+
+                    type Contract = #ref_ident;
+                    type Output = ::core::result::Result<#ref_ident, E>;
+                    type Error = E;
+
+                    fn ok(value: #ref_ident) -> Self::Output {
+                        Ok(value)
+                    }
+
+                    fn err(err: Self::Error) -> Self::Output {
+                        Err(err)
+                    }
+                }
+
                 impl ::ink::env::ContractEnv for #ref_ident {
                     type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
                 }
