@@ -73,40 +73,57 @@ where
             Ok(Ok(output))
         }
         Err(EnvError::CalleeReverted) => {
-            let constructor_result_variant = out_return_value.read_byte()?;
-            match constructor_result_variant {
-                // 0 == `ConstructorResult::Ok` variant
-                0 => {
-                    if <R as ConstructorReturnType<ContractRef>>::IS_RESULT {
-                        let result_variant = out_return_value.read_byte()?;
-                        match result_variant {
-                            // 0 == `Ok` variant
-                            0 => panic!("The callee reverted, but did not encode an error in the output buffer."),
-                            // 1 == `Err` variant
-                            1 => {
-                                let contract_err = <<R as ConstructorReturnType<ContractRef>>::Error
-                                    as scale::Decode>::decode(out_return_value)?;
-                                let err = <R as ConstructorReturnType<ContractRef>>::err(contract_err)
-                                    .unwrap_or_else(|| {
-                                        panic!("Expected an error instance for return type where IS_RESULT == true")
-                                    });
-                                Ok(Ok(err))
-                            }
-                            _ => Err(Error::Decode("Invalid inner constructor Result encoding, expected 0 or 1 as the first byte".into()))
-                        }
-                    } else {
-                        panic!("The callee reverted, but did not encode an error in the output buffer.")
-                    }
-                }
-                // 1 == `ConstructorResult::Err` variant
-                1 => {
-                    let lang_err = <LangError as scale::Decode>::decode(out_return_value)?;
-                    Ok(Err(lang_err))
-                }
-                _ => Err(Error::Decode("Invalid outer constructor Result encoding, expected 0 or 1 as the first byte".into()))
-            }
+            decode_instantiate_err::<I, E, ContractRef, R>(out_return_value)
         }
         Err(actual_error) => Err(actual_error),
+    }
+}
+
+#[cfg_attr(all(feature = "std", not(test)), allow(dead_code))]
+fn decode_instantiate_err<I, E, ContractRef, R>(
+    out_return_value: &mut I,
+) -> EnvResult<ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>>
+where
+    I: scale::Input,
+    E: crate::Environment,
+    ContractRef: FromAccountId<E>,
+    R: ConstructorReturnType<ContractRef>,
+{
+    let constructor_result_variant = out_return_value.read_byte()?;
+    match constructor_result_variant {
+        // 0 == `ConstructorResult::Ok` variant
+        0 => {
+            if <R as ConstructorReturnType<ContractRef>>::IS_RESULT {
+                let result_variant = out_return_value.read_byte()?;
+                match result_variant {
+                    // 0 == `Ok` variant
+                    0 => panic!("The callee reverted, but did not encode an error in the output buffer."),
+                    // 1 == `Err` variant
+                    1 => {
+                        let contract_err = <<R as ConstructorReturnType<ContractRef>>::Error
+                        as scale::Decode>::decode(out_return_value)?;
+                        let err = <R as ConstructorReturnType<ContractRef>>::err(contract_err)
+                            .unwrap_or_else(|| {
+                                panic!("Expected an error instance for return type where IS_RESULT == true")
+                            });
+                        Ok(Ok(err))
+                    }
+                    _ => Err(Error::Decode(
+                        "Invalid inner constructor Result encoding, expected 0 or 1 as the first byte".into())
+                    )
+                }
+            } else {
+                panic!("The callee reverted, but did not encode an error in the output buffer.")
+            }
+        }
+        // 1 == `ConstructorResult::Err` variant
+        1 => {
+            let lang_err = <LangError as scale::Decode>::decode(out_return_value)?;
+            Ok(Err(lang_err))
+        }
+        _ => Err(Error::Decode(
+            "Invalid outer constructor Result encoding, expected 0 or 1 as the first byte".into())
+        )
     }
 }
 
