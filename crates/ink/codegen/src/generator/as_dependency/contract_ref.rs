@@ -124,7 +124,8 @@ impl ContractRef<'_> {
                     }
                 }
 
-                impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident> for Result<#storage_ident, E>
+                impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
+                    for ::core::result::Result<#storage_ident, E>
                 where
                     E: ::scale::Decode
                 {
