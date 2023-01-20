@@ -231,6 +231,6 @@ though:
 #[ink::contract(env = MyCustomTypes)]
 ```
 
-__Important:__ if a developer writes a contract for a chain that deviates
+__Important:__ If a developer writes a contract for a chain that deviates
 from the default Substrate types, they have to make sure to use that
 chain's `Environment`.
