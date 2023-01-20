@@ -291,13 +291,23 @@ pub struct CreateBuilder<
 /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
 /// # };
 /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
-/// # type Salt = &'static [u8];
-/// # struct MyContract;
-/// # impl FromAccountId<DefaultEnvironment> for MyContract {
-/// #     fn from_account_id(account_id: AccountId) -> Self { Self }
-/// # }
-/// let my_contract: MyContract = build_create::<MyContract>()
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct MyContract {}
+///
+///     impl MyContract {
+///         #[ink(constructor)]
+///         pub fn constructor() -> Self { Self {} }
+///
+///         #[ink(message)]
+///         pub fn message(&self) {}
+///     }
+/// }
+/// use contract::MyContractRef;
+///
+/// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
@@ -308,7 +318,7 @@ pub struct CreateBuilder<
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-///     .returns::<MyContract>()
+///     .returns::<MyContractRef>()
 ///     .instantiate()
 /// ```
 ///
@@ -321,16 +331,29 @@ pub struct CreateBuilder<
 /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
 /// # };
 /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
-/// # type Salt = &'static [u8];
-/// # struct MyContract;
-/// # impl FromAccountId<DefaultEnvironment> for MyContract {
-/// #     fn from_account_id(account_id: AccountId) -> Self { Self }
-/// # }
-/// # #[derive(scale::Encode, scale::Decode, Debug)]
-/// # #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-/// # pub struct ConstructorError;
-/// let my_contract: MyContract = build_create::<MyContract>()
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[derive(scale::Encode, scale::Decode, Debug)]
+///     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+///     pub struct ConstructorError;
+///
+///     #[ink(storage)]
+///     pub struct MyContract {}
+///
+///     impl MyContract {
+///         #[ink(constructor)]
+///         pub fn constructor() -> Result<Self, ConstructorError> {
+///             Ok(Self {})
+///         }
+///
+///         #[ink(message)]
+///         pub fn message(&self) {}
+///     }
+/// }
+/// use contract::{MyContractRef, ConstructorError};
+///
+/// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
@@ -341,7 +364,7 @@ pub struct CreateBuilder<
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-///     .returns::<Result<MyContract, ConstructorError>>()
+///     .returns::<Result<MyContractRef, ConstructorError>>()
 ///     .instantiate();
 /// ```
 ///
