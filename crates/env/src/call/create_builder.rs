@@ -65,34 +65,34 @@ where
 /// mod contract {
 ///     #[ink(storage)]
 ///     pub struct Contract {}
-/// 
+///
 ///     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 ///     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
 ///     pub enum Error {
 ///         Foo,
 ///     }
-/// 
+///
 ///     impl Contract {
 ///         #[ink(constructor)]
 ///         pub fn new_self() -> Self {
 ///             Self {}
 ///         }
-/// 
+///
 ///         #[ink(constructor)]
 ///         pub fn new_storage_name() -> Contract {
 ///             Contract {}
 ///         }
-/// 
+///
 ///         #[ink(constructor)]
 ///         pub fn new_result_self() -> Result<Self, Error> {
 ///             Ok(Self {})
 ///         }
-/// 
+///
 ///         #[ink(constructor)]
 ///         pub fn new_result_storage_name() -> Result<Contract, Error> {
 ///             Ok(Contract {})
 ///         }
-/// 
+///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}
 ///     }
@@ -248,9 +248,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(
-        &self,
-    ) -> Result<<R as ConstructorReturnType<ContractRef>>::Output, crate::Error> {
+    pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
         crate::instantiate_contract(self)
             .unwrap_or_else(|env_error| {
                 panic!("Cross-contract instantiation failed with {:?}", env_error)
