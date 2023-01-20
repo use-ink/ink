@@ -63,7 +63,7 @@ mod delegator {
                 .endowment(total_balance / 4)
                 .code_hash(accumulator_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
+                .try_instantiate()
                 .unwrap_or_else(|error| {
                     panic!(
                         "failed at instantiating the Accumulator contract: {:?}",
@@ -74,7 +74,7 @@ mod delegator {
                 .endowment(total_balance / 4)
                 .code_hash(adder_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
+                .try_instantiate()
                 .unwrap_or_else(|error| {
                     panic!("failed at instantiating the Adder contract: {:?}", error)
                 });
@@ -82,7 +82,7 @@ mod delegator {
                 .endowment(total_balance / 4)
                 .code_hash(subber_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
+                .try_instantiate()
                 .unwrap_or_else(|error| {
                     panic!("failed at instantiating the Subber contract: {:?}", error)
                 });
