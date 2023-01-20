@@ -361,7 +361,7 @@ pub struct CreateBuilder<
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<MyContractRef>()
-///     .instantiate()
+///     .instantiate();
 /// ```
 ///
 /// ## Example 2: Handles Result from Fallible Constructor
