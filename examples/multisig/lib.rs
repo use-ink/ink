@@ -348,7 +348,7 @@ mod multisig {
         ///         .push_arg(&transaction_candidate)
         ///     )
         ///     .returns::<(u32, ConfirmationStatus)>()
-        ///     .fire();
+        ///     .invoke();
         ///
         /// // Wait until all required owners have confirmed and then execute the transaction
         /// //
@@ -361,7 +361,7 @@ mod multisig {
         ///         .push_arg(&id)
         ///     )
         ///     .returns::<()>()
-        ///     .fire();
+        ///     .invoke();
         /// ```
         #[ink(message)]
         pub fn add_owner(&mut self, new_owner: AccountId) {
@@ -547,7 +547,7 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<()>()
-                .try_fire();
+                .try_invoke();
 
             let result = match result {
                 Ok(Ok(_)) => Ok(()),
@@ -585,7 +585,7 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<Vec<u8>>()
-                .try_fire();
+                .try_invoke();
 
             let result = match result {
                 Ok(Ok(v)) => Ok(v),

@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make CallBuilder and CreateBuilder error handling optional - [#1602](https://github.com/paritytech/ink/pull/1602)
 
 ### Breaking Changes
-With the addition of [#1602](https://github.com/paritytech/ink/pull/1602),
-the `CallBuilder::fire()`, `CallParams::invoke()`, and `CreateBuilder::instantiate()`
-methods now unwrap the `Result` from `pallet-contracts` under the hood.
+With the addition of [#1602](https://github.com/paritytech/ink/pull/1602), there are two
+breaking changes to the `CallBuilder` and `CreateBuilder`.
+
+1. The `fire()` method has been renamed to `invoke()`
+2. The `invoke()` methods now unwrap the `Result` from `pallet-contracts` under the hood
 
 If you wish to handle the error use the new `try_` variants of those methods instead.
 
