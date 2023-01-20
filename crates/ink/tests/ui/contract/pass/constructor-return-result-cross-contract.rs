@@ -35,38 +35,6 @@ mod contract_callee {
     }
 }
 
-// #[ink::contract]
-// mod contract_caller {
-//     use super::contract_callee::{CalleeRef, Error};
-//
-//     #[ink(storage)]
-//     pub struct Caller {}
-//
-//     impl Caller {
-//         #[ink(constructor)]
-//         pub fn new() -> Self {
-//             Self { }
-//         }
-//
-//         #[ink(message)]
-//         pub fn invoke_callee_constructors(&self) {
-//             let _: Result<CalleeRef, Error> = CalleeRef::new_result_self()
-//                 .code_hash(Hash::from([0x42; 32]))
-//                 .gas_limit(4000)
-//                 .endowment(25)
-//                 .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
-//                 .instantiate()
-//                 .unwrap();
-//
-//             // let _: Result<CalleeRef, Error> = CalleeRef::new_result_storage_name().instantiate();
-//             //
-//             // let _: CalleeRef = CalleeRef::new_self().instantiate();
-//             //
-//             // let _: CalleeRef = CalleeRef::new_storage_name().instantiate();
-//         }
-//     }
-// }
-
 fn main() {
     use contract_callee::{
         CalleeRef,
