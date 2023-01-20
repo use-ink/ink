@@ -547,7 +547,13 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<()>()
-                .invoke();
+                .try_invoke();
+
+            let result = match result {
+                Ok(Ok(_)) => Ok(()),
+                _ => Err(Error::TransactionFailed),
+            };
+
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
@@ -579,7 +585,13 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<Vec<u8>>()
-                .invoke();
+                .try_invoke();
+
+            let result = match result {
+                Ok(Ok(v)) => Ok(v),
+                _ => Err(Error::TransactionFailed),
+            };
+
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),
