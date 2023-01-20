@@ -240,6 +240,14 @@ pub trait EnvBackend {
     where
         T: scale::Decode;
 
+    /// Returns the value back to the caller of the executed contract.
+    /// # Note
+    ///
+    /// Calling this method will end contract execution immediately.
+    /// It will return the given return value back to its caller.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode;
