@@ -19,9 +19,6 @@ ink! is composed of a number of crates that are all found in the
   The ink! language itself.
 * [`allocator`](https://github.com/paritytech/ink/tree/master/crates/allocator):
   The allocator used for dynamic memory allocation in a contract.
-* [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):
-  An off-chain testing engine, it simulates a blockchain environment and allows
-  mocking specified conditions.
 * [`env`](https://github.com/paritytech/ink/tree/master/crates/env):
   Serves two roles:
   * Exposes environmental functions, like information about the caller
@@ -44,6 +41,14 @@ ink! is composed of a number of crates that are all found in the
 * [`storage`](https://github.com/paritytech/ink/tree/master/crates/prelude):
   The collections that are available for contract developers to put in
   a smart contracts storage.
+* [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):
+  An off-chain testing engine, it simulates a blockchain environment and allows
+  mocking specified conditions.
+* [`e2e`](https://github.com/paritytech/ink/tree/master/crates/e2e):
+  Our end-to-end testing framework for ink! contracts. It requires a Substrate node
+  running in the background. The crate provides a macro which can be used
+  to write an idiomatic Rust test that will in the background create transactions,
+  submit it to the Substrate chain and return the state changes, gas costs, etc.
 
 An important thing to note is that the crates are primarily run in
 a `no_std` environment.
