@@ -251,7 +251,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(&self) -> R {
+    pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
         crate::instantiate_contract(self)
             .unwrap_or_else(|env_error| {
                 panic!("Cross-contract instantiation failed with {:?}", env_error)
