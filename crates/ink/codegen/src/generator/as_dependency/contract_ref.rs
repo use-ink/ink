@@ -110,7 +110,6 @@ impl ContractRef<'_> {
                 }
 
                 impl ::ink::env::call::ConstructorReturnType<#ref_ident> for #storage_ident {
-                    type Contract = #ref_ident;
                     type Output = #ref_ident;
                     type Error = ();
 
@@ -131,7 +130,6 @@ impl ContractRef<'_> {
                 {
                     const IS_RESULT: bool = true;
 
-                    type Contract = #ref_ident;
                     type Output = ::core::result::Result<#ref_ident, E>;
                     type Error = E;
 
