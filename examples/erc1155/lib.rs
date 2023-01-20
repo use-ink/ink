@@ -377,17 +377,19 @@ mod erc1155 {
                     )
                     .returns::<Vec<u8>>()
                     .params()
-                    .invoke();
+                    .try_invoke();
 
                 match result {
                     Ok(v) => {
                         ink::env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",
-                            v,
+                            v.clone().expect(
+                                "Call should be valid, don't expect a `LangError`."
+                            ),
                             from
                         );
                         assert_eq!(
-                            v,
+                            v.clone().expect("Call should be valid, don't expect a `LangError`."),
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
                             "The recipient contract at {:?} does not accept token transfers.\n
                             Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v

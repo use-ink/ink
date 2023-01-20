@@ -63,29 +63,17 @@ mod delegator {
                 .endowment(total_balance / 4)
                 .code_hash(accumulator_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
-                .unwrap_or_else(|error| {
-                    panic!(
-                        "failed at instantiating the Accumulator contract: {:?}",
-                        error
-                    )
-                });
+                .instantiate();
             let adder = AdderRef::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(adder_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
-                .unwrap_or_else(|error| {
-                    panic!("failed at instantiating the Adder contract: {:?}", error)
-                });
+                .instantiate();
             let subber = SubberRef::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(subber_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
-                .unwrap_or_else(|error| {
-                    panic!("failed at instantiating the Subber contract: {:?}", error)
-                });
+                .instantiate();
             Self {
                 which: Which::Adder,
                 accumulator,

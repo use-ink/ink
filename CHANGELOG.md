@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 - Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
 - Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
+- Make CallBuilder and CreateBuilder error handling optional - [#1602](https://github.com/paritytech/ink/pull/1602)
+
+### Breaking Changes
+With the addition of [#1602](https://github.com/paritytech/ink/pull/1602),
+the `CallBuilder::fire()`, `CallParams::invoke()`, and `CreateBuilder::instantiate()`
+methods now unwrap the `Result` from `pallet-contracts` under the hood.
+
+If you wish to handle the error use the new `try_` variants of those methods instead.
 
 ## Version 4.0.0-beta
 

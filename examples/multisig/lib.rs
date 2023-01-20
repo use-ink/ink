@@ -348,8 +348,7 @@ mod multisig {
         ///         .push_arg(&transaction_candidate)
         ///     )
         ///     .returns::<(u32, ConfirmationStatus)>()
-        ///     .fire()
-        ///     .expect("submit_transaction won't panic");
+        ///     .fire();
         ///
         /// // Wait until all required owners have confirmed and then execute the transaction
         /// //
@@ -362,8 +361,7 @@ mod multisig {
         ///         .push_arg(&id)
         ///     )
         ///     .returns::<()>()
-        ///     .fire()
-        ///     .expect("invoke_transaction won't panic");
+        ///     .fire();
         /// ```
         #[ink(message)]
         pub fn add_owner(&mut self, new_owner: AccountId) {
@@ -549,8 +547,13 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<()>()
-                .fire()
-                .map_err(|_| Error::TransactionFailed);
+                .try_fire();
+
+            let result = match result {
+                Ok(Ok(_)) => Ok(()),
+                _ => Err(Error::TransactionFailed),
+            };
+
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
@@ -582,8 +585,13 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<Vec<u8>>()
-                .fire()
-                .map_err(|_| Error::TransactionFailed);
+                .try_fire();
+
+            let result = match result {
+                Ok(Ok(v)) => Ok(v),
+                _ => Err(Error::TransactionFailed),
+            };
+
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),
