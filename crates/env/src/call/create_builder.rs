@@ -740,9 +740,7 @@ where
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(
-        self,
-    ) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
+    pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
         self.params().instantiate()
     }
 
