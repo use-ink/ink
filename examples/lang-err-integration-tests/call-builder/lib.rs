@@ -44,7 +44,7 @@ mod call_builder {
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
-                .try_invoke()
+                .try_fire()
                 .expect("Error from the Contracts pallet.");
 
             match result {
@@ -64,14 +64,14 @@ mod call_builder {
         /// This message does not allow the caller to handle any `LangErrors`, for that use the
         /// `call` message instead.
         #[ink(message)]
-        pub fn invoke(&mut self, address: AccountId, selector: [u8; 4]) {
+        pub fn fire(&mut self, address: AccountId, selector: [u8; 4]) {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
-                .invoke()
+                .fire()
         }
 
         #[ink(message)]
@@ -173,7 +173,7 @@ mod call_builder {
         }
 
         #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
-        async fn e2e_invalid_message_selector_panics_on_invoke(
+        async fn e2e_invalid_message_selector_panics_on_fire(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
             let constructor = CallBuilderTestRef::new();
@@ -196,11 +196,11 @@ mod call_builder {
                 .expect("instantiate `flipper` failed")
                 .account_id;
 
-            // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method we expect
+            // Since `LangError`s can't be handled by the `CallBuilder::fire()` method we expect
             // this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
-                .call(|contract| contract.invoke(flipper_acc_id, invalid_selector));
+                .call(|contract| contract.fire(flipper_acc_id, invalid_selector));
             let call_result = client.call(&ink_e2e::ferdie(), call, 0, None).await;
 
             assert!(call_result.is_err());

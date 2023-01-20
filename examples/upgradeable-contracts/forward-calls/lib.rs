@@ -81,7 +81,7 @@ pub mod proxy {
                         .set_forward_input(true)
                         .set_tail_call(true),
                 )
-                .try_invoke()
+                .try_fire()
                 .unwrap_or_else(|env_err| {
                     panic!(
                         "cross-contract call to {:?} failed due to {:?}",
