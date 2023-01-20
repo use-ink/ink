@@ -52,7 +52,55 @@ where
     fn from_account_id(account_id: <T as Environment>::AccountId) -> Self;
 }
 
-/// todo!
+/// Represents any type that can be returned from an `ink!` constructor. The following contract
+/// implements the four different return type signatures implementing this trait:
+///
+/// - `Self`
+/// - `Result<Self, Error>`
+/// - `Contract`
+/// - `Result<Contract, Error>`
+///
+/// ```rust
+/// #[ink::contract]
+/// mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+/// 
+///     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+///     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+///     pub enum Error {
+///         Foo,
+///     }
+/// 
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn new_self() -> Self {
+///             Self {}
+///         }
+/// 
+///         #[ink(constructor)]
+///         pub fn new_storage_name() -> Contract {
+///             Contract {}
+///         }
+/// 
+///         #[ink(constructor)]
+///         pub fn new_result_self() -> Result<Self, Error> {
+///             Ok(Self {})
+///         }
+/// 
+///         #[ink(constructor)]
+///         pub fn new_result_storage_name() -> Result<Contract, Error> {
+///             Ok(Contract {})
+///         }
+/// 
+///         #[ink(message)]
+///         pub fn message(&self) {}
+///     }
+/// }
+/// ```
+///
+/// These constructor return signatures are then used by the contract ref codegen for the
+/// [`CreateBuilder::returns`] type parameter.
 pub trait ConstructorReturnType<C> {
     /// Is `true` if `Self` is `Result<C, E>`.
     const IS_RESULT: bool = false;
@@ -76,6 +124,10 @@ pub trait ConstructorReturnType<C> {
     }
 }
 
+/// Blanket impl for contract ref types, generated for cross-contract calls.
+///
+/// In the context of a contract ref inherent, `Self` from a constructor return
+/// type will become the type of the contract ref's type.
 impl<C> ConstructorReturnType<C> for C
 where
     C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
@@ -88,6 +140,8 @@ where
     }
 }
 
+/// Blanket impl for a `Result<Self>` return type. `Self` in the context
+/// of a contract ref inherent becomes the contract refs type.
 impl<C, E> ConstructorReturnType<C> for core::result::Result<C, E>
 where
     C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
