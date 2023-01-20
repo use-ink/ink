@@ -54,13 +54,8 @@ mod call_builder {
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
-<<<<<<< HEAD
-                .returns::<Result<(), ink::LangError>>()
-                .fire()
-=======
                 .returns::<()>()
                 .try_invoke()
->>>>>>> master
                 .expect("Error from the Contracts pallet.");
 
             match result {
@@ -72,15 +67,6 @@ mod call_builder {
             }
         }
 
-<<<<<<< HEAD
-        /// Instantiate a contract using the `CreateBuilder`.
-        ///
-        /// Since we can't use the `CreateBuilder` in a test environment directly we need this
-        /// wrapper to test things like crafting calls with invalid selectors.
-        ///
-        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
-        /// contract message without erroring out ourselves.
-=======
         /// Call a contract using the `CallBuilder`.
         ///
         /// Since we can't use the `CallBuilder` in a test environment directly we need this
@@ -99,7 +85,13 @@ mod call_builder {
                 .invoke()
         }
 
->>>>>>> master
+        /// Instantiate a contract using the `CreateBuilder`.
+        ///
+        /// Since we can't use the `CreateBuilder` in a test environment directly we need this
+        /// wrapper to test things like crafting calls with invalid selectors.
+        ///
+        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
+        /// contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call_instantiate(
             &mut self,
@@ -120,7 +112,6 @@ mod call_builder {
                 .try_instantiate()
                 .expect("Error from the Contracts pallet.");
 
-<<<<<<< HEAD
             match result {
                 Ok(_) => None,
                 Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
@@ -168,25 +159,6 @@ mod call_builder {
             Some(lang_result.map(|contract_result| {
                 contract_result.map(|inner| ink::ToAccountId::to_account_id(&inner))
             }))
-=======
-            let result = build_create::<
-                DefaultEnvironment,
-                constructors_return_value::ConstructorsReturnValueRef,
-            >()
-            .code_hash(code_hash)
-            .gas_limit(0)
-            .endowment(0)
-            .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
-            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-            .params()
-            .try_instantiate();
-
-            // NOTE: Right now we can't handle any `LangError` from `instantiate`, we can only tell
-            // that our contract reverted (i.e we see error from the Contracts pallet).
-            //
-            // This will be fixed with #1512.
-            result.ok().map(|id| ink::ToAccountId::to_account_id(&id))
->>>>>>> master
         }
     }
 
@@ -330,8 +302,7 @@ mod call_builder {
                 .call(&ink_e2e::bob(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .return_value()
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
+                .return_value();
 
             assert!(
                 call_result.is_none(),
@@ -368,8 +339,7 @@ mod call_builder {
                 .call(&ink_e2e::charlie(), call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
-                .return_value()
-                .expect("Dispatching `call_builder::call_instantiate` failed.");
+                .return_value();
 
             assert!(
                 matches!(call_result, Some(ink::LangError::CouldNotReadInput)),
@@ -402,16 +372,8 @@ mod call_builder {
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
                     contract.call_instantiate(code_hash, selector, init_value)
                 });
-<<<<<<< HEAD
-            let call_result = client.call(&mut ink_e2e::dave(), call, 0, None).await;
-=======
-            let call_result = client
-                .call(&ink_e2e::dave(), call, 0, None)
-                .await
-                .expect("Client failed to call `call_builder::call_instantiate`.")
-                .return_value();
->>>>>>> master
 
+            let call_result = client.call(&mut ink_e2e::dave(), call, 0, None).await;
             assert!(
                 call_result.is_err(),
                 "Call execution should've failed, but didn't."
@@ -457,17 +419,12 @@ mod call_builder {
             let call_result = client
                 .call(&mut ink_e2e::eve(), call, 0, None)
                 .await
-<<<<<<< HEAD
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value()
-                .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
-=======
-                .expect("Client failed to call `call_builder::call_instantiate`.")
-                .return_value();
->>>>>>> master
+                .expect("TODO");
 
             assert!(
-                call_result.unwrap().is_ok(),
+                call_result.is_ok(),
                 "Call to falliable constructor failed, when it should have succeeded."
             );
 
@@ -501,8 +458,7 @@ mod call_builder {
                 .call(&mut ink_e2e::ferdie(), call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
-                .return_value()
-                .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
+                .return_value();
 
             let contract_result = call_result
                 .unwrap()
@@ -593,8 +549,7 @@ mod call_builder {
                 .expect(
                     "Client failed to call `call_builder::call_instantiate_fallible`.",
                 )
-                .return_value()
-                .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
+                .return_value();
 
             assert!(
                 matches!(call_result, Some(Err(ink::LangError::CouldNotReadInput))),
