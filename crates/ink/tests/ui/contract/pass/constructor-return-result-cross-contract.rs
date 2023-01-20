@@ -12,22 +12,22 @@ mod contract_callee {
     impl Callee {
         #[ink(constructor)]
         pub fn new_self() -> Self {
-            Self { }
+            Self {}
         }
 
         #[ink(constructor)]
         pub fn new_storage_name() -> Callee {
-            Callee { }
+            Callee {}
         }
 
         #[ink(constructor)]
         pub fn new_result_self() -> Result<Self, Error> {
-            Ok(Self { })
+            Ok(Self {})
         }
 
         #[ink(constructor)]
         pub fn new_result_storage_name() -> Result<Callee, Error> {
-            Ok(Callee { })
+            Ok(Callee {})
         }
 
         #[ink(message)]
@@ -68,7 +68,10 @@ mod contract_callee {
 // }
 
 fn main() {
-    use contract_callee::{CalleeRef, Error};
+    use contract_callee::{
+        CalleeRef,
+        Error,
+    };
 
     // fn new_self() -> Self
     let _: fn() -> CalleeRef = || {
@@ -114,5 +117,3 @@ fn main() {
             .unwrap()
     };
 }
-
-
