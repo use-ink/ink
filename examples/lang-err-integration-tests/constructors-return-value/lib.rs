@@ -26,7 +26,7 @@ pub mod constructors_return_value {
 
         /// Fallible constructor
         #[ink(constructor)]
-        pub fn try_new(succeed: bool) -> Result<ConstructorsReturnValue, ConstructorError> {
+        pub fn try_new(succeed: bool) -> Result<Self, ConstructorError> {
             if succeed {
                 Ok(Self::new(true))
             } else {
