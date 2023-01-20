@@ -188,3 +188,49 @@ one point.
 
 The prefix `seal` here is for historic reasons. There is some analogy to sealing a
 contract. And we found seals to be a cute animal as well ‒ like squids!
+
+## `Environment` Trait
+
+Our `ink_env` crate defines a trait [`Environment`](https://paritytech.github.io/ink/ink_env/trait.Environment.html).
+It also exposes a [`DefaultEnvironment`](https://paritytech.github.io/ink/ink_env/enum.DefaultEnvironment.html):
+
+```rust
+/// The fundamental types of the default configuration.
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "std", derive(TypeInfo))]
+pub enum DefaultEnvironment {}
+
+impl Environment for DefaultEnvironment {
+    const MAX_EVENT_TOPICS: usize = 4;
+
+    type AccountId = ink_primitives::AccountId;
+    type Balance = u128;
+    type Hash = ink_primitives::Hash;
+    type Timestamp = u64;
+    type BlockNumber = u32;
+    type ChainExtension = NoChainExtension;
+}
+```
+
+The context here is that you can use ink! on any blockchain that was built with
+the [Substrate](https://substrate.io) framework and includes the
+[`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+module.
+
+Chains built on Substrate can decide on their own which types they want
+to use for e.g. the chain's block number or account id's. For example,
+chains that intend to be compatible to Ethereum typically use the same
+type as Ethereum for their `AccountId`.
+
+Most Substrate chains stay with the default Substrate types though and
+ink! just uses those by default as well. It is possible to configure
+a different environment in the contract macro ([documentation here](https://paritytech.github.io/ink/ink/attr.contract.html#header-arguments))
+though:
+
+```rust
+#[ink::contract(env = MyCustomTypes)]
+```
+
+__Important:__ if a developer writes a contract for a chain that deviates
+from the default Substrate types, they have to make sure to use that
+chain's `Environment`.
