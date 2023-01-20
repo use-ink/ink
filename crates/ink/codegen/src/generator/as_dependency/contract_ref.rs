@@ -423,7 +423,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
-                ::ink::env::call::build_create::<Environment, Self>()
+                ::ink::env::call::build_create::<Self>()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

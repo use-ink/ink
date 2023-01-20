@@ -288,7 +288,7 @@ pub struct CreateBuilder<
 /// # impl FromAccountId<DefaultEnvironment> for MyContract {
 /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
 /// # }
-/// let my_contract: MyContract = build_create::<DefaultEnvironment>()
+/// let my_contract: MyContract = build_create::<MyContract>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
@@ -322,7 +322,7 @@ pub struct CreateBuilder<
 /// # #[derive(scale::Encode, scale::Decode, Debug)]
 /// # #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 /// # pub struct ConstructorError;
-/// let my_contract: MyContract = build_create::<DefaultEnvironment>()
+/// let my_contract: MyContract = build_create::<MyContract>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)

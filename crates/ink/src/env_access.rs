@@ -446,7 +446,7 @@ where
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment>()
+    ///     let create_params = build_create::<OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)
