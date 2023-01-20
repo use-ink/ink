@@ -621,7 +621,10 @@ where
     ///     )
     ///     .returns::<i32>()
     ///     .params();
-    ///     self.env().invoke_contract(&call_params).unwrap_or_else(|err| panic!("call invocation must succeed: {:?}", err))
+    ///
+    ///     self.env().invoke_contract(&call_params)
+    ///         .unwrap_or_else(|env_err| panic!("Received an error from the Environment: {:?}", env_err))
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -634,7 +637,7 @@ where
     pub fn invoke_contract<Args, R>(
         self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
         R: scale::Decode,

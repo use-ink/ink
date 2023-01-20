@@ -355,8 +355,9 @@ impl CallForwarder<'_> {
                         , #input_bindings
                     )*
                 )
-                    .fire()
-                    .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+                    .try_invoke()
+                    .unwrap_or_else(|env_err| ::core::panic!("{}: {:?}", #panic_str, env_err))
+                    .unwrap_or_else(|lang_err| ::core::panic!("{}: {:?}", #panic_str, lang_err))
             }
         )
     }

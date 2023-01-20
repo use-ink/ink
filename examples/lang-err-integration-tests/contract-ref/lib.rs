@@ -17,6 +17,7 @@ mod contract_ref {
                 .endowment(0)
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt)
+<<<<<<< HEAD
                 .instantiate()
                 .unwrap_or_else(|error| {
                     panic!("Received an error from the Contracts pallet while instantiating Flipper {:?}", error)
@@ -39,6 +40,9 @@ mod contract_ref {
                 .unwrap_or_else(|error| {
                     panic!("Received an error from the Flipper constructor while instantiating Flipper {:?}", error)
                 });
+=======
+                .instantiate();
+>>>>>>> master
 
             Self { flipper }
         }
@@ -98,9 +102,7 @@ mod contract_ref {
                 .call(&ink_e2e::alice(), get_check, 0, None)
                 .await
                 .expect("Calling `get_check` failed");
-            let initial_value = get_call_result
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+            let initial_value = get_call_result.return_value();
 
             let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
                 .call(|contract| contract.flip_check());
@@ -119,9 +121,7 @@ mod contract_ref {
                 .call(&ink_e2e::alice(), get_check, 0, None)
                 .await
                 .expect("Calling `get_check` failed");
-            let flipped_value = get_call_result
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+            let flipped_value = get_call_result.return_value();
             assert!(flipped_value != initial_value);
 
             Ok(())

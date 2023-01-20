@@ -54,8 +54,13 @@ mod call_builder {
             let result = build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(address))
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
+<<<<<<< HEAD
                 .returns::<Result<(), ink::LangError>>()
                 .fire()
+=======
+                .returns::<()>()
+                .try_invoke()
+>>>>>>> master
                 .expect("Error from the Contracts pallet.");
 
             match result {
@@ -67,6 +72,7 @@ mod call_builder {
             }
         }
 
+<<<<<<< HEAD
         /// Instantiate a contract using the `CreateBuilder`.
         ///
         /// Since we can't use the `CreateBuilder` in a test environment directly we need this
@@ -74,6 +80,26 @@ mod call_builder {
         ///
         /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
         /// contract message without erroring out ourselves.
+=======
+        /// Call a contract using the `CallBuilder`.
+        ///
+        /// Since we can't use the `CallBuilder` in a test environment directly we need this
+        /// wrapper to test things like crafting calls with invalid selectors.
+        ///
+        /// This message does not allow the caller to handle any `LangErrors`, for that use the
+        /// `call` message instead.
+        #[ink(message)]
+        pub fn invoke(&mut self, address: AccountId, selector: [u8; 4]) {
+            use ink::env::call::build_call;
+
+            build_call::<DefaultEnvironment>()
+                .call_type(Call::new().callee(address))
+                .exec_input(ExecutionInput::new(Selector::new(selector)))
+                .returns::<()>()
+                .invoke()
+        }
+
+>>>>>>> master
         #[ink(message)]
         pub fn call_instantiate(
             &mut self,
@@ -94,6 +120,7 @@ mod call_builder {
                 .try_instantiate()
                 .expect("Error from the Contracts pallet.");
 
+<<<<<<< HEAD
             match result {
                 Ok(_) => None,
                 Err(e @ ink::LangError::CouldNotReadInput) => Some(e),
@@ -141,6 +168,25 @@ mod call_builder {
             Some(lang_result.map(|contract_result| {
                 contract_result.map(|inner| ink::ToAccountId::to_account_id(&inner))
             }))
+=======
+            let result = build_create::<
+                DefaultEnvironment,
+                constructors_return_value::ConstructorsReturnValueRef,
+            >()
+            .code_hash(code_hash)
+            .gas_limit(0)
+            .endowment(0)
+            .exec_input(ExecutionInput::new(Selector::new(selector)).push_arg(init_value))
+            .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+            .params()
+            .try_instantiate();
+
+            // NOTE: Right now we can't handle any `LangError` from `instantiate`, we can only tell
+            // that our contract reverted (i.e we see error from the Contracts pallet).
+            //
+            // This will be fixed with #1512.
+            result.ok().map(|id| ink::ToAccountId::to_account_id(&id))
+>>>>>>> master
         }
     }
 
@@ -184,9 +230,7 @@ mod call_builder {
                 .call(&ink_e2e::alice(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
-            let initial_value = get_call_result
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+            let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
@@ -196,9 +240,7 @@ mod call_builder {
                 .await
                 .expect("Calling `call_builder::call` failed");
 
-            let flipper_result = call_result
-                .return_value()
-                .expect("Call to `call_builder::call` failed");
+            let flipper_result = call_result.return_value();
 
             assert!(matches!(
                 flipper_result,
@@ -211,10 +253,52 @@ mod call_builder {
                 .call(&ink_e2e::alice(), flipper_get, 0, None)
                 .await
                 .expect("Calling `flipper::get` failed");
-            let flipped_value = get_call_result
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+            let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
+
+            Ok(())
+        }
+
+        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
+        async fn e2e_invalid_message_selector_panics_on_invoke(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            let constructor = CallBuilderTestRef::new();
+            let contract_acc_id = client
+                .instantiate("call_builder", &ink_e2e::ferdie(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let flipper_constructor = FlipperRef::new_default();
+            let flipper_acc_id = client
+                .instantiate(
+                    "integration_flipper",
+                    &ink_e2e::ferdie(),
+                    flipper_constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate `flipper` failed")
+                .account_id;
+
+            // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method we expect
+            // this to panic.
+            let invalid_selector = [0x00, 0x00, 0x00, 0x00];
+            let call = build_message::<CallBuilderTestRef>(contract_acc_id)
+                .call(|contract| contract.invoke(flipper_acc_id, invalid_selector));
+            let call_result = client.call(&ink_e2e::ferdie(), call, 0, None).await;
+
+            assert!(call_result.is_err());
+            let contains_err_msg = match call_result.unwrap_err() {
+                ink_e2e::Error::CallDryRun(dry_run) => {
+                    String::from_utf8_lossy(&dry_run.debug_message)
+                        .contains("Cross-contract call failed with CouldNotReadInput")
+                }
+                _ => false,
+            };
+            assert!(contains_err_msg);
 
             Ok(())
         }
@@ -318,7 +402,15 @@ mod call_builder {
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
                     contract.call_instantiate(code_hash, selector, init_value)
                 });
+<<<<<<< HEAD
             let call_result = client.call(&mut ink_e2e::dave(), call, 0, None).await;
+=======
+            let call_result = client
+                .call(&ink_e2e::dave(), call, 0, None)
+                .await
+                .expect("Client failed to call `call_builder::call_instantiate`.")
+                .return_value();
+>>>>>>> master
 
             assert!(
                 call_result.is_err(),
@@ -365,9 +457,14 @@ mod call_builder {
             let call_result = client
                 .call(&mut ink_e2e::eve(), call, 0, None)
                 .await
+<<<<<<< HEAD
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value()
                 .expect("Dispatching `call_builder::call_instantiate_fallible` failed.");
+=======
+                .expect("Client failed to call `call_builder::call_instantiate`.")
+                .return_value();
+>>>>>>> master
 
             assert!(
                 call_result.unwrap().is_ok(),

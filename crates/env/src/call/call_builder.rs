@@ -109,7 +109,31 @@ where
     /// Invokes the contract with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    pub fn invoke(&self) -> Result<R, crate::Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    pub fn invoke(&self) -> R {
+        crate::invoke_contract(self)
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract call failed with {:?}", env_error)
+            })
+            .unwrap_or_else(|lang_error| {
+                panic!("Cross-contract call failed with {:?}", lang_error)
+            })
+    }
+
+    /// Invokes the contract with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
         crate::invoke_contract(self)
     }
 }
@@ -120,11 +144,29 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Invokes the contract via delegated call with the given
-    /// built-up call parameters.
+    /// Invoke the contract using Delegate Call semantics with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    pub fn invoke(&self) -> Result<R, crate::Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
+    /// handle those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    pub fn invoke(&self) -> R {
+        crate::invoke_contract_delegate(self).unwrap_or_else(|env_error| {
+            panic!("Cross-contract call failed with {:?}", env_error)
+        })
+    }
+
+    /// Invoke the contract using Delegate Call semantics with the given built-up call parameters.
+    ///
+    /// Returns the result of the contract execution.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
+    /// caller.
+    pub fn try_invoke(&self) -> Result<R, crate::Error> {
         crate::invoke_contract_delegate(self)
     }
 }
@@ -172,8 +214,7 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .returns::<()>()
-///     .fire()
-///     .unwrap();
+///     .invoke();
 /// ```
 ///
 /// ## Example 2: With Return Value
@@ -208,8 +249,7 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .returns::<i32>()
-///     .fire()
-///     .unwrap();
+///     .invoke();
 /// ```
 ///
 /// ## Example 3: Delegate call
@@ -236,8 +276,47 @@ where
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .returns::<i32>()
-///     .fire()
-///     .unwrap();
+///     .invoke();
+/// ```
+///
+/// # Handling `LangError`s
+///
+/// It is also important to note that there are certain types of errors which can happen during
+/// cross-contract calls which can be handled know as [`LangError`][`ink_primitives::LangError`].
+///
+/// If you want to handle these errors use the [`CallBuilder::try_invoke`] methods instead of the
+/// [`CallBuilder::invoke`] ones.
+///
+/// **Note:** The shown examples panic because there is currently no cross-calling
+///           support in the off-chain testing environment. However, this code
+///           should work fine in on-chain environments.
+///
+/// ## Example: Handling a `LangError`
+///
+/// ```should_panic
+/// # use ::ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// #     call::{build_call, Selector, ExecutionInput}
+/// # };
+/// # use ink_env::call::Call;
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// # type Balance = <DefaultEnvironment as Environment>::Balance;
+/// let call_result = build_call::<DefaultEnvironment>()
+///     .call_type(
+///         Call::new()
+///             .callee(AccountId::from([0x42; 32]))
+///             .gas_limit(5000)
+///             .transferred_value(10),
+///     )
+///     .try_invoke()
+///     .expect("Got an error from the Contract's pallet.");
+///
+/// match call_result {
+///     Ok(_) => unimplemented!(),
+///     Err(e @ ink_primitives::LangError::CouldNotReadInput) => unimplemented!(),
+///     Err(_) => unimplemented!(),
+/// }
 /// ```
 #[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
@@ -597,8 +676,24 @@ where
     E: Environment,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
+        self.params().try_invoke()
     }
 }
 
@@ -612,9 +707,23 @@ impl<E>
 where
     E: Environment,
 {
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
+    /// Invokes the cross-chain function call using Delegate Call semantics.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
+    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call using Delegate Call semantics.
+    ///
+    /// # Note
+    ///
+    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
+    pub fn try_invoke(self) -> Result<(), Error> {
+        self.params().try_invoke()
     }
 }
 
@@ -626,8 +735,24 @@ where
     R: scale::Decode,
 {
     /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R, Error> {
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) -> R {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call and returns the result.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<R>, Error> {
+        self.params().try_invoke()
     }
 }
 
@@ -638,8 +763,22 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R, Error> {
+    /// Invokes the cross-chain function call using Delegate Call semantics and returns the result.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
+    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    pub fn invoke(self) -> R {
         self.params().invoke()
+    }
+
+    /// Invokes the cross-chain function call using Delegate Call semantics and returns the result.
+    ///
+    /// # Note
+    ///
+    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
+    pub fn try_invoke(self) -> Result<R, Error> {
+        self.params().try_invoke()
     }
 }

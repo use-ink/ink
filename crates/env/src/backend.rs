@@ -414,7 +414,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn invoke_contract<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,

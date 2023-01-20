@@ -268,7 +268,9 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(params: &CallParams<E, Call<E>, Args, R>) -> Result<R>
+pub fn invoke_contract<E, Args, R>(
+    params: &CallParams<E, Call<E>, Args, R>,
+) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
     Args: scale::Encode,
