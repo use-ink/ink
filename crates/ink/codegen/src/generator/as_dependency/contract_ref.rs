@@ -136,11 +136,11 @@ impl ContractRef<'_> {
                     type Error = E;
 
                     fn ok(value: #ref_ident) -> Self::Output {
-                        Ok(value)
+                        ::core::result::Result::Ok(value)
                     }
 
                     fn err(err: Self::Error) -> Self::Output {
-                        Err(err)
+                        ::core::result::Result::Err(err)
                     }
                 }
 
