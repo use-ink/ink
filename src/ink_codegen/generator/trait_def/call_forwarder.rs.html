@@ -362,6 +362,7 @@
 <span id="361">361</span>
 <span id="362">362</span>
 <span id="363">363</span>
+<span id="364">364</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -719,8 +720,9 @@
                         , #input_bindings
                     )*
                 )
-                    .fire()
-                    .unwrap_or_else(|err| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #panic_str, err))
+                    .try_fire()
+                    .unwrap_or_else(|env_err| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #panic_str, env_err))
+                    .unwrap_or_else(|lang_err| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #panic_str, lang_err))
             }
         )
     }
