@@ -57,11 +57,6 @@ pub trait ConstructorReturnType<C> {
     /// Is `true` if `Self` is `Result<C, E>`.
     const IS_RESULT: bool = false;
 
-    /// The type of the contract returned from a constructor.
-    /// If a constructor returns `Self`, then `Contract = Self`
-    /// If a constructor returns a `Result<Self, E>`, then `Contract = Self`.
-    type Contract;
-
     /// The actual return type of the constructor.
     /// If a constructor returns `Self`, then `Output = Self`
     /// If a constructor returns a `Result<Self, E>`, then `Output = Result<Self, E>`.
@@ -81,7 +76,6 @@ impl<C> ConstructorReturnType<C> for C
 where
     C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
 {
-    type Contract = C;
     type Output = C;
     type Error = ();
 
@@ -102,7 +96,6 @@ where
 {
     const IS_RESULT: bool = true;
 
-    type Contract = C;
     type Output = core::result::Result<C, E>;
     type Error = E;
 
