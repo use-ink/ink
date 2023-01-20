@@ -86,7 +86,10 @@ where
                             1 => {
                                 let contract_err = <<R as ConstructorReturnType<ContractRef>>::Error
                                     as scale::Decode>::decode(out_return_value)?;
-                                let err = <R as ConstructorReturnType<ContractRef>>::err(contract_err);
+                                let err = <R as ConstructorReturnType<ContractRef>>::err(contract_err)
+                                    .unwrap_or_else(|| {
+                                        panic!("Expected an error instance for return type where IS_RESULT == true")
+                                    });
                                 Ok(Ok(err))
                             }
                             _ => Err(Error::Decode("Invalid inner constructor Result encoding, expected 0 or 1 as the first byte".into()))

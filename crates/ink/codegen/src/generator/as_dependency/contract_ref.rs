@@ -116,11 +116,6 @@ impl ContractRef<'_> {
                     fn ok(value: #ref_ident) -> Self::Output {
                         value
                     }
-
-                    fn err(_err: Self::Error) -> Self::Output {
-                        // todo!
-                        unreachable!()
-                    }
                 }
 
                 impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
@@ -137,8 +132,8 @@ impl ContractRef<'_> {
                         ::core::result::Result::Ok(value)
                     }
 
-                    fn err(err: Self::Error) -> Self::Output {
-                        ::core::result::Result::Err(err)
+                    fn err(err: Self::Error) -> ::core::option::Option<Self::Output> {
+                        ::core::option::Option::Some(::core::result::Result::Err(err))
                     }
                 }
 
