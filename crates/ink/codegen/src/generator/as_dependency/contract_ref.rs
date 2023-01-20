@@ -398,7 +398,7 @@ impl ContractRef<'_> {
             ) -> #wrapped_output_type {
                 <Self as ::ink::codegen::TraitCallBuilder>::#call_operator(self)
                     .#message_ident( #( #input_bindings ),* )
-                    .fire()
+                    .try_invoke()
                     .unwrap_or_else(|error| ::core::panic!(
                         "encountered error while calling {}::{}: {:?}",
                         ::core::stringify!(#storage_ident),

@@ -65,34 +65,34 @@ where
 /// mod contract {
 ///     #[ink(storage)]
 ///     pub struct Contract {}
-/// 
+///
 ///     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 ///     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
 ///     pub enum Error {
 ///         Foo,
 ///     }
-/// 
+///
 ///     impl Contract {
 ///         #[ink(constructor)]
 ///         pub fn new_self() -> Self {
 ///             Self {}
 ///         }
-/// 
+///
 ///         #[ink(constructor)]
 ///         pub fn new_storage_name() -> Contract {
 ///             Contract {}
 ///         }
-/// 
+///
 ///         #[ink(constructor)]
 ///         pub fn new_result_self() -> Result<Self, Error> {
 ///             Ok(Self {})
 ///         }
-/// 
+///
 ///         #[ink(constructor)]
 ///         pub fn new_result_storage_name() -> Result<Contract, Error> {
 ///             Ok(Contract {})
 ///         }
-/// 
+///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}
 ///     }
@@ -244,24 +244,32 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
+    /// handle those use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(
-        &self,
-    ) -> Result<<R as ConstructorReturnType<ContractRef>>::Output, crate::Error> {
-        crate::instantiate_contract(self).map(|inner| {
-            inner.unwrap_or_else(|error| {
-                panic!("Received a `LangError` while instantiating: {:?}", error)
+    pub fn instantiate(&self) -> R {
+        crate::instantiate_contract(self)
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract instantiation failed with {:?}", env_error)
             })
-        })
+            .unwrap_or_else(|lang_error| {
+                panic!(
+                    "Received a `LangError` while instantiating: {:?}",
+                    lang_error
+                )
+            })
     }
 
     /// Instantiates the contract and returns its account ID back to the caller.
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
     #[inline]
     pub fn try_instantiate(
         &self,
@@ -724,24 +732,26 @@ where
     Salt: AsRef<[u8]>,
     RetType: ConstructorReturnType<ContractRef>,
 {
-    /// Instantiates the contract using the given instantiation parameters.
+    /// Instantiates the contract and returns its account ID back to the caller.
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink_primitives::LangError`]. If you want to handle
-    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
     #[inline]
     pub fn instantiate(
         self,
-    ) -> Result<<RetType as ConstructorReturnType<ContractRef>>::Output, Error> {
+    ) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
         self.params().instantiate()
     }
 
-    /// Instantiates the contract using the given instantiation parameters.
+    /// Instantiates the contract and returns its account ID back to the caller.
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
     #[inline]
     pub fn try_instantiate(
         self,
