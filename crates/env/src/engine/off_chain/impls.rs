@@ -221,13 +221,11 @@ impl EnvInstance {
                     .borrow()
                     .origin
                     .clone()
-                    .unwrap_or(callee.clone()),
+                    .unwrap_or(callee),
             ),
         };
 
-        let previous_context = self.engine.exec_context.replace(callee_context);
-
-        previous_context
+        self.engine.exec_context.replace(callee_context)
     }
 }
 
@@ -529,7 +527,7 @@ impl TypedEnvBackend for EnvInstance {
 
         let mut previous_context = self.generate_callee_context(
             callee.clone(),
-            input.clone(),
+            input,
             <u128 as scale::Decode>::decode(
                 &mut scale::Encode::encode(transferred_value).as_slice(),
             )?,
@@ -600,20 +598,13 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let code_hash = params.code_hash().as_ref().to_vec();
-        let callee = self
-            .engine
-            .exec_context
-            .borrow()
-            .callee
-            .clone()
-            .unwrap_or_default()
-            .as_bytes()
-            .to_vec();
+        let callee = self.engine.exec_context.borrow().callee.clone();
+        let call_flags = params.call_flags().into_u32();
 
         // apply call flags before making a call and return the input that might be changed after that
         let input = self.engine.apply_code_flags_before_call(
-            caller.clone(),
             callee.clone(),
+            callee.clone().unwrap_or_default().as_bytes().to_vec(),
             call_flags,
             params.exec_input().encode(),
         )?;
@@ -628,18 +619,19 @@ impl TypedEnvBackend for EnvInstance {
             .call;
 
         let mut previous_context = self.generate_callee_context(
-            callee.clone(),
-            params.exec_input().encode(),
-            <u128 as scale::Decode>::decode(
-                &mut scale::Encode::encode(params.transferred_value()).as_slice(),
-            )?,
+            callee.clone().unwrap_or_default().as_bytes().to_vec(),
+            input,
+            0,
         );
 
         let storage = self
             .engine
             .database
             .borrow()
-            .get_from_contract_storage(callee.as_slice(), &[0; 4])
+            .get_from_contract_storage(
+                callee.clone().unwrap_or_default().as_bytes(),
+                &[0; 4],
+            )
             .expect("contract storage not found")
             .clone();
 
@@ -649,7 +641,11 @@ impl TypedEnvBackend for EnvInstance {
             self.engine
                 .database
                 .borrow_mut()
-                .insert_into_contract_storage(callee.as_slice(), &[0; 4], storage)
+                .insert_into_contract_storage(
+                    callee.clone().unwrap_or_default().as_bytes(),
+                    &[0; 4],
+                    storage,
+                )
                 .unwrap();
         }
 
@@ -666,7 +662,7 @@ impl TypedEnvBackend for EnvInstance {
         // apply code flags after the call
         self.engine.apply_code_flags_after_call(
             callee.clone(),
-            callee,
+            callee.unwrap_or_default().as_bytes().to_vec(),
             call_flags,
             output,
         )?;
@@ -693,16 +689,16 @@ impl TypedEnvBackend for EnvInstance {
 
         let callee = self
             .generate_address(
-                caller.unwrap_or_default().clone().as_bytes().to_vec(),
+                caller.unwrap_or_default().as_bytes().to_vec(),
                 code_hash.clone(),
-                input.encode().clone(),
+                input.encode(),
                 salt_bytes.as_ref().to_vec(),
             )
             .to_vec();
 
         let previous_context = self.generate_callee_context(
             callee.clone(),
-            input.clone().encode(),
+            input.encode(),
             <u128 as scale::Decode>::decode(
                 &mut scale::Encode::encode(endowment).as_slice(),
             )?,
