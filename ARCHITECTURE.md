@@ -96,14 +96,27 @@ gas costs) and a lower transaction throughput. Freeing memory is
 irrelevant for our use-case anyway, as the entire memory instance
 is set up fresh for each individual contract call anyway.
 
-## Nightly Rust features in ink!
+## Unstable Rust features in ink!
 
-We would like to get away from nightly features of Rust in ink!, so
+We would like to get away from unstable features of Rust in ink!, so
 that users can just use stable Rust for building their contracts.
 At the moment we're still stuck with one nightly feature though:
 [alloc_error_handler](https://github.com/rust-lang/rust/issues/51540).
 It's needed because we use a specialized memory allocation handler,
 the `ink_allocator` crate.
+It's unclear when or if this feature will ever make it to stable.
+
+We had a lot of issues when requiring users to use Rust nightly. Mostly
+because there were regularly bugs in the nightly Rust compiler that
+often took days to be fixed.
+As a consequence we decided on having `cargo-contract` v2 run
+`cargo +stable build` with `RUSTC_BOOTSTRAP=1`. This is kind of a hack,
+the env variable enables unstable features in the stable Rust toolchain.
+But it enabled us to switch tutorials/guides to Rust stable.
+
+One advantage is that users don't deal with an ever-changing nightly
+compiler. It's easier for us to support. If you build a contract without
+`cargo-contract` you will have to set this env variable too or use nightly.
 
 ## Interaction with `pallet-contracts`
 
