@@ -999,7 +999,7 @@
 ///             .push_arg(&amp;[0x10u8; 32])
 ///     )
 ///     .returns::&lt;()&gt;()
-///     .fire();
+///     .invoke();
 /// ```
 ///
 /// ## Example 2: With Return Value
@@ -1034,7 +1034,7 @@
 ///             .push_arg(&amp;[0x10u8; 32])
 ///     )
 ///     .returns::&lt;i32&gt;()
-///     .fire();
+///     .invoke();
 /// ```
 ///
 /// ## Example 3: Delegate call
@@ -1061,7 +1061,7 @@
 ///             .push_arg(&amp;[0x10u8; 32])
 ///     )
 ///     .returns::&lt;i32&gt;()
-///     .fire();
+///     .invoke();
 /// ```
 ///
 /// # Handling `LangError`s
@@ -1069,8 +1069,8 @@
 /// It is also important to note that there are certain types of errors which can happen during
 /// cross-contract calls which can be handled know as [`LangError`][`ink_primitives::LangError`].
 ///
-/// If you want to handle these errors use the [`CallBuilder::try_fire`] methods instead of the
-/// [`CallBuilder::fire`] ones.
+/// If you want to handle these errors use the [`CallBuilder::try_invoke`] methods instead of the
+/// [`CallBuilder::invoke`] ones.
 ///
 /// **Note:** The shown examples panic because there is currently no cross-calling
 ///           support in the off-chain testing environment. However, this code
@@ -1094,7 +1094,7 @@
 ///             .gas_limit(5000)
 ///             .transferred_value(10),
 ///     )
-///     .try_fire()
+///     .try_invoke()
 ///     .expect(&quot;Got an error from the Contract&#39;s pallet.&quot;);
 ///
 /// match call_result {
@@ -1466,8 +1466,8 @@
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_fire`][`CallBuilder::try_fire`] method instead.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) {
+    /// use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) {
         <span class="self">self</span>.params().invoke()
     }
 
@@ -1477,7 +1477,7 @@
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
     /// [`ink_primitives::LangError`], both of which can be handled by the caller.
-    </span><span class="kw">pub fn </span>try_fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;()&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;()&gt;, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
 }
@@ -1497,8 +1497,8 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
-    /// If you want to handle those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) {
+    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) {
         <span class="self">self</span>.params().invoke()
     }
 
@@ -1507,7 +1507,7 @@
     /// # Note
     ///
     /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
-    </span><span class="kw">pub fn </span>try_fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
 }
@@ -1525,8 +1525,8 @@
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_fire`][`CallBuilder::try_fire`] method instead.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) -&gt; R {
+    /// use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) -&gt; R {
         <span class="self">self</span>.params().invoke()
     }
 
@@ -1536,7 +1536,7 @@
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
     /// [`ink_primitives::LangError`], both of which can be handled by the caller.
-    </span><span class="kw">pub fn </span>try_fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;, Error&gt; {
+    </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
 }
@@ -1553,8 +1553,8 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
-    /// If you want to handle those use the [`try_fire`][`CallBuilder::try_fire`] method instead.
-    </span><span class="kw">pub fn </span>fire(<span class="self">self</span>) -&gt; R {
+    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) -&gt; R {
         <span class="self">self</span>.params().invoke()
     }
 
@@ -1563,7 +1563,7 @@
     /// # Note
     ///
     /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
-    </span><span class="kw">pub fn </span>try_fire(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, Error&gt; {
+    </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
 }

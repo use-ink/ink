@@ -33,7 +33,7 @@ not return any value back to its caller. The called function:</p>
             .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>])
     )
     .returns::&lt;()&gt;()
-    .fire();</code></pre></div>
+    .invoke();</code></pre></div>
 <h3 id="example-2-with-return-value"><a href="#example-2-with-return-value">Example 2: With Return Value</a></h3>
 <p>The below example shows calling of a message of another contract that does
 return a <code>i32</code> value back to its caller. The called function:</p>
@@ -62,7 +62,7 @@ return a <code>i32</code> value back to its caller. The called function:</p>
             .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>])
     )
     .returns::&lt;i32&gt;()
-    .fire();</code></pre></div>
+    .invoke();</code></pre></div>
 <h3 id="example-3-delegate-call"><a href="#example-3-delegate-call">Example 3: Delegate call</a></h3>
 <p><strong>Note:</strong> The shown example panics because there is currently no delegate calling
 support in the off-chain testing environment. However, this code
@@ -78,12 +78,12 @@ should work fine in on-chain environments.</p>
             .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>])
     )
     .returns::&lt;i32&gt;()
-    .fire();</code></pre></div>
+    .invoke();</code></pre></div>
 <h2 id="handling-langerrors"><a href="#handling-langerrors">Handling <code>LangError</code>s</a></h2>
 <p>It is also important to note that there are certain types of errors which can happen during
 cross-contract calls which can be handled know as [<code>LangError</code>][<code>ink_primitives::LangError</code>].</p>
-<p>If you want to handle these errors use the <a href="struct.CallBuilder.html#method.try_fire" title="CallBuilder::try_fire"><code>CallBuilder::try_fire</code></a> methods instead of the
-<a href="struct.CallBuilder.html#method.fire" title="CallBuilder::fire"><code>CallBuilder::fire</code></a> ones.</p>
+<p>If you want to handle these errors use the <a href="struct.CallBuilder.html#method.try_invoke" title="CallBuilder::try_invoke"><code>CallBuilder::try_invoke</code></a> methods instead of the
+<a href="struct.CallBuilder.html#method.invoke" title="CallBuilder::invoke"><code>CallBuilder::invoke</code></a> ones.</p>
 <p><strong>Note:</strong> The shown examples panic because there is currently no cross-calling
 support in the off-chain testing environment. However, this code
 should work fine in on-chain environments.</p>
@@ -95,7 +95,7 @@ should work fine in on-chain environments.</p>
             .gas_limit(<span class="number">5000</span>)
             .transferred_value(<span class="number">10</span>),
     )
-    .try_fire()
+    .try_invoke()
     .expect(<span class="string">&quot;Got an error from the Contract&#39;s pallet.&quot;</span>);
 
 <span class="kw">match </span>call_result {

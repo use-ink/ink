@@ -804,7 +804,7 @@
             ) -&gt; #wrapped_output_type {
                 &lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::TraitCallBuilder&gt;::#call_operator(<span class="self">self</span>)
                     .#message_ident( #( #input_bindings ),* )
-                    .try_fire()
+                    .try_invoke()
                     .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(
                         <span class="string">&quot;encountered error while calling {}::{}: {:?}&quot;</span>,
                         <span class="macro">::core::stringify!</span>(#storage_ident),

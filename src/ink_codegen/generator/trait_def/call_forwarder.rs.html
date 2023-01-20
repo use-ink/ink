@@ -720,7 +720,7 @@
                         , #input_bindings
                     )*
                 )
-                    .try_fire()
+                    .try_invoke()
                     .unwrap_or_else(|env_err| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #panic_str, env_err))
                     .unwrap_or_else(|lang_err| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #panic_str, lang_err))
             }
