@@ -122,9 +122,6 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
-    /// handle those use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
-    ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
@@ -148,7 +145,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     #[inline]
     pub fn try_instantiate(
         &self,
@@ -188,7 +186,9 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     #[inline]
     pub fn try_instantiate_fallible(
         &self,
@@ -555,7 +555,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     #[inline]
     pub fn try_instantiate(
         self,
@@ -597,7 +598,9 @@ where
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink_primitives::LangError`] which can be handled by the caller.
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     #[inline]
     pub fn try_instantiate_fallible(
         self,
