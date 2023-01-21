@@ -411,8 +411,6 @@ pub struct CreateBuilder<
 ///     .instantiate()
 ///     .unwrap();
 /// ```
-///
-/// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
 #[allow(clippy::type_complexity)]
 pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
