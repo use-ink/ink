@@ -177,7 +177,7 @@ where
     exec_input: ExecutionInput<Args>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Salt,
-    /// The return type of the target contracts constructor method.
+    /// The return type of the target contract's constructor method.
     _return_type: ReturnType<R>,
     /// The type of the reference to the contract returned from the constructor.
     _phantom: PhantomData<fn() -> ContractRef>,
