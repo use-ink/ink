@@ -106,8 +106,8 @@ pub trait ConstructorReturnType<C> {
     const IS_RESULT: bool = false;
 
     /// The actual return type of the constructor.
-    /// If a constructor returns `Self`, then `Output = Self`
-    /// If a constructor returns a `Result<Self, E>`, then `Output = Result<Self, E>`.
+    /// - If a constructor returns `Self`, then `Output = Self`
+    /// - If a constructor returns a `Result<Self, E>`, then `Output = Result<Self, E>`
     type Output;
 
     /// The error type of the constructor return type.
