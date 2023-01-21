@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["ink","ink_codegen","ink_env","ink_ir","ink_macro","ink_metadata","ink_prelude","ink_primitives","ink_storage","ink_storage_traits"];
+window.ALL_CRATES = ["ink","ink_codegen","ink_e2e","ink_e2e_macro","ink_env","ink_ir","ink_macro","ink_metadata","ink_prelude","ink_primitives","ink_storage","ink_storage_traits"];

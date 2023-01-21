@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["extract_wasm","Extracts the Wasm blob from a contract bundle."]]};

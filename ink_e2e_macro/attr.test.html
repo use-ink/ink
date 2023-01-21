@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines an End-to-End test."><meta name="keywords" content="rust, rustlang, rust-lang, test"><title>test in ink_e2e_macro - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink_e2e_macro/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink_e2e_macro/index.html"><div class="logo-container">
+                    <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink_e2e_macro</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Attribute Macro <a href="index.html">ink_e2e_macro</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/ink_e2e_macro/lib.rs.html#116-118">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="item-decl"><pre class="rust attr"><code>#[test]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines an End-to-End test.</p>
+<p>The system requirements are:</p>
+<ul>
+<li>A Substrate node with <code>pallet-contracts</code> running in the background.
+You can e.g. use <a href="https://github.com/paritytech/substrate-contracts-node"><code>substrate-contracts-node</code></a>
+and launch it with
+<code>substrate-contracts-node -lerror,runtime::contracts=debug &gt; /tmp/contracts-node.log 2&gt;&amp;1</code>.</li>
+<li>A <code>cargo-contract</code> installation that can build the contract.</li>
+</ul>
+<p>Before the test function is invoked the contract will have been build. Any errors
+that occur during the contract build will prevent the test function from being
+invoked.</p>
+<h3 id="header-arguments"><a href="#header-arguments">Header Arguments</a></h3>
+<p>The <code>#[ink::e2e_test]</code> macro can be provided with some additional comma-separated
+header arguments:</p>
+<ul>
+<li>
+<p><code>ws_url: String</code></p>
+<p>The <code>ws_url</code> denotes the WebSocket URL where to connect to the RPC
+endpoint of the node.</p>
+<p><strong>Usage Example:</strong></p>
+<div class="example-wrap"><pre class="language-no_compile"><code># // TODO(#xxx) Remove the `no_compile`.
+type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+#[ink::e2e_test(ws_url = &quot;ws://localhost:9944&quot;)]
+async fn e2e_contract_must_transfer_value_to_sender(
+    mut client: ::ink_e2e::Client&lt;C, E&gt;,
+) -&gt; E2EResult&lt;()&gt; {
+    Ok(())
+}
+</code></pre></div>
+<p><strong>Default value:</strong> <code>&quot;ws://localhost:9944&quot;</code>.</p>
+</li>
+</ul>
+<h2 id="example"><a href="#example">Example</a></h2><div class="example-wrap"><pre class="language-no_compile"><code># // TODO(#xxx) Remove the `no_compile`.
+#[cfg(test)]
+mod tests {
+    use ::ink_e2e::*;
+    type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
+
+    #[ink::e2e_test]
+    async fn e2e_test_2(mut client: ::ink_e2e::Client&lt;C,E&gt;) -&gt; E2EResult&lt;()&gt; {
+        // given
+        let constructor = contract_transfer::constructors::new();
+        let contract_acc_id = client.instantiate(
+            &amp;mut ::ink_e2e::alice(),
+            constructor,
+            1337,
+            None,
+        )
+        .await
+        .expect(&quot;instantiating contract failed&quot;)
+        .account_id;
+
+        // when
+        let transfer = contract_transfer::messages::give_me(120);
+        let call_res = client.call(
+            &amp;mut ::ink_e2e::bob(),
+            contract_acc_id.clone(),
+            transfer.into(),
+            10,
+            None,
+        )
+        .await;
+
+        // then
+        assert!(call_res.is_ok());
+        Ok(())
+    }
+}
+</code></pre></div>
+<p>You can also use build the <code>Signer</code> type yourself, without going through
+the pre-defined functions:</p>
+<div class="example-wrap"><pre class="language-no_compile"><code>let mut bob = ::ink_e2e::PairSigner::new(
+    ::ink_e2e::AccountKeyring::Bob.pair()
+);
+</code></pre></div></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_e2e_macro" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
