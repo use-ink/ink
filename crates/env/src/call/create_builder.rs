@@ -409,8 +409,6 @@ pub struct CreateBuilder<
 ///     .returns::<Result<MyContractRef, ConstructorError>>()
 ///     .instantiate();
 /// ```
-///
-/// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
 #[allow(clippy::type_complexity)]
 pub fn build_create<ContractRef>() -> CreateBuilder<
     <ContractRef as ContractEnv>::Env,
