@@ -99,7 +99,7 @@ where
 /// }
 /// ```
 ///
-/// These constructor return signatures are then used by the contract ref codegen for the
+/// These constructor return signatures are then used by the `ContractRef` codegen for the
 /// [`CreateBuilder::returns`] type parameter.
 pub trait ConstructorReturnType<C> {
     /// Is `true` if `Self` is `Result<C, E>`.
@@ -124,10 +124,10 @@ pub trait ConstructorReturnType<C> {
     }
 }
 
-/// Blanket impl for contract ref types, generated for cross-contract calls.
+/// Blanket implementation for `ContractRef` types, generated for cross-contract calls.
 ///
-/// In the context of a contract ref inherent, `Self` from a constructor return
-/// type will become the type of the contract ref's type.
+/// In the context of a `ContractRef` inherent, `Self` from a constructor return
+/// type will become the type of the `ContractRef`'s type.
 impl<C> ConstructorReturnType<C> for C
 where
     C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
@@ -140,8 +140,8 @@ where
     }
 }
 
-/// Blanket impl for a `Result<Self>` return type. `Self` in the context
-/// of a contract ref inherent becomes the contract refs type.
+/// Blanket implementation for a `Result<Self>` return type. `Self` in the context
+/// of a `ContractRef` inherent becomes the `ContractRef`s type.
 impl<C, E> ConstructorReturnType<C> for core::result::Result<C, E>
 where
     C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
@@ -214,7 +214,7 @@ where
     /// Modify the selector.
     ///
     /// Useful when using the [`CreateParams`] generated as part of the
-    /// contract ref, but using a custom selector.
+    /// `ContractRef`, but using a custom selector.
     pub fn update_selector(&mut self, selector: Selector) {
         self.exec_input.update_selector(selector)
     }

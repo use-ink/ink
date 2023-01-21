@@ -67,7 +67,7 @@ impl<Args> ExecutionInput<Args> {
     /// Modify the selector.
     ///
     /// Useful when using the [`ExecutionInput`] generated as part of the
-    /// contract ref, but using a custom selector.
+    /// `ContractRef`, but using a custom selector.
     pub fn update_selector(&mut self, selector: Selector) {
         self.selector = selector;
     }
