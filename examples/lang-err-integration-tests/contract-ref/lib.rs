@@ -31,7 +31,10 @@ mod contract_ref {
                 .salt_bytes(salt)
                 .instantiate_fallible()
                 .unwrap_or_else(|error| {
-                    panic!("Received an error from the Flipper constructor while instantiating Flipper {:?}", error)
+                    panic!(
+                        "Received an error from the Flipper constructor while instantiating \
+                         Flipper {:?}", error
+                    )
                 });
 
             Self { flipper }
