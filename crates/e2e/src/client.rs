@@ -325,7 +325,7 @@ where
             .into_iter()
             .map(|path| {
                 let path = Path::new(path);
-                let contract = ContractMetadata::load(&path).unwrap_or_else(|err| {
+                let contract = ContractMetadata::load(path).unwrap_or_else(|err| {
                     panic!(
                         "Error loading contract metadata {}: {:?}",
                         path.display(),
@@ -706,7 +706,7 @@ where
             });
 
         let account_data = get_composite_field_value(&account, "data")?;
-        let balance = get_composite_field_value(&account_data, "free")?;
+        let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
             Error::Balance(format!("{:?} should convert to u128", balance))
         })?;
