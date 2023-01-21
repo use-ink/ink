@@ -49,7 +49,6 @@ fn main() {
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
-            .unwrap()
     };
 
     // fn new_storage_name() -> Callee
@@ -60,7 +59,6 @@ fn main() {
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
-            .unwrap()
     };
 
     // fn new_result_self() -> Result<Self, Error>
@@ -71,7 +69,6 @@ fn main() {
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
-            .unwrap()
     };
 
     // fn new_result_storage_name() -> Result<Callee, Error>
@@ -82,6 +79,5 @@ fn main() {
             .endowment(25)
             .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
             .instantiate()
-            .unwrap()
     };
 }
