@@ -304,8 +304,7 @@ where
 ///     .returns::<Result<MyContract, ConstructorError>>()
 ///     .params()
 ///     .instantiate_fallible()
-///     .unwrap()
-///     .unwrap();
+///     .expect("Constructor should've run without errors.");
 /// ```
 ///
 /// Note the usage of the [`CreateBuilder::instantiate_fallible`] method.
