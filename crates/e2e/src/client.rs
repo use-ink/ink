@@ -325,7 +325,7 @@ where
             .into_iter()
             .map(|path| {
                 let path = Path::new(path);
-                let contract = ContractMetadata::load(&path).unwrap_or_else(|err| {
+                let contract = ContractMetadata::load(path).unwrap_or_else(|err| {
                     panic!(
                         "Error loading contract metadata {}: {:?}",
                         path.display(),

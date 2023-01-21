@@ -417,11 +417,10 @@ mod call_builder {
                 .call(&mut ink_e2e::eve(), call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
-                .return_value()
-                .expect("TODO");
+                .return_value();
 
             assert!(
-                call_result.is_ok(),
+                matches!(call_result, Some(Ok(_))),
                 "Call to falliable constructor failed, when it should have succeeded."
             );
 

@@ -244,9 +244,6 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
-    /// handle those use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
-    ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
@@ -269,7 +266,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     #[inline]
     pub fn try_instantiate(
         &self,
@@ -280,6 +278,7 @@ where
         crate::Error,
     > {
         crate::instantiate_contract(self)
+        // .map(|inner| inner.map(FromAccountId::from_account_id))
     }
 }
 
@@ -409,7 +408,7 @@ pub struct CreateBuilder<
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<Result<MyContractRef, ConstructorError>>()
 ///     .instantiate()
-///     .unwrap();
+///     .expect("Constructor should've run without errors.");
 /// ```
 #[allow(clippy::type_complexity)]
 pub fn build_create<ContractRef>() -> CreateBuilder<
@@ -745,7 +744,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     #[inline]
     pub fn try_instantiate(
         self,
