@@ -46,7 +46,8 @@ ink! is composed of a number of crates that are all found in the
   mocking specified conditions.
 * [`e2e`](https://github.com/paritytech/ink/tree/master/crates/e2e):
   Our end-to-end testing framework for ink! contracts. It requires a Substrate node
-  running in the background. The crate provides a macro which can be used
+  which includes `pallet-contracts` running in the background. The crate provides a
+  macro which can be used
   to write an idiomatic Rust test that will in the background create transactions,
   submit it to the Substrate chain and return the state changes, gas costs, etc.
 
@@ -114,7 +115,7 @@ It's unclear when or if this feature will ever make it to stable.
 We had a lot of issues when requiring users to use Rust nightly. Mostly
 because there were regularly bugs in the nightly Rust compiler that
 often took days to be fixed.
-As a consequence we decided on having `cargo-contract` v2 run
+As a consequence we decided on having `cargo-contract` `v2.0.0` run
 `cargo +stable build` with `RUSTC_BOOTSTRAP=1`. This is kind of a hack,
 the env variable enables unstable features in the stable Rust toolchain.
 But it enabled us to switch tutorials/guides to Rust stable.
