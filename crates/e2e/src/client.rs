@@ -591,7 +591,11 @@ where
             return Err(Error::UploadDryRun(dry_run))
         }
 
-        let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
+        let account_index = self.next_account_index(signer).await;
+        let tx_events = self
+            .api
+            .upload(signer, account_index, code, storage_deposit_limit)
+            .await;
 
         let mut hash = None;
         for evt in tx_events.iter() {
@@ -674,6 +678,7 @@ where
             return Err(Error::CallDryRun(dry_run))
         }
 
+        let account_index = self.next_account_index(signer).await;
         let tx_events = self
             .api
             .call(
@@ -683,6 +688,7 @@ where
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,
+                account_index,
             )
             .await;
 

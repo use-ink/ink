@@ -317,6 +317,7 @@ where
     pub async fn upload(
         &self,
         signer: &Signer<C>,
+        account_index: C::Index,
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
@@ -334,7 +335,11 @@ where
 
         self.client
             .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
+            .create_signed_with_nonce(&call, signer, account_index, Default::default())
+            .unwrap_or_else(|err| {
+                panic!("error on call `create_signed_with_nonce`: {:?}", err);
+            })
+            .submit_and_watch()
             .await
             .map(|tx_progress| {
                 log_info(&format!(
@@ -344,10 +349,7 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
+                panic!("error on call `create_signed_with_nonce`: {:?}", err);
             })
             .wait_for_in_block()
             .await
@@ -402,6 +404,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
         data: Vec<u8>,
         signer: &Signer<C>,
+        account_index: C::Index,
     ) -> ExtrinsicEvents<C> {
         let call = subxt::tx::StaticTxPayload::new(
             "Contracts",
@@ -419,7 +422,11 @@ where
 
         self.client
             .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
+            .create_signed_with_nonce(&call, signer, account_index, Default::default())
+            .unwrap_or_else(|err| {
+                panic!("error on call `create_signed_with_nonce`: {:?}", err);
+            })
+            .submit_and_watch()
             .await
             .map(|tx_progress| {
                 log_info(&format!(
@@ -429,10 +436,7 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
+                panic!("error on call `submit_and_watch`: {:?}", err);
             })
             .wait_for_in_block()
             .await
