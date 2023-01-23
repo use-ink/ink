@@ -204,16 +204,15 @@ type as Ethereum for their `AccountId`.
 
 The `Environment` trait is how ink! knows the concretes types of the chain
 to which the contract will be deployed to.
-
 Specifically, our `ink_env` crate defines a trait [`Environment`](https://paritytech.github.io/ink/ink_env/trait.Environment.html)
 which specifies the types.
-By default, ink! ships with the default Substrate types, the `ink_env` crate
+By default, ink! uses the default Substrate types, the `ink_env` crate
 exports an implementation of the `Environment` trait for that:
 [`DefaultEnvironment`](https://paritytech.github.io/ink/ink_env/enum.DefaultEnvironment.html).
 
 If you are developing for a chain that uses different types than the
-Substrate default you can configure a different environment in the contract
-macro ([documentation here](https://paritytech.github.io/ink/ink/attr.contract.html#header-arguments)):
+Substrate default types you can configure a different environment in
+the contract macro ([documentation here](https://paritytech.github.io/ink/ink/attr.contract.html#header-arguments)):
 
 ```rust
 #[ink::contract(env = MyCustomTypes)]
