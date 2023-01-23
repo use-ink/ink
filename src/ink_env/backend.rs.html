@@ -504,6 +504,26 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -945,14 +965,34 @@
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    </span><span class="kw">fn </span>instantiate_contract&lt;E, Args, Salt, C&gt;(
+    </span><span class="kw">fn </span>instantiate_contract&lt;E, Args, Salt, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, C&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;E::AccountId&gt;
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::ConstructorResult&lt;E::AccountId&gt;&gt;
     <span class="kw">where
         </span>E: Environment,
         Args: scale::Encode,
         Salt: AsRef&lt;[u8]&gt;;
+
+    <span class="doccomment">/// Attempts to instantiate another contract, returning the instantiation result back to the
+    /// caller.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`instantiate_fallible_contract`][`crate::instantiate_fallible_contract`]
+    </span><span class="kw">fn </span>instantiate_fallible_contract&lt;E, Args, Salt, R, ContractError&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;
+        ink_primitives::ConstructorResult&lt;
+            core::result::Result&lt;E::AccountId, ContractError&gt;,
+        &gt;,
+    &gt;
+    <span class="kw">where
+        </span>E: Environment,
+        Args: scale::Encode,
+        Salt: AsRef&lt;[u8]&gt;,
+        ContractError: scale::Decode;
 
     <span class="doccomment">/// Terminates a smart contract.
     ///

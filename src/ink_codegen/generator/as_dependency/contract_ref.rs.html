@@ -432,6 +432,11 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -837,6 +842,10 @@
         <span class="kw">let </span>input_bindings = generator::input_bindings(constructor.inputs());
         <span class="kw">let </span>input_types = generator::input_types(constructor.inputs());
         <span class="kw">let </span>arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        <span class="kw">let </span>ret_type = constructor
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| <span class="macro">quote::quote! </span>{ <span class="self">Self </span>});
         <span class="macro">quote_spanned!</span>(span =&gt;
             #( #attrs )*
             <span class="attribute">#[inline]
@@ -850,9 +859,9 @@
                 ::ink::env::call::utils::Unset&lt;Balance&gt;,
                 ::ink::env::call::utils::Set&lt;::ink::env::call::ExecutionInput&lt;#arg_list&gt;&gt;,
                 ::ink::env::call::utils::Unset&lt;::ink::env::call::state::Salt&gt;,
-                <span class="self">Self</span>,
+                ::ink::env::call::utils::Set&lt;::ink::env::call::utils::ReturnType&lt;#ret_type&gt;&gt;,
             &gt; {
-                ::ink::env::call::build_create::&lt;Environment, <span class="self">Self</span>&gt;()
+                ::ink::env::call::build_create::&lt;Environment&gt;()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
@@ -861,6 +870,7 @@
                             .push_arg(#input_bindings)
                         )*
                     )
+                    .returns::&lt;#ret_type&gt;()
             }
         )
     }

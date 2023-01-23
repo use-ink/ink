@@ -783,6 +783,9 @@
 <span id="782">782</span>
 <span id="783">783</span>
 <span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -917,7 +920,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;, <span class="kw">crate</span>::Error&gt; {
         <span class="kw">crate</span>::invoke_contract(<span class="self">self</span>)
     }
@@ -935,7 +939,7 @@
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] If you want to
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
     /// handle those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     </span><span class="kw">pub fn </span>invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R {
         <span class="kw">crate</span>::invoke_contract_delegate(<span class="self">self</span>).unwrap_or_else(|env_error| {
@@ -1476,7 +1480,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;()&gt;, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
@@ -1535,7 +1540,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
