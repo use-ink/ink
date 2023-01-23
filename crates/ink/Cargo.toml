@@ -3,6 +3,7 @@ name = "ink"
 version = "4.0.0-beta"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
+rust-version = "1.63"
 
 license = "Apache-2.0"
 readme = "README.md"
