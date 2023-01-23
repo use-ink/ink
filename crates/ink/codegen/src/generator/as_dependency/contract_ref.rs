@@ -403,6 +403,10 @@ impl ContractRef<'_> {
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        let ret_type = constructor
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote::quote! { Self });
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]
@@ -416,9 +420,9 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Unset<Balance>,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
-                Self,
+                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
-                ::ink::env::call::build_create::<Environment, Self>()
+                ::ink::env::call::build_create::<Environment>()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
@@ -427,6 +431,7 @@ impl ContractRef<'_> {
                             .push_arg(#input_bindings)
                         )*
                     )
+                    .returns::<#ret_type>()
             }
         )
     }

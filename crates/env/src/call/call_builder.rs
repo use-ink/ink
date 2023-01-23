@@ -132,7 +132,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     pub fn try_invoke(&self) -> Result<ink_primitives::MessageResult<R>, crate::Error> {
         crate::invoke_contract(self)
     }
@@ -150,7 +151,7 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] If you want to
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
     /// handle those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     pub fn invoke(&self) -> R {
         crate::invoke_contract_delegate(self).unwrap_or_else(|env_error| {
@@ -691,7 +692,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<()>, Error> {
         self.params().try_invoke()
     }
@@ -750,7 +752,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink_primitives::LangError`], both of which can be handled by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
     pub fn try_invoke(self) -> Result<ink_primitives::MessageResult<R>, Error> {
         self.params().try_invoke()
     }

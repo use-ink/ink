@@ -469,14 +469,36 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+        params: &CreateParams<E, Args, Salt, R>,
+    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
     where
         E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+    {
+        let _code_hash = params.code_hash();
+        let _gas_limit = params.gas_limit();
+        let _endowment = params.endowment();
+        let _input = params.exec_input();
+        let _salt_bytes = params.salt_bytes();
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
+
+    fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
+        &mut self,
+        params: &CreateParams<E, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            core::result::Result<E::AccountId, ContractError>,
+        >,
+    >
+    where
+        E: Environment,
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>,
+        ContractError: scale::Decode,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();

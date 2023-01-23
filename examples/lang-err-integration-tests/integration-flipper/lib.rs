@@ -12,6 +12,10 @@ pub mod integration_flipper {
         value: bool,
     }
 
+    #[derive(scale::Encode, scale::Decode, Debug)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub struct FlipperError;
+
     impl Flipper {
         /// Creates a new integration_flipper smart contract initialized with the given value.
         #[ink(constructor)]
@@ -23,6 +27,17 @@ pub mod integration_flipper {
         #[ink(constructor)]
         pub fn new_default() -> Self {
             Self::new(Default::default())
+        }
+
+        /// Attemps to create a new integration_flipper smart contract initialized with the given
+        /// value.
+        #[ink(constructor)]
+        pub fn try_new(succeed: bool) -> Result<Self, FlipperError> {
+            if succeed {
+                Ok(Self::new(true))
+            } else {
+                Err(FlipperError)
+            }
         }
 
         /// Flips the current value of the Flipper's boolean.
