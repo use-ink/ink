@@ -45,7 +45,7 @@ ink! is composed of a number of crates that are all found in the
   An off-chain testing engine, it simulates a blockchain environment and allows
   mocking specified conditions.
 * [`e2e`](https://github.com/paritytech/ink/tree/master/crates/e2e):
-  Our end-to-end testing framework for ink! contracts. It requires a Substrate node
+  An end-to-end testing framework for ink! contracts. It requires a Substrate node
   which includes `pallet-contracts` running in the background. The crate provides a
   macro which can be used
   to write an idiomatic Rust test that will in the background create transactions,
