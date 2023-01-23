@@ -40,7 +40,11 @@ use sp_runtime::traits::{
     Verify,
 };
 use std::{
-    collections::BTreeMap,
+    collections::{
+        hash_map::Entry,
+        BTreeMap,
+        HashMap,
+    },
     fmt::Debug,
     path::Path,
 };
@@ -284,13 +288,15 @@ where
 {
     api: ContractsApi<C, E>,
     contracts: BTreeMap<String, ContractMetadata>,
+    account_indices: HashMap<C::AccountId, C::Index>,
 }
 
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
+    C::AccountId: core::hash::Hash + Into<C::Address> + serde::de::DeserializeOwned,
     C::Address: From<C::AccountId>,
+    C::Index: From<u32>,
     C::Signature: From<sr25519::Signature>,
     <C::Signature as Verify>::Signer: From<sr25519::Public>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
@@ -339,6 +345,7 @@ where
         Self {
             api: ContractsApi::new(client, url).await,
             contracts,
+            account_indices: Default::default(),
         }
     }
 
@@ -441,6 +448,8 @@ where
             return Err(Error::InstantiateDryRun(dry_run))
         }
 
+        let account_index = self.next_account_index(signer).await;
+
         let tx_events = self
             .api
             .instantiate_with_code(
@@ -451,6 +460,7 @@ where
                 data.clone(),
                 salt,
                 signer,
+                account_index,
             )
             .await;
 
@@ -496,6 +506,36 @@ where
             account_id: account_id.expect("cannot extract `account_id` from events"),
             events: tx_events,
         })
+    }
+
+    /// Get the latest known account index/nonce for the given account.
+    ///
+    /// If the account index is not already known, it is fetched from the node.
+    /// If the account index is already known, it is incremented.
+    async fn next_account_index(&mut self, signer: &Signer<C>) -> C::Index {
+        match self.account_indices.entry(signer.account_id().clone()) {
+            Entry::Vacant(entry) => {
+                let next_index = self
+                    .api
+                    .client
+                    .rpc()
+                    .system_account_next_index(signer.account_id())
+                    .await
+                    .unwrap_or_else(|err| {
+                        panic!(
+                            "error on fetching `system_account_next_index`: {:?}",
+                            err
+                        );
+                    });
+                entry.insert(next_index);
+                next_index
+            }
+            Entry::Occupied(entry) => {
+                let index = entry.into_mut();
+                *index = *index + 1.into();
+                *index
+            }
+        }
     }
 
     /// Generate a unique salt based on the system time.
