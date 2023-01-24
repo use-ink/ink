@@ -45,6 +45,14 @@ use subxt::{
     OnlineClient,
 };
 
+/// A raw call to `pallet-balances` `transfer`.
+// #[derive(Debug, scale::Encode)]
+// pub struct Transfer<E: Environment, B> {
+//     dest: sp_runtime::MultiAddress<E::AccountId, ()>,
+//     #[codec(compact)]
+//     value: B,
+// }
+
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct InstantiateWithCode<B> {
@@ -66,6 +74,25 @@ pub struct Call<E: Environment, B> {
     gas_limit: Weight,
     storage_deposit_limit: Option<B>,
     data: Vec<u8>,
+}
+
+/// A raw call to `pallet-contracts`'s `call`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct Call2<E: Environment, B> {
+    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
+    #[codec(compact)]
+    value: B,
+    gas_limit: Weight,
+    storage_deposit_limit: Option<B>,
+    data: Vec<u8>,
+}
+
+/// A raw call to `pallet-contracts`'s `call`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct Transfer<E: Environment, C: subxt::Config> {
+    dest: C::Address,
+    #[codec(compact)]
+    value: E::Balance,
 }
 
 #[derive(
@@ -167,10 +194,7 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: scale::Encode + serde::Serialize,
-
-    Call<E, E::Balance>: scale::Encode,
-    InstantiateWithCode<E::Balance>: scale::Encode,
+    E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
     pub async fn new(client: OnlineClient<C>, url: &str) -> Self {
@@ -202,7 +226,10 @@ where
         let call = subxt::tx::StaticTxPayload::new(
             "Balances",
             "transfer",
-            (dest, value),
+            Transfer::<E, C> {
+                dest: dest.into(),
+                value,
+            },
             Default::default(),
         )
         .unvalidated();

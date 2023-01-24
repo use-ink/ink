@@ -21,10 +21,6 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    xts::{
-        Call,
-        InstantiateWithCode,
-    },
     CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
@@ -304,11 +300,8 @@ where
 
     E: Environment,
     E::AccountId: Debug,
-    E::Balance: Debug + scale::Encode + serde::Serialize,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
-
-    Call<E, E::Balance>: scale::Encode,
-    InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
     pub async fn new(url: &str, contracts: impl IntoIterator<Item = &str>) -> Self {
@@ -369,14 +362,22 @@ where
                 .try_transfer_balance(origin, account_id.clone(), amount.clone())
                 .await;
             match transfer_result {
-                Ok(_) => break,
+                Ok(_) => {
+                    log_info(&format!(
+                        "transfer from {} to {} succeeded",
+                        origin.account_id(),
+                        account_id,
+                    ));
+                    break
+                }
                 Err(err) => {
                     log_info(&format!(
                         "transfer from {} to {} failed with {:?}",
                         origin.account_id(),
                         account_id,
                         err
-                    ))
+                    ));
+                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
                 }
             }
         }

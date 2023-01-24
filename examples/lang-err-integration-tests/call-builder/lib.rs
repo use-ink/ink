@@ -276,15 +276,17 @@ mod call_builder {
         async fn e2e_create_builder_works_with_valid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            let origin = client.create_and_fund_account(&ink_e2e::bob(), 1_000_000_000_000).await;
+
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &ink_e2e::bob(), None)
+                .upload("constructors_return_value", &origin, None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -296,7 +298,7 @@ mod call_builder {
                     contract.call_instantiate(code_hash, selector, init_value)
                 });
             let call_result = client
-                .call(&ink_e2e::bob(), call, 0, None)
+                .call(&origin, call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value();
