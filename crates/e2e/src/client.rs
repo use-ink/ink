@@ -33,6 +33,7 @@ use super::{
 };
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
+use ink_primitives::MessageResult;
 
 use sp_runtime::traits::{
     IdentifyAccount,
@@ -124,7 +125,7 @@ pub struct CallResult<C: subxt::Config, E: Environment, V> {
     pub events: ExtrinsicEvents<C>,
     /// Contains the result of decoding the return value of the called
     /// function.
-    pub value: Result<V, scale::Error>,
+    pub value: Result<MessageResult<V>, scale::Error>,
     /// Returns the bytes of the encoded dry-run return value.
     pub data: Vec<u8>,
 }
@@ -139,12 +140,19 @@ where
     /// Panics if the value could not be decoded. The raw bytes can be accessed
     /// via [`return_data`].
     pub fn return_value(self) -> V {
-        self.value.unwrap_or_else(|err| {
-            panic!(
-                "decoding dry run result to ink! message return type failed: {}",
-                err
-            )
-        })
+        self.value
+            .unwrap_or_else(|env_err| {
+                panic!(
+                    "Decoding dry run result to ink! message return type failed: {}",
+                    env_err
+                )
+            })
+            .unwrap_or_else(|lang_err| {
+                panic!(
+                    "Encountered a `LangError` while decoding dry run result to ink! message: {:?}",
+                    lang_err
+                )
+            })
     }
 
     /// Returns true if the specified event was triggered by the call.
@@ -317,7 +325,7 @@ where
             .into_iter()
             .map(|path| {
                 let path = Path::new(path);
-                let contract = ContractMetadata::load(&path).unwrap_or_else(|err| {
+                let contract = ContractMetadata::load(path).unwrap_or_else(|err| {
                     panic!(
                         "Error loading contract metadata {}: {:?}",
                         path.display(),
@@ -655,7 +663,7 @@ where
         }
 
         let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: Result<RetType, scale::Error> =
+        let value: Result<MessageResult<RetType>, scale::Error> =
             scale::Decode::decode(&mut bytes.as_ref());
 
         Ok(CallResult {
@@ -698,7 +706,7 @@ where
             });
 
         let account_data = get_composite_field_value(&account, "data")?;
-        let balance = get_composite_field_value(&account_data, "free")?;
+        let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
             Error::Balance(format!("{:?} should convert to u128", balance))
         })?;

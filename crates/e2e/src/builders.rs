@@ -39,7 +39,7 @@ pub type CreateBuilderPartial<E, Args, R> = CreateBuilder<
     Unset<<E as Environment>::Balance>,
     Set<ExecutionInput<Args>>,
     Unset<ink_env::call::state::Salt>,
-    R,
+    Set<ReturnType<R>>,
 >;
 
 /// Get the encoded constructor arguments from the partially initialized `CreateBuilder`

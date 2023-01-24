@@ -34,6 +34,31 @@ pub mod constructors_return_value {
             }
         }
 
+        /// A constructor which reverts and fills the output buffer with an erronenously encoded
+        /// return value.
+        #[ink(constructor)]
+        pub fn revert_new(_init_value: bool) -> Self {
+            ink::env::return_value::<ink::ConstructorResult<AccountId>>(
+                ink::env::ReturnFlags::new_with_reverted(true),
+                &Ok(AccountId::from([0u8; 32])),
+            )
+        }
+
+        /// A constructor which reverts and fills the output buffer with an erronenously encoded
+        /// return value.
+        #[ink(constructor)]
+        pub fn try_revert_new(init_value: bool) -> Result<Self, ConstructorError> {
+            let value = if init_value {
+                Ok(Ok(AccountId::from([0u8; 32])))
+            } else {
+                Err(ink::LangError::CouldNotReadInput)
+            };
+
+            ink::env::return_value::<
+                ink::ConstructorResult<Result<AccountId, ConstructorError>>,
+            >(ink::env::ReturnFlags::new_with_reverted(true), &value)
+        }
+
         /// Returns the current value of the contract storage.
         #[ink(message)]
         pub fn get_value(&self) -> bool {
@@ -114,7 +139,7 @@ pub mod constructors_return_value {
                 .expect("Instantiate dry run should succeed");
 
             let data = infallible_constructor_result.result.data;
-            let decoded_result = Result::<(), ::ink::LangError>::decode(&mut &data[..])
+            let decoded_result = Result::<(), ink::LangError>::decode(&mut &data[..])
                 .expect("Failed to decode constructor Result");
             assert!(
                 decoded_result.is_ok(),
@@ -191,8 +216,7 @@ pub mod constructors_return_value {
                 .call(&ink_e2e::bob(), get, 0, None)
                 .await
                 .expect("Calling `get_value` failed")
-                .return_value()
-                .expect("Input is valid, call must not fail.");
+                .return_value();
 
             assert_eq!(
                 true, value,

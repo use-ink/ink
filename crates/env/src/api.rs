@@ -268,7 +268,9 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(params: &CallParams<E, Call<E>, Args, R>) -> Result<R>
+pub fn invoke_contract<E, Args, R>(
+    params: &CallParams<E, Call<E>, Args, R>,
+) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -309,7 +311,9 @@ where
 /// # Note
 ///
 /// This is a low level way to instantiate another smart contract.
-/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
 ///
 /// # Errors
 ///
@@ -319,16 +323,52 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, Args, Salt, C>(
-    params: &CreateParams<E, Args, Salt, C>,
-) -> Result<E::AccountId>
+pub fn instantiate_contract<E, Args, Salt, R>(
+    params: &CreateParams<E, Args, Salt, R>,
+) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
 where
     E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, Args, Salt, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, Args, Salt, R>(instance, params)
+    })
+}
+
+/// Attempts to instantiate another contract, returning the instantiation result back to the
+/// caller.
+///
+/// # Note
+///
+/// This is a low level way to instantiate another smart contract.
+///
+/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
+///
+/// # Errors
+///
+/// - If the code hash is invalid.
+/// - If the arguments passed to the instantiation process are invalid.
+/// - If the instantiation process traps.
+/// - If the instantiation process runs out of gas.
+/// - If given insufficient endowment.
+/// - If the returned account ID failed to decode properly.
+pub fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
+    params: &CreateParams<E, Args, Salt, R>,
+) -> Result<
+    ink_primitives::ConstructorResult<core::result::Result<E::AccountId, ContractError>>,
+>
+where
+    E: Environment,
+    Args: scale::Encode,
+    Salt: AsRef<[u8]>,
+    ContractError: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::instantiate_fallible_contract::<E, Args, Salt, R, ContractError>(
+            instance, params,
+        )
     })
 }
 
