@@ -1,6 +1,6 @@
 [package]
 name = "contract_terminate"
-version = "4.0.0-beta"
+version = "4.0.0-beta.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
