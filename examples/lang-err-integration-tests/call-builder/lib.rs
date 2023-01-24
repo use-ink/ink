@@ -173,7 +173,9 @@ mod call_builder {
         async fn e2e_invalid_message_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::alice(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
@@ -184,13 +186,7 @@ mod call_builder {
 
             let flipper_constructor = FlipperRef::new_default();
             let flipper_acc_id = client
-                .instantiate(
-                    "integration_flipper",
-                    &origin,
-                    flipper_constructor,
-                    0,
-                    None,
-                )
+                .instantiate("integration_flipper", &origin, flipper_constructor, 0, None)
                 .await
                 .expect("instantiate `flipper` failed")
                 .account_id;
@@ -234,7 +230,9 @@ mod call_builder {
         async fn e2e_invalid_message_selector_panics_on_invoke(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
@@ -245,13 +243,7 @@ mod call_builder {
 
             let flipper_constructor = FlipperRef::new_default();
             let flipper_acc_id = client
-                .instantiate(
-                    "integration_flipper",
-                    &origin,
-                    flipper_constructor,
-                    0,
-                    None,
-                )
+                .instantiate("integration_flipper", &origin, flipper_constructor, 0, None)
                 .await
                 .expect("instantiate `flipper` failed")
                 .account_id;
@@ -280,7 +272,9 @@ mod call_builder {
         async fn e2e_create_builder_works_with_valid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
@@ -319,7 +313,9 @@ mod call_builder {
         async fn e2e_create_builder_fails_with_invalid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
@@ -358,7 +354,9 @@ mod call_builder {
         async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
@@ -404,7 +402,9 @@ mod call_builder {
         async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
@@ -443,8 +443,10 @@ mod call_builder {
         async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
-            
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
+
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
@@ -489,8 +491,10 @@ mod call_builder {
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
-            
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
+
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
@@ -536,7 +540,9 @@ mod call_builder {
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
-            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            let origin = client
+                .create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000)
+                .await;
 
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
