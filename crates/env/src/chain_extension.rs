@@ -358,7 +358,8 @@ where
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
     /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion,
     /// because `handle_status` flag is set.
-    /// We still need to indicate that the original type is not `Result<T, E>`, so `const IS_RESULT` set `false`.
+    /// We still need to indicate that the original type is not `Result<T, E>`, so
+    /// `const IS_RESULT` is set `false`.
     /// It will handle the shared error code from the chain extension.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -411,7 +412,7 @@ where
     /// # Example
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `i32` upon completion. Hence, `const IS_RESULT` set `false`.
+    /// as input parameters and returns a `i32` upon completion. Hence, `const IS_RESULT` is set `false`.
     /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -444,7 +445,7 @@ where
     }
 }
 
-/// Extract `Ok` and `Err` variants from `Result` type
+/// Extract `Ok` and `Err` variants from `Result` type.
 pub trait IsResultType: private::IsResultTypeSealed {
     /// The `T` type of the `Result<T, E>`.
     type Ok;
