@@ -358,15 +358,17 @@ mod call_builder {
         async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &ink_e2e::dave(), constructor, 0, None)
+                .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &ink_e2e::dave(), None)
+                .upload("constructors_return_value", &origin, None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -378,7 +380,7 @@ mod call_builder {
                     contract.call_instantiate(code_hash, selector, init_value)
                 });
 
-            let call_result = client.call(&mut ink_e2e::dave(), call, 0, None).await;
+            let call_result = client.call(&origin, call, 0, None).await;
             assert!(
                 call_result.is_err(),
                 "Call execution should've failed, but didn't."
@@ -402,15 +404,17 @@ mod call_builder {
         async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &ink_e2e::eve(), constructor, 0, None)
+                .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &ink_e2e::eve(), None)
+                .upload("constructors_return_value", &origin, None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -422,7 +426,7 @@ mod call_builder {
                     contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client
-                .call(&mut ink_e2e::eve(), call, 0, None)
+                .call(&origin, call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value();
@@ -439,15 +443,17 @@ mod call_builder {
         async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &ink_e2e::ferdie(), constructor, 0, None)
+                .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &ink_e2e::ferdie(), None)
+                .upload("constructors_return_value", &origin, None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -459,7 +465,7 @@ mod call_builder {
                     contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client
-                .call(&mut ink_e2e::ferdie(), call, 0, None)
+                .call(&origin, call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value();
@@ -483,15 +489,17 @@ mod call_builder {
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+            
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &ink_e2e::alice(), constructor, 0, None)
+                .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &ink_e2e::alice(), None)
+                .upload("constructors_return_value", &origin, None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -502,7 +510,7 @@ mod call_builder {
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
                     contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
-            let call_result = client.call(&mut ink_e2e::alice(), call, 0, None).await;
+            let call_result = client.call(&origin, call, 0, None).await;
 
             assert!(
                 call_result.is_err(),
@@ -528,15 +536,17 @@ mod call_builder {
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
+            let origin = client.create_and_fund_account(&ink_e2e::bob(), 10_000_000_000_000).await;
+
             let constructor = CallBuilderTestRef::new();
             let contract_acc_id = client
-                .instantiate("call_builder", &ink_e2e::bob(), constructor, 0, None)
+                .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
                 .expect("instantiate failed")
                 .account_id;
 
             let code_hash = client
-                .upload("constructors_return_value", &ink_e2e::bob(), None)
+                .upload("constructors_return_value", &origin, None)
                 .await
                 .expect("upload `constructors_return_value` failed")
                 .code_hash;
@@ -548,7 +558,7 @@ mod call_builder {
                     contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
             let call_result = client
-                .call(&mut ink_e2e::bob(), call, 0, None)
+                .call(&origin, call, 0, None)
                 .await
                 .expect(
                     "Client failed to call `call_builder::call_instantiate_fallible`.",
