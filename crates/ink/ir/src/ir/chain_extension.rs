@@ -88,13 +88,6 @@ pub struct ChainExtensionMethod {
     ///
     /// The default for this flag is `true`.
     handle_status: bool,
-    /// If `false` the procedural macro no longer tries to enforce that the returned type encoded
-    /// into the output buffer of the chain extension method call is of type `Result<T, E>`.
-    /// Also `E` is no longer required to implement `From<Self::ErrorCode>` in case `handle_status`
-    /// flag does not exist.
-    ///
-    /// The default for this flag is `true`.
-    returns_result: bool,
 }
 
 impl ChainExtensionMethod {
@@ -137,11 +130,6 @@ impl ChainExtensionMethod {
     /// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.
     pub fn handle_status(&self) -> bool {
         self.handle_status
-    }
-
-    /// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.
-    pub fn returns_result(&self) -> bool {
-        self.returns_result
     }
 }
 
@@ -278,7 +266,7 @@ impl ChainExtension {
                 item_type.ident,
                 "chain extensions expect an associated type with name `ErrorCode` but found {}",
                 item_type.ident,
-            ))
+            ));
         }
         if !item_type.generics.params.is_empty() {
             return Err(format_err_spanned!(
@@ -412,7 +400,7 @@ impl ChainExtension {
             return Err(format_err_spanned!(
                 default_impl,
                 "ink! chain extension methods with default implementations are not supported"
-            ))
+            ));
         }
         if let Some(constness) = &method.sig.constness {
             return Err(format_err_spanned!(
@@ -486,8 +474,7 @@ impl ChainExtension {
             |arg| {
                 match arg.kind() {
                     ir::AttributeArg::Extension(_)
-                    | ir::AttributeArg::HandleStatus(_)
-                    | ir::AttributeArg::ReturnsResult(_) => Ok(()),
+                    | ir::AttributeArg::HandleStatus(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -502,7 +489,6 @@ impl ChainExtension {
             id: extension,
             item: item_method.clone(),
             handle_status: ink_attrs.is_handle_status(),
-            returns_result: ink_attrs.is_returns_result(),
         };
         Ok(result)
     }
@@ -932,20 +918,17 @@ mod tests {
 
                     #[ink(extension = 1, handle_status = false)]
                     fn extension_a();
-                    #[ink(extension = 2, returns_result = false)]
+                    #[ink(extension = 2)]
                     fn extension_b();
-                    #[ink(extension = 3, handle_status = false, returns_result = false)]
+                    #[ink(extension = 3, handle_status = false)]
                     fn extension_c();
-
                     #[ink(extension = 4)]
                     #[ink(handle_status = false)]
                     fn extension_d();
                     #[ink(extension = 5)]
-                    #[ink(returns_result = false)]
                     fn extension_e();
                     #[ink(extension = 6)]
                     #[ink(handle_status = false)]
-                    #[ink(returns_result = false)]
                     fn extension_f();
                 }
             })
