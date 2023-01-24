@@ -21,7 +21,7 @@ use super::types::{
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct ExecContext {
     /// The caller of the contract execution. Might be user or another contract.
     ///

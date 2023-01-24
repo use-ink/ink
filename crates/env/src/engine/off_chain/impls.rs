@@ -40,6 +40,7 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
+use core::mem;
 use ink_engine::{
     exec_context::ExecContext,
     ext,
@@ -47,7 +48,6 @@ use ink_engine::{
 };
 use ink_storage_traits::Storable;
 use scale::Encode;
-
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
@@ -180,7 +180,7 @@ impl EnvInstance {
     {
         let mut full_scope: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         let full_scope = &mut &mut full_scope[..];
-        ext_fn(&self.engine, full_scope);
+        ext_fn(&self.engine.borrow_mut(), full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 
@@ -207,25 +207,25 @@ impl EnvInstance {
         transferred_value: u128,
     ) -> ExecContext {
         let callee_context = ExecContext {
-            caller: self.engine.exec_context.borrow().callee.clone(),
+            caller: self.engine.borrow().exec_context.callee.clone(),
             callee: Some(callee.clone().into()),
             value_transferred: transferred_value,
-            block_number: self.engine.exec_context.borrow().block_number,
-            block_timestamp: self.engine.exec_context.borrow().block_timestamp,
+            block_number: self.engine.borrow().exec_context.block_number,
+            block_timestamp: self.engine.borrow().exec_context.block_timestamp,
             input,
             output: vec![],
             reverted: false,
             origin: Some(
                 self.engine
-                    .exec_context
                     .borrow()
+                    .exec_context
                     .origin
                     .clone()
                     .unwrap_or(callee),
             ),
         };
 
-        self.engine.exec_context.replace(callee_context)
+        mem::replace(&mut self.engine.borrow_mut().exec_context, callee_context)
     }
 }
 
@@ -237,7 +237,7 @@ impl EnvBackend for EnvInstance {
     {
         let mut v = vec![];
         Storable::encode(value, &mut v);
-        self.engine.set_storage(&key.encode(), &v[..])
+        self.engine.borrow_mut().set_storage(&key.encode(), &v[..])
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
@@ -246,7 +246,11 @@ impl EnvBackend for EnvInstance {
         R: Storable,
     {
         let mut output: [u8; 9600] = [0; 9600];
-        match self.engine.get_storage(&key.encode(), &mut &mut output[..]) {
+        match self
+            .engine
+            .borrow_mut()
+            .get_storage(&key.encode(), &mut &mut output[..])
+        {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -263,6 +267,7 @@ impl EnvBackend for EnvInstance {
         let mut output: [u8; 9600] = [0; 9600];
         match self
             .engine
+            .borrow_mut()
             .take_storage(&key.encode(), &mut &mut output[..])
         {
             Ok(_) => (),
@@ -277,21 +282,21 @@ impl EnvBackend for EnvInstance {
     where
         K: scale::Encode,
     {
-        self.engine.contains_storage(&key.encode())
+        self.engine.borrow_mut().contains_storage(&key.encode())
     }
 
     fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,
     {
-        self.engine.clear_storage(&key.encode())
+        self.engine.borrow_mut().clear_storage(&key.encode())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
     where
         T: scale::Decode,
     {
-        T::decode(&mut self.engine.exec_context.borrow().input.as_slice())
+        T::decode(&mut self.engine.borrow().exec_context.input.as_slice())
             .map_err(|_| Error::CalleeTrapped)
     }
 
@@ -301,13 +306,13 @@ impl EnvBackend for EnvInstance {
         R: scale::Encode,
     {
         if flags.is_reverted() {
-            self.engine.exec_context.borrow_mut().reverted = true;
+            self.engine.borrow_mut().exec_context.reverted = true;
         }
-        self.engine.exec_context.borrow_mut().output = return_value.encode();
+        self.engine.borrow_mut().exec_context.output = return_value.encode();
     }
 
     fn debug_message(&mut self, message: &str) {
-        self.engine.debug_message(message)
+        self.engine.borrow_mut().debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -400,8 +405,11 @@ impl EnvBackend for EnvInstance {
         let enc_input = &scale::Encode::encode(input)[..];
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
-        self.engine
-            .call_chain_extension(func_id, enc_input, &mut &mut output[..]);
+        self.engine.borrow_mut().call_chain_extension(
+            func_id,
+            enc_input,
+            &mut &mut output[..],
+        );
         let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
             .unwrap_or_else(|error| {
                 panic!(
@@ -418,15 +426,15 @@ impl EnvBackend for EnvInstance {
     fn set_code_hash(&mut self, code_hash: &[u8]) -> Result<()> {
         let account_id = self
             .engine
-            .exec_context
             .borrow()
+            .exec_context
             .callee
             .clone()
             .expect("callee is none");
 
         self.engine
-            .contracts
             .borrow_mut()
+            .contracts
             .instantiated
             .insert(account_id.as_bytes().to_vec(), code_hash.to_vec());
         Ok(())
@@ -498,7 +506,9 @@ impl TypedEnvBackend for EnvInstance {
         let builder = TopicsBuilder::default();
         let enc_topics = event.topics::<E, _>(builder.into());
         let enc_data = &scale::Encode::encode(&event)[..];
-        self.engine.deposit_event(&enc_topics[..], enc_data);
+        self.engine
+            .borrow_mut()
+            .deposit_event(&enc_topics[..], enc_data);
     }
 
     fn invoke_contract<E, Args, R>(
@@ -515,10 +525,10 @@ impl TypedEnvBackend for EnvInstance {
 
         let call_flags = params.call_flags().into_u32();
         let transferred_value = params.transferred_value();
-        let caller = self.engine.exec_context.borrow().callee.clone();
+        let caller = self.engine.borrow().exec_context.callee.clone();
 
         // apply call flags before making a call and return the input that might be changed after that
-        let input = self.engine.apply_code_flags_before_call(
+        let input = self.engine.borrow_mut().apply_code_flags_before_call(
             caller.clone(),
             callee.clone(),
             call_flags,
@@ -535,8 +545,8 @@ impl TypedEnvBackend for EnvInstance {
 
         let code_hash = self
             .engine
-            .contracts
             .borrow()
+            .contracts
             .instantiated
             .get(&callee)
             .ok_or(Error::NotCallable)?
@@ -544,8 +554,8 @@ impl TypedEnvBackend for EnvInstance {
 
         let call_fn = self
             .engine
-            .contracts
             .borrow()
+            .contracts
             .deployed
             .get(&code_hash)
             .ok_or(Error::CodeNotFound)?
@@ -554,8 +564,8 @@ impl TypedEnvBackend for EnvInstance {
         // save previous version of storage in case call will revert
         let storage = self
             .engine
-            .database
             .borrow()
+            .database
             .get_from_contract_storage(callee.as_slice(), &[0; 4])
             .expect("contract storage not found")
             .clone();
@@ -563,24 +573,26 @@ impl TypedEnvBackend for EnvInstance {
         call_fn();
 
         // revert contract's state in case of error
-        if self.engine.exec_context.borrow().reverted {
+        if self.engine.borrow().exec_context.reverted {
             self.engine
-                .database
                 .borrow_mut()
+                .database
                 .insert_into_contract_storage(callee.as_slice(), &[0; 4], storage)
                 .unwrap();
         }
 
         // if the call was reverted, previous one should be reverted too
-        previous_context.reverted |= self.engine.exec_context.borrow().reverted;
+        previous_context.reverted |= self.engine.borrow().exec_context.reverted;
 
-        let output = self.engine.exec_context.borrow().output.clone();
+        let output = self.engine.borrow().exec_context.output.clone();
         let return_value = R::decode(&mut output.as_slice())?;
 
-        self.engine.exec_context.replace(previous_context);
+        let _ =
+            mem::replace(&mut self.engine.borrow_mut().exec_context, previous_context);
 
         // apply code flags after the call
         self.engine
+            .borrow_mut()
             .apply_code_flags_after_call(caller, callee, call_flags, output)?;
 
         Ok(return_value)
@@ -596,11 +608,11 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let code_hash = params.code_hash().as_ref().to_vec();
-        let callee = self.engine.exec_context.borrow().callee.clone();
+        let callee = self.engine.borrow().exec_context.callee.clone();
         let call_flags = params.call_flags().into_u32();
 
         // apply call flags before making a call and return the input that might be changed after that
-        let input = self.engine.apply_code_flags_before_call(
+        let input = self.engine.borrow_mut().apply_code_flags_before_call(
             callee.clone(),
             callee.clone().unwrap_or_default().as_bytes().to_vec(),
             call_flags,
@@ -609,8 +621,8 @@ impl TypedEnvBackend for EnvInstance {
 
         let call_fn = self
             .engine
-            .contracts
             .borrow()
+            .contracts
             .deployed
             .get(&code_hash)
             .ok_or(Error::CodeNotFound)?
@@ -624,8 +636,8 @@ impl TypedEnvBackend for EnvInstance {
 
         let storage = self
             .engine
-            .database
             .borrow()
+            .database
             .get_from_contract_storage(
                 callee.clone().unwrap_or_default().as_bytes(),
                 &[0; 4],
@@ -636,10 +648,10 @@ impl TypedEnvBackend for EnvInstance {
         call_fn();
 
         // revert contract's state in case of error
-        if self.engine.exec_context.borrow().reverted {
+        if self.engine.borrow().exec_context.reverted {
             self.engine
-                .database
                 .borrow_mut()
+                .database
                 .insert_into_contract_storage(
                     callee.clone().unwrap_or_default().as_bytes(),
                     &[0; 4],
@@ -649,15 +661,16 @@ impl TypedEnvBackend for EnvInstance {
         }
 
         // if the call was reverted, previous one should be reverted too
-        previous_context.reverted |= self.engine.exec_context.borrow().reverted;
+        previous_context.reverted |= self.engine.borrow().exec_context.reverted;
 
-        let output = self.engine.exec_context.borrow().output.clone();
+        let output = self.engine.borrow().exec_context.output.clone();
         let return_value = R::decode(&mut output.as_slice())?;
 
-        self.engine.exec_context.replace(previous_context);
+        let _ =
+            mem::replace(&mut self.engine.borrow_mut().exec_context, previous_context);
 
         // apply code flags after the call
-        self.engine.apply_code_flags_after_call(
+        self.engine.borrow_mut().apply_code_flags_after_call(
             callee.clone(),
             callee.unwrap_or_default().as_bytes().to_vec(),
             call_flags,
@@ -679,7 +692,7 @@ impl TypedEnvBackend for EnvInstance {
         let code_hash = params.code_hash().as_ref().to_vec();
         // Gas is not supported by off-chain env.
         let _gas_limit = params.gas_limit();
-        let caller = self.engine.exec_context.borrow().callee.clone();
+        let caller = self.engine.borrow().exec_context.callee.clone();
         let endowment = params.endowment();
         let input = params.exec_input();
         let salt_bytes = params.salt_bytes();
@@ -703,22 +716,23 @@ impl TypedEnvBackend for EnvInstance {
 
         let deploy_fn = self
             .engine
-            .contracts
             .borrow()
+            .contracts
             .deployed
             .get(&code_hash)
             .ok_or(Error::CodeNotFound)?
             .deploy;
 
         self.engine
-            .contracts
             .borrow_mut()
+            .contracts
             .instantiated
             .insert(callee.clone(), code_hash);
 
         deploy_fn();
 
-        self.engine.exec_context.replace(previous_context);
+        let _ =
+            mem::replace(&mut self.engine.borrow_mut().exec_context, previous_context);
 
         Ok(<_ as scale::Decode>::decode(&mut callee.as_slice())?)
     }
@@ -728,7 +742,7 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         let buffer = scale::Encode::encode(&beneficiary);
-        self.engine.terminate(&buffer[..])
+        self.engine.borrow_mut().terminate(&buffer[..])
     }
 
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
@@ -738,13 +752,16 @@ impl TypedEnvBackend for EnvInstance {
         let enc_destination = &scale::Encode::encode(&destination)[..];
         let enc_value = &scale::Encode::encode(&value)[..];
         self.engine
+            .borrow_mut()
             .transfer(enc_destination, enc_value)
             .map_err(Into::into)
     }
 
     fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        self.engine.weight_to_fee(gas, &mut &mut output[..]);
+        self.engine
+            .borrow_mut()
+            .weight_to_fee(gas, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
             panic!("could not read `weight_to_fee` property: {:?}", error)
         })
@@ -755,8 +772,8 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         self.engine
-            .contracts
             .borrow()
+            .contracts
             .instantiated
             .contains_key(account.as_ref().to_vec().as_slice())
     }
@@ -766,15 +783,15 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
     {
         self.engine
-            .exec_context
             .borrow()
+            .exec_context
             .origin
             .clone()
             .expect("stack should not be empty")
             == self
                 .engine
-                .exec_context
                 .borrow()
+                .exec_context
                 .caller
                 .clone()
                 .expect("caller should exist")
@@ -787,8 +804,8 @@ impl TypedEnvBackend for EnvInstance {
     {
         let code_hash = self
             .engine
-            .contracts
             .borrow()
+            .contracts
             .instantiated
             .get(&account.as_ref().to_vec())
             .ok_or(Error::NotCallable)?

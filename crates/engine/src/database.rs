@@ -39,7 +39,7 @@ pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
 ///
 /// Everything is stored in here: accounts, balances, contract storage, etc..
 /// Just like in Substrate a prefix hash is computed for every contract.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Database {
     hmap: HashMap<Vec<u8>, Vec<u8>>,
 }

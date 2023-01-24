@@ -59,6 +59,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
+            .borrow_mut()
             .set_balance(scale::Encode::encode(&account_id), new_balance);
     })
 }
@@ -82,6 +83,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
+            .borrow()
             .get_balance(scale::Encode::encode(&account_id))
             .map_err(Into::into)
     })
@@ -95,6 +97,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
+            .borrow_mut()
             .chain_extension_handler
             .borrow_mut()
             .register(Box::new(extension));
@@ -104,7 +107,7 @@ where
 /// Returns the contents of the past performed environmental debug messages in order.
 pub fn recorded_debug_messages() -> RecordedDebugMessages {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.get_emitted_debug_messages()
+        instance.engine.borrow().get_emitted_debug_messages()
     })
 }
 
@@ -126,7 +129,7 @@ where
     T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.advance_block();
+        instance.engine.borrow_mut().advance_block();
     })
 }
 
@@ -137,7 +140,10 @@ where
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.set_caller(scale::Encode::encode(&caller));
+        instance
+            .engine
+            .borrow_mut()
+            .set_caller(scale::Encode::encode(&caller));
     })
 }
 
@@ -148,7 +154,10 @@ where
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.set_callee(scale::Encode::encode(&callee));
+        instance
+            .engine
+            .borrow_mut()
+            .set_callee(scale::Encode::encode(&callee));
     })
 }
 
@@ -160,7 +169,7 @@ where
     T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        let callee = instance.engine.get_callee();
+        let callee = instance.engine.borrow().get_callee();
         scale::Decode::decode(&mut &callee[..])
             .unwrap_or_else(|err| panic!("encoding failed: {}", err))
     })
@@ -174,6 +183,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
+            .borrow()
             .get_contract_storage_rw(scale::Encode::encode(&account_id))
     })
 }
@@ -186,7 +196,7 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.set_value_transferred(value);
+        instance.engine.borrow_mut().set_value_transferred(value);
     })
 }
 
@@ -200,8 +210,8 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let caller = instance
             .engine
+            .borrow()
             .exec_context
-            .borrow_mut()
             .caller
             .as_ref()
             .expect("no caller has been set")
@@ -210,22 +220,26 @@ where
 
         let caller_old_balance = instance
             .engine
+            .borrow()
             .get_balance(caller.clone())
             .unwrap_or_default();
 
-        let callee = instance.engine.get_callee();
+        let callee = instance.engine.borrow().get_callee();
         let contract_old_balance = instance
             .engine
+            .borrow()
             .get_balance(callee.clone())
             .unwrap_or_default();
 
         instance
             .engine
+            .borrow_mut()
             .set_balance(caller, caller_old_balance - value);
         instance
             .engine
+            .borrow_mut()
             .set_balance(callee, contract_old_balance + value);
-        instance.engine.set_value_transferred(value);
+        instance.engine.borrow_mut().set_value_transferred(value);
     });
 }
 
@@ -239,6 +253,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
+            .borrow()
             .count_used_storage_cells(&scale::Encode::encode(&account_id))
             .map_err(Into::into)
     })
@@ -254,30 +269,44 @@ where
 {
     let default_accounts = default_accounts::<T>();
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.initialize_or_reset();
+        instance.engine.borrow_mut().initialize_or_reset();
 
         let encoded_alice = scale::Encode::encode(&default_accounts.alice);
-        instance.engine.set_caller(encoded_alice.clone());
-        instance.engine.set_callee(encoded_alice.clone());
+        instance
+            .engine
+            .borrow_mut()
+            .set_caller(encoded_alice.clone());
+        instance
+            .engine
+            .borrow_mut()
+            .set_callee(encoded_alice.clone());
 
         // set up the funds for the default accounts
         let substantial = 1_000_000;
         let some = 1_000;
-        instance.engine.set_balance(encoded_alice, substantial);
         instance
             .engine
+            .borrow_mut()
+            .set_balance(encoded_alice, substantial);
+        instance
+            .engine
+            .borrow_mut()
             .set_balance(scale::Encode::encode(&default_accounts.bob), some);
         instance
             .engine
+            .borrow_mut()
             .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
         instance
             .engine
+            .borrow_mut()
             .set_balance(scale::Encode::encode(&default_accounts.django), 0);
         instance
             .engine
+            .borrow_mut()
             .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
         instance
             .engine
+            .borrow_mut()
             .set_balance(scale::Encode::encode(&default_accounts.frank), 0);
     });
     f(default_accounts)
@@ -324,6 +353,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
+            .borrow()
             .get_emitted_events()
             .into_iter()
             .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
@@ -338,7 +368,10 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let deploy = C::deploy;
         let call = C::call;
-        instance.engine.register_contract(code_hash, deploy, call)
+        instance
+            .engine
+            .borrow_mut()
+            .register_contract(code_hash, deploy, call)
     })
 }
 
