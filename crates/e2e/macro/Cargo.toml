@@ -3,7 +3,6 @@ name = "ink_e2e_macro"
 version = "4.0.0-beta.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
-publish = false
 
 license = "Apache-2.0"
 readme = "../README.md"
