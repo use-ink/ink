@@ -342,7 +342,7 @@ where
     /// Generate a new keypair and fund with the given amount from the origin account.
     ///
     /// Because many tests may execute this in parallel, transfers may fail due to a race condition
-    /// with account nonces. Therefore this will reattempt transfers a number of times.
+    /// with account indices. Therefore this will reattempt transfers a number of times.
     pub async fn create_and_fund_account(
         &self,
         origin: &Signer<C>,
