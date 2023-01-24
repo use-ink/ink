@@ -437,6 +437,35 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -544,12 +573,40 @@
             }
 
             <span class="kw">const _</span>: () = {
-                <span class="kw">impl </span>::ink::reflect::ContractReference <span class="kw">for </span>#storage_ident {
+                <span class="kw">impl </span>::ink::env::ContractReference <span class="kw">for </span>#storage_ident {
                     <span class="kw">type </span>Type = #ref_ident;
                 }
 
-                <span class="kw">impl </span>::ink::reflect::ContractEnv <span class="kw">for </span>#ref_ident {
-                    <span class="kw">type </span>Env = &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env;
+                <span class="kw">impl </span>::ink::env::call::ConstructorReturnType&lt;#ref_ident&gt; <span class="kw">for </span>#storage_ident {
+                    <span class="kw">type </span>Output = #ref_ident;
+                    <span class="kw">type </span>Error = ();
+
+                    <span class="kw">fn </span>ok(value: #ref_ident) -&gt; <span class="self">Self</span>::Output {
+                        value
+                    }
+                }
+
+                <span class="kw">impl</span>&lt;E&gt; ::ink::env::call::ConstructorReturnType&lt;#ref_ident&gt;
+                    <span class="kw">for </span>::core::result::Result&lt;#storage_ident, E&gt;
+                <span class="kw">where
+                    </span>E: ::scale::Decode
+                {
+                    <span class="kw">const </span>IS_RESULT: bool = <span class="bool-val">true</span>;
+
+                    <span class="kw">type </span>Output = ::core::result::Result&lt;#ref_ident, E&gt;;
+                    <span class="kw">type </span>Error = E;
+
+                    <span class="kw">fn </span>ok(value: #ref_ident) -&gt; <span class="self">Self</span>::Output {
+                        ::core::result::Result::Ok(value)
+                    }
+
+                    <span class="kw">fn </span>err(err: <span class="self">Self</span>::Error) -&gt; ::core::option::Option&lt;<span class="self">Self</span>::Output&gt; {
+                        ::core::option::Option::Some(::core::result::Result::Err(err))
+                    }
+                }
+
+                <span class="kw">impl </span>::ink::env::ContractEnv <span class="kw">for </span>#ref_ident {
+                    <span class="kw">type </span>Env = &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env;
                 }
             };
         )
@@ -854,6 +911,7 @@
                 #( #input_bindings : #input_types ),*
             ) -&gt; ::ink::env::call::CreateBuilder&lt;
                 Environment,
+                <span class="self">Self</span>,
                 ::ink::env::call::utils::Unset&lt;Hash&gt;,
                 ::ink::env::call::utils::Unset&lt;u64&gt;,
                 ::ink::env::call::utils::Unset&lt;Balance&gt;,
@@ -861,7 +919,7 @@
                 ::ink::env::call::utils::Unset&lt;::ink::env::call::state::Salt&gt;,
                 ::ink::env::call::utils::Set&lt;::ink::env::call::utils::ReturnType&lt;#ret_type&gt;&gt;,
             &gt; {
-                ::ink::env::call::build_create::&lt;Environment&gt;()
+                ::ink::env::call::build_create::&lt;<span class="self">Self</span>&gt;()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

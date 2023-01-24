@@ -438,7 +438,7 @@
         <span class="kw">let </span>event_ident = event.ident();
         <span class="kw">let </span>len_topics = event.fields().filter(|event| event.is_topic).count();
         <span class="kw">let </span>max_len_topics = <span class="macro">quote_spanned!</span>(span=&gt;
-            &lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env
+            &lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env
                 <span class="kw">as </span>::ink::env::Environment&gt;::MAX_EVENT_TOPICS
         );
         <span class="macro">quote_spanned!</span>(span=&gt;

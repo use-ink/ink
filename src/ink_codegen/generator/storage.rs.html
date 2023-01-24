@@ -178,7 +178,7 @@
             <span class="kw">const _</span>: () = {
                 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::Env <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>#storage_ident {
                     <span class="kw">type </span>EnvAccess = ::ink::EnvAccess&lt;
-                        <span class="lifetime">&#39;a</span>, &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;;
+                        <span class="lifetime">&#39;a</span>, &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;;
 
                     <span class="kw">fn </span>env(<span class="self">self</span>) -&gt; <span class="self">Self</span>::EnvAccess {
                         &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::Env&gt;::EnvAccess
@@ -188,7 +188,7 @@
 
                 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ::ink::codegen::StaticEnv <span class="kw">for </span>#storage_ident {
                     <span class="kw">type </span>EnvAccess = ::ink::EnvAccess&lt;
-                        <span class="lifetime">&#39;static</span>, &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;;
+                        <span class="lifetime">&#39;static</span>, &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;;
 
                     <span class="kw">fn </span>env() -&gt; <span class="self">Self</span>::EnvAccess {
                         &lt;&lt;<span class="self">Self </span><span class="kw">as </span>::ink::codegen::StaticEnv&gt;::EnvAccess

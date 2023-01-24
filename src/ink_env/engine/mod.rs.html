@@ -152,6 +152,86 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -171,10 +251,19 @@
         EnvBackend,
         TypedEnvBackend,
     },
+    call::{
+        ConstructorReturnType,
+        FromAccountId,
+    },
+    Error <span class="kw">as </span>EnvError,
+    Error,
     <span class="prelude-ty">Result </span><span class="kw">as </span>EnvResult,
 };
 <span class="kw">use </span>cfg_if::cfg_if;
-<span class="kw">use </span>ink_primitives::ConstructorResult;
+<span class="kw">use </span>ink_primitives::{
+    ConstructorResult,
+    LangError,
+};
 
 <span class="kw">pub trait </span>OnInstance: EnvBackend + TypedEnvBackend {
     <span class="kw">fn </span>on_instance&lt;F, R&gt;(f: F) -&gt; R
@@ -196,65 +285,132 @@
     }
 }
 
-<span class="comment">// The `Result` type used to represent the programmer defined contract output.
-</span><span class="kw">type </span>ContractResult&lt;T, E&gt; = core::result::Result&lt;T, E&gt;;
-
 <span class="comment">// We only use this function when 1) compiling to Wasm 2) compiling for tests.
 </span><span class="attribute">#[cfg_attr(all(feature = <span class="string">&quot;std&quot;</span>, not(test)), allow(dead_code))]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decode_fallible_constructor_reverted_return_value&lt;I, E, ContractError&gt;(
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decode_instantiate_result&lt;I, E, ContractRef, R&gt;(
+    instantiate_result: EnvResult&lt;()&gt;,
+    out_address: <span class="kw-2">&amp;mut </span>I,
     out_return_value: <span class="kw-2">&amp;mut </span>I,
-) -&gt; EnvResult&lt;ConstructorResult&lt;ContractResult&lt;E::AccountId, ContractError&gt;&gt;&gt;
+) -&gt; EnvResult&lt;ConstructorResult&lt;&lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output&gt;&gt;
 <span class="kw">where
     </span>I: scale::Input,
     E: <span class="kw">crate</span>::Environment,
-    ContractError: scale::Decode,
+    ContractRef: FromAccountId&lt;E&gt;,
+    R: ConstructorReturnType&lt;ContractRef&gt;,
 {
-    <span class="kw">let </span>out: ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;(), ContractError&gt;&gt; =
-        scale::Decode::decode(out_return_value)<span class="question-mark">?</span>;
+    <span class="kw">match </span>instantiate_result {
+        <span class="prelude-val">Ok</span>(()) =&gt; {
+            <span class="kw">let </span>account_id = scale::Decode::decode(out_address)<span class="question-mark">?</span>;
+            <span class="kw">let </span>contract_ref =
+                &lt;ContractRef <span class="kw">as </span>FromAccountId&lt;E&gt;&gt;::from_account_id(account_id);
+            <span class="kw">let </span>output = &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::ok(contract_ref);
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(output))
+        }
+        <span class="prelude-val">Err</span>(EnvError::CalleeReverted) =&gt; {
+            decode_instantiate_err::&lt;I, E, ContractRef, R&gt;(out_return_value)
+        }
+        <span class="prelude-val">Err</span>(actual_error) =&gt; <span class="prelude-val">Err</span>(actual_error),
+    }
+}
 
-    <span class="kw">match </span>out {
-        ConstructorResult::Ok(ContractResult::Ok(())) =&gt; {
-            <span class="comment">// Since the contract reverted we don&#39;t expect an `Ok` return value from the
-            // constructor, otherwise we&#39;d be in the `AccountId` decoding branch.
-            //
-            // While we could handle this more gracefully, e.g through a `LangError`, we&#39;re going to
-            // be defensive for now and trap.
-            </span><span class="macro">panic!</span>(
-                <span class="string">&quot;The callee reverted, but did not encode an error in the output buffer.&quot;
-            </span>)
+<span class="attribute">#[cfg_attr(all(feature = <span class="string">&quot;std&quot;</span>, not(test)), allow(dead_code))]
+</span><span class="kw">fn </span>decode_instantiate_err&lt;I, E, ContractRef, R&gt;(
+    out_return_value: <span class="kw-2">&amp;mut </span>I,
+) -&gt; EnvResult&lt;ConstructorResult&lt;&lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output&gt;&gt;
+<span class="kw">where
+    </span>I: scale::Input,
+    E: <span class="kw">crate</span>::Environment,
+    ContractRef: FromAccountId&lt;E&gt;,
+    R: ConstructorReturnType&lt;ContractRef&gt;,
+{
+    <span class="kw">let </span>constructor_result_variant = out_return_value.read_byte()<span class="question-mark">?</span>;
+    <span class="kw">match </span>constructor_result_variant {
+        <span class="comment">// 0 == `ConstructorResult::Ok` variant
+        </span><span class="number">0 </span>=&gt; {
+            <span class="kw">if </span>&lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::IS_RESULT {
+                <span class="kw">let </span>result_variant = out_return_value.read_byte()<span class="question-mark">?</span>;
+                <span class="kw">match </span>result_variant {
+                    <span class="comment">// 0 == `Ok` variant
+                    </span><span class="number">0 </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;The callee reverted, but did not encode an error in the output buffer.&quot;</span>),
+                    <span class="comment">// 1 == `Err` variant
+                    </span><span class="number">1 </span>=&gt; {
+                        <span class="kw">let </span>contract_err = &lt;&lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Error
+                        <span class="kw">as </span>scale::Decode&gt;::decode(out_return_value)<span class="question-mark">?</span>;
+                        <span class="kw">let </span>err = &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::err(contract_err)
+                            .unwrap_or_else(|| {
+                                <span class="macro">panic!</span>(<span class="string">&quot;Expected an error instance for return type where IS_RESULT == true&quot;</span>)
+                            });
+                        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(err))
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::Decode(
+                        <span class="string">&quot;Invalid inner constructor Result encoding, expected 0 or 1 as the first byte&quot;</span>.into())
+                    )
+                }
+            } <span class="kw">else </span>{
+                <span class="macro">panic!</span>(<span class="string">&quot;The callee reverted, but did not encode an error in the output buffer.&quot;</span>)
+            }
         }
-        ConstructorResult::Ok(ContractResult::Err(contract_error)) =&gt; {
-            <span class="prelude-val">Ok</span>(ConstructorResult::Ok(ContractResult::Err(contract_error)))
+        <span class="comment">// 1 == `ConstructorResult::Err` variant
+        </span><span class="number">1 </span>=&gt; {
+            <span class="kw">let </span>lang_err = &lt;LangError <span class="kw">as </span>scale::Decode&gt;::decode(out_return_value)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(lang_err))
         }
-        ConstructorResult::Err(lang_error) =&gt; <span class="prelude-val">Ok</span>(ConstructorResult::Err(lang_error)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::Decode(
+            <span class="string">&quot;Invalid outer constructor Result encoding, expected 0 or 1 as the first byte&quot;</span>.into())
+        )
     }
 }
 
 <span class="attribute">#[cfg(test)]
-</span><span class="kw">mod </span>fallible_constructor_reverted_tests {
+</span><span class="kw">mod </span>decode_instantiate_result_tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use crate</span>::{
+        DefaultEnvironment,
+        Environment,
+        Error,
+    };
     <span class="kw">use </span>scale::Encode;
+
+    <span class="comment">// The `Result` type used to represent the programmer defined contract output.
+    </span><span class="kw">type </span>ContractResult&lt;T, E&gt; = <span class="prelude-ty">Result</span>&lt;T, E&gt;;
 
     <span class="attribute">#[derive(scale::Encode, scale::Decode)]
     </span><span class="kw">struct </span>ContractError(String);
 
-    <span class="kw">fn </span>encode_and_decode_return_value(
-        return_value: ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;(), ContractError&gt;&gt;,
-    ) -&gt; EnvResult&lt;ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;ink_primitives::AccountId, ContractError&gt;&gt;&gt;
-    {
-        <span class="kw">let </span>encoded_return_value = return_value.encode();
-        decode_return_value(<span class="kw-2">&amp;mut &amp;</span>encoded_return_value[..])
+    <span class="kw">type </span>AccountId = &lt;DefaultEnvironment <span class="kw">as </span>Environment&gt;::AccountId;
+    <span class="kw">struct </span>TestContractRef(AccountId);
+
+    <span class="kw">impl </span><span class="kw">crate</span>::ContractEnv <span class="kw">for </span>TestContractRef {
+        <span class="kw">type </span>Env = DefaultEnvironment;
     }
 
-    <span class="kw">fn </span>decode_return_value&lt;I: scale::Input&gt;(
-        input: <span class="kw-2">&amp;mut </span>I,
-    ) -&gt; EnvResult&lt;ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;ink_primitives::AccountId, ContractError&gt;&gt;&gt;
-    {
-        decode_fallible_constructor_reverted_return_value::&lt;
+    <span class="kw">impl </span>FromAccountId&lt;DefaultEnvironment&gt; <span class="kw">for </span>TestContractRef {
+        <span class="kw">fn </span>from_account_id(account_id: AccountId) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>(account_id)
+        }
+    }
+
+    <span class="kw">fn </span>encode_and_decode_return_value(
+        return_value: ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;(), ContractError&gt;&gt;,
+    ) -&gt; EnvResult&lt;ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;TestContractRef, ContractError&gt;&gt;&gt; {
+        <span class="kw">let </span>out_address = Vec::new();
+        <span class="kw">let </span>encoded_return_value = return_value.encode();
+        decode_return_value_fallible(
+            <span class="kw-2">&amp;mut &amp;</span>out_address[..],
+            <span class="kw-2">&amp;mut &amp;</span>encoded_return_value[..],
+        )
+    }
+
+    <span class="kw">fn </span>decode_return_value_fallible&lt;I: scale::Input&gt;(
+        out_address: <span class="kw-2">&amp;mut </span>I,
+        out_return_value: <span class="kw-2">&amp;mut </span>I,
+    ) -&gt; EnvResult&lt;ConstructorResult&lt;<span class="prelude-ty">Result</span>&lt;TestContractRef, ContractError&gt;&gt;&gt; {
+        decode_instantiate_result::&lt;
             I,
-            <span class="kw">crate</span>::DefaultEnvironment,
-            ContractError,
-        &gt;(input)
+            DefaultEnvironment,
+            TestContractRef,
+            <span class="prelude-ty">Result</span>&lt;TestContractRef, ContractError&gt;,
+        &gt;(<span class="prelude-val">Err</span>(Error::CalleeReverted), out_address, out_return_value)
     }
 
     <span class="attribute">#[test]
@@ -298,9 +454,13 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>invalid_bytes_in_output_buffer_fail_decoding() {
+        <span class="kw">let </span>out_address = Vec::new();
         <span class="kw">let </span>invalid_encoded_return_value = <span class="macro">vec!</span>[<span class="number">69</span>];
 
-        <span class="kw">let </span>decoded_result = decode_return_value(<span class="kw-2">&amp;mut &amp;</span>invalid_encoded_return_value[..]);
+        <span class="kw">let </span>decoded_result = decode_return_value_fallible(
+            <span class="kw-2">&amp;mut &amp;</span>out_address[..],
+            <span class="kw-2">&amp;mut &amp;</span>invalid_encoded_return_value[..],
+        );
 
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(decoded_result, <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::Decode(<span class="kw">_</span>))))
     }

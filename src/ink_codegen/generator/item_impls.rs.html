@@ -413,7 +413,7 @@
                 <span class="kw">let </span>message_guard_payable = message.is_payable().then(|| {
                     <span class="macro">quote_spanned!</span>(message_span=&gt;
                         <span class="kw">const _</span>: ::ink::codegen::TraitMessagePayable&lt;{
-                            &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
+                            &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;
                                 <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
                                 <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#message_local_id&gt;&gt;::PAYABLE
                         }&gt; = ::ink::codegen::TraitMessagePayable::&lt;<span class="bool-val">true</span>&gt;;
@@ -424,7 +424,7 @@
                     <span class="macro">quote_spanned!</span>(message_span=&gt;
                         <span class="kw">const _</span>: ::ink::codegen::TraitMessageSelector&lt;{
                             ::core::primitive::u32::from_be_bytes(
-                                &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env&gt;
+                                &lt;&lt;::ink::reflect::TraitDefinitionRegistry&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;
                                     <span class="kw">as </span>#trait_path&gt;::__ink_TraitInfo
                                     <span class="kw">as </span>::ink::reflect::TraitMessageInfo&lt;#message_local_id&gt;&gt;::SELECTOR
                             )

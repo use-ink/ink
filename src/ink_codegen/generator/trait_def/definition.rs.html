@@ -132,7 +132,7 @@
             .map(<span class="self">Self</span>::generate_for_message);
         <span class="macro">quote_spanned!</span>(span =&gt;
             #(#attrs)*
-            <span class="kw">pub trait </span>#ident: ::ink::reflect::ContractEnv {
+            <span class="kw">pub trait </span>#ident: ::ink::env::ContractEnv {
                 <span class="doccomment">/// Holds general and global information about the trait.
                 </span><span class="attribute">#[doc(hidden)]
                 #[allow(non_camel_case_types)]

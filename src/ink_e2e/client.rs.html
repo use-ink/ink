@@ -756,6 +756,49 @@
 <span id="755">755</span>
 <span id="756">756</span>
 <span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -779,10 +822,6 @@
     log_error,
     log_info,
     sr25519,
-    xts::{
-        Call,
-        InstantiateWithCode,
-    },
     CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
@@ -793,6 +832,7 @@
 <span class="kw">use </span>ink_env::Environment;
 <span class="kw">use </span>ink_primitives::MessageResult;
 
+<span class="kw">use </span>sp_core::Pair;
 <span class="kw">use </span>sp_runtime::traits::{
     IdentifyAccount,
     Verify,
@@ -813,7 +853,10 @@
             ValueDef,
         },
     },
-    tx::ExtrinsicParams,
+    tx::{
+        ExtrinsicParams,
+        PairSigner,
+    },
 };
 
 <span class="doccomment">/// Result of a contract instantiation.
@@ -1058,11 +1101,8 @@
 
     E: Environment,
     E::AccountId: Debug,
-    E::Balance: Debug + scale::Encode + serde::Serialize,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
-
-    Call&lt;E, E::Balance&gt;: scale::Encode,
-    InstantiateWithCode&lt;E::Balance&gt;: scale::Encode,
 {
     <span class="doccomment">/// Creates a new [`Client`] instance.
     </span><span class="kw">pub async fn </span>new(url: <span class="kw-2">&amp;</span>str, contracts: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="self">Self </span>{
@@ -1100,6 +1140,52 @@
         }
     }
 
+    <span class="doccomment">/// Generate a new keypair and fund with the given amount from the origin account.
+    ///
+    /// Because many tests may execute this in parallel, transfers may fail due to a race condition
+    /// with account indices. Therefore this will reattempt transfers a number of times.
+    </span><span class="kw">pub async fn </span>create_and_fund_account(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        origin: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
+        amount: E::Balance,
+    ) -&gt; Signer&lt;C&gt;
+    <span class="kw">where
+        </span>E::Balance: Clone,
+        C::AccountId: Clone + core::fmt::Display,
+    {
+        <span class="kw">let </span>(pair, <span class="kw">_</span>, <span class="kw">_</span>) = &lt;sr25519::Pair <span class="kw">as </span>Pair&gt;::generate_with_phrase(<span class="prelude-val">None</span>);
+        <span class="kw">let </span>account_id =
+            &lt;C::Signature <span class="kw">as </span>Verify&gt;::Signer::from(pair.public()).into_account();
+
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">6 </span>{
+            <span class="kw">let </span>transfer_result = <span class="self">self
+                </span>.api
+                .try_transfer_balance(origin, account_id.clone(), amount)
+                .<span class="kw">await</span>;
+            <span class="kw">match </span>transfer_result {
+                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+                    log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                        <span class="string">&quot;transfer from {} to {} succeeded&quot;</span>,
+                        origin.account_id(),
+                        account_id,
+                    ));
+                    <span class="kw">break
+                </span>}
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                        <span class="string">&quot;transfer from {} to {} failed with {:?}&quot;</span>,
+                        origin.account_id(),
+                        account_id,
+                        err
+                    ));
+                    tokio::time::sleep(std::time::Duration::from_secs(<span class="number">1</span>)).<span class="kw">await</span>;
+                }
+            }
+        }
+
+        PairSigner::new(pair)
+    }
+
     <span class="doccomment">/// This function extracts the metadata of the contract at the file path
     /// `target/ink/$contract_name.contract`.
     ///
@@ -1108,11 +1194,11 @@
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    </span><span class="kw">pub async fn </span>instantiate&lt;Args, R&gt;(
+    </span><span class="kw">pub async fn </span>instantiate&lt;ContractRef, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-        constructor: CreateBuilderPartial&lt;E, Args, R&gt;,
+        constructor: CreateBuilderPartial&lt;E, ContractRef, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;C, E&gt;, Error&lt;C, E&gt;&gt;
@@ -1132,11 +1218,11 @@
     }
 
     <span class="doccomment">/// Dry run contract instantiation using the given constructor.
-    </span><span class="kw">pub async fn </span>instantiate_dry_run&lt;Args, R&gt;(
+    </span><span class="kw">pub async fn </span>instantiate_dry_run&lt;ContractRef, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-        constructor: CreateBuilderPartial&lt;E, Args, R&gt;,
+        constructor: CreateBuilderPartial&lt;E, ContractRef, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; ContractInstantiateResult&lt;C::AccountId, E::Balance&gt;
@@ -1164,11 +1250,11 @@
     </span>}
 
     <span class="doccomment">/// Executes an `instantiate_with_code` call and captures the resulting events.
-    </span><span class="kw">async fn </span>exec_instantiate&lt;Args, R&gt;(
+    </span><span class="kw">async fn </span>exec_instantiate&lt;ContractRef, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
         code: Vec&lt;u8&gt;,
-        constructor: CreateBuilderPartial&lt;E, Args, R&gt;,
+        constructor: CreateBuilderPartial&lt;E, ContractRef, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;C, E&gt;, Error&lt;C, E&gt;&gt;

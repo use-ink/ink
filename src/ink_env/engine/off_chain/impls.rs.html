@@ -550,20 +550,6 @@
 <span id="549">549</span>
 <span id="550">550</span>
 <span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -583,8 +569,10 @@
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -1035,36 +1023,20 @@
         </span>)
     }
 
-    <span class="kw">fn </span>instantiate_contract&lt;E, Args, Salt, R&gt;(
+    <span class="kw">fn </span>instantiate_contract&lt;E, ContractRef, Args, Salt, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::ConstructorResult&lt;E::AccountId&gt;&gt;
-    <span class="kw">where
-        </span>E: Environment,
-        Args: scale::Encode,
-        Salt: AsRef&lt;[u8]&gt;,
-    {
-        <span class="kw">let </span>_code_hash = params.code_hash();
-        <span class="kw">let </span>_gas_limit = params.gas_limit();
-        <span class="kw">let </span>_endowment = params.endowment();
-        <span class="kw">let </span>_input = params.exec_input();
-        <span class="kw">let </span>_salt_bytes = params.salt_bytes();
-        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
-    }
-
-    <span class="kw">fn </span>instantiate_fallible_contract&lt;E, Args, Salt, R, ContractError&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, Args, Salt, R&gt;,
+        params: <span class="kw-2">&amp;</span>CreateParams&lt;E, ContractRef, Args, Salt, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;
         ink_primitives::ConstructorResult&lt;
-            core::result::Result&lt;E::AccountId, ContractError&gt;,
+            &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output,
         &gt;,
     &gt;
     <span class="kw">where
         </span>E: Environment,
+        ContractRef: FromAccountId&lt;E&gt;,
         Args: scale::Encode,
         Salt: AsRef&lt;[u8]&gt;,
-        ContractError: scale::Decode,
+        R: ConstructorReturnType&lt;ContractRef&gt;,
     {
         <span class="kw">let </span>_code_hash = params.code_hash();
         <span class="kw">let </span>_gas_limit = params.gas_limit();

@@ -583,7 +583,7 @@
         <span class="kw">let </span>builder_ident = <span class="self">self</span>.ident();
         <span class="kw">let </span>message_impls = <span class="self">self</span>.generate_ink_trait_impl_messages();
         <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="kw">impl</span>&lt;E&gt; ::ink::reflect::ContractEnv <span class="kw">for </span>#builder_ident&lt;E&gt;
+            <span class="kw">impl</span>&lt;E&gt; ::ink::env::ContractEnv <span class="kw">for </span>#builder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
             {

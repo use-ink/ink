@@ -512,8 +512,8 @@
                     <span class="kw">type </span>Type = #cb_ident;
                 }
 
-                <span class="kw">impl </span>::ink::reflect::ContractEnv <span class="kw">for </span>#cb_ident {
-                    <span class="kw">type </span>Env = &lt;#storage_ident <span class="kw">as </span>::ink::reflect::ContractEnv&gt;::Env;
+                <span class="kw">impl </span>::ink::env::ContractEnv <span class="kw">for </span>#cb_ident {
+                    <span class="kw">type </span>Env = &lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env;
                 }
             };
         )
