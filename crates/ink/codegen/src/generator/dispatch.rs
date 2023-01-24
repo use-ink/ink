@@ -171,7 +171,7 @@ impl Dispatch<'_> {
                     quote_spanned!(span=>
                         {
                             ::core::primitive::u32::from_be_bytes(
-                                <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                                <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
                                     as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                             )
@@ -352,12 +352,12 @@ impl Dispatch<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let payable = quote! {{
-                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
-                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::reflect::ContractEnv>::Env>
+                    <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
@@ -416,7 +416,7 @@ impl Dispatch<'_> {
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
                 if !#any_constructor_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
+                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
@@ -454,7 +454,7 @@ impl Dispatch<'_> {
             #[allow(clippy::nonminimal_bool)]
             fn call() {
                 if !#any_message_accept_payment {
-                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
+                    ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
@@ -618,7 +618,7 @@ impl Dispatch<'_> {
                 Self::#constructor_ident(input) => {
                     if #any_constructor_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
-                            <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
+                            <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                     }
 
                     let result: #constructor_output = #constructor_callable(input);
@@ -822,7 +822,7 @@ impl Dispatch<'_> {
                 Self::#message_ident(input) => {
                     if #any_message_accept_payment && #deny_payment {
                         ::ink::codegen::deny_payment::<
-                            <#storage_ident as ::ink::reflect::ContractEnv>::Env>()?;
+                            <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                     }
 
                     let result: #message_output = #message_callable(&mut contract, input);

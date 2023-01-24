@@ -22,8 +22,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -479,69 +481,20 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, R>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-    {
-        let mut scoped = self.scoped_buffer();
-        let gas_limit = params.gas_limit();
-        let enc_code_hash = scoped.take_encoded(params.code_hash());
-        let enc_endowment = scoped.take_encoded(params.endowment());
-        let enc_input = scoped.take_encoded(params.exec_input());
-        // We support `AccountId` types with an encoding that requires up to
-        // 1024 bytes. Beyond that limit ink! contracts will trap for now.
-        // In the default configuration encoded `AccountId` require 32 bytes.
-        let out_address = &mut scoped.take(1024);
-        let salt = params.salt_bytes().as_ref();
-        let out_return_value = &mut scoped.take_rest();
-
-        let instantiate_result = ext::instantiate(
-            enc_code_hash,
-            gas_limit,
-            enc_endowment,
-            enc_input,
-            out_address,
-            out_return_value,
-            salt,
-        );
-
-        match instantiate_result {
-            Ok(()) => {
-                let account_id = scale::Decode::decode(&mut &out_address[..])?;
-                Ok(Ok(account_id))
-            }
-            Err(ext::Error::CalleeReverted) => {
-                // We don't wrap manually with an extra `Err` like we do in the `Ok` case since the
-                // buffer already comes back in the form of `Err(LangError)` (assuming it's encoded
-                // by the ink! codegen and not the contract).
-                let out = ink_primitives::ConstructorResult::<E::AccountId>::decode(
-                    &mut &out_return_value[..],
-                )?;
-                assert!(out.is_err(), "The callee reverted, but did not encode an error in the output buffer.");
-                Ok(out)
-            }
-            Err(actual_error) => Err(actual_error.into()),
-        }
-    }
-
-    fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
-        &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            core::result::Result<E::AccountId, ContractError>,
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
         >,
     >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        ContractError: scale::Decode,
+        RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -565,21 +518,11 @@ impl TypedEnvBackend for EnvInstance {
             salt,
         );
 
-        match instantiate_result {
-            Ok(()) => {
-                let account_id: E::AccountId =
-                    scale::Decode::decode(&mut &out_address[..])?;
-                Ok(ink_primitives::ConstructorResult::Ok(Ok(account_id)))
-            }
-            Err(ext::Error::CalleeReverted) => {
-                crate::engine::decode_fallible_constructor_reverted_return_value::<
-                    _,
-                    E,
-                    ContractError,
-                >(&mut &out_return_value[..])
-            }
-            Err(actual_error) => Err(actual_error.into()),
-        }
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
+            instantiate_result.map_err(Into::into),
+            &mut &out_address[..],
+            &mut &out_return_value[..],
+        )
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !

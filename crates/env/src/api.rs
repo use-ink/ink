@@ -23,8 +23,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     engine::{
         EnvInstance,
@@ -323,50 +325,20 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, Args, Salt, R>(
-    params: &CreateParams<E, Args, Salt, R>,
-) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
-where
-    E: Environment,
-    Args: scale::Encode,
-    Salt: AsRef<[u8]>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, Args, Salt, R>(instance, params)
-    })
-}
-
-/// Attempts to instantiate another contract, returning the instantiation result back to the
-/// caller.
-///
-/// # Note
-///
-/// This is a low level way to instantiate another smart contract.
-///
-/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
-/// through [`build_create`](`crate::call::build_create`) instead.
-///
-/// # Errors
-///
-/// - If the code hash is invalid.
-/// - If the arguments passed to the instantiation process are invalid.
-/// - If the instantiation process traps.
-/// - If the instantiation process runs out of gas.
-/// - If given insufficient endowment.
-/// - If the returned account ID failed to decode properly.
-pub fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
-    params: &CreateParams<E, Args, Salt, R>,
+pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
+    params: &CreateParams<E, ContractRef, Args, Salt, R>,
 ) -> Result<
-    ink_primitives::ConstructorResult<core::result::Result<E::AccountId, ContractError>>,
+    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
 >
 where
     E: Environment,
+    ContractRef: FromAccountId<E>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    ContractError: scale::Decode,
+    R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_fallible_contract::<E, Args, Salt, R, ContractError>(
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
             instance, params,
         )
     })

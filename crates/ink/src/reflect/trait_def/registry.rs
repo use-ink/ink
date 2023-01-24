@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::ContractEnv;
 use core::marker::PhantomData;
+use ink_env::ContractEnv;
 
 /// Type that is guaranteed by ink! to implement all ink! trait definitions.
 ///

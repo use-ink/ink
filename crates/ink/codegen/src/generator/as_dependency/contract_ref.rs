@@ -105,12 +105,40 @@ impl ContractRef<'_> {
             }
 
             const _: () = {
-                impl ::ink::reflect::ContractReference for #storage_ident {
+                impl ::ink::env::ContractReference for #storage_ident {
                     type Type = #ref_ident;
                 }
 
-                impl ::ink::reflect::ContractEnv for #ref_ident {
-                    type Env = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
+                impl ::ink::env::call::ConstructorReturnType<#ref_ident> for #storage_ident {
+                    type Output = #ref_ident;
+                    type Error = ();
+
+                    fn ok(value: #ref_ident) -> Self::Output {
+                        value
+                    }
+                }
+
+                impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
+                    for ::core::result::Result<#storage_ident, E>
+                where
+                    E: ::scale::Decode
+                {
+                    const IS_RESULT: bool = true;
+
+                    type Output = ::core::result::Result<#ref_ident, E>;
+                    type Error = E;
+
+                    fn ok(value: #ref_ident) -> Self::Output {
+                        ::core::result::Result::Ok(value)
+                    }
+
+                    fn err(err: Self::Error) -> ::core::option::Option<Self::Output> {
+                        ::core::option::Option::Some(::core::result::Result::Err(err))
+                    }
+                }
+
+                impl ::ink::env::ContractEnv for #ref_ident {
+                    type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
                 }
             };
         )
@@ -415,6 +443,7 @@ impl ContractRef<'_> {
                 #( #input_bindings : #input_types ),*
             ) -> ::ink::env::call::CreateBuilder<
                 Environment,
+                Self,
                 ::ink::env::call::utils::Unset<Hash>,
                 ::ink::env::call::utils::Unset<u64>,
                 ::ink::env::call::utils::Unset<Balance>,
@@ -422,7 +451,7 @@ impl ContractRef<'_> {
                 ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
             > {
-                ::ink::env::call::build_create::<Environment>()
+                ::ink::env::call::build_create::<Self>()
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

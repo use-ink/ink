@@ -73,6 +73,7 @@ mod arithmetic;
 mod backend;
 pub mod call;
 pub mod chain_extension;
+mod contract;
 mod engine;
 mod error;
 pub mod hash;
@@ -96,6 +97,10 @@ pub use self::{
     backend::{
         CallFlags,
         ReturnFlags,
+    },
+    contract::{
+        ContractEnv,
+        ContractReference,
     },
     error::{
         Error,

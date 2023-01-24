@@ -16,8 +16,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         CryptoHash,
@@ -439,34 +441,20 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, Args, Salt, R>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>;
-
-    /// Attempts to instantiate another contract, returning the instantiation result back to the
-    /// caller.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`instantiate_fallible_contract`][`crate::instantiate_fallible_contract`]
-    fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
-        &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            core::result::Result<E::AccountId, ContractError>,
+            <R as ConstructorReturnType<ContractRef>>::Output,
         >,
     >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        ContractError: scale::Decode;
+        R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.
     ///

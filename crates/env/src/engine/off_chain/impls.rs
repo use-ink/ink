@@ -17,8 +17,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -469,36 +471,20 @@ impl TypedEnvBackend for EnvInstance {
         )
     }
 
-    fn instantiate_contract<E, Args, Salt, R>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
-    ) -> Result<ink_primitives::ConstructorResult<E::AccountId>>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        Salt: AsRef<[u8]>,
-    {
-        let _code_hash = params.code_hash();
-        let _gas_limit = params.gas_limit();
-        let _endowment = params.endowment();
-        let _input = params.exec_input();
-        let _salt_bytes = params.salt_bytes();
-        unimplemented!("off-chain environment does not support contract instantiation")
-    }
-
-    fn instantiate_fallible_contract<E, Args, Salt, R, ContractError>(
-        &mut self,
-        params: &CreateParams<E, Args, Salt, R>,
+        params: &CreateParams<E, ContractRef, Args, Salt, R>,
     ) -> Result<
         ink_primitives::ConstructorResult<
-            core::result::Result<E::AccountId, ContractError>,
+            <R as ConstructorReturnType<ContractRef>>::Output,
         >,
     >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
-        ContractError: scale::Decode,
+        R: ConstructorReturnType<ContractRef>,
     {
         let _code_hash = params.code_hash();
         let _gas_limit = params.gas_limit();
