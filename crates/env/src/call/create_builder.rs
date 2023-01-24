@@ -253,7 +253,6 @@ where
             .unwrap_or_else(|env_error| {
                 panic!("Cross-contract instantiation failed with {:?}", env_error)
             })
-            .map(FromAccountId::from_account_id)
             .unwrap_or_else(|lang_error| {
                 panic!(
                     "Received a `LangError` while instantiating: {:?}",
