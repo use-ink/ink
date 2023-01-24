@@ -118,7 +118,7 @@ pub trait ConstructorReturnType<C> {
 
     /// Construct an error value of the `Output` type.
     ///
-    /// `Result` impls should return `Some(Err(err))`, otherwise default to `None`.
+    /// `Result` implementations should return `Some(Err(err))`, otherwise default to `None`.
     fn err(_err: Self::Error) -> Option<Self::Output> {
         None
     }
@@ -332,28 +332,27 @@ pub struct CreateBuilder<
 /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
 /// # };
 /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-///
-/// #[ink::contract]
-/// pub mod contract {
-///     #[ink(storage)]
-///     pub struct MyContract {}
-///
-///     impl MyContract {
-///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
-///
-///         #[ink(message)]
-///         pub fn message(&self) {}
-///     }
-/// }
-/// use contract::MyContractRef;
-///
+/// #
+/// # #[ink::contract]
+/// # pub mod contract {
+/// #     #[ink(storage)]
+/// #     pub struct MyContract {}
+/// #
+/// #     impl MyContract {
+/// #         #[ink(constructor)]
+/// #         pub fn my_constructor() -> Self { Self {} }
+/// #
+/// #         #[ink(message)]
+/// #         pub fn message(&self) {}
+/// #     }
+/// # }
+/// # use contract::MyContractRef;
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
-///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
@@ -372,34 +371,33 @@ pub struct CreateBuilder<
 /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
 /// # };
 /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-///
-/// #[ink::contract]
-/// pub mod contract {
-///     #[derive(scale::Encode, scale::Decode, Debug)]
-///     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-///     pub struct ConstructorError;
-///
-///     #[ink(storage)]
-///     pub struct MyContract {}
-///
-///     impl MyContract {
-///         #[ink(constructor)]
-///         pub fn constructor() -> Result<Self, ConstructorError> {
-///             Ok(Self {})
-///         }
-///
-///         #[ink(message)]
-///         pub fn message(&self) {}
-///     }
-/// }
-/// use contract::{MyContractRef, ConstructorError};
-///
+/// #
+/// # #[ink::contract]
+/// # pub mod contract {
+/// #     #[derive(scale::Encode, scale::Decode, Debug)]
+/// #     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+/// #     pub struct ConstructorError;
+/// #
+/// #     #[ink(storage)]
+/// #     pub struct MyContract {}
+/// #
+/// #     impl MyContract {
+/// #         #[ink(constructor)]
+/// #         pub fn my_constructor() -> Result<Self, ConstructorError> {
+/// #             Ok(Self {})
+/// #         }
+/// #
+/// #         #[ink(message)]
+/// #         pub fn message(&self) {}
+/// #     }
+/// # }
+/// # use contract::{MyContractRef, ConstructorError};
 /// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
-///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
