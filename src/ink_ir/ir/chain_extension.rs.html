@@ -965,23 +965,6 @@
 <span id="964">964</span>
 <span id="965">965</span>
 <span id="966">966</span>
-<span id="967">967</span>
-<span id="968">968</span>
-<span id="969">969</span>
-<span id="970">970</span>
-<span id="971">971</span>
-<span id="972">972</span>
-<span id="973">973</span>
-<span id="974">974</span>
-<span id="975">975</span>
-<span id="976">976</span>
-<span id="977">977</span>
-<span id="978">978</span>
-<span id="979">979</span>
-<span id="980">980</span>
-<span id="981">981</span>
-<span id="982">982</span>
-<span id="983">983</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1072,13 +1055,6 @@
     ///
     /// The default for this flag is `true`.
     </span>handle_status: bool,
-    <span class="doccomment">/// If `false` the procedural macro no longer tries to enforce that the returned type encoded
-    /// into the output buffer of the chain extension method call is of type `Result&lt;T, E&gt;`.
-    /// Also `E` is no longer required to implement `From&lt;Self::ErrorCode&gt;` in case `handle_status`
-    /// flag does not exist.
-    ///
-    /// The default for this flag is `true`.
-    </span>returns_result: bool,
 }
 
 <span class="kw">impl </span>ChainExtensionMethod {
@@ -1121,11 +1097,6 @@
     <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.
     </span><span class="kw">pub fn </span>handle_status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.handle_status
-    }
-
-    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.
-    </span><span class="kw">pub fn </span>returns_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.returns_result
     }
 }
 
@@ -1262,7 +1233,7 @@
                 item_type.ident,
                 <span class="string">&quot;chain extensions expect an associated type with name `ErrorCode` but found {}&quot;</span>,
                 item_type.ident,
-            ))
+            ));
         }
         <span class="kw">if </span>!item_type.generics.params.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
@@ -1396,7 +1367,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 default_impl,
                 <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;
-            </span>))
+            </span>));
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(constness) = <span class="kw-2">&amp;</span>method.sig.constness {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
@@ -1470,8 +1441,7 @@
             |arg| {
                 <span class="kw">match </span>arg.kind() {
                     ir::AttributeArg::Extension(<span class="kw">_</span>)
-                    | ir::AttributeArg::HandleStatus(<span class="kw">_</span>)
-                    | ir::AttributeArg::ReturnsResult(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+                    | ir::AttributeArg::HandleStatus(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
@@ -1486,7 +1456,6 @@
             id: extension,
             item: item_method.clone(),
             handle_status: ink_attrs.is_handle_status(),
-            returns_result: ink_attrs.is_returns_result(),
         };
         <span class="prelude-val">Ok</span>(result)
     }
@@ -1916,20 +1885,17 @@
 
                     <span class="attribute">#[ink(extension = <span class="number">1</span>, handle_status = <span class="bool-val">false</span>)]
                     </span><span class="kw">fn </span>extension_a();
-                    <span class="attribute">#[ink(extension = <span class="number">2</span>, returns_result = <span class="bool-val">false</span>)]
+                    <span class="attribute">#[ink(extension = <span class="number">2</span>)]
                     </span><span class="kw">fn </span>extension_b();
-                    <span class="attribute">#[ink(extension = <span class="number">3</span>, handle_status = <span class="bool-val">false</span>, returns_result = <span class="bool-val">false</span>)]
+                    <span class="attribute">#[ink(extension = <span class="number">3</span>, handle_status = <span class="bool-val">false</span>)]
                     </span><span class="kw">fn </span>extension_c();
-
                     <span class="attribute">#[ink(extension = <span class="number">4</span>)]
                     #[ink(handle_status = <span class="bool-val">false</span>)]
                     </span><span class="kw">fn </span>extension_d();
                     <span class="attribute">#[ink(extension = <span class="number">5</span>)]
-                    #[ink(returns_result = <span class="bool-val">false</span>)]
                     </span><span class="kw">fn </span>extension_e();
                     <span class="attribute">#[ink(extension = <span class="number">6</span>)]
                     #[ink(handle_status = <span class="bool-val">false</span>)]
-                    #[ink(returns_result = <span class="bool-val">false</span>)]
                     </span><span class="kw">fn </span>extension_f();
                 }
             })

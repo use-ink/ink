@@ -159,24 +159,6 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -252,7 +234,16 @@
         };
 
         <span class="kw">let </span>handle_status = method.handle_status();
-        <span class="kw">let </span>returns_result = method.returns_result();
+
+        <span class="kw">let </span>handle_status_token = <span class="kw">if </span>handle_status {
+            <span class="macro">quote_spanned!</span>(span=&gt;
+                <span class="bool-val">true
+            </span>)
+        } <span class="kw">else </span>{
+            <span class="macro">quote_spanned!</span>(span=&gt;
+                <span class="bool-val">false
+            </span>)
+        };
 
         <span class="kw">let </span>error_code_handling = <span class="kw">if </span>handle_status {
             <span class="macro">quote_spanned!</span>(span=&gt;
@@ -264,55 +255,28 @@
             )
         };
 
-        <span class="kw">let </span>result_handling = <span class="kw">if </span>returns_result {
-            <span class="macro">quote_spanned!</span>(span=&gt;
-                .output_result::&lt;
-                    &lt;#output_type <span class="kw">as </span>::ink::IsResultType&gt;::Ok,
-                    &lt;#output_type <span class="kw">as </span>::ink::IsResultType&gt;::Err,
-                &gt;()
-            )
-        } <span class="kw">else </span>{
-            <span class="macro">quote_spanned!</span>(span=&gt;
-                .output::&lt;#output_type&gt;()
-            )
-        };
+        <span class="kw">let </span>return_type = <span class="macro">quote_spanned!</span>(span =&gt;
+            &lt;::ink::ValueReturned <span class="kw">as </span>::ink::Output&lt;{ <span class="macro">::ink::is_result_type!</span>(#output_type) }, #handle_status_token, #output_type, #error_code&gt;&gt;::ReturnType
+        );
 
-        <span class="kw">let </span>returned_type = <span class="kw">match </span>(returns_result, handle_status) {
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
-                <span class="macro">quote_spanned!</span>(span=&gt;
-                    ::core::result::Result&lt;#output_type, #error_code&gt;
-                )
-            }
-            <span class="kw">_ </span>=&gt; {
-                <span class="macro">quote_spanned!</span>(span=&gt;
-                    #output_type
-                )
-            }
-        };
-
-        <span class="kw">let </span>where_output_is_result = <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(span=&gt;
-            #output_type: ::ink::IsResultType,
-        ))
-        .filter(|<span class="kw">_</span>| returns_result);
-
-        <span class="kw">let </span>where_output_impls_from_error_code = <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(span=&gt;
-            &lt;#output_type <span class="kw">as </span>::ink::IsResultType&gt;::Err: ::core::convert::From&lt;#error_code&gt;,
-        )).filter(|<span class="kw">_</span>| returns_result &amp;&amp; handle_status);
+        <span class="comment">// we only need to check if handle status is set to true to enable this type bound
+        </span><span class="kw">let </span>where_output_impls_from_error_code = <span class="prelude-val">Some</span>(<span class="macro">quote_spanned!</span>(span=&gt;
+            &lt;#return_type <span class="kw">as </span>::ink::IsResultType&gt;::Err: ::core::convert::From&lt;#error_code&gt;,
+        )).filter(|<span class="kw">_</span>|  handle_status);
 
         <span class="macro">quote_spanned!</span>(span=&gt;
-            #( #attrs )*
-            <span class="attribute">#[inline]
-            </span><span class="kw">pub fn </span>#ident(<span class="self">self</span>, #inputs) -&gt; #returned_type
-            <span class="kw">where
-                </span>#where_output_is_result
-                #where_output_impls_from_error_code
-            {
-                ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
+                #( #attrs )*
+                <span class="attribute">#[inline]
+                </span><span class="kw">pub fn </span>#ident(<span class="self">self</span>, #inputs) -&gt; #return_type
+                <span class="kw">where
+                    </span>#where_output_impls_from_error_code
+                {
+                    ::ink::env::chain_extension::ChainExtensionMethod::build(#func_id)
                     .input::&lt;#compound_input_type&gt;()
-                    #result_handling
+                    .output::&lt;#output_type, {<span class="macro">::ink::is_result_type!</span>(#output_type)}&gt;()
                     #error_code_handling
                     .call(<span class="kw-2">&amp;</span>#compound_input_bindings)
-            }
+                }
         )
     }
 }

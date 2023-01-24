@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface for a chain extension."><meta name="keywords" content="rust, rustlang, rust-lang, chain_extension"><title>chain_extension in ink_macro - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../normalize.css"><link rel="stylesheet" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../ayu.css" disabled><link rel="stylesheet" href="../dark.css" disabled><link rel="stylesheet" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script defer src="sidebar-items.js"></script><script defer src="../main.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink_macro/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink_macro/index.html"><div class="logo-container">
-                    <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink_macro</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Attribute Macro <a href="index.html">ink_macro</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/ink_macro/lib.rs.html#1273-1275">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="item-decl"><pre class="rust attr"><code>#[chain_extension]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
+                    <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink_macro</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Attribute Macro <a href="index.html">ink_macro</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/ink_macro/lib.rs.html#1263-1265">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="item-decl"><pre class="rust attr"><code>#[chain_extension]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
 <h2 id="structure"><a href="#structure">Structure</a></h2>
 <p>The interface consists of an error code that indicates lightweight errors
 as well as the definition of some chain extension methods.</p>
@@ -9,7 +9,7 @@ The methods are defined as associated trait methods without implementation.</p>
 <p>Chain extension methods must not have a <code>self</code> receiver such as <code>&amp;self</code> or <code>&amp;mut self</code>
 and must have inputs and output that implement the SCALE encoding and decoding.
 Their return value follows specific rules that can be altered using the <code>handle_status</code>
-and <code>returns_result</code> attributes which are described in more detail below.</p>
+attribute which is described in more detail below.</p>
 <h2 id="usage"><a href="#usage">Usage</a></h2>
 <p>Usually the chain extension definition using this procedural macro is provided
 by the author of the chain extension in a separate crate.
@@ -22,22 +22,20 @@ can be flagged:</p>
 <div><table><thead><tr><th style="text-align: left">Attribute</th><th style="text-align: center">Required</th><th style="text-align: left">Default Value</th><th style="text-align: center">Description</th></tr></thead><tbody>
 <tr><td style="text-align: left"><code>ink(extension = N: u32)</code></td><td style="text-align: center">Yes</td><td style="text-align: left">-</td><td style="text-align: center">Determines the unique function ID of the chain extension method.</td></tr>
 <tr><td style="text-align: left"><code>ink(handle_status = flag: bool)</code></td><td style="text-align: center">Optional</td><td style="text-align: left"><code>true</code></td><td style="text-align: center">Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call.</td></tr>
-<tr><td style="text-align: left"><code>ink(returns_result = flag: bool)</code></td><td style="text-align: center">Optional</td><td style="text-align: left"><code>true</code></td><td style="text-align: center">By default chain extension methods are assumed to return a <code>Result&lt;T, E&gt;</code> in the output buffer. Using <code>returns_result = false</code> this check is disabled and the chain extension method may return any other type.</td></tr>
 </tbody></table>
 </div>
 <p>As with all ink! attributes multiple of them can either appear in a contiguous list:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink(extension = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>, returns_result = <span class="bool-val">false</span>)]
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink(extension = <span class="number">5</span>, handle_status = <span class="bool-val">false</span>)]
 </span><span class="kw">fn </span>key_access_for_account(key: <span class="kw-2">&amp;</span>[u8], account: <span class="kw-2">&amp;</span>[u8]) -&gt; Access;</code></pre></div>
 <p>…or as multiple stand alone ink! attributes applied to the same item:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[ink(extension = <span class="number">5</span>)]
 #[ink(handle_status = <span class="bool-val">false</span>)]
-#[ink(returns_result = <span class="bool-val">false</span>)]
 </span><span class="kw">fn </span>key_access_for_account(key: <span class="kw-2">&amp;</span>[u8], account: <span class="kw-2">&amp;</span>[u8]) -&gt; Access;</code></pre></div>
 <h3 id="details-handle_status"><a href="#details-handle_status">Details: <code>handle_status</code></a></h3>
 <p>Default value: <code>true</code></p>
-<p>By default all chain extension methods return a <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>.
+<p>By default all chain extension methods should return a <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>.
 The <code>Self::ErrorCode</code> represents the error code of the chain extension.
 This means that a smart contract calling such a chain extension method first queries the returned
 status code of the chain extension method and only loads and decodes the output if the returned
@@ -49,20 +47,15 @@ a single <code>u32</code> value.</p>
 <p>A chain extension method that is flagged with <code>handle_status = false</code> assumes that the returned error code
 will always indicate success. Therefore it will always load and decode the output buffer and loses
 the <code>E: From&lt;Self::ErrorCode&gt;</code> constraint for the call.</p>
-<h3 id="details-returns_result"><a href="#details-returns_result">Details: <code>returns_result</code></a></h3>
-<p>Default value: <code>true</code></p>
-<p>By default chain extension methods are assumed to return a value of type <code>Result&lt;T, E&gt;</code> through the
-output buffer. Using <code>returns_result = false</code> this check is disabled and the chain extension method may return
-any other type.</p>
-<p>Note that if a chain extension method is attributed with <code>returns_result = false</code>
-and with <code>handle_status = true</code> it will still return a value of type <code>Result&lt;T, Self::ErrorCode&gt;</code>.</p>
-<h3 id="usage-handle_status-and-returns_result"><a href="#usage-handle_status-and-returns_result">Usage: <code>handle_status</code> and <code>returns_result</code></a></h3>
-<p>Use both <code>handle_status = false</code> and <code>returns_result = false</code> for the same chain extension method
+<p>Note that if a chain extension method does not return <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>
+but <code>handle_status = true</code> it will still return a value of type <code>Result&lt;T, Self::ErrorCode&gt;</code>.</p>
+<h3 id="usage-handle_status"><a href="#usage-handle_status">Usage: <code>handle_status</code></a></h3>
+<p>Use both <code>handle_status = false</code> and non-<code>Result&lt;T, E&gt;</code> return type for the same chain extension method
 if a call to it may never fail and never returns a <code>Result</code> type.</p>
 <h2 id="combinations"><a href="#combinations">Combinations</a></h2>
-<p>Due to the possibility to flag a chain extension method with <code>handle_status</code> and <code>returns_result</code>
+<p>Due to the possibility to flag a chain extension method with <code>handle_status</code> and return or not <code>Result&lt;T, E&gt;</code>
 there are 4 different cases with slightly varying semantics:</p>
-<div><table><thead><tr><th style="text-align: center"><code>handle_status</code></th><th style="text-align: center"><code>returns_result</code></th><th style="text-align: left">Effects</th></tr></thead><tbody>
+<div><table><thead><tr><th style="text-align: center"><code>handle_status</code></th><th style="text-align: center">Returns <code>Result&lt;T, E&gt;</code></th><th style="text-align: left">Effects</th></tr></thead><tbody>
 <tr><td style="text-align: center"><code>true</code></td><td style="text-align: center"><code>true</code></td><td style="text-align: left">The chain extension method is required to return a value of type <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer.</td></tr>
 <tr><td style="text-align: center"><code>true</code></td><td style="text-align: center"><code>false</code></td><td style="text-align: left">The chain extension method may return any non-<code>Result</code> type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still <code>Result&lt;T, Self::ErrorCode&gt;</code> when the chain extension method was defined to return a value of type <code>T</code>.</td></tr>
 <tr><td style="text-align: center"><code>false</code></td><td style="text-align: center"><code>true</code></td><td style="text-align: left">The chain extension method is required to return a value of type <code>Result&lt;T, E&gt;</code>. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly.</td></tr>
@@ -96,7 +89,7 @@ from and to the runtime storage using access privileges:</p>
     /// # Note
     ///
     /// Actually returns a value of type `Result&lt;Vec&lt;u8&gt;, Self::ErrorCode&gt;`.
-    </span><span class="attribute">#[ink(extension = <span class="number">1</span>, returns_result = <span class="bool-val">false</span>)]
+    </span><span class="attribute">#[ink(extension = <span class="number">1</span>)]
     </span><span class="kw">fn </span>read(key: <span class="kw-2">&amp;</span>[u8]) -&gt; Vec&lt;u8&gt;;
 
     <span class="doccomment">/// Reads from runtime storage.
@@ -121,7 +114,7 @@ from and to the runtime storage using access privileges:</p>
     /// # Note
     ///
     /// Actually returns a value of type `Result&lt;(), Self::ErrorCode&gt;`.
-    </span><span class="attribute">#[ink(extension = <span class="number">3</span>, returns_result = <span class="bool-val">false</span>)]
+    </span><span class="attribute">#[ink(extension = <span class="number">3</span>)]
     </span><span class="kw">fn </span>write(key: <span class="kw-2">&amp;</span>[u8], value: <span class="kw-2">&amp;</span>[u8]);
 
     <span class="doccomment">/// Returns the access allowed for the key for the caller.
@@ -129,7 +122,7 @@ from and to the runtime storage using access privileges:</p>
     /// # Note
     ///
     /// Assumes to never fail the call and therefore always returns `Option&lt;Access&gt;`.
-    </span><span class="attribute">#[ink(extension = <span class="number">4</span>, returns_result = <span class="bool-val">false</span>, handle_status = <span class="bool-val">false</span>)]
+    </span><span class="attribute">#[ink(extension = <span class="number">4</span>, handle_status = <span class="bool-val">false</span>)]
     </span><span class="kw">fn </span>access(key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Access&gt;;
 
     <span class="doccomment">/// Unlocks previously aquired permission to access key.
