@@ -359,7 +359,7 @@ where
         for _ in 0..6 {
             let transfer_result = self
                 .api
-                .try_transfer_balance(origin, account_id.clone(), amount.clone())
+                .try_transfer_balance(origin, account_id.clone(), amount)
                 .await;
             match transfer_result {
                 Ok(_) => {
