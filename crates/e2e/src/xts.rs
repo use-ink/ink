@@ -45,14 +45,6 @@ use subxt::{
     OnlineClient,
 };
 
-/// A raw call to `pallet-balances` `transfer`.
-// #[derive(Debug, scale::Encode)]
-// pub struct Transfer<E: Environment, B> {
-//     dest: sp_runtime::MultiAddress<E::AccountId, ()>,
-//     #[codec(compact)]
-//     value: B,
-// }
-
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct InstantiateWithCode<B> {
