@@ -189,6 +189,49 @@ where
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub async fn transfer_balance(
+        &self,
+        origin: &Signer<C>,
+        dest: C::AccountId,
+        value: E::Balance,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::tx::StaticTxPayload::new(
+            "Balances",
+            "transfer",
+            (dest, value),
+            Default::default(),
+        ).unvalidated();
+
+        self.client
+            .tx()
+            .sign_and_submit_then_watch_default(&call, origin)
+            .await
+            .map(|tx_progress| {
+                log_info(&format!(
+                    "signed and submitted tx with hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
+                tx_progress
+            })
+            .unwrap_or_else(|err| {
+                panic!(
+                    "error on call `sign_and_submit_then_watch_default`: {:?}",
+                    err
+                );
+            })
+            .wait_for_in_block()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `wait_for_in_block`: {:?}", err);
+            })
+            .fetch_events()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `fetch_events`: {:?}", err);
+            })
+    }
+
     /// Dry runs the instantiation of the given `code`.
     pub async fn instantiate_with_code_dry_run(
         &self,

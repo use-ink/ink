@@ -44,6 +44,7 @@ use std::{
     fmt::Debug,
     path::Path,
 };
+use sp_core::Pair;
 use subxt::{
     blocks::ExtrinsicEvents,
     events::EventDetails,
@@ -340,6 +341,13 @@ where
             api: ContractsApi::new(client, url).await,
             contracts,
         }
+    }
+
+    /// Generate a new keypair and fund with the given amount from the origin account.
+    pub async fn create_and_fund_account(&self, origin: &Signer<C>, amount: E::Balance) -> Signer<C> {
+        let (pair, _, _) = <sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
+        let _ = self.api.transfer_balance(origin, pair.public().into_account(), amount).await;
+        pair
     }
 
     /// This function extracts the metadata of the contract at the file path
