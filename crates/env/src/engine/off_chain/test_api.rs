@@ -269,45 +269,23 @@ where
 {
     let default_accounts = default_accounts::<T>();
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.borrow_mut().initialize_or_reset();
+        let mut engine = instance.engine.borrow_mut();
+        engine.initialize_or_reset();
 
         let encoded_alice = scale::Encode::encode(&default_accounts.alice);
-        instance
-            .engine
-            .borrow_mut()
-            .set_caller(encoded_alice.clone());
-        instance
-            .engine
-            .borrow_mut()
-            .set_callee(encoded_alice.clone());
+        engine.set_caller(encoded_alice.clone());
+        engine.set_callee(encoded_alice.clone());
 
         // set up the funds for the default accounts
         let substantial = 1_000_000;
         let some = 1_000;
-        instance
-            .engine
-            .borrow_mut()
-            .set_balance(encoded_alice, substantial);
-        instance
-            .engine
-            .borrow_mut()
-            .set_balance(scale::Encode::encode(&default_accounts.bob), some);
-        instance
-            .engine
-            .borrow_mut()
-            .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
-        instance
-            .engine
-            .borrow_mut()
-            .set_balance(scale::Encode::encode(&default_accounts.django), 0);
-        instance
-            .engine
-            .borrow_mut()
-            .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
-        instance
-            .engine
-            .borrow_mut()
-            .set_balance(scale::Encode::encode(&default_accounts.frank), 0);
+
+        engine.set_balance(encoded_alice, substantial);
+        engine.set_balance(scale::Encode::encode(&default_accounts.bob), some);
+        engine.set_balance(scale::Encode::encode(&default_accounts.charlie), some);
+        engine.set_balance(scale::Encode::encode(&default_accounts.django), 0);
+        engine.set_balance(scale::Encode::encode(&default_accounts.eve), 0);
+        engine.set_balance(scale::Encode::encode(&default_accounts.frank), 0);
     });
     f(default_accounts)
 }

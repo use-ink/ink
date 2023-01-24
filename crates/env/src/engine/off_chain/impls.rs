@@ -206,23 +206,17 @@ impl EnvInstance {
         input: Vec<u8>,
         transferred_value: u128,
     ) -> ExecContext {
+        let engine = self.engine.borrow();
         let callee_context = ExecContext {
-            caller: self.engine.borrow().exec_context.callee.clone(),
+            caller: engine.exec_context.callee.clone(),
             callee: Some(callee.clone().into()),
             value_transferred: transferred_value,
-            block_number: self.engine.borrow().exec_context.block_number,
-            block_timestamp: self.engine.borrow().exec_context.block_timestamp,
+            block_number: engine.exec_context.block_number,
+            block_timestamp: engine.exec_context.block_timestamp,
             input,
             output: vec![],
             reverted: false,
-            origin: Some(
-                self.engine
-                    .borrow()
-                    .exec_context
-                    .origin
-                    .clone()
-                    .unwrap_or(callee),
-            ),
+            origin: Some(engine.exec_context.origin.clone().unwrap_or(callee)),
         };
 
         mem::replace(&mut self.engine.borrow_mut().exec_context, callee_context)
@@ -782,15 +776,14 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        self.engine
-            .borrow()
+        let engine = self.engine.borrow();
+
+        engine
             .exec_context
             .origin
             .clone()
             .expect("stack should not be empty")
-            == self
-                .engine
-                .borrow()
+            == engine
                 .exec_context
                 .caller
                 .clone()
