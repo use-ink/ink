@@ -207,7 +207,7 @@ where
 
     /// Attempt to transfer the `value` from `origin` to `dest`.
     ///
-    /// Returns `Ok` if on success, and a [`subxt::Error`] if the extrinsic is
+    /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
     /// invalid (e.g. out of date nonce)
     pub async fn try_transfer_balance(
         &self,
