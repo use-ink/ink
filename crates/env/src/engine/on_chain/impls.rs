@@ -22,8 +22,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -148,7 +150,7 @@ where
     {
         fn inner<E: Environment>(encoded: &mut [u8]) -> <E as Environment>::Hash {
             let len_encoded = encoded.len();
-            let mut result = <E as Environment>::Hash::clear();
+            let mut result = <E as Environment>::Hash::CLEAR_HASH;
             let len_result = result.as_ref().len();
             if len_encoded <= len_result {
                 result.as_mut()[..len_encoded].copy_from_slice(encoded);
@@ -415,7 +417,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract<E, Args, R>(
         &mut self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -479,14 +481,20 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -499,11 +507,8 @@ impl TypedEnvBackend for EnvInstance {
         let out_address = &mut scoped.take(1024);
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
-        // We currently do nothing with the `out_return_value` buffer.
-        // This should change in the future but for that we need to add support
-        // for constructors that may return values.
-        // This is useful to support fallible constructors for example.
-        ext::instantiate(
+
+        let instantiate_result = ext::instantiate(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -511,9 +516,13 @@ impl TypedEnvBackend for EnvInstance {
             out_address,
             out_return_value,
             salt,
-        )?;
-        let account_id = scale::Decode::decode(&mut &out_address[..])?;
-        Ok(account_id)
+        );
+
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
+            instantiate_result.map_err(Into::into),
+            &mut &out_address[..],
+            &mut &out_return_value[..],
+        )
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !

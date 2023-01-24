@@ -153,7 +153,7 @@ impl<'a> Events<'a> {
         let event_ident = event.ident();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
-            <<#storage_ident as ::ink::reflect::ContractEnv>::Env
+            <<#storage_ident as ::ink::env::ContractEnv>::Env
                 as ::ink::env::Environment>::MAX_EVENT_TOPICS
         );
         quote_spanned!(span=>

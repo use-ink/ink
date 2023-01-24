@@ -217,7 +217,10 @@ mod erc20 {
     mod tests {
         use super::*;
 
-        use ink::primitives::Clear;
+        use ink::primitives::{
+            Clear,
+            Hash,
+        };
 
         type Event = <Erc20 as ::ink::reflect::ContractEventBase>::Type;
 
@@ -259,7 +262,7 @@ mod erc20 {
             for (n, (actual_topic, expected_topic)) in
                 topics.iter().zip(expected_topics).enumerate()
             {
-                let mut topic_hash = Hash::clear();
+                let mut topic_hash = Hash::CLEAR_HASH;
                 let len = actual_topic.len();
                 topic_hash.as_mut()[0..len].copy_from_slice(&actual_topic[0..len]);
 
@@ -513,7 +516,7 @@ mod erc20 {
                 primitives::Clear,
             };
 
-            let mut result = Hash::clear();
+            let mut result = Hash::CLEAR_HASH;
             let len_result = result.as_ref().len();
             let encoded = entity.encode();
             let len_encoded = encoded.len();
@@ -574,14 +577,10 @@ mod erc20 {
             // then
             assert_eq!(
                 total_supply,
-                total_supply_res.return_value().unwrap(),
+                total_supply_res.return_value(),
                 "total_supply"
             );
-            assert_eq!(
-                transfer_to_bob,
-                balance_of_res.return_value().unwrap(),
-                "balance_of"
-            );
+            assert_eq!(transfer_to_bob, balance_of_res.return_value(), "balance_of");
 
             Ok(())
         }
@@ -668,7 +667,7 @@ mod erc20 {
 
             assert_eq!(
                 total_supply - approved_value,
-                balance_of_res.return_value().unwrap(),
+                balance_of_res.return_value(),
                 "balance_of"
             );
 

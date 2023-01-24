@@ -697,6 +697,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
 /// struct Packed {
 ///     s1: u128,
 ///     s2: Vec<u128>,
@@ -710,6 +711,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
 /// struct PackedGeneric<T: ink::storage::traits::Packed> {
 ///     s1: (u128, bool),
 ///     s2: Vec<T>,
@@ -718,6 +720,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// // Example of how to define the non-packed type.
 /// #[ink::storage_item]
+/// #[derive(Default, Debug)]
 /// struct NonPacked {
 ///     s1: Mapping<u32, u128>,
 ///     s2: Lazy<u128>,
@@ -730,7 +733,12 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
-/// struct NonPackedGeneric<T: ink::storage::traits::Packed> {
+/// #[derive(Default, Debug)]
+/// struct NonPackedGeneric<T>
+/// where
+///     T: Default + core::fmt::Debug,
+///     T: ink::storage::traits::Packed,
+/// {
 ///     s1: u32,
 ///     s2: T,
 ///     s3: Mapping<u128, T>,
@@ -742,6 +750,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     feature = "std",
 ///     derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
 /// )]
+/// #[derive(Default, Debug)]
 /// struct PackedComplex {
 ///     s1: u128,
 ///     s2: Vec<u128>,
@@ -750,6 +759,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// // Example of how to define a complex non-packed type.
 /// #[ink::storage_item]
+/// #[derive(Default, Debug)]
 /// struct NonPackedComplex<KEY: StorageKey> {
 ///     s1: (String, u128, Packed),
 ///     s2: Mapping<u128, u128>,
@@ -779,8 +789,8 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     use ink::storage::traits::{
 ///         StorableHint,
 ///         StorageKey,
+///         Storable,
 ///     };
-///     use ink::storage::traits::Storable;
 ///
 ///     #[ink::storage_item(derive = false)]
 ///     #[derive(StorableHint, Storable, StorageKey)]

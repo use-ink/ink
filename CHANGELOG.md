@@ -7,8 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 - Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
 - Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
+- Make CallBuilder and CreateBuilder error handling optional - [#1602](https://github.com/paritytech/ink/pull/1602)
+- Rename `CallBuilder::fire()` method to `invoke()` - [#1604](https://github.com/paritytech/ink/pull/1604)
 - Chain Extension: Evaluation of method return type at compile time - [#1569](https://github.com/paritytech/ink/pull/1569).
-  This PR introduces breaking changes to chain extension macro API: **`returns_result` flag has been removed**.
+
+### Breaking Changes
+With this release there are three breaking changes related to the `CallBuilder`
+`CreateBuilder` and the Chain Extension API.
+
+1. The `invoke()` methods now unwrap the `Result` from `pallet-contracts` under the hood
+   ([#1602](https://github.com/paritytech/ink/pull/1602)).
+   If you wish to handle the error use the new `try_` variants of those methods instead.
+1. The `CallBuilder::fire()` method has been renamed to `invoke()`
+   ([#1604](https://github.com/paritytech/ink/pull/1604))
+1. The `returns_result` flag has been removed from the `#[ink(extension = …)]` attribute
+   ([#1569](https://github.com/paritytech/ink/pull/1569)).
+   We now infer this information at compile time. If `handle_status` is set to `true`,
+   the return type will still be wrapped into `Result` as before.
 
 ## Version 4.0.0-beta
 
