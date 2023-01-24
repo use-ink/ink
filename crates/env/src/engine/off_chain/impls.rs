@@ -571,13 +571,11 @@ impl TypedEnvBackend for EnvInstance {
                 .unwrap();
         }
 
-        let return_value =
-            R::decode(&mut self.engine.exec_context.borrow().output.clone().as_slice())?;
-
-        let output = self.engine.exec_context.borrow().output.clone();
-
         // if the call was reverted, previous one should be reverted too
         previous_context.reverted |= self.engine.exec_context.borrow().reverted;
+
+        let output = self.engine.exec_context.borrow().output.clone();
+        let return_value = R::decode(&mut output.as_slice())?;
 
         self.engine.exec_context.replace(previous_context);
 
@@ -637,6 +635,7 @@ impl TypedEnvBackend for EnvInstance {
 
         call_fn();
 
+        // revert contract's state in case of error
         if self.engine.exec_context.borrow().reverted {
             self.engine
                 .database
@@ -649,13 +648,11 @@ impl TypedEnvBackend for EnvInstance {
                 .unwrap();
         }
 
-        let return_value =
-            R::decode(&mut self.engine.exec_context.borrow().output.clone().as_slice())?;
-
-        let output = self.engine.exec_context.borrow().output.clone();
-
         // if the call was reverted, previous one should be reverted too
         previous_context.reverted |= self.engine.exec_context.borrow().reverted;
+
+        let output = self.engine.exec_context.borrow().output.clone();
+        let return_value = R::decode(&mut output.as_slice())?;
 
         self.engine.exec_context.replace(previous_context);
 

@@ -638,7 +638,7 @@ impl Engine {
                 .set_allow_reentry(caller.as_bytes().to_vec(), allow_reentry);
         }
 
-        // Check if reentrance that is not allowed is encountered
+        // Check if reentrancy that is not allowed is encountered
         if !self.contracts.borrow().get_allow_reentry(callee.clone())
             && self.contracts.borrow().get_entrance_count(callee.clone()) > 0
         {
