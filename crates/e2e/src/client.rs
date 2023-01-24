@@ -35,6 +35,7 @@ use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
 
+use sp_core::Pair;
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
@@ -44,7 +45,6 @@ use std::{
     fmt::Debug,
     path::Path,
 };
-use sp_core::Pair;
 use subxt::{
     blocks::ExtrinsicEvents,
     events::EventDetails,
@@ -56,7 +56,10 @@ use subxt::{
             ValueDef,
         },
     },
-    tx::ExtrinsicParams,
+    tx::{
+        ExtrinsicParams,
+        PairSigner,
+    },
 };
 
 /// Result of a contract instantiation.
@@ -344,10 +347,41 @@ where
     }
 
     /// Generate a new keypair and fund with the given amount from the origin account.
-    pub async fn create_and_fund_account(&self, origin: &Signer<C>, amount: E::Balance) -> Signer<C> {
-        let (pair, _, _) = <sr25519::Pair as sp_core::Pair>::generate_with_phrase(None);
-        let _ = self.api.transfer_balance(origin, pair.public().into_account(), amount).await;
-        pair
+    ///
+    /// Because many tests may execute this in parallel, transfers may fail due to a race condition
+    /// with account nonces. Therefore this will reattempt transfers a number of times.
+    pub async fn create_and_fund_account(
+        &self,
+        origin: &Signer<C>,
+        amount: E::Balance,
+    ) -> Signer<C>
+    where
+        E::Balance: Clone,
+        C::AccountId: Clone + core::fmt::Display,
+    {
+        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
+        let account_id =
+            <C::Signature as Verify>::Signer::from(pair.public()).into_account();
+
+        for _ in 0..6 {
+            let transfer_result = self
+                .api
+                .try_transfer_balance(origin, account_id.clone(), amount.clone())
+                .await;
+            match transfer_result {
+                Ok(_) => break,
+                Err(err) => {
+                    log_info(&format!(
+                        "transfer from {} to {} failed with {:?}",
+                        origin.account_id(),
+                        account_id,
+                        err
+                    ))
+                }
+            }
+        }
+
+        PairSigner::new(pair)
     }
 
     /// This function extracts the metadata of the contract at the file path
