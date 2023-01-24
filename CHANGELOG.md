@@ -37,7 +37,7 @@ This release includes a couple of breaking changes.
 
 ### Fixed
 - Add Determinism enum from pallet-contracts ‒ [#1547](https://github.com/paritytech/ink/pull/1547)
-- Added missed `WhereClosure` for the generics into `storage_item` ‒ [#1536](https://github.com/paritytech/ink/pull/1536)
+- Added missed `WhereClosure` for the generics into `storage_item` ‒ [#1536](https://github.com/paritytech/ink/pull/1536) (thanks [@xgreenx](https://github.com/xgreenx))
 
 ### Changed
 - Handle `LangError` from instantiate ‒ [#1512](https://github.com/paritytech/ink/pull/1512)
@@ -46,12 +46,12 @@ This release includes a couple of breaking changes.
 - Fix trait message return type metadata ‒ [#1531](https://github.com/paritytech/ink/pull/1531)
 - Bump Dylint dependencies ‒ [#1551](https://github.com/paritytech/ink/pull/1551)
 - Stabilize `take_storage` ‒ [#1568](https://github.com/paritytech/ink/pull/1568)
-- Chain Extension: Evaluation of method return type at compile time ‒ [#1569](https://github.com/paritytech/ink/pull/1569).
-- Make more functions be const ‒ [#1574](https://github.com/paritytech/ink/pull/1574)
+- Chain Extension: Evaluation of method return type at compile time ‒ [#1569](https://github.com/paritytech/ink/pull/1569)
+- Make more functions be const ‒ [#1574](https://github.com/paritytech/ink/pull/1574) (thanks [@yjhmelody](https://github.com/yjhmelody))
 - Unify fallible and non fallible `instantiate` methods ‒ [#1591](https://github.com/paritytech/ink/pull/1591)
 - Make `CallBuilder` and `CreateBuilder` error handling optional ‒ [#1602](https://github.com/paritytech/ink/pull/1602)
 - Rename `CallBuilder::fire()` method to `invoke()` ‒ [#1604](https://github.com/paritytech/ink/pull/1604)
-- chore: add minimum rust version to the ink crate ‒ [#1609](https://github.com/paritytech/ink/pull/1609)
+- chore: add minimum rust version to the ink crate ‒ [#1609](https://github.com/paritytech/ink/pull/1609) (thanks [@Kurtsley](https://github.com/Kurtsley))
 
 ## Version 4.0.0-beta
 
