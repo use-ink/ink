@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
+
+### Breaking Changes
+
+1. We've renamed some of the generated message methods on the `ContractRef` struct. They
+   have been changed from `_checked` to `try_` ([#1621](https://github.com/paritytech/ink/pull/1621))
 
 ## Version 4.0.0-beta.1
 The coolest feature included in this release is the first first published version of
