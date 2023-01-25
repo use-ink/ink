@@ -70,17 +70,6 @@ pub struct Call<E: Environment, B> {
 
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Encode, scale::Decode)]
-pub struct Call2<E: Environment, B> {
-    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
-    #[codec(compact)]
-    value: B,
-    gas_limit: Weight,
-    storage_deposit_limit: Option<B>,
-    data: Vec<u8>,
-}
-
-/// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Encode, scale::Decode)]
 pub struct Transfer<E: Environment, C: subxt::Config> {
     dest: C::Address,
     #[codec(compact)]
