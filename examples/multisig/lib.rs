@@ -336,8 +336,7 @@ mod multisig {
         ///         .push_arg(&transaction_candidate)
         ///     )
         ///     .returns::<(u32, ConfirmationStatus)>()
-        ///     .fire()
-        ///     .expect("submit_transaction won't panic");
+        ///     .invoke();
         ///
         /// // Wait until all required owners have confirmed and then execute the transaction
         /// //
@@ -350,8 +349,7 @@ mod multisig {
         ///         .push_arg(&id)
         ///     )
         ///     .returns::<()>()
-        ///     .fire()
-        ///     .expect("invoke_transaction won't panic");
+        ///     .invoke();
         /// ```
         #[ink(message)]
         pub fn add_owner(&mut self, new_owner: AccountId) {
@@ -529,7 +527,7 @@ mod multisig {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             assert!(self.env().transferred_value() == t.transferred_value);
-            let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
                         .callee(t.callee)
@@ -541,8 +539,13 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<()>()
-                .fire()
-                .map_err(|_| Error::TransactionFailed);
+                .try_invoke();
+
+            let result = match result {
+                Ok(Ok(_)) => Ok(()),
+                _ => Err(Error::TransactionFailed),
+            };
+
             self.env().emit_event(Event::Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
@@ -562,7 +565,7 @@ mod multisig {
         ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = build_call::<<Self as ::ink::reflect::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
                 .call_type(
                     Call::new()
                         .callee(t.callee)
@@ -574,8 +577,13 @@ mod multisig {
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
                 .returns::<Vec<u8>>()
-                .fire()
-                .map_err(|_| Error::TransactionFailed);
+                .try_invoke();
+
+            let result = match result {
+                Ok(Ok(v)) => Ok(v),
+                _ => Err(Error::TransactionFailed),
+            };
+
             self.env().emit_event(Event::Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),

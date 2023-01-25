@@ -104,8 +104,8 @@ impl CallBuilder<'_> {
                     type Type = #cb_ident;
                 }
 
-                impl ::ink::reflect::ContractEnv for #cb_ident {
-                    type Env = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
+                impl ::ink::env::ContractEnv for #cb_ident {
+                    type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
                 }
             };
         )
@@ -369,7 +369,10 @@ impl CallBuilder<'_> {
         let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
-        let return_type = message.wrapped_output();
+        let return_type = message
+            .output()
+            .map(quote::ToTokens::to_token_stream)
+            .unwrap_or_else(|| quote::quote! { () });
         let output_span = return_type.span();
         let output_type = quote_spanned!(output_span=>
             ::ink::env::call::CallBuilder<

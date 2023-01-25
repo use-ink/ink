@@ -63,6 +63,16 @@ impl<Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
     }
 }
 
+impl<Args> ExecutionInput<Args> {
+    /// Modify the selector.
+    ///
+    /// Useful when using the [`ExecutionInput`] generated as part of the
+    /// `ContractRef`, but using a custom selector.
+    pub fn update_selector(&mut self, selector: Selector) {
+        self.selector = selector;
+    }
+}
+
 /// An argument list.
 ///
 /// This type is constructed mainly at compile type via type constructions

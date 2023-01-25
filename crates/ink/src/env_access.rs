@@ -18,8 +18,10 @@ use ink_env::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         CryptoHash,
@@ -452,20 +454,29 @@ where
     ///
     /// /// Instantiates another contract.
     /// #[ink(message)]
-    /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment, OtherContractRef>()
+    /// pub fn instantiate_contract(&self) -> MyContractRef {
+    ///     let create_params = build_create::<OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)
     ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///             ExecutionInput::new(Selector::new(ink::selector_bytes!("new")))
     ///                 .push_arg(42)
     ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32])
-    ///             )
+    ///                 .push_arg(&[0x10u8; 32]),
+    ///         )
     ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .returns::<OtherContractRef>()
     ///         .params();
-    ///     self.env().instantiate_contract(&create_params).unwrap_or_else(|err| panic!("instantiation must succeed: {:?}", err))
+    ///     self.env()
+    ///         .instantiate_contract(&create_params)
+    ///         .unwrap_or_else(|error| {
+    ///             panic!(
+    ///                 "Received an error from the Contracts pallet while instantiating: {:?}",
+    ///                 error
+    ///             )
+    ///         })
+    ///         .unwrap_or_else(|error| panic!("Received a `LangError` while instatiating: {:?}", error))
     /// }
     /// #
     /// #     }
@@ -478,15 +489,21 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, Salt, C>(
+    pub fn instantiate_contract<ContractRef, Args, Salt, R>(
         self,
-        params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
     where
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>,
     {
-        ink_env::instantiate_contract::<E, Args, Salt, C>(params)
+        ink_env::instantiate_contract::<E, ContractRef, Args, Salt, R>(params)
     }
 
     /// Invokes a contract message and returns its result.
@@ -528,7 +545,10 @@ where
     ///     )
     ///     .returns::<i32>()
     ///     .params();
-    ///     self.env().invoke_contract(&call_params).unwrap_or_else(|err| panic!("call invocation must succeed: {:?}", err))
+    ///
+    ///     self.env().invoke_contract(&call_params)
+    ///         .unwrap_or_else(|env_err| panic!("Received an error from the Environment: {:?}", env_err))
+    ///         .unwrap_or_else(|lang_err| panic!("Received a `LangError`: {:?}", lang_err))
     /// }
     /// #
     /// #     }
@@ -541,7 +561,7 @@ where
     pub fn invoke_contract<Args, R>(
         self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         Args: scale::Encode,
         R: scale::Decode,

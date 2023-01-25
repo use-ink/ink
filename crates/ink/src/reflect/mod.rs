@@ -29,11 +29,7 @@ mod event;
 mod trait_def;
 
 pub use self::{
-    contract::{
-        ContractEnv,
-        ContractName,
-        ContractReference,
-    },
+    contract::ContractName,
     dispatch::{
         ConstructorOutput,
         ConstructorOutputValue,

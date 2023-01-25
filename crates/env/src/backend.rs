@@ -16,8 +16,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         CryptoHash,
@@ -414,7 +416,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn invoke_contract<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -439,14 +441,20 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>;
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.
     ///

@@ -57,6 +57,8 @@ pub use self::{
     chain_extension::{
         ChainExtensionInstance,
         IsResultType,
+        Output,
+        ValueReturned,
     },
     contract_ref::ToAccountId,
     env_access::EnvAccess,

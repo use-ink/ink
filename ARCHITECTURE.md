@@ -19,9 +19,6 @@ ink! is composed of a number of crates that are all found in the
   The ink! language itself.
 * [`allocator`](https://github.com/paritytech/ink/tree/master/crates/allocator):
   The allocator used for dynamic memory allocation in a contract.
-* [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):
-  An off-chain testing engine, it simulates a blockchain environment and allows
-  mocking specified conditions.
 * [`env`](https://github.com/paritytech/ink/tree/master/crates/env):
   Serves two roles:
   * Exposes environmental functions, like information about the caller
@@ -44,6 +41,15 @@ ink! is composed of a number of crates that are all found in the
 * [`storage`](https://github.com/paritytech/ink/tree/master/crates/prelude):
   The collections that are available for contract developers to put in
   a smart contracts storage.
+* [`engine`](https://github.com/paritytech/ink/tree/master/crates/engine):
+  An off-chain testing engine, it simulates a blockchain environment and allows
+  mocking specified conditions.
+* [`e2e`](https://github.com/paritytech/ink/tree/master/crates/e2e):
+  An end-to-end testing framework for ink! contracts. It requires a Substrate node
+  which includes `pallet-contracts` running in the background. The crate provides a
+  macro which can be used
+  to write an idiomatic Rust test that will in the background create transactions,
+  submit it to the Substrate chain and return the state changes, gas costs, etc.
 
 An important thing to note is that the crates are primarily run in
 a `no_std` environment.
@@ -96,14 +102,27 @@ gas costs) and a lower transaction throughput. Freeing memory is
 irrelevant for our use-case anyway, as the entire memory instance
 is set up fresh for each individual contract call anyway.
 
-## Nightly Rust features in ink!
+## Unstable Rust features in ink!
 
-We would like to get away from nightly features of Rust in ink!, so
+We would like to get away from unstable features of Rust in ink!, so
 that users can just use stable Rust for building their contracts.
 At the moment we're still stuck with one nightly feature though:
 [alloc_error_handler](https://github.com/rust-lang/rust/issues/51540).
 It's needed because we use a specialized memory allocation handler,
 the `ink_allocator` crate.
+It's unclear when or if this feature will ever make it to stable.
+
+We had a lot of issues when requiring users to use Rust nightly. Mostly
+because there were regularly bugs in the nightly Rust compiler that
+often took days to be fixed.
+As a consequence we decided on having `cargo-contract` `v2.0.0` run
+`cargo +stable build` with `RUSTC_BOOTSTRAP=1`. This is kind of a hack,
+the env variable enables unstable features in the stable Rust toolchain.
+But it enabled us to switch tutorials/guides to Rust stable.
+
+One advantage is that users don't deal with an ever-changing nightly
+compiler. It's easier for us to support. If you build a contract without
+`cargo-contract` you will have to set this env variable too or use nightly.
 
 ## Interaction with `pallet-contracts`
 
@@ -170,3 +189,35 @@ one point.
 
 The prefix `seal` here is for historic reasons. There is some analogy to sealing a
 contract. And we found seals to be a cute animal as well ‒ like squids!
+
+## `Environment` Trait
+
+You can use ink! on any blockchain that was built with the [Substrate](https://substrate.io)
+framework and includes the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+module.
+Substrate does not define specific types for a blockchain, it uses
+generic types throughout.
+Chains built on Substrate can decide on their own which types they want
+to use for e.g. the chain's block number or account id's. For example,
+chains that intend to be compatible to Ethereum typically use the same
+type as Ethereum for their `AccountId`.
+
+The `Environment` trait is how ink! knows the concretes types of the chain
+to which the contract will be deployed to.
+Specifically, our `ink_env` crate defines a trait [`Environment`](https://paritytech.github.io/ink/ink_env/trait.Environment.html)
+which specifies the types.
+By default, ink! uses the default Substrate types, the `ink_env` crate
+exports an implementation of the `Environment` trait for that:
+[`DefaultEnvironment`](https://paritytech.github.io/ink/ink_env/enum.DefaultEnvironment.html).
+
+If you are developing for a chain that uses different types than the
+Substrate default types you can configure a different environment in
+the contract macro ([documentation here](https://paritytech.github.io/ink/ink/attr.contract.html#header-arguments)):
+
+```rust
+#[ink::contract(env = MyCustomTypes)]
+```
+
+__Important:__ If a developer writes a contract for a chain that deviates
+from the default Substrate types, they have to make sure to use that
+chain's `Environment`.

@@ -68,6 +68,25 @@ pub struct Call<E: Environment, B> {
     data: Vec<u8>,
 }
 
+/// A raw call to `pallet-contracts`'s `call`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct Call2<E: Environment, B> {
+    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
+    #[codec(compact)]
+    value: B,
+    gas_limit: Weight,
+    storage_deposit_limit: Option<B>,
+    data: Vec<u8>,
+}
+
+/// A raw call to `pallet-contracts`'s `call`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct Transfer<E: Environment, C: subxt::Config> {
+    dest: C::Address,
+    #[codec(compact)]
+    value: E::Balance,
+}
+
 #[derive(
     Debug, Clone, Copy, scale::Encode, scale::Decode, PartialEq, Eq, serde::Serialize,
 )]
@@ -167,10 +186,7 @@ where
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
-    E::Balance: scale::Encode + serde::Serialize,
-
-    Call<E, E::Balance>: scale::Encode,
-    InstantiateWithCode<E::Balance>: scale::Encode,
+    E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
     pub async fn new(client: OnlineClient<C>, url: &str) -> Self {
@@ -187,6 +203,40 @@ where
             ws_client,
             _phantom: Default::default(),
         }
+    }
+
+    /// Attempt to transfer the `value` from `origin` to `dest`.
+    ///
+    /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
+    /// invalid (e.g. out of date nonce)
+    pub async fn try_transfer_balance(
+        &self,
+        origin: &Signer<C>,
+        dest: C::AccountId,
+        value: E::Balance,
+    ) -> Result<(), subxt::Error> {
+        let call = subxt::tx::StaticTxPayload::new(
+            "Balances",
+            "transfer",
+            Transfer::<E, C> {
+                dest: dest.into(),
+                value,
+            },
+            Default::default(),
+        )
+        .unvalidated();
+
+        let tx_progress = self
+            .client
+            .tx()
+            .sign_and_submit_then_watch_default(&call, origin)
+            .await?;
+
+        tx_progress.wait_for_in_block().await.unwrap_or_else(|err| {
+            panic!("error on call `wait_for_in_block`: {:?}", err);
+        });
+
+        Ok(())
     }
 
     /// Dry runs the instantiation of the given `code`.
