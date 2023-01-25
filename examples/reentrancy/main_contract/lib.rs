@@ -88,8 +88,9 @@ mod main_contract {
             build_call::<DefaultEnvironment>()
                 .call_type(Call::new().callee(self.callee))
                 .call_flags(CallFlags::default().set_allow_reentry(true))
-                .fire()
-                .unwrap_or_else(|err| panic!("failed to call callee: {:?}", err));
+                .try_invoke()
+                .unwrap_or_else(|err| panic!("failed to call callee: {:?}", err))
+                .unwrap_or_else(|err| panic!("callee reverted: {:?}", err));
 
             let mut state = ink::env::get_contract_storage(
                 &<Self as ink::storage::traits::StorageKey>::KEY,

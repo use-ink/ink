@@ -134,8 +134,8 @@ pub trait ContractReference {
 }
 
 /// Entrypoint of the contract to execute constructors or messages.
-    /// Entrypoint to run a constructor for the contract. It deploys the contract to the environment.
 pub trait Entrypoint {
+    /// Entrypoint to run a constructor for the contract. It deploys the contract to the environment.
     fn deploy();
 
     /// Entrypoint to run a message of the contract.

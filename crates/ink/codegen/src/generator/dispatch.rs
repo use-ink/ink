@@ -424,7 +424,7 @@ impl Dispatch<'_> {
                 #[allow(clippy::nonminimal_bool)]
                 fn deploy() {
                     if !#any_constructor_accept_payment {
-                        ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
+                        ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                             .unwrap_or_else(|error| ::core::panic!("{}", error))
                     }
 
@@ -461,7 +461,7 @@ impl Dispatch<'_> {
                 #[allow(clippy::nonminimal_bool)]
                 fn call() {
                     if !#any_message_accept_payment {
-                        ::ink::codegen::deny_payment::<<#storage_ident as ::ink::reflect::ContractEnv>::Env>()
+                        ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                             .unwrap_or_else(|error| ::core::panic!("{}", error))
                     }
 

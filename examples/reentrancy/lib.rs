@@ -91,15 +91,13 @@ mod test {
             .code_hash(hash1)
             .endowment(0)
             .salt_bytes([0u8; 0])
-            .instantiate()
-            .expect("failed at instantiating the `main_contractRef` contract");
+            .instantiate();
 
         let fallback_contract = FallbackContractRef::new(main_contract.clone())
             .code_hash(hash2)
             .endowment(0)
             .salt_bytes([0u8; 0])
-            .instantiate()
-            .expect("failed at instantiating the `fallback_contractRef` contract");
+            .instantiate();
 
         let address1 = main_contract.get_address();
 

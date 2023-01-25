@@ -208,17 +208,23 @@ impl EnvInstance {
         input: Vec<u8>,
         transferred_value: u128,
     ) -> ExecContext {
-        let engine = self.engine.borrow();
         let callee_context = ExecContext {
-            caller: engine.exec_context.callee.clone(),
+            caller: self.engine.borrow().exec_context.callee.clone(),
             callee: Some(callee.clone().into()),
             value_transferred: transferred_value,
-            block_number: engine.exec_context.block_number,
-            block_timestamp: engine.exec_context.block_timestamp,
+            block_number: self.engine.borrow().exec_context.block_number,
+            block_timestamp: self.engine.borrow().exec_context.block_timestamp,
             input,
             output: vec![],
             reverted: false,
-            origin: Some(engine.exec_context.origin.clone().unwrap_or(callee)),
+            origin: Some(
+                self.engine
+                    .borrow()
+                    .exec_context
+                    .origin
+                    .clone()
+                    .unwrap_or(callee),
+            ),
         };
 
         mem::replace(&mut self.engine.borrow_mut().exec_context, callee_context)
@@ -581,7 +587,7 @@ impl TypedEnvBackend for EnvInstance {
         previous_context.reverted |= self.engine.borrow().exec_context.reverted;
 
         let output = self.engine.borrow().exec_context.output.clone();
-        let return_value = R::decode(&mut output.as_slice())?;
+        let return_value = scale::Decode::decode(&mut output.as_slice())?;
 
         let _ =
             mem::replace(&mut self.engine.borrow_mut().exec_context, previous_context);
@@ -733,10 +739,21 @@ impl TypedEnvBackend for EnvInstance {
 
         deploy_fn();
 
+        let output = self.engine.borrow().exec_context.output.clone();
+        let instantiate_result = if self.engine.borrow().exec_context.reverted {
+            Err(Error::CalleeReverted)
+        } else {
+            Ok(())
+        };
+
         let _ =
             mem::replace(&mut self.engine.borrow_mut().exec_context, previous_context);
 
-        Ok(<_ as scale::Decode>::decode(&mut callee.as_slice())?)
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, R>(
+            instantiate_result.map_err(Into::into),
+            &mut &callee[..],
+            &mut &output[..],
+        )
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
