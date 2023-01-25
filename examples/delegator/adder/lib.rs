@@ -53,14 +53,12 @@ mod test {
             .code_hash(hash1)
             .endowment(0)
             .salt_bytes([0u8; 0])
-            .instantiate()
-            .expect("failed at instantiating the `AccumulatorRef` contract");
+            .instantiate();
         let mut adder = AdderRef::new(acc.clone())
             .code_hash(hash2)
             .endowment(0)
             .salt_bytes([0u8; 0])
-            .instantiate()
-            .expect("failed at instantiating the `AdderRef` contract");
+            .instantiate();
 
         assert_eq!(acc.get(), 0);
         adder.inc(1);

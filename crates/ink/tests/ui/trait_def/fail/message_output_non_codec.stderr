@@ -33,7 +33,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<E, Set<Call
   = note: the following trait bounds were not satisfied:
           `NonCodec: parity_scale_codec::Decode`
 note: the following trait must be implemented
- --> $CARGO/parity-scale-codec-3.2.2/src/codec.rs
+ --> $CARGO/parity-scale-codec-3.2.1/src/codec.rs
   |
   | pub trait Decode: Sized {
   | ^^^^^^^^^^^^^^^^^^^^^^^
