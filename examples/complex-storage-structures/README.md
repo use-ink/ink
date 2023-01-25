@@ -2,63 +2,120 @@
 
 In ink! v4.0.0-beta the way storage works was refactored.
 
-Previously each field was stored in its storage cell under its storage key.
-The storage key was calculated in runtime over fields iteration. In a new version, all packed fields are stored in one
-storage cell under one storage key. All non-packed fields know their storage key during compilation time.
-During compilation time for types are generated their own storage keys, so, for instance, if you have `Mapping<u128, 128>`
-type for your storage field, after code generation it will look like `Mapping<u128, u128, ManualKey<123>>` which is not the same
-type as just `Mapping<u128, u128>`.
+## Pre-ink! v4.0.0-beta storage
 
-### Traits
+Previously, your custom data structures were relying on `SpreadLayout` and `PackedLayout`
+traits. These traits described how your custom data structures should be persisted
+in storage cells.
 
-First of all, removed traits `SpreadLayout` and `PackedLayout`. Now, instead `pull_spread`, `push_spread` and other methods
-that were used in these traits you should use `ink::env::set_contract_storage` and `ink::env::get_contract_storage`.
-Instead of this exist traits `Storable` and `Packed`. Also, you can use macro attribute `#[ink::storage_item]` to implement this traits
+However, the storage keys that these data structures would occupy are determined in
+runtime. Storage keys for individual fields in structs, that were deriving
+`SpreadLayout` were determined by simple iteration on the fields of a parent struct.
 
- - `Storable` is a trait that is created for representing types that can be read and written into the contract's storage.
-Types that implement `scale::Decode` and `scale::Encode` are storable by default.
+For example, consider the following structure:
 
-You can derive `Storable` trait for your type as in the following example:
 ```rust
-use ink::storage::traits::Storable;
-
-#[derive(Storable)]
-struct MyStruct {
-    first_field: u32,
-    second_field: Vec<u8>,
+#[derive(SpreadLayout)]
+struct TestStruct {
+    first: Mapping<u32, u32>,
+    second: Mapping<u64, u64>
 }
 ```
 
- - `Packed` is a trait that is created for representing types that can be read and written into the contract's storage, 
-and all of it's fields occupy a single storage cell.
+The struct has two fields, and both fields need their own storage cell.
 
-You can derive `Packed` trait for your type as in the following example:
+A (shortened) result of a macro expansion on this struct looks like this:
 
 ```rust
-#[derive(scale::Encode, scale::Decode)]
-struct MyPackedStruct {
-    first_field: u32,
-    second_field: Vec<u8>,
+impl ::ink_storage::traits::SpreadLayout for TestStruct {
+    // ...
+
+    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+        match self {
+            TestStruct { first: __binding_0, second: __binding_1 } => {
+                {
+                    ::ink_storage::traits::SpreadLayout::push_spread(
+                        __binding_0,
+                        __key_ptr,
+                    );
+                }
+                {
+                    ::ink_storage::traits::SpreadLayout::push_spread(
+                        __binding_1,
+                        __key_ptr,
+                    );
+                }
+            }
+        }
+    }
+
+    // ...
 }
 ```
 
-A type will be considered non-packed if any of it's fields occupies it's single storage cell. Example of non-packed type:
+Every single operation on `KeyPtr` would advance it further, allowing us
+to read multiple storage cells, thus processing every single storage key operation
+in runtime.
+
+If you wanted to created a packed struct (which stores its fields under a single storage key)
+you had to implement a `PackedLayout` trait for your struct. Only some eligible
+fields could be stored using `PackedLayout`. For example, you could
+store `i32` or `AccountId` using `PackedLayout`, but you were unable to do the same with `Mapping`.
+
+In order to implement `PackedLayout` automatically, you could just derive `PackedLayout` macro:
+
+```rust
+#[derive(PackedLayout)]
+struct TestStruct {
+    first: u32,
+    second: u64
+}
+```
+
+It would generate a code similar to that of a `SpreadLayout`, but with the usage
+of a single storage cell instead of a variety of those cells.
+
+## Post-ink! 4.0.0-beta storage
+
+First of all, new version of ink!'s storage substantially changes
+the way you can interact with "spread structs" (structs that span multiple
+storage cells, for which you had to use `SpreadLayout` in previous versions of ink!)
+by allocating storage keys in compile-time.
+
+For example, consider the previous struct with `SpreadLayout` derived:
+
+```rust
+#[derive(SpreadLayout)]
+struct TestStruct {
+    first: Mapping<u32, u32>,
+    second: Mapping<u64, u64>
+}
+```
+
+With new ink! version, it looks like this:
 
 ```rust
 #[ink::storage_item]
-struct MyNonPackedStruct {
-    first_field: u32,
-    second_field: Mapping<u32, u32>,
+struct TestStruct {
+    first: Mapping<u32, u32>,
+    second: Mapping<u64, u64>
 }
 ```
-The type is considered non-packed as `Mapping` always occupies it's own storage cell.
 
-Packed types don't have their storage keys, but non-packed types require calculating the storage key during compilation.
+The compiler will automatically allocate storage keys for your fields,
+without relying on fields iteration like in the previous ink! version.
 
- - `#[ink::storage_item]` macro attribute prepares your type to be fully compatible and usable with a storage.
-It implements all necessary traits and calculates the storage key for types. You can set `#[ink::storage_item(derive = false)]` that will indicate that will disable auto-deriving of all required traits.
-Also, it will be implemented via blanket implementation for every type that implements `scale::Encode` and `scale::Decode`. Following examples show how to create
-type using `ink::storage_item`, `scale::Encode` and `scale::Decode`.
+With these changes, `SpreadLayout` trait was removed, and methods like `pull_spread` and `push_spread` are now unavailable.
+
+A new trait, `Storable`, was introduced instead. It represents types that can be read and written into the contract's storage. Any type that implements `scale::Encode` and `scale::Decode`
+automatically implements `Storable`.
+
+You can also use `#[ink::storage_item]` to automatically implement `Storable`
+and make your struct fully compatible with contract's storage. This attribute
+automatically implements all necessary traits and calculates storage keys for types.
+You can also set `#[ink::storage_item(derive = false)]` to remove auto-derive
+and derive everything manually later:
+
 ```rust
 #[ink::storage_item]
 struct MyNonPackedStruct {
@@ -76,7 +133,34 @@ struct MyAnotherNonPackedStruct {
     first_field: Mapping<u128, Vec<u8>>,
     second_field: Mapping<u32, u32>,
 }
+```
 
+For precise storage key configuration several new types were introduced:
+
+* `StorableHint` is a trait that describes the stored type, and its storage key.
+* `ManualKey` is a type, that describes the storage key itself. You can, for example,
+set it to a custom value - `ManualKey<123>`.
+* `AutoKey` is a type, that gets automatically replaced with the `ManualKey` with
+compiler-generated storage key.
+
+For example, if you want to use the `Mapping`, and you want to set the storage key manually, you can take a look at the following example:
+
+```rust
+#[ink::storage_item]
+struct MyStruct {
+    first_field: u32,
+    second_field: Mapping<u32, u32, ManualKey<123>>,
+}
+```
+
+For packed structs, a new trait was introduced - `Packed`. It represents structs,
+all fields of which occupy a single storage cell. Any type that implements
+`scale::Encode` and `scale::Decode` receives a `Packed` implementation:
+
+Unlike non-packed types created with `#[ink::storage_item]`, packed types don't have
+their own storage keys.
+
+```rust
 #[derive(scale::Encode, scale::Decode)]
 #[cfg_attr(
     feature = "std",
@@ -89,6 +173,7 @@ struct MyPackedStruct {
 ```
 
 Example of nested storage types:
+
 ```rust
 #[ink::storage_item]
 struct NonPacked {
@@ -118,27 +203,12 @@ struct NonPackedComplex<KEY: StorageKey> {
 }
 ```
 
-- `StorableHint` is a trait that describes the type that should be used for storing the value and preferred storage key. 
-It is implemented automatically for all types that implement `Packed` types.
-- `ManualKey` is a generic struct that is used if you want to set the storage key manually, so you can use it like `ManualKey<123>`.
-- `AutoKey` is a struct that is used if you want to set the storage key automatically, so you can use it like `AutoKey`.
-In this case, the storage key will be calculated while compilation and set as `ManualKey<>` with calculated storage key.
+Every non-packed type also has `StorageKey` trait implemented for them. This trait is used for calculating storage key types.
 
-For example, if you want to use the mapping, and you want to set the storage key manually, you can take a look at the following example:
-```rust
-#[ink::storage_item]
-struct MyStruct {
-    first_field: u32,
-    second_field: Mapping<u32, u32, ManualKey<123>>,
-}
-```
-
-- `StorageKey` is a trait that is used for calculating the storage key for types. It is implemented automatically for all types that are non-packed.
-
-There also exists way to use `StorageKey` for types that are packed - you can just use `Lazy`, that is a wrapper around type,
+There also exists way to use `StorageKey` for types that are packed - you can just use `Lazy`, a wrapper around type
 which allows to store it in separate storage cell under it's own storage key. You can use it like this:
-```rust
 
+```rust
 #[ink::storage_item]
 struct MyStruct {
     first_field: Lazy<u32>,
@@ -149,7 +219,8 @@ struct MyStruct {
 In this case, `first_field` will be stored in it's own storage cell.
 
 If you add generic that implements `StorageKey` to your type, it will be used as a storage key for this type, otherwise it will be 
-set to `AutoKey`. For example:
+set to `AutoKey`. For example this struct has its storage key automatically derived by the compiler:
+
 ```rust
 #[ink::storage_item]
 struct MyStruct {
@@ -157,7 +228,8 @@ struct MyStruct {
     second_field: Mapping<u32, u32>,
 }
 ```
-In this case storage key will be calculated automatically. But if you want to offset the key, you can do it like this:
+
+On the other hand, you can manually set storage key offset for your struct. This offset will apply to every non-packed field in a struct:
 ```rust
 #[ink::storage_item]
 struct MyStruct<KEY: StorageKey> {
@@ -166,11 +238,10 @@ struct MyStruct<KEY: StorageKey> {
 }
 ```
 
-In this case, you can set storage key that you prefer for instances of this type.
-
 The reason to do it in such way is that you can use the same type in different places and set different storage keys for them.
 
 For example if you want to use it in contract, you can do it like this:
+
 ```rust
 #[ink(storage)]
 struct MyContract {
@@ -189,6 +260,7 @@ struct MyContract {
 
 After that, if you try to assign the new value to a field of this type, you will get an error, because after code generation,
 it will be another type with generated storage key:
+
 ```rust
 #[ink(constructor)]
 pub fn new() -> Self {
@@ -201,6 +273,7 @@ pub fn new() -> Self {
 ```
 
 You will get an error that look similar to this:
+
 ```shell
 note: expected struct `Balances<ResolverKey<ManualKey<_, _>, ManualKey<4162912002>>>`
 found struct `Balances<ManualKey<_, _>>`
@@ -209,12 +282,15 @@ found struct `Balances<ManualKey<_, _>>`
 That's so, because every type is unique and has it's own storage key after code generation.
 
 So, the way to fix it is to use `Default::default()` so it will generate right type:
+
 ```rust
 instance.balances = Default::default();
 ```
 
-### Problems
-There is a problem with generic fields that are non-packed in structs. Example:
+### Caveats
+
+There is a known problem with generic fields that are non-packed in structs. Example:
+
 ```rust
 #[ink::storage_item]
 struct MyNonPackedStruct<D: MyTrait = OtherStruct> {
@@ -239,12 +315,15 @@ impl MyTrait for OtherStruct {
 ```
 
 In this case contract cannot be built because it cannot calculate the storage key for the field `second_field` of type `MyTrait`.
+
 You can use packed structs for it or, as a temporary solution, set `ManualKey` as another trait for field:
+
 ```rust
 struct MyNonPackedStruct<D: MyTrait + ManualKey<123> = OtherStruct>
 ```
 
-But instead of `ManualKey<123>` you should use key that was generated during compilation. Packed generics work okay, so you can use it like this:
+But instead of a `ManualKey<123>` you should use key that was generated during compilation. Packed generics work okay, so you can use it like this:
+
 ```rust
 #[ink::storage_item]
 struct MyNonPackedStruct<D: Packed> {
