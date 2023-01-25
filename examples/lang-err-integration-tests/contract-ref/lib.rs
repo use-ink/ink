@@ -29,7 +29,7 @@ mod contract_ref {
                 .endowment(0)
                 .code_hash(flipper_code_hash)
                 .salt_bytes(salt)
-                .instantiate_fallible()
+                .instantiate()
                 .unwrap_or_else(|error| {
                     panic!(
                         "Received an error from the Flipper constructor while instantiating \

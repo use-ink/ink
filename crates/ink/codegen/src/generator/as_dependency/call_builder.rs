@@ -104,8 +104,8 @@ impl CallBuilder<'_> {
                     type Type = #cb_ident;
                 }
 
-                impl ::ink::reflect::ContractEnv for #cb_ident {
-                    type Env = <#storage_ident as ::ink::reflect::ContractEnv>::Env;
+                impl ::ink::env::ContractEnv for #cb_ident {
+                    type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
                 }
             };
         )

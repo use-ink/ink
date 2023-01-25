@@ -21,10 +21,6 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    xts::{
-        Call,
-        InstantiateWithCode,
-    },
     CodeUploadResult,
     ContractExecResult,
     ContractInstantiateResult,
@@ -35,6 +31,7 @@ use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
 
+use sp_core::Pair;
 use sp_runtime::traits::{
     IdentifyAccount,
     Verify,
@@ -55,7 +52,10 @@ use subxt::{
             ValueDef,
         },
     },
-    tx::ExtrinsicParams,
+    tx::{
+        ExtrinsicParams,
+        PairSigner,
+    },
 };
 
 /// Result of a contract instantiation.
@@ -300,11 +300,8 @@ where
 
     E: Environment,
     E::AccountId: Debug,
-    E::Balance: Debug + scale::Encode + serde::Serialize,
+    E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
-
-    Call<E, E::Balance>: scale::Encode,
-    InstantiateWithCode<E::Balance>: scale::Encode,
 {
     /// Creates a new [`Client`] instance.
     pub async fn new(url: &str, contracts: impl IntoIterator<Item = &str>) -> Self {
@@ -342,6 +339,52 @@ where
         }
     }
 
+    /// Generate a new keypair and fund with the given amount from the origin account.
+    ///
+    /// Because many tests may execute this in parallel, transfers may fail due to a race condition
+    /// with account indices. Therefore this will reattempt transfers a number of times.
+    pub async fn create_and_fund_account(
+        &self,
+        origin: &Signer<C>,
+        amount: E::Balance,
+    ) -> Signer<C>
+    where
+        E::Balance: Clone,
+        C::AccountId: Clone + core::fmt::Display,
+    {
+        let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
+        let account_id =
+            <C::Signature as Verify>::Signer::from(pair.public()).into_account();
+
+        for _ in 0..6 {
+            let transfer_result = self
+                .api
+                .try_transfer_balance(origin, account_id.clone(), amount)
+                .await;
+            match transfer_result {
+                Ok(_) => {
+                    log_info(&format!(
+                        "transfer from {} to {} succeeded",
+                        origin.account_id(),
+                        account_id,
+                    ));
+                    break
+                }
+                Err(err) => {
+                    log_info(&format!(
+                        "transfer from {} to {} failed with {:?}",
+                        origin.account_id(),
+                        account_id,
+                        err
+                    ));
+                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                }
+            }
+        }
+
+        PairSigner::new(pair)
+    }
+
     /// This function extracts the metadata of the contract at the file path
     /// `target/ink/$contract_name.contract`.
     ///
@@ -350,11 +393,11 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<Args, R>(
+    pub async fn instantiate<ContractRef, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, Args, R>,
+        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>
@@ -374,11 +417,11 @@ where
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<Args, R>(
+    pub async fn instantiate_dry_run<ContractRef, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, Args, R>,
+        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
@@ -406,11 +449,11 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<Args, R>(
+    async fn exec_instantiate<ContractRef, Args, R>(
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, Args, R>,
+        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E>, Error<C, E>>

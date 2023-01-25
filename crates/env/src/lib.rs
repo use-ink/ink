@@ -99,6 +99,10 @@ pub use self::{
         CallFlags,
         ReturnFlags,
     },
+    contract::{
+        ContractEnv,
+        ContractReference,
+    },
     error::{
         Error,
         Result,

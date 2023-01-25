@@ -49,6 +49,9 @@ secp256k1 = { version = "0.26.0", features = ["recovery", "global-context"], opt
 # Never use this crate outside the off-chain environment!
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
+[dev-dependencies]
+ink = { path = "../ink" }
+
 [features]
 default = ["std"]
 std = [
