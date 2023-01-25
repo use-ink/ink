@@ -41,6 +41,7 @@ use sp_core::{
 use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
+    tx,
     tx::ExtrinsicParams,
     OnlineClient,
 };
@@ -262,6 +263,44 @@ where
         })
     }
 
+    /// Sign and submit an extrinsic with the given call payload.
+    pub async fn submit_extrinsic<Call>(
+        &self,
+        call: &Call,
+        signer: &Signer<C>,
+    ) -> ExtrinsicEvents<C>
+    where
+        Call: tx::TxPayload,
+    {
+        self.client
+            .tx()
+            .sign_and_submit_then_watch_default(call, signer)
+            .await
+            .map(|tx_progress| {
+                log_info(&format!(
+                    "signed and submitted tx with hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
+                tx_progress
+            })
+            .unwrap_or_else(|err| {
+                panic!(
+                    "error on call `sign_and_submit_then_watch_default`: {:?}",
+                    err
+                );
+            })
+            .wait_for_in_block()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `wait_for_in_block`: {:?}", err);
+            })
+            .fetch_events()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `fetch_events`: {:?}", err);
+            })
+    }
+
     /// Submits an extrinsic to instantiate a contract with the given code.
     ///
     /// Returns when the transaction is included in a block. The return value
@@ -292,33 +331,7 @@ where
         )
         .unvalidated();
 
-        self.client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
-            .await
-            .map(|tx_progress| {
-                log_info(&format!(
-                    "signed and submitted tx with hash {:?}",
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
-            })
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs the upload of the given `code`.
@@ -369,33 +382,7 @@ where
         )
         .unvalidated();
 
-        self.client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
-            .await
-            .map(|tx_progress| {
-                log_info(&format!(
-                    "signed and submitted tx with hash {:?}",
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
-            })
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
@@ -454,32 +441,6 @@ where
         )
         .unvalidated();
 
-        self.client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
-            .await
-            .map(|tx_progress| {
-                log_info(&format!(
-                    "signed and submitted call with extrinsic hash {:?}",
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
-            })
+        self.submit_extrinsic(&call, signer).await
     }
 }
