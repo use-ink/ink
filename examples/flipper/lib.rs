@@ -72,9 +72,8 @@ pub mod flipper {
             let get = build_message::<FlipperRef>(contract_acc_id.clone())
                 .call(|flipper| flipper.get());
             let get_res = client
-                .call(&ink_e2e::bob(), get, 0, None)
-                .await
-                .expect("get failed");
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .await;
             assert!(matches!(get_res.return_value(), false));
 
             // when
@@ -89,9 +88,8 @@ pub mod flipper {
             let get = build_message::<FlipperRef>(contract_acc_id.clone())
                 .call(|flipper| flipper.get());
             let get_res = client
-                .call(&ink_e2e::bob(), get, 0, None)
-                .await
-                .expect("get failed");
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .await;
             assert!(matches!(get_res.return_value(), true));
 
             Ok(())
@@ -113,9 +111,8 @@ pub mod flipper {
             let get = build_message::<FlipperRef>(contract_acc_id.clone())
                 .call(|flipper| flipper.get());
             let get_res = client
-                .call(&ink_e2e::bob(), get, 0, None)
-                .await
-                .expect("get failed");
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .await;
             assert!(matches!(get_res.return_value(), false));
 
             Ok(())
