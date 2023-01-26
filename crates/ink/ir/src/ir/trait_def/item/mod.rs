@@ -350,10 +350,7 @@ impl InkItemTrait {
             },
         )
         .unwrap_or_else(|err| {
-            panic!(
-                "encountered unexpected invalid attributes on ink! trait definition: {}",
-                err
-            )
+            panic!("encountered unexpected invalid attributes on ink! trait definition: {err}")
         });
         let namespace = config.namespace();
         let ident = &item_trait.ident;
