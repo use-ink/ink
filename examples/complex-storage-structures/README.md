@@ -230,6 +230,7 @@ struct MyStruct {
 ```
 
 On the other hand, you can manually set storage key offset for your struct. This offset will apply to every non-packed field in a struct:
+
 ```rust
 #[ink::storage_item]
 struct MyStruct<KEY: StorageKey> {
@@ -237,6 +238,9 @@ struct MyStruct<KEY: StorageKey> {
     second_field: Mapping<u32, u32, ManualKey<123>>,
 }
 ```
+
+When your struct has a `KEY` generic existing, the `#[ink::storage_item]` macro will automatically set
+the `ParentKey` generic value to `KEY`, basically concatenating two values together.
 
 The reason to do it in such way is that you can use the same type in different places and set different storage keys for them.
 
