@@ -22,8 +22,7 @@ ink! is composed of a number of crates that are all found in the
 * [`env`](https://github.com/paritytech/ink/tree/master/crates/env):
   Serves two roles:
   * Exposes environmental functions, like information about the caller
-    of a contract call, getting random entropy, or e.g. self-terminating the
-    contract.
+    of a contract call or e.g. self-terminating the contract.
   * Provides the connection to the [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts),
     so anything that calls into the underlying execution engine of the smart contract.
     This includes getting and setting a smart contracts storage, as well
