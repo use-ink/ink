@@ -769,7 +769,7 @@ where
             .api
             .call_dry_run(
                 signer.account_id().clone(),
-                &message,
+                message,
                 value,
                 storage_deposit_limit,
             )
