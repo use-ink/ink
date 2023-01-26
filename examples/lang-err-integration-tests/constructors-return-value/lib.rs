@@ -41,7 +41,8 @@ pub mod constructors_return_value {
             ink::env::return_value::<ink::ConstructorResult<AccountId>>(
                 ink::env::ReturnFlags::new_with_reverted(true),
                 &Ok(AccountId::from([0u8; 32])),
-            )
+            );
+            unreachable!()
         }
 
         /// A constructor which reverts and fills the output buffer with an erroneously encoded
@@ -56,7 +57,8 @@ pub mod constructors_return_value {
 
             ink::env::return_value::<
                 ink::ConstructorResult<Result<AccountId, ConstructorError>>,
-            >(ink::env::ReturnFlags::new_with_reverted(true), &value)
+            >(ink::env::ReturnFlags::new_with_reverted(true), &value);
+            unreachable!();
         }
 
         /// Returns the current value of the contract storage.
