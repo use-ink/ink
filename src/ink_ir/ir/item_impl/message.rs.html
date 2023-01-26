@@ -1120,9 +1120,9 @@
         utils::local_message_id(<span class="self">self</span>.ident())
     }
 
-    <span class="doccomment">/// Returns the identifier of the message with an additional `_checked` suffix attached.
-    </span><span class="kw">pub fn </span>checked_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ident {
-        <span class="macro">quote::format_ident!</span>(<span class="string">&quot;{}_checked&quot;</span>, <span class="self">self</span>.ident())
+    <span class="doccomment">/// Returns the identifier of the message with an additional `try_` prefix attached.
+    </span><span class="kw">pub fn </span>try_ident(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Ident {
+        <span class="macro">quote::format_ident!</span>(<span class="string">&quot;try_{}&quot;</span>, <span class="self">self</span>.ident())
     }
 }
 

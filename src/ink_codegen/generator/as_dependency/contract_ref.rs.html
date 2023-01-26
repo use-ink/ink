@@ -832,7 +832,7 @@
             .filter_attr(message.attrs().to_vec());
         <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
         <span class="kw">let </span>message_ident = message.ident();
-        <span class="kw">let </span>checked_message_ident = message.checked_ident();
+        <span class="kw">let </span>try_message_ident = message.try_ident();
         <span class="kw">let </span>call_operator = <span class="kw">match </span>message.receiver() {
             ir::Receiver::Ref =&gt; <span class="macro">quote! </span>{ call },
             ir::Receiver::RefMut =&gt; <span class="macro">quote! </span>{ call_mut },
@@ -849,7 +849,7 @@
                 &amp; #mut_token <span class="self">self
                 </span>#( , #input_bindings : #input_types )*
             ) #output_type {
-                <span class="self">self</span>.#checked_message_ident( #( #input_bindings, )* )
+                <span class="self">self</span>.#try_message_ident( #( #input_bindings, )* )
                     .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(
                         <span class="string">&quot;encountered error while calling {}::{}: {:?}&quot;</span>,
                         <span class="macro">::core::stringify!</span>(#storage_ident),
@@ -860,7 +860,7 @@
 
             #( #attrs )*
             <span class="attribute">#[inline]
-            </span><span class="kw">pub fn </span>#checked_message_ident(
+            </span><span class="kw">pub fn </span>#try_message_ident(
                 &amp; #mut_token <span class="self">self
                 </span>#( , #input_bindings : #input_types )*
             ) -&gt; #wrapped_output_type {
