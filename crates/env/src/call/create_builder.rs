@@ -251,13 +251,10 @@ where
     pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
         crate::instantiate_contract(self)
             .unwrap_or_else(|env_error| {
-                panic!("Cross-contract instantiation failed with {:?}", env_error)
+                panic!("Cross-contract instantiation failed with {env_error:?}")
             })
             .unwrap_or_else(|lang_error| {
-                panic!(
-                    "Received a `LangError` while instantiating: {:?}",
-                    lang_error
-                )
+                panic!("Received a `LangError` while instantiating: {lang_error:?}")
             })
     }
 
