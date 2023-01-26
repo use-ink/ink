@@ -13,7 +13,7 @@ mod contract {
         pub fn message(&self) {}
 
         #[ink(message)]
-        pub fn message_checked(&self) {}
+        pub fn try_message(&self) {}
     }
 }
 

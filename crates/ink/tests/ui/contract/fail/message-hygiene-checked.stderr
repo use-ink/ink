@@ -1,8 +1,0 @@
-error[E0592]: duplicate definitions with name `message_checked`
-  --> tests/ui/contract/fail/message-hygiene-checked.rs:16:9
-   |
-1  | #[ink::contract]
-   | ---------------- other definition for `message_checked`
-...
-16 |         pub fn message_checked(&self) {}
-   |         ^^^ duplicate definitions for `message_checked`

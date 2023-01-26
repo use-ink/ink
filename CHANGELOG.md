@@ -4,26 +4,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
-- Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
-- Make CallBuilder and CreateBuilder error handling optional - [#1602](https://github.com/paritytech/ink/pull/1602)
-- Rename `CallBuilder::fire()` method to `invoke()` - [#1604](https://github.com/paritytech/ink/pull/1604)
-- Chain Extension: Evaluation of method return type at compile time - [#1569](https://github.com/paritytech/ink/pull/1569).
+## [Unreleased]
+- Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
 
 ### Breaking Changes
-With this release there are three breaking changes related to the `CallBuilder`
-`CreateBuilder` and the Chain Extension API.
 
-1. The `invoke()` methods now unwrap the `Result` from `pallet-contracts` under the hood
-   ([#1602](https://github.com/paritytech/ink/pull/1602)).
+1. We've renamed some of the generated message methods on the `ContractRef` struct. They
+   have been changed from `_checked` to `try_` ([#1621](https://github.com/paritytech/ink/pull/1621))
+
+## Version 4.0.0-beta.1
+The coolest feature included in this release is the first first published version of
+ink!'s native ["end-to-end" (E2E) testing framework](https://github.com/paritytech/ink/issues/1234).
+
+This enables testing of a contract by deploying and calling it on a Substrate node with
+`pallet-contracts`. See the [`erc20` example](./examples/erc20/lib.rs) for usage.
+
+### Breaking Changes
+This release includes a couple of breaking changes.
+
+1. The `CallBuilder::returns()` method does not require an extra `MessageResult` anymore
+   as the type is now added under the hood [(#1525)](https://github.com/paritytech/ink/pull/1525)
+1. The `CallBuilder::invoke()` and `CreateBuilder::instantiate() `methods now unwrap the
+   `Result` from `pallet-contracts` under the hood ([#1602](https://github.com/paritytech/ink/pull/1602))
    If you wish to handle the error use the new `try_` variants of those methods instead.
 1. The `CallBuilder::fire()` method has been renamed to `invoke()`
    ([#1604](https://github.com/paritytech/ink/pull/1604))
 1. The `returns_result` flag has been removed from the `#[ink(extension = …)]` attribute
-   ([#1569](https://github.com/paritytech/ink/pull/1569)).
+   ([#1569](https://github.com/paritytech/ink/pull/1569))
    We now infer this information at compile time. If `handle_status` is set to `true`,
    the return type will still be wrapped into `Result` as before.
+1. The Minimum Supported Rust Version (MSRV) has been set to `1.63.0`. This was already
+   the case, but previously it was enforced by `cargo-contract` instead of ink!
+   ([#1609](https://github.com/paritytech/ink/pull/1609))
+
+### Added
+- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
+- Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
+
+### Fixed
+- Add Determinism enum from pallet-contracts ‒ [#1547](https://github.com/paritytech/ink/pull/1547)
+- Added missed `WhereClosure` for the generics into `storage_item` ‒ [#1536](https://github.com/paritytech/ink/pull/1536) (thanks [@xgreenx](https://github.com/xgreenx))
+
+### Changed
+- Handle `LangError` from instantiate ‒ [#1512](https://github.com/paritytech/ink/pull/1512)
+- FFI: no more `__unstable__` wasm import module ‒ [#1522](https://github.com/paritytech/ink/pull/1522)
+- Clean up CallBuilder `return()` type ‒ [#1525](https://github.com/paritytech/ink/pull/1525)
+- Fix trait message return type metadata ‒ [#1531](https://github.com/paritytech/ink/pull/1531)
+- Bump Dylint dependencies ‒ [#1551](https://github.com/paritytech/ink/pull/1551)
+- Stabilize `take_storage` ‒ [#1568](https://github.com/paritytech/ink/pull/1568)
+- Chain Extension: Evaluation of method return type at compile time ‒ [#1569](https://github.com/paritytech/ink/pull/1569)
+- Make more functions be const ‒ [#1574](https://github.com/paritytech/ink/pull/1574) (thanks [@yjhmelody](https://github.com/yjhmelody))
+- Unify fallible and non fallible `instantiate` methods ‒ [#1591](https://github.com/paritytech/ink/pull/1591)
+- Make `CallBuilder` and `CreateBuilder` error handling optional ‒ [#1602](https://github.com/paritytech/ink/pull/1602)
+- Rename `CallBuilder::fire()` method to `invoke()` ‒ [#1604](https://github.com/paritytech/ink/pull/1604)
+- chore: add minimum rust version to the ink crate ‒ [#1609](https://github.com/paritytech/ink/pull/1609) (thanks [@Kurtsley](https://github.com/Kurtsley))
 
 ## Version 4.0.0-beta
 
