@@ -206,7 +206,7 @@ where
         })
     }
 
-    /// Returns the decoded return value of the message from the dry-run.
+    /// Returns the return value as raw bytes of the message from the dry-run.
     ///
     /// Panics if the dry-run message call failed to execute.
     pub fn return_data(&self) -> &[u8] {
