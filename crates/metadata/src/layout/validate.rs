@@ -69,7 +69,7 @@ impl ValidateLayout {
             let name = layout.name();
             // After `Struct` we always have fields -> `Struct.field`
             // After field we have `Struct` or `Enum` -> `Struct.field:Struct`
-            self.name_stack.push(format!(".{}:", name));
+            self.name_stack.push(format!(".{name}:"));
 
             self.recursive_validate(layout.layout())?;
 
