@@ -436,50 +436,6 @@
 <span id="435">435</span>
 <span id="436">436</span>
 <span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -522,6 +478,7 @@
 <span class="kw">use </span>subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
+    tx,
     OnlineClient,
 };
 
@@ -540,17 +497,6 @@
 <span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `call`.
 </span><span class="attribute">#[derive(Debug, scale::Encode, scale::Decode)]
 </span><span class="kw">pub struct </span>Call&lt;E: Environment, B&gt; {
-    dest: sp_runtime::MultiAddress&lt;E::AccountId, ()&gt;,
-    <span class="attribute">#[codec(compact)]
-    </span>value: B,
-    gas_limit: Weight,
-    storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;B&gt;,
-    data: Vec&lt;u8&gt;,
-}
-
-<span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `call`.
-</span><span class="attribute">#[derive(Debug, scale::Encode, scale::Decode)]
-</span><span class="kw">pub struct </span>Call2&lt;E: Environment, B&gt; {
     dest: sp_runtime::MultiAddress&lt;E::AccountId, ()&gt;,
     <span class="attribute">#[codec(compact)]
     </span>value: B,
@@ -749,6 +695,41 @@
         })
     }
 
+    <span class="doccomment">/// Sign and submit an extrinsic with the given call payload.
+    </span><span class="kw">pub async fn </span>submit_extrinsic&lt;Call&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        call: <span class="kw-2">&amp;</span>Call,
+        signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
+    ) -&gt; ExtrinsicEvents&lt;C&gt;
+    <span class="kw">where
+        </span>Call: tx::TxPayload,
+    {
+        <span class="self">self</span>.client
+            .tx()
+            .sign_and_submit_then_watch_default(call, signer)
+            .<span class="kw">await
+            </span>.map(|tx_progress| {
+                log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">&quot;signed and submitted tx with hash {:?}&quot;</span>,
+                    tx_progress.extrinsic_hash()
+                ));
+                tx_progress
+            })
+            .unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">&quot;error on call `sign_and_submit_then_watch_default`: {err:?}&quot;</span>);
+            })
+            .wait_for_in_block()
+            .<span class="kw">await
+            </span>.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {err:?}&quot;</span>);
+            })
+            .fetch_events()
+            .<span class="kw">await
+            </span>.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
+            })
+    }
+
     <span class="doccomment">/// Submits an extrinsic to instantiate a contract with the given code.
     ///
     /// Returns when the transaction is included in a block. The return value
@@ -779,31 +760,8 @@
         )
         .unvalidated();
 
-        <span class="self">self</span>.client
-            .tx()
-            .sign_and_submit_then_watch_default(<span class="kw-2">&amp;</span>call, signer)
-            .<span class="kw">await
-            </span>.map(|tx_progress| {
-                log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;signed and submitted tx with hash {:?}&quot;</span>,
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `sign_and_submit_then_watch_default`: {err:?}&quot;</span>);
-            })
-            .wait_for_in_block()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {err:?}&quot;</span>);
-            })
-            .fetch_events()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
-            })
-    }
+        <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, signer).<span class="kw">await
+    </span>}
 
     <span class="doccomment">/// Dry runs the upload of the given `code`.
     </span><span class="kw">pub async fn </span>upload_dry_run(
@@ -853,31 +811,8 @@
         )
         .unvalidated();
 
-        <span class="self">self</span>.client
-            .tx()
-            .sign_and_submit_then_watch_default(<span class="kw-2">&amp;</span>call, signer)
-            .<span class="kw">await
-            </span>.map(|tx_progress| {
-                log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;signed and submitted tx with hash {:?}&quot;</span>,
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `sign_and_submit_then_watch_default`: {err:?}&quot;</span>);
-            })
-            .wait_for_in_block()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {err:?}&quot;</span>);
-            })
-            .fetch_events()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
-            })
-    }
+        <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, signer).<span class="kw">await
+    </span>}
 
     <span class="doccomment">/// Dry runs a call of the contract at `contract` with the given parameters.
     </span><span class="kw">pub async fn </span>call_dry_run&lt;RetType&gt;(
@@ -935,31 +870,8 @@
         )
         .unvalidated();
 
-        <span class="self">self</span>.client
-            .tx()
-            .sign_and_submit_then_watch_default(<span class="kw-2">&amp;</span>call, signer)
-            .<span class="kw">await
-            </span>.map(|tx_progress| {
-                log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;signed and submitted call with extrinsic hash {:?}&quot;</span>,
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `sign_and_submit_then_watch_default`: {err:?}&quot;</span>);
-            })
-            .wait_for_in_block()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `wait_for_in_block`: {err:?}&quot;</span>);
-            })
-            .fetch_events()
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;error on call `fetch_events`: {err:?}&quot;</span>);
-            })
-    }
+        <span class="self">self</span>.submit_extrinsic(<span class="kw-2">&amp;</span>call, signer).<span class="kw">await
+    </span>}
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_e2e" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
