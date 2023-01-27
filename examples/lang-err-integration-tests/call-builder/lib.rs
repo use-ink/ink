@@ -194,9 +194,7 @@ mod call_builder {
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
                 .call(|contract| contract.get());
             let get_call_result = client
-                .call(&origin, flipper_get, 0, None)
-                .await
-                .expect("Calling `flipper::get` failed");
+                .call_dry_run(&origin, &flipper_get, 0, None).await;
             let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
@@ -217,9 +215,7 @@ mod call_builder {
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
                 .call(|contract| contract.get());
             let get_call_result = client
-                .call(&origin, flipper_get, 0, None)
-                .await
-                .expect("Calling `flipper::get` failed");
+                .call_dry_run(&origin, &flipper_get, 0, None).await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
 
