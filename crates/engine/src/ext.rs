@@ -119,7 +119,7 @@ impl ReturnCode {
 pub struct ContractStorage {
     pub instantiated: HashMap<Vec<u8>, Vec<u8>>,
     pub entrance_count: HashMap<Vec<u8>, u32>,
-    pub allow_reentry: HashMap<Vec<u8>, bool>,
+    pub reentrancy_allowed: HashMap<Vec<u8>, bool>,
     pub deployed: HashMap<Vec<u8>, Contract>,
 }
 
@@ -129,14 +129,14 @@ impl ContractStorage {
     }
 
     pub fn get_allow_reentry(&self, callee: Vec<u8>) -> bool {
-        *self.allow_reentry.get(&callee).unwrap_or(&false)
+        *self.reentrancy_allowed.get(&callee).unwrap_or(&false)
     }
 
     pub fn set_allow_reentry(&mut self, callee: Vec<u8>, allow: bool) {
         if allow {
-            self.allow_reentry.insert(callee, allow);
+            self.reentrancy_allowed.insert(callee, allow);
         } else {
-            self.allow_reentry.remove(&callee);
+            self.reentrancy_allowed.remove(&callee);
         }
     }
 
@@ -650,7 +650,7 @@ impl Engine {
 
         if let Some(caller) = caller {
             self.contracts
-                .allow_reentry
+                .reentrancy_allowed
                 .remove(&caller.as_bytes().to_vec());
         }
         Ok(())

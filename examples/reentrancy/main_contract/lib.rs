@@ -9,16 +9,13 @@ pub use self::main_contract::{
 #[ink::contract]
 mod main_contract {
     use core::mem::ManuallyDrop;
-    use ink::{
-        env::{
-            call::{
-                build_call,
-                Call,
-            },
-            CallFlags,
-            DefaultEnvironment,
+    use ink::env::{
+        call::{
+            build_call,
+            Call,
         },
-        primitives::Key,
+        CallFlags,
+        DefaultEnvironment,
     };
 
     /// Defines the storage of your contract.
@@ -65,11 +62,6 @@ mod main_contract {
         #[ink(message)]
         pub fn get_callee(&self) -> AccountId {
             self.callee
-        }
-
-        #[ink(message)]
-        pub fn get_key(&self) -> Key {
-            <Self as ink::storage::traits::StorageKey>::KEY
         }
 
         #[ink(message)]

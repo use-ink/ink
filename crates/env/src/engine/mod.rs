@@ -30,7 +30,6 @@ use ink_primitives::{
     ConstructorResult,
     LangError,
 };
-
 pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where

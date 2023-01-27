@@ -7,7 +7,6 @@ pub use self::fallback_contract::{
 
 #[ink::contract]
 mod fallback_contract {
-    use ink::primitives::Key;
     use main_contract::MainContractRef;
 
     /// Defines the storage of your contract.
@@ -15,9 +14,6 @@ mod fallback_contract {
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct FallbackContract {
-        /// Stores a single `bool` value on the storage.
-        value: u32,
-
         callee: MainContractRef,
     }
 
@@ -25,13 +21,7 @@ mod fallback_contract {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(callee: MainContractRef) -> Self {
-            Self { value: 0, callee }
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> u32 {
-            self.value
+            Self { callee }
         }
 
         #[ink(message)]
@@ -49,17 +39,8 @@ mod fallback_contract {
             self.env().account_id()
         }
 
-        #[ink(message)]
-        pub fn get_key(&self) -> Key {
-            <Self as ink::storage::traits::StorageKey>::KEY
-        }
-
         #[ink(message, selector = _)]
         pub fn fallback(&mut self) {
-            ink::env::set_contract_storage(
-                &<Self as ink::storage::traits::StorageKey>::KEY,
-                self,
-            );
             self.callee.inc().unwrap();
         }
     }
@@ -110,6 +91,5 @@ mod test {
 
         assert_eq!(main_contract.inc(), Ok(2));
         assert_eq!(main_contract.get(), 2);
-        assert_eq!(fallback_contract.get(), 0);
     }
 }

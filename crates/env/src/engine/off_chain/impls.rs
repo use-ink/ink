@@ -103,6 +103,20 @@ impl CryptoHash for Keccak256 {
     }
 }
 
+pub fn generate_address(
+    caller: Vec<u8>,
+    code_hash: Vec<u8>,
+    input_data: Vec<u8>,
+    salt: Vec<u8>,
+) -> [u8; 32] {
+    let mut output = [0u8; 32];
+    Sha2x256::hash(
+        [caller, code_hash, input_data, salt].concat().as_slice(),
+        &mut output,
+    );
+    output
+}
+
 impl From<ext::Error> for crate::Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
@@ -186,23 +200,8 @@ impl EnvInstance {
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 
-    fn generate_address(
-        &mut self,
-        caller: Vec<u8>,
-        code_hash: Vec<u8>,
-        input_data: Vec<u8>,
-        salt: Vec<u8>,
-    ) -> [u8; 32] {
-        let mut output = [0u8; 32];
-        Sha2x256::hash(
-            [caller, code_hash, input_data, salt].concat().as_slice(),
-            &mut output,
-        );
-        output
-    }
-
     /// Generates new execution context, replaces it as current and returns previous one
-    fn generate_callee_context(
+    fn create_new_exec_context(
         &mut self,
         callee: Vec<u8>,
         input: Vec<u8>,
@@ -302,7 +301,6 @@ impl EnvBackend for EnvInstance {
             .map_err(|_| Error::CalleeTrapped)
     }
 
-    #[cfg(not(all(not(feature = "std"), target_arch = "wasm32")))]
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R)
     where
         R: scale::Encode,
@@ -432,7 +430,7 @@ impl EnvBackend for EnvInstance {
             .exec_context
             .callee
             .clone()
-            .expect("callee is none");
+            .ok_or(Error::CalleeTrapped)?;
 
         self.engine
             .borrow_mut()
@@ -537,7 +535,7 @@ impl TypedEnvBackend for EnvInstance {
             params.exec_input().encode(),
         )?;
 
-        let mut previous_context = self.generate_callee_context(
+        let mut previous_context = self.create_new_exec_context(
             callee.clone(),
             input,
             <u128 as scale::Decode>::decode(
@@ -630,7 +628,7 @@ impl TypedEnvBackend for EnvInstance {
             .ok_or(Error::CodeNotFound)?
             .call;
 
-        let mut previous_context = self.generate_callee_context(
+        let mut previous_context = self.create_new_exec_context(
             callee.clone().unwrap_or_default().as_bytes().to_vec(),
             input,
             0,
@@ -705,16 +703,15 @@ impl TypedEnvBackend for EnvInstance {
         let input = params.exec_input();
         let salt_bytes = params.salt_bytes();
 
-        let callee = self
-            .generate_address(
-                caller.unwrap_or_default().as_bytes().to_vec(),
-                code_hash.clone(),
-                input.encode(),
-                salt_bytes.as_ref().to_vec(),
-            )
-            .to_vec();
+        let callee = generate_address(
+            caller.unwrap_or_default().as_bytes().to_vec(),
+            code_hash.clone(),
+            input.encode(),
+            salt_bytes.as_ref().to_vec(),
+        )
+        .to_vec();
 
-        let previous_context = self.generate_callee_context(
+        let previous_context = self.create_new_exec_context(
             callee.clone(),
             input.encode(),
             <u128 as scale::Decode>::decode(
@@ -740,6 +737,7 @@ impl TypedEnvBackend for EnvInstance {
         deploy_fn();
 
         let output = self.engine.borrow().exec_context.output.clone();
+
         let instantiate_result = if self.engine.borrow().exec_context.reverted {
             Err(Error::CalleeReverted)
         } else {
@@ -807,7 +805,7 @@ impl TypedEnvBackend for EnvInstance {
             .exec_context
             .origin
             .clone()
-            .expect("stack should not be empty")
+            .expect("origin should exist")
             == engine
                 .exec_context
                 .caller
