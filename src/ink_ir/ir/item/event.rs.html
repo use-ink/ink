@@ -652,7 +652,7 @@
     </span><span class="kw">pub fn </span>attrs(<span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, non_ink_attrs) = ir::partition_attributes(<span class="self">self</span>.field.attrs.clone())
             .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;encountered invalid event field attributes: {}&quot;</span>, err)
+                <span class="macro">panic!</span>(<span class="string">&quot;encountered invalid event field attributes: {err}&quot;</span>)
             });
         non_ink_attrs
     }

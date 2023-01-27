@@ -368,7 +368,7 @@
             <span class="kw">let </span>name = layout.name();
             <span class="comment">// After `Struct` we always have fields -&gt; `Struct.field`
             // After field we have `Struct` or `Enum` -&gt; `Struct.field:Struct`
-            </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">&quot;.{}:&quot;</span>, name));
+            </span><span class="self">self</span>.name_stack.push(<span class="macro">format!</span>(<span class="string">&quot;.{name}:&quot;</span>));
 
             <span class="self">self</span>.recursive_validate(layout.layout())<span class="question-mark">?</span>;
 

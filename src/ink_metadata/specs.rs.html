@@ -2305,7 +2305,7 @@
         <span class="self">Self </span>{
             ty: meta_type::&lt;T&gt;(),
             display_name: DisplayName::from_segments(segments)
-                .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;display name is invalid: {:?}&quot;</span>, err)),
+                .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;display name is invalid: {err:?}&quot;</span>)),
         }
     }
 

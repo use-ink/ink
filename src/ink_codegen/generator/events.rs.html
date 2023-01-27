@@ -282,7 +282,6 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
-<span id="284">284</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -473,8 +472,8 @@
             <span class="kw">let </span>span = event.span();
             <span class="kw">let </span>event_ident = event.ident();
             <span class="kw">let </span>event_signature = syn::LitByteStr::new(
-                <span class="macro">format!</span>(<span class="string">&quot;{}::{}&quot;</span>, contract_ident, event_ident
-            ).as_bytes(), span);
+                <span class="macro">format!</span>(<span class="string">&quot;{contract_ident}::{event_ident}&quot;
+            </span>).as_bytes(), span);
             <span class="kw">let </span>len_event_signature = event_signature.value().len();
             <span class="kw">let </span>len_topics = event.fields().filter(|field| field.is_topic).count();
             <span class="kw">let </span>topic_impls = event
@@ -489,9 +488,8 @@
                         .unwrap_or_else(|| <span class="macro">quote_spanned!</span>(span =&gt; #n));
                     <span class="kw">let </span>field_type = topic_field.ty();
                     <span class="kw">let </span>signature = syn::LitByteStr::new(
-                        <span class="macro">format!</span>(<span class="string">&quot;{}::{}::{}&quot;</span>, contract_ident, event_ident,
-                            field_ident
-                        ).as_bytes(), span);
+                        <span class="macro">format!</span>(<span class="string">&quot;{contract_ident}::{event_ident}::{field_ident}&quot;
+                        </span>).as_bytes(), span);
                     <span class="macro">quote_spanned!</span>(span =&gt;
                         .push_topic::&lt;::ink::env::topics::PrefixedValue&lt;#field_type&gt;&gt;(
                             <span class="kw-2">&amp;</span>::ink::env::topics::PrefixedValue { value: <span class="kw-2">&amp;</span><span class="self">self</span>.#field_ident, prefix: #signature }

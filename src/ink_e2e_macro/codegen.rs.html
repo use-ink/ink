@@ -409,7 +409,7 @@
     };
 
     <span class="kw">let </span>manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
-        <span class="macro">panic!</span>(<span class="string">&quot;Invalid manifest path {}: {}&quot;</span>, path_to_cargo_toml, err)
+        <span class="macro">panic!</span>(<span class="string">&quot;Invalid manifest path {path_to_cargo_toml}: {err}&quot;</span>)
     });
     <span class="kw">let </span>args = ExecuteArgs {
         manifest_path,
@@ -439,7 +439,7 @@
                 .into()
         }
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">panic!</span>(<span class="string">&quot;contract build for {} failed: {}&quot;</span>, path_to_cargo_toml, err)
+            <span class="macro">panic!</span>(<span class="string">&quot;contract build for {path_to_cargo_toml} failed: {err}&quot;</span>)
         }
     }
 }

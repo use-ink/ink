@@ -2000,7 +2000,7 @@
                 <span class="macro">write!</span>(f, <span class="string">&quot;namespace = {:?}&quot;</span>, namespace.as_bytes())
             }
             <span class="self">Self</span>::Implementation =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;impl&quot;</span>),
-            <span class="self">Self</span>::HandleStatus(value) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;handle_status = {:?}&quot;</span>, value),
+            <span class="self">Self</span>::HandleStatus(value) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;handle_status = {value:?}&quot;</span>),
         }
     }
 }

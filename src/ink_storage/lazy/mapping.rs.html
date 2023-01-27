@@ -358,7 +358,6 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
-<span id="360">360</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -510,7 +509,7 @@
         </span>Q: scale::EncodeLike&lt;K&gt;,
     {
         ink_env::get_contract_storage(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>KeyType::KEY, key))
-            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Failed to get value in Mapping: {:?}&quot;</span>, error))
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Failed to get value in Mapping: {error:?}&quot;</span>))
     }
 
     <span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
@@ -523,9 +522,8 @@
     <span class="kw">where
         </span>Q: scale::EncodeLike&lt;K&gt;,
     {
-        ink_env::take_contract_storage(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>KeyType::KEY, key)).unwrap_or_else(|error| {
-            <span class="macro">panic!</span>(<span class="string">&quot;Failed to take value in Mapping: {:?}&quot;</span>, error)
-        })
+        ink_env::take_contract_storage(<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>KeyType::KEY, key))
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Failed to take value in Mapping: {error:?}&quot;</span>))
     }
 
     <span class="doccomment">/// Get the size of a value stored at `key` in the contract storage.

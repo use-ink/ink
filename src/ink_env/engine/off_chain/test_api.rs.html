@@ -543,7 +543,7 @@
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         <span class="kw">let </span>callee = instance.engine.get_callee();
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>callee[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encoding failed: {}&quot;</span>, err))
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encoding failed: {err}&quot;</span>))
     })
 }
 
@@ -749,10 +749,10 @@
         .expect(<span class="string">&quot;panic object can not be cast&quot;</span>);
     <span class="kw">let </span>(value_transferred, encoded_beneficiary): (T::Balance, Vec&lt;u8&gt;) =
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_input[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {}&quot;</span>, err));
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {err}&quot;</span>));
     <span class="kw">let </span>beneficiary =
         &lt;T::AccountId <span class="kw">as </span>scale::Decode&gt;::decode(<span class="kw-2">&amp;mut &amp;</span>encoded_beneficiary[..])
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {}&quot;</span>, err));
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;input can not be decoded: {err}&quot;</span>));
     <span class="macro">assert_eq!</span>(value_transferred, expected_value_transferred_to_beneficiary);
     <span class="macro">assert_eq!</span>(beneficiary, expected_beneficiary);
 }

@@ -792,13 +792,6 @@
 <span id="791">791</span>
 <span id="792">792</span>
 <span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
-<span id="797">797</span>
-<span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -944,15 +937,13 @@
         <span class="self">self</span>.value
             .unwrap_or_else(|env_err| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Decoding dry run result to ink! message return type failed: {}&quot;</span>,
-                    env_err
-                )
+                    <span class="string">&quot;Decoding dry run result to ink! message return type failed: {env_err}&quot;
+                </span>)
             })
             .unwrap_or_else(|lang_err| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Encountered a `LangError` while decoding dry run result to ink! message: {:?}&quot;</span>,
-                    lang_err
-                )
+                    <span class="string">&quot;Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}&quot;
+                </span>)
             })
     }
 
@@ -1024,7 +1015,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             Error::ContractNotFound(name) =&gt; {
-                f.write_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;ContractNotFound: {}&quot;</span>, name))
+                f.write_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;ContractNotFound: {name}&quot;</span>))
             }
             Error::InstantiateDryRun(res) =&gt; {
                 f.write_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
@@ -1037,7 +1028,7 @@
             Error::UploadExtrinsic(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;UploadExtrinsic&quot;</span>),
             Error::CallDryRun(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;CallDryRun&quot;</span>),
             Error::CallExtrinsic(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;CallExtrinsic&quot;</span>),
-            Error::Balance(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Balance: {}&quot;</span>, msg),
+            Error::Balance(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Balance: {msg}&quot;</span>),
         }
     }
 }
@@ -1110,14 +1101,14 @@
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
                 <span class="kw">if let </span>subxt::Error::Rpc(subxt::error::RpcError::ClientError(<span class="kw">_</span>)) = err {
-                    <span class="kw">let </span>error_msg = <span class="macro">format!</span>(<span class="string">&quot;Error establishing connection to a node at {}. Make sure you run a node behind the given url!&quot;</span>, url);
+                    <span class="kw">let </span>error_msg = <span class="macro">format!</span>(<span class="string">&quot;Error establishing connection to a node at {url}. Make sure you run a node behind the given url!&quot;</span>);
                     log_error(<span class="kw-2">&amp;</span>error_msg);
                     <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, error_msg);
                 }
                 log_error(
                     <span class="string">&quot;Unable to create client! Please check that your node is running.&quot;</span>,
                 );
-                <span class="macro">panic!</span>(<span class="string">&quot;Unable to create client: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;Unable to create client: {err:?}&quot;</span>);
             });
         <span class="kw">let </span>contracts = contracts
             .into_iter()
@@ -1232,7 +1223,7 @@
         <span class="kw">let </span>contract_metadata = <span class="self">self
             </span>.contracts
             .get(contract_name)
-            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Unknown contract {}&quot;</span>, contract_name));
+            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Unknown contract {contract_name}&quot;</span>));
         <span class="kw">let </span>code = <span class="kw">crate</span>::utils::extract_wasm(contract_metadata);
         <span class="kw">let </span>data = constructor_exec_input(constructor);
 
@@ -1301,13 +1292,13 @@
         <span class="kw">let </span><span class="kw-2">mut </span>account_id = <span class="prelude-val">None</span>;
         <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
             <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {err:?}&quot;</span>);
             });
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(instantiated) = evt
                 .as_event::&lt;ContractInstantiatedEvent&lt;E&gt;&gt;()
                 .unwrap_or_else(|err| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;event conversion to `Instantiated` failed: {:?}&quot;</span>, err);
+                    <span class="macro">panic!</span>(<span class="string">&quot;event conversion to `Instantiated` failed: {err:?}&quot;</span>);
                 })
             {
                 log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
@@ -1326,9 +1317,8 @@
                     <span class="kw-2">&amp;</span>metadata,
                 );
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;extrinsic for instantiate failed: {:?}&quot;</span>,
-                    dispatch_error
-                ));
+                    <span class="string">&quot;extrinsic for instantiate failed: {dispatch_error:?}&quot;
+                </span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
@@ -1346,7 +1336,7 @@
     </span><span class="kw">fn </span>salt() -&gt; Vec&lt;u8&gt; {
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;unable to get unix time: {}&quot;</span>, err))
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;unable to get unix time: {err}&quot;</span>))
             .as_millis()
             .as_u128()
             .to_le_bytes()
@@ -1390,7 +1380,7 @@
             </span>.api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
             .<span class="kw">await</span>;
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;upload dry run: {:?}&quot;</span>, dry_run));
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;upload dry run: {dry_run:?}&quot;</span>));
         <span class="kw">if </span>dry_run.is_err() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UploadDryRun(dry_run))
         }
@@ -1400,12 +1390,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>hash = <span class="prelude-val">None</span>;
         <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
             <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {err:?}&quot;</span>);
             });
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(uploaded) =
                 evt.as_event::&lt;CodeStoredEvent&lt;E&gt;&gt;().unwrap_or_else(|err| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;event conversion to `Uploaded` failed: {:?}&quot;</span>, err);
+                    <span class="macro">panic!</span>(<span class="string">&quot;event conversion to `Uploaded` failed: {err:?}&quot;</span>);
                 })
             {
                 log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
@@ -1420,10 +1410,7 @@
                     evt.field_bytes(),
                     <span class="kw-2">&amp;</span>metadata,
                 );
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;extrinsic for upload failed: {:?}&quot;</span>,
-                    dispatch_error
-                ));
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for upload failed: {dispatch_error:?}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UploadExtrinsic(dispatch_error))
             }
         }
@@ -1437,7 +1424,7 @@
             <span class="prelude-val">None </span>=&gt; {
                 dry_run
                     .as_ref()
-                    .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;must have worked: {:?}&quot;</span>, err))
+                    .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;must have worked: {err:?}&quot;</span>))
                     .code_hash
             }
         };
@@ -1492,7 +1479,7 @@
 
         <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
             <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {err:?}&quot;</span>);
             });
 
             <span class="kw">if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
@@ -1501,7 +1488,7 @@
                     evt.field_bytes(),
                     <span class="kw-2">&amp;</span>metadata,
                 );
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {:?}&quot;</span>, dispatch_error));
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error:?}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
         }
@@ -1542,26 +1529,25 @@
             .fetch_or_default(<span class="kw-2">&amp;</span>account_addr, <span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to fetch balance: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to fetch balance: {err:?}&quot;</span>);
             })
             .to_value()
             .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to decode account info: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to decode account info: {err:?}&quot;</span>);
             });
 
         <span class="kw">let </span>account_data = get_composite_field_value(<span class="kw-2">&amp;</span>account, <span class="string">&quot;data&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>balance = get_composite_field_value(account_data, <span class="string">&quot;free&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let </span>balance = balance.as_u128().ok_or_else(|| {
-            Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;{:?} should convert to u128&quot;</span>, balance))
+            Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} should convert to u128&quot;</span>))
         })<span class="question-mark">?</span>;
         <span class="kw">let </span>balance = E::Balance::try_from(balance).map_err(|<span class="kw">_</span>| {
-            Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;{:?} failed to convert from u128&quot;</span>, balance))
+            Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;{balance:?} failed to convert from u128&quot;</span>))
         })<span class="question-mark">?</span>;
 
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;balance of contract {:?} is {:?}&quot;</span>,
-            account_id, balance
-        ));
+            <span class="string">&quot;balance of contract {account_id:?} is {balance:?}&quot;
+        </span>));
         <span class="prelude-val">Ok</span>(balance)
     }
 }
@@ -1585,7 +1571,7 @@
             .iter()
             .find(|(name, <span class="kw">_</span>)| name == field_name)
             .ok_or_else(|| {
-                Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;No field named &#39;{}&#39; found&quot;</span>, field_name))
+                Error::Balance(<span class="macro">format!</span>(<span class="string">&quot;No field named &#39;{field_name}&#39; found&quot;</span>))
             })<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(field)
     } <span class="kw">else </span>{

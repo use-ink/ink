@@ -1004,7 +1004,7 @@
     <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension.
     </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;syn::Attribute&gt; {
         <span class="kw">let </span>(<span class="kw">_</span>, attrs) = ir::partition_attributes(<span class="self">self</span>.item.attrs.iter().cloned())
-            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension: {}&quot;</span>, err));
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension: {err}&quot;</span>));
         attrs
     }
 
@@ -1115,7 +1115,7 @@
         <span class="kw">let </span>item = <span class="self">self</span>.iter.next()<span class="question-mark">?</span>;
         <span class="kw">match </span>item {
             syn::FnArg::Receiver(receiver) =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected receiver in chain extension method input: {:?}&quot;</span>, receiver)
+                <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected receiver in chain extension method input: {receiver:?}&quot;</span>)
             }
             syn::FnArg::Typed(pat_type) =&gt; <span class="prelude-val">Some</span>(pat_type),
         }

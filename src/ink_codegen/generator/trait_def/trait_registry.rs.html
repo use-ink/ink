@@ -625,7 +625,7 @@
         <span class="kw">for </span>(<span class="kw">_</span>, selector) <span class="kw">in </span><span class="self">self</span>.trait_def.trait_def.item().iter_items() {
             id ^= selector.into_be_u32()
         }
-        syn::LitInt::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, id), span)
+        syn::LitInt::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{id}&quot;</span>), span)
     }
 
     <span class="doccomment">/// Generates the [`::ink::reflect::TraitMessageInfo`] implementations for all

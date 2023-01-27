@@ -543,13 +543,6 @@
 <span id="542">542</span>
 <span id="543">543</span>
 <span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -852,15 +845,13 @@
             signature[<span class="number">64</span>]
         };
         <span class="kw">let </span>recovery_id = RecoveryId::from_i32(recovery_byte <span class="kw">as </span>i32)
-            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {}&quot;</span>, error));
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {error}&quot;</span>));
         <span class="kw">let </span>message = Message::from_slice(message_hash).unwrap_or_else(|error| {
-            <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {}&quot;</span>, error)
+            <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {error}&quot;</span>)
         });
         <span class="kw">let </span>signature =
             RecoverableSignature::from_compact(<span class="kw-2">&amp;</span>signature[<span class="number">0</span>..<span class="number">64</span>], recovery_id)
-                .unwrap_or_else(|error| {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {}&quot;</span>, error)
-                });
+                .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {error}&quot;</span>));
 
         <span class="kw">let </span>pub_key = SECP256K1.recover_ecdsa(<span class="kw-2">&amp;</span>message, <span class="kw-2">&amp;</span>signature);
         <span class="kw">match </span>pub_key {
@@ -907,10 +898,7 @@
             .call_chain_extension(func_id, enc_input, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
         <span class="kw">let </span>(status, out): (u32, Vec&lt;u8&gt;) = scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..])
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;could not decode `call_chain_extension` output: {:?}&quot;</span>,
-                    error
-                )
+                <span class="macro">panic!</span>(<span class="string">&quot;could not decode `call_chain_extension` output: {error:?}&quot;</span>)
             });
 
         status_to_result(status)<span class="question-mark">?</span>;
@@ -926,57 +914,55 @@
 <span class="kw">impl </span>TypedEnvBackend <span class="kw">for </span>EnvInstance {
     <span class="kw">fn </span>caller&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
         <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::caller)
-            .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `caller` property: {:?}&quot;</span>, error)
-            })
+            .unwrap_or_else(|error| <span class="macro">panic!</span>(<span class="string">&quot;could not read `caller` property: {error:?}&quot;</span>))
     }
 
     <span class="kw">fn </span>transferred_value&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
         <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::value_transferred)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `transferred_value` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `transferred_value` property: {error:?}&quot;</span>)
             })
     }
 
     <span class="kw">fn </span>gas_left&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u64 {
         <span class="self">self</span>.get_property::&lt;u64&gt;(Engine::gas_left)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `gas_left` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `gas_left` property: {error:?}&quot;</span>)
             })
     }
 
     <span class="kw">fn </span>block_timestamp&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Timestamp {
         <span class="self">self</span>.get_property::&lt;E::Timestamp&gt;(Engine::block_timestamp)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_timestamp` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_timestamp` property: {error:?}&quot;</span>)
             })
     }
 
     <span class="kw">fn </span>account_id&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::AccountId {
         <span class="self">self</span>.get_property::&lt;E::AccountId&gt;(Engine::address)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `account_id` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `account_id` property: {error:?}&quot;</span>)
             })
     }
 
     <span class="kw">fn </span>balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
         <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::balance)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `balance` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `balance` property: {error:?}&quot;</span>)
             })
     }
 
     <span class="kw">fn </span>block_number&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::BlockNumber {
         <span class="self">self</span>.get_property::&lt;E::BlockNumber&gt;(Engine::block_number)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_number` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_number` property: {error:?}&quot;</span>)
             })
     }
 
     <span class="kw">fn </span>minimum_balance&lt;E: Environment&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; E::Balance {
         <span class="self">self</span>.get_property::&lt;E::Balance&gt;(Engine::minimum_balance)
             .unwrap_or_else(|error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;could not read `minimum_balance` property: {:?}&quot;</span>, error)
+                <span class="macro">panic!</span>(<span class="string">&quot;could not read `minimum_balance` property: {error:?}&quot;</span>)
             })
     }
 
@@ -1069,7 +1055,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>output: [u8; BUFFER_SIZE] = [<span class="number">0</span>; BUFFER_SIZE];
         <span class="self">self</span>.engine.weight_to_fee(gas, <span class="kw-2">&amp;mut &amp;mut </span>output[..]);
         scale::Decode::decode(<span class="kw-2">&amp;mut &amp;</span>output[..]).unwrap_or_else(|error| {
-            <span class="macro">panic!</span>(<span class="string">&quot;could not read `weight_to_fee` property: {:?}&quot;</span>, error)
+            <span class="macro">panic!</span>(<span class="string">&quot;could not read `weight_to_fee` property: {error:?}&quot;</span>)
         })
     }
 

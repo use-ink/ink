@@ -753,9 +753,6 @@
 <span id="752">752</span>
 <span id="753">753</span>
 <span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1009,13 +1006,10 @@
     </span><span class="kw">pub fn </span>instantiate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output {
         <span class="kw">crate</span>::instantiate_contract(<span class="self">self</span>)
             .unwrap_or_else(|env_error| {
-                <span class="macro">panic!</span>(<span class="string">&quot;Cross-contract instantiation failed with {:?}&quot;</span>, env_error)
+                <span class="macro">panic!</span>(<span class="string">&quot;Cross-contract instantiation failed with {env_error:?}&quot;</span>)
             })
             .unwrap_or_else(|lang_error| {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;Received a `LangError` while instantiating: {:?}&quot;</span>,
-                    lang_error
-                )
+                <span class="macro">panic!</span>(<span class="string">&quot;Received a `LangError` while instantiating: {lang_error:?}&quot;</span>)
             })
     }
 
