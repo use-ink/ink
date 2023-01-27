@@ -192,7 +192,7 @@ where
                 .build(&url)
                 .await
                 .unwrap_or_else(|err| {
-                    panic!("error on ws request: {:?}", err);
+                    panic!("error on ws request: {err:?}");
                 });
 
         Self {
@@ -230,7 +230,7 @@ where
             .await?;
 
         tx_progress.wait_for_in_block().await.unwrap_or_else(|err| {
-            panic!("error on call `wait_for_in_block`: {:?}", err);
+            panic!("error on call `wait_for_in_block`: {err:?}");
         });
 
         Ok(())
@@ -263,10 +263,10 @@ where
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_instantiate`: {:?}", err);
+                panic!("error on ws request `contracts_instantiate`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-            panic!("decoding ContractInstantiateResult failed: {}", err)
+            panic!("decoding ContractInstantiateResult failed: {err}")
         })
     }
 
@@ -312,20 +312,17 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
+                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
             })
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
+                panic!("error on call `wait_for_in_block`: {err:?}");
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
+                panic!("error on call `fetch_events`: {err:?}");
             })
     }
 
@@ -349,10 +346,10 @@ where
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `upload_code`: {:?}", err);
+                panic!("error on ws request `upload_code`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {}", err))
+            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {err}"))
     }
 
     /// Submits an extrinsic to upload a given code.
@@ -389,20 +386,17 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
+                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
             })
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
+                panic!("error on call `wait_for_in_block`: {err:?}");
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
+                panic!("error on call `fetch_events`: {err:?}");
             })
     }
 
@@ -429,10 +423,10 @@ where
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {:?}", err);
+                panic!("error on ws request `contracts_call`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {}", err))
+            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"))
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
@@ -474,20 +468,17 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
+                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
             })
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
+                panic!("error on call `wait_for_in_block`: {err:?}");
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
+                panic!("error on call `fetch_events`: {err:?}");
             })
     }
 }

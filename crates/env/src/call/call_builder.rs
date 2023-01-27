@@ -118,10 +118,10 @@ where
     pub fn invoke(&self) -> R {
         crate::invoke_contract(self)
             .unwrap_or_else(|env_error| {
-                panic!("Cross-contract call failed with {:?}", env_error)
+                panic!("Cross-contract call failed with {env_error:?}")
             })
             .unwrap_or_else(|lang_error| {
-                panic!("Cross-contract call failed with {:?}", lang_error)
+                panic!("Cross-contract call failed with {lang_error:?}")
             })
     }
 
@@ -155,7 +155,7 @@ where
     /// handle those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     pub fn invoke(&self) -> R {
         crate::invoke_contract_delegate(self).unwrap_or_else(|env_error| {
-            panic!("Cross-contract call failed with {:?}", env_error)
+            panic!("Cross-contract call failed with {env_error:?}")
         })
     }
 

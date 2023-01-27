@@ -498,7 +498,7 @@ impl core::fmt::Display for AttributeArg {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
             Self::Implementation => write!(f, "impl"),
-            Self::HandleStatus(value) => write!(f, "handle_status = {:?}", value),
+            Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
         }
     }
 }
