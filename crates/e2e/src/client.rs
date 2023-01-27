@@ -49,15 +49,16 @@ use std::{
     fmt::Debug,
     path::Path,
 };
+
 use subxt::{
     blocks::ExtrinsicEvents,
+    config::ExtrinsicParams,
     metadata::DecodeStaticType,
     storage::address::{
         StorageHasher,
         StorageMapKey,
         Yes,
     },
-    tx::ExtrinsicParams,
 };
 
 /// Result of a contract instantiation.
@@ -105,6 +106,7 @@ where
 impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
+    C::AccountId: Debug,
     E: Environment,
     <E as Environment>::AccountId: Debug,
     <E as Environment>::Balance: Debug,
@@ -255,12 +257,13 @@ impl<C, E> Client<C, E>
 where
     C: subxt::Config,
     C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
+    C::AccountId: scale::Codec + Debug,
     C::Address: From<C::AccountId>,
     C::Signature: From<sr25519::Signature>,
-    <C::Signature as Verify>::Signer: From<sr25519::Public>,
+    // <C::Signature as Verify>::Signer: From<sr25519::Public>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-    <C::Signature as Verify>::Signer:
-        From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
+    // <C::Signature as Verify>::Signer:
+    //     From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
@@ -602,7 +605,12 @@ where
 
         let dry_run = self
             .api
-            .call_dry_run(signer.account_id().clone(), &message, value, None)
+            .call_dry_run(
+                subxt::tx::Signer::account_id(signer).clone(),
+                &message,
+                value,
+                None,
+            )
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
         log_info(&format!(
@@ -688,7 +696,12 @@ where
             .api
             .client
             .storage()
-            .fetch_or_default(&account_addr, None)
+            .at(None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("unable to fetch balance: {:?}", err);
+            })
+            .fetch_or_default(&account_addr)
             .await
             .unwrap_or_else(|err| {
                 panic!("unable to fetch balance: {:?}", err);

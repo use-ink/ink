@@ -41,7 +41,7 @@ use sp_core::{
 use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
-    tx::ExtrinsicParams,
+    config::ExtrinsicParams,
     OnlineClient,
 };
 
@@ -85,7 +85,10 @@ pub struct UploadCode<B> {
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
-struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
+struct RpcInstantiateRequest<C: subxt::Config, E: Environment>
+where
+    C::AccountId: scale::Codec,
+{
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: Option<Weight>,
@@ -143,12 +146,13 @@ impl<C, E> ContractsApi<C, E>
 where
     C: subxt::Config,
     C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
+    C::AccountId: scale::Codec,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
     C::Signature: From<sr25519::Signature>,
-    <C::Signature as Verify>::Signer: From<sr25519::Public>,
-    <C::Signature as Verify>::Signer:
-        From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
+    // <C::Signature as Verify>::Signer: From<sr25519::Public>,
+    // <C::Signature as Verify>::Signer:
+    //     From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
     sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
@@ -186,7 +190,7 @@ where
     ) -> ContractInstantiateResult<C::AccountId, E::Balance> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
-            origin: signer.account_id().clone(),
+            origin: subxt::tx::Signer::account_id(signer).clone(),
             value,
             gas_limit: None,
             storage_deposit_limit,
@@ -275,7 +279,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
-            origin: signer.account_id().clone(),
+            origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
         };
