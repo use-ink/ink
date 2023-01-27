@@ -1528,7 +1528,7 @@
             .at(<span class="prelude-val">None</span>)
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(<span class="string">&quot;unable to fetch balance: {:?}&quot;</span>, err);
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to fetch balance: {err:?}&quot;</span>);
             })
             .fetch_or_default(<span class="kw-2">&amp;</span>account_addr)
             .<span class="kw">await
