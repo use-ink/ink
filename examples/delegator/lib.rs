@@ -159,9 +159,8 @@ mod delegator {
             let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.get());
             let value = client
-                .call(&ink_e2e::bob(), get, 0, None)
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
-                .expect("calling `get` failed")
                 .return_value();
             assert_eq!(value, 1234);
             let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
@@ -175,9 +174,8 @@ mod delegator {
             let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.get());
             let value = client
-                .call(&ink_e2e::bob(), get, 0, None)
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
-                .expect("calling `get` failed")
                 .return_value();
             assert_eq!(value, 1234 + 6);
 
@@ -199,9 +197,8 @@ mod delegator {
             let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
                 .call(|contract| contract.get());
             let value = client
-                .call(&ink_e2e::bob(), get, 0, None)
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
-                .expect("calling `get` failed")
                 .return_value();
             assert_eq!(value, 1234 + 6 - 3);
 
