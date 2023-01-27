@@ -5,15 +5,15 @@ error[E0277]: the trait bound `EventTopics<3>: RespectTopicLimit<2>` is not sati
    |     ^^^ the trait `RespectTopicLimit<2>` is not implemented for `EventTopics<3>`
    |
    = help: the following other types implement trait `RespectTopicLimit<N>`:
-             <EventTopics<0> as RespectTopicLimit<0>>
-             <EventTopics<0> as RespectTopicLimit<10>>
-             <EventTopics<0> as RespectTopicLimit<11>>
-             <EventTopics<0> as RespectTopicLimit<12>>
-             <EventTopics<0> as RespectTopicLimit<1>>
-             <EventTopics<0> as RespectTopicLimit<2>>
-             <EventTopics<0> as RespectTopicLimit<3>>
-             <EventTopics<0> as RespectTopicLimit<4>>
-           and 83 others
+             <EventTopics<3> as RespectTopicLimit<10>>
+             <EventTopics<3> as RespectTopicLimit<11>>
+             <EventTopics<3> as RespectTopicLimit<12>>
+             <EventTopics<3> as RespectTopicLimit<3>>
+             <EventTopics<3> as RespectTopicLimit<4>>
+             <EventTopics<3> as RespectTopicLimit<5>>
+             <EventTopics<3> as RespectTopicLimit<6>>
+             <EventTopics<3> as RespectTopicLimit<7>>
+           and $N others
 note: required by a bound in `EventRespectsTopicLimit`
   --> src/codegen/event/topics.rs
    |
