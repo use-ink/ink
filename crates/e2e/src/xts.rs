@@ -37,7 +37,12 @@ use sp_core::{
     H256,
 };
 use sp_weights::Weight;
-use subxt::{blocks::ExtrinsicEvents, config::ExtrinsicParams, tx, OnlineClient};
+use subxt::{
+    blocks::ExtrinsicEvents,
+    config::ExtrinsicParams,
+    tx,
+    OnlineClient,
+};
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode)]
@@ -273,9 +278,7 @@ where
                 tx_progress
             })
             .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {err:?}"
-                );
+                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
             })
             .wait_for_in_block()
             .await
