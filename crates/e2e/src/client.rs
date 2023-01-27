@@ -47,16 +47,7 @@ use subxt::{
         Value,
         ValueDef,
     },
-    metadata::DecodeStaticType,
-    storage::address::{
-        StorageHasher,
-        StorageMapKey,
-        Yes,
-    },
-    tx::{
-        PairSigner,
-        Signer as _,
-    },
+    tx::PairSigner,
 };
 
 /// Result of a contract instantiation.
@@ -352,11 +343,8 @@ where
         C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        // let account_id =
-        //     <C::Signature as Verify>::Signer::from(pair.public()).into_account();
-
-        let account_id: C::AccountId =
-            PairSigner::<C, _>::new(pair.clone()).account_id().clone();
+        let pair_signer = PairSigner::<C, _>::new(pair);
+        let account_id = pair_signer.account_id().to_owned();
 
         for _ in 0..6 {
             let transfer_result = self
@@ -384,7 +372,7 @@ where
             }
         }
 
-        PairSigner::new(pair)
+        pair_signer
     }
 
     /// This function extracts the metadata of the contract at the file path
