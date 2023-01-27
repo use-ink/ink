@@ -186,7 +186,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
     };
 
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
-        panic!("Invalid manifest path {}: {}", path_to_cargo_toml, err)
+        panic!("Invalid manifest path {path_to_cargo_toml}: {err}")
     });
     let args = ExecuteArgs {
         manifest_path,
@@ -216,7 +216,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
                 .into()
         }
         Err(err) => {
-            panic!("contract build for {} failed: {}", path_to_cargo_toml, err)
+            panic!("contract build for {path_to_cargo_toml} failed: {err}")
         }
     }
 }

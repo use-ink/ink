@@ -32,31 +32,23 @@ use ink_env::Environment;
 use ink_primitives::MessageResult;
 
 use sp_core::Pair;
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
     marker::PhantomData,
     path::Path,
 };
+
 use subxt::{
     blocks::ExtrinsicEvents,
+    config::ExtrinsicParams,
     events::EventDetails,
-    ext::{
-        bitvec::macros::internal::funty::Fundamental,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
-    tx::{
-        ExtrinsicParams,
-        PairSigner,
-    },
+    tx::PairSigner,
 };
 
 /// Result of a contract instantiation.
@@ -104,6 +96,7 @@ where
 impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
+    C::AccountId: Debug,
     E: Environment,
     <E as Environment>::AccountId: Debug,
     <E as Environment>::Balance: Debug,
@@ -270,7 +263,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match &self {
             Error::ContractNotFound(name) => {
-                f.write_str(&format!("ContractNotFound: {}", name))
+                f.write_str(&format!("ContractNotFound: {name}"))
             }
             Error::InstantiateDryRun(res) => {
                 f.write_str(&format!(
@@ -283,7 +276,7 @@ where
             Error::UploadExtrinsic(_) => f.write_str("UploadExtrinsic"),
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
-            Error::Balance(msg) => write!(f, "Balance: {}", msg),
+            Error::Balance(msg) => write!(f, "Balance: {msg}"),
         }
     }
 }
@@ -336,14 +329,10 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
-    C::Address: From<C::AccountId>,
+    C::AccountId: serde::de::DeserializeOwned,
+    C::AccountId: scale::Codec + Debug,
     C::Signature: From<sr25519::Signature>,
-    <C::Signature as Verify>::Signer: From<sr25519::Public>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-    <C::Signature as Verify>::Signer:
-        From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
-    sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
     E::AccountId: Debug,
@@ -356,14 +345,14 @@ where
             .await
             .unwrap_or_else(|err| {
                 if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
-                    let error_msg = format!("Error establishing connection to a node at {}. Make sure you run a node behind the given url!", url);
+                    let error_msg = format!("Error establishing connection to a node at {url}. Make sure you run a node behind the given url!");
                     log_error(&error_msg);
                     panic!("{}", error_msg);
                 }
                 log_error(
                     "Unable to create client! Please check that your node is running.",
                 );
-                panic!("Unable to create client: {:?}", err);
+                panic!("Unable to create client: {err:?}");
             });
         let contracts = contracts
             .into_iter()
@@ -397,11 +386,12 @@ where
     ) -> Signer<C>
     where
         E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display,
+        C::AccountId: Clone + core::fmt::Display + core::fmt::Debug,
+        C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let account_id =
-            <C::Signature as Verify>::Signer::from(pair.public()).into_account();
+        let pair_signer = PairSigner::<C, _>::new(pair);
+        let account_id = pair_signer.account_id().to_owned();
 
         for _ in 0..6 {
             let transfer_result = self
@@ -429,7 +419,7 @@ where
             }
         }
 
-        PairSigner::new(pair)
+        pair_signer
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -478,7 +468,7 @@ where
         let contract_metadata = self
             .contracts
             .get(contract_name)
-            .unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
+            .unwrap_or_else(|| panic!("Unknown contract {contract_name}"));
         let code = crate::utils::extract_wasm(contract_metadata);
         let data = constructor_exec_input(constructor);
 
@@ -547,13 +537,13 @@ where
         let mut account_id = None;
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {:?}", err);
+                panic!("unable to unwrap event: {err:?}");
             });
 
             if let Some(instantiated) = evt
                 .as_event::<ContractInstantiatedEvent<E>>()
                 .unwrap_or_else(|err| {
-                    panic!("event conversion to `Instantiated` failed: {:?}", err);
+                    panic!("event conversion to `Instantiated` failed: {err:?}");
                 })
             {
                 log_info(&format!(
@@ -572,8 +562,7 @@ where
                     &metadata,
                 );
                 log_error(&format!(
-                    "extrinsic for instantiate failed: {:?}",
-                    dispatch_error
+                    "extrinsic for instantiate failed: {dispatch_error:?}"
                 ));
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
@@ -590,9 +579,11 @@ where
 
     /// Generate a unique salt based on the system time.
     fn salt() -> Vec<u8> {
+        use funty::Fundamental as _;
+
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
+            .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
             .as_millis()
             .as_u128()
             .to_le_bytes()
@@ -636,7 +627,7 @@ where
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
             .await;
-        log_info(&format!("upload dry run: {:?}", dry_run));
+        log_info(&format!("upload dry run: {dry_run:?}"));
         if dry_run.is_err() {
             return Err(Error::UploadDryRun(dry_run))
         }
@@ -646,12 +637,12 @@ where
         let mut hash = None;
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {:?}", err);
+                panic!("unable to unwrap event: {err:?}");
             });
 
             if let Some(uploaded) =
                 evt.as_event::<CodeStoredEvent<E>>().unwrap_or_else(|err| {
-                    panic!("event conversion to `Uploaded` failed: {:?}", err);
+                    panic!("event conversion to `Uploaded` failed: {err:?}");
                 })
             {
                 log_info(&format!(
@@ -666,10 +657,7 @@ where
                     evt.field_bytes(),
                     &metadata,
                 );
-                log_error(&format!(
-                    "extrinsic for upload failed: {:?}",
-                    dispatch_error
-                ));
+                log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
                 return Err(Error::UploadExtrinsic(dispatch_error))
             }
         }
@@ -683,7 +671,7 @@ where
             None => {
                 dry_run
                     .as_ref()
-                    .unwrap_or_else(|err| panic!("must have worked: {:?}", err))
+                    .unwrap_or_else(|err| panic!("must have worked: {err:?}"))
                     .code_hash
             }
         };
@@ -731,7 +719,7 @@ where
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {:?}", err);
+                panic!("unable to unwrap event: {err:?}");
             });
 
             if is_extrinsic_failed_event(&evt) {
@@ -740,7 +728,7 @@ where
                     evt.field_bytes(),
                     &metadata,
                 );
-                log_error(&format!("extrinsic for call failed: {:?}", dispatch_error));
+                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
@@ -807,28 +795,32 @@ where
             .api
             .client
             .storage()
-            .fetch_or_default(&account_addr, None)
+            .at(None)
             .await
             .unwrap_or_else(|err| {
-                panic!("unable to fetch balance: {:?}", err);
+                panic!("unable to fetch balance: {err:?}");
+            })
+            .fetch_or_default(&account_addr)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("unable to fetch balance: {err:?}");
             })
             .to_value()
             .unwrap_or_else(|err| {
-                panic!("unable to decode account info: {:?}", err);
+                panic!("unable to decode account info: {err:?}");
             });
 
         let account_data = get_composite_field_value(&account, "data")?;
         let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
-            Error::Balance(format!("{:?} should convert to u128", balance))
+            Error::Balance(format!("{balance:?} should convert to u128"))
         })?;
         let balance = E::Balance::try_from(balance).map_err(|_| {
-            Error::Balance(format!("{:?} failed to convert from u128", balance))
+            Error::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
         log_info(&format!(
-            "balance of contract {:?} is {:?}",
-            account_id, balance
+            "balance of contract {account_id:?} is {balance:?}"
         ));
         Ok(balance)
     }
@@ -853,7 +845,7 @@ where
             .iter()
             .find(|(name, _)| name == field_name)
             .ok_or_else(|| {
-                Error::Balance(format!("No field named '{}' found", field_name))
+                Error::Balance(format!("No field named '{field_name}' found"))
             })?;
         Ok(field)
     } else {

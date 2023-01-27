@@ -300,15 +300,13 @@ impl EnvBackend for EnvInstance {
             signature[64]
         };
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
-            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
+            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
         let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
-            panic!("Unable to create the message from hash: {}", error)
+            panic!("Unable to create the message from hash: {error}")
         });
         let signature =
             RecoverableSignature::from_compact(&signature[0..64], recovery_id)
-                .unwrap_or_else(|error| {
-                    panic!("Unable to parse the signature: {}", error)
-                });
+                .unwrap_or_else(|error| panic!("Unable to parse the signature: {error}"));
 
         let pub_key = SECP256K1.recover_ecdsa(&message, &signature);
         match pub_key {
@@ -355,10 +353,7 @@ impl EnvBackend for EnvInstance {
             .call_chain_extension(func_id, enc_input, &mut &mut output[..]);
         let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
             .unwrap_or_else(|error| {
-                panic!(
-                    "could not decode `call_chain_extension` output: {:?}",
-                    error
-                )
+                panic!("could not decode `call_chain_extension` output: {error:?}")
             });
 
         status_to_result(status)?;
@@ -374,57 +369,55 @@ impl EnvBackend for EnvInstance {
 impl TypedEnvBackend for EnvInstance {
     fn caller<E: Environment>(&mut self) -> E::AccountId {
         self.get_property::<E::AccountId>(Engine::caller)
-            .unwrap_or_else(|error| {
-                panic!("could not read `caller` property: {:?}", error)
-            })
+            .unwrap_or_else(|error| panic!("could not read `caller` property: {error:?}"))
     }
 
     fn transferred_value<E: Environment>(&mut self) -> E::Balance {
         self.get_property::<E::Balance>(Engine::value_transferred)
             .unwrap_or_else(|error| {
-                panic!("could not read `transferred_value` property: {:?}", error)
+                panic!("could not read `transferred_value` property: {error:?}")
             })
     }
 
     fn gas_left<E: Environment>(&mut self) -> u64 {
         self.get_property::<u64>(Engine::gas_left)
             .unwrap_or_else(|error| {
-                panic!("could not read `gas_left` property: {:?}", error)
+                panic!("could not read `gas_left` property: {error:?}")
             })
     }
 
     fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
         self.get_property::<E::Timestamp>(Engine::block_timestamp)
             .unwrap_or_else(|error| {
-                panic!("could not read `block_timestamp` property: {:?}", error)
+                panic!("could not read `block_timestamp` property: {error:?}")
             })
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
         self.get_property::<E::AccountId>(Engine::address)
             .unwrap_or_else(|error| {
-                panic!("could not read `account_id` property: {:?}", error)
+                panic!("could not read `account_id` property: {error:?}")
             })
     }
 
     fn balance<E: Environment>(&mut self) -> E::Balance {
         self.get_property::<E::Balance>(Engine::balance)
             .unwrap_or_else(|error| {
-                panic!("could not read `balance` property: {:?}", error)
+                panic!("could not read `balance` property: {error:?}")
             })
     }
 
     fn block_number<E: Environment>(&mut self) -> E::BlockNumber {
         self.get_property::<E::BlockNumber>(Engine::block_number)
             .unwrap_or_else(|error| {
-                panic!("could not read `block_number` property: {:?}", error)
+                panic!("could not read `block_number` property: {error:?}")
             })
     }
 
     fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
         self.get_property::<E::Balance>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
-                panic!("could not read `minimum_balance` property: {:?}", error)
+                panic!("could not read `minimum_balance` property: {error:?}")
             })
     }
 
@@ -517,7 +510,7 @@ impl TypedEnvBackend for EnvInstance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         self.engine.weight_to_fee(gas, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
-            panic!("could not read `weight_to_fee` property: {:?}", error)
+            panic!("could not read `weight_to_fee` property: {error:?}")
         })
     }
 

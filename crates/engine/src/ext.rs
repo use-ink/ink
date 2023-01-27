@@ -200,7 +200,7 @@ impl Engine {
     pub fn deposit_event(&mut self, topics: &[u8], data: &[u8]) {
         // The first byte contains the number of topics in the slice
         let topics_count: scale::Compact<u32> = scale::Decode::decode(&mut &topics[0..1])
-            .unwrap_or_else(|err| panic!("decoding number of topics failed: {}", err));
+            .unwrap_or_else(|err| panic!("decoding number of topics failed: {err}"));
         let topics_count = topics_count.0 as usize;
 
         let topics_vec = if topics_count > 0 {
@@ -304,10 +304,10 @@ impl Engine {
         let contract = self.get_callee();
         let all = self
             .get_balance(contract)
-            .unwrap_or_else(|err| panic!("could not get balance: {:?}", err));
+            .unwrap_or_else(|err| panic!("could not get balance: {err:?}"));
         let value = &scale::Encode::encode(&all)[..];
         self.transfer(beneficiary, value)
-            .unwrap_or_else(|err| panic!("transfer did not work: {:?}", err));
+            .unwrap_or_else(|err| panic!("transfer did not work: {err:?}"));
 
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
@@ -364,7 +364,7 @@ impl Engine {
     /// Records the given debug message and appends to stdout.
     pub fn debug_message(&mut self, message: &str) {
         self.debug_info.record_debug_message(String::from(message));
-        print!("{}", message);
+        print!("{message}");
     }
 
     /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
@@ -458,8 +458,7 @@ impl Engine {
             .eval(func_id, &encoded_input)
             .unwrap_or_else(|error| {
                 panic!(
-                    "Encountered unexpected missing chain extension method: {:?}",
-                    error
+                    "Encountered unexpected missing chain extension method: {error:?}"
                 );
             });
         let res = (status_code, out);
@@ -493,16 +492,14 @@ impl Engine {
         };
 
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
-            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
+            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
 
         let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
-            panic!("Unable to create the message from hash: {}", error)
+            panic!("Unable to create the message from hash: {error}")
         });
         let signature =
             RecoverableSignature::from_compact(&signature[0..64], recovery_id)
-                .unwrap_or_else(|error| {
-                    panic!("Unable to parse the signature: {}", error)
-                });
+                .unwrap_or_else(|error| panic!("Unable to parse the signature: {error}"));
 
         let pub_key = SECP256K1.recover_ecdsa(&message, &signature);
         match pub_key {
