@@ -81,7 +81,6 @@ mod test {
             .instantiate();
 
         let address1 = main_contract.get_address();
-
         let address2 = fallback_contract.get_address();
 
         main_contract.set_callee(address2);

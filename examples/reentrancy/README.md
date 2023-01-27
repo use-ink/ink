@@ -10,8 +10,9 @@ It consists of two smart contracts:
 
 The mechanism of work is the following:
 
-- You call the `inc` method in the main contract and increases the `value` by 1
-- It makes a call to `fallback` method in fallback contract, as it has no selector
+- The `inc` method in the main contract is called
+- `inc` method increases the `value` by 1
+- `inc` method makes a call to `fallback` method in fallback contract, as it has no selector
 - `fallback` makes a call back to `inc` method in main contract
 - `inc` increases the `value` by 1 again and returns 2 as a result
 
