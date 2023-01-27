@@ -37,11 +37,7 @@ use sp_core::{
     H256,
 };
 use sp_weights::Weight;
-use subxt::{
-    blocks::ExtrinsicEvents,
-    config::ExtrinsicParams,
-    OnlineClient,
-};
+use subxt::{blocks::ExtrinsicEvents, config::ExtrinsicParams, tx, OnlineClient};
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode)]
