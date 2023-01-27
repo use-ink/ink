@@ -274,19 +274,18 @@ where
             })
             .unwrap_or_else(|err| {
                 panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
+                    "error on call `sign_and_submit_then_watch_default`: {err:?}"
                 );
             })
             .wait_for_in_block()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
+                panic!("error on call `wait_for_in_block`: {err:?}");
             })
             .fetch_events()
             .await
             .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
+                panic!("error on call `fetch_events`: {err:?}");
             })
     }
 
