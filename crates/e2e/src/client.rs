@@ -329,8 +329,10 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: serde::de::DeserializeOwned,
-    C::AccountId: scale::Codec + Debug,
+    C::AccountId: From<sp_runtime::AccountId32>
+        + scale::Codec
+        + serde::de::DeserializeOwned
+        + Debug,
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
@@ -756,7 +758,7 @@ where
         let exec_result = self
             .api
             .call_dry_run(
-                signer.account_id().clone(),
+                Signer::account_id(signer).clone(),
                 message,
                 value,
                 storage_deposit_limit,
