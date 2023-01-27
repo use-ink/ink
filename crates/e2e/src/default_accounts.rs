@@ -16,9 +16,7 @@
 
 use super::{
     AccountKeyring,
-    IdentifyAccount,
     PairSigner,
-    Verify,
 };
 use sp_core::sr25519;
 
@@ -35,8 +33,6 @@ macro_rules! default_account {
             C: subxt::Config,
             C::Signature: From<sr25519::Signature>,
             C::AccountId: From<sp_core::crypto::AccountId32>
-            // <C::Signature as Verify>::Signer: From<sr25519::Public>,
-            // <C::Signature as Verify>::Signer: IdentifyAccount<AccountId = C::AccountId>,
         {
             PairSigner::new(AccountKeyring::$keyring_fn_name.pair())
         }

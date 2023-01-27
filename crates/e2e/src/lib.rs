@@ -52,10 +52,6 @@ use pallet_contracts_primitives::{
     ContractInstantiateResult,
 };
 use sp_core::sr25519;
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
 use std::{
     cell::RefCell,
     sync::Once,

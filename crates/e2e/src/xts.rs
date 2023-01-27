@@ -18,9 +18,7 @@ use super::{
     sr25519,
     ContractExecResult,
     ContractInstantiateResult,
-    IdentifyAccount,
     Signer,
-    Verify,
 };
 use ink_env::Environment;
 
@@ -145,15 +143,10 @@ pub struct ContractsApi<C: subxt::Config, E: Environment> {
 impl<C, E> ContractsApi<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
+    C::AccountId: serde::de::DeserializeOwned,
     C::AccountId: scale::Codec,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-
     C::Signature: From<sr25519::Signature>,
-    // <C::Signature as Verify>::Signer: From<sr25519::Public>,
-    // <C::Signature as Verify>::Signer:
-    //     From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
-    sr25519::Signature: Into<C::Signature>,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::Balance: scale::Encode + serde::Serialize,

@@ -40,10 +40,6 @@ use super::{
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -256,15 +252,10 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
+    C::AccountId: serde::de::DeserializeOwned,
     C::AccountId: scale::Codec + Debug,
-    C::Address: From<C::AccountId>,
     C::Signature: From<sr25519::Signature>,
-    // <C::Signature as Verify>::Signer: From<sr25519::Public>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-    // <C::Signature as Verify>::Signer:
-    //     From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
-    sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
     E::AccountId: Debug,
