@@ -43,13 +43,6 @@ use subxt::{
     OnlineClient,
 };
 
-// TODO(#1422) Should be fetched automatically.
-#[subxt::subxt(
-    crate = "crate::subxt",
-    runtime_metadata_path = "metadata/contracts-node.scale"
-)]
-pub(super) mod api {}
-
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct InstantiateWithCode<B> {
@@ -73,11 +66,51 @@ pub struct Call<E: Environment, B> {
     data: Vec<u8>,
 }
 
+/// A raw call to `pallet-contracts`'s `call`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct Call2<E: Environment, B> {
+    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
+    #[codec(compact)]
+    value: B,
+    gas_limit: Weight,
+    storage_deposit_limit: Option<B>,
+    data: Vec<u8>,
+}
+
+/// A raw call to `pallet-contracts`'s `call`.
+#[derive(Debug, scale::Encode, scale::Decode)]
+pub struct Transfer<E: Environment, C: subxt::Config> {
+    dest: C::Address,
+    #[codec(compact)]
+    value: E::Balance,
+}
+
+#[derive(
+    Debug, Clone, Copy, scale::Encode, scale::Decode, PartialEq, Eq, serde::Serialize,
+)]
+pub enum Determinism {
+    /// The execution should be deterministic and hence no indeterministic instructions are
+    /// allowed.
+    ///
+    /// Dispatchables always use this mode in order to make on-chain execution deterministic.
+    Deterministic,
+    /// Allow calling or uploading an indeterministic code.
+    ///
+    /// This is only possible when calling into `pallet-contracts` directly via
+    /// [`crate::Pallet::bare_call`].
+    ///
+    /// # Note
+    ///
+    /// **Never** use this mode for on-chain execution.
+    AllowIndeterminism,
+}
+
 /// A raw call to `pallet-contracts`'s `upload`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct UploadCode<B> {
     code: Vec<u8>,
     storage_deposit_limit: Option<B>,
+    determinism: Determinism,
 }
 
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
@@ -106,6 +139,7 @@ where
     origin: C::AccountId,
     code: Vec<u8>,
     storage_deposit_limit: Option<E::Balance>,
+    determinism: Determinism,
 }
 
 /// A struct that encodes RPC parameters required for a call to a smart contract.
@@ -149,10 +183,7 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
     E: Environment,
-    E::Balance: scale::Encode + serde::Serialize,
-
-    Call<E, E::Balance>: scale::Encode,
-    InstantiateWithCode<E::Balance>: scale::Encode,
+    E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
     pub async fn new(client: OnlineClient<C>, url: &str) -> Self {
@@ -169,6 +200,40 @@ where
             ws_client,
             _phantom: Default::default(),
         }
+    }
+
+    /// Attempt to transfer the `value` from `origin` to `dest`.
+    ///
+    /// Returns `Ok` on success, and a [`subxt::Error`] if the extrinsic is
+    /// invalid (e.g. out of date nonce)
+    pub async fn try_transfer_balance(
+        &self,
+        origin: &Signer<C>,
+        dest: C::AccountId,
+        value: E::Balance,
+    ) -> Result<(), subxt::Error> {
+        let call = subxt::tx::StaticTxPayload::new(
+            "Balances",
+            "transfer",
+            Transfer::<E, C> {
+                dest: dest.into(),
+                value,
+            },
+            Default::default(),
+        )
+        .unvalidated();
+
+        let tx_progress = self
+            .client
+            .tx()
+            .sign_and_submit_then_watch_default(&call, origin)
+            .await?;
+
+        tx_progress.wait_for_in_block().await.unwrap_or_else(|err| {
+            panic!("error on call `wait_for_in_block`: {:?}", err);
+        });
+
+        Ok(())
     }
 
     /// Dry runs the instantiation of the given `code`.
@@ -275,6 +340,7 @@ where
             origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
+            determinism: Determinism::Deterministic,
         };
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
@@ -305,6 +371,7 @@ where
             UploadCode::<E::Balance> {
                 code,
                 storage_deposit_limit,
+                determinism: Determinism::Deterministic,
             },
             Default::default(),
         )

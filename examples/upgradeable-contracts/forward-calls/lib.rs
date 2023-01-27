@@ -81,11 +81,17 @@ pub mod proxy {
                         .set_forward_input(true)
                         .set_tail_call(true),
                 )
-                .fire()
-                .unwrap_or_else(|err| {
+                .try_invoke()
+                .unwrap_or_else(|env_err| {
                     panic!(
                         "cross-contract call to {:?} failed due to {:?}",
-                        self.forward_to, err
+                        self.forward_to, env_err
+                    )
+                })
+                .unwrap_or_else(|lang_err| {
+                    panic!(
+                        "cross-contract call to {:?} failed due to {:?}",
+                        self.forward_to, lang_err
                     )
                 });
             unreachable!(

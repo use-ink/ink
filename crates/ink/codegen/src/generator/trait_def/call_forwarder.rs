@@ -274,7 +274,7 @@ impl CallForwarder<'_> {
         let forwarder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
-            impl<E> ::ink::reflect::ContractEnv for #forwarder_ident<E>
+            impl<E> ::ink::env::ContractEnv for #forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
             {
@@ -355,8 +355,9 @@ impl CallForwarder<'_> {
                         , #input_bindings
                     )*
                 )
-                    .fire()
-                    .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+                    .try_invoke()
+                    .unwrap_or_else(|env_err| ::core::panic!("{}: {:?}", #panic_str, env_err))
+                    .unwrap_or_else(|lang_err| ::core::panic!("{}: {:?}", #panic_str, lang_err))
             }
         )
     }

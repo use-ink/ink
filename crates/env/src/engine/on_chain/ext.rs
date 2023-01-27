@@ -319,8 +319,6 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
 
-        /// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
-        /// which is unsafe and normally is not available on production chains.
         pub fn take_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,

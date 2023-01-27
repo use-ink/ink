@@ -119,6 +119,12 @@ pub fn log_error(msg: &str) {
     log::error!("[{}] {}", log_prefix(), msg);
 }
 
+/// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.
+pub fn account_id(account: AccountKeyring) -> ink_primitives::AccountId {
+    ink_primitives::AccountId::try_from(account.to_account_id().as_ref())
+        .expect("account keyring has a valid account id")
+}
+
 /// Builds a contract and imports its scaffolded structure as a module.
 #[macro_export]
 macro_rules! build {
