@@ -116,10 +116,7 @@ pub struct UploadCode<B> {
 /// A struct that encodes RPC parameters required to instantiate a new smart contract.
 #[derive(serde::Serialize, scale::Encode)]
 #[serde(rename_all = "camelCase")]
-struct RpcInstantiateRequest<C: subxt::Config, E: Environment>
-where
-    C::AccountId: scale::Codec,
-{
+struct RpcInstantiateRequest<C: subxt::Config, E: Environment> {
     origin: C::AccountId,
     value: E::Balance,
     gas_limit: Option<Weight>,
