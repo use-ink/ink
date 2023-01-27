@@ -364,7 +364,7 @@ impl ContractRef<'_> {
             .filter_attr(message.attrs().to_vec());
         let storage_ident = self.contract.module().storage().ident();
         let message_ident = message.ident();
-        let checked_message_ident = message.checked_ident();
+        let try_message_ident = message.try_ident();
         let call_operator = match message.receiver() {
             ir::Receiver::Ref => quote! { call },
             ir::Receiver::RefMut => quote! { call_mut },
@@ -381,7 +381,7 @@ impl ContractRef<'_> {
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) #output_type {
-                self.#checked_message_ident( #( #input_bindings, )* )
+                self.#try_message_ident( #( #input_bindings, )* )
                     .unwrap_or_else(|error| ::core::panic!(
                         "encountered error while calling {}::{}: {:?}",
                         ::core::stringify!(#storage_ident),
@@ -392,7 +392,7 @@ impl ContractRef<'_> {
 
             #( #attrs )*
             #[inline]
-            pub fn #checked_message_ident(
+            pub fn #try_message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) -> #wrapped_output_type {

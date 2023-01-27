@@ -291,7 +291,7 @@ impl TraitRegistry<'_> {
         for (_, selector) in self.trait_def.trait_def.item().iter_items() {
             id ^= selector.into_be_u32()
         }
-        syn::LitInt::new(&format!("{}", id), span)
+        syn::LitInt::new(&format!("{id}"), span)
     }
 
     /// Generates the [`::ink::reflect::TraitMessageInfo`] implementations for all

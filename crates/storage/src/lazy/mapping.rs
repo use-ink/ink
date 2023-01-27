@@ -149,7 +149,7 @@ where
         Q: scale::EncodeLike<K>,
     {
         ink_env::get_contract_storage(&(&KeyType::KEY, key))
-            .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {:?}", error))
+            .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {error:?}"))
     }
 
     /// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
@@ -162,9 +162,8 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::take_contract_storage(&(&KeyType::KEY, key)).unwrap_or_else(|error| {
-            panic!("Failed to take value in Mapping: {:?}", error)
-        })
+        ink_env::take_contract_storage(&(&KeyType::KEY, key))
+            .unwrap_or_else(|error| panic!("Failed to take value in Mapping: {error:?}"))
     }
 
     /// Get the size of a value stored at `key` in the contract storage.

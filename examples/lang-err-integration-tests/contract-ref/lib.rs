@@ -48,7 +48,7 @@ mod contract_ref {
         #[ink(message)]
         pub fn flip_check(&mut self) {
             self.flipper
-                .flip_checked()
+                .try_flip()
                 .expect("The ink! codegen should've produced a valid call.");
         }
 
@@ -60,7 +60,7 @@ mod contract_ref {
         #[ink(message)]
         pub fn get_check(&mut self) -> bool {
             self.flipper
-                .get_checked()
+                .try_get()
                 .expect("The ink! codegen should've produced a valid call.")
         }
     }

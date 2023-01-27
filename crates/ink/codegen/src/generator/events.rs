@@ -188,7 +188,7 @@ impl<'a> Events<'a> {
             let span = event.span();
             let event_ident = event.ident();
             let event_signature = syn::LitByteStr::new(
-                format!("{}::{}", contract_ident, event_ident
+                format!("{contract_ident}::{event_ident}"
             ).as_bytes(), span);
             let len_event_signature = event_signature.value().len();
             let len_topics = event.fields().filter(|field| field.is_topic).count();
@@ -204,8 +204,7 @@ impl<'a> Events<'a> {
                         .unwrap_or_else(|| quote_spanned!(span => #n));
                     let field_type = topic_field.ty();
                     let signature = syn::LitByteStr::new(
-                        format!("{}::{}::{}", contract_ident, event_ident,
-                            field_ident
+                        format!("{contract_ident}::{event_ident}::{field_ident}"
                         ).as_bytes(), span);
                     quote_spanned!(span =>
                         .push_topic::<::ink::env::topics::PrefixedValue<#field_type>>(
