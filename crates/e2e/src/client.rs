@@ -732,7 +732,7 @@ where
             .at(None)
             .await
             .unwrap_or_else(|err| {
-                panic!("unable to fetch balance: {:?}", err);
+                panic!("unable to fetch balance: {err:?}");
             })
             .fetch_or_default(&account_addr)
             .await
