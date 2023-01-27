@@ -268,8 +268,7 @@ mod erc20 {
 
                 assert_eq!(
                     topic_hash, expected_topic,
-                    "encountered invalid topic at {}",
-                    n
+                    "encountered invalid topic at {n}"
                 );
             }
         }
