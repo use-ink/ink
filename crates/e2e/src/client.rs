@@ -32,30 +32,22 @@ use ink_env::Environment;
 use ink_primitives::MessageResult;
 
 use sp_core::Pair;
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
     path::Path,
 };
+
 use subxt::{
     blocks::ExtrinsicEvents,
+    config::ExtrinsicParams,
     events::EventDetails,
-    ext::{
-        bitvec::macros::internal::funty::Fundamental,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
-    tx::{
-        ExtrinsicParams,
-        PairSigner,
-    },
+    tx::PairSigner,
 };
 
 /// Result of a contract instantiation.
@@ -103,6 +95,7 @@ where
 impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
+    C::AccountId: Debug,
     E: Environment,
     <E as Environment>::AccountId: Debug,
     <E as Environment>::Balance: Debug,
@@ -287,14 +280,10 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
-    C::Address: From<C::AccountId>,
+    C::AccountId: serde::de::DeserializeOwned,
+    C::AccountId: scale::Codec + Debug,
     C::Signature: From<sr25519::Signature>,
-    <C::Signature as Verify>::Signer: From<sr25519::Public>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-    <C::Signature as Verify>::Signer:
-        From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
-    sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
     E::AccountId: Debug,
@@ -348,11 +337,12 @@ where
     ) -> Signer<C>
     where
         E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display,
+        C::AccountId: Clone + core::fmt::Display + core::fmt::Debug,
+        C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let account_id =
-            <C::Signature as Verify>::Signer::from(pair.public()).into_account();
+        let pair_signer = PairSigner::<C, _>::new(pair);
+        let account_id = pair_signer.account_id().to_owned();
 
         for _ in 0..6 {
             let transfer_result = self
@@ -380,7 +370,7 @@ where
             }
         }
 
-        PairSigner::new(pair)
+        pair_signer
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -540,6 +530,8 @@ where
 
     /// Generate a unique salt based on the system time.
     fn salt() -> Vec<u8> {
+        use funty::Fundamental as _;
+
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
@@ -660,7 +652,12 @@ where
 
         let dry_run = self
             .api
-            .call_dry_run(signer.account_id().clone(), &message, value, None)
+            .call_dry_run(
+                subxt::tx::Signer::account_id(signer).clone(),
+                &message,
+                value,
+                None,
+            )
             .await;
         log_info(&format!("call dry run: {:?}", &dry_run.result));
         log_info(&format!(
@@ -732,7 +729,12 @@ where
             .api
             .client
             .storage()
-            .fetch_or_default(&account_addr, None)
+            .at(None)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("unable to fetch balance: {:?}", err);
+            })
+            .fetch_or_default(&account_addr)
             .await
             .unwrap_or_else(|err| {
                 panic!("unable to fetch balance: {err:?}");
