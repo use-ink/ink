@@ -391,8 +391,8 @@ mod erc1155 {
                         assert_eq!(
                             v.clone().expect("Call should be valid, don't expect a `LangError`."),
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
-                            "The recipient contract at {:?} does not accept token transfers.\n
-                            Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v
+                            "The recipient contract at {to:?} does not accept token transfers.\n
+                            Expected: {ON_ERC_1155_RECEIVED_SELECTOR:?}, Got {v:?}"
                         )
                     }
                     Err(e) => {
@@ -407,8 +407,7 @@ mod erc1155 {
                                 // We got some sort of error from the call to our recipient smart
                                 // contract, and as such we must revert this call
                                 panic!(
-                                    "Got error \"{:?}\" while trying to call {:?}",
-                                    e, from
+                                    "Got error \"{e:?}\" while trying to call {from:?}"
                                 )
                             }
                         }
