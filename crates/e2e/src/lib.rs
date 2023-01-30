@@ -32,10 +32,10 @@ pub use builders::{
     MessageBuilder,
 };
 pub use client::{
+    CallDryRunResult,
+    CallResult,
     Client,
     Error,
-    CallResult,
-    CallDryRunResult,
     InstantiationResult,
     UploadResult,
 };
