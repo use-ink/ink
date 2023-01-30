@@ -21,7 +21,7 @@ mod main_contract {
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
-    #[derive(Default)]
+    #[derive(Default, Clone)]
     #[ink(storage)]
     pub struct MainContract {
         /// Stores a single `bool` value on the storage.
