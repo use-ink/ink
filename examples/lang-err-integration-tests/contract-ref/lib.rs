@@ -92,9 +92,9 @@ mod contract_ref {
             let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
                 .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(&ink_e2e::alice(), get_check, 0, None)
-                .await
-                .expect("Calling `get_check` failed");
+                .call_dry_run(&ink_e2e::alice(), &get_check, 0, None)
+                .await;
+
             let initial_value = get_call_result.return_value();
 
             let flip_check = build_message::<ContractRefRef>(contract_acc_id.clone())
@@ -108,12 +108,9 @@ mod contract_ref {
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
-            let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
-                .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(&ink_e2e::alice(), get_check, 0, None)
-                .await
-                .expect("Calling `get_check` failed");
+                .call_dry_run(&ink_e2e::alice(), &get_check, 0, None)
+                .await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value != initial_value);
 
@@ -141,10 +138,10 @@ mod contract_ref {
             let get_check = build_message::<ContractRefRef>(contract_acc_id.clone())
                 .call(|contract| contract.get_check());
             let get_call_result = client
-                .call(&ink_e2e::bob(), get_check, 0, None)
-                .await
-                .expect("Calling `get_check` failed");
+                .call_dry_run(&ink_e2e::bob(), &get_check, 0, None)
+                .await;
             let initial_value = get_call_result.return_value();
+
             assert!(initial_value);
 
             Ok(())
