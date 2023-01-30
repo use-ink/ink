@@ -390,6 +390,8 @@ examples-test:
         cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+  tags:
+    - linux-docker
 
 examples-contract-build:
   stage:                           examples
