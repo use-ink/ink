@@ -34,6 +34,10 @@ pub use builders::{
 pub use client::{
     Client,
     Error,
+    CallResult,
+    CallDryRunResult,
+    InstantiationResult,
+    UploadResult,
 };
 pub use default_accounts::*;
 pub use env_logger;

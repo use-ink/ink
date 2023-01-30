@@ -30,7 +30,7 @@ use super::{
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
-
+use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
 use std::{
     collections::BTreeMap,
@@ -146,7 +146,7 @@ where
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`return_data`].
+    /// via [`CallResult::return_data`].
     pub fn return_value(self) -> V {
         self.dry_run.return_value()
     }
@@ -193,7 +193,7 @@ where
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
-    pub fn exec_return_value(&self) -> &pallet_contracts_primitives::ExecReturnValue {
+    pub fn exec_return_value(&self) -> &ExecReturnValue {
         self.exec_result
             .result
             .as_ref()
@@ -227,7 +227,7 @@ where
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`return_data`].
+    /// via [`CallResult::return_data`].
     pub fn return_value(self) -> V {
         self.message_result()
             .unwrap_or_else(|lang_err| {
