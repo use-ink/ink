@@ -71,7 +71,7 @@ mod test {
         ink::env::test::register_contract::<MainContract>(hash1.as_ref());
         ink::env::test::register_contract::<FallbackContract>(hash2.as_ref());
 
-        let fallback_contract = FallbackContractRef::new(hash1.clone())
+        let fallback_contract = FallbackContractRef::new(hash1)
             .code_hash(hash2)
             .endowment(0)
             .salt_bytes([0u8; 0])
