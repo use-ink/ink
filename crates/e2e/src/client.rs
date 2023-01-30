@@ -163,7 +163,7 @@ where
 pub struct CallDryRunResult<E: Environment, V> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    exec_result: ContractExecResult<E::Balance>,
+    pub exec_result: ContractExecResult<E::Balance>,
     _marker: PhantomData<V>,
 }
 
