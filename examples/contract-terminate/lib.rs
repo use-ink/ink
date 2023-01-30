@@ -86,7 +86,7 @@ pub mod just_terminates {
                 .expect("terminate_me messages failed");
 
             assert!(
-                call_res.data.is_empty(),
+                call_res.return_data().is_empty(),
                 "Terminated contract never returns"
             );
 
