@@ -163,21 +163,23 @@ where
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<C, E, V> core::fmt::Debug for CallResult<C, E, V>
+impl<C, E, V> Debug for CallResult<C, E, V>
 where
-    C: subxt::Config,
-    E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    C: subxt::Config + Debug,
+    E: Environment + Debug,
+    <E as Environment>::Balance: Debug,
+    V: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("CallResult")
-            .field("dry_run", &self.dry_run.exec_result)
+            .field("dry_run", &self.dry_run)
             .field("events", &self.events)
             .finish()
     }
 }
 
 /// Result of the dry run of a contract call.
+#[derive(Debug)]
 pub struct CallDryRunResult<E: Environment, V> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
