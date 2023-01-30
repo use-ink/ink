@@ -100,7 +100,7 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `flip` failed");
             assert!(
-                flip_call_result.value.is_ok(),
+                flip_call_result.message_result().is_ok(),
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
@@ -142,7 +142,7 @@ pub mod integration_flipper {
             ));
 
             let flipped_value = client
-                .call(&ink_e2e::bob(), &get, 0, None)
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
                 .return_value();
             assert!(flipped_value == initial_value);

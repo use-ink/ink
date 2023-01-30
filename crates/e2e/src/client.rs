@@ -125,6 +125,17 @@ where
     E: Environment,
     V: scale::Decode,
 {
+    /// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        self.dry_run.message_result()
+    }
+
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed

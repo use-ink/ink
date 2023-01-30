@@ -104,7 +104,7 @@ mod contract_ref {
                 .await
                 .expect("Calling `flip` failed");
             assert!(
-                flip_call_result.dry_run.exec_result.result.is_ok(),
+                flip_call_result.message_result().is_ok(),
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
