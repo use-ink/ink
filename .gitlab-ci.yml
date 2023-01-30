@@ -60,7 +60,6 @@ workflow:
   - cargo +nightly --version
   - cargo spellcheck --version
   - bash --version
-  - sccache -s
 
 .test-refs:                        &test-refs
   rules:
