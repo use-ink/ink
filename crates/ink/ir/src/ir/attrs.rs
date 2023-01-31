@@ -880,39 +880,11 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                 match &meta {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
-                            if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let argument = lit_str.value();
-                                // We've pre-processed the verbatim `_` to `"_"`. This was done
-                                // because `syn::Attribute::parse_meta` does not support verbatim.
-                                if argument != "_" {
-                                    return Err(format_err!(
-                                        name_value,
-                                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                                    ))
-                                }
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
-                                })
-                            }
-
-                            if let syn::Lit::Int(lit_int) = &name_value.lit {
-                                let selector_u32 = lit_int.base10_parse::<u32>()
-                                    .map_err(|error| {
-                                        format_err_spanned!(
-                                            lit_int,
-                                            "selector value out of range. selector must be a valid `u32` integer: {}",
-                                            error
-                                        )
-                                    })?;
-                                let selector = Selector::from(selector_u32.to_be_bytes());
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
-                                })
-                            }
-                            return Err(format_err!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
+                            return Err(format_err!(
+                                name_value,
+                                "Custom #[ink(selector = ..)] attributes are experimental, and not \
+                                currently supported."
+                            ))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
