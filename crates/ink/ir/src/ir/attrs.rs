@@ -950,7 +950,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
                                 "selector" => Err(format_err!(
-                                    name_value,
+                                    meta,
                                     "Custom #[ink(selector = ..)] attributes are experimental, and not \
                                     currently supported."
                                 )),
