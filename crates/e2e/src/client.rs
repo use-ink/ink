@@ -209,7 +209,7 @@ where
         self.exec_result
             .result
             .as_ref()
-            .unwrap_or_else(|call_err| panic!("Call dry-run failed: {:?}", call_err))
+            .unwrap_or_else(|call_err| panic!("Call dry-run failed: {call_err:?}"))
     }
 
     /// Returns the [`MessageResult`] from the execution of the dry-run message
@@ -223,8 +223,7 @@ where
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
             panic!(
-                "Decoding dry run result to ink! message return type failed: {}",
-                env_err
+                "Decoding dry run result to ink! message return type failed: {env_err}"
             )
         })
     }
@@ -237,8 +236,7 @@ where
         self.message_result()
             .unwrap_or_else(|lang_err| {
                 panic!(
-                    "Encountered a `LangError` while decoding dry run result to ink! message: {:?}",
-                    lang_err
+                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
                 )
             })
     }
