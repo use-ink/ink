@@ -794,6 +794,107 @@
 <a href="#793" id="793">793</a>
 <a href="#794" id="794">794</a>
 <a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -826,11 +927,12 @@
 <span class="kw">use </span>contract_metadata::ContractMetadata;
 <span class="kw">use </span>ink_env::Environment;
 <span class="kw">use </span>ink_primitives::MessageResult;
-
+<span class="kw">use </span>pallet_contracts_primitives::ExecReturnValue;
 <span class="kw">use </span>sp_core::Pair;
 <span class="kw">use </span>std::{
     collections::BTreeMap,
     fmt::Debug,
+    marker::PhantomData,
     path::Path,
 };
 
@@ -909,37 +1011,46 @@
 </span><span class="kw">pub struct </span>CallResult&lt;C: subxt::Config, E: Environment, V&gt; {
     <span class="doccomment">/// The result of the dry run, contains debug messages
     /// if there were any.
-    </span><span class="kw">pub </span>dry_run: ContractExecResult&lt;E::Balance&gt;,
+    </span><span class="kw">pub </span>dry_run: CallDryRunResult&lt;E, V&gt;,
     <span class="doccomment">/// Events that happened with the contract instantiation.
     </span><span class="kw">pub </span>events: ExtrinsicEvents&lt;C&gt;,
-    <span class="doccomment">/// Contains the result of decoding the return value of the called
-    /// function.
-    </span><span class="kw">pub </span>value: <span class="prelude-ty">Result</span>&lt;MessageResult&lt;V&gt;, scale::Error&gt;,
-    <span class="doccomment">/// Returns the bytes of the encoded dry-run return value.
-    </span><span class="kw">pub </span>data: Vec&lt;u8&gt;,
 }
 
 <span class="kw">impl</span>&lt;C, E, V&gt; CallResult&lt;C, E, V&gt;
 <span class="kw">where
     </span>C: subxt::Config,
     E: Environment,
+    V: scale::Decode,
 {
+    <span class="doccomment">/// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    </span><span class="kw">pub fn </span>message_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MessageResult&lt;V&gt; {
+        <span class="self">self</span>.dry_run.message_result()
+    }
+
     <span class="doccomment">/// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`return_data`].
+    /// via [`CallResult::return_data`].
     </span><span class="kw">pub fn </span>return_value(<span class="self">self</span>) -&gt; V {
-        <span class="self">self</span>.value
-            .unwrap_or_else(|env_err| {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;Decoding dry run result to ink! message return type failed: {env_err}&quot;
-                </span>)
-            })
-            .unwrap_or_else(|lang_err| {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}&quot;
-                </span>)
-            })
+        <span class="self">self</span>.dry_run.return_value()
+    }
+
+    <span class="doccomment">/// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    </span><span class="kw">pub fn </span>return_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.dry_run.exec_return_value().data
+    }
+
+    <span class="doccomment">/// Returns any debug message output by the contract decoded as UTF-8.
+    </span><span class="kw">pub fn </span>debug_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.dry_run.debug_message()
     }
 
     <span class="doccomment">/// Returns true if the specified event was triggered by the call.
@@ -954,17 +1065,89 @@
 <span class="doccomment">/// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
 </span><span class="comment">// TODO(#xxx) Improve the `Debug` implementation.
-</span><span class="kw">impl</span>&lt;C, E, V&gt; core::fmt::Debug <span class="kw">for </span>CallResult&lt;C, E, V&gt;
+</span><span class="kw">impl</span>&lt;C, E, V&gt; Debug <span class="kw">for </span>CallResult&lt;C, E, V&gt;
 <span class="kw">where
-    </span>C: subxt::Config,
-    E: Environment,
-    &lt;E <span class="kw">as </span>Environment&gt;::Balance: core::fmt::Debug,
+    </span>C: subxt::Config + Debug,
+    E: Environment + Debug,
+    &lt;E <span class="kw">as </span>Environment&gt;::Balance: Debug,
+    V: Debug,
 {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; core::fmt::Result {
         f.debug_struct(<span class="string">&quot;CallResult&quot;</span>)
             .field(<span class="string">&quot;dry_run&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.dry_run)
             .field(<span class="string">&quot;events&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.events)
             .finish()
+    }
+}
+
+<span class="doccomment">/// Result of the dry run of a contract call.
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>CallDryRunResult&lt;E: Environment, V&gt; {
+    <span class="doccomment">/// The result of the dry run, contains debug messages
+    /// if there were any.
+    </span><span class="kw">pub </span>exec_result: ContractExecResult&lt;E::Balance&gt;,
+    _marker: PhantomData&lt;V&gt;,
+}
+
+<span class="kw">impl</span>&lt;E, V&gt; CallDryRunResult&lt;E, V&gt;
+<span class="kw">where
+    </span>E: Environment,
+    V: scale::Decode,
+{
+    <span class="doccomment">/// Returns true if the dry-run execution resulted in an error.
+    </span><span class="kw">pub fn </span>is_err(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.exec_result.result.is_err()
+    }
+
+    <span class="doccomment">/// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    </span><span class="kw">pub fn </span>exec_return_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ExecReturnValue {
+        <span class="self">self</span>.exec_result
+            .result
+            .as_ref()
+            .unwrap_or_else(|call_err| <span class="macro">panic!</span>(<span class="string">&quot;Call dry-run failed: {call_err:?}&quot;</span>))
+    }
+
+    <span class="doccomment">/// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    </span><span class="kw">pub fn </span>message_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MessageResult&lt;V&gt; {
+        <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="self">self</span>.exec_return_value().data;
+        scale::Decode::decode(<span class="kw-2">&amp;mut </span>data.as_ref()).unwrap_or_else(|env_err| {
+            <span class="macro">panic!</span>(
+                <span class="string">&quot;Decoding dry run result to ink! message return type failed: {env_err}&quot;
+            </span>)
+        })
+    }
+
+    <span class="doccomment">/// Returns the decoded return value of the message from the dry-run.
+    ///
+    /// Panics if the value could not be decoded. The raw bytes can be accessed
+    /// via [`CallResult::return_data`].
+    </span><span class="kw">pub fn </span>return_value(<span class="self">self</span>) -&gt; V {
+        <span class="self">self</span>.message_result()
+            .unwrap_or_else(|lang_err| {
+                <span class="macro">panic!</span>(
+                    <span class="string">&quot;Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}&quot;
+                </span>)
+            })
+    }
+
+    <span class="doccomment">/// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    </span><span class="kw">pub fn </span>return_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.exec_return_value().data
+    }
+
+    <span class="doccomment">/// Returns any debug message output by the contract decoded as UTF-8.
+    </span><span class="kw">pub fn </span>debug_message(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        String::from_utf8_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>.exec_result.debug_message).into()
     }
 }
 
@@ -1076,8 +1259,10 @@
 <span class="kw">impl</span>&lt;C, E&gt; Client&lt;C, E&gt;
 <span class="kw">where
     </span>C: subxt::Config,
-    C::AccountId: serde::de::DeserializeOwned,
-    C::AccountId: scale::Codec + Debug,
+    C::AccountId: From&lt;sp_runtime::AccountId32&gt;
+        + scale::Codec
+        + serde::de::DeserializeOwned
+        + Debug,
     C::Signature: From&lt;sr25519::Signature&gt;,
     &lt;C::ExtrinsicParams <span class="kw">as </span>ExtrinsicParams&lt;C::Index, C::Hash&gt;&gt;::OtherParams: Default,
 
@@ -1446,22 +1631,10 @@
     {
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;call: {:02X?}&quot;</span>, message.exec_input()));
 
-        <span class="kw">let </span>dry_run = <span class="self">self
-            </span>.api
-            .call_dry_run(
-                subxt::tx::Signer::account_id(signer).clone(),
-                <span class="kw-2">&amp;</span>message,
-                value,
-                <span class="prelude-val">None</span>,
-            )
-            .<span class="kw">await</span>;
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;call dry run: {:?}&quot;</span>, <span class="kw-2">&amp;</span>dry_run.result));
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-            <span class="string">&quot;call dry run debug message: {}&quot;</span>,
-            String::from_utf8_lossy(<span class="kw-2">&amp;</span>dry_run.debug_message)
-        ));
-        <span class="kw">if </span>dry_run.result.is_err() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallDryRun(dry_run))
+        <span class="kw">let </span>dry_run = <span class="self">self</span>.call_dry_run(signer, <span class="kw-2">&amp;</span>message, value, <span class="prelude-val">None</span>).<span class="kw">await</span>;
+
+        <span class="kw">if </span>dry_run.exec_result.result.is_err() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallDryRun(dry_run.exec_result))
         }
 
         <span class="kw">let </span>tx_events = <span class="self">self
@@ -1469,7 +1642,7 @@
             .call(
                 sp_runtime::MultiAddress::Id(message.account_id().clone()),
                 value,
-                dry_run.gas_required,
+                dry_run.exec_result.gas_required,
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,
@@ -1492,16 +1665,45 @@
             }
         }
 
-        <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>dry_run.result.as_ref().unwrap().data;
-        <span class="kw">let </span>value: <span class="prelude-ty">Result</span>&lt;MessageResult&lt;RetType&gt;, scale::Error&gt; =
-            scale::Decode::decode(<span class="kw-2">&amp;mut </span>bytes.as_ref());
-
         <span class="prelude-val">Ok</span>(CallResult {
-            value,
-            data: bytes.clone(),
             dry_run,
             events: tx_events,
         })
+    }
+
+    <span class="doccomment">/// Executes a dry-run `call`.
+    ///
+    /// Returns the result of the dry run, together with the decoded return value of the invoked
+    /// message.
+    </span><span class="kw">pub async fn </span>call_dry_run&lt;RetType&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
+        message: <span class="kw-2">&amp;</span>Message&lt;E, RetType&gt;,
+        value: E::Balance,
+        storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
+    ) -&gt; CallDryRunResult&lt;E, RetType&gt;
+    <span class="kw">where
+        </span>RetType: scale::Decode,
+    {
+        <span class="kw">let </span>exec_result = <span class="self">self
+            </span>.api
+            .call_dry_run(
+                Signer::account_id(signer).clone(),
+                message,
+                value,
+                storage_deposit_limit,
+            )
+            .<span class="kw">await</span>;
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;call dry run: {:?}&quot;</span>, <span class="kw-2">&amp;</span>exec_result.result));
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">&quot;call dry run debug message: {}&quot;</span>,
+            String::from_utf8_lossy(<span class="kw-2">&amp;</span>exec_result.debug_message)
+        ));
+
+        CallDryRunResult {
+            exec_result,
+            _marker: Default::default(),
+        }
     }
 
     <span class="doccomment">/// Returns the balance of `account_id`.
