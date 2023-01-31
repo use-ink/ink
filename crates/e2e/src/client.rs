@@ -136,19 +136,19 @@ where
         self.dry_run.message_result()
     }
 
-    /// Returns the return value as raw bytes of the message from the dry-run.
-    ///
-    /// Panics if the dry-run message call failed to execute.
-    pub fn return_data(&self) -> &[u8] {
-        &self.dry_run.exec_return_value().data
-    }
-
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
     /// via [`CallResult::return_data`].
     pub fn return_value(self) -> V {
         self.dry_run.return_value()
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.dry_run.exec_return_value().data
     }
 
     /// Returns any debug message output by the contract decoded as UTF-8.
@@ -224,13 +224,6 @@ where
         })
     }
 
-    /// Returns the return value as raw bytes of the message from the dry-run.
-    ///
-    /// Panics if the dry-run message call failed to execute.
-    pub fn return_data(&self) -> &[u8] {
-        &self.exec_return_value().data
-    }
-
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
@@ -243,6 +236,13 @@ where
                     lang_err
                 )
             })
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.exec_return_value().data
     }
 
     /// Returns any debug message output by the contract decoded as UTF-8.
