@@ -307,7 +307,7 @@ docs:
     - cargo doc --no-deps --all-features -p ink_metadata
     - cargo doc --no-deps --all-features -p ink_e2e
     - cargo doc --no-deps --all-features -p ink_e2e_macro
-    - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
+    - mv target/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
 
