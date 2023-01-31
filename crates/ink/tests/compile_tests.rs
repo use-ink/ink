@@ -26,8 +26,7 @@ fn ui_tests() {
     t.compile_fail("tests/ui/selector_bytes/fail/*.rs");
 
     t.pass("tests/ui/contract/pass/*.rs");
-    // todo: restore these UI tests once `master` CI green again.
-    // t.compile_fail("tests/ui/contract/fail/*.rs");
+    t.compile_fail("tests/ui/contract/fail/*.rs");
 
     t.pass("tests/ui/storage_item/pass/*.rs");
     t.compile_fail("tests/ui/storage_item/fail/*.rs");
