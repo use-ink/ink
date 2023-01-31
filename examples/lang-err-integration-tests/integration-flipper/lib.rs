@@ -88,11 +88,10 @@ pub mod integration_flipper {
 
             let get = build_message::<FlipperRef>(contract_acc_id.clone())
                 .call(|contract| contract.get());
-            let get_call_result = client
-                .call(&ink_e2e::alice(), get, 0, None)
+            let initial_value = client
+                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
                 .await
-                .expect("Calling `get` failed");
-            let initial_value = get_call_result.return_value();
+                .return_value();
 
             let flip = build_message::<FlipperRef>(contract_acc_id)
                 .call(|contract| contract.flip());
@@ -101,17 +100,14 @@ pub mod integration_flipper {
                 .await
                 .expect("Calling `flip` failed");
             assert!(
-                flip_call_result.value.is_ok(),
+                flip_call_result.message_result().is_ok(),
                 "Messages now return a `Result`, which should be `Ok` here."
             );
 
-            let get = build_message::<FlipperRef>(contract_acc_id.clone())
-                .call(|contract| contract.get());
-            let get_call_result = client
-                .call(&ink_e2e::alice(), get, 0, None)
+            let flipped_value = client
+                .call_dry_run(&ink_e2e::alice(), &get, 0, None)
                 .await
-                .expect("Calling `get` failed");
-            let flipped_value = get_call_result.return_value();
+                .return_value();
             assert!(flipped_value != initial_value);
 
             Ok(())
@@ -130,11 +126,10 @@ pub mod integration_flipper {
 
             let get = build_message::<FlipperRef>(contract_acc_id.clone())
                 .call(|contract| contract.get());
-            let get_call_result = client
-                .call(&ink_e2e::bob(), get, 0, None)
+            let initial_value = client
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
-                .expect("Calling `get` failed");
-            let initial_value = get_call_result.return_value();
+                .return_value();
 
             let err_flip = build_message::<FlipperRef>(contract_acc_id)
                 .call(|contract| contract.err_flip());
@@ -146,13 +141,10 @@ pub mod integration_flipper {
                 Err(ink_e2e::Error::CallExtrinsic(_))
             ));
 
-            let get = build_message::<FlipperRef>(contract_acc_id.clone())
-                .call(|contract| contract.get());
-            let get_call_result = client
-                .call(&ink_e2e::bob(), get, 0, None)
+            let flipped_value = client
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
-                .expect("Calling `get` failed");
-            let flipped_value = get_call_result.return_value();
+                .return_value();
             assert!(flipped_value == initial_value);
 
             Ok(())

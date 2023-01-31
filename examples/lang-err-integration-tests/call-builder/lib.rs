@@ -193,10 +193,8 @@ mod call_builder {
 
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
                 .call(|contract| contract.get());
-            let get_call_result = client
-                .call(&origin, flipper_get, 0, None)
-                .await
-                .expect("Calling `flipper::get` failed");
+            let get_call_result =
+                client.call_dry_run(&origin, &flipper_get, 0, None).await;
             let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
@@ -216,10 +214,8 @@ mod call_builder {
 
             let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
                 .call(|contract| contract.get());
-            let get_call_result = client
-                .call(&origin, flipper_get, 0, None)
-                .await
-                .expect("Calling `flipper::get` failed");
+            let get_call_result =
+                client.call_dry_run(&origin, &flipper_get, 0, None).await;
             let flipped_value = get_call_result.return_value();
             assert!(flipped_value == initial_value);
 
@@ -253,17 +249,12 @@ mod call_builder {
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
                 .call(|contract| contract.invoke(flipper_acc_id, invalid_selector));
-            let call_result = client.call(&origin, call, 0, None).await;
+            let call_result = client.call_dry_run(&origin, &call, 0, None).await;
 
             assert!(call_result.is_err());
-            let contains_err_msg = match call_result.unwrap_err() {
-                ink_e2e::Error::CallDryRun(dry_run) => {
-                    String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains("Cross-contract call failed with CouldNotReadInput")
-                }
-                _ => false,
-            };
-            assert!(contains_err_msg);
+            assert!(call_result
+                .debug_message()
+                .contains("Cross-contract call failed with CouldNotReadInput"));
 
             Ok(())
         }
@@ -378,18 +369,15 @@ mod call_builder {
                     contract.call_instantiate(code_hash, selector, init_value)
                 });
 
-            let call_result = client.call(&origin, call, 0, None).await;
+            let call_result = client.call_dry_run(&origin, &call, 0, None).await;
             assert!(
                 call_result.is_err(),
                 "Call execution should've failed, but didn't."
             );
-            let contains_err_msg = match call_result.unwrap_err() {
-                ink_e2e::Error::CallDryRun(dry_run) => {
-                    String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains("The callee reverted, but did not encode an error in the output buffer.")
-                }
-                _ => false,
-            };
+            let contains_err_msg = call_result.debug_message().contains(
+                "The callee reverted, but did not encode an error in the output buffer.",
+            );
+
             assert!(
                 contains_err_msg,
                 "Call execution failed for an unexpected reason."
@@ -514,20 +502,16 @@ mod call_builder {
                 build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
                     contract.call_instantiate_fallible(code_hash, selector, init_value)
                 });
-            let call_result = client.call(&origin, call, 0, None).await;
+            let call_result = client.call_dry_run(&origin, &call, 0, None).await;
 
             assert!(
                 call_result.is_err(),
                 "Call execution should've failed, but didn't."
             );
 
-            let contains_err_msg = match call_result.unwrap_err() {
-                ink_e2e::Error::CallDryRun(dry_run) => {
-                    String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains("The callee reverted, but did not encode an error in the output buffer.")
-                }
-                _ => false,
-            };
+            let contains_err_msg = call_result.debug_message().contains(
+                "The callee reverted, but did not encode an error in the output buffer.",
+            );
             assert!(
                 contains_err_msg,
                 "Call execution failed for an unexpected reason."

@@ -213,9 +213,8 @@ pub mod constructors_return_value {
                 ink_e2e::build_message::<ConstructorsReturnValueRef>(contract_acc_id)
                     .call(|contract| contract.get_value());
             let value = client
-                .call(&ink_e2e::bob(), get, 0, None)
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
                 .await
-                .expect("Calling `get_value` failed")
                 .return_value();
 
             assert_eq!(

@@ -30,11 +30,12 @@ use super::{
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
-
+use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
 use std::{
     collections::BTreeMap,
     fmt::Debug,
+    marker::PhantomData,
     path::Path,
 };
 
@@ -113,37 +114,46 @@ where
 pub struct CallResult<C: subxt::Config, E: Environment, V> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: ContractExecResult<E::Balance>,
+    pub dry_run: CallDryRunResult<E, V>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
-    /// Contains the result of decoding the return value of the called
-    /// function.
-    pub value: Result<MessageResult<V>, scale::Error>,
-    /// Returns the bytes of the encoded dry-run return value.
-    pub data: Vec<u8>,
 }
 
 impl<C, E, V> CallResult<C, E, V>
 where
     C: subxt::Config,
     E: Environment,
+    V: scale::Decode,
 {
+    /// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        self.dry_run.message_result()
+    }
+
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`return_data`].
+    /// via [`CallResult::return_data`].
     pub fn return_value(self) -> V {
-        self.value
-            .unwrap_or_else(|env_err| {
-                panic!(
-                    "Decoding dry run result to ink! message return type failed: {env_err}"
-                )
-            })
-            .unwrap_or_else(|lang_err| {
-                panic!(
-                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
-                )
-            })
+        self.dry_run.return_value()
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.dry_run.exec_return_value().data
+    }
+
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        self.dry_run.debug_message()
     }
 
     /// Returns true if the specified event was triggered by the call.
@@ -158,17 +168,89 @@ where
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<C, E, V> core::fmt::Debug for CallResult<C, E, V>
+impl<C, E, V> Debug for CallResult<C, E, V>
 where
-    C: subxt::Config,
-    E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    C: subxt::Config + Debug,
+    E: Environment + Debug,
+    <E as Environment>::Balance: Debug,
+    V: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("CallResult")
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
             .finish()
+    }
+}
+
+/// Result of the dry run of a contract call.
+#[derive(Debug)]
+pub struct CallDryRunResult<E: Environment, V> {
+    /// The result of the dry run, contains debug messages
+    /// if there were any.
+    pub exec_result: ContractExecResult<E::Balance>,
+    _marker: PhantomData<V>,
+}
+
+impl<E, V> CallDryRunResult<E, V>
+where
+    E: Environment,
+    V: scale::Decode,
+{
+    /// Returns true if the dry-run execution resulted in an error.
+    pub fn is_err(&self) -> bool {
+        self.exec_result.result.is_err()
+    }
+
+    /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn exec_return_value(&self) -> &ExecReturnValue {
+        self.exec_result
+            .result
+            .as_ref()
+            .unwrap_or_else(|call_err| panic!("Call dry-run failed: {call_err:?}"))
+    }
+
+    /// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        let data = &self.exec_return_value().data;
+        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
+            panic!(
+                "Decoding dry run result to ink! message return type failed: {env_err}"
+            )
+        })
+    }
+
+    /// Returns the decoded return value of the message from the dry-run.
+    ///
+    /// Panics if the value could not be decoded. The raw bytes can be accessed
+    /// via [`CallResult::return_data`].
+    pub fn return_value(self) -> V {
+        self.message_result()
+            .unwrap_or_else(|lang_err| {
+                panic!(
+                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
+                )
+            })
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.exec_return_value().data
+    }
+
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        String::from_utf8_lossy(&self.exec_result.debug_message).into()
     }
 }
 
@@ -280,8 +362,10 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: serde::de::DeserializeOwned,
-    C::AccountId: scale::Codec + Debug,
+    C::AccountId: From<sp_runtime::AccountId32>
+        + scale::Codec
+        + serde::de::DeserializeOwned
+        + Debug,
     C::Signature: From<sr25519::Signature>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
@@ -650,22 +734,10 @@ where
     {
         log_info(&format!("call: {:02X?}", message.exec_input()));
 
-        let dry_run = self
-            .api
-            .call_dry_run(
-                subxt::tx::Signer::account_id(signer).clone(),
-                &message,
-                value,
-                None,
-            )
-            .await;
-        log_info(&format!("call dry run: {:?}", &dry_run.result));
-        log_info(&format!(
-            "call dry run debug message: {}",
-            String::from_utf8_lossy(&dry_run.debug_message)
-        ));
-        if dry_run.result.is_err() {
-            return Err(Error::CallDryRun(dry_run))
+        let dry_run = self.call_dry_run(signer, &message, value, None).await;
+
+        if dry_run.exec_result.result.is_err() {
+            return Err(Error::CallDryRun(dry_run.exec_result))
         }
 
         let tx_events = self
@@ -673,7 +745,7 @@ where
             .call(
                 sp_runtime::MultiAddress::Id(message.account_id().clone()),
                 value,
-                dry_run.gas_required,
+                dry_run.exec_result.gas_required,
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,
@@ -696,16 +768,45 @@ where
             }
         }
 
-        let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: Result<MessageResult<RetType>, scale::Error> =
-            scale::Decode::decode(&mut bytes.as_ref());
-
         Ok(CallResult {
-            value,
-            data: bytes.clone(),
             dry_run,
             events: tx_events,
         })
+    }
+
+    /// Executes a dry-run `call`.
+    ///
+    /// Returns the result of the dry run, together with the decoded return value of the invoked
+    /// message.
+    pub async fn call_dry_run<RetType>(
+        &mut self,
+        signer: &Signer<C>,
+        message: &Message<E, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CallDryRunResult<E, RetType>
+    where
+        RetType: scale::Decode,
+    {
+        let exec_result = self
+            .api
+            .call_dry_run(
+                Signer::account_id(signer).clone(),
+                message,
+                value,
+                storage_deposit_limit,
+            )
+            .await;
+        log_info(&format!("call dry run: {:?}", &exec_result.result));
+        log_info(&format!(
+            "call dry run debug message: {}",
+            String::from_utf8_lossy(&exec_result.debug_message)
+        ));
+
+        CallDryRunResult {
+            exec_result,
+            _marker: Default::default(),
+        }
     }
 
     /// Returns the balance of `account_id`.

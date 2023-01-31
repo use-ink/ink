@@ -32,8 +32,12 @@ pub use builders::{
     MessageBuilder,
 };
 pub use client::{
+    CallDryRunResult,
+    CallResult,
     Client,
     Error,
+    InstantiationResult,
+    UploadResult,
 };
 pub use default_accounts::*;
 pub use env_logger;
