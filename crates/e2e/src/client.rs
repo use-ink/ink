@@ -197,6 +197,11 @@ where
     E: Environment,
     V: scale::Decode,
 {
+    /// Returns true if the dry-run execution resulted in an error.
+    pub fn is_err(&self) -> bool {
+        self.exec_result.result.is_err()
+    }
+
     /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
     ///
     /// Panics if the dry-run message call failed to execute.
