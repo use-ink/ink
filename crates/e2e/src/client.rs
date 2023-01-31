@@ -151,6 +151,11 @@ where
         self.dry_run.return_value()
     }
 
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        self.dry_run.debug_message()
+    }
+
     /// Returns true if the specified event was triggered by the call.
     pub fn contains_event(&self, pallet_name: &str, variant_name: &str) -> bool {
         self.events.iter().any(|event| {
@@ -238,6 +243,11 @@ where
                     lang_err
                 )
             })
+    }
+
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        String::from_utf8_lossy(&self.exec_result.debug_message).into()
     }
 }
 
