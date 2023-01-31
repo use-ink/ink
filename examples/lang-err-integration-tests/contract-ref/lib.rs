@@ -33,7 +33,7 @@ mod contract_ref {
                 .unwrap_or_else(|error| {
                     panic!(
                         "Received an error from the Flipper constructor while instantiating \
-                         Flipper {:?}", error
+                         Flipper {error:?}"
                     )
                 });
 
