@@ -126,7 +126,7 @@ impl Attrs for syn::Item {
 ///
 /// An attribute with a parameterized flag:
 /// ```no_compile
-/// #[ink(selector = 0xDEADBEEF)]
+/// #[ink(namespace = "namespace")]
 /// ```
 ///
 /// An attribute with multiple flags:
@@ -950,9 +950,9 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
                                 "selector" => Err(format_err!(
-                                    meta,
-                                    "encountered #[ink(selector)] that is missing its u32 parameter. \
-                                    Did you mean #[ink(selector = value: u32)] ?"
+                                    name_value,
+                                    "Custom #[ink(selector = ..)] attributes are experimental, and not \
+                                    currently supported."
                                 )),
                                 "namespace" => Err(format_err!(
                                     meta,
@@ -1148,58 +1148,12 @@ mod tests {
     }
 
     #[test]
-    fn selector_works() {
+    fn selector_error() {
         assert_attribute_try_from(
             syn::parse_quote! {
                 #[ink(selector = 42)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::UserProvided(Selector::from([0, 0, 0, 42])),
-            )])),
-        );
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(selector = 0xDEADBEEF)]
-            },
-            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::selector([0xDE, 0xAD, 0xBE, 0xEF]),
-            )])),
-        );
-    }
-
-    #[test]
-    fn selector_negative_number() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(selector = -1)]
-            },
-            Err(
-                "selector value out of range. selector must be a valid `u32` integer: \
-                invalid digit found in string",
-            ),
-        );
-    }
-
-    #[test]
-    fn selector_out_of_range() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(selector = 0xFFFF_FFFF_FFFF_FFFF)]
-            },
-            Err(
-                "selector value out of range. \
-                selector must be a valid `u32` integer: number too large to fit in target type"
-            ),
-        );
-    }
-
-    #[test]
-    fn selector_invalid_type() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(selector = true)]
-            },
-            Err("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
+            Err(""),
         );
     }
 

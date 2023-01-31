@@ -368,20 +368,18 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         # }
 ///     impl Flipper {
 ///         #[ink(constructor)]
-///         #[ink(selector = 0xDEADBEEF)] // Works on constructors as well.
 ///         pub fn new(initial_value: bool) -> Self {
 ///             Flipper { value: false }
 ///         }
 ///
 ///         # /// Flips the current value.
 ///         # #[ink(message)]
-///         # #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.
 ///         # pub fn flip(&mut self) {
 ///         #     self.value = !self.value;
 ///         # }
 ///         #
 ///         /// Returns the current value.
-///         #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.
+///         #[ink(message)] // ...or specify selector inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }

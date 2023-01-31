@@ -316,7 +316,7 @@ mod tests {
                 true,
                 syn::parse_quote! {
                     #[ink(constructor)]
-                    #[ink(selector = 0xDEADBEEF, payable)]
+                    #[ink(namespace = "namespace", payable)]
                     pub fn my_constructor() -> Self {}
                 },
             ),

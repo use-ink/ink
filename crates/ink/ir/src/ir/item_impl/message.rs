@@ -447,7 +447,7 @@ mod tests {
                 true,
                 syn::parse_quote! {
                     #[ink(message)]
-                    #[ink(selector = 0xDEADBEEF, payable)]
+                    #[ink(namespace = "namespace", payable)]
                     pub fn my_message(&self) {}
                 },
             ),
