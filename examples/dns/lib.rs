@@ -53,7 +53,6 @@ mod dns {
     /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
-    #[derive(Default)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: Mapping<Hash, AccountId>,
@@ -61,6 +60,21 @@ mod dns {
         name_to_owner: Mapping<Hash, AccountId>,
         /// The default address.
         default_address: AccountId,
+    }
+
+    impl Default for DomainNameService {
+        fn default() -> Self {
+            let mut name_to_address = Mapping::new();
+            name_to_address.insert(Hash::default(), &zero_address());
+            let mut name_to_owner = Mapping::new();
+            name_to_owner.insert(Hash::default(), &zero_address());
+
+            Self {
+                name_to_address,
+                name_to_owner,
+                default_address: zero_address(),
+            }
+        }
     }
 
     /// Errors that can occur upon calling this contract.
