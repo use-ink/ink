@@ -67,7 +67,6 @@ mod multisig {
         env::{
             call::{
                 build_call,
-                Call,
                 ExecutionInput,
             },
             CallFlags,
