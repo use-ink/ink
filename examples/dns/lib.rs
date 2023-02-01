@@ -179,7 +179,7 @@ mod dns {
         }
     }
 
-    /// Helper for referencing the zero address (0x00). Note that in practice this address should
+    /// Helper for referencing the zero address (`0x00`). Note that in practice this address should
     /// not be treated in any special way (such as a default placeholder) since it has a known
     /// private key.
     fn zero_address() -> AccountId {
