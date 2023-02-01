@@ -21,7 +21,6 @@ mod call_builder {
     use ink::env::{
         call::{
             build_call,
-            Call,
             ExecutionInput,
             Selector,
         },

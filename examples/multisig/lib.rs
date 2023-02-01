@@ -309,7 +309,6 @@ mod multisig {
         /// use ink::env::{
         ///     call::{
         ///         utils::ArgumentList,
-        ///         Call,
         ///         CallParams,
         ///         ExecutionInput,
         ///         Selector,
