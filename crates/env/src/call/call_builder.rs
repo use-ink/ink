@@ -202,7 +202,7 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .callee(AccountId::from([0x42; 32]))
+///     .call(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
@@ -236,7 +236,7 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .callee(AccountId::from([0x42; 32]))
+///     .call_type(Call::new(AccountId::from([0x42; 32])))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
@@ -264,7 +264,7 @@ where
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .code_hash(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH)
+///     .delegate(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -299,7 +299,7 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .callee(AccountId::from([0x42; 32]))
+///     .call(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .try_invoke()
@@ -492,8 +492,8 @@ impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>
 where
     E: Environment,
 {
-    /// Sets the `callee` for the current cross-contract call.
-    pub fn callee(
+    /// Prepares the `CallBuilder` for a cross-contract [`Call`].
+    pub fn call(
         self,
         callee: E::AccountId,
     ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
@@ -506,8 +506,8 @@ where
         }
     }
 
-    /// Sets the `code_hash` for the current cross-contract delegate call.
-    pub fn code_hash(
+    /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
+    pub fn delegate(
         self,
         code_hash: E::Hash,
     ) -> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType> {
