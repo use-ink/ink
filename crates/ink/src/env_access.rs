@@ -266,7 +266,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -344,7 +344,7 @@ where
     /// # Example
     ///
     /// ```
-    /// 
+    ///
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
@@ -524,8 +524,7 @@ where
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .call_type(
-    ///                 Call::new()
-    ///                     .callee(AccountId::from([0x42; 32]))
+    ///                 Call::new(AccountId::from([0x42; 32]))
     ///                     .gas_limit(5000)
     ///                     .transferred_value(10))
     ///             .exec_input(
@@ -588,8 +587,7 @@ where
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .call_type(
-    ///                 DelegateCall::new()
-    ///                  .code_hash(<DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH))
+    ///                 DelegateCall::new(<DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
