@@ -1,6 +1,6 @@
 [package]
 name = "call_builder"
-version = "4.0.0-beta.1"
+version = "4.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false

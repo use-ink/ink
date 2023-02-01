@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-- Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
-- Remove `Default` implementation for AccountId ‒ [#1255](https://github.com/paritytech/ink/pull/1255)
+## Version 4.0.0-rc
+
+The first release candidate is here! This is the first release which could become the final 
+`v4.0.0`. Any subsequent release candidates should only contain bug fixes: no API changes, 
+breaking or otherwise.
 
 ### Breaking Changes
 
@@ -15,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 1. We have removed the `Default` implementation for `AccountId`s. This is because of
    security concerns around the use of the zero address which has a known private key in
    the `sr25519` and `ed25519` curves ([#1255](https://github.com/paritytech/ink/pull/1255)).
+
+### Added
+- E2E: expose call dry-run method ‒ [#1624](https://github.com/paritytech/ink/pull/1624)
+
+### Changed
+- Remove `Default` implementation for AccountId ‒ [#1255](https://github.com/paritytech/ink/pull/1255)
+- Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
+- Bump Substrate and `subxt` dependencies ‒ [#1549](https://github.com/paritytech/ink/pull/1549)
 
 ## Version 4.0.0-beta.1
 The coolest feature included in this release is the first first published version of
