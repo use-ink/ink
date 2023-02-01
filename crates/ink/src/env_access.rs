@@ -266,7 +266,7 @@ where
     /// # Example
     ///
     /// ```
-    ///
+    /// 
     /// #[ink::contract]
     /// pub mod only_owner {
     ///     #[ink(storage)]
@@ -344,7 +344,7 @@ where
     /// # Example
     ///
     /// ```
-    ///
+    /// 
     /// #[ink::contract]
     /// pub mod my_contract {
     ///     #[ink(storage)]
