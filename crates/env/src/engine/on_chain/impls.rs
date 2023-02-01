@@ -412,7 +412,11 @@ impl TypedEnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let gas_limit = params.gas_limit();
-        let enc_callee = scope.take_encoded(params.callee());
+        let callee = params
+            .callee()
+            .as_ref()
+            .expect("An account ID must be set in order to call a contract.");
+        let enc_callee = scope.take_encoded(callee);
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
         let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
