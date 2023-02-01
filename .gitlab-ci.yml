@@ -380,7 +380,7 @@ examples-test:
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
-          RUST_LOG=debug cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
           cargo test --verbose --manifest-path ${example}/Cargo.toml;
         fi;
