@@ -536,12 +536,9 @@ mod multisig {
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             assert!(self.env().transferred_value() == t.transferred_value);
             let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
-                .call_type(
-                    Call::new()
-                        .callee(t.callee)
-                        .gas_limit(t.gas_limit)
-                        .transferred_value(t.transferred_value),
-                )
+                .callee(t.callee)
+                .gas_limit(t.gas_limit)
+                .transferred_value(t.transferred_value)
                 .call_flags(CallFlags::default().set_allow_reentry(t.allow_reentry))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
@@ -574,12 +571,9 @@ mod multisig {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink::env::ContractEnv>::Env>()
-                .call_type(
-                    Call::new()
-                        .callee(t.callee)
-                        .gas_limit(t.gas_limit)
-                        .transferred_value(t.transferred_value),
-                )
+                .callee(t.callee)
+                .gas_limit(t.gas_limit)
+                .transferred_value(t.transferred_value)
                 .call_flags(CallFlags::default().set_allow_reentry(t.allow_reentry))
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),

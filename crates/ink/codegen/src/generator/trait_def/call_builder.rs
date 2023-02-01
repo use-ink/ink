@@ -319,7 +319,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 ::ink::env::call::build_call::<Self::Env>()
-                    .call_type(::ink::env::call::Call::new().callee(::ink::ToAccountId::to_account_id(self)))
+                    .callee(::ink::ToAccountId::to_account_id(self))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
