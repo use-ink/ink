@@ -6,11 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
+- Remove `Default` implementation for AccountId ‒ [#1255](https://github.com/paritytech/ink/pull/1255)
 
 ### Breaking Changes
 
 1. We've renamed some of the generated message methods on the `ContractRef` struct. They
    have been changed from `_checked` to `try_` ([#1621](https://github.com/paritytech/ink/pull/1621))
+1. We have removed the `Default` implementation for `AccountId`s. This is because of
+   security concerns around the use of the zero address which has a known private key in
+   the `sr25519` and `ed25519` curves ([#1255](https://github.com/paritytech/ink/pull/1255)).
 
 ## Version 4.0.0-beta.1
 The coolest feature included in this release is the first first published version of

@@ -21,7 +21,6 @@ mod call_builder {
     use ink::env::{
         call::{
             build_call,
-            Call,
             ExecutionInput,
             Selector,
         },
@@ -52,7 +51,7 @@ mod call_builder {
             selector: [u8; 4],
         ) -> Option<ink::LangError> {
             let result = build_call::<DefaultEnvironment>()
-                .call_type(Call::new().callee(address))
+                .call(address)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .try_invoke()
@@ -79,7 +78,7 @@ mod call_builder {
             use ink::env::call::build_call;
 
             build_call::<DefaultEnvironment>()
-                .call_type(Call::new().callee(address))
+                .call(address)
                 .exec_input(ExecutionInput::new(Selector::new(selector)))
                 .returns::<()>()
                 .invoke()
