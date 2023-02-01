@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(not(feature = "std"))]
@@ -23,6 +27,8 @@ mod tests;
 pub mod layout;
 mod specs;
 mod utils;
+
+pub use ink_primitives::LangError;
 
 pub use self::specs::{
     ConstructorSpec,
@@ -57,38 +63,32 @@ use serde::{
     Serialize,
 };
 
-/// Versioned ink! project metadata.
+/// The metadata version of the generated ink! contract.
+///
+/// The serialized metadata format (which this represents) is different from the
+/// version of this crate or the contract for Rust semantic versioning purposes.
 ///
 /// # Note
 ///
-/// Represents the version of the serialized metadata *format*, which is distinct from the version
-/// of this crate for Rust semantic versioning compatibility.
-#[derive(Debug, Serialize, Deserialize)]
-#[allow(clippy::large_enum_variant)]
-pub enum MetadataVersioned {
-    /// Version 0 placeholder. Represents the original non-versioned metadata format.
-    V0(MetadataVersionDeprecated),
-    /// Version 1 of the contract metadata.
-    V1(MetadataVersionDeprecated),
-    /// Version 2 of the contract metadata.
-    V2(MetadataVersionDeprecated),
-    /// Version 3 of the contract metadata.
-    V3(InkProject),
+/// Versions other than the `Default` are considered deprecated. If you want to
+/// deserialize legacy metadata versions you will need to use an old version of
+/// this crate.
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+pub enum MetadataVersion {
+    #[serde(rename = "4")]
+    V4,
 }
 
-impl From<InkProject> for MetadataVersioned {
-    fn from(ink_project: InkProject) -> Self {
-        MetadataVersioned::V3(ink_project)
+impl Default for MetadataVersion {
+    fn default() -> Self {
+        Self::V4
     }
 }
-
-/// Enum to represent a deprecated metadata version that cannot be instantiated.
-#[derive(Debug, Serialize, Deserialize)]
-pub enum MetadataVersionDeprecated {}
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
+    version: MetadataVersion,
     #[serde(flatten)]
     registry: PortableRegistry,
     #[serde(rename = "storage")]
@@ -98,6 +98,7 @@ pub struct InkProject {
 }
 
 impl InkProject {
+    /// Create a new ink! project from a layout and a spec.
     pub fn new<L, S>(layout: L, spec: S) -> Self
     where
         L: Into<layout::Layout>,
@@ -106,14 +107,34 @@ impl InkProject {
         let mut registry = Registry::new();
 
         Self {
+            version: Default::default(),
             layout: layout.into().into_portable(&mut registry),
             spec: spec.into().into_portable(&mut registry),
             registry: registry.into(),
         }
     }
-}
 
-impl InkProject {
+    /// Create a new portable ink! project.
+    ///
+    /// The caller is responsible to register all types into the supplied registry.
+    pub fn new_portable(
+        layout: layout::Layout<PortableForm>,
+        spec: ContractSpec<PortableForm>,
+        registry: PortableRegistry,
+    ) -> Self {
+        Self {
+            version: Default::default(),
+            layout,
+            spec,
+            registry,
+        }
+    }
+
+    /// Returns the metadata version used by the contract.
+    pub fn version(&self) -> &MetadataVersion {
+        &self.version
+    }
+
     /// Returns a read-only registry of types in the contract.
     pub fn registry(&self) -> &PortableRegistry {
         &self.registry

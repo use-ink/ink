@@ -1,13 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod dns {
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink::storage::Mapping;
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
@@ -58,7 +53,7 @@ mod dns {
     /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
-    #[derive(SpreadAllocate)]
+    #[derive(Default)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: Mapping<Hash, AccountId>,
@@ -85,22 +80,18 @@ mod dns {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            ink_lang::utils::initialize_contract(|contract: &mut Self| {
-                contract.default_address = zero_address();
-            })
+            Default::default()
         }
 
         /// Register specific name with caller as owner.
         #[ink(message)]
         pub fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
-            if self.name_to_owner.get(&name).is_some() {
+            if self.name_to_owner.contains(name) {
                 return Err(Error::NameAlreadyExists)
             }
 
-            self.name_to_owner.insert(&name, &caller);
+            self.name_to_owner.insert(name, &caller);
             self.env().emit_event(Register { name, from: caller });
 
             Ok(())
@@ -116,7 +107,7 @@ mod dns {
             }
 
             let old_address = self.name_to_address.get(name);
-            self.name_to_address.insert(&name, &new_address);
+            self.name_to_address.insert(name, &new_address);
 
             self.env().emit_event(SetAddress {
                 name,
@@ -136,8 +127,8 @@ mod dns {
                 return Err(Error::CallerIsNotOwner)
             }
 
-            let old_owner = self.name_to_owner.get(&name);
-            self.name_to_owner.insert(&name, &to);
+            let old_owner = self.name_to_owner.get(name);
+            self.name_to_owner.insert(name, &to);
 
             self.env().emit_event(Transfer {
                 name,
@@ -163,15 +154,13 @@ mod dns {
 
         /// Returns the owner given the hash or the default address.
         fn get_owner_or_default(&self, name: Hash) -> AccountId {
-            self.name_to_owner
-                .get(&name)
-                .unwrap_or(self.default_address)
+            self.name_to_owner.get(name).unwrap_or(self.default_address)
         }
 
         /// Returns the address given the hash or the default address.
         fn get_address_or_default(&self, name: Hash) -> AccountId {
             self.name_to_address
-                .get(&name)
+                .get(name)
                 .unwrap_or(self.default_address)
         }
     }
@@ -186,15 +175,14 @@ mod dns {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<Environment>()
+        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<Environment>()
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink_env::test::set_caller::<Environment>(caller);
+            ink::env::test::set_caller::<Environment>(caller);
         }
 
         #[ink::test]

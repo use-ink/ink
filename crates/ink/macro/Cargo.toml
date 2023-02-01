@@ -1,0 +1,46 @@
+[package]
+name = "ink_macro"
+version = "4.0.0-beta.1"
+authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+edition = "2021"
+
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://docs.rs/ink_macro/"
+homepage = "https://www.parity.io/"
+description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+ink_ir = { version = "4.0.0-beta.1", path = "../ir", default-features = false }
+ink_codegen = { version = "4.0.0-beta.1", path = "../codegen", default-features = false }
+ink_primitives = { version = "4.0.0-beta.1", path = "../../primitives/", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+syn = "1"
+synstructure = "0.12.6"
+proc-macro2 = "1"
+quote = "1"
+
+[dev-dependencies]
+ink_env = { path = "../../env" }
+ink = { path = ".." }
+ink_metadata = { path = "../../metadata" }
+ink_prelude = { path = "../../prelude" }
+ink_storage = { path = "../../storage" }
+scale-info = { version = "2.3", default-features = false, features = ["derive"] }
+
+[lib]
+name = "ink_macro"
+proc-macro = true
+
+[features]
+default = ["std"]
+std = [
+    "scale/std",
+    "ink_ir/std",
+    "ink_primitives/std",
+]

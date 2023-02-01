@@ -26,14 +26,20 @@ variables:
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "lang/codegen metadata engine"
-  ALSO_WASM_CRATES:                "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
-  # this var is changed to "-:staging" when the CI image gets rebuilt
+  # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
+  CI_IMAGE:                        "paritytech/ink-ci-linux:production"
+  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro"
+  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro ink/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
-  UPGRADEABLE_CONTRACTS:           "forward-calls delegate-calls"
+  UPGRADEABLE_CONTRACTS:           "forward-calls set-code-hash"
+  LANG_ERR_INTEGRATION_CONTRACTS:  "integration-flipper call-builder contract-ref constructors-return-value"
+  # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
+  # currently fails on `stable`, but succeeds on `nightly`. This is due to
+  # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
+  # Remove the following line again as soon as `clippy` on stable succeeds again.
+  CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
 
 workflow:
   rules:
@@ -81,6 +87,9 @@ workflow:
   tags:
     - kubernetes-parity-build
 
+.start-substrate-contracts-node:                     &start-substrate-contracts-node
+    - substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+
 #### stage:                        lint
 #
 # Note: For all of these lints we `allow_failure` so that the rest of the build can
@@ -92,7 +101,7 @@ spellcheck:
   <<:                              *test-refs
   script:
     - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-    - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/
+    - cargo spellcheck check -v --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive ./examples/*
   allow_failure:                   true
 
 fmt:
@@ -100,10 +109,10 @@ fmt:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - cargo fmt --verbose --all -- --check
+    - cargo +nightly fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" ./crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/contract/{pass,fail}/*.rs
+    - cargo +nightly fmt --verbose --all -- --check ./crates/ink/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
 examples-fmt:
@@ -114,15 +123,21 @@ examples-fmt:
     # Note that we disable the license header check for the examples, since they are unlicensed.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+        cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo +nightly fmt --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml -- --check;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check --config=license_template_path="";
+        cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- --check;
       done
-    - cargo fmt --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- --check --config=license_template_path=""
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +nightly fmt --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
+      done
+    - cargo +nightly fmt --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- --check
+    # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
+    - rustfmt +nightly --verbose --check ./examples/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
 
 clippy-std:
@@ -131,7 +146,7 @@ clippy-std:
   <<:                              *test-refs
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --all-features --manifest-path ./crates/${crate}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
 
 clippy-wasm:
@@ -140,7 +155,7 @@ clippy-wasm:
   <<:                              *test-refs
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path ./crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
   allow_failure:                   true
 
@@ -151,15 +166,19 @@ examples-clippy-std:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ./examples/delegator/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml -- -D warnings;
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clippy --verbose --all-targets --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+      done
+    - cargo clippy --verbose --all-targets --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -169,15 +188,19 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clippy --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+      done
+    - cargo clippy --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
@@ -201,6 +224,21 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
+dylint:
+    stage:                           check
+    <<:                              *docker-env
+    <<:                              *test-refs
+    script:
+    - cd linting/
+    # we are using a toolchain file in this directory
+    # add required components for CI
+    - rustup component add rustfmt clippy
+    - cargo check --verbose
+    - cargo +nightly fmt --verbose --all -- --check
+    - cargo clippy --verbose -- -D warnings;
+    # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+    - unset RUSTC_WRAPPER
+    - cargo test --verbose --all-features
 
 #### stage:                        workspace
 
@@ -258,11 +296,23 @@ docs:
     paths:
       - ./crate-docs/
   script:
-    - cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata
-        -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude
-        -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
+    # All crate docs currently need to be built separately. The reason
+    # is that `smart-bench-macro` is a dependency now in a number of places.
+    # This crate uses e.g. `ink_metadata`, but in its published form. So if
+    # e.g. the `-p ink_metadata` is added to the `ink_lang` command  this
+    # results in the cargo failure "multiple packages with same spec, ambiguous".
+    - cargo doc --no-deps --all-features -p ink_env
+    - cargo doc --no-deps --all-features -p ink_storage
+    - cargo doc --no-deps --all-features -p ink_storage_traits
+    - cargo doc --no-deps --all-features -p ink_primitives
+    - cargo doc --no-deps --all-features -p ink_prelude
+    - cargo doc --no-deps --all-features -p ink
+    - cargo doc --no-deps --all-features -p ink_macro
+    - cargo doc --no-deps --all-features -p ink_ir
+    - cargo doc --no-deps --all-features -p ink_codegen
+    - cargo doc --no-deps --all-features -p ink_metadata
+    - cargo doc --no-deps --all-features -p ink_e2e
+    - cargo doc --no-deps --all-features -p ink_e2e_macro
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
@@ -280,6 +330,9 @@ codecov:
     QUICKCHECK_TESTS:              1
     INK_COVERAGE_REPORTING:        "true"
     CARGO_INCREMENTAL:             0
+    # Needed because `codecov` requires nightly features to work
+    # (see `-Z` in the `RUSTFLAGS` below).
+    RUSTC_BOOTSTRAP:               "1"
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
                                     -Clink-dead-code -Copt-level=0 -Coverflow-checks=off"
@@ -322,9 +375,15 @@ examples-test:
     - job:                         clippy-std
       artifacts:                   false
   script:
+    - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+        if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
+          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+        else
+          cargo test --verbose --manifest-path ${example}/Cargo.toml;
+        fi;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
@@ -332,25 +391,36 @@ examples-test:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml;
+    # TODO (#1502): We need to clean before running, otherwise the CI fails with a
+    # linking error.
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clean --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
+      done
+    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
   script:
+    - rustup component add rust-src --toolchain stable
     - cargo contract -V
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         pushd $example &&
-        cargo contract build &&
+        cargo +stable contract build &&
         popd;
       done
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+        cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
-    - cargo contract build --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +stable contract build --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+      done
+    - cargo +stable contract build --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
@@ -365,6 +435,7 @@ examples-docs:
     # of this flag.
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
@@ -373,12 +444,17 @@ examples-docs:
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
         cargo doc --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./examples/upgradeable-contracts/delegate-calls/upgradeable-flipper/Cargo.toml --document-private-items --verbose --no-deps
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo doc --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
+    - cargo doc --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+# Temporarily disabled until https://github.com/paritytech/ink-waterfall/issues/41
+# is fixed.
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
@@ -407,6 +483,7 @@ publish-docs:
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
   before_script:
@@ -449,7 +526,9 @@ publish-docs:
 
 #### stage:                        fuzz
 
-fuzz-tests:
+# Temporarily disabled until https://github.com/paritytech/ink/issues/1374
+# is fixed.
+.fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
   variables:

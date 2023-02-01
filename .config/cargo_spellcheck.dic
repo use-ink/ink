@@ -38,12 +38,15 @@ defragmentation
 deploy
 dereferencing
 deserialize/S
+deserialization
 dispatchable/S
+E2E
 encodable
 evaluable
 fuzzer
 getter
 growable
+ident
 interoperate
 invariants
 kB
@@ -62,6 +65,8 @@ stdout
 tuple
 unordered
 untyped
+v1
+v2
 v3
 validator
 variadic
@@ -94,6 +99,7 @@ layout/JG
 namespace/S
 parameterize/SD
 runtime/S
+storable
 struct/S
 vec/S
 vector/S
@@ -104,3 +110,4 @@ natively
 payability
 unpayable
 initializer
+WebSocket/S

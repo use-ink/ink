@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::serde_hex;
+use std::str;
 
 /// Serializes the given bytes as byte string.
 pub fn serialize_as_byte_str<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
@@ -44,7 +45,7 @@ where
             let result = if v.starts_with("0x") {
                 serde_hex::from_hex(v)
             } else {
-                serde_hex::from_hex(&format!("0x{}", v))
+                serde_hex::from_hex(&format!("0x{v}"))
             };
             result.map_err(E::custom)
         }
@@ -55,4 +56,13 @@ where
     }
 
     deserializer.deserialize_str(Visitor)
+}
+
+/// Strips a single whitespace at the start and removes trailing spaces
+pub fn trim_extra_whitespace(item: &str) -> &str {
+    if let Some(stripped) = item.strip_prefix(' ') {
+        stripped.trim_end()
+    } else {
+        item.trim_end()
+    }
 }

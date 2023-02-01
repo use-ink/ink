@@ -14,22 +14,52 @@
 
 //! Utilities in use by ink!.
 //!
-//! These are kept separate from ink core utilities to allow for more dynamic inter-crate dependencies.
+//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate dependencies.
 //! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `ink_lang` (or others) to `ink_env` or `ink_storage` impossible.
+//! a per-crate-target basis thus making dependencies from `ink` (or others) to `ink_env` or `ink_storage` impossible.
 //!
 //! By introducing `ink_primitives` we have a way to share utility components between `ink_env` or `ink_storage` and
-//! other parts of the framework, like `ink_lang`.
+//! other parts of the framework, like `ink`.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod key;
-mod key_ptr;
-
-#[cfg(test)]
-mod tests;
+mod types;
 
 pub use self::{
-    key::Key,
-    key_ptr::KeyPtr,
+    key::{
+        Key,
+        KeyComposer,
+    },
+    types::{
+        AccountId,
+        Clear,
+        Hash,
+    },
 };
+
+/// An error emitted by the smart contracting language.
+///
+/// This is different than errors from:
+/// - Errors from the contract, which are programmer defined
+/// - Errors from the underlying execution environment (e.g `pallet-contracts`)
+#[non_exhaustive]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, ::scale::Encode, ::scale::Decode)]
+#[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+pub enum LangError {
+    /// Failed to read execution input for the dispatchable.
+    CouldNotReadInput = 1u32,
+}
+
+/// The `Result` type for ink! messages.
+#[doc(hidden)]
+pub type MessageResult<T> = ::core::result::Result<T, LangError>;
+
+/// The `Result` type for ink! constructors.
+#[doc(hidden)]
+pub type ConstructorResult<T> = ::core::result::Result<T, LangError>;

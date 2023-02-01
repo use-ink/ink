@@ -1,6 +1,6 @@
 [package]
 name = "ink_allocator"
-version = "3.0.1"
+version = "4.0.0-beta.1"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -16,7 +16,6 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
 cfg-if = "1.0"
-wee_alloc = { version = "0.4", default-features = false, optional = true }
 
 [dev-dependencies]
 quickcheck = "1"
@@ -25,5 +24,4 @@ quickcheck_macros = "1"
 [features]
 default = ["std"]
 std = []
-wee-alloc = ["wee_alloc"]
 ink-fuzz-tests = ["std"]

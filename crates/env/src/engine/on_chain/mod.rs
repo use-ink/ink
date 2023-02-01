@@ -18,6 +18,7 @@ mod impls;
 
 use self::{
     buffer::{
+        EncodeScope,
         ScopedBuffer,
         StaticBuffer,
     },

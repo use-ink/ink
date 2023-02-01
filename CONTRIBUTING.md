@@ -9,16 +9,17 @@ First of all, thank you for taking your time to contribute to ink!
 * [During Development](#during-development)
     * [Commits](#commits)
     * [Checklist](#checklist)
+    * [Backwards Compatibility](#backwards-compatibility)
 * [Continuous Integraton](#continuous-integration)
 * [Issues and Pull Requests](#issues-and-pull-requests)
     * [Issues](#issues)
     * [Pull Requests](#pull-requests)
-* [Questions](I-dont-want-to-contribute-I-just-have-some-questions)
+* [Questions](#I-dont-want-to-contribute-I-just-have-some-questions)
 
 ## Code of Conduct
 
 We are a friendly and welcoming open source community.
-You can find our code of conduct [here](CODE_OF_CONDUCT.md).
+You can find our code of conduct [here](CODE_OF_CONDUCT.adoc).
 
 ## During Development
 
@@ -27,7 +28,7 @@ You can find our code of conduct [here](CODE_OF_CONDUCT.md).
 Don't be afraid to have a bunch of commits while working on a pull-request. We end up
 squashing all of them before merging to the `master` branch anyways.
 
-But please keep your commits small and descriptive. A good rule of thumb is to 
+But please keep your commits small and descriptive. A good rule of thumb is to
 bundle semantic changes together in one commit. It makes the review
 process easier - which means you get a 🟩 from Github sooner (that's why you're
 contributing in the first place anyways, right?)
@@ -35,58 +36,74 @@ contributing in the first place anyways, right?)
 To help you out here's a [really good post](https://cbea.ms/git-commit/) on how to write good commit
 messages.
 
+### Stable vs Nightly Rust
+
+For everything but `rustfmt` we use Rust `stable` together with `export RUSTC_BOOTSTRAP=1`.
+You have to export this environment variable locally too! Setting it will enable nightly
+features in stable Rust. So it's definitely a hack, but we decided on it since using nightly
+in the CI and for tooling came with a lot of maintenance burden.
+
 ### Checklist
 
 Below is a checklist for you before doing a pull request.
 
-Following these will ensure that your pull request is going to be accepted.
-
-1. Run `rustfmt` automatically.
-1. Run `clippy` on your changes.
-1. Run tests via `cargo test --release` for off-chain testing.
-1. For critical parts perform some manual on-chain tests.
-1. Build the code and run tests also for the `wasm32` target.
-1. Try to run some examples and see if they are still working correctly.
-1. Sometimes clippy lints can be unfortunate or even buggy and it can be very hard to fix those.
-  In these situations you may skip the clippy lint with `#[clippy::skip]`, however,
-  note that this always requires a good rational as a side-comment and probably link to the eventual clippy bug.
-1. **Important** Strive for simple, clean and concise code.
-  If your code is very complex - because it is trying to accomplish complex things - try to think about how another aproach or design could simplify it.
+1. Name your branch with a prefix and a descriptive name in the style of `peter-refactor-storage-implementation`.
 1. We won't accept a pull request with `FIXME` or `TODO` comments in it.
    Please try to fix them by yourself and resolve all remaining to-do items.
    If that is not possible then write an issue for each of them and link to the source line and commit with a proper description. For more information go [here](#Issues-&-pull-requests).
 1. Document everything properly that you have written, refactored or touched. Especially keeping documentation up-to-date is very important. For larger portions please try to also update the ink! wiki or write a new entry there.
 1. Write tests for your code. If your code is hard to test, try to find a design that allows for testing.
-1. If needed also update the [`README`](README.md).
 1. For performance critical parts we also want additional performance tests.
 1. If you implement a fix for a reported bug also include a regression test alongside the fix if possible.
 1. When commenting or documenting code make use of proper punctuation.
-   This might seem pedantic but we believe that in essence this is going to improve overall comment and documentation quality.
+   This might seem pedantic, but we believe that in essence this is going to improve overall comment and documentation quality.
 1. If possible try to sign your commits, e.g. using GPG keys. For more information about this go [here](https://help.github.com/en/articles/signing-commits).
 
-## Continuous Integration
-
-Our [continuous integration (CI)](https://github.com/paritytech/ink/blob/master/.gitlab-ci.yml) will check for the following properties of all changes.
+Verify the following locally, otherwise the CI will fail:
 
 1. Is `rustfmt` happy with it ?
-    - `cargo fmt --all`
+    - `cargo +nightly fmt --all`
 1. Is `clippy` happy with it?
-    - `cargo clippy --all-targets --all-features`
+    - `cargo clippy --all-targets --all-features` -- -D warnings;
 1. Does the code still compile?
     - `cargo check --all-features`
 1. Do all the examples still compile?
-    - `cargo +nightly contract check --manifest-path ./examples/.../Cargo.toml`
-1. Is the `wasm-32` target still compiling?
+    - `cargo contract check --manifest-path ./examples/.../Cargo.toml`
+1. Is the `wasm32` target still compiling?
     - `cargo check --no-default-features --target wasm32-unknown-unknown`
 1. Are all the tests passing?
     - `cargo test --all-features --workspace`
 1. Are all the tests for the examples passing?
-    - `cargo +nightly test --manifest-path ./examples/.../Cargo.toml`
-1. Is the test code coverage increasing or at least stable?
-1. Has the size of the example contract binaries changed?
+    - `cargo test --manifest-path ./examples/.../Cargo.toml`
 
-Only if our very demanding CI is happy with your pull request we will eventually merge it.
-Exceptions confirm the rule!
+### Backwards Compatibility
+
+ink! and `pallet-contracts` are projects under active development. As the Contracts API
+functions evolve to their newer versions we need to introduce them in ink! in a way that
+keeps the current *MAJOR* ink! versions compatible with older Substrate nodes which
+may not have these new API function.
+
+In order to achieve this, please stick to the following workflow.
+
+Imagine there is a `[seal0] function()` in the Contracts pallet API and our
+`ink_env::function()` uses its import under the hood. Then some time later we decide
+to add a new `[seal1] function()` version to the pallet. In order to introduce it into
+ink! and still be able to run contracts (which don't use this particular function) on
+older nodes, please do the following:
+
+1. Mark the old `ink_env::function()` (which depends on the imported `[seal0]` function)
+   with the `#[deprecated]` attribute. Please, specify the `since` field with the ink!
+   version which will introduce the new API. We will leave this function in for backwards
+   compatibility purposes. Specifing some additional helpful info in the `note` field
+   could also be a good idea.
+2. Name the new function (which depends on the `[seal1] function()`) in a descriptive
+   way, like `ink_env::function_whats_special()`.
+3. Add the `# Compatibility` section to the docs comment of the new function.
+4. Never use the new function with existing language features. Only use it with newly
+   added functions.
+
+You can have a look at the [PR#1284](https://github.com/paritytech/ink/pull/1284/files#diff-e7cc1cdb3856da1293c785de863703d5961c324aa2018decb0166ea1eb0631e8R191) for a reference of how the described way could be implemented.
+
 
 ## Issues and Pull Requests
 
@@ -122,10 +139,9 @@ For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
 ## I don't want to contribute, I just have some questions
 
-For questions about the ink! project, about Parity Technologies or general technical
-related questions you are welcome to contact us via [Element][Riot-Smart-Contracts-ink]. For
-technical questions specifically about the ink! and its sub-projects you may also file an issue.
-For more information about filing issues go [here](#issues-and-pull-requests).
+For technical questions about the ink! and all other Polkadot projects, please post your questions to our [Stack Exchange community][Stack-Exchange-Link]. You can also stay tuned by joining our [Element channel][Riot-Smart-Contracts-ink] to be among first ones who gets our announcements.
+
+[Stack-Exchange-Link]: https://substrate.stackexchange.com
 
 [Riot-Smart-Contracts-ink]: https://riot.im/app/#/room/#ink:matrix.parity.io
 

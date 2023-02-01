@@ -1,7 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod incrementer {
     #[ink(storage)]
@@ -16,7 +14,7 @@ mod incrementer {
         }
 
         #[ink(constructor)]
-        pub fn default() -> Self {
+        pub fn new_default() -> Self {
             Self::new(Default::default())
         }
 
@@ -34,11 +32,10 @@ mod incrementer {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn default_works() {
-            let contract = Incrementer::default();
+            let contract = Incrementer::new_default();
             assert_eq!(contract.get(), 0);
         }
 

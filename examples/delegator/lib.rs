@@ -1,15 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 mod delegator {
     use accumulator::AccumulatorRef;
     use adder::AdderRef;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-    };
     use subber::SubberRef;
 
     /// Specifies the state of the `delegator` contract.
@@ -18,20 +12,10 @@ mod delegator {
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
-    #[derive(
-        Debug,
-        Copy,
-        Clone,
-        PartialEq,
-        Eq,
-        scale::Encode,
-        scale::Decode,
-        SpreadLayout,
-        PackedLayout,
-    )]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
-        derive(::scale_info::TypeInfo, ::ink_storage::traits::StorageLayout)
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
     )]
     pub enum Which {
         Adder,
@@ -79,29 +63,17 @@ mod delegator {
                 .endowment(total_balance / 4)
                 .code_hash(accumulator_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
-                .unwrap_or_else(|error| {
-                    panic!(
-                        "failed at instantiating the Accumulator contract: {:?}",
-                        error
-                    )
-                });
+                .instantiate();
             let adder = AdderRef::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(adder_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
-                .unwrap_or_else(|error| {
-                    panic!("failed at instantiating the Adder contract: {:?}", error)
-                });
+                .instantiate();
             let subber = SubberRef::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(subber_code_hash)
                 .salt_bytes(salt)
-                .instantiate()
-                .unwrap_or_else(|error| {
-                    panic!("failed at instantiating the Subber contract: {:?}", error)
-                });
+                .instantiate();
             Self {
                 which: Which::Adder,
                 accumulator,
@@ -136,6 +108,101 @@ mod delegator {
                     self.which = Which::Adder;
                 }
             }
+        }
+    }
+
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::DelegatorRef;
+        use ink_e2e::build_message;
+
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test(
+            additional_contracts = "accumulator/Cargo.toml adder/Cargo.toml subber/Cargo.toml"
+        )]
+        async fn e2e_delegator(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+            // given
+            let accumulator_hash = client
+                .upload("accumulator", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `accumulator` failed")
+                .code_hash;
+
+            let adder_hash = client
+                .upload("adder", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `adder` failed")
+                .code_hash;
+
+            let subber_hash = client
+                .upload("subber", &ink_e2e::alice(), None)
+                .await
+                .expect("uploading `subber` failed")
+                .code_hash;
+
+            let constructor = DelegatorRef::new(
+                1234, // initial value
+                1337, // salt
+                accumulator_hash,
+                adder_hash,
+                subber_hash,
+            );
+
+            let delegator_acc_id = client
+                .instantiate("delegator", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.get());
+            let value = client
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .await
+                .return_value();
+            assert_eq!(value, 1234);
+            let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.change(6));
+            let _ = client
+                .call(&ink_e2e::bob(), change, 0, None)
+                .await
+                .expect("calling `change` failed");
+
+            // then
+            let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.get());
+            let value = client
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .await
+                .return_value();
+            assert_eq!(value, 1234 + 6);
+
+            // when
+            let switch = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.switch());
+            let _ = client
+                .call(&ink_e2e::bob(), switch, 0, None)
+                .await
+                .expect("calling `switch` failed");
+            let change = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.change(3));
+            let _ = client
+                .call(&ink_e2e::bob(), change, 0, None)
+                .await
+                .expect("calling `change` failed");
+
+            // then
+            let get = build_message::<DelegatorRef>(delegator_acc_id.clone())
+                .call(|contract| contract.get());
+            let value = client
+                .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+                .await
+                .return_value();
+            assert_eq!(value, 1234 + 6 - 3);
+
+            Ok(())
         }
     }
 }

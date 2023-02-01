@@ -14,7 +14,10 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::serde_hex;
+use crate::{
+    serde_hex,
+    utils::trim_extra_whitespace,
+};
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -54,6 +57,8 @@ pub struct ContractSpec<F: Form = MetaForm> {
     events: Vec<EventSpec<F>>,
     /// The contract documentation.
     docs: Vec<F::String>,
+    /// The language specific error type.
+    lang_error: TypeSpec<F>,
 }
 
 impl IntoPortable for ContractSpec {
@@ -77,6 +82,7 @@ impl IntoPortable for ContractSpec {
                 .map(|event| event.into_portable(registry))
                 .collect::<Vec<_>>(),
             docs: registry.map_into_portable(self.docs),
+            lang_error: self.lang_error.into_portable(registry),
         }
     }
 }
@@ -104,6 +110,11 @@ where
     pub fn docs(&self) -> &[F::String] {
         &self.docs
     }
+
+    /// Returns the language error type.
+    pub fn lang_error(&self) -> &TypeSpec<F> {
+        &self.lang_error
+    }
 }
 
 /// The message builder is ready to finalize construction.
@@ -111,20 +122,25 @@ pub enum Valid {}
 /// The message builder is not ready to finalize construction.
 pub enum Invalid {}
 
-/// A builder for contracts.
 #[must_use]
-pub struct ContractSpecBuilder<S = Invalid> {
+pub struct ContractSpecBuilder<F, S = Invalid>
+where
+    F: Form,
+{
     /// The to-be-constructed contract specification.
-    spec: ContractSpec,
+    spec: ContractSpec<F>,
     /// Marker for compile-time checking of valid contract specifications.
     marker: PhantomData<fn() -> S>,
 }
 
-impl ContractSpecBuilder<Invalid> {
+impl<F> ContractSpecBuilder<F, Invalid>
+where
+    F: Form,
+{
     /// Sets the constructors of the contract specification.
-    pub fn constructors<C>(self, constructors: C) -> ContractSpecBuilder<Valid>
+    pub fn constructors<C>(self, constructors: C) -> ContractSpecBuilder<F, Valid>
     where
-        C: IntoIterator<Item = ConstructorSpec>,
+        C: IntoIterator<Item = ConstructorSpec<F>>,
     {
         debug_assert!(self.spec.constructors.is_empty());
         ContractSpecBuilder {
@@ -137,11 +153,14 @@ impl ContractSpecBuilder<Invalid> {
     }
 }
 
-impl<S> ContractSpecBuilder<S> {
+impl<F, S> ContractSpecBuilder<F, S>
+where
+    F: Form,
+{
     /// Sets the messages of the contract specification.
     pub fn messages<M>(self, messages: M) -> Self
     where
-        M: IntoIterator<Item = MessageSpec>,
+        M: IntoIterator<Item = MessageSpec<F>>,
     {
         debug_assert!(self.spec.messages.is_empty());
         Self {
@@ -156,7 +175,7 @@ impl<S> ContractSpecBuilder<S> {
     /// Sets the events of the contract specification.
     pub fn events<E>(self, events: E) -> Self
     where
-        E: IntoIterator<Item = EventSpec>,
+        E: IntoIterator<Item = EventSpec<F>>,
     {
         debug_assert!(self.spec.events.is_empty());
         Self {
@@ -171,7 +190,7 @@ impl<S> ContractSpecBuilder<S> {
     /// Sets the documentation of the contract specification.
     pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
@@ -182,11 +201,25 @@ impl<S> ContractSpecBuilder<S> {
             ..self
         }
     }
+
+    /// Sets the language error of the contract specification
+    pub fn lang_error(self, lang_error: TypeSpec<F>) -> Self {
+        Self {
+            spec: ContractSpec {
+                lang_error,
+                ..self.spec
+            },
+            ..self
+        }
+    }
 }
 
-impl ContractSpecBuilder<Valid> {
+impl<F> ContractSpecBuilder<F, Valid>
+where
+    F: Form,
+{
     /// Finalizes construction of the contract specification.
-    pub fn done(self) -> ContractSpec {
+    pub fn done(self) -> ContractSpec<F> {
         assert!(
             !self.spec.constructors.is_empty(),
             "must have at least one constructor"
@@ -199,15 +232,20 @@ impl ContractSpecBuilder<Valid> {
     }
 }
 
-impl ContractSpec {
+impl<F> ContractSpec<F>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+{
     /// Creates a new contract specification.
-    pub fn new() -> ContractSpecBuilder {
+    pub fn new() -> ContractSpecBuilder<F, Invalid> {
         ContractSpecBuilder {
             spec: Self {
                 constructors: Vec::new(),
                 messages: Vec::new(),
                 events: Vec::new(),
                 docs: Vec::new(),
+                lang_error: Default::default(),
             },
             marker: PhantomData,
         }
@@ -218,8 +256,9 @@ impl ContractSpec {
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
-    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned",
 ))]
+#[serde(rename_all = "camelCase")]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The label of the constructor.
     ///
@@ -231,6 +270,8 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub payable: bool,
     /// The parameters of the deployment handler.
     pub args: Vec<MessageParamSpec<F>>,
+    /// The return type of the constructor..
+    pub return_type: ReturnTypeSpec<F>,
     /// The deployment handler documentation.
     pub docs: Vec<F::String>,
 }
@@ -240,7 +281,7 @@ impl IntoPortable for ConstructorSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            label: self.label.into_portable(registry),
+            label: self.label.to_string(),
             selector: self.selector,
             payable: self.payable,
             args: self
@@ -248,7 +289,8 @@ impl IntoPortable for ConstructorSpec {
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: registry.map_into_portable(self.docs),
+            return_type: self.return_type.into_portable(registry),
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
@@ -264,7 +306,7 @@ where
         &self.label
     }
 
-    /// Returns the selector hash of the message.
+    /// Returns the selector hash of the constructor.
     pub fn selector(&self) -> &Selector {
         &self.selector
     }
@@ -277,6 +319,11 @@ where
     /// Returns the parameters of the deployment handler.
     pub fn args(&self) -> &[MessageParamSpec<F>] {
         &self.args
+    }
+
+    /// Returns the return type of the constructor.
+    pub fn return_type(&self) -> &ReturnTypeSpec<F> {
+        &self.return_type
     }
 
     /// Returns the deployment handler documentation.
@@ -292,23 +339,33 @@ where
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
+#[allow(clippy::type_complexity)]
 #[must_use]
-pub struct ConstructorSpecBuilder<Selector, IsPayable> {
-    spec: ConstructorSpec,
-    marker: PhantomData<fn() -> (Selector, IsPayable)>,
+pub struct ConstructorSpecBuilder<F: Form, Selector, IsPayable, Returns> {
+    spec: ConstructorSpec<F>,
+    marker: PhantomData<fn() -> (Selector, IsPayable, Returns)>,
 }
 
-impl ConstructorSpec {
+impl<F> ConstructorSpec<F>
+where
+    F: Form,
+{
     /// Creates a new constructor spec builder.
     pub fn from_label(
-        label: &'static str,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>, Missing<state::IsPayable>> {
+        label: <F as Form>::String,
+    ) -> ConstructorSpecBuilder<
+        F,
+        Missing<state::Selector>,
+        Missing<state::IsPayable>,
+        Missing<state::Returns>,
+    > {
         ConstructorSpecBuilder {
             spec: Self {
                 label,
                 selector: Selector::default(),
                 payable: Default::default(),
                 args: Vec::new(),
+                return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
             },
             marker: PhantomData,
@@ -316,12 +373,15 @@ impl ConstructorSpec {
     }
 }
 
-impl<P> ConstructorSpecBuilder<Missing<state::Selector>, P> {
+impl<F, P, R> ConstructorSpecBuilder<F, Missing<state::Selector>, P, R>
+where
+    F: Form,
+{
     /// Sets the function selector of the message.
     pub fn selector(
         self,
         selector: [u8; 4],
-    ) -> ConstructorSpecBuilder<state::Selector, P> {
+    ) -> ConstructorSpecBuilder<F, state::Selector, P, R> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 selector: selector.into(),
@@ -332,12 +392,15 @@ impl<P> ConstructorSpecBuilder<Missing<state::Selector>, P> {
     }
 }
 
-impl<S> ConstructorSpecBuilder<S, Missing<state::IsPayable>> {
+impl<F, S, R> ConstructorSpecBuilder<F, S, Missing<state::IsPayable>, R>
+where
+    F: Form,
+{
     /// Sets if the constructor is payable, thus accepting value for the caller.
     pub fn payable(
         self,
         is_payable: bool,
-    ) -> ConstructorSpecBuilder<S, state::IsPayable> {
+    ) -> ConstructorSpecBuilder<F, S, state::IsPayable, R> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 payable: is_payable,
@@ -348,11 +411,33 @@ impl<S> ConstructorSpecBuilder<S, Missing<state::IsPayable>> {
     }
 }
 
-impl<S, P> ConstructorSpecBuilder<S, P> {
+impl<F, S, P> ConstructorSpecBuilder<F, S, P, Missing<state::Returns>>
+where
+    F: Form,
+{
+    /// Sets the return type of the message.
+    pub fn returns(
+        self,
+        return_type: ReturnTypeSpec<F>,
+    ) -> ConstructorSpecBuilder<F, S, P, state::Returns> {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                return_type,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, S, P, R> ConstructorSpecBuilder<F, S, P, R>
+where
+    F: Form,
+{
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
     where
-        A: IntoIterator<Item = MessageParamSpec>,
+        A: IntoIterator<Item = MessageParamSpec<F>>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -361,20 +446,27 @@ impl<S, P> ConstructorSpecBuilder<S, P> {
     }
 
     /// Sets the documentation of the message specification.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().map(str::trim).collect::<Vec<_>>();
+        this.spec.docs = docs
+            .into_iter()
+            .map(|s| trim_extra_whitespace(s).into())
+            .collect::<Vec<_>>();
         this
     }
 }
 
-impl ConstructorSpecBuilder<state::Selector, state::IsPayable> {
+impl<F> ConstructorSpecBuilder<F, state::Selector, state::IsPayable, state::Returns>
+where
+    F: Form,
+{
     /// Finishes construction of the constructor.
-    pub fn done(self) -> ConstructorSpec {
+    pub fn done(self) -> ConstructorSpec<F> {
         self.spec
     }
 }
@@ -424,11 +516,15 @@ mod state {
     pub struct Returns;
 }
 
-impl MessageSpec {
+impl<F> MessageSpec<F>
+where
+    F: Form,
+{
     /// Creates a new message spec builder.
     pub fn from_label(
-        label: &'static str,
+        label: <F as Form>::String,
     ) -> MessageSpecBuilder<
+        F,
         Missing<state::Selector>,
         Missing<state::Mutates>,
         Missing<state::IsPayable>,
@@ -501,17 +597,23 @@ where
 /// debug code-gen macros.
 #[allow(clippy::type_complexity)]
 #[must_use]
-pub struct MessageSpecBuilder<Selector, Mutates, IsPayable, Returns> {
-    spec: MessageSpec,
+pub struct MessageSpecBuilder<F, Selector, Mutates, IsPayable, Returns>
+where
+    F: Form,
+{
+    spec: MessageSpec<F>,
     marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, Returns)>,
 }
 
-impl<M, P, R> MessageSpecBuilder<Missing<state::Selector>, M, P, R> {
+impl<F, M, P, R> MessageSpecBuilder<F, Missing<state::Selector>, M, P, R>
+where
+    F: Form,
+{
     /// Sets the function selector of the message.
     pub fn selector(
         self,
         selector: [u8; 4],
-    ) -> MessageSpecBuilder<state::Selector, M, P, R> {
+    ) -> MessageSpecBuilder<F, state::Selector, M, P, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 selector: selector.into(),
@@ -522,9 +624,15 @@ impl<M, P, R> MessageSpecBuilder<Missing<state::Selector>, M, P, R> {
     }
 }
 
-impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
+impl<F, S, P, R> MessageSpecBuilder<F, S, Missing<state::Mutates>, P, R>
+where
+    F: Form,
+{
     /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
-    pub fn mutates(self, mutates: bool) -> MessageSpecBuilder<S, state::Mutates, P, R> {
+    pub fn mutates(
+        self,
+        mutates: bool,
+    ) -> MessageSpecBuilder<F, S, state::Mutates, P, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 mutates,
@@ -535,12 +643,15 @@ impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
     }
 }
 
-impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
+impl<F, S, M, R> MessageSpecBuilder<F, S, M, Missing<state::IsPayable>, R>
+where
+    F: Form,
+{
     /// Sets if the message is payable, thus accepting value for the caller.
     pub fn payable(
         self,
         is_payable: bool,
-    ) -> MessageSpecBuilder<S, M, state::IsPayable, R> {
+    ) -> MessageSpecBuilder<F, S, M, state::IsPayable, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 payable: is_payable,
@@ -551,12 +662,15 @@ impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
     }
 }
 
-impl<M, S, P> MessageSpecBuilder<S, M, P, Missing<state::Returns>> {
+impl<F, M, S, P> MessageSpecBuilder<F, S, M, P, Missing<state::Returns>>
+where
+    F: Form,
+{
     /// Sets the return type of the message.
     pub fn returns(
         self,
-        return_type: ReturnTypeSpec,
-    ) -> MessageSpecBuilder<S, M, P, state::Returns> {
+        return_type: ReturnTypeSpec<F>,
+    ) -> MessageSpecBuilder<F, S, M, P, state::Returns> {
         MessageSpecBuilder {
             spec: MessageSpec {
                 return_type,
@@ -567,11 +681,14 @@ impl<M, S, P> MessageSpecBuilder<S, M, P, Missing<state::Returns>> {
     }
 }
 
-impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
+impl<F, S, M, P, R> MessageSpecBuilder<F, S, M, P, R>
+where
+    F: Form,
+{
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
     where
-        A: IntoIterator<Item = MessageParamSpec>,
+        A: IntoIterator<Item = MessageParamSpec<F>>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -582,7 +699,7 @@ impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     /// Sets the documentation of the message specification.
     pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -591,11 +708,19 @@ impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     }
 }
 
-impl
-    MessageSpecBuilder<state::Selector, state::Mutates, state::IsPayable, state::Returns>
+impl<F>
+    MessageSpecBuilder<
+        F,
+        state::Selector,
+        state::Mutates,
+        state::IsPayable,
+        state::Returns,
+    >
+where
+    F: Form,
 {
     /// Finishes construction of the message.
-    pub fn done(self) -> MessageSpec {
+    pub fn done(self) -> MessageSpec<F> {
         self.spec
     }
 }
@@ -605,7 +730,7 @@ impl IntoPortable for MessageSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            label: self.label.into_portable(registry),
+            label: self.label.to_string(),
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
@@ -615,7 +740,7 @@ impl IntoPortable for MessageSpec {
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
             return_type: self.return_type.into_portable(registry),
-            docs: registry.map_into_portable(self.docs),
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
@@ -637,15 +762,21 @@ pub struct EventSpec<F: Form = MetaForm> {
 
 /// An event specification builder.
 #[must_use]
-pub struct EventSpecBuilder {
-    spec: EventSpec,
+pub struct EventSpecBuilder<F>
+where
+    F: Form,
+{
+    spec: EventSpec<F>,
 }
 
-impl EventSpecBuilder {
+impl<F> EventSpecBuilder<F>
+where
+    F: Form,
+{
     /// Sets the input arguments of the event specification.
     pub fn args<A>(self, args: A) -> Self
     where
-        A: IntoIterator<Item = EventParamSpec>,
+        A: IntoIterator<Item = EventParamSpec<F>>,
     {
         let mut this = self;
         debug_assert!(this.spec.args.is_empty());
@@ -656,7 +787,7 @@ impl EventSpecBuilder {
     /// Sets the input arguments of the event specification.
     pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
@@ -665,7 +796,7 @@ impl EventSpecBuilder {
     }
 
     /// Finalizes building the event specification.
-    pub fn done(self) -> EventSpec {
+    pub fn done(self) -> EventSpec<F> {
         self.spec
     }
 }
@@ -675,20 +806,23 @@ impl IntoPortable for EventSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
-            label: self.label.into_portable(registry),
+            label: self.label.to_string(),
             args: self
                 .args
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: registry.map_into_portable(self.docs),
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
 
-impl EventSpec {
+impl<F> EventSpec<F>
+where
+    F: Form,
+{
     /// Creates a new event specification builder.
-    pub fn new(label: &'static str) -> EventSpecBuilder {
+    pub fn new(label: <F as Form>::String) -> EventSpecBuilder<F> {
         EventSpecBuilder {
             spec: Self {
                 label,
@@ -744,6 +878,14 @@ impl<'de> serde::Deserialize<'de> for Selector {
 }
 
 impl Selector {
+    /// Create a new custom selector.
+    pub fn new<T>(bytes: T) -> Self
+    where
+        T: Into<[u8; 4]>,
+    {
+        Self(bytes.into())
+    }
+
     /// Returns the underlying selector bytes.
     pub fn to_bytes(&self) -> &[u8] {
         &self.0
@@ -800,6 +942,21 @@ pub struct TypeSpec<F: Form = MetaForm> {
     display_name: DisplayName<F>,
 }
 
+impl Default for TypeSpec<MetaForm> {
+    fn default() -> Self {
+        TypeSpec::of_type::<()>()
+    }
+}
+
+impl Default for TypeSpec<PortableForm> {
+    fn default() -> Self {
+        Self {
+            ty: u32::default().into(),
+            display_name: Default::default(),
+        }
+    }
+}
+
 impl IntoPortable for TypeSpec {
     type Output = TypeSpec<PortableForm>;
 
@@ -850,12 +1007,18 @@ impl TypeSpec {
         Self {
             ty: meta_type::<T>(),
             display_name: DisplayName::from_segments(segments)
-                .expect("display name is invalid"),
+                .unwrap_or_else(|err| panic!("display name is invalid: {err:?}")),
         }
     }
 
     /// Creates a new type specification without a display name.
-    pub fn new<T>() -> Self
+    ///
+    /// Example:
+    /// ```no_run
+    /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
+    /// ReturnTypeSpec::new(TypeSpec::of_type::<i32>()); // return type of `i32`
+    /// ```
+    pub fn of_type<T>() -> Self
     where
         T: TypeInfo + 'static,
     {
@@ -878,6 +1041,11 @@ where
     /// Returns the compile-time known displayed representation of the type.
     pub fn display_name(&self) -> &DisplayName<F> {
         &self.display_name
+    }
+
+    /// Creates a new type specification for a given type and display name.
+    pub fn new(ty: <F as Form>::Type, display_name: DisplayName<F>) -> Self {
+        Self { ty, display_name }
     }
 }
 
@@ -904,27 +1072,10 @@ impl IntoPortable for EventParamSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventParamSpec {
-            label: self.label.into_portable(registry),
+            label: self.label.to_string(),
             indexed: self.indexed,
             ty: self.ty.into_portable(registry),
-            docs: registry.map_into_portable(self.docs),
-        }
-    }
-}
-
-impl EventParamSpec {
-    /// Creates a new event parameter specification builder.
-    pub fn new(label: &'static str) -> EventParamSpecBuilder {
-        EventParamSpecBuilder {
-            spec: Self {
-                label,
-                // By default event parameters are not indexed.
-                indexed: false,
-                // We initialize every parameter type as `()`.
-                ty: TypeSpec::new::<()>(),
-                // We start with empty docs.
-                docs: vec![],
-            },
+            docs: self.docs.into_iter().map(|s| s.into()).collect(),
         }
     }
 }
@@ -932,7 +1083,22 @@ impl EventParamSpec {
 impl<F> EventParamSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
+    /// Creates a new event parameter specification builder.
+    pub fn new(label: F::String) -> EventParamSpecBuilder<F> {
+        EventParamSpecBuilder {
+            spec: Self {
+                label,
+                // By default event parameters are not indexed.
+                indexed: false,
+                // We initialize every parameter type as `()`.
+                ty: Default::default(),
+                // We start with empty docs.
+                docs: vec![],
+            },
+        }
+    }
     /// Returns the label of the parameter.
     pub fn label(&self) -> &F::String {
         &self.label
@@ -956,14 +1122,20 @@ where
 
 /// Used to construct an event parameter specification.
 #[must_use]
-pub struct EventParamSpecBuilder {
+pub struct EventParamSpecBuilder<F>
+where
+    F: Form,
+{
     /// The built-up event parameter specification.
-    spec: EventParamSpec,
+    spec: EventParamSpec<F>,
 }
 
-impl EventParamSpecBuilder {
+impl<F> EventParamSpecBuilder<F>
+where
+    F: Form,
+{
     /// Sets the type of the event parameter.
-    pub fn of_type(self, spec: TypeSpec) -> Self {
+    pub fn of_type(self, spec: TypeSpec<F>) -> Self {
         let mut this = self;
         this.spec.ty = spec;
         this
@@ -979,7 +1151,7 @@ impl EventParamSpecBuilder {
     /// Sets the documentation of the event parameter.
     pub fn docs<D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = &'static str>,
+        D: IntoIterator<Item = <F as Form>::String>,
     {
         debug_assert!(self.spec.docs.is_empty());
         Self {
@@ -991,7 +1163,7 @@ impl EventParamSpecBuilder {
     }
 
     /// Finishes constructing the event parameter spec.
-    pub fn done(self) -> EventParamSpec {
+    pub fn done(self) -> EventParamSpec<F> {
         self.spec
     }
 }
@@ -1003,6 +1175,7 @@ impl EventParamSpecBuilder {
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
+#[must_use]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
     opt_type: Option<TypeSpec<F>>,
@@ -1020,31 +1193,27 @@ impl IntoPortable for ReturnTypeSpec {
     }
 }
 
-impl ReturnTypeSpec {
+impl<F> ReturnTypeSpec<F>
+where
+    F: Form,
+{
     /// Creates a new return type specification from the given type or `None`.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// # use ink_metadata::{TypeSpec, ReturnTypeSpec};
-    /// ReturnTypeSpec::new(None); // no return type;
-    /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
+    /// <ReturnTypeSpec<scale_info::form::MetaForm>>::new(None); // no return type;
     /// ```
-    #[must_use]
     pub fn new<T>(ty: T) -> Self
     where
-        T: Into<Option<TypeSpec>>,
+        T: Into<Option<TypeSpec<F>>>,
     {
         Self {
             opt_type: ty.into(),
         }
     }
-}
 
-impl<F> ReturnTypeSpec<F>
-where
-    F: Form,
-{
     /// Returns the optional return type
     pub fn opt_type(&self) -> Option<&TypeSpec<F>> {
         self.opt_type.as_ref()
@@ -1070,21 +1239,8 @@ impl IntoPortable for MessageParamSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
-            label: self.label.into_portable(registry),
+            label: self.label.to_string(),
             ty: self.ty.into_portable(registry),
-        }
-    }
-}
-
-impl MessageParamSpec {
-    /// Constructs a new message parameter specification via builder.
-    pub fn new(label: &'static str) -> MessageParamSpecBuilder {
-        MessageParamSpecBuilder {
-            spec: Self {
-                label,
-                // Uses `()` type by default.
-                ty: TypeSpec::new::<()>(),
-            },
         }
     }
 }
@@ -1092,7 +1248,19 @@ impl MessageParamSpec {
 impl<F> MessageParamSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
+    /// Constructs a new message parameter specification via builder.
+    pub fn new(label: F::String) -> MessageParamSpecBuilder<F> {
+        MessageParamSpecBuilder {
+            spec: Self {
+                label,
+                // Uses `()` type by default.
+                ty: TypeSpec::default(),
+            },
+        }
+    }
+
     /// Returns the label of the parameter.
     pub fn label(&self) -> &F::String {
         &self.label
@@ -1106,21 +1274,24 @@ where
 
 /// Used to construct a message parameter specification.
 #[must_use]
-pub struct MessageParamSpecBuilder {
+pub struct MessageParamSpecBuilder<F: Form> {
     /// The to-be-constructed message parameter specification.
-    spec: MessageParamSpec,
+    spec: MessageParamSpec<F>,
 }
 
-impl MessageParamSpecBuilder {
+impl<F> MessageParamSpecBuilder<F>
+where
+    F: Form,
+{
     /// Sets the type of the message parameter.
-    pub fn of_type(self, ty: TypeSpec) -> Self {
+    pub fn of_type(self, ty: TypeSpec<F>) -> Self {
         let mut this = self;
         this.spec.ty = ty;
         this
     }
 
     /// Finishes construction of the message parameter.
-    pub fn done(self) -> MessageParamSpec {
+    pub fn done(self) -> MessageParamSpec<F> {
         self.spec
     }
 }

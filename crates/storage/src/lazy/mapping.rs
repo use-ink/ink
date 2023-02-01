@@ -20,37 +20,34 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
-    pull_packed_root_opt,
-    push_packed_root,
-    ExtKeyPtr,
-    KeyPtr,
-    PackedLayout,
-    SpreadAllocate,
-    SpreadLayout,
+    AutoKey,
+    Packed,
+    StorableHint,
+    StorageKey,
 };
 use core::marker::PhantomData;
-
-use ink_env::hash::{
-    Blake2x256,
-    HashOutput,
-};
 use ink_primitives::Key;
+use ink_storage_traits::Storable;
+use scale::{
+    Encode,
+    Error,
+    Input,
+    Output,
+};
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
 /// # Important
 ///
-/// If you use this data structure you must use the function
-/// [`ink_lang::utils::initialize_contract`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html)
-/// in your contract's constructors!
-///
-/// Note that in order to use this function your contract's storage struct must implement the
-/// [`SpreadAllocate`](crate::traits::SpreadAllocate) trait.
+/// The mapping requires its own pre-defined storage key where to store values. By default,
+/// the is automatically calculated using [`AutoKey`](crate::traits::AutoKey) during compilation.
+/// However, anyone can specify a storage key using [`ManualKey`](crate::traits::ManualKey).
+/// Specifying the storage key can be helpful for upgradeable contracts or you want to be resistant
+/// to future changes of storage key calculation strategy.
 ///
 /// This is an example of how you can do this:
 /// ```rust
-/// # use ink_lang as ink;
-/// # use ink_env::{
+/// # use ink::env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
 /// # };
@@ -58,26 +55,24 @@ use ink_primitives::Key;
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink_storage::{traits::SpreadAllocate, Mapping};
+/// use ink::storage::{traits::ManualKey, Mapping};
 ///
 /// #[ink(storage)]
-/// #[derive(SpreadAllocate)]
+/// #[derive(Default)]
 /// pub struct MyContract {
-///     balances: Mapping<AccountId, Balance>,
+///     balances: Mapping<AccountId, Balance, ManualKey<123>>,
 /// }
 ///
 /// impl MyContract {
 ///     #[ink(constructor)]
 ///     pub fn new() -> Self {
-///         ink_lang::utils::initialize_contract(Self::new_init)
-///     }
-///
-///     /// Default initializes the contract.
-///     fn new_init(&mut self) {
+///         let mut instance = Self::default();
 ///         let caller = Self::env().caller();
 ///         let value: Balance = Default::default();
-///         self.balances.insert(&caller, &value);
+///         instance.balances.insert(&caller, &value);
+///         instance
 ///     }
+///
 /// #   #[ink(message)]
 /// #   pub fn my_message(&self) { }
 /// }
@@ -86,64 +81,63 @@ use ink_primitives::Key;
 ///
 /// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Mapping<K, V> {
-    offset_key: Key,
-    _marker: PhantomData<fn() -> (K, V)>,
+pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
+    #[allow(clippy::type_complexity)]
+    _marker: PhantomData<fn() -> (K, V, KeyType)>,
 }
 
 /// We implement this manually because the derived implementation adds trait bounds.
-impl<K, V> Default for Mapping<K, V> {
+impl<K, V, KeyType> Default for Mapping<K, V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
     fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<K, V, KeyType> Mapping<K, V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    /// Creates a new empty `Mapping`.
+    pub const fn new() -> Self {
         Self {
-            offset_key: Default::default(),
-            _marker: Default::default(),
+            _marker: PhantomData,
         }
     }
 }
 
-impl<K, V> core::fmt::Debug for Mapping<K, V> {
+impl<K, V, KeyType> ::core::fmt::Debug for Mapping<K, V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("Mapping")
-            .field("offset_key", &self.offset_key)
+            .field("key", &KeyType::KEY)
             .finish()
     }
 }
 
-impl<K, V> Mapping<K, V> {
-    /// Creates a new empty `Mapping`.
-    fn new(offset_key: Key) -> Self {
-        Self {
-            offset_key,
-            _marker: Default::default(),
-        }
-    }
-}
-
-impl<K, V> Mapping<K, V>
+impl<K, V, KeyType> Mapping<K, V, KeyType>
 where
-    K: PackedLayout,
-    V: PackedLayout,
+    K: Encode,
+    V: Packed,
+    KeyType: StorageKey,
 {
     /// Insert the given `value` to the contract storage.
-    #[inline]
-    pub fn insert<Q, R>(&mut self, key: Q, value: &R)
-    where
-        Q: scale::EncodeLike<K>,
-        R: scale::EncodeLike<V> + PackedLayout,
-    {
-        push_packed_root(value, &self.storage_key(&key));
-    }
-
-    /// Insert the given `value` to the contract storage.
     ///
-    /// Returns the size of the pre-existing value at the specified key if any.
+    /// Returns the size in bytes of the pre-existing value at the specified key if any.
     #[inline]
-    pub fn insert_return_size<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
-        R: scale::EncodeLike<V> + PackedLayout,
+        R: Storable + scale::EncodeLike<V>,
     {
-        push_packed_root(value, &self.storage_key(&key))
+        ink_env::set_contract_storage(&(&KeyType::KEY, key), value)
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -154,104 +148,108 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        pull_packed_root_opt(&self.storage_key(&key))
+        ink_env::get_contract_storage(&(&KeyType::KEY, key))
+            .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {error:?}"))
+    }
+
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
+    /// **WARNING**: this method uses the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+    /// which is unsafe and normally is not available on production chains.
+    #[inline]
+    pub fn take<Q>(&self, key: Q) -> Option<V>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        ink_env::take_contract_storage(&(&KeyType::KEY, key))
+            .unwrap_or_else(|error| panic!("Failed to take value in Mapping: {error:?}"))
     }
 
     /// Get the size of a value stored at `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
-    pub fn contains<Q>(&self, key: Q) -> Option<u32>
+    pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
     {
-        ink_env::contract_storage_contains(&self.storage_key(&key))
+        ink_env::contains_contract_storage(&(&KeyType::KEY, key))
+    }
+
+    /// Checks if a value is stored at the given `key` in the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
+    #[inline]
+    pub fn contains<Q>(&self, key: Q) -> bool
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        ink_env::contains_contract_storage(&(&KeyType::KEY, key)).is_some()
     }
 
     /// Clears the value at `key` from storage.
+    #[inline]
     pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
     {
-        let storage_key = self.storage_key(&key);
-        if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
-            // There are types which need to perform some action before being cleared. Here we
-            // indicate to those types that they should start tidying up.
-            if let Some(value) = self.get(key) {
-                <V as PackedLayout>::clear_packed(&value, &storage_key);
-            }
-        }
-        ink_env::clear_contract_storage(&storage_key);
-    }
-
-    /// Returns a `Key` pointer used internally by the storage API.
-    ///
-    /// This key is a combination of the `Mapping`'s internal `offset_key`
-    /// and the user provided `key`.
-    fn storage_key<Q>(&self, key: &Q) -> Key
-    where
-        Q: scale::EncodeLike<K>,
-    {
-        let encodedable_key = (&self.offset_key, key);
-        let mut output = <Blake2x256 as HashOutput>::Type::default();
-        ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
-        output.into()
+        ink_env::clear_contract_storage(&(&KeyType::KEY, key));
     }
 }
 
-impl<K, V> SpreadLayout for Mapping<K, V> {
-    const FOOTPRINT: u64 = 1;
-    const REQUIRES_DEEP_CLEAN_UP: bool = false;
+impl<K, V, KeyType> Storable for Mapping<K, V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    #[inline]
+    fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
 
     #[inline]
-    fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        // Note: There is no need to pull anything from the storage for the
-        //       mapping type since it initializes itself entirely by the
-        //       given key pointer.
-        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
-    }
-
-    #[inline]
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        // Note: The mapping type does not store any state in its associated
-        //       storage region, therefore only the pointer has to be incremented.
-        ptr.advance_by(Self::FOOTPRINT);
-    }
-
-    #[inline]
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        // Note: The mapping type is not aware of its elements, therefore
-        //       it is not possible to clean up after itself.
-        ptr.advance_by(Self::FOOTPRINT);
+    fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
+        Ok(Default::default())
     }
 }
 
-impl<K, V> SpreadAllocate for Mapping<K, V> {
-    #[inline]
-    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        // Note: The mapping type initializes itself entirely by the key pointer.
-        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
-    }
+impl<K, V, Key, InnerKey> StorableHint<Key> for Mapping<K, V, InnerKey>
+where
+    V: Packed,
+    Key: StorageKey,
+    InnerKey: StorageKey,
+{
+    type Type = Mapping<K, V, Key>;
+    type PreferredKey = InnerKey;
+}
+
+impl<K, V, KeyType> StorageKey for Mapping<K, V, KeyType>
+where
+    V: Packed,
+    KeyType: StorageKey,
+{
+    const KEY: Key = KeyType::KEY;
 }
 
 #[cfg(feature = "std")]
 const _: () = {
     use crate::traits::StorageLayout;
     use ink_metadata::layout::{
-        CellLayout,
         Layout,
         LayoutKey,
+        RootLayout,
     };
 
-    impl<K, V> StorageLayout for Mapping<K, V>
+    impl<K, V, KeyType> StorageLayout for Mapping<K, V, KeyType>
     where
         K: scale_info::TypeInfo + 'static,
-        V: scale_info::TypeInfo + 'static,
+        V: Packed + StorageLayout + scale_info::TypeInfo + 'static,
+        KeyType: StorageKey + scale_info::TypeInfo + 'static,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
-                key_ptr.advance_by(1),
-            )))
+        fn layout(_: &Key) -> Layout {
+            Layout::Root(RootLayout::new(
+                LayoutKey::from(&KeyType::KEY),
+                <V as StorageLayout>::layout(&KeyType::KEY),
+            ))
         }
     }
 };
@@ -259,13 +257,28 @@ const _: () = {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::traits::ManualKey;
 
     #[test]
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping: Mapping<u8, _> = Mapping::new([0u8; 32].into());
-            mapping.insert(&1, &2);
-            assert_eq!(mapping.get(&1), Some(2));
+            let mut mapping: Mapping<u8, _> = Mapping::new();
+            mapping.insert(1, &2);
+            assert_eq!(mapping.get(1), Some(2));
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
+            mapping.insert(1, &2);
+
+            let mapping2: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
+            assert_eq!(mapping2.get(1), Some(2));
 
             Ok(())
         })
@@ -275,8 +288,32 @@ mod tests {
     #[test]
     fn gets_default_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            assert_eq!(mapping.get(&1), None);
+            let mapping: Mapping<u8, u8> = Mapping::new();
+            assert_eq!(mapping.get(1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn insert_and_take_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, _> = Mapping::new();
+            mapping.insert(1, &2);
+            assert_eq!(mapping.take(1), Some(2));
+            assert!(mapping.get(1).is_none());
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn take_empty_value_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mapping: Mapping<u8, u8> = Mapping::new();
+            assert_eq!(mapping.take(1), None);
 
             Ok(())
         })
@@ -286,26 +323,17 @@ mod tests {
     #[test]
     fn can_clear_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
-            use crate::Pack;
-
             // Given
-            let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            let mut deep_mapping: Mapping<u8, Pack<u8>> = Mapping::new([1u8; 32].into());
+            let mut mapping: Mapping<u8, u8> = Mapping::new();
 
-            mapping.insert(&1, &2);
-            assert_eq!(mapping.get(&1), Some(2));
-
-            deep_mapping.insert(&1u8, &Pack::new(Pack::new(2u8)));
-            assert_eq!(deep_mapping.get(&1), Some(Pack::new(2u8)));
+            mapping.insert(1, &2);
+            assert_eq!(mapping.get(1), Some(2));
 
             // When
-            mapping.remove(&1);
-            deep_mapping.remove(&1);
+            mapping.remove(1);
 
             // Then
-            assert_eq!(mapping.get(&1), None);
-            assert_eq!(deep_mapping.get(&1), None);
+            assert_eq!(mapping.get(1), None);
 
             Ok(())
         })
@@ -315,20 +343,14 @@ mod tests {
     #[test]
     fn can_clear_unexistent_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
-            use crate::Pack;
-
             // Given
-            let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            let deep_mapping: Mapping<u8, Pack<u8>> = Mapping::new([1u8; 32].into());
+            let mapping: Mapping<u8, u8> = Mapping::new();
 
             // When
-            mapping.remove(&1);
-            deep_mapping.remove(&1);
+            mapping.remove(1);
 
             // Then
-            assert_eq!(mapping.get(&1), None);
-            assert_eq!(deep_mapping.get(&1), None);
+            assert_eq!(mapping.get(1), None);
 
             Ok(())
         })

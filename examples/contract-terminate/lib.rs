@@ -4,8 +4,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::new_without_default)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod just_terminates {
     /// No storage is needed for this simple contract.
@@ -29,16 +27,15 @@ pub mod just_terminates {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn terminating_works() {
             // given
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
-            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.alice);
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            let contract_id = ink::env::test::callee::<ink::env::DefaultEnvironment>();
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.alice);
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 contract_id,
                 100,
             );
@@ -48,11 +45,57 @@ pub mod just_terminates {
             let should_terminate = move || contract.terminate_me();
 
             // then
-            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+            ink::env::test::assert_contract_termination::<ink::env::DefaultEnvironment, _>(
                 should_terminate,
                 accounts.alice,
                 100,
             );
+        }
+    }
+
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::JustTerminateRef;
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn e2e_contract_terminates(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = JustTerminateRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "contract_terminate",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let terminate_me =
+                ink_e2e::build_message::<JustTerminateRef>(contract_acc_id)
+                    .call(|contract| contract.terminate_me());
+            let call_res = client
+                .call(&ink_e2e::alice(), terminate_me, 0, None)
+                .await
+                .expect("terminate_me messages failed");
+
+            assert!(
+                call_res.return_data().is_empty(),
+                "Terminated contract never returns"
+            );
+
+            // then
+            assert!(call_res.contains_event("System", "KilledAccount"));
+            assert!(call_res.contains_event("Balances", "Withdraw"));
+            assert!(call_res.contains_event("Contracts", "Terminated"));
+
+            Ok(())
         }
     }
 }

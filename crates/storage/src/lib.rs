@@ -20,12 +20,15 @@
 //! FFI to interface with FRAME contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     missing_docs,
     bad_style,
     bare_trait_objects,
-    const_err,
     improper_ctypes,
     non_shorthand_field_patterns,
     no_mangle_generic_items,
@@ -43,33 +46,13 @@
     unused_extern_crates
 )]
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
+pub use ink_storage_traits as traits;
 
-pub mod traits;
-
-// Tracking issue [#1119]: We allow `dead_code` here since we're purposefully hiding the
-// collections and will remove them at a later time.
-#[allow(dead_code)]
-pub(crate) mod collections;
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
-mod pack;
-
-#[cfg(test)]
-mod hashmap_entry_api_tests;
-
-#[cfg(test)]
-mod test_utils;
-
 #[doc(inline)]
-pub use self::lazy::Mapping;
-
-#[doc(inline)]
-pub(crate) use self::{
-    collections::Vec,
-    lazy::Lazy,
-    pack::Pack,
+pub use self::lazy::{
+    Lazy,
+    Mapping,
 };

@@ -20,12 +20,15 @@
 //! FFI to interface with FRAME contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
 
+#![doc(
+    html_logo_url = "https://use.ink/img/crate-docs/logo.png",
+    html_favicon_url = "https://use.ink/crate-docs/favicon.png"
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     missing_docs,
     bad_style,
     bare_trait_objects,
-    const_err,
     improper_ctypes,
     non_shorthand_field_patterns,
     no_mangle_generic_items,
@@ -70,6 +73,7 @@ mod arithmetic;
 mod backend;
 pub mod call;
 pub mod chain_extension;
+mod contract;
 mod engine;
 mod error;
 pub mod hash;
@@ -94,21 +98,24 @@ pub use self::{
         CallFlags,
         ReturnFlags,
     },
+    contract::{
+        ContractEnv,
+        ContractReference,
+    },
     error::{
         Error,
         Result,
     },
     topics::Topics,
     types::{
-        AccountId,
-        Clear,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
-        Hash,
+        Gas,
         NoChainExtension,
     },
 };
+use ink_primitives::Clear;
 
 cfg_if::cfg_if! {
     if #[cfg(any(feature = "ink-debug", feature = "std"))] {
@@ -127,7 +134,7 @@ cfg_if::cfg_if! {
         ///
         /// # Note
         ///
-        /// This depends on the `seal_debug_message` interface which requires the
+        /// This depends on the `debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_print {
@@ -139,7 +146,7 @@ cfg_if::cfg_if! {
         ///
         /// # Note
         ///
-        /// This depends on the `seal_debug_message` interface which requires the
+        /// This depends on the `debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
         #[macro_export]
         macro_rules! debug_println {

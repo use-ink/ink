@@ -23,8 +23,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     engine::{
         EnvInstance,
@@ -39,7 +41,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_storage_traits::Storable;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -183,49 +185,73 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key and returns
-/// the size of pre-existing value at the specified key if any.
+/// Writes the value to the contract storage under the given storage key and returns the size
+/// of pre-existing value if any.
 ///
 /// # Panics
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V) -> Option<u32>
+pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
 where
-    V: scale::Encode,
+    K: scale::Encode,
+    V: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<K, V>(instance, key, value)
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
+/// Returns the value stored under the given storage key in the contract's storage if any.
 ///
 /// # Errors
 ///
 /// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
+pub fn get_contract_storage<K, R>(key: &K) -> Result<Option<R>>
 where
-    R: scale::Decode,
+    K: scale::Encode,
+    R: Storable,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<R>(instance, key)
+        EnvBackend::get_contract_storage::<K, R>(instance, key)
     })
 }
 
-/// Checks whether there is a value stored under the given key in
-/// the contract's storage.
+/// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+///
+/// # Errors
+///
+/// - If the decoding of the typed value failed (`KeyNotFound`)
+pub fn take_contract_storage<K, R>(key: &K) -> Result<Option<R>>
+where
+    K: scale::Encode,
+    R: Storable,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::take_contract_storage::<K, R>(instance, key)
+    })
+}
+
+/// Checks whether there is a value stored under the given storage key in the contract's storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
-pub fn contract_storage_contains(key: &Key) -> Option<u32> {
+pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
+where
+    K: scale::Encode,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::contract_storage_contains(instance, key)
+        EnvBackend::contains_contract_storage::<K>(instance, key)
     })
 }
 
-/// Clears the contract's storage key entry.
-pub fn clear_contract_storage(key: &Key) {
+/// Clears the contract's storage entry under the given storage key.
+///
+/// If a value was stored under the specified storage key, the size of the value is returned.
+pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
+where
+    K: scale::Encode,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage(instance, key)
+        EnvBackend::clear_contract_storage::<K>(instance, key)
     })
 }
 
@@ -244,7 +270,9 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<E, Args, R>(params: &CallParams<E, Call<E>, Args, R>) -> Result<R>
+pub fn invoke_contract<E, Args, R>(
+    params: &CallParams<E, Call<E>, Args, R>,
+) -> Result<ink_primitives::MessageResult<R>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -285,7 +313,9 @@ where
 /// # Note
 ///
 /// This is a low level way to instantiate another smart contract.
-/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// through [`build_create`](`crate::call::build_create`) instead.
 ///
 /// # Errors
 ///
@@ -295,16 +325,22 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<E, Args, Salt, C>(
-    params: &CreateParams<E, Args, Salt, C>,
-) -> Result<E::AccountId>
+pub fn instantiate_contract<E, ContractRef, Args, Salt, R>(
+    params: &CreateParams<E, ContractRef, Args, Salt, R>,
+) -> Result<
+    ink_primitives::ConstructorResult<<R as ConstructorReturnType<ContractRef>>::Output>,
+>
 where
     E: Environment,
+    ContractRef: FromAccountId<E>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
+    R: ConstructorReturnType<ContractRef>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<E, Args, Salt, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, ContractRef, Args, Salt, R>(
+            instance, params,
+        )
     })
 }
 
@@ -396,34 +432,6 @@ where
     })
 }
 
-/// Returns a random hash seed and the block number since which it was determinable
-/// by chain observers.
-///
-/// # Note
-///
-/// - The subject buffer can be used to further randomize the hash.
-/// - Within the same execution returns the same random hash for the same subject.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-///
-/// # Important
-///
-/// The returned seed should only be used to distinguish commitments made before
-/// the returned block number. If the block number is too early (i.e. commitments were
-/// made afterwards), then ensure no further commitments may be made and repeatedly
-/// call this on later blocks until the block number returned is later than the latest
-/// commitment.
-pub fn random<E>(subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-where
-    E: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::random::<E>(instance, subject)
-    })
-}
-
 /// Appends the given message to the debug message buffer.
 pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -482,20 +490,18 @@ where
 ///
 /// ```
 /// const signature: [u8; 65] = [
-///     161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,
-///     162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
-///      33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
-///     211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
-///      28,
+///     195, 218, 227, 165, 226, 17, 25, 160, 37, 92, 142, 238, 4, 41, 244, 211, 18, 94,
+///     131, 116, 231, 116, 255, 164, 252, 248, 85, 233, 173, 225, 26, 185, 119, 235,
+///     137, 35, 204, 251, 134, 131, 186, 215, 76, 112, 17, 192, 114, 243, 102, 166, 176,
+///     140, 180, 124, 213, 102, 117, 212, 89, 89, 92, 209, 116, 17, 28,
 /// ];
 /// const message_hash: [u8; 32] = [
-///     162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
-///     239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
+///     167, 124, 116, 195, 220, 156, 244, 20, 243, 69, 1, 98, 189, 205, 79, 108, 213,
+///     78, 65, 65, 230, 30, 17, 37, 184, 220, 237, 135, 1, 209, 101, 229,
 /// ];
 /// const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
-///       2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
-///       7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
-///     152,
+///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
+///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
 /// ];
 /// let mut output = [0; 33];
 /// ink_env::ecdsa_recover(&signature, &message_hash, &mut output);
@@ -517,13 +523,12 @@ pub fn ecdsa_recover(
 ///
 /// ```
 /// let pub_key = [
-///     2, 141, 181, 91, 5, 219, 134, 192, 177, 120, 108, 164, 159, 9, 93, 118,
-///     52, 76, 158, 96, 86, 178, 240, 39, 1, 167, 231, 243, 194, 10, 171, 253,
-///     145,
+///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
+///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
 /// ];
 ///  let EXPECTED_ETH_ADDRESS = [
-///     9, 35, 29, 167, 177, 154, 1, 111, 158, 87, 109, 35, 177, 98, 119, 6, 47,
-///     77, 70, 168,
+///     253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
+///     37, 21, 191,
 /// ];
 /// let mut output = [0; 20];
 /// ink_env::ecdsa_to_eth_address(&pub_key, &mut output);
@@ -618,12 +623,80 @@ where
 ///
 /// 3. If a contract calls into itself after changing its code the new call would use
 /// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `seal_set_code_hash` and the next caller would use
+/// would revert the changes made by `set_code_hash` and the next caller would use
 /// the old code.
 ///
 /// # Errors
 ///
 /// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+///
+/// # Storage Compatibility
+///
+/// When the smart contract code is modified,
+/// it is important to observe an additional virtual restriction
+/// that is imposed on this procedure:
+/// you should not change the order in which the contract state variables
+/// are declared, nor their type.
+///
+/// Violating the restriction will not prevent a successful compilation,
+/// but will result in the mix-up of values or failure to read the storage correctly.
+/// This can result in severe errors in the application utilizing the contract.
+///
+/// If the storage of your contract looks like this:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// The procedures listed below will make it invalid:
+///
+/// Changing the order of variables:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     y: bool,
+///     x: u32,
+/// }
+/// ```
+///
+/// Removing existing variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+/// }
+/// ```
+///
+/// Changing type of a variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u64,
+///     y: bool,
+/// }
+/// ```
+///
+/// Introducing a new variable before any of the existing ones:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     z: Vec<u32>,
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// Please refer to the
+/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }

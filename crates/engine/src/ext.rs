@@ -31,10 +31,6 @@ use crate::{
         BlockTimestamp,
     },
 };
-use rand::{
-    Rng,
-    SeedableRng,
-};
 use scale::Encode;
 use std::panic::panic_any;
 
@@ -77,11 +73,11 @@ macro_rules! define_error_codes {
 define_error_codes! {
     /// The called function trapped and has its state changes reverted.
     /// In this case no output buffer is returned.
-    /// Can only be returned from `seal_call` and `seal_instantiate`.
+    /// Can only be returned from `call` and `instantiate`.
     CalleeTrapped = 1,
     /// The called function ran to completion but decided to revert its state.
     /// An output buffer is returned when one was supplied.
-    /// Can only be returned from `seal_call` and `seal_instantiate`.
+    /// Can only be returned from `call` and `instantiate`.
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
@@ -96,7 +92,7 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is no contract.
     NotCallable = 8,
-    /// The call to `seal_debug_message` had no effect because debug message
+    /// The call to `debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
@@ -204,7 +200,7 @@ impl Engine {
     pub fn deposit_event(&mut self, topics: &[u8], data: &[u8]) {
         // The first byte contains the number of topics in the slice
         let topics_count: scale::Compact<u32> = scale::Decode::decode(&mut &topics[0..1])
-            .expect("decoding number of topics failed");
+            .unwrap_or_else(|err| panic!("decoding number of topics failed: {err}"));
         let topics_count = topics_count.0 as usize;
 
         let topics_vec = if topics_count > 0 {
@@ -229,7 +225,7 @@ impl Engine {
 
     /// Writes the encoded value into the storage at the given key.
     /// Returns the size of the previously stored value at the key if any.
-    pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) -> Option<u32> {
+    pub fn set_storage(&mut self, key: &[u8], encoded_value: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
@@ -243,7 +239,7 @@ impl Engine {
     }
 
     /// Returns the decoded contract storage at the key if any.
-    pub fn get_storage(&mut self, key: &[u8; 32], output: &mut &mut [u8]) -> Result {
+    pub fn get_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
@@ -257,15 +253,45 @@ impl Engine {
         }
     }
 
+    /// Removes the storage entries at the given key,
+    /// returning previously stored value at the key if any.
+    pub fn take_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
+        let callee = self.get_callee();
+        let account_id = AccountId::from_bytes(&callee[..]);
+
+        self.debug_info.inc_writes(account_id);
+        match self.database.remove_contract_storage(&callee, key) {
+            Some(val) => {
+                set_output(output, &val);
+                Ok(())
+            }
+            None => Err(Error::KeyNotFound),
+        }
+    }
+
+    /// Returns the size of the value stored in the contract storage at the key if any.
+    pub fn contains_storage(&mut self, key: &[u8]) -> Option<u32> {
+        let callee = self.get_callee();
+        let account_id = AccountId::from_bytes(&callee[..]);
+
+        self.debug_info.inc_reads(account_id);
+        self.database
+            .get_from_contract_storage(&callee, key)
+            .map(|val| val.len() as u32)
+    }
+
     /// Removes the storage entries at the given key.
-    pub fn clear_storage(&mut self, key: &[u8; 32]) {
+    /// Returns the size of the previously stored value at the key if any.
+    pub fn clear_storage(&mut self, key: &[u8]) -> Option<u32> {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
         self.debug_info.inc_writes(account_id.clone());
         let _ = self
             .debug_info
             .remove_cell_for_account(account_id, key.to_vec());
-        let _ = self.database.remove_contract_storage(&callee, key);
+        self.database
+            .remove_contract_storage(&callee, key)
+            .map(|val| val.len() as u32)
     }
 
     /// Remove the calling account and transfer remaining balance.
@@ -276,10 +302,12 @@ impl Engine {
     pub fn terminate(&mut self, beneficiary: &[u8]) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
-        let all = self.get_balance(contract).expect("could not get balance");
+        let all = self
+            .get_balance(contract)
+            .unwrap_or_else(|err| panic!("could not get balance: {err:?}"));
         let value = &scale::Encode::encode(&all)[..];
         self.transfer(beneficiary, value)
-            .expect("transfer did not work");
+            .unwrap_or_else(|err| panic!("transfer did not work: {err:?}"));
 
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
@@ -336,7 +364,7 @@ impl Engine {
     /// Records the given debug message and appends to stdout.
     pub fn debug_message(&mut self, message: &str) {
         self.debug_info.record_debug_message(String::from(message));
-        print!("{}", message);
+        print!("{message}");
     }
 
     /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
@@ -417,34 +445,6 @@ impl Engine {
         set_output(output, &fee[..])
     }
 
-    /// Returns a randomized hash.
-    ///
-    /// # Note
-    ///
-    /// - This is the off-chain environment implementation of `random`.
-    ///   It provides the same behavior in that it will likely yield the
-    ///   same hash for the same subjects within the same block (or
-    ///   execution context).
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    ///    let engine = ink_engine::ext::Engine::default();
-    ///    let subject = [0u8; 32];
-    ///    let mut output = [0u8; 32];
-    ///    engine.random(&subject, &mut output.as_mut_slice());
-    /// ```
-    pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
-        let seed = (self.exec_context.entropy, subject).encode();
-        let mut digest = [0u8; 32];
-        Engine::hash_blake2_256(&seed, &mut digest);
-
-        let mut rng = rand::rngs::StdRng::from_seed(digest);
-        let mut rng_bytes: [u8; 32] = Default::default();
-        rng.fill(&mut rng_bytes);
-        set_output(output, &rng_bytes[..])
-    }
-
     /// Calls the chain extension method registered at `func_id` with `input`.
     pub fn call_chain_extension(
         &mut self,
@@ -458,8 +458,7 @@ impl Engine {
             .eval(func_id, &encoded_input)
             .unwrap_or_else(|error| {
                 panic!(
-                    "Encountered unexpected missing chain extension method: {:?}",
-                    error
+                    "Encountered unexpected missing chain extension method: {error:?}"
                 );
             });
         let res = (status_code, out);
@@ -493,16 +492,14 @@ impl Engine {
         };
 
         let recovery_id = RecoveryId::from_i32(recovery_byte as i32)
-            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
+            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {error}"));
 
         let message = Message::from_slice(message_hash).unwrap_or_else(|error| {
-            panic!("Unable to create the message from hash: {}", error)
+            panic!("Unable to create the message from hash: {error}")
         });
         let signature =
             RecoverableSignature::from_compact(&signature[0..64], recovery_id)
-                .unwrap_or_else(|error| {
-                    panic!("Unable to parse the signature: {}", error)
-                });
+                .unwrap_or_else(|error| panic!("Unable to parse the signature: {error}"));
 
         let pub_key = SECP256K1.recover_ecdsa(&message, &signature);
         match pub_key {

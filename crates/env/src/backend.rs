@@ -16,8 +16,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         CryptoHash,
@@ -27,7 +29,7 @@ use crate::{
     Environment,
     Result,
 };
-use ink_primitives::Key;
+use ink_storage_traits::Storable;
 
 /// The flags to indicate further information about the end of a contract execution.
 #[derive(Default)]
@@ -36,6 +38,11 @@ pub struct ReturnFlags {
 }
 
 impl ReturnFlags {
+    /// Initialize [`ReturnFlags`] with the reverted flag.
+    pub fn new_with_reverted(has_reverted: bool) -> Self {
+        Self::default().set_reverted(has_reverted)
+    }
+
     /// Sets the bit to indicate that the execution is going to be reverted.
     #[must_use]
     pub fn set_reverted(mut self, has_reverted: bool) -> Self {
@@ -162,26 +169,46 @@ impl CallFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
-    /// Writes the value to the contract storage under the given key and returns
-    /// the size of the pre-existing value at the specified key if any.
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    /// Writes the value to the contract storage under the given storage key.
+    ///
+    /// Returns the size of the pre-existing value at the specified key if any.
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
-        V: scale::Encode;
+        K: scale::Encode,
+        V: Storable;
 
-    /// Returns the value stored under the given key in the contract's storage if any.
+    /// Returns the value stored under the given storage key in the contract's storage if any.
     ///
     /// # Errors
     ///
     /// - If the decoding of the typed value failed
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
-        R: scale::Decode;
+        K: scale::Encode,
+        R: Storable;
 
-    /// Returns the size of a value stored under the specified key is returned if any.
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32>;
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage if
+    /// any.
+    ///
+    /// # Errors
+    ///
+    /// - If the decoding of the typed value failed
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable;
 
-    /// Clears the contract's storage key entry.
-    fn clear_contract_storage(&mut self, key: &Key);
+    /// Returns the size of a value stored under the given storage key is returned if any.
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode;
+
+    /// Clears the contract's storage key entry under the given storage key.
+    ///
+    /// Returns the size of the previously stored value at the specified key if any.
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode;
 
     /// Returns the execution input to the executed contract and decodes it as `T`.
     ///
@@ -389,7 +416,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn invoke_contract<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -414,14 +441,20 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, R>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+        params: &CreateParams<E, ContractRef, Args, Salt, R>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
-        Salt: AsRef<[u8]>;
+        Salt: AsRef<[u8]>,
+        R: ConstructorReturnType<ContractRef>;
 
     /// Terminates a smart contract.
     ///
@@ -438,15 +471,6 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
     fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
-    where
-        E: Environment;
-
-    /// Returns a random hash seed.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`random`][`crate::random`]
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
     where
         E: Environment;
 

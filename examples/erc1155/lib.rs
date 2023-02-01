@@ -1,8 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_env::AccountId;
-use ink_lang as ink;
-use ink_prelude::vec::Vec;
+use ink::{
+    prelude::vec::Vec,
+    primitives::AccountId,
+};
 
 // This is the return value that we expect if a smart contract supports receiving ERC-1155
 // tokens.
@@ -24,10 +25,10 @@ const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xBC, 0x19, 0x7C, 0x81];
 /// A type representing the unique IDs of tokens managed by this contract.
 pub type TokenId = u128;
 
-type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
+type Balance = <ink::env::DefaultEnvironment as ink::env::Environment>::Balance;
 
 // The ERC-1155 error types.
-#[derive(Debug, PartialEq, scale::Encode, scale::Decode)]
+#[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     /// This token ID has not yet been created by the contract.
@@ -187,10 +188,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_storage::{
-        traits::SpreadAllocate,
-        Mapping,
-    };
+    use ink::storage::Mapping;
 
     type Owner = AccountId;
     type Operator = AccountId;
@@ -223,14 +221,14 @@ mod erc1155 {
     /// Indicate that a token's URI has been updated.
     #[ink(event)]
     pub struct Uri {
-        value: ink_prelude::string::String,
+        value: ink::prelude::string::String,
         #[ink(topic)]
         token_id: TokenId,
     }
 
     /// An ERC-1155 contract.
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(Default)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
@@ -245,11 +243,7 @@ mod erc1155 {
         /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // This call is required in order to correctly initialize the
-            // `Mapping`s of our contract.
-            //
-            // Not that `token_id_nonce` will be initialized to its `Default` value.
-            ink_lang::utils::initialize_contract(|_| {})
+            Default::default()
         }
 
         /// Create the initial supply for a token.
@@ -266,7 +260,7 @@ mod erc1155 {
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
-            self.balances.insert(&(caller, self.token_id_nonce), &value);
+            self.balances.insert((caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -293,7 +287,7 @@ mod erc1155 {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
-            self.balances.insert(&(caller, token_id), &value);
+            self.balances.insert((caller, token_id), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -324,20 +318,20 @@ mod erc1155 {
         ) {
             let mut sender_balance = self
                 .balances
-                .get(&(from, token_id))
+                .get((from, token_id))
                 .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
-            self.balances.insert(&(from, token_id), &sender_balance);
+            self.balances.insert((from, token_id), &sender_balance);
 
-            let mut recipient_balance = self.balances.get(&(to, token_id)).unwrap_or(0);
+            let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
             recipient_balance += value;
-            self.balances.insert(&(to, token_id), &recipient_balance);
+            self.balances.insert((to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
                 operator: Some(caller),
                 from: Some(from),
-                to: Some(from),
+                to: Some(to),
                 token_id,
                 value,
             });
@@ -362,7 +356,7 @@ mod erc1155 {
             // supported (tests end up panicking).
             #[cfg(not(test))]
             {
-                use ink_env::call::{
+                use ink::env::call::{
                     build_call,
                     Call,
                     ExecutionInput,
@@ -371,7 +365,7 @@ mod erc1155 {
 
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
-                let params = build_call::<Environment>()
+                let result = build_call::<Environment>()
                     .call_type(Call::new().callee(to).gas_limit(5000))
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
@@ -382,36 +376,38 @@ mod erc1155 {
                             .push_arg(data),
                     )
                     .returns::<Vec<u8>>()
-                    .params();
+                    .params()
+                    .try_invoke();
 
-                match ink_env::invoke_contract(&params) {
+                match result {
                     Ok(v) => {
-                        ink_env::debug_println!(
+                        ink::env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",
-                            v,
+                            v.clone().expect(
+                                "Call should be valid, don't expect a `LangError`."
+                            ),
                             from
                         );
                         assert_eq!(
-                            v,
+                            v.clone().expect("Call should be valid, don't expect a `LangError`."),
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
-                            "The recipient contract at {:?} does not accept token transfers.\n
-                            Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v
+                            "The recipient contract at {to:?} does not accept token transfers.\n
+                            Expected: {ON_ERC_1155_RECEIVED_SELECTOR:?}, Got {v:?}"
                         )
                     }
                     Err(e) => {
                         match e {
-                            ink_env::Error::CodeNotFound
-                            | ink_env::Error::NotCallable => {
+                            ink::env::Error::CodeNotFound
+                            | ink::env::Error::NotCallable => {
                                 // Our recipient wasn't a smart contract, so there's nothing more for
                                 // us to do
-                                ink_env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
+                                ink::env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
                             }
                             _ => {
                                 // We got some sort of error from the call to our recipient smart
                                 // contract, and as such we must revert this call
                                 panic!(
-                                    "Got error \"{:?}\" while trying to call {:?}",
-                                    e, from
+                                    "Got error \"{e:?}\" while trying to call {from:?}"
                                 )
                             }
                         }
@@ -494,7 +490,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance {
-            self.balances.get(&(owner, token_id)).unwrap_or(0)
+            self.balances.get((owner, token_id)).unwrap_or(0)
         }
 
         #[ink(message)]
@@ -539,7 +535,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.approvals.get((&owner, &operator)).is_some()
+            self.approvals.contains((&owner, &operator))
         }
     }
 
@@ -598,14 +594,12 @@ mod erc1155 {
         use super::*;
         use crate::Erc1155;
 
-        use ink_lang as ink;
-
         fn set_sender(sender: AccountId) {
-            ink_env::test::set_caller::<Environment>(sender);
+            ink::env::test::set_caller::<Environment>(sender);
         }
 
-        fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
-            ink_env::test::default_accounts::<Environment>()
+        fn default_accounts() -> ink::env::test::DefaultAccounts<Environment> {
+            ink::env::test::default_accounts::<Environment>()
         }
 
         fn alice() -> AccountId {

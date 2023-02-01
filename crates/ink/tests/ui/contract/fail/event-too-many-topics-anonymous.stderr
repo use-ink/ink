@@ -1,0 +1,21 @@
+error[E0277]: the trait bound `EventTopics<4>: RespectTopicLimit<2>` is not satisfied
+  --> tests/ui/contract/fail/event-too-many-topics-anonymous.rs:25:5
+   |
+25 |     pub struct Event {
+   |     ^^^ the trait `RespectTopicLimit<2>` is not implemented for `EventTopics<4>`
+   |
+   = help: the following other types implement trait `RespectTopicLimit<N>`:
+             <EventTopics<4> as RespectTopicLimit<10>>
+             <EventTopics<4> as RespectTopicLimit<11>>
+             <EventTopics<4> as RespectTopicLimit<12>>
+             <EventTopics<4> as RespectTopicLimit<4>>
+             <EventTopics<4> as RespectTopicLimit<5>>
+             <EventTopics<4> as RespectTopicLimit<6>>
+             <EventTopics<4> as RespectTopicLimit<7>>
+             <EventTopics<4> as RespectTopicLimit<8>>
+             <EventTopics<4> as RespectTopicLimit<9>>
+note: required by a bound in `EventRespectsTopicLimit`
+  --> src/codegen/event/topics.rs
+   |
+   |     <Event as EventLenTopics>::LenTopics: RespectTopicLimit<LEN_MAX_TOPICS>,
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `EventRespectsTopicLimit`

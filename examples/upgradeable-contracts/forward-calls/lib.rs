@@ -15,11 +15,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod proxy {
-    use ink_env::call::Call;
+    use ink::env::call::Call;
 
     /// A simple proxy contract.
     #[ink(storage)]
@@ -71,7 +69,7 @@ pub mod proxy {
         ///   have any effect whatsoever on the contract we forward to.
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
-            ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+            ink::env::call::build_call::<ink::env::DefaultEnvironment>()
                 .call_type(
                     Call::new()
                         .callee(self.forward_to)
@@ -79,15 +77,21 @@ pub mod proxy {
                         .gas_limit(0),
                 )
                 .call_flags(
-                    ink_env::CallFlags::default()
+                    ink::env::CallFlags::default()
                         .set_forward_input(true)
                         .set_tail_call(true),
                 )
-                .fire()
-                .unwrap_or_else(|err| {
+                .try_invoke()
+                .unwrap_or_else(|env_err| {
                     panic!(
                         "cross-contract call to {:?} failed due to {:?}",
-                        self.forward_to, err
+                        self.forward_to, env_err
+                    )
+                })
+                .unwrap_or_else(|lang_err| {
+                    panic!(
+                        "cross-contract call to {:?} failed due to {:?}",
+                        self.forward_to, lang_err
                     )
                 });
             unreachable!(

@@ -4,8 +4,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::new_without_default)]
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod give_me {
     /// No storage is needed for this simple contract.
@@ -30,8 +28,8 @@ pub mod give_me {
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: Balance) {
-            ink_env::debug_println!("requested value: {}", value);
-            ink_env::debug_println!("contract balance: {}", self.env().balance());
+            ink::env::debug_println!("requested value: {}", value);
+            ink::env::debug_println!("contract balance: {}", self.env().balance());
 
             assert!(value <= self.env().balance(), "insufficient funds!");
 
@@ -54,7 +52,7 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
-            ink_env::debug_println!(
+            ink::env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_value()
             );
@@ -65,7 +63,6 @@ pub mod give_me {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
 
         #[ink::test]
         fn transfer_works() {
@@ -101,20 +98,31 @@ pub mod give_me {
 
         #[ink::test]
         fn test_transferred_value() {
+            use ink::codegen::Env;
             // given
             let accounts = default_accounts();
             let give_me = create_contract(100);
+            let contract_account = give_me.env().account_id();
 
             // when
-            // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_value` as the value which the contract
-            // will see as transferred to it.
+            // Push the new execution context which sets initial balances and
+            // sets Eve as the caller
+            set_balance(accounts.eve, 100);
+            set_balance(contract_account, 0);
             set_sender(accounts.eve);
-            ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(10);
 
             // then
-            // there must be no panic
-            give_me.was_it_ten();
+            // we use helper macro to emulate method invocation coming with payment,
+            // and there must be no panic
+            ink::env::pay_with_call!(give_me.was_it_ten(), 10);
+
+            // and
+            // balances should be changed properly
+            let contract_new_balance = get_balance(contract_account);
+            let caller_new_balance = get_balance(accounts.eve);
+
+            assert_eq!(caller_new_balance, 100 - 10);
+            assert_eq!(contract_new_balance, 10);
         }
 
         #[ink::test]
@@ -129,7 +137,7 @@ pub mod give_me {
             // the `mock_transferred_value` as the value which the contract
             // will see as transferred to it.
             set_sender(accounts.eve);
-            ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(13);
+            ink::env::test::set_value_transferred::<ink::env::DefaultEnvironment>(13);
 
             // then
             give_me.was_it_ten();
@@ -146,27 +154,112 @@ pub mod give_me {
         }
 
         fn contract_id() -> AccountId {
-            ink_env::test::callee::<ink_env::DefaultEnvironment>()
+            ink::env::test::callee::<ink::env::DefaultEnvironment>()
         }
 
         fn set_sender(sender: AccountId) {
-            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(sender);
         }
 
         fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+        ) -> ink::env::test::DefaultAccounts<ink::env::DefaultEnvironment> {
+            ink::env::test::default_accounts::<ink::env::DefaultEnvironment>()
         }
 
         fn set_balance(account_id: AccountId, balance: Balance) {
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
+            ink::env::test::set_account_balance::<ink::env::DefaultEnvironment>(
                 account_id, balance,
             )
         }
 
         fn get_balance(account_id: AccountId) -> Balance {
-            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account_id)
-                .expect("Cannot get account balance")
+            ink::env::test::get_account_balance::<ink::env::DefaultEnvironment>(
+                account_id,
+            )
+            .expect("Cannot get account balance")
+        }
+    }
+
+    #[cfg(all(test, feature = "e2e-tests"))]
+    mod e2e_tests {
+        use super::*;
+        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+        #[ink_e2e::test]
+        async fn e2e_sending_value_to_give_me_must_fail(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = GiveMeRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "contract_transfer",
+                    &ink_e2e::alice(),
+                    constructor,
+                    1000,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
+                .call(|contract| contract.give_me(120));
+
+            let call_res = client.call(&ink_e2e::bob(), transfer, 10, None).await;
+
+            // then
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_res {
+                let debug_message = String::from_utf8_lossy(&dry_run.debug_message);
+                assert!(debug_message.contains("paid an unpayable message"))
+            } else {
+                panic!("Paying an unpayable message should fail")
+            }
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn e2e_contract_must_transfer_value_to_sender(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = GiveMeRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "contract_transfer",
+                    &ink_e2e::bob(),
+                    constructor,
+                    1337,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+            let balance_before: Balance = client
+                .balance(contract_acc_id.clone())
+                .await
+                .expect("getting balance failed");
+
+            // when
+            let transfer = ink_e2e::build_message::<GiveMeRef>(contract_acc_id)
+                .call(|contract| contract.give_me(120));
+
+            let call_res = client
+                .call(&ink_e2e::eve(), transfer, 0, None)
+                .await
+                .expect("call failed");
+
+            // then
+            assert!(call_res.debug_message().contains("requested value: 120\n"));
+
+            let balance_after: Balance = client
+                .balance(contract_acc_id)
+                .await
+                .expect("getting balance failed");
+            assert_eq!(balance_before - balance_after, 120);
+
+            Ok(())
         }
     }
 }

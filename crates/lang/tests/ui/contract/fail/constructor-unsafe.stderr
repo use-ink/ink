@@ -1,5 +1,0 @@
-error: ink! constructors must not be unsafe
-  --> tests/ui/contract/fail/constructor-unsafe.rs:10:13
-   |
-10 |         pub unsafe fn constructor() -> Self {
-   |             ^^^^^^

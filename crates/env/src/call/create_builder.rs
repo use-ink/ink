@@ -22,7 +22,9 @@ use crate::{
             Unwrap,
         },
         ExecutionInput,
+        Selector,
     },
+    ContractEnv,
     Environment,
     Error,
 };
@@ -41,7 +43,7 @@ pub mod state {
 /// # Note
 ///
 /// This is needed because of conflicting implementations of `From<T> for T`
-/// in the generated code of `ink_lang`.
+/// in the generated code of `ink`.
 pub trait FromAccountId<T>
 where
     T: Environment,
@@ -50,9 +52,118 @@ where
     fn from_account_id(account_id: <T as Environment>::AccountId) -> Self;
 }
 
+/// Represents any type that can be returned from an `ink!` constructor. The following contract
+/// implements the four different return type signatures implementing this trait:
+///
+/// - `Self`
+/// - `Result<Self, Error>`
+/// - `Contract`
+/// - `Result<Contract, Error>`
+///
+/// ```rust
+/// #[ink::contract]
+/// mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+///     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+///     pub enum Error {
+///         Foo,
+///     }
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn new_self() -> Self {
+///             Self {}
+///         }
+///
+///         #[ink(constructor)]
+///         pub fn new_storage_name() -> Contract {
+///             Contract {}
+///         }
+///
+///         #[ink(constructor)]
+///         pub fn new_result_self() -> Result<Self, Error> {
+///             Ok(Self {})
+///         }
+///
+///         #[ink(constructor)]
+///         pub fn new_result_storage_name() -> Result<Contract, Error> {
+///             Ok(Contract {})
+///         }
+///
+///         #[ink(message)]
+///         pub fn message(&self) {}
+///     }
+/// }
+/// ```
+///
+/// These constructor return signatures are then used by the `ContractRef` codegen for the
+/// [`CreateBuilder::returns`] type parameter.
+pub trait ConstructorReturnType<C> {
+    /// Is `true` if `Self` is `Result<C, E>`.
+    const IS_RESULT: bool = false;
+
+    /// The actual return type of the constructor.
+    /// - If a constructor returns `Self`, then `Output = Self`
+    /// - If a constructor returns a `Result<Self, E>`, then `Output = Result<Self, E>`
+    type Output;
+
+    /// The error type of the constructor return type.
+    type Error: scale::Decode;
+
+    /// Construct a success value of the `Output` type.
+    fn ok(value: C) -> Self::Output;
+
+    /// Construct an error value of the `Output` type.
+    ///
+    /// `Result` implementations should return `Some(Err(err))`, otherwise default to `None`.
+    fn err(_err: Self::Error) -> Option<Self::Output> {
+        None
+    }
+}
+
+/// Blanket implementation for `ContractRef` types, generated for cross-contract calls.
+///
+/// In the context of a `ContractRef` inherent, `Self` from a constructor return
+/// type will become the type of the `ContractRef`'s type.
+impl<C> ConstructorReturnType<C> for C
+where
+    C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
+{
+    type Output = C;
+    type Error = ();
+
+    fn ok(value: C) -> Self::Output {
+        value
+    }
+}
+
+/// Blanket implementation for a `Result<Self>` return type. `Self` in the context
+/// of a `ContractRef` inherent becomes the `ContractRef`s type.
+impl<C, E> ConstructorReturnType<C> for core::result::Result<C, E>
+where
+    C: ContractEnv + FromAccountId<<C as ContractEnv>::Env>,
+    E: scale::Decode,
+{
+    const IS_RESULT: bool = true;
+
+    type Output = core::result::Result<C, E>;
+    type Error = E;
+
+    fn ok(value: C) -> Self::Output {
+        Ok(value)
+    }
+
+    fn err(err: Self::Error) -> Option<Self::Output> {
+        Some(Err(err))
+    }
+}
+
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, Args, Salt, R>
+pub struct CreateParams<E, ContractRef, Args, Salt, R>
 where
     E: Environment,
 {
@@ -66,68 +177,118 @@ where
     exec_input: ExecutionInput<Args>,
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Salt,
-    /// The type of the instantiated contract.
+    /// The return type of the target contract's constructor method.
     _return_type: ReturnType<R>,
+    /// The type of the reference to the contract returned from the constructor.
+    _phantom: PhantomData<fn() -> ContractRef>,
 }
 
-impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
+impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
 where
     E: Environment,
 {
     /// The code hash of the contract.
     #[inline]
-    pub(crate) fn code_hash(&self) -> &E::Hash {
+    pub fn code_hash(&self) -> &E::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
     #[inline]
-    pub(crate) fn gas_limit(&self) -> u64 {
+    pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
     #[inline]
-    pub(crate) fn endowment(&self) -> &E::Balance {
+    pub fn endowment(&self) -> &E::Balance {
         &self.endowment
     }
 
     /// The raw encoded input data.
     #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
+    }
+
+    /// Modify the selector.
+    ///
+    /// Useful when using the [`CreateParams`] generated as part of the
+    /// `ContractRef`, but using a custom selector.
+    pub fn update_selector(&mut self, selector: Selector) {
+        self.exec_input.update_selector(selector)
     }
 }
 
-impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
+impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
 where
     E: Environment,
     Salt: AsRef<[u8]>,
 {
     /// The salt for determining the hash for the contract account ID.
     #[inline]
-    pub(crate) fn salt_bytes(&self) -> &Salt {
+    pub fn salt_bytes(&self) -> &Salt {
         &self.salt_bytes
     }
 }
 
-impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
+impl<E, ContractRef, Args, Salt, R> CreateParams<E, ContractRef, Args, Salt, R>
 where
     E: Environment,
+    ContractRef: FromAccountId<E>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: FromAccountId<E>,
+    R: ConstructorReturnType<ContractRef>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(&self) -> Result<R, crate::Error> {
-        crate::instantiate_contract(self).map(FromAccountId::from_account_id)
+    pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
+        crate::instantiate_contract(self)
+            .unwrap_or_else(|env_error| {
+                panic!("Cross-contract instantiation failed with {env_error:?}")
+            })
+            .unwrap_or_else(|lang_error| {
+                panic!("Received a `LangError` while instantiating: {lang_error:?}")
+            })
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
+    #[inline]
+    pub fn try_instantiate(
+        &self,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <R as ConstructorReturnType<ContractRef>>::Output,
+        >,
+        crate::Error,
+    > {
+        crate::instantiate_contract(self)
     }
 }
 
 /// Builds up contract instantiations.
-pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
-where
+pub struct CreateBuilder<
+    E,
+    ContractRef,
+    CodeHash,
+    GasLimit,
+    Endowment,
+    Args,
+    Salt,
+    RetType,
+> where
     E: Environment,
 {
     code_hash: CodeHash,
@@ -135,13 +296,19 @@ where
     endowment: Endowment,
     exec_input: Args,
     salt: Salt,
-    return_type: ReturnType<R>,
-    _phantom: PhantomData<fn() -> E>,
+    return_type: RetType,
+    _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
 ///
 /// # Example
+///
+/// **Note:** The shown examples panic because there is currently no cross-calling
+///           support in the off-chain testing environment. However, this code
+///           should work fine in on-chain environments.
+///
+/// ## Example 1: Returns Address of Instantiated Contract
 ///
 /// The below example shows instantiation of contract of type `MyContract`.
 ///
@@ -162,44 +329,94 @@ where
 /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
 /// # };
 /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
-/// # type Salt = &'static [u8];
-/// # struct MyContract;
-/// # impl FromAccountId<DefaultEnvironment> for MyContract {
-/// #     fn from_account_id(account_id: AccountId) -> Self { Self }
+/// #
+/// # #[ink::contract]
+/// # pub mod contract {
+/// #     #[ink(storage)]
+/// #     pub struct MyContract {}
+/// #
+/// #     impl MyContract {
+/// #         #[ink(constructor)]
+/// #         pub fn my_constructor() -> Self { Self {} }
+/// #
+/// #         #[ink(message)]
+/// #         pub fn message(&self) {}
+/// #     }
 /// # }
-/// let my_contract: MyContract = build_create::<DefaultEnvironment, MyContract>()
+/// # use contract::MyContractRef;
+/// let my_contract: MyContractRef = build_create::<MyContractRef>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
 ///     .exec_input(
-///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
+///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
-///     .params()
-///     .instantiate()
-///     .unwrap();
+///     .returns::<MyContractRef>()
+///     .instantiate();
 /// ```
 ///
-/// **Note:** The shown example panics because there is currently no cross-calling
-///           support in the off-chain testing environment. However, this code
-///           should work fine in on-chain environments.
+/// ## Example 2: Handles Result from Fallible Constructor
+///
+/// ```should_panic
+/// # use ::ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
+/// # };
+/// # type Hash = <DefaultEnvironment as Environment>::Hash;
+/// #
+/// # #[ink::contract]
+/// # pub mod contract {
+/// #     #[derive(scale::Encode, scale::Decode, Debug)]
+/// #     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+/// #     pub struct ConstructorError;
+/// #
+/// #     #[ink(storage)]
+/// #     pub struct MyContract {}
+/// #
+/// #     impl MyContract {
+/// #         #[ink(constructor)]
+/// #         pub fn my_constructor() -> Result<Self, ConstructorError> {
+/// #             Ok(Self {})
+/// #         }
+/// #
+/// #         #[ink(message)]
+/// #         pub fn message(&self) {}
+/// #     }
+/// # }
+/// # use contract::{MyContractRef, ConstructorError};
+/// let my_contract: MyContractRef = build_create::<MyContractRef>()
+///     .code_hash(Hash::from([0x42; 32]))
+///     .gas_limit(4000)
+///     .endowment(25)
+///     .exec_input(
+///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
+///             .push_arg(42)
+///             .push_arg(true)
+///             .push_arg(&[0x10u8; 32])
+///     )
+///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
+///     .returns::<Result<MyContractRef, ConstructorError>>()
+///     .instantiate()
+///     .expect("Constructor should have executed succesfully.");
+/// ```
 #[allow(clippy::type_complexity)]
-pub fn build_create<E, R>() -> CreateBuilder<
-    E,
-    Unset<E::Hash>,
+pub fn build_create<ContractRef>() -> CreateBuilder<
+    <ContractRef as ContractEnv>::Env,
+    ContractRef,
+    Unset<<<ContractRef as ContractEnv>::Env as Environment>::Hash>,
     Unset<u64>,
-    Unset<E::Balance>,
+    Unset<<<ContractRef as ContractEnv>::Env as Environment>::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<state::Salt>,
-    R,
+    Unset<ReturnType<()>>,
 >
 where
-    E: Environment,
-    R: FromAccountId<E>,
+    ContractRef: ContractEnv,
 {
     CreateBuilder {
         code_hash: Default::default(),
@@ -212,8 +429,17 @@ where
     }
 }
 
-impl<E, GasLimit, Endowment, Args, Salt, R>
-    CreateBuilder<E, Unset<E::Hash>, GasLimit, Endowment, Args, Salt, R>
+impl<E, ContractRef, GasLimit, Endowment, Args, Salt, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
+        Unset<E::Hash>,
+        GasLimit,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    >
 where
     E: Environment,
 {
@@ -222,7 +448,16 @@ where
     pub fn code_hash(
         self,
         code_hash: E::Hash,
-    ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, Salt, R> {
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        Set<E::Hash>,
+        GasLimit,
+        Endowment,
+        Args,
+        Salt,
+        RetType,
+    > {
         CreateBuilder {
             code_hash: Set(code_hash),
             gas_limit: self.gas_limit,
@@ -235,8 +470,8 @@ where
     }
 }
 
-impl<E, CodeHash, Endowment, Args, Salt, R>
-    CreateBuilder<E, CodeHash, Unset<u64>, Endowment, Args, Salt, R>
+impl<E, ContractRef, CodeHash, Endowment, Args, Salt, RetType>
+    CreateBuilder<E, ContractRef, CodeHash, Unset<u64>, Endowment, Args, Salt, RetType>
 where
     E: Environment,
 {
@@ -245,7 +480,8 @@ where
     pub fn gas_limit(
         self,
         gas_limit: u64,
-    ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, Salt, R> {
+    ) -> CreateBuilder<E, ContractRef, CodeHash, Set<u64>, Endowment, Args, Salt, RetType>
+    {
         CreateBuilder {
             code_hash: self.code_hash,
             gas_limit: Set(gas_limit),
@@ -258,8 +494,17 @@ where
     }
 }
 
-impl<E, CodeHash, GasLimit, Args, Salt, R>
-    CreateBuilder<E, CodeHash, GasLimit, Unset<E::Balance>, Args, Salt, R>
+impl<E, ContractRef, CodeHash, GasLimit, Args, Salt, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Unset<E::Balance>,
+        Args,
+        Salt,
+        RetType,
+    >
 where
     E: Environment,
 {
@@ -268,7 +513,16 @@ where
     pub fn endowment(
         self,
         endowment: E::Balance,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, Salt, R> {
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Set<E::Balance>,
+        Args,
+        Salt,
+        RetType,
+    > {
         CreateBuilder {
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
@@ -281,15 +535,16 @@ where
     }
 }
 
-impl<E, CodeHash, GasLimit, Endowment, Salt, R>
+impl<E, ContractRef, CodeHash, GasLimit, Endowment, Salt, RetType>
     CreateBuilder<
         E,
+        ContractRef,
         CodeHash,
         GasLimit,
         Endowment,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Salt,
-        R,
+        RetType,
     >
 where
     E: Environment,
@@ -299,8 +554,16 @@ where
     pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, Salt, R>
-    {
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Set<ExecutionInput<Args>>,
+        Salt,
+        RetType,
+    > {
         CreateBuilder {
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
@@ -313,8 +576,17 @@ where
     }
 }
 
-impl<E, CodeHash, GasLimit, Endowment, Args, R>
-    CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Unset<state::Salt>, R>
+impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Args,
+        Unset<state::Salt>,
+        RetType,
+    >
 where
     E: Environment,
 {
@@ -323,7 +595,16 @@ where
     pub fn salt_bytes<Salt>(
         self,
         salt: Salt,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, R>
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Args,
+        Set<Salt>,
+        RetType,
+    >
     where
         Salt: AsRef<[u8]>,
     {
@@ -339,54 +620,135 @@ where
     }
 }
 
-impl<E, GasLimit, Args, Salt, R>
+impl<E, ContractRef, CodeHash, GasLimit, Endowment, Args, Salt>
     CreateBuilder<
         E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Args,
+        Salt,
+        Unset<ReturnType<()>>,
+    >
+where
+    E: Environment,
+{
+    /// Sets the type of the returned value upon the execution of the constructor.
+    ///
+    /// # Note
+    ///
+    /// Constructors are not able to return arbitrary values. Instead a successful call to a
+    /// constructor returns the address at which the contract was instantiated.
+    ///
+    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract you're trying
+    /// to instantiate.
+    #[inline]
+    pub fn returns<R>(
+        self,
+    ) -> CreateBuilder<
+        E,
+        ContractRef,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Args,
+        Salt,
+        Set<ReturnType<R>>,
+    >
+    where
+        ContractRef: FromAccountId<E>,
+        R: ConstructorReturnType<ContractRef>,
+    {
+        CreateBuilder {
+            code_hash: self.code_hash,
+            gas_limit: self.gas_limit,
+            endowment: self.endowment,
+            exec_input: self.exec_input,
+            salt: self.salt,
+            return_type: Set(Default::default()),
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, ContractRef, GasLimit, Args, Salt, RetType>
+    CreateBuilder<
+        E,
+        ContractRef,
         Set<E::Hash>,
         GasLimit,
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        R,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
 {
-    /// Sets the value transferred upon the execution of the call.
+    /// Finalizes the create builder, allowing it to instantiate a contract.
     #[inline]
-    pub fn params(self) -> CreateParams<E, Args, Salt, R> {
+    pub fn params(self) -> CreateParams<E, ContractRef, Args, Salt, RetType> {
         CreateParams {
             code_hash: self.code_hash.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt.value(),
-            _return_type: self.return_type,
+            _return_type: Default::default(),
+            _phantom: Default::default(),
         }
     }
 }
 
-impl<E, GasLimit, Args, Salt, R>
+impl<E, ContractRef, GasLimit, Args, Salt, RetType>
     CreateBuilder<
         E,
+        ContractRef,
         Set<E::Hash>,
         GasLimit,
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
         Set<Salt>,
-        R,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
+    ContractRef: FromAccountId<E>,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
-    R: FromAccountId<E>,
+    RetType: ConstructorReturnType<ContractRef>,
 {
-    /// Instantiates the contract using the given instantiation parameters.
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
+    /// use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
     #[inline]
-    pub fn instantiate(self) -> Result<R, Error> {
+    pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
         self.params().instantiate()
+    }
+
+    /// Instantiates the contract and returns its account ID back to the caller.
+    ///
+    /// # Note
+    ///
+    /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
+    /// by the caller.
+    #[inline]
+    pub fn try_instantiate(
+        self,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
+        >,
+        Error,
+    > {
+        self.params().try_instantiate()
     }
 }

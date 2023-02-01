@@ -17,9 +17,9 @@
 # - The latest matching rule, if multiple, takes precedence.
 
 # All of the core team members are global code owners.
-* @Robbepop @cmichi @ascjones @HCastano
+* @cmichi @ascjones @HCastano
 
 # CI
-/.github/workflows/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
-/scripts/ci/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
-/.gitlab-ci.yml @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
+/.github/workflows/ @paritytech/ci @cmichi @ascjones @HCastano
+/scripts/ci/ @paritytech/ci @cmichi @ascjones @HCastano
+/.gitlab-ci.yml @paritytech/ci @cmichi @ascjones @HCastano

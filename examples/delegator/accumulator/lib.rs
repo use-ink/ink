@@ -5,8 +5,6 @@ pub use self::accumulator::{
     AccumulatorRef,
 };
 
-use ink_lang as ink;
-
 #[ink::contract]
 pub mod accumulator {
     /// Holds a simple `i32` value that can be incremented and decremented.

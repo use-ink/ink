@@ -22,8 +22,10 @@ use crate::{
     call::{
         Call,
         CallParams,
+        ConstructorReturnType,
         CreateParams,
         DelegateCall,
+        FromAccountId,
     },
     hash::{
         Blake2x128,
@@ -46,7 +48,7 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_primitives::Key;
+use ink_storage_traits::Storable;
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -148,7 +150,7 @@ where
     {
         fn inner<E: Environment>(encoded: &mut [u8]) -> <E as Environment>::Hash {
             let len_encoded = encoded.len();
-            let mut result = <E as Environment>::Hash::clear();
+            let mut result = <E as Environment>::Hash::CLEAR_HASH;
             let len_result = result.as_ref().len();
             if len_encoded <= len_result {
                 result.as_mut()[..len_encoded].copy_from_slice(encoded);
@@ -174,9 +176,25 @@ where
 }
 
 impl EnvInstance {
+    #[inline(always)]
     /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
+    }
+
+    /// Returns the contract property value into the given result buffer.
+    ///
+    /// # Note
+    ///
+    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    #[inline(always)]
+    fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
+    where
+        T: Default + AsMut<[u8]>,
+    {
+        let mut result = T::default();
+        ext_fn(&mut result.as_mut());
+        result
     }
 
     /// Returns the contract property value from its little-endian representation.
@@ -184,6 +202,7 @@ impl EnvInstance {
     /// # Note
     ///
     /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    #[inline(always)]
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: FromLittleEndian,
@@ -194,6 +213,7 @@ impl EnvInstance {
     }
 
     /// Returns the contract property value.
+    #[inline(always)]
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
         T: scale::Decode,
@@ -205,34 +225,67 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<V>(&mut self, key: &Key, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
     where
-        V: scale::Encode,
+        K: scale::Encode,
+        V: Storable,
     {
-        let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), buffer)
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let value = buffer.take_storable_encoded(value);
+        ext::set_storage(key, value)
     }
 
-    fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
+    fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
     where
-        R: scale::Decode,
+        K: scale::Encode,
+        R: Storable,
     {
-        let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(key.as_ref(), output) {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let output = &mut buffer.take_rest();
+        match ext::get_storage(key, output) {
             Ok(_) => (),
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
         }
-        let decoded = scale::Decode::decode(&mut &output[..])?;
+        let decoded = Storable::decode(&mut &output[..])?;
         Ok(Some(decoded))
     }
 
-    fn contract_storage_contains(&mut self, key: &Key) -> Option<u32> {
-        ext::storage_contains(key.as_ref())
+    fn take_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>
+    where
+        K: scale::Encode,
+        R: Storable,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        let output = &mut buffer.take_rest();
+        match ext::take_storage(key, output) {
+            Ok(_) => (),
+            Err(ExtError::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = Storable::decode(&mut &output[..])?;
+        Ok(Some(decoded))
     }
 
-    fn clear_contract_storage(&mut self, key: &Key) {
-        ext::clear_storage(key.as_ref())
+    fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        ext::storage_contains(key)
+    }
+
+    fn clear_contract_storage<K>(&mut self, key: &K) -> Option<u32>
+    where
+        K: scale::Encode,
+    {
+        let mut buffer = self.scoped_buffer();
+        let key = buffer.take_encoded(key);
+        ext::clear_storage(key)
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -246,9 +299,10 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_return_value = scope.take_encoded(return_value);
-        ext::return_value(flags, enc_return_value);
+        let mut scope = super::EncodeScope::from(&mut self.buffer[..]);
+        return_value.encode_to(&mut scope);
+        let len = scope.len();
+        ext::return_value(flags, &self.buffer[..][..len]);
     }
 
     fn debug_message(&mut self, content: &str) {
@@ -365,7 +419,7 @@ impl TypedEnvBackend for EnvInstance {
     fn invoke_contract<E, Args, R>(
         &mut self,
         params: &CallParams<E, Call<E>, Args, R>,
-    ) -> Result<R>
+    ) -> Result<ink_primitives::MessageResult<R>>
     where
         E: Environment,
         Args: scale::Encode,
@@ -429,14 +483,20 @@ impl TypedEnvBackend for EnvInstance {
         }
     }
 
-    fn instantiate_contract<E, Args, Salt, C>(
+    fn instantiate_contract<E, ContractRef, Args, Salt, RetType>(
         &mut self,
-        params: &CreateParams<E, Args, Salt, C>,
-    ) -> Result<E::AccountId>
+        params: &CreateParams<E, ContractRef, Args, Salt, RetType>,
+    ) -> Result<
+        ink_primitives::ConstructorResult<
+            <RetType as ConstructorReturnType<ContractRef>>::Output,
+        >,
+    >
     where
         E: Environment,
+        ContractRef: FromAccountId<E>,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
+        RetType: ConstructorReturnType<ContractRef>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -449,11 +509,8 @@ impl TypedEnvBackend for EnvInstance {
         let out_address = &mut scoped.take(1024);
         let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
-        // We currently do nothing with the `out_return_value` buffer.
-        // This should change in the future but for that we need to add support
-        // for constructors that may return values.
-        // This is useful to support fallible constructors for example.
-        ext::instantiate(
+
+        let instantiate_result = ext::instantiate(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -461,9 +518,13 @@ impl TypedEnvBackend for EnvInstance {
             out_address,
             out_return_value,
             salt,
-        )?;
-        let account_id = scale::Decode::decode(&mut &out_address[..])?;
-        Ok(account_id)
+        );
+
+        crate::engine::decode_instantiate_result::<_, E, ContractRef, RetType>(
+            instantiate_result.map_err(Into::into),
+            &mut &out_address[..],
+            &mut &out_return_value[..],
+        )
     }
 
     fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
@@ -488,17 +549,6 @@ impl TypedEnvBackend for EnvInstance {
         let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
         ext::weight_to_fee(gas, &mut result.as_mut());
         <E::Balance as FromLittleEndian>::from_le_bytes(result)
-    }
-
-    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
-    where
-        E: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_subject = scope.take_bytes(subject);
-        let output = &mut scope.take_rest();
-        ext::random(enc_subject, output);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn is_contract<E>(&mut self, account_id: &E::AccountId) -> bool
