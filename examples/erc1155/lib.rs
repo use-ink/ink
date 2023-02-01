@@ -358,7 +358,6 @@ mod erc1155 {
             {
                 use ink::env::call::{
                     build_call,
-                    Call,
                     ExecutionInput,
                     Selector,
                 };
@@ -374,7 +373,7 @@ mod erc1155 {
                             .push_arg(from)
                             .push_arg(token_id)
                             .push_arg(value)
-                            .push_arg(data),
+                            .push_arg(data),Call::new()
                     )
                     .returns::<Vec<u8>>()
                     .params()
