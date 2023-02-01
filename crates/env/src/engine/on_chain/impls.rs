@@ -182,21 +182,6 @@ impl EnvInstance {
         ScopedBuffer::from(&mut self.buffer[..])
     }
 
-    /// Returns the contract property value into the given result buffer.
-    ///
-    /// # Note
-    ///
-    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
-    #[inline(always)]
-    fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
-    where
-        T: Default + AsMut<[u8]>,
-    {
-        let mut result = T::default();
-        ext_fn(&mut result.as_mut());
-        result
-    }
-
     /// Returns the contract property value from its little-endian representation.
     ///
     /// # Note
@@ -372,7 +357,8 @@ impl EnvBackend for EnvInstance {
 
 impl TypedEnvBackend for EnvInstance {
     fn caller<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property_inplace::<E::AccountId>(ext::caller)
+        self.get_property::<E::AccountId>(ext::caller)
+            .expect("The executed contract must have a caller with a valid account id.")
     }
 
     fn transferred_value<E: Environment>(&mut self) -> E::Balance {
@@ -388,7 +374,8 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property_inplace::<E::AccountId>(ext::address)
+        self.get_property::<E::AccountId>(ext::address)
+            .expect("A contract being executed must have a valid account id.")
     }
 
     fn balance<E: Environment>(&mut self) -> E::Balance {

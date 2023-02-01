@@ -14,11 +14,15 @@ breaking or otherwise.
 
 1. We've renamed some of the generated message methods on the `ContractRef` struct. They
    have been changed from `_checked` to `try_` ([#1621](https://github.com/paritytech/ink/pull/1621))
+1. We have removed the `Default` implementation for `AccountId`s. This is because of
+   security concerns around the use of the zero address which has a known private key in
+   the `sr25519` and `ed25519` curves ([#1255](https://github.com/paritytech/ink/pull/1255)).
 
 ### Added
 - E2E: expose call dry-run method ‒ [#1624](https://github.com/paritytech/ink/pull/1624)
 
 ### Changed
+- Remove `Default` implementation for AccountId ‒ [#1255](https://github.com/paritytech/ink/pull/1255)
 - Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
 - Bump Substrate and `subxt` dependencies ‒ [#1549](https://github.com/paritytech/ink/pull/1549)
 
