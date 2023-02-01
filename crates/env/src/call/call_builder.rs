@@ -28,7 +28,6 @@ use crate::{
     Error,
 };
 use core::marker::PhantomData;
-use ink_primitives::Clear;
 use num_traits::Zero;
 
 /// The final parameters to the cross-contract call.
@@ -265,8 +264,7 @@ where
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(DelegateCall::new()
-///                 .code_hash(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH))
+///     .code_hash(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -381,16 +379,8 @@ pub struct DelegateCall<E: Environment> {
 
 impl<E: Environment> DelegateCall<E> {
     /// Returns a clean builder for [`DelegateCall`]
-    pub const fn new() -> Self {
-        DelegateCall {
-            code_hash: E::Hash::CLEAR_HASH,
-        }
-    }
-}
-
-impl<E: Environment> Default for DelegateCall<E> {
-    fn default() -> Self {
-        Self::new()
+    pub const fn new(code_hash: E::Hash) -> Self {
+        DelegateCall { code_hash }
     }
 }
 
@@ -509,6 +499,20 @@ where
     ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
         CallBuilder {
             call_type: Set(Call::new(callee)),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `code_hash` for the current cross-contract delegate call.
+    pub fn code_hash(
+        self,
+        code_hash: E::Hash,
+    ) -> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType> {
+        CallBuilder {
+            call_type: Set(DelegateCall::new(code_hash)),
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
