@@ -141,17 +141,6 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -182,18 +171,7 @@
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 </span><span class="attr">#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Encode,
-    Decode,
-    From,
-    Default,
+    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Encode, Decode, From,
 )]
 #[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo))]
 </span><span class="kw">pub struct </span>AccountId([u8; <span class="number">32</span>]);

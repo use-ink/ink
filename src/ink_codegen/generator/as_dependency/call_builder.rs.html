@@ -799,7 +799,7 @@
                 </span>#( , #input_bindings : #input_types )*
             ) -&gt; #output_type {
                 ::ink::env::call::build_call::&lt;Environment&gt;()
-                    .call_type(::ink::env::call::Call::new().callee(::ink::ToAccountId::to_account_id(<span class="self">self</span>)))
+                    .call(::ink::ToAccountId::to_account_id(<span class="self">self</span>))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
                             ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])

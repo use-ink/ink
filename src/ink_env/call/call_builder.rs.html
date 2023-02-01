@@ -772,20 +772,6 @@
 <a href="#771" id="771">771</a>
 <a href="#772" id="772">772</a>
 <a href="#773" id="773">773</a>
-<a href="#774" id="774">774</a>
-<a href="#775" id="775">775</a>
-<a href="#776" id="776">776</a>
-<a href="#777" id="777">777</a>
-<a href="#778" id="778">778</a>
-<a href="#779" id="779">779</a>
-<a href="#780" id="780">780</a>
-<a href="#781" id="781">781</a>
-<a href="#782" id="782">782</a>
-<a href="#783" id="783">783</a>
-<a href="#784" id="784">784</a>
-<a href="#785" id="785">785</a>
-<a href="#786" id="786">786</a>
-<a href="#787" id="787">787</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -816,7 +802,6 @@
     Error,
 };
 <span class="kw">use </span>core::marker::PhantomData;
-<span class="kw">use </span>ink_primitives::Clear;
 <span class="kw">use </span>num_traits::Zero;
 
 <span class="doccomment">/// The final parameters to the cross-contract call.
@@ -991,11 +976,9 @@
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;
 /// build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(
-///             Call::new()
-///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000)
-///                 .transferred_value(10))
+///     .call(AccountId::from([0x42; 32]))
+///     .gas_limit(5000)
+///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -1027,9 +1010,8 @@
 /// # };
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(Call::new()
-///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000))
+///     .call_type(Call::new(AccountId::from([0x42; 32])))
+///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
@@ -1056,8 +1038,7 @@
 /// # use ink_primitives::Clear;
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(DelegateCall::new()
-///                 .code_hash(&lt;DefaultEnvironment as Environment&gt;::Hash::CLEAR_HASH))
+///     .delegate(&lt;DefaultEnvironment as Environment&gt;::Hash::CLEAR_HASH)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -1092,12 +1073,9 @@
 /// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;
 /// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;
 /// let call_result = build_call::&lt;DefaultEnvironment&gt;()
-///     .call_type(
-///         Call::new()
-///             .callee(AccountId::from([0x42; 32]))
-///             .gas_limit(5000)
-///             .transferred_value(10),
-///     )
+///     .call(AccountId::from([0x42; 32]))
+///     .gas_limit(5000)
+///     .transferred_value(10)
 ///     .try_invoke()
 ///     .expect(&quot;Got an error from the Contract&#39;s pallet.&quot;);
 ///
@@ -1134,20 +1112,14 @@
     transferred_value: E::Balance,
 }
 
-<span class="kw">impl</span>&lt;E: Environment&gt; Default <span class="kw">for </span>Call&lt;E&gt; {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        Call {
-            callee: Default::default(),
+<span class="kw">impl</span>&lt;E: Environment&gt; Call&lt;E&gt; {
+    <span class="doccomment">/// Returns a clean builder for [`Call`].
+    </span><span class="kw">pub fn </span>new(callee: E::AccountId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            callee,
             gas_limit: Default::default(),
             transferred_value: E::Balance::zero(),
         }
-    }
-}
-
-<span class="kw">impl</span>&lt;E: Environment&gt; Call&lt;E&gt; {
-    <span class="doccomment">/// Returns a clean builder for [`Call`].
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        Default::default()
     }
 }
 
@@ -1155,15 +1127,6 @@
 <span class="kw">where
     </span>E: Environment,
 {
-    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>callee(<span class="self">self</span>, callee: E::AccountId) -&gt; <span class="self">Self </span>{
-        Call {
-            callee,
-            gas_limit: <span class="self">self</span>.gas_limit,
-            transferred_value: <span class="self">self</span>.transferred_value,
-        }
-    }
-
     <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.
     </span><span class="kw">pub fn </span>gas_limit(<span class="self">self</span>, gas_limit: Gas) -&gt; <span class="self">Self </span>{
         Call {
@@ -1190,16 +1153,8 @@
 
 <span class="kw">impl</span>&lt;E: Environment&gt; DelegateCall&lt;E&gt; {
     <span class="doccomment">/// Returns a clean builder for [`DelegateCall`]
-    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
-        DelegateCall {
-            code_hash: E::Hash::CLEAR_HASH,
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;E: Environment&gt; Default <span class="kw">for </span>DelegateCall&lt;E&gt; {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new()
+    </span><span class="kw">pub const fn </span>new(code_hash: E::Hash) -&gt; <span class="self">Self </span>{
+        DelegateCall { code_hash }
     }
 }
 
@@ -1307,19 +1262,17 @@
     }
 }
 
-<span class="kw">impl</span>&lt;E, Args, RetType&gt; CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Args, RetType&gt;
+<span class="kw">impl</span>&lt;E, CallType, Args, RetType&gt; CallBuilder&lt;E, Unset&lt;CallType&gt;, Args, RetType&gt;
 <span class="kw">where
     </span>E: Environment,
 {
-    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.
-    </span><span class="kw">pub fn </span>callee(<span class="self">self</span>, callee: E::AccountId) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();
+    <span class="doccomment">/// Prepares the `CallBuilder` for a cross-contract [`Call`].
+    </span><span class="kw">pub fn </span>call(
+        <span class="self">self</span>,
+        callee: E::AccountId,
+    ) -&gt; CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Args, RetType&gt; {
         CallBuilder {
-            call_type: Set(Call {
-                callee,
-                gas_limit: call_type.gas_limit,
-                transferred_value: call_type.transferred_value,
-            }),
+            call_type: Set(Call::new(callee)),
             call_flags: <span class="self">self</span>.call_flags,
             exec_input: <span class="self">self</span>.exec_input,
             return_type: <span class="self">self</span>.return_type,
@@ -1327,6 +1280,25 @@
         }
     }
 
+    <span class="doccomment">/// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
+    </span><span class="kw">pub fn </span>delegate(
+        <span class="self">self</span>,
+        code_hash: E::Hash,
+    ) -&gt; CallBuilder&lt;E, Set&lt;DelegateCall&lt;E&gt;&gt;, Args, RetType&gt; {
+        CallBuilder {
+            call_type: Set(DelegateCall::new(code_hash)),
+            call_flags: <span class="self">self</span>.call_flags,
+            exec_input: <span class="self">self</span>.exec_input,
+            return_type: <span class="self">self</span>.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;E, Args, RetType&gt; CallBuilder&lt;E, Set&lt;Call&lt;E&gt;&gt;, Args, RetType&gt;
+<span class="kw">where
+    </span>E: Environment,
+{
     <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.
     </span><span class="kw">pub fn </span>gas_limit(<span class="self">self</span>, gas_limit: Gas) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>call_type = <span class="self">self</span>.call_type.value();

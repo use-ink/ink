@@ -971,8 +971,6 @@
 <a href="#970" id="970">970</a>
 <a href="#971" id="971">971</a>
 <a href="#972" id="972">972</a>
-<a href="#973" id="973">973</a>
-<a href="#974" id="974">974</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1499,8 +1497,7 @@
     /// pub fn invoke_contract(&amp;self) -&gt; i32 {
     ///     let call_params = build_call::&lt;DefaultEnvironment&gt;()
     ///             .call_type(
-    ///                 Call::new()
-    ///                     .callee(AccountId::from([0x42; 32]))
+    ///                 Call::new(AccountId::from([0x42; 32]))
     ///                     .gas_limit(5000)
     ///                     .transferred_value(10))
     ///             .exec_input(
@@ -1563,8 +1560,7 @@
     /// pub fn invoke_contract_delegate(&amp;self) -&gt; i32 {
     ///     let call_params = build_call::&lt;DefaultEnvironment&gt;()
     ///             .call_type(
-    ///                 DelegateCall::new()
-    ///                  .code_hash(&lt;DefaultEnvironment as ink::env::Environment&gt;::Hash::CLEAR_HASH))
+    ///                 DelegateCall::new(&lt;DefaultEnvironment as ink::env::Environment&gt;::Hash::CLEAR_HASH))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
