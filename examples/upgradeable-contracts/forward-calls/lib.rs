@@ -17,7 +17,6 @@
 
 #[ink::contract]
 pub mod proxy {
-    use ink::env::call::Call;
 
     /// A simple proxy contract.
     #[ink(storage)]
