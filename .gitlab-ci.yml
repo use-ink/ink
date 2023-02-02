@@ -25,6 +25,7 @@ variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
+  CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
@@ -39,7 +40,6 @@ variables:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
-  RUSTC_WRAPPER:                   ""
 
 workflow:
   rules:
@@ -61,6 +61,7 @@ workflow:
   - cargo +nightly --version
   - cargo spellcheck --version
   - bash --version
+  - sccache -s
 
 .test-refs:                        &test-refs
   rules:
@@ -75,9 +76,11 @@ workflow:
   image:                           "${CI_IMAGE}"
   before_script:
     - *rust-info-script
+    - ./scripts/ci/pre_cache.sh
+    - sccache -s
   interruptible:                   true
   tags:
-    - linux-docker-vm-c2
+    - linux-docker
 
 .kubernetes-env:                   &kubernetes-env
   interruptible:                   true
@@ -307,7 +310,7 @@ docs:
     - cargo doc --no-deps --all-features -p ink_metadata
     - cargo doc --no-deps --all-features -p ink_e2e
     - cargo doc --no-deps --all-features -p ink_e2e_macro
-    - mv target/doc ./crate-docs
+    - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
 
@@ -391,48 +394,6 @@ examples-test:
         cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
-  tags:
-    - linux-docker
-
-# debug, rm me
-examples-test-vm:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    - *start-substrate-contracts-node
-    - for example in examples/*/; do
-        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
-        if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
-          echo "--------------${example}--------------";
-          cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
-        else
-          echo "--------------${example}--------------";
-          cargo test --verbose --manifest-path ${example}/Cargo.toml;
-        fi;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        echo "--------------debug--------------";
-        cargo test --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
-      done
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        echo "--------------debug--------------";
-        cargo test --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
-      done
-    # TODO (#1502): We need to clean before running, otherwise the CI fails with a
-    # linking error.
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        echo "--------------debug--------------";
-        cargo clean --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
-        cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
-      done
-    - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
-  tags:
-    - linux-docker-vm-c2
 
 examples-contract-build:
   stage:                           examples
