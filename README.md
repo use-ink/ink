@@ -109,7 +109,7 @@ The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we expla
 
 In order to build the contract just execute this command in the `flipper` folder:
 ```
-cargo +nightly contract build
+cargo contract build
 ```
 
 As a result you'll get a `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
@@ -178,7 +178,7 @@ mod flipper {
 ```
 
 The [`flipper/src/lib.rs`](https://github.com/paritytech/ink/blob/master/examples/flipper/lib.rs)
-file in our examples folder contains exactly this code. Run `cargo +nightly contract build` to build your
+file in our examples folder contains exactly this code. Run `cargo contract build` to build your
 first ink! smart contract.
 
 ## Examples
