@@ -19,6 +19,7 @@ breaking or otherwise.
    the `sr25519` and `ed25519` curves ([#1255](https://github.com/paritytech/ink/pull/1255)).
 1. We have replaced the `CallBuilder::callee()` method with a `call()` method and also
    added a `delegate()` method. This streamlines the `Call` and `DelegateCall` workflows
+   ([#1636](https://github.com/paritytech/ink/pull/1636))
 
 ### Added
 - E2E: expose call dry-run method ‒ [#1624](https://github.com/paritytech/ink/pull/1624)
