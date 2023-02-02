@@ -52,19 +52,22 @@ More relevant links:
 
 ## Table of Contents
 
-* [Play with It](#play-with-it)
-* [Usage](#usage)
-* [Hello, World! ‒ The Flipper](#hello-world--the-flipper)
-* [Examples](#examples)
-* [How it Works](#how-it-works)
-* [ink! Macros & Attributes Overview](#ink-macros--attributes-overview)
-  * [Entry Point](#entry-point)
-  * [Trait Definitions](#trait-definitions)
-  * [Off-chain Testing](#off-chain-testing)
-* [Developer Documentation](#developer-documentation)
-* [Community Badges](#community-badges)
-* [Contributing](#contributing)
-* [License](#license)
+- [Table of Contents](#table-of-contents)
+- [Play with It](#play-with-it)
+- [Usage](#usage)
+- [Hello, World! ‒ The Flipper](#hello-world--the-flipper)
+- [Examples](#examples)
+- [How it Works](#how-it-works)
+- [ink! Macros \& Attributes Overview](#ink-macros--attributes-overview)
+  - [Entry Point](#entry-point)
+  - [Trait Definitions](#trait-definitions)
+  - [Off-chain Testing](#off-chain-testing)
+- [Developer Documentation](#developer-documentation)
+- [Community Badges](#community-badges)
+  - [Normal Design](#normal-design)
+  - [Flat Design](#flat-design)
+- [Contributing](#contributing)
+- [License](#license)
 
 
 ## Play with It
@@ -162,7 +165,7 @@ mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
-        
+
         #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
@@ -192,7 +195,7 @@ Some of the most interesting ones:
 
 To build a single example navigate to the root of the example and run:
 ```
-cargo contract +nightly build
+cargo contract build
 ```
 
 You should now have an `<name>.contract` file in the `target` folder of the contract.
@@ -208,7 +211,7 @@ This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
 * ink! is a smart contract language which targets the API exposed by `contracts`.
 Hence ink! contracts are compiled to Wasm.
-* When executing `cargo contract +nightly build` an additional file `metadata.json` is created.
+* When executing `cargo contract build` an additional file `metadata.json` is created.
 It contains information about e.g. what methods the contract provides for others to call.
 
 ## ink! Macros & Attributes Overview
