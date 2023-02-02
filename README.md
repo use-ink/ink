@@ -52,7 +52,6 @@ More relevant links:
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [Play with It](#play-with-it)
 - [Usage](#usage)
 - [Hello, World! ‒ The Flipper](#hello-world--the-flipper)
