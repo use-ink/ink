@@ -411,38 +411,31 @@ where
     ) -> Signer<C>
     where
         E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display + core::fmt::Debug,
+        C::AccountId: Clone + core::fmt::Display + Debug,
         C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
         let pair_signer = PairSigner::<C, _>::new(pair);
         let account_id = pair_signer.account_id().to_owned();
 
-        for _ in 0..6 {
-            let transfer_result = self
-                .api
-                .try_transfer_balance(origin, account_id.clone(), amount)
-                .await;
-            match transfer_result {
-                Ok(_) => {
-                    log_info(&format!(
-                        "transfer from {} to {} succeeded",
-                        origin.account_id(),
-                        account_id,
-                    ));
-                    break
-                }
-                Err(err) => {
-                    log_info(&format!(
-                        "transfer from {} to {} failed with {:?}",
-                        origin.account_id(),
-                        account_id,
-                        err
-                    ));
-                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-                }
-            }
-        }
+        self
+            .api
+            .try_transfer_balance(origin, account_id.clone(), amount)
+            .await
+            .unwrap_or_else(|err|
+                panic!(
+                    "transfer from {} to {} failed with {:?}",
+                    origin.account_id(),
+                    account_id,
+                    err
+                )
+            );
+
+        log_info(&format!(
+            "transfer from {} to {} succeeded",
+            origin.account_id(),
+            account_id,
+        ));
 
         pair_signer
     }
