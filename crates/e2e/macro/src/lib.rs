@@ -29,11 +29,10 @@ use syn::Result;
 ///
 /// The system requirements are:
 ///
-/// - A Substrate node with `pallet-contracts` running in the background.
+/// - A Substrate node with `pallet-contracts` installed on the local system.
 ///   You can e.g. use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
-///   and launch it with
-///   `substrate-contracts-node -lerror,runtime::contracts=debug > /tmp/contracts-node.log 2>&1`.
-/// - A `cargo-contract` installation that can build the contract.
+///   and install it on your PATH, or provide a path to an executable using the CONTRACTS_NODE
+///   environment variable.
 ///
 /// Before the test function is invoked the contract will have been build. Any errors
 /// that occur during the contract build will prevent the test function from being
@@ -43,25 +42,6 @@ use syn::Result;
 ///
 /// The `#[ink::e2e_test]` macro can be provided with some additional comma-separated
 /// header arguments:
-///
-/// - `ws_url: String`
-///
-///     The `ws_url` denotes the WebSocket URL where to connect to the RPC
-///     endpoint of the node.
-///
-///     **Usage Example:**
-///     ```no_compile
-///     # // TODO(#xxx) Remove the `no_compile`.
-///     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-///     #[ink::e2e_test(ws_url = "ws://localhost:9944")]
-///     async fn e2e_contract_must_transfer_value_to_sender(
-///         mut client: ::ink_e2e::Client<C, E>,
-///     ) -> E2EResult<()> {
-///         Ok(())
-///     }
-///     ```
-///
-///     **Default value:** `"ws://localhost:9944"`.
 ///
 /// # Example
 ///

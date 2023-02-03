@@ -23,13 +23,6 @@ use super::{
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-// use jsonrpsee::{
-//     core::client::ClientT,
-//     ws_client::{
-//         WsClient,
-//         WsClientBuilder,
-//     },
-// };
 use pallet_contracts_primitives::CodeUploadResult;
 use sp_core::{
     Bytes,
