@@ -114,15 +114,22 @@ impl InkE2ETest {
         const DEFAULT_CONTRACTS_NODE: &'static str = "substrate-contracts-node";
 
         // use the user supplied `CONTRACTS_NODE` or default to `substrate-contracts-node`
-        let contracts_node: &'static str = option_env!("CONTRACTS_NODE")
-            .unwrap_or(DEFAULT_CONTRACTS_NODE);
+        let contracts_node: &'static str =
+            option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
 
         // check the specified contracts node.
         if !which::which(contracts_node).is_ok() {
             if contracts_node == DEFAULT_CONTRACTS_NODE {
-                panic!("The '{}' executable was not found on the PATH", DEFAULT_CONTRACTS_NODE)
+                panic!(
+                    "The '{}' executable was not found. Install '{}' on the PATH, \
+                    or specify the `CONTRACTS_NODE` environment variable.",
+                    DEFAULT_CONTRACTS_NODE, DEFAULT_CONTRACTS_NODE,
+                )
             } else {
-                panic!("The contracts node executable '{}' was not found", contracts_node)
+                panic!(
+                    "The contracts node executable '{}' was not found.",
+                    contracts_node
+                )
             }
         }
 
