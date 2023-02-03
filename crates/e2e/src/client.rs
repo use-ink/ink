@@ -374,7 +374,7 @@ where
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
 {
-    /// Creates a new [`Client`] instance using a subxt client.
+    /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new(
         client: subxt::OnlineClient<C>,
         contracts: impl IntoIterator<Item = &str>,

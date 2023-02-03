@@ -69,7 +69,7 @@ where
         Ok(())
     }
 
-    /// Returns the subxt client connected to the running node.
+    /// Returns the `subxt` client connected to the running node.
     pub fn client(&self) -> OnlineClient<R> {
         self.client.clone()
     }
@@ -136,7 +136,7 @@ impl TestNodeProcessBuilder {
         let ws_port = find_substrate_port_from_output(stderr);
         let ws_url = format!("ws://127.0.0.1:{ws_port}");
 
-        // Connect to the node with a subxt client:
+        // Connect to the node with a `subxt` client:
         let client = OnlineClient::from_url(ws_url.clone()).await;
         match client {
             Ok(client) => {

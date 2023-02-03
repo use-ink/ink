@@ -31,7 +31,7 @@ use syn::Result;
 ///
 /// - A Substrate node with `pallet-contracts` installed on the local system.
 ///   You can e.g. use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
-///   and install it on your PATH, or provide a path to an executable using the CONTRACTS_NODE
+///   and install it on your PATH, or provide a path to an executable using the `CONTRACTS_NODE`
 ///   environment variable.
 ///
 /// Before the test function is invoked the contract will have been build. Any errors
