@@ -30,32 +30,25 @@ use super::{
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
-
+use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
+    marker::PhantomData,
     path::Path,
 };
+
 use subxt::{
     blocks::ExtrinsicEvents,
+    config::ExtrinsicParams,
     events::EventDetails,
-    ext::{
-        bitvec::macros::internal::funty::Fundamental,
-        scale_value::{
-            Composite,
-            Value,
-            ValueDef,
-        },
+    ext::scale_value::{
+        Composite,
+        Value,
+        ValueDef,
     },
-    tx::{
-        ExtrinsicParams,
-        PairSigner,
-    },
+    tx::PairSigner,
 };
 
 /// Result of a contract instantiation.
@@ -103,6 +96,7 @@ where
 impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
+    C::AccountId: Debug,
     E: Environment,
     <E as Environment>::AccountId: Debug,
     <E as Environment>::Balance: Debug,
@@ -120,39 +114,46 @@ where
 pub struct CallResult<C: subxt::Config, E: Environment, V> {
     /// The result of the dry run, contains debug messages
     /// if there were any.
-    pub dry_run: ContractExecResult<E::Balance>,
+    pub dry_run: CallDryRunResult<E, V>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
-    /// Contains the result of decoding the return value of the called
-    /// function.
-    pub value: Result<MessageResult<V>, scale::Error>,
-    /// Returns the bytes of the encoded dry-run return value.
-    pub data: Vec<u8>,
 }
 
 impl<C, E, V> CallResult<C, E, V>
 where
     C: subxt::Config,
     E: Environment,
+    V: scale::Decode,
 {
+    /// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        self.dry_run.message_result()
+    }
+
     /// Returns the decoded return value of the message from the dry-run.
     ///
     /// Panics if the value could not be decoded. The raw bytes can be accessed
-    /// via [`return_data`].
+    /// via [`CallResult::return_data`].
     pub fn return_value(self) -> V {
-        self.value
-            .unwrap_or_else(|env_err| {
-                panic!(
-                    "Decoding dry run result to ink! message return type failed: {}",
-                    env_err
-                )
-            })
-            .unwrap_or_else(|lang_err| {
-                panic!(
-                    "Encountered a `LangError` while decoding dry run result to ink! message: {:?}",
-                    lang_err
-                )
-            })
+        self.dry_run.return_value()
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.dry_run.exec_return_value().data
+    }
+
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        self.dry_run.debug_message()
     }
 
     /// Returns true if the specified event was triggered by the call.
@@ -167,17 +168,89 @@ where
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
 // TODO(#xxx) Improve the `Debug` implementation.
-impl<C, E, V> core::fmt::Debug for CallResult<C, E, V>
+impl<C, E, V> Debug for CallResult<C, E, V>
 where
-    C: subxt::Config,
-    E: Environment,
-    <E as Environment>::Balance: core::fmt::Debug,
+    C: subxt::Config + Debug,
+    E: Environment + Debug,
+    <E as Environment>::Balance: Debug,
+    V: Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("CallResult")
             .field("dry_run", &self.dry_run)
             .field("events", &self.events)
             .finish()
+    }
+}
+
+/// Result of the dry run of a contract call.
+#[derive(Debug)]
+pub struct CallDryRunResult<E: Environment, V> {
+    /// The result of the dry run, contains debug messages
+    /// if there were any.
+    pub exec_result: ContractExecResult<E::Balance>,
+    _marker: PhantomData<V>,
+}
+
+impl<E, V> CallDryRunResult<E, V>
+where
+    E: Environment,
+    V: scale::Decode,
+{
+    /// Returns true if the dry-run execution resulted in an error.
+    pub fn is_err(&self) -> bool {
+        self.exec_result.result.is_err()
+    }
+
+    /// Returns the [`ExecReturnValue`] resulting from the dry-run message call.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn exec_return_value(&self) -> &ExecReturnValue {
+        self.exec_result
+            .result
+            .as_ref()
+            .unwrap_or_else(|call_err| panic!("Call dry-run failed: {call_err:?}"))
+    }
+
+    /// Returns the [`MessageResult`] from the execution of the dry-run message
+    /// call.
+    ///
+    /// # Panics
+    /// - if the dry-run message call failed to execute.
+    /// - if message result cannot be decoded into the expected return value
+    ///   type.
+    pub fn message_result(&self) -> MessageResult<V> {
+        let data = &self.exec_return_value().data;
+        scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
+            panic!(
+                "Decoding dry run result to ink! message return type failed: {env_err}"
+            )
+        })
+    }
+
+    /// Returns the decoded return value of the message from the dry-run.
+    ///
+    /// Panics if the value could not be decoded. The raw bytes can be accessed
+    /// via [`CallResult::return_data`].
+    pub fn return_value(self) -> V {
+        self.message_result()
+            .unwrap_or_else(|lang_err| {
+                panic!(
+                    "Encountered a `LangError` while decoding dry run result to ink! message: {lang_err:?}"
+                )
+            })
+    }
+
+    /// Returns the return value as raw bytes of the message from the dry-run.
+    ///
+    /// Panics if the dry-run message call failed to execute.
+    pub fn return_data(&self) -> &[u8] {
+        &self.exec_return_value().data
+    }
+
+    /// Returns any debug message output by the contract decoded as UTF-8.
+    pub fn debug_message(&self) -> String {
+        String::from_utf8_lossy(&self.exec_result.debug_message).into()
     }
 }
 
@@ -223,7 +296,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match &self {
             Error::ContractNotFound(name) => {
-                f.write_str(&format!("ContractNotFound: {}", name))
+                f.write_str(&format!("ContractNotFound: {name}"))
             }
             Error::InstantiateDryRun(res) => {
                 f.write_str(&format!(
@@ -236,7 +309,7 @@ where
             Error::UploadExtrinsic(_) => f.write_str("UploadExtrinsic"),
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
-            Error::Balance(msg) => write!(f, "Balance: {}", msg),
+            Error::Balance(msg) => write!(f, "Balance: {msg}"),
         }
     }
 }
@@ -289,14 +362,12 @@ where
 impl<C, E> Client<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
-    C::Address: From<C::AccountId>,
+    C::AccountId: From<sp_runtime::AccountId32>
+        + scale::Codec
+        + serde::de::DeserializeOwned
+        + Debug,
     C::Signature: From<sr25519::Signature>,
-    <C::Signature as Verify>::Signer: From<sr25519::Public>,
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-    <C::Signature as Verify>::Signer:
-        From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
-    sr25519::Signature: Into<C::Signature>,
 
     E: Environment,
     E::AccountId: Debug,
@@ -309,14 +380,14 @@ where
             .await
             .unwrap_or_else(|err| {
                 if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
-                    let error_msg = format!("Error establishing connection to a node at {}. Make sure you run a node behind the given url!", url);
+                    let error_msg = format!("Error establishing connection to a node at {url}. Make sure you run a node behind the given url!");
                     log_error(&error_msg);
                     panic!("{}", error_msg);
                 }
                 log_error(
                     "Unable to create client! Please check that your node is running.",
                 );
-                panic!("Unable to create client: {:?}", err);
+                panic!("Unable to create client: {err:?}");
             });
         let contracts = contracts
             .into_iter()
@@ -350,11 +421,12 @@ where
     ) -> Signer<C>
     where
         E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display,
+        C::AccountId: Clone + core::fmt::Display + core::fmt::Debug,
+        C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
-        let account_id =
-            <C::Signature as Verify>::Signer::from(pair.public()).into_account();
+        let pair_signer = PairSigner::<C, _>::new(pair);
+        let account_id = pair_signer.account_id().to_owned();
 
         for _ in 0..6 {
             let transfer_result = self
@@ -382,7 +454,7 @@ where
             }
         }
 
-        PairSigner::new(pair)
+        pair_signer
     }
 
     /// This function extracts the metadata of the contract at the file path
@@ -431,7 +503,7 @@ where
         let contract_metadata = self
             .contracts
             .get(contract_name)
-            .unwrap_or_else(|| panic!("Unknown contract {}", contract_name));
+            .unwrap_or_else(|| panic!("Unknown contract {contract_name}"));
         let code = crate::utils::extract_wasm(contract_metadata);
         let data = constructor_exec_input(constructor);
 
@@ -500,13 +572,13 @@ where
         let mut account_id = None;
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {:?}", err);
+                panic!("unable to unwrap event: {err:?}");
             });
 
             if let Some(instantiated) = evt
                 .as_event::<ContractInstantiatedEvent<E>>()
                 .unwrap_or_else(|err| {
-                    panic!("event conversion to `Instantiated` failed: {:?}", err);
+                    panic!("event conversion to `Instantiated` failed: {err:?}");
                 })
             {
                 log_info(&format!(
@@ -525,8 +597,7 @@ where
                     &metadata,
                 );
                 log_error(&format!(
-                    "extrinsic for instantiate failed: {:?}",
-                    dispatch_error
+                    "extrinsic for instantiate failed: {dispatch_error:?}"
                 ));
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
@@ -543,9 +614,11 @@ where
 
     /// Generate a unique salt based on the system time.
     fn salt() -> Vec<u8> {
+        use funty::Fundamental as _;
+
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_else(|err| panic!("unable to get unix time: {}", err))
+            .unwrap_or_else(|err| panic!("unable to get unix time: {err}"))
             .as_millis()
             .as_u128()
             .to_le_bytes()
@@ -589,7 +662,7 @@ where
             .api
             .upload_dry_run(signer, code.clone(), storage_deposit_limit)
             .await;
-        log_info(&format!("upload dry run: {:?}", dry_run));
+        log_info(&format!("upload dry run: {dry_run:?}"));
         if dry_run.is_err() {
             return Err(Error::UploadDryRun(dry_run))
         }
@@ -599,12 +672,12 @@ where
         let mut hash = None;
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {:?}", err);
+                panic!("unable to unwrap event: {err:?}");
             });
 
             if let Some(uploaded) =
                 evt.as_event::<CodeStoredEvent<E>>().unwrap_or_else(|err| {
-                    panic!("event conversion to `Uploaded` failed: {:?}", err);
+                    panic!("event conversion to `Uploaded` failed: {err:?}");
                 })
             {
                 log_info(&format!(
@@ -619,10 +692,7 @@ where
                     evt.field_bytes(),
                     &metadata,
                 );
-                log_error(&format!(
-                    "extrinsic for upload failed: {:?}",
-                    dispatch_error
-                ));
+                log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
                 return Err(Error::UploadExtrinsic(dispatch_error))
             }
         }
@@ -636,7 +706,7 @@ where
             None => {
                 dry_run
                     .as_ref()
-                    .unwrap_or_else(|err| panic!("must have worked: {:?}", err))
+                    .unwrap_or_else(|err| panic!("must have worked: {err:?}"))
                     .code_hash
             }
         };
@@ -664,17 +734,10 @@ where
     {
         log_info(&format!("call: {:02X?}", message.exec_input()));
 
-        let dry_run = self
-            .api
-            .call_dry_run(signer.account_id().clone(), &message, value, None)
-            .await;
-        log_info(&format!("call dry run: {:?}", &dry_run.result));
-        log_info(&format!(
-            "call dry run debug message: {}",
-            String::from_utf8_lossy(&dry_run.debug_message)
-        ));
-        if dry_run.result.is_err() {
-            return Err(Error::CallDryRun(dry_run))
+        let dry_run = self.call_dry_run(signer, &message, value, None).await;
+
+        if dry_run.exec_result.result.is_err() {
+            return Err(Error::CallDryRun(dry_run.exec_result))
         }
 
         let tx_events = self
@@ -682,7 +745,7 @@ where
             .call(
                 sp_runtime::MultiAddress::Id(message.account_id().clone()),
                 value,
-                dry_run.gas_required,
+                dry_run.exec_result.gas_required,
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,
@@ -691,7 +754,7 @@ where
 
         for evt in tx_events.iter() {
             let evt = evt.unwrap_or_else(|err| {
-                panic!("unable to unwrap event: {:?}", err);
+                panic!("unable to unwrap event: {err:?}");
             });
 
             if is_extrinsic_failed_event(&evt) {
@@ -700,21 +763,50 @@ where
                     evt.field_bytes(),
                     &metadata,
                 );
-                log_error(&format!("extrinsic for call failed: {:?}", dispatch_error));
+                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
 
-        let bytes = &dry_run.result.as_ref().unwrap().data;
-        let value: Result<MessageResult<RetType>, scale::Error> =
-            scale::Decode::decode(&mut bytes.as_ref());
-
         Ok(CallResult {
-            value,
-            data: bytes.clone(),
             dry_run,
             events: tx_events,
         })
+    }
+
+    /// Executes a dry-run `call`.
+    ///
+    /// Returns the result of the dry run, together with the decoded return value of the invoked
+    /// message.
+    pub async fn call_dry_run<RetType>(
+        &mut self,
+        signer: &Signer<C>,
+        message: &Message<E, RetType>,
+        value: E::Balance,
+        storage_deposit_limit: Option<E::Balance>,
+    ) -> CallDryRunResult<E, RetType>
+    where
+        RetType: scale::Decode,
+    {
+        let exec_result = self
+            .api
+            .call_dry_run(
+                Signer::account_id(signer).clone(),
+                message,
+                value,
+                storage_deposit_limit,
+            )
+            .await;
+        log_info(&format!("call dry run: {:?}", &exec_result.result));
+        log_info(&format!(
+            "call dry run debug message: {}",
+            String::from_utf8_lossy(&exec_result.debug_message)
+        ));
+
+        CallDryRunResult {
+            exec_result,
+            _marker: Default::default(),
+        }
     }
 
     /// Returns the balance of `account_id`.
@@ -738,28 +830,32 @@ where
             .api
             .client
             .storage()
-            .fetch_or_default(&account_addr, None)
+            .at(None)
             .await
             .unwrap_or_else(|err| {
-                panic!("unable to fetch balance: {:?}", err);
+                panic!("unable to fetch balance: {err:?}");
+            })
+            .fetch_or_default(&account_addr)
+            .await
+            .unwrap_or_else(|err| {
+                panic!("unable to fetch balance: {err:?}");
             })
             .to_value()
             .unwrap_or_else(|err| {
-                panic!("unable to decode account info: {:?}", err);
+                panic!("unable to decode account info: {err:?}");
             });
 
         let account_data = get_composite_field_value(&account, "data")?;
         let balance = get_composite_field_value(account_data, "free")?;
         let balance = balance.as_u128().ok_or_else(|| {
-            Error::Balance(format!("{:?} should convert to u128", balance))
+            Error::Balance(format!("{balance:?} should convert to u128"))
         })?;
         let balance = E::Balance::try_from(balance).map_err(|_| {
-            Error::Balance(format!("{:?} failed to convert from u128", balance))
+            Error::Balance(format!("{balance:?} failed to convert from u128"))
         })?;
 
         log_info(&format!(
-            "balance of contract {:?} is {:?}",
-            account_id, balance
+            "balance of contract {account_id:?} is {balance:?}"
         ));
         Ok(balance)
     }
@@ -784,7 +880,7 @@ where
             .iter()
             .find(|(name, _)| name == field_name)
             .ok_or_else(|| {
-                Error::Balance(format!("No field named '{}' found", field_name))
+                Error::Balance(format!("No field named '{field_name}' found"))
             })?;
         Ok(field)
     } else {

@@ -17,7 +17,6 @@
 
 #[ink::contract]
 pub mod proxy {
-    use ink::env::call::Call;
 
     /// A simple proxy contract.
     #[ink(storage)]
@@ -70,12 +69,9 @@ pub mod proxy {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-                .call_type(
-                    Call::new()
-                        .callee(self.forward_to)
-                        .transferred_value(self.env().transferred_value())
-                        .gas_limit(0),
-                )
+                .call(self.forward_to)
+                .transferred_value(self.env().transferred_value())
+                .gas_limit(0)
                 .call_flags(
                     ink::env::CallFlags::default()
                         .set_forward_input(true)

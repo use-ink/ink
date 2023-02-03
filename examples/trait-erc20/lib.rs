@@ -329,7 +329,7 @@ mod erc20 {
             {
                 let topic = <Hash as scale::Decode>::decode(&mut &actual_topic[..])
                     .expect("encountered invalid topic encoding");
-                assert_eq!(topic, expected_topic, "encountered invalid topic at {}", n);
+                assert_eq!(topic, expected_topic, "encountered invalid topic at {n}");
             }
         }
 

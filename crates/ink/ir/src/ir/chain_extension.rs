@@ -37,7 +37,7 @@ impl ChainExtension {
     /// Returns the Rust attributes of the ink! chain extension.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
         let (_, attrs) = ir::partition_attributes(self.item.attrs.iter().cloned())
-            .unwrap_or_else(|err| panic!("encountered unexpected invalid attributes for ink! chain extension: {}", err));
+            .unwrap_or_else(|err| panic!("encountered unexpected invalid attributes for ink! chain extension: {err}"));
         attrs
     }
 
@@ -148,7 +148,7 @@ impl<'a> Iterator for ChainExtensionMethodInputs<'a> {
         let item = self.iter.next()?;
         match item {
             syn::FnArg::Receiver(receiver) => {
-                panic!("encountered unexpected receiver in chain extension method input: {:?}", receiver)
+                panic!("encountered unexpected receiver in chain extension method input: {receiver:?}")
             }
             syn::FnArg::Typed(pat_type) => Some(pat_type),
         }

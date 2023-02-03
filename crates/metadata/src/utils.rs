@@ -45,7 +45,7 @@ where
             let result = if v.starts_with("0x") {
                 serde_hex::from_hex(v)
             } else {
-                serde_hex::from_hex(&format!("0x{}", v))
+                serde_hex::from_hex(&format!("0x{v}"))
             };
             result.map_err(E::custom)
         }

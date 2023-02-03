@@ -371,7 +371,7 @@ impl Dispatch<'_> {
                 let input_bindings = generator::input_bindings(message.inputs());
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
-                let label = format!("{}::{}", trait_ident, message_ident);
+                let label = format!("{trait_ident}::{message_ident}");
                 quote_spanned!(message_span=>
                     impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;

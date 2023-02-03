@@ -210,15 +210,12 @@ pub mod give_me {
             let call_res = client.call(&ink_e2e::bob(), transfer, 10, None).await;
 
             // then
-            assert!(call_res.is_err());
-            let contains_err_msg = match call_res.unwrap_err() {
-                ink_e2e::Error::CallDryRun(dry_run) => {
-                    String::from_utf8_lossy(&dry_run.debug_message)
-                        .contains("paid an unpayable message")
-                }
-                _ => false,
-            };
-            assert!(contains_err_msg);
+            if let Err(ink_e2e::Error::CallDryRun(dry_run)) = call_res {
+                let debug_message = String::from_utf8_lossy(&dry_run.debug_message);
+                assert!(debug_message.contains("paid an unpayable message"))
+            } else {
+                panic!("Paying an unpayable message should fail")
+            }
             Ok(())
         }
 
@@ -254,10 +251,7 @@ pub mod give_me {
                 .expect("call failed");
 
             // then
-            let contains_debug_println =
-                String::from_utf8_lossy(&call_res.dry_run.debug_message)
-                    .contains("requested value: 120\n");
-            assert!(contains_debug_println);
+            assert!(call_res.debug_message().contains("requested value: 120\n"));
 
             let balance_after: Balance = client
                 .balance(contract_acc_id)

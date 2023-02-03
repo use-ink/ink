@@ -356,7 +356,6 @@ mod erc1155 {
             {
                 use ink::env::call::{
                     build_call,
-                    Call,
                     ExecutionInput,
                     Selector,
                 };
@@ -364,7 +363,8 @@ mod erc1155 {
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
                 let result = build_call::<Environment>()
-                    .call_type(Call::new().callee(to).gas_limit(5000))
+                    .call(to)
+                    .gas_limit(5000)
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
                             .push_arg(caller)
@@ -389,8 +389,8 @@ mod erc1155 {
                         assert_eq!(
                             v.clone().expect("Call should be valid, don't expect a `LangError`."),
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
-                            "The recipient contract at {:?} does not accept token transfers.\n
-                            Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v
+                            "The recipient contract at {to:?} does not accept token transfers.\n
+                            Expected: {ON_ERC_1155_RECEIVED_SELECTOR:?}, Got {v:?}"
                         )
                     }
                     Err(e) => {
@@ -405,8 +405,7 @@ mod erc1155 {
                                 // We got some sort of error from the call to our recipient smart
                                 // contract, and as such we must revert this call
                                 panic!(
-                                    "Got error \"{:?}\" while trying to call {:?}",
-                                    e, from
+                                    "Got error \"{e:?}\" while trying to call {from:?}"
                                 )
                             }
                         }
@@ -431,7 +430,7 @@ mod erc1155 {
                 ensure!(self.is_approved_for_all(from, caller), Error::NotApproved);
             }
 
-            ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            ensure!(to != zero_address(), Error::ZeroAddressTransfer);
 
             let balance = self.balance_of(from, token_id);
             ensure!(balance >= value, Error::InsufficientBalance);
@@ -456,7 +455,7 @@ mod erc1155 {
                 ensure!(self.is_approved_for_all(from, caller), Error::NotApproved);
             }
 
-            ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            ensure!(to != zero_address(), Error::ZeroAddressTransfer);
             ensure!(!token_ids.is_empty(), Error::BatchTransferMismatch);
             ensure!(
                 token_ids.len() == values.len(),
@@ -578,6 +577,13 @@ mod erc1155 {
             // and we've decided to not accept them in this implementation.
             unimplemented!("This smart contract does not accept batch token transfers.")
         }
+    }
+
+    /// Helper for referencing the zero address (`0x00`). Note that in practice this address should
+    /// not be treated in any special way (such as a default placeholder) since it has a known
+    /// private key.
+    fn zero_address() -> AccountId {
+        [0u8; 32].into()
     }
 
     #[cfg(test)]

@@ -88,7 +88,7 @@ mod tests {
 
                 (ok_ty, err_ty)
             }
-            td => panic!("Expected a Variant type def enum, got {:?}", td),
+            td => panic!("Expected a Variant type def enum, got {td:?}"),
         }
     }
 
@@ -97,7 +97,7 @@ mod tests {
         metadata
             .registry()
             .resolve(type_id)
-            .unwrap_or_else(|| panic!("No type found in registry with id {}", type_id))
+            .unwrap_or_else(|| panic!("No type found in registry with id {type_id}"))
     }
 
     #[test]

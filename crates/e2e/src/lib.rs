@@ -32,8 +32,12 @@ pub use builders::{
     MessageBuilder,
 };
 pub use client::{
+    CallDryRunResult,
+    CallResult,
     Client,
     Error,
+    InstantiationResult,
+    UploadResult,
 };
 pub use default_accounts::*;
 pub use env_logger;
@@ -52,10 +56,6 @@ use pallet_contracts_primitives::{
     ContractInstantiateResult,
 };
 use sp_core::sr25519;
-use sp_runtime::traits::{
-    IdentifyAccount,
-    Verify,
-};
 use std::{
     cell::RefCell,
     sync::Once,
@@ -71,20 +71,22 @@ impl subxt::Config for SubstrateConfig {
     type Index = u32;
     type BlockNumber = u32;
     type Hash = sp_core::H256;
-    type Hashing = sp_runtime::traits::BlakeTwo256;
-    type AccountId = sp_runtime::AccountId32;
+    type Hasher = subxt::config::substrate::BlakeTwo256;
+    type AccountId = subxt::config::substrate::AccountId32;
     type Address = sp_runtime::MultiAddress<Self::AccountId, u32>;
-    type Header =
-        sp_runtime::generic::Header<Self::BlockNumber, sp_runtime::traits::BlakeTwo256>;
+    type Header = subxt::config::substrate::SubstrateHeader<
+        Self::BlockNumber,
+        subxt::config::substrate::BlakeTwo256,
+    >;
     type Signature = sp_runtime::MultiSignature;
-    type ExtrinsicParams = subxt::tx::SubstrateExtrinsicParams<Self>;
+    type ExtrinsicParams = subxt::config::substrate::SubstrateExtrinsicParams<Self>;
 }
 
 /// Default set of commonly used types by Polkadot nodes.
 #[cfg(feature = "std")]
 pub type PolkadotConfig = subxt::config::WithExtrinsicParams<
     SubstrateConfig,
-    subxt::tx::PolkadotExtrinsicParams<SubstrateConfig>,
+    subxt::config::polkadot::PolkadotExtrinsicParams<SubstrateConfig>,
 >;
 
 /// Signer that is used throughout the E2E testing.
