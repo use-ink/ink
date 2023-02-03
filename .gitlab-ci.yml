@@ -395,21 +395,6 @@ examples-test:
       done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
-# debug, rm me
-examples-test-k8s:
-  # stage:                           examples
-  stage: lint
-  <<:                              *docker-env
-  <<:                              *test-refs
-  # needs:
-  #   - job:                         clippy-std
-  #     artifacts:                   false
-  script:
-    - *start-substrate-contracts-node
-    - cargo test --verbose --manifest-path examples/flipper/Cargo.toml --features e2e-tests
-  tags:
-    - kubernetes-parity-build
-
 examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
