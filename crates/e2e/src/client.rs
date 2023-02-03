@@ -418,18 +418,17 @@ where
         let pair_signer = PairSigner::<C, _>::new(pair);
         let account_id = pair_signer.account_id().to_owned();
 
-        self
-            .api
+        self.api
             .try_transfer_balance(origin, account_id.clone(), amount)
             .await
-            .unwrap_or_else(|err|
+            .unwrap_or_else(|err| {
                 panic!(
                     "transfer from {} to {} failed with {:?}",
                     origin.account_id(),
                     account_id,
                     err
                 )
-            );
+            });
 
         log_info(&format!(
             "transfer from {} to {} succeeded",
