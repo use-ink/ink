@@ -125,9 +125,7 @@ impl InkE2ETest {
                     or specify the `CONTRACTS_NODE` environment variable.",
                 )
             } else {
-                panic!(
-                    "The contracts node executable '{contracts_node}' was not found."
-                )
+                panic!("The contracts node executable '{contracts_node}' was not found.")
             }
         }
 
