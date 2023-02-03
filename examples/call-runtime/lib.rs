@@ -13,7 +13,7 @@ mod runtime_call {
 
         #[ink(message)]
         pub fn make_transfer(&self) {
-            self.env().call_runtime();
+            self.env().call_runtime().expect("Should succeed");
         }
     }
 
@@ -22,9 +22,9 @@ mod runtime_call {
         use super::*;
 
         #[ink::test]
-        #[should_panic(expected = "Cannot call runtime while off chain")]
+        #[should_panic(expected = "off-chain environment does not support `call runtime`")]
         fn cannot_call_runtime_off_chain() {
-            let mut contract = Caller::new();
+            let contract = Caller::new();
             contract.make_transfer();
         }
     }

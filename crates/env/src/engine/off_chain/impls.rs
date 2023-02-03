@@ -541,4 +541,8 @@ impl TypedEnvBackend for EnvInstance {
     {
         unimplemented!("off-chain environment does not support `own_code_hash`")
     }
+
+    fn call_runtime<E>(&mut self) -> Result<()> where E: Environment {
+        unimplemented!("off-chain environment does not support `call runtime`")
+    }
 }

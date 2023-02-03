@@ -510,4 +510,8 @@ pub trait TypedEnvBackend: EnvBackend {
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment;
+
+    fn call_runtime<E>(&mut self) -> Result<()>
+        where
+            E: Environment;
 }

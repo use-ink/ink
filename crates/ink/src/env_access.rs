@@ -969,4 +969,8 @@ where
     pub fn own_code_hash(self) -> Result<E::Hash> {
         ink_env::own_code_hash::<E>()
     }
+
+    pub fn call_runtime(self) -> Result<()> {
+        ink_env::call_runtime::<E>()
+    }
 }
