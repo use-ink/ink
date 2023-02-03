@@ -118,7 +118,7 @@ impl TestNodeProcessBuilder {
             .arg("--ws-port=0");
 
         if let Some(authority) = self.authority {
-            let authority = format!("{:?}", authority);
+            let authority = format!("{authority:?}");
             let arg = format!("--{}", authority.as_str().to_lowercase());
             cmd.arg(arg);
         }
@@ -134,7 +134,7 @@ impl TestNodeProcessBuilder {
         // Wait for RPC port to be logged (it's logged to stderr):
         let stderr = proc.stderr.take().unwrap();
         let ws_port = find_substrate_port_from_output(stderr);
-        let ws_url = format!("ws://127.0.0.1:{}", ws_port);
+        let ws_url = format!("ws://127.0.0.1:{ws_port}");
 
         // Connect to the node with a subxt client:
         let client = OnlineClient::from_url(ws_url.clone()).await;
@@ -147,7 +147,7 @@ impl TestNodeProcessBuilder {
                 })
             }
             Err(err) => {
-                let err = format!("Failed to connect to node rpc at {}: {}", ws_url, err);
+                let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
                 log::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
