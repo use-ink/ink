@@ -325,6 +325,8 @@ mod sys {
             out_ptr: Ptr32Mut<[u8]>,
             out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+
+        pub fn call_runtime(call_ptr: Ptr32<[u8]>, call_len: u32) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal1")]
@@ -637,6 +639,13 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
             return_value.len() as u32,
         )
     }
+}
+
+pub fn call_runtime() -> Result {
+    let mock = [0u8; 10];
+    let ret_code =
+        unsafe { sys::call_runtime(Ptr32::from_slice(&mock), mock.len() as u32) };
+    ret_code.into()
 }
 
 macro_rules! impl_wrapper_for {

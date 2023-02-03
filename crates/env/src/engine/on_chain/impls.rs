@@ -575,4 +575,11 @@ impl TypedEnvBackend for EnvInstance {
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
     }
+
+    fn call_runtime<E>(&mut self) -> Result<()>
+    where
+        E: Environment,
+    {
+        ext::call_runtime().map_err(Into::into)
+    }
 }
