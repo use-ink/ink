@@ -74,7 +74,7 @@ where
         self.client.clone()
     }
 
-    /// Returns the url of the running node.
+    /// Returns the URL of the running node.
     pub fn url(&self) -> &str {
         &self.url
     }
@@ -97,13 +97,13 @@ impl TestNodeProcessBuilder {
         }
     }
 
-    /// Set the authority dev account for a node in validator mode e.g. --alice.
+    /// Set the authority development account for a node in validator mode e.g. --alice.
     pub fn with_authority(&mut self, account: AccountKeyring) -> &mut Self {
         self.authority = Some(account);
         self
     }
 
-    /// Spawn the substrate node at the given path, and wait for rpc to be initialized.
+    /// Spawn the substrate node at the given path, and wait for RPC to be initialized.
     pub async fn spawn<R>(&self) -> Result<TestNodeProcess<R>, String>
     where
         R: Config,
