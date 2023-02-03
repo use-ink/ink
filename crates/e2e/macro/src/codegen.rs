@@ -111,6 +111,21 @@ impl InkE2ETest {
             quote! { #bundle_path }
         });
 
+        const DEFAULT_CONTRACTS_NODE: &'static str = "substrate-contracts-node";
+
+        // use the user supplied `CONTRACTS_NODE` or default to `substrate-contracts-node`
+        let contracts_node: &'static str = option_env!("CONTRACTS_NODE")
+            .unwrap_or(DEFAULT_CONTRACTS_NODE);
+
+        // check the specified contracts node.
+        if !which::which(contracts_node).is_ok() {
+            if contracts_node == DEFAULT_CONTRACTS_NODE {
+                panic!("The '{}' executable was not found on the PATH", DEFAULT_CONTRACTS_NODE)
+            } else {
+                panic!("The contracts node executable '{}' was not found", contracts_node)
+            }
+        }
+
         quote! {
             #( #attrs )*
             #[test]
@@ -122,10 +137,8 @@ impl InkE2ETest {
                 });
                 log_info("setting up e2e test");
 
-                ::ink_e2e::INIT.call_once(|| {
+                ::ink_e2e::INIT.call_once(move || {
                     ::ink_e2e::env_logger::init();
-
-                    // todo: check substrate-contracts-node
                 });
 
                 log_info("creating new client");
@@ -133,7 +146,7 @@ impl InkE2ETest {
                 let run = async {
                     // spawn a contracts node process just for this test
                     let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
-                        ::build("substrate-contracts-node")
+                        ::build(#contracts_node)
                         .spawn()
                         .await
                         .unwrap_or_else(|err|
