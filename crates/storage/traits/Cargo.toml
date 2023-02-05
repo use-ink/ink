@@ -20,7 +20,6 @@ ink_primitives = { version = "4.0.1", path = "../../primitives", default-feature
 ink_prelude = { version = "4.0.1", path = "../../prelude", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
-syn = { version = "1", features = ["full"] }
 
 [dev-dependencies]
 paste = "1.0"
