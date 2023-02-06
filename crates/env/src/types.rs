@@ -160,10 +160,18 @@ pub trait Environment {
     ///
     /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;
+
+    /// todo
+    #[cfg(feature = "call-runtime")]
+    type RuntimeCall: scale::Encode;
 }
 
 /// Placeholder for chains that have no defined chain extension.
 pub enum NoChainExtension {}
+
+/// todo
+#[derive(Debug, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+pub enum NoRuntimeCall {}
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -179,6 +187,8 @@ impl Environment for DefaultEnvironment {
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
     type ChainExtension = NoChainExtension;
+    #[cfg(feature = "call-runtime")]
+    type RuntimeCall = NoRuntimeCall;
 }
 
 /// The default balance type.
