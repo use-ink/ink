@@ -137,7 +137,7 @@ impl Constructor {
                 match arg.kind() {
                     ir::AttributeArg::Constructor
                     | ir::AttributeArg::Payable
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::SelectorWildcard(_) => Ok(()),
                     _ => Err(None),
                 }
             },

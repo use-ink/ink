@@ -185,7 +185,7 @@ impl Message {
                 match arg.kind() {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
-                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    | ir::AttributeArg::SelectorWildcard(_) => Ok(()),
                     _ => Err(None),
                 }
             },

@@ -263,16 +263,6 @@ impl InkAttribute {
         })
     }
 
-    /// Returns the selector of the ink! attribute if any.
-    pub fn selector(&self) -> Option<SelectorOrWildcard> {
-        self.args().find_map(|arg| {
-            if let ir::AttributeArg::Selector(selector) = arg.kind() {
-                return Some(*selector)
-            }
-            None
-        })
-    }
-
     /// Returns `true` if the ink! attribute contains the `payable` argument.
     pub fn is_payable(&self) -> bool {
         self.args()
@@ -284,7 +274,7 @@ impl InkAttribute {
         self.args().any(|arg| {
             matches!(
                 arg.kind(),
-                AttributeArg::Selector(SelectorOrWildcard::Wildcard)
+                AttributeArg::SelectorWildcard
             )
         })
     }
@@ -343,8 +333,7 @@ pub enum AttributeArgKind {
     /// `#[ink(payable)]`
     Payable,
     /// `#[ink(selector = _)]`
-    /// `#[ink(selector = 0xDEADBEEF)]`
-    Selector,
+    SelectorWildcard,
     /// `#[ink(extension = N: u32)]`
     Extension,
     /// `#[ink(namespace = "my_namespace")]`
@@ -394,15 +383,11 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
-    /// Can be either one of:
+    /// `#[ink(selector = _)]`
     ///
-    /// - `#[ink(selector = 0xDEADBEEF)]`
-    ///   Applied on ink! constructors or messages to manually control their
-    ///   selectors.
-    /// - `#[ink(selector = _)]`
-    ///   Applied on ink! messages to define a fallback messages that is invoked
-    ///   if no other ink! message matches a given selector.
-    Selector(SelectorOrWildcard),
+    ///  Applied on ink! messages to define a fallback messages that is invoked
+    ///  if no other ink! message matches a given selector.
+    SelectorWildcard,
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -445,8 +430,8 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::Selector => {
-                write!(f, "selector = S:[u8; 4] || _")
+            Self::SelectorWildcard => {
+                write!(f, "selector = _")
             }
             Self::Extension => {
                 write!(f, "extension = N:u32)")
@@ -471,7 +456,7 @@ impl AttributeArg {
             Self::Message => AttributeArgKind::Message,
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
-            Self::Selector(_) => AttributeArgKind::Selector,
+            Self::SelectorWildcard(_) => AttributeArgKind::SelectorWildcard,
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -490,7 +475,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
+            Self::SelectorWildcard(selector) => core::fmt::Display::fmt(&selector, f),
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
             }
@@ -499,32 +484,6 @@ impl core::fmt::Display for AttributeArg {
             }
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
-        }
-    }
-}
-
-/// Either a wildcard selector or a specified selector.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum SelectorOrWildcard {
-    /// A wildcard selector. If no other selector matches, the message/constructor
-    /// annotated with the wildcard selector will be invoked.
-    Wildcard,
-    /// A user provided selector.
-    UserProvided(ir::Selector),
-}
-
-impl SelectorOrWildcard {
-    /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
-    fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
-        SelectorOrWildcard::UserProvided(Selector::from(bytes))
-    }
-}
-
-impl core::fmt::Display for SelectorOrWildcard {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
-        match self {
-            Self::UserProvided(selector) => core::fmt::Debug::fmt(&selector, f),
-            Self::Wildcard => write!(f, "_"),
         }
     }
 }
@@ -887,13 +846,13 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 if argument != "_" {
                                     return Err(format_err!(
                                         name_value,
-                                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                                        "#[ink(selector = ..)] attributes with arbitrary string inputs are no longer supported. \
+                                        use the selector wildcard instead, e.g. #[ink(selector = _)]"
                                     ))
                                 }
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
+                                    arg: AttributeArg::SelectorWildcard,
                                 })
                             }
 
@@ -912,7 +871,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
                                 })
                             }
-                            return Err(format_err!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
+                            return Err(format_err!(name_value, "expected the wildcard '_' for the `selector` argument, e.g. #[ink(selector = _)]"))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
