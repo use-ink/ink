@@ -17,7 +17,7 @@ mod runtime_call {
             _value: Balance,
             _receiver: AccountId,
         ) {
-            self.env().call_runtime().expect("Should succeed");
+            self.env().call_runtime(&()).expect("Should succeed");
         }
     }
 

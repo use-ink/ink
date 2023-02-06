@@ -643,10 +643,9 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
 }
 
 #[cfg(feature = "call-runtime")]
-pub fn call_runtime() -> Result {
-    let mock = [0u8; 10];
+pub fn call_runtime(call: &[u8]) -> Result {
     let ret_code =
-        unsafe { sys::call_runtime(Ptr32::from_slice(&mock), mock.len() as u32) };
+        unsafe { sys::call_runtime(Ptr32::from_slice(call), call.len() as u32) };
     ret_code.into()
 }
 

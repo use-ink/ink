@@ -512,7 +512,8 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment;
 
     #[cfg(feature = "call-runtime")]
-    fn call_runtime<E>(&mut self) -> Result<()>
+    fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
     where
-        E: Environment;
+        E: Environment,
+        Call: scale::Encode;
 }
