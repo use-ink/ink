@@ -1,6 +1,6 @@
 [package]
 name = "ink_e2e_macro"
-version = "4.0.0-beta.1"
+version = "4.0.0-rc"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
@@ -19,8 +19,8 @@ name = "ink_e2e_macro"
 proc-macro = true
 
 [dependencies]
-ink_ir = { version = "4.0.0-beta.1", path = "../../ink/ir" }
-contract-build = "2.0.0-beta.1"
+ink_ir = { version = "4.0.0-rc", path = "../../ink/ir" }
+contract-build = "2.0.0-rc.1"
 derive_more = "0.99.17"
 env_logger = "0.10.0"
 log = "0.4.17"

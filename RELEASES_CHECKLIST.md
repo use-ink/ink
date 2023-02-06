@@ -76,7 +76,7 @@ in the future.
        `master` during the release.
      - The above are to ensure that the bundled code pushed to crates.io is the same as 
        the tagged release on GitHub.
-1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [new_version] -v --no-tag --no-push --execute`
+1. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
     - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer 
       compatible version you are attempting to release e.g. `4.0.0-alpha.3`.
     - We add the grace period since crates depend on one another.

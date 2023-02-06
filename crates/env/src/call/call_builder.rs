@@ -28,7 +28,6 @@ use crate::{
     Error,
 };
 use core::marker::PhantomData;
-use ink_primitives::Clear;
 use num_traits::Zero;
 
 /// The final parameters to the cross-contract call.
@@ -203,11 +202,9 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .call_type(
-///             Call::new()
-///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000)
-///                 .transferred_value(10))
+///     .call(AccountId::from([0x42; 32]))
+///     .gas_limit(5000)
+///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -239,9 +236,8 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(Call::new()
-///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000))
+///     .call_type(Call::new(AccountId::from([0x42; 32])))
+///     .gas_limit(5000)
 ///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
@@ -268,8 +264,7 @@ where
 /// # use ink_primitives::Clear;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .call_type(DelegateCall::new()
-///                 .code_hash(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH))
+///     .delegate(<DefaultEnvironment as Environment>::Hash::CLEAR_HASH)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -304,12 +299,9 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// let call_result = build_call::<DefaultEnvironment>()
-///     .call_type(
-///         Call::new()
-///             .callee(AccountId::from([0x42; 32]))
-///             .gas_limit(5000)
-///             .transferred_value(10),
-///     )
+///     .call(AccountId::from([0x42; 32]))
+///     .gas_limit(5000)
+///     .transferred_value(10)
 ///     .try_invoke()
 ///     .expect("Got an error from the Contract's pallet.");
 ///
@@ -346,20 +338,14 @@ pub struct Call<E: Environment> {
     transferred_value: E::Balance,
 }
 
-impl<E: Environment> Default for Call<E> {
-    fn default() -> Self {
-        Call {
-            callee: Default::default(),
+impl<E: Environment> Call<E> {
+    /// Returns a clean builder for [`Call`].
+    pub fn new(callee: E::AccountId) -> Self {
+        Self {
+            callee,
             gas_limit: Default::default(),
             transferred_value: E::Balance::zero(),
         }
-    }
-}
-
-impl<E: Environment> Call<E> {
-    /// Returns a clean builder for [`Call`].
-    pub fn new() -> Self {
-        Default::default()
     }
 }
 
@@ -367,15 +353,6 @@ impl<E> Call<E>
 where
     E: Environment,
 {
-    /// Sets the `callee` for the current cross-contract call.
-    pub fn callee(self, callee: E::AccountId) -> Self {
-        Call {
-            callee,
-            gas_limit: self.gas_limit,
-            transferred_value: self.transferred_value,
-        }
-    }
-
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
         Call {
@@ -402,16 +379,8 @@ pub struct DelegateCall<E: Environment> {
 
 impl<E: Environment> DelegateCall<E> {
     /// Returns a clean builder for [`DelegateCall`]
-    pub const fn new() -> Self {
-        DelegateCall {
-            code_hash: E::Hash::CLEAR_HASH,
-        }
-    }
-}
-
-impl<E: Environment> Default for DelegateCall<E> {
-    fn default() -> Self {
-        Self::new()
+    pub const fn new(code_hash: E::Hash) -> Self {
+        DelegateCall { code_hash }
     }
 }
 
@@ -519,19 +488,17 @@ where
     }
 }
 
-impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
+impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>
 where
     E: Environment,
 {
-    /// Sets the `callee` for the current cross-contract call.
-    pub fn callee(self, callee: E::AccountId) -> Self {
-        let call_type = self.call_type.value();
+    /// Prepares the `CallBuilder` for a cross-contract [`Call`].
+    pub fn call(
+        self,
+        callee: E::AccountId,
+    ) -> CallBuilder<E, Set<Call<E>>, Args, RetType> {
         CallBuilder {
-            call_type: Set(Call {
-                callee,
-                gas_limit: call_type.gas_limit,
-                transferred_value: call_type.transferred_value,
-            }),
+            call_type: Set(Call::new(callee)),
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
@@ -539,6 +506,25 @@ where
         }
     }
 
+    /// Prepares the `CallBuilder` for a cross-contract [`DelegateCall`].
+    pub fn delegate(
+        self,
+        code_hash: E::Hash,
+    ) -> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType> {
+        CallBuilder {
+            call_type: Set(DelegateCall::new(code_hash)),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
+where
+    E: Environment,
+{
     /// Sets the `gas_limit` for the current cross-contract call.
     pub fn gas_limit(self, gas_limit: Gas) -> Self {
         let call_type = self.call_type.value();
