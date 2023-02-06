@@ -57,8 +57,6 @@
 ///     type BlockNumber = u32;
 ///     type Timestamp = u64;
 ///     type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
-///     #[cfg(feature = "call-runtime")]
-///     type RuntimeCall = <DefaultEnvironment as Environment>::RuntimeCall;
 /// }
 ///
 /// #[ink::contract(env = super::CustomEnvironment)]

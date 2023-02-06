@@ -48,7 +48,7 @@ pub enum Error {
     /// recording was disabled.
     LoggingDisabled,
     /// The call dispatched by `call_runtime` was executed but returned an error.
-    CallRuntimeReturnedError,
+    CallRuntimeReturned,
     /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed,
 }
