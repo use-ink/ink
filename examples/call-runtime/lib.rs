@@ -27,6 +27,7 @@ mod runtime_call {
     };
 
     #[ink(storage)]
+    #[derive(Default)]
     pub struct RuntimeCaller;
 
     impl RuntimeCaller {
@@ -108,21 +109,19 @@ mod runtime_call {
             let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
 
             let contract_balance_before = client
-                .balance(contract_acc_id.clone())
+                .balance(contract_acc_id)
                 .await
                 .expect("Failed to get account balance");
             let receiver_balance_before = client
-                .balance(receiver.clone())
+                .balance(receiver)
                 .await
                 .expect("Failed to get account balance");
 
             // when
-            let transfer_message = build_message::<RuntimeCallerRef>(
-                contract_acc_id.clone(),
-            )
-            .call(|caller| {
-                caller.make_transfer_through_runtime(receiver.clone(), TRANSFER_VALUE)
-            });
+            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
+                .call(|caller| {
+                    caller.make_transfer_through_runtime(receiver, TRANSFER_VALUE)
+                });
 
             let _call_res = client
                 .call(&ink_e2e::alice(), transfer_message, 0, None)
