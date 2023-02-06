@@ -51,7 +51,7 @@ where
     R: Config,
 {
     /// Construct a builder for spawning a test node process.
-    pub fn build<S>(program: S) -> TestNodeProcessBuilder
+    pub fn build<S>(program: S) -> TestNodeProcessBuilder<R>
     where
         S: AsRef<OsStr> + Clone,
     {
@@ -81,19 +81,24 @@ where
 }
 
 /// Construct a test node process.
-pub struct TestNodeProcessBuilder {
+pub struct TestNodeProcessBuilder<R> {
     node_path: OsString,
     authority: Option<AccountKeyring>,
+    marker: std::marker::PhantomData<R>,
 }
 
-impl TestNodeProcessBuilder {
-    pub fn new<P>(node_path: P) -> TestNodeProcessBuilder
+impl<R> TestNodeProcessBuilder<R>
+where
+    R: Config,
+{
+    pub fn new<P>(node_path: P) -> TestNodeProcessBuilder<R>
     where
         P: AsRef<OsStr>,
     {
         Self {
             node_path: node_path.as_ref().into(),
             authority: None,
+            marker: Default::default(),
         }
     }
 
@@ -104,10 +109,7 @@ impl TestNodeProcessBuilder {
     }
 
     /// Spawn the substrate node at the given path, and wait for RPC to be initialized.
-    pub async fn spawn<R>(&self) -> Result<TestNodeProcess<R>, String>
-    where
-        R: Config,
-    {
+    pub async fn spawn(&self) -> Result<TestNodeProcess<R>, String> {
         let mut cmd = process::Command::new(&self.node_path);
         cmd.env("RUST_LOG", "info")
             .arg("--dev")
@@ -186,4 +188,46 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
             Some(port_num)
         })
         .expect("We should find a port before the reader ends")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use subxt::PolkadotConfig as SubxtConfig;
+
+    #[tokio::test]
+    #[allow(unused_assignments)]
+    async fn spawning_and_killing_nodes_works() {
+        let mut client1: Option<OnlineClient<SubxtConfig>> = None;
+        let mut client2: Option<OnlineClient<SubxtConfig>> = None;
+
+        {
+            let node_proc1 =
+                TestNodeProcess::<SubxtConfig>::build("substrate-contracts-node")
+                    .spawn()
+                    .await
+                    .unwrap();
+            client1 = Some(node_proc1.client());
+
+            let node_proc2 =
+                TestNodeProcess::<SubxtConfig>::build("substrate-contracts-node")
+                    .spawn()
+                    .await
+                    .unwrap();
+            client2 = Some(node_proc2.client());
+
+            let res1 = node_proc1.client().rpc().block_hash(None).await;
+            let res2 = node_proc1.client().rpc().block_hash(None).await;
+
+            assert!(res1.is_ok());
+            assert!(res2.is_ok());
+        }
+
+        // node processes should have been killed by `Drop` in the above block.
+        let res1 = client1.unwrap().rpc().block_hash(None).await;
+        let res2 = client2.unwrap().rpc().block_hash(None).await;
+
+        assert!(res1.is_err());
+        assert!(res2.is_err());
+    }
 }
