@@ -1,7 +1,32 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use ink::primitives::AccountId;
+use sp_runtime::MultiAddress;
+
+#[derive(scale::Encode)]
+enum RuntimeCall {
+    #[codec(index = 4)]
+    Balances(BalancesCall),
+}
+
+#[derive(scale::Encode)]
+enum BalancesCall {
+    #[codec(index = 0)]
+    #[allow(non_camel_case_types)]
+    transfer {
+        dest: MultiAddress<AccountId, ()>,
+        #[codec(compact)]
+        value: u128,
+    },
+}
+
 #[ink::contract]
 mod runtime_call {
+    use crate::{
+        BalancesCall,
+        RuntimeCall,
+    };
+
     #[ink(storage)]
     pub struct RuntimeCaller;
 
@@ -12,12 +37,13 @@ mod runtime_call {
         }
 
         #[ink(message)]
-        pub fn make_transfer_through_runtime(
-            &self,
-            _value: Balance,
-            _receiver: AccountId,
-        ) {
-            self.env().call_runtime(&()).expect("Should succeed");
+        pub fn make_transfer_through_runtime(&self, value: Balance, receiver: AccountId) {
+            self.env()
+                .call_runtime(&RuntimeCall::Balances(BalancesCall::transfer {
+                    dest: receiver.into(),
+                    value,
+                }))
+                .expect("Should succeed");
         }
     }
 
