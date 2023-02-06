@@ -12,8 +12,7 @@ enum RuntimeCall {
 #[derive(scale::Encode)]
 enum BalancesCall {
     #[codec(index = 0)]
-    #[allow(non_camel_case_types)]
-    transfer {
+    Transfer {
         dest: MultiAddress<AccountId, ()>,
         #[codec(compact)]
         value: u128,
@@ -37,9 +36,9 @@ mod runtime_call {
         }
 
         #[ink(message)]
-        pub fn make_transfer_through_runtime(&self, value: Balance, receiver: AccountId) {
+        pub fn make_transfer_through_runtime(&self, receiver: AccountId, value: Balance) {
             self.env()
-                .call_runtime(&RuntimeCall::Balances(BalancesCall::transfer {
+                .call_runtime(&RuntimeCall::Balances(BalancesCall::Transfer {
                     dest: receiver.into(),
                     value,
                 }))
@@ -62,8 +61,8 @@ mod runtime_call {
         fn cannot_call_runtime_off_chain() {
             let contract = RuntimeCaller::new();
             contract.make_transfer_through_runtime(
-                10,
                 default_accounts::<DefaultEnvironment>().bob,
+                10,
             );
         }
     }
@@ -117,9 +116,7 @@ mod runtime_call {
             let transfer_message = build_message::<RuntimeCallerRef>(
                 contract_acc_id.clone(),
             )
-            .call(|caller| {
-                caller.make_transfer_through_runtime(TRANSFER_VALUE, receiver.clone())
-            });
+            .call(|caller| caller.make_transfer_through_runtime(receiver.clone(), 0));
 
             let _call_res = client
                 .call(&ink_e2e::alice(), transfer_message, 0, None)

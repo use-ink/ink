@@ -114,6 +114,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
+            ext::Error::CallRuntimeReturnedError => Self::CallRuntimeReturnedError,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
