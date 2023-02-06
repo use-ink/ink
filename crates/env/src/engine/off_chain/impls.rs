@@ -543,7 +543,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "call-runtime")]
-    fn call_runtime<E>(&mut self, _call: &E::RuntimeCall) -> Result<()>
+    fn call_runtime<E>(&mut self) -> Result<()>
     where
         E: Environment,
     {

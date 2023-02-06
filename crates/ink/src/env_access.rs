@@ -971,7 +971,7 @@ where
     }
 
     #[cfg(feature = "call-runtime")]
-    pub fn call_runtime(self, call: &E::RuntimeCall) -> Result<()> {
-        ink_env::call_runtime::<E>(call)
+    pub fn call_runtime(self) -> Result<()> {
+        ink_env::call_runtime::<E>()
     }
 }

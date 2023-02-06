@@ -577,13 +577,10 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "call-runtime")]
-    fn call_runtime<E>(&mut self, call: &E::RuntimeCall) -> Result<()>
+    fn call_runtime<E>(&mut self) -> Result<()>
     where
         E: Environment,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_call = scope.take_encoded(call);
-
-        ext::call_runtime(enc_call).map_err(Into::into)
+        ext::call_runtime().map_err(Into::into)
     }
 }
