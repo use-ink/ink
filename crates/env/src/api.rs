@@ -704,7 +704,7 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 /// Tries to dispatch a pallet call.
 ///
 /// # Errors
-
+///
 /// - If the call cannot be properly decoded on the pallet contracts side.
 /// - If the runtime doesn't allow for the contract unstable feature.
 /// - If the runtime doesn't allow for dispatching this call from a contract.
