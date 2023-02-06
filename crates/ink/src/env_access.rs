@@ -970,6 +970,7 @@ where
         ink_env::own_code_hash::<E>()
     }
 
+    #[cfg(feature = "call-runtime")]
     pub fn call_runtime(self) -> Result<()> {
         ink_env::call_runtime::<E>()
     }

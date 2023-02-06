@@ -81,11 +81,11 @@ mod runtime_call {
             let contract_balance_before = client
                 .balance(contract_acc_id.clone())
                 .await
-                .expect("getting balance failed");
+                .expect("Failed to get account balance");
             let receiver_balance_before = client
                 .balance(receiver.clone())
                 .await
-                .expect("getting balance failed");
+                .expect("Failed to get account balance");
 
             // when
             let transfer_message = build_message::<RuntimeCallerRef>(
@@ -102,13 +102,13 @@ mod runtime_call {
 
             // then
             let contract_balance_after = client
-                .balance(contract_acc_id.clone())
+                .balance(contract_acc_id)
                 .await
-                .expect("getting balance failed");
+                .expect("Failed to get account balance");
             let receiver_balance_after = client
-                .balance(receiver.clone())
+                .balance(receiver)
                 .await
-                .expect("getting balance failed");
+                .expect("Failed to get account balance");
 
             assert_eq!(
                 contract_balance_before,

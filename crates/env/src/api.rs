@@ -702,9 +702,10 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 }
 
 /// todo
+#[cfg(feature = "call-runtime")]
 pub fn call_runtime<E>() -> Result<()>
-    where
-        E: Environment,
+where
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::call_runtime::<E>(instance)

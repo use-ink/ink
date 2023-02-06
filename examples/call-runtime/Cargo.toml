@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+ink = { path = "../../crates/ink", default-features = false, features = ["call-runtime"] }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }

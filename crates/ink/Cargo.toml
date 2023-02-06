@@ -49,4 +49,5 @@ std = [
 ink-debug = [
     "ink_env/ink-debug",
 ]
+call-runtime = ["ink_env/call-runtime"]
 show-codegen-docs = []

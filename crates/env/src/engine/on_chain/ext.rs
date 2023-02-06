@@ -326,6 +326,7 @@ mod sys {
             out_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
 
+        #[cfg(feature = "call-runtime")]
         pub fn call_runtime(call_ptr: Ptr32<[u8]>, call_len: u32) -> ReturnCode;
     }
 
@@ -641,6 +642,7 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
     }
 }
 
+#[cfg(feature = "call-runtime")]
 pub fn call_runtime() -> Result {
     let mock = [0u8; 10];
     let ret_code =
