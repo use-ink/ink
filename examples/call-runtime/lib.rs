@@ -91,7 +91,7 @@ mod runtime_call {
 
         #[ink_e2e::test]
         #[ignore = "Requires that the pallet contract is configured with:\
-            - `CallFilter` allowing for a transfer, e.g. `frame_support::traits::Nothing`,\
+            - `CallFilter` allowing for a transfer, e.g. `frame_support::traits::Everything`,\
             - `UnsafeUnstableInterface = ConstBool<true>`"]
         async fn it_works(mut client: Client<C, E>) -> E2EResult<()> {
             // given
