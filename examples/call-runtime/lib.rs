@@ -90,7 +90,7 @@ mod runtime_call {
         const TRANSFER_VALUE: Balance = 1_000_000_000;
 
         #[ink_e2e::test]
-        #[ignore = "Requires that the pallet contract is was configured with:\
+        #[ignore = "Requires that the pallet contract is configured with:\
             - `CallFilter` allowing for a transfer, e.g. `frame_support::traits::Nothing`,\
             - `UnsafeUnstableInterface = ConstBool<true>`"]
         async fn it_works(mut client: Client<C, E>) -> E2EResult<()> {
