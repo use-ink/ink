@@ -31,7 +31,7 @@ Next, we'll build our contract's metadata:
 
 ```bash
 # At the top level of the ink! repo
-cargo +nightly contract build --manifest-path ./examples/flipper/Cargo.toml
+cargo contract build --manifest-path ./examples/flipper/Cargo.toml
 ```
 
 The generated metadata will be in: `$PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json`.
@@ -77,7 +77,7 @@ Right now the schemas are generated using a set of cobbled branches across `scal
 Now, in your patched version of `cargo-contract` run the following:
 
 ```
-cargo +nightly run -- contract build --manifest-path $PATH_TO_INK_REPO/examples/flipper/Cargo.toml > schema.json
+cargo run -- contract build --manifest-path $PATH_TO_INK_REPO/examples/flipper/Cargo.toml > schema.json
 ```
 
 In `src/cmd/metadata.rs` you can change the schema being printed depending on what struct

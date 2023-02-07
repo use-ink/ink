@@ -24,8 +24,6 @@ use ink_ir::{
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct E2EConfig {
-    /// The WebSocket URL where to connect with the node.
-    ws_url: Option<syn::LitStr>,
     /// The set of attributes that can be passed to call builder in the codegen.
     whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
@@ -36,24 +34,11 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut ws_url: Option<(syn::LitStr, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("ws_url") {
-                if let Some((_, ast)) = ws_url {
-                    return Err(duplicate_config_err(ast, arg, "ws_url", "e2e test"))
-                }
-                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
-                    ws_url = Some((lit_str.clone(), arg))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a string literal for `ws_url` ink! e2e test configuration argument",
-                    ))
-                }
-            } else if arg.name.is_ident("keep_attr") {
+            if arg.name.is_ident("keep_attr") {
                 whitelisted_attributes.parse_arg_value(&arg)?;
             } else if arg.name.is_ident("additional_contracts") {
                 if let Some((_, ast)) = additional_contracts {
@@ -83,7 +68,6 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
             .map(|(value, _)| value.value().split(' ').map(String::from).collect())
             .unwrap_or_else(Vec::new);
         Ok(E2EConfig {
-            ws_url: ws_url.map(|(value, _)| value),
             additional_contracts,
             whitelisted_attributes,
         })
@@ -91,15 +75,6 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
 }
 
 impl E2EConfig {
-    /// Returns the WebSocket URL where to connect to the RPC endpoint
-    /// of the node, if specified. Otherwise returns the default URL
-    /// `ws://localhost:9944`.
-    pub fn ws_url(&self) -> syn::LitStr {
-        let default_ws_url =
-            syn::LitStr::new("ws://0.0.0.0:9944", proc_macro2::Span::call_site());
-        self.ws_url.clone().unwrap_or(default_ws_url)
-    }
-
     /// Returns a vector of additional contracts that have to be built
     /// and imported before executing the test.
     pub fn additional_contracts(&self) -> Vec<String> {
@@ -175,7 +150,6 @@ mod tests {
                 keep_attr = "foo, bar"
             },
             Ok(E2EConfig {
-                ws_url: None,
                 whitelisted_attributes: attrs,
                 additional_contracts: Vec::new(),
             }),

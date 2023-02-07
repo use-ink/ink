@@ -23,14 +23,6 @@ use super::{
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-use jsonrpsee::{
-    core::client::ClientT,
-    rpc_params,
-    ws_client::{
-        WsClient,
-        WsClientBuilder,
-    },
-};
 use pallet_contracts_primitives::CodeUploadResult;
 use sp_core::{
     Bytes,
@@ -40,6 +32,7 @@ use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
+    rpc_params,
     tx,
     OnlineClient,
 };
@@ -157,7 +150,6 @@ enum Code {
 /// Provides functions for interacting with the `pallet-contracts` API.
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
     pub client: OnlineClient<C>,
-    ws_client: WsClient,
     _phantom: PhantomData<fn() -> (C, E)>,
 }
 
@@ -173,18 +165,9 @@ where
     E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
-    pub async fn new(client: OnlineClient<C>, url: &str) -> Self {
-        let ws_client =
-            WsClientBuilder::default()
-                .build(&url)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error on ws request: {err:?}");
-                });
-
+    pub async fn new(client: OnlineClient<C>) -> Self {
         Self {
             client,
-            ws_client,
             _phantom: Default::default(),
         }
     }
@@ -246,7 +229,8 @@ where
         let func = "ContractsApi_instantiate";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
         let bytes: Bytes = self
-            .ws_client
+            .client
+            .rpc()
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
@@ -341,7 +325,8 @@ where
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
         let bytes: Bytes = self
-            .ws_client
+            .client
+            .rpc()
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
@@ -395,7 +380,8 @@ where
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
         let bytes: Bytes = self
-            .ws_client
+            .client
+            .rpc()
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {

@@ -374,21 +374,11 @@ where
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
 {
-    /// Creates a new [`Client`] instance.
-    pub async fn new(url: &str, contracts: impl IntoIterator<Item = &str>) -> Self {
-        let client = subxt::OnlineClient::from_url(url)
-            .await
-            .unwrap_or_else(|err| {
-                if let subxt::Error::Rpc(subxt::error::RpcError::ClientError(_)) = err {
-                    let error_msg = format!("Error establishing connection to a node at {url}. Make sure you run a node behind the given url!");
-                    log_error(&error_msg);
-                    panic!("{}", error_msg);
-                }
-                log_error(
-                    "Unable to create client! Please check that your node is running.",
-                );
-                panic!("Unable to create client: {err:?}");
-            });
+    /// Creates a new [`Client`] instance using a `subxt` client.
+    pub async fn new(
+        client: subxt::OnlineClient<C>,
+        contracts: impl IntoIterator<Item = &str>,
+    ) -> Self {
         let contracts = contracts
             .into_iter()
             .map(|path| {
@@ -405,7 +395,7 @@ where
             .collect();
 
         Self {
-            api: ContractsApi::new(client, url).await,
+            api: ContractsApi::new(client).await,
             contracts,
         }
     }
@@ -421,38 +411,30 @@ where
     ) -> Signer<C>
     where
         E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display + core::fmt::Debug,
+        C::AccountId: Clone + core::fmt::Display + Debug,
         C::AccountId: From<sp_core::crypto::AccountId32>,
     {
         let (pair, _, _) = <sr25519::Pair as Pair>::generate_with_phrase(None);
         let pair_signer = PairSigner::<C, _>::new(pair);
         let account_id = pair_signer.account_id().to_owned();
 
-        for _ in 0..6 {
-            let transfer_result = self
-                .api
-                .try_transfer_balance(origin, account_id.clone(), amount)
-                .await;
-            match transfer_result {
-                Ok(_) => {
-                    log_info(&format!(
-                        "transfer from {} to {} succeeded",
-                        origin.account_id(),
-                        account_id,
-                    ));
-                    break
-                }
-                Err(err) => {
-                    log_info(&format!(
-                        "transfer from {} to {} failed with {:?}",
-                        origin.account_id(),
-                        account_id,
-                        err
-                    ));
-                    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-                }
-            }
-        }
+        self.api
+            .try_transfer_balance(origin, account_id.clone(), amount)
+            .await
+            .unwrap_or_else(|err| {
+                panic!(
+                    "transfer from {} to {} failed with {:?}",
+                    origin.account_id(),
+                    account_id,
+                    err
+                )
+            });
+
+        log_info(&format!(
+            "transfer from {} to {} succeeded",
+            origin.account_id(),
+            account_id,
+        ));
 
         pair_signer
     }

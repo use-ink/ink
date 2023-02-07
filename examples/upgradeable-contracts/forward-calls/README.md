@@ -14,13 +14,13 @@ In order to test it out you need to do the following:
 
 1. Build a contract containing some logic, e.g. our flipper example:
    ```
-   cargo +nightly contract build --manifest-path=examples/flipper/Cargo.toml
+   cargo contract build --manifest-path=examples/flipper/Cargo.toml
    ```
    You will receive the respective `flipper.contract` bundle in the `examples/flipper/target/ink/` folder.
 1. Build the proxy contract:
    ```
    cd upgradeable-contracts/forward-calls/
-   cargo +nightly contract build
+   cargo contract build
    ```
    You will receive the respective `forwards_calls.contract` bundle in the `target/ink/` folder.
 1. Upload the `flipper.contract` to the chain.
