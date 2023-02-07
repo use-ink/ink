@@ -877,24 +877,6 @@
 <a href="#876" id="876">876</a>
 <a href="#877" id="877">877</a>
 <a href="#878" id="878">878</a>
-<a href="#879" id="879">879</a>
-<a href="#880" id="880">880</a>
-<a href="#881" id="881">881</a>
-<a href="#882" id="882">882</a>
-<a href="#883" id="883">883</a>
-<a href="#884" id="884">884</a>
-<a href="#885" id="885">885</a>
-<a href="#886" id="886">886</a>
-<a href="#887" id="887">887</a>
-<a href="#888" id="888">888</a>
-<a href="#889" id="889">889</a>
-<a href="#890" id="890">890</a>
-<a href="#891" id="891">891</a>
-<a href="#892" id="892">892</a>
-<a href="#893" id="893">893</a>
-<a href="#894" id="894">894</a>
-<a href="#895" id="895">895</a>
-<a href="#896" id="896">896</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1271,21 +1253,11 @@
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
 {
-    <span class="doccomment">/// Creates a new [`Client`] instance.
-    </span><span class="kw">pub async fn </span>new(url: <span class="kw-2">&amp;</span>str, contracts: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span>str&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>client = subxt::OnlineClient::from_url(url)
-            .<span class="kw">await
-            </span>.unwrap_or_else(|err| {
-                <span class="kw">if let </span>subxt::Error::Rpc(subxt::error::RpcError::ClientError(<span class="kw">_</span>)) = err {
-                    <span class="kw">let </span>error_msg = <span class="macro">format!</span>(<span class="string">&quot;Error establishing connection to a node at {url}. Make sure you run a node behind the given url!&quot;</span>);
-                    log_error(<span class="kw-2">&amp;</span>error_msg);
-                    <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, error_msg);
-                }
-                log_error(
-                    <span class="string">&quot;Unable to create client! Please check that your node is running.&quot;</span>,
-                );
-                <span class="macro">panic!</span>(<span class="string">&quot;Unable to create client: {err:?}&quot;</span>);
-            });
+    <span class="doccomment">/// Creates a new [`Client`] instance using a `subxt` client.
+    </span><span class="kw">pub async fn </span>new(
+        client: subxt::OnlineClient&lt;C&gt;,
+        contracts: <span class="kw">impl </span>IntoIterator&lt;Item = <span class="kw-2">&amp;</span>str&gt;,
+    ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>contracts = contracts
             .into_iter()
             .map(|path| {
@@ -1302,7 +1274,7 @@
             .collect();
 
         <span class="self">Self </span>{
-            api: ContractsApi::new(client, url).<span class="kw">await</span>,
+            api: ContractsApi::new(client).<span class="kw">await</span>,
             contracts,
         }
     }
@@ -1318,38 +1290,30 @@
     ) -&gt; Signer&lt;C&gt;
     <span class="kw">where
         </span>E::Balance: Clone,
-        C::AccountId: Clone + core::fmt::Display + core::fmt::Debug,
+        C::AccountId: Clone + core::fmt::Display + Debug,
         C::AccountId: From&lt;sp_core::crypto::AccountId32&gt;,
     {
         <span class="kw">let </span>(pair, <span class="kw">_</span>, <span class="kw">_</span>) = &lt;sr25519::Pair <span class="kw">as </span>Pair&gt;::generate_with_phrase(<span class="prelude-val">None</span>);
         <span class="kw">let </span>pair_signer = PairSigner::&lt;C, <span class="kw">_</span>&gt;::new(pair);
         <span class="kw">let </span>account_id = pair_signer.account_id().to_owned();
 
-        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">6 </span>{
-            <span class="kw">let </span>transfer_result = <span class="self">self
-                </span>.api
-                .try_transfer_balance(origin, account_id.clone(), amount)
-                .<span class="kw">await</span>;
-            <span class="kw">match </span>transfer_result {
-                <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                    log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                        <span class="string">&quot;transfer from {} to {} succeeded&quot;</span>,
-                        origin.account_id(),
-                        account_id,
-                    ));
-                    <span class="kw">break
-                </span>}
-                <span class="prelude-val">Err</span>(err) =&gt; {
-                    log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                        <span class="string">&quot;transfer from {} to {} failed with {:?}&quot;</span>,
-                        origin.account_id(),
-                        account_id,
-                        err
-                    ));
-                    tokio::time::sleep(std::time::Duration::from_secs(<span class="number">1</span>)).<span class="kw">await</span>;
-                }
-            }
-        }
+        <span class="self">self</span>.api
+            .try_transfer_balance(origin, account_id.clone(), amount)
+            .<span class="kw">await
+            </span>.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(
+                    <span class="string">&quot;transfer from {} to {} failed with {:?}&quot;</span>,
+                    origin.account_id(),
+                    account_id,
+                    err
+                )
+            });
+
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+            <span class="string">&quot;transfer from {} to {} succeeded&quot;</span>,
+            origin.account_id(),
+            account_id,
+        ));
 
         pair_signer
     }

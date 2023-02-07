@@ -165,32 +165,6 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -217,8 +191,6 @@
 <span class="doccomment">/// The End-to-End test configuration.
 </span><span class="attr">#[derive(Debug, Default, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>E2EConfig {
-    <span class="doccomment">/// The WebSocket URL where to connect with the node.
-    </span>ws_url: <span class="prelude-ty">Option</span>&lt;syn::LitStr&gt;,
     <span class="doccomment">/// The set of attributes that can be passed to call builder in the codegen.
     </span>whitelisted_attributes: WhitelistedAttributes,
     <span class="doccomment">/// Additional contracts that have to be built before executing the test.
@@ -229,24 +201,11 @@
     <span class="kw">type </span>Error = syn::Error;
 
     <span class="kw">fn </span>try_from(args: ast::AttributeArgs) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>ws_url: <span class="prelude-ty">Option</span>&lt;(syn::LitStr, ast::MetaNameValue)&gt; = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>whitelisted_attributes = WhitelistedAttributes::default();
         <span class="kw">let </span><span class="kw-2">mut </span>additional_contracts: <span class="prelude-ty">Option</span>&lt;(syn::LitStr, ast::MetaNameValue)&gt; = <span class="prelude-val">None</span>;
 
         <span class="kw">for </span>arg <span class="kw">in </span>args.into_iter() {
-            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;ws_url&quot;</span>) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, ast)) = ws_url {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(ast, arg, <span class="string">&quot;ws_url&quot;</span>, <span class="string">&quot;e2e test&quot;</span>))
-                }
-                <span class="kw">if let </span>ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = <span class="kw-2">&amp;</span>arg.value {
-                    ws_url = <span class="prelude-val">Some</span>((lit_str.clone(), arg))
-                } <span class="kw">else </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        arg,
-                        <span class="string">&quot;expected a string literal for `ws_url` ink! e2e test configuration argument&quot;</span>,
-                    ))
-                }
-            } <span class="kw">else if </span>arg.name.is_ident(<span class="string">&quot;keep_attr&quot;</span>) {
+            <span class="kw">if </span>arg.name.is_ident(<span class="string">&quot;keep_attr&quot;</span>) {
                 whitelisted_attributes.parse_arg_value(<span class="kw-2">&amp;</span>arg)<span class="question-mark">?</span>;
             } <span class="kw">else if </span>arg.name.is_ident(<span class="string">&quot;additional_contracts&quot;</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, ast)) = additional_contracts {
@@ -276,7 +235,6 @@
             .map(|(value, <span class="kw">_</span>)| value.value().split(<span class="string">&#39; &#39;</span>).map(String::from).collect())
             .unwrap_or_else(Vec::new);
         <span class="prelude-val">Ok</span>(E2EConfig {
-            ws_url: ws_url.map(|(value, <span class="kw">_</span>)| value),
             additional_contracts,
             whitelisted_attributes,
         })
@@ -284,15 +242,6 @@
 }
 
 <span class="kw">impl </span>E2EConfig {
-    <span class="doccomment">/// Returns the WebSocket URL where to connect to the RPC endpoint
-    /// of the node, if specified. Otherwise returns the default URL
-    /// `ws://localhost:9944`.
-    </span><span class="kw">pub fn </span>ws_url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::LitStr {
-        <span class="kw">let </span>default_ws_url =
-            syn::LitStr::new(<span class="string">&quot;ws://0.0.0.0:9944&quot;</span>, proc_macro2::Span::call_site());
-        <span class="self">self</span>.ws_url.clone().unwrap_or(default_ws_url)
-    }
-
     <span class="doccomment">/// Returns a vector of additional contracts that have to be built
     /// and imported before executing the test.
     </span><span class="kw">pub fn </span>additional_contracts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;String&gt; {
@@ -368,7 +317,6 @@
                 keep_attr = <span class="string">&quot;foo, bar&quot;
             </span>},
             <span class="prelude-val">Ok</span>(E2EConfig {
-                ws_url: <span class="prelude-val">None</span>,
                 whitelisted_attributes: attrs,
                 additional_contracts: Vec::new(),
             }),

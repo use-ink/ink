@@ -1,12 +1,11 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines an End-to-End test."><meta name="keywords" content="rust, rustlang, rust-lang, test"><title>test in ink_e2e_macro - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink_e2e_macro/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink_e2e_macro/index.html"><div class="logo-container">
-                    <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink_e2e_macro</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Attribute Macro <a href="index.html">ink_e2e_macro</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/ink_e2e_macro/lib.rs.html#116-118">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><pre class="rust attr"><code>#[test]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines an End-to-End test.</p>
+                    <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink_e2e_macro</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Attribute Macro <a href="index.html">ink_e2e_macro</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/ink_e2e_macro/lib.rs.html#96-98">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><pre class="rust attr"><code>#[test]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines an End-to-End test.</p>
 <p>The system requirements are:</p>
 <ul>
-<li>A Substrate node with <code>pallet-contracts</code> running in the background.
+<li>A Substrate node with <code>pallet-contracts</code> installed on the local system.
 You can e.g. use <a href="https://github.com/paritytech/substrate-contracts-node"><code>substrate-contracts-node</code></a>
-and launch it with
-<code>substrate-contracts-node -lerror,runtime::contracts=debug &gt; /tmp/contracts-node.log 2&gt;&amp;1</code>.</li>
-<li>A <code>cargo-contract</code> installation that can build the contract.</li>
+and install it on your PATH, or provide a path to an executable using the <code>CONTRACTS_NODE</code>
+environment variable.</li>
 </ul>
 <p>Before the test function is invoked the contract will have been build. Any errors
 that occur during the contract build will prevent the test function from being
@@ -14,24 +13,6 @@ invoked.</p>
 <h3 id="header-arguments"><a href="#header-arguments">Header Arguments</a></h3>
 <p>The <code>#[ink::e2e_test]</code> macro can be provided with some additional comma-separated
 header arguments:</p>
-<ul>
-<li>
-<p><code>ws_url: String</code></p>
-<p>The <code>ws_url</code> denotes the WebSocket URL where to connect to the RPC
-endpoint of the node.</p>
-<p><strong>Usage Example:</strong></p>
-<div class="example-wrap"><pre class="language-no_compile"><code># // TODO(#xxx) Remove the `no_compile`.
-type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
-#[ink::e2e_test(ws_url = &quot;ws://localhost:9944&quot;)]
-async fn e2e_contract_must_transfer_value_to_sender(
-    mut client: ::ink_e2e::Client&lt;C, E&gt;,
-) -&gt; E2EResult&lt;()&gt; {
-    Ok(())
-}
-</code></pre></div>
-<p><strong>Default value:</strong> <code>&quot;ws://localhost:9944&quot;</code>.</p>
-</li>
-</ul>
 <h2 id="example"><a href="#example">Example</a></h2><div class="example-wrap"><pre class="language-no_compile"><code># // TODO(#xxx) Remove the `no_compile`.
 #[cfg(test)]
 mod tests {

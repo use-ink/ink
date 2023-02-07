@@ -137,6 +137,9 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -161,8 +164,7 @@
 </span><span class="kw">mod </span>builders;
 <span class="kw">mod </span>client;
 <span class="kw">mod </span>default_accounts;
-<span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests;
+<span class="kw">mod </span>node_proc;
 <span class="kw">pub mod </span>utils;
 <span class="kw">mod </span>xts;
 
@@ -181,6 +183,10 @@
 <span class="kw">pub use </span>default_accounts::<span class="kw-2">*</span>;
 <span class="kw">pub use </span>env_logger;
 <span class="kw">pub use </span>ink_e2e_macro::test;
+<span class="kw">pub use </span>node_proc::{
+    TestNodeProcess,
+    TestNodeProcessBuilder,
+};
 <span class="kw">pub use </span>sp_core::H256;
 <span class="kw">pub use </span>sp_keyring::AccountKeyring;
 <span class="kw">pub use </span>subxt::{

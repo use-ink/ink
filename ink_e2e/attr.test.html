@@ -2,11 +2,10 @@
                     <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink_e2e</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Attribute Macro <a href="index.html">ink_e2e</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><pre class="rust attr"><code>#[test]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines an End-to-End test.</p>
 <p>The system requirements are:</p>
 <ul>
-<li>A Substrate node with <code>pallet-contracts</code> running in the background.
+<li>A Substrate node with <code>pallet-contracts</code> installed on the local system.
 You can e.g. use <a href="https://github.com/paritytech/substrate-contracts-node"><code>substrate-contracts-node</code></a>
-and launch it with
-<code>substrate-contracts-node -lerror,runtime::contracts=debug &gt; /tmp/contracts-node.log 2&gt;&amp;1</code>.</li>
-<li>A <code>cargo-contract</code> installation that can build the contract.</li>
+and install it on your PATH, or provide a path to an executable using the <code>CONTRACTS_NODE</code>
+environment variable.</li>
 </ul>
 <p>Before the test function is invoked the contract will have been build. Any errors
 that occur during the contract build will prevent the test function from being
@@ -14,24 +13,6 @@ invoked.</p>
 <h3 id="header-arguments"><a href="#header-arguments">Header Arguments</a></h3>
 <p>The <code>#[ink::e2e_test]</code> macro can be provided with some additional comma-separated
 header arguments:</p>
-<ul>
-<li>
-<p><code>ws_url: String</code></p>
-<p>The <code>ws_url</code> denotes the WebSocket URL where to connect to the RPC
-endpoint of the node.</p>
-<p><strong>Usage Example:</strong></p>
-<div class="example-wrap"><pre class="language-no_compile"><code># // TODO(#xxx) Remove the `no_compile`.
-type E2EResult&lt;T&gt; = std::result::Result&lt;T, Box&lt;dyn std::error::Error&gt;&gt;;
-#[ink::e2e_test(ws_url = &quot;ws://localhost:9944&quot;)]
-async fn e2e_contract_must_transfer_value_to_sender(
-    mut client: ::ink_e2e::Client&lt;C, E&gt;,
-) -&gt; E2EResult&lt;()&gt; {
-    Ok(())
-}
-</code></pre></div>
-<p><strong>Default value:</strong> <code>&quot;ws://localhost:9944&quot;</code>.</p>
-</li>
-</ul>
 <h2 id="example"><a href="#example">Example</a></h2><div class="example-wrap"><pre class="language-no_compile"><code># // TODO(#xxx) Remove the `no_compile`.
 #[cfg(test)]
 mod tests {
