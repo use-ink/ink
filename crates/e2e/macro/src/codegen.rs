@@ -140,7 +140,7 @@ impl InkE2ETest {
                 });
                 log_info("setting up e2e test");
 
-                ::ink_e2e::INIT.call_once(move || {
+                ::ink_e2e::INIT.call_once(|| {
                     ::ink_e2e::env_logger::init();
                 });
 
