@@ -21,7 +21,6 @@ use super::{
 };
 use crate::ir::{
     self,
-    attrs::SelectorOrWildcard,
     utils,
 };
 use proc_macro2::{

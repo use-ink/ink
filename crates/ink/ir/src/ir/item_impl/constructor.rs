@@ -19,10 +19,7 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::{
-    ir,
-    ir::attrs::SelectorOrWildcard,
-};
+use crate::ir;
 use proc_macro2::{
     Ident,
     Span,
@@ -137,7 +134,7 @@ impl Constructor {
                 match arg.kind() {
                     ir::AttributeArg::Constructor
                     | ir::AttributeArg::Payable
-                    | ir::AttributeArg::SelectorWildcard(_) => Ok(()),
+                    | ir::AttributeArg::SelectorWildcard => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -173,13 +170,6 @@ impl Callable for Constructor {
 
     fn ident(&self) -> &Ident {
         &self.item.sig.ident
-    }
-
-    fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector)
-        }
-        None
     }
 
     fn has_wildcard_selector(&self) -> bool {

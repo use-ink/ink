@@ -26,10 +26,7 @@ pub use self::{
 use super::TraitDefinitionConfig;
 use crate::{
     ir,
-    ir::{
-        attrs::SelectorOrWildcard,
-        idents_lint,
-    },
+    ir::idents_lint,
     Selector,
 };
 use ir::TraitPrefix;

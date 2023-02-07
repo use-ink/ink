@@ -16,7 +16,6 @@ use super::super::InkAttribute;
 use crate::{
     ir::{
         self,
-        attrs::SelectorOrWildcard,
         utils,
     },
     InputsIter,

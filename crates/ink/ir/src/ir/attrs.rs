@@ -456,7 +456,7 @@ impl AttributeArg {
             Self::Message => AttributeArgKind::Message,
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
-            Self::SelectorWildcard(_) => AttributeArgKind::SelectorWildcard,
+            Self::SelectorWildcard => AttributeArgKind::SelectorWildcard,
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -475,7 +475,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::SelectorWildcard(selector) => core::fmt::Display::fmt(&selector, f),
+            Self::SelectorWildcard => write!(f, "selector = _"),
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
             }
@@ -846,7 +846,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 if argument != "_" {
                                     return Err(format_err!(
                                         name_value,
-                                        "#[ink(selector = ..)] attributes with arbitrary string inputs are no longer supported. \
+                                        "#[ink(selector = ..)] attributes with custom string inputs are no longer supported. \
                                         use the selector wildcard instead, e.g. #[ink(selector = _)]"
                                     ))
                                 }
@@ -856,20 +856,12 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 })
                             }
 
-                            if let syn::Lit::Int(lit_int) = &name_value.lit {
-                                let selector_u32 = lit_int.base10_parse::<u32>()
-                                    .map_err(|error| {
-                                        format_err_spanned!(
-                                            lit_int,
-                                            "selector value out of range. selector must be a valid `u32` integer: {}",
-                                            error
-                                        )
-                                    })?;
-                                let selector = Selector::from(selector_u32.to_be_bytes());
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
-                                })
+                            if let syn::Lit::Int(_) = &name_value.lit {
+                                return Err(format_err!(
+                                    name_value,
+                                    "#[ink(selector = ..)] attributes with custom string inputs are no longer supported. \
+                                    use the selector wildcard instead, e.g. #[ink(selector = _)]"
+                                ))
                             }
                             return Err(format_err!(name_value, "expected the wildcard '_' for the `selector` argument, e.g. #[ink(selector = _)]"))
                         }
