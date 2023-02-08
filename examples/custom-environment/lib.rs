@@ -78,6 +78,17 @@ mod runtime_call {
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
+        #[ignore = "Requires that the pallet contract is configured with a schedule allowing for \
+            more event topics. For example:\
+            ```rust
+            pub Schedule: pallet_contracts::Schedule<Runtime> = pallet_contracts::Schedule::<Runtime> {
+        		limits: pallet_contracts::Limits {
+		    	    event_topics: 6,
+			        ..Default::default()
+		        },
+           		..Default::default()
+	        };
+            ```"]
         async fn it_works(mut client: Client<C, E>) -> E2EResult<()> {
             // given
             let constructor = TopicerRef::new();
