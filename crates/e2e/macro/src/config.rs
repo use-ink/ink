@@ -82,21 +82,6 @@ impl E2EConfig {
     }
 }
 
-/// The environmental types definition.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Environment {
-    /// The underlying Rust type.
-    pub path: syn::Path,
-}
-
-impl Default for Environment {
-    fn default() -> Self {
-        Self {
-            path: syn::parse_quote! { ::ink_env::DefaultEnvironment },
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
