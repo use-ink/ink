@@ -72,6 +72,12 @@ impl InkE2ETest {
             syn::ReturnType::Type(rarrow, ret_type) => quote! { #rarrow #ret_type },
         };
 
+        let environment = self
+            .test
+            .config
+            .environment()
+            .unwrap_or_else(|| syn::parse_quote! { ink::env::DefaultEnvironment });
+
         let mut additional_contracts: Vec<String> =
             self.test.config.additional_contracts();
         let default_main_contract_manifest_path = String::from("Cargo.toml");
@@ -158,7 +164,7 @@ impl InkE2ETest {
 
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
-                        ink::env::DefaultEnvironment
+                        #environment
                     >::new(
                         node_proc.client(),
                         [ #( #contracts ),* ]
