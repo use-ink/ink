@@ -29,7 +29,7 @@ pub struct E2EConfig {
     whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
-    /// Custom environment for the contracts, if specified.
+    /// Custom environment for the contracts, if specified. Otherwise `DefaultEnvironment` is used.
     environment: Option<Path>,
 }
 
@@ -50,7 +50,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         ast,
                         arg,
                         "additional_contracts",
-                        "e2e test",
+                        "E2E test",
                     ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
@@ -58,19 +58,19 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a string literal for `additional_contracts` ink! e2e test configuration argument",
+                        "expected a string literal for `additional_contracts` ink! E2E test configuration argument",
                     ))
                 }
             } else if arg.name.is_ident("environment") {
                 if let Some((_, ast)) = environment {
-                    return Err(duplicate_config_err(ast, arg, "environment", "e2e test"))
+                    return Err(duplicate_config_err(ast, arg, "environment", "E2E test"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
                     environment = Some((path.clone(), arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a path for `environment` ink! e2e test configuration argument",
+                        "expected a path for `environment` ink! E2E test configuration argument",
                     ))
                 }
             } else {
@@ -144,7 +144,7 @@ mod tests {
                 additional_contracts = "adder/Cargo.toml",
             },
             Err(
-                "encountered duplicate ink! e2e test `additional_contracts` configuration argument",
+                "encountered duplicate ink! E2E test `additional_contracts` configuration argument",
             ),
         );
     }
@@ -157,7 +157,7 @@ mod tests {
                 environment = crate::CustomEnvironment,
             },
             Err(
-                "encountered duplicate ink! e2e test `environment` configuration argument",
+                "encountered duplicate ink! E2E test `environment` configuration argument",
             ),
         );
     }
@@ -168,7 +168,7 @@ mod tests {
             syn::parse_quote! {
                 environment = "crate::CustomEnvironment",
             },
-            Err("expected a path for `environment` ink! e2e test configuration argument"),
+            Err("expected a path for `environment` ink! E2E test configuration argument"),
         );
     }
 
