@@ -10,6 +10,8 @@ ink = { path = "../../crates/ink", default-features = false, features = ["call-r
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+
+# Substrate
 sp-io = { version = "12.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime = { version = "12.0.0", default-features = false }
 

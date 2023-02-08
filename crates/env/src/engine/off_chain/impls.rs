@@ -547,6 +547,6 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support `call runtime`")
+        unimplemented!("off-chain environment does not support `call_runtime`")
     }
 }

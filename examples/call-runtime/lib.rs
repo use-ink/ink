@@ -33,15 +33,11 @@ mod runtime_call {
     impl RuntimeCaller {
         #[ink(constructor, payable)]
         pub fn new() -> Self {
-            Self {}
+            Default::default()
         }
 
         #[ink(message)]
-        pub fn make_transfer_through_runtime(
-            &mut self,
-            receiver: AccountId,
-            value: Balance,
-        ) {
+        pub fn transfer_through_runtime(&mut self, receiver: AccountId, value: Balance) {
             self.env()
                 .call_runtime(&RuntimeCall::Balances(BalancesCall::Transfer {
                     dest: receiver.into(),
@@ -54,6 +50,7 @@ mod runtime_call {
     #[cfg(test)]
     mod tests {
         use super::*;
+
         use ink::env::{
             test::default_accounts,
             DefaultEnvironment,
@@ -61,11 +58,11 @@ mod runtime_call {
 
         #[ink::test]
         #[should_panic(
-            expected = "off-chain environment does not support `call runtime`"
+            expected = "off-chain environment does not support `call_runtime`"
         )]
         fn cannot_call_runtime_off_chain() {
             let mut contract = RuntimeCaller::new();
-            contract.make_transfer_through_runtime(
+            contract.transfer_through_runtime(
                 default_accounts::<DefaultEnvironment>().bob,
                 10,
             );
@@ -75,6 +72,7 @@ mod runtime_call {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+
         use ink::{
             env::{
                 test::default_accounts,
@@ -93,7 +91,9 @@ mod runtime_call {
         #[ignore = "Requires that the pallet contract is configured with:\
             - `CallFilter` allowing for a transfer, e.g. `frame_support::traits::Everything`,\
             - `UnsafeUnstableInterface = ConstBool<true>`"]
-        async fn it_works(mut client: Client<C, E>) -> E2EResult<()> {
+        async fn transfer_with_call_runtime_works(
+            mut client: Client<C, E>,
+        ) -> E2EResult<()> {
             // given
             let constructor = RuntimeCallerRef::new();
             let contract_acc_id = client
@@ -121,9 +121,7 @@ mod runtime_call {
 
             // when
             let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
-                .call(|caller| {
-                    caller.make_transfer_through_runtime(receiver, TRANSFER_VALUE)
-                });
+                .call(|caller| caller.transfer_through_runtime(receiver, TRANSFER_VALUE));
 
             let _call_res = client
                 .call(&ink_e2e::alice(), transfer_message, 0, None)
@@ -145,8 +143,8 @@ mod runtime_call {
                 contract_balance_after + TRANSFER_VALUE
             );
             assert_eq!(
-                receiver_balance_before + TRANSFER_VALUE,
-                receiver_balance_after
+                receiver_balance_before,
+                receiver_balance_after - TRANSFER_VALUE
             );
 
             Ok(())
