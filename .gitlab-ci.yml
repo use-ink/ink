@@ -218,6 +218,18 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
+# We just check on a target which doesn't have std to make sure that we don't pull in std by accident
+check-nostd:
+  stage:                           check
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - for crate in ${ALSO_WASM_CRATES}; do
+        cargo check --verbose --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
+      done
+
 dylint:
     stage:                           check
     <<:                              *docker-env
@@ -414,6 +426,31 @@ examples-contract-build:
         cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
     - cargo +stable contract build --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
+
+examples-nostd-check:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - rustup component add rust-src --toolchain stable
+    - cargo contract -V
+    - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+        pushd $example &&
+        cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" &&
+        popd;
+      done
+    - pushd ./examples/delegator/ && ./build-all.sh && popd
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+      done
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+      done
+    - cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc"  --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
