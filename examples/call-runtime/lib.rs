@@ -5,12 +5,19 @@ use sp_runtime::MultiAddress;
 
 #[derive(scale::Encode)]
 enum RuntimeCall {
+    // This index can be found by investigating runtime configuration. You can check the pallet
+    // order inside `construct_runtime!` block and read the position of your pallet (0-based).
+    //
+    // See also: https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime.
     #[codec(index = 4)]
     Balances(BalancesCall),
 }
 
 #[derive(scale::Encode)]
 enum BalancesCall {
+    // This index can be found by investigating the pallet dispatchable API. In your pallet code,
+    // look for `#[pallet::call]` section and check `#[pallet::call_index(x)]` attribute of the
+    // call. If these attributes are missing, use source-code order (0-based).
     #[codec(index = 0)]
     Transfer {
         dest: MultiAddress<AccountId, ()>,
