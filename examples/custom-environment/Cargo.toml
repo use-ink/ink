@@ -1,0 +1,34 @@
+[package]
+name = "custom-environment"
+version = "4.0.0-rc"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false, features = ["call-runtime"] }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+sp-io = { version = "12.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime = { version = "12.0.0", default-features = false }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
+[lib]
+name = "custom_environment"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+    "sp-runtime/std",
+    "sp-io/std",
+]
+ink-as-dependency = []
+e2e-tests = []
