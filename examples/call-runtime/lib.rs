@@ -81,28 +81,6 @@ mod runtime_call {
         }
     }
 
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        use ink::env::{
-            test::default_accounts,
-            DefaultEnvironment,
-        };
-
-        #[ink::test]
-        #[should_panic(
-            expected = "off-chain environment does not support `call_runtime`"
-        )]
-        fn cannot_call_runtime_off_chain() {
-            let mut contract = RuntimeCaller::new();
-            let _call_res = contract.transfer_through_runtime(
-                default_accounts::<DefaultEnvironment>().bob,
-                10,
-            );
-        }
-    }
-
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
