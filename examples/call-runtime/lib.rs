@@ -14,20 +14,20 @@ use sp_runtime::MultiAddress;
 /// macro application or by using secondary tools for reading chain metadata, like `subxt`.
 #[derive(scale::Encode)]
 enum RuntimeCall {
-    // This index can be found by investigating runtime configuration. You can check the pallet
-    // order inside `construct_runtime!` block and read the position of your pallet (0-based).
-    //
-    // See also
-    // [stack question](https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime).
+    /// This index can be found by investigating runtime configuration. You can check the pallet
+    /// order inside `construct_runtime!` block and read the position of your pallet (0-based).
+    ///
+    ///
+    /// [See here for more.](https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime)
     #[codec(index = 4)]
     Balances(BalancesCall),
 }
 
 #[derive(scale::Encode)]
 enum BalancesCall {
-    // This index can be found by investigating the pallet dispatchable API. In your pallet code,
-    // look for `#[pallet::call]` section and check `#[pallet::call_index(x)]` attribute of the
-    // call. If these attributes are missing, use source-code order (0-based).
+    /// This index can be found by investigating the pallet dispatchable API. In your pallet code,
+    /// look for `#[pallet::call]` section and check `#[pallet::call_index(x)]` attribute of the
+    /// call. If these attributes are missing, use source-code order (0-based).
     #[codec(index = 0)]
     Transfer {
         dest: MultiAddress<AccountId, ()>,
@@ -96,12 +96,16 @@ mod runtime_call {
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+        /// The base number of indivisible units for balances on the `substrate-contracts-node`.
+        const UNIT: Balance = 1_000_000_000_000;
+
         /// The contract will be given 1000 tokens during instantiation.
-        const CONTRACT_BALANCE: Balance = 1_000_000_000_000_000;
+        const CONTRACT_BALANCE: Balance = 1_000 * UNIT;
+
         /// The receiver will get enough funds to have the required existential deposit.
         ///
         /// If your chain has this threshold higher, increase the transfer value.
-        const TRANSFER_VALUE: Balance = 1_000_000_000;
+        const TRANSFER_VALUE: Balance = 1 / 10 * UNIT;
 
         #[ink_e2e::test]
         #[ignore = "Requires that the pallet contract is configured with:\

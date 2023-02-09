@@ -30,7 +30,7 @@ std = [
     "scale/std",
     "scale-info/std",
     "sp-runtime/std",
-#    "sp-io/std",
+    "sp-io/std",
 ]
 ink-as-dependency = []
 e2e-tests = []
