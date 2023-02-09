@@ -2,11 +2,14 @@
 
 use ink::env::Environment;
 
+/// Our custom environment diverges from the `DefaultEnvironment` in the event topics limit.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum EnvironmentWithManyTopics {}
 
 impl Environment for EnvironmentWithManyTopics {
+    // We allow for 5 topics in the event, therefore the contract pallet's schedule must allow for
+    // 6 of them (to allow the implicit topic for the event signature).
     const MAX_EVENT_TOPICS: usize =
         <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS + 1;
 
@@ -21,10 +24,13 @@ impl Environment for EnvironmentWithManyTopics {
 
 #[ink::contract(env = crate::EnvironmentWithManyTopics)]
 mod runtime_call {
+    /// Trivial contract with a single message that emits an event with many topics.
     #[ink(storage)]
     #[derive(Default)]
     pub struct Topicer;
 
+    /// An event that would be forbidden in the default environment, but is completely valid in
+    /// our custom one.
     #[ink(event)]
     #[derive(Default)]
     pub struct TopicedEvent {
@@ -46,6 +52,7 @@ mod runtime_call {
             Self {}
         }
 
+        /// Emit an event with many topics.
         #[ink(message)]
         pub fn trigger(&mut self) {
             self.env().emit_event(TopicedEvent::default());
