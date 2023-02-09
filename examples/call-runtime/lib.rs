@@ -100,6 +100,7 @@ mod runtime_call {
         const UNIT: Balance = 1_000_000_000_000;
 
         /// The contract will be given 1000 tokens during instantiation.
+        #[cfg(feature = "permissive-node")]
         const CONTRACT_BALANCE: Balance = 1_000 * UNIT;
 
         /// The receiver will get enough funds to have the required existential deposit.
@@ -171,7 +172,7 @@ mod runtime_call {
         }
 
         /// In the standard configuration, the node doesn't allow for `call-runtime` usage.
-        #[cfg(feature = "standard-node")]
+        #[cfg(not(feature = "permissive-node"))]
         #[ink_e2e::test]
         async fn call_runtime_fails_when_forbidden(
             mut client: Client<C, E>,

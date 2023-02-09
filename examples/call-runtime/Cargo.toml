@@ -24,7 +24,7 @@ ink_e2e = { path = "../../crates/e2e" }
 path = "lib.rs"
 
 [features]
-default = ["std", "standard-node"]
+default = ["std"]
 std = [
     "ink/std",
     "scale/std",
@@ -37,5 +37,3 @@ e2e-tests = []
 # Assumes that the node used in E2E testing allows using `call-runtime` API, including triggering `Balances::transfer`
 # extrinsic.
 permissive-node = []
-# Assumes that the node used in E2E testing does not allow using `call-runtime` API.
-standard-node = []
