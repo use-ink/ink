@@ -17,7 +17,8 @@ enum RuntimeCall {
     // This index can be found by investigating runtime configuration. You can check the pallet
     // order inside `construct_runtime!` block and read the position of your pallet (0-based).
     //
-    // See also: https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime.
+    // See also
+    // [stack question](https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime).
     #[codec(index = 4)]
     Balances(BalancesCall),
 }
@@ -117,7 +118,7 @@ mod runtime_call {
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-        /// The contract will be given 1k tokens during instantiation.
+        /// The contract will be given 1000 tokens during instantiation.
         const CONTRACT_BALANCE: Balance = 1_000_000_000_000_000;
         /// The receiver will get enough funds to have the required existential deposit.
         ///
