@@ -76,7 +76,7 @@ impl InkE2ETest {
             .test
             .config
             .environment()
-            .unwrap_or_else(|| syn::parse_quote! { ink::env::DefaultEnvironment });
+            .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
         let mut additional_contracts: Vec<String> =
             self.test.config.additional_contracts();
