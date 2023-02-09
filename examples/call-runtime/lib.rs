@@ -107,10 +107,8 @@ mod runtime_call {
         /// If your chain has this threshold higher, increase the transfer value.
         const TRANSFER_VALUE: Balance = 1 / 10 * UNIT;
 
+        #[cfg(feature = "permissive-node")]
         #[ink_e2e::test]
-        #[ignore = "Requires that the pallet contract is configured with:\
-            - `CallFilter` allowing for a transfer, e.g. `frame_support::traits::Everything`,\
-            - `UnsafeUnstableInterface = ConstBool<true>`"]
         async fn transfer_with_call_runtime_works(
             mut client: Client<C, E>,
         ) -> E2EResult<()> {
@@ -173,6 +171,7 @@ mod runtime_call {
         }
 
         /// In the standard configuration, the node doesn't allow for `call-runtime` usage.
+        #[cfg(feature = "standard-node")]
         #[ink_e2e::test]
         async fn call_runtime_fails_when_forbidden(
             mut client: Client<C, E>,
