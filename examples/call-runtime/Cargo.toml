@@ -21,9 +21,7 @@ sp-runtime = { version = "12.0.0", default-features = false }
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "call_runtime"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
