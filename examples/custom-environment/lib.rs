@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink::env::Environment;
+use ink::env::{
+    DefaultEnvironment,
+    Environment,
+};
 
 /// Our custom environment diverges from the `DefaultEnvironment` in the event topics limit.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -11,15 +14,15 @@ impl Environment for EnvironmentWithManyTopics {
     // We allow for 5 topics in the event, therefore the contract pallet's schedule must allow for
     // 6 of them (to allow the implicit topic for the event signature).
     const MAX_EVENT_TOPICS: usize =
-        <ink::env::DefaultEnvironment as Environment>::MAX_EVENT_TOPICS + 1;
+        <DefaultEnvironment as Environment>::MAX_EVENT_TOPICS + 1;
 
-    type AccountId = <ink::env::DefaultEnvironment as Environment>::AccountId;
-    type Balance = <ink::env::DefaultEnvironment as Environment>::Balance;
-    type Hash = <ink::env::DefaultEnvironment as Environment>::Hash;
-    type BlockNumber = <ink::env::DefaultEnvironment as Environment>::BlockNumber;
-    type Timestamp = <ink::env::DefaultEnvironment as Environment>::Timestamp;
+    type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    type Balance = <DefaultEnvironment as Environment>::Balance;
+    type Hash = <DefaultEnvironment as Environment>::Hash;
+    type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
+    type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
 
-    type ChainExtension = <ink::env::DefaultEnvironment as Environment>::ChainExtension;
+    type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 }
 
 #[ink::contract(env = crate::EnvironmentWithManyTopics)]
@@ -27,13 +30,13 @@ mod runtime_call {
     /// Trivial contract with a single message that emits an event with many topics.
     #[ink(storage)]
     #[derive(Default)]
-    pub struct Topicer;
+    pub struct Topics;
 
     /// An event that would be forbidden in the default environment, but is completely valid in
     /// our custom one.
     #[ink(event)]
     #[derive(Default)]
-    pub struct TopicedEvent {
+    pub struct EventWithTopics {
         #[ink(topic)]
         first_topic: Balance,
         #[ink(topic)]
@@ -46,16 +49,16 @@ mod runtime_call {
         fifth_topic: Balance,
     }
 
-    impl Topicer {
+    impl Topics {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {}
+            Default::default()
         }
 
         /// Emit an event with many topics.
         #[ink(message)]
         pub fn trigger(&mut self) {
-            self.env().emit_event(TopicedEvent::default());
+            self.env().emit_event(EventWithTopics::default());
         }
     }
 
@@ -65,13 +68,13 @@ mod runtime_call {
 
         #[ink::test]
         fn emits_event_with_many_topics() {
-            let mut contract = Topicer::new();
+            let mut contract = Topics::new();
             contract.trigger();
 
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
-            assert_eq!(1, emitted_events.len());
+            assert_eq!(emitted_events.len(), 1);
 
-            let _ = <<Topicer as ink::reflect::ContractEventBase>::Type as scale::Decode>::decode(&mut &emitted_events[0].data[..])
+            let _ = <<Topics as ink::reflect::ContractEventBase>::Type as scale::Decode>::decode(&mut &emitted_events[0].data[..])
                 .expect("encountered invalid contract event data buffer");
         }
     }
@@ -79,7 +82,7 @@ mod runtime_call {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use crate::EnvironmentWithManyTopics;
+
         use ink_e2e::MessageBuilder;
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -89,16 +92,19 @@ mod runtime_call {
             more event topics. For example:\
             ```rust
             pub Schedule: pallet_contracts::Schedule<Runtime> = pallet_contracts::Schedule::<Runtime> {
-        		limits: pallet_contracts::Limits {
-		    	    event_topics: 6,
-			        ..Default::default()
-		        },
-           		..Default::default()
-	        };
+                limits: pallet_contracts::Limits {
+                    event_topics: 6,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+            };
             ```"]
-        async fn it_works(mut client: Client<C, E>) -> E2EResult<()> {
+        async fn calling_custom_environment_works(
+            mut client: Client<C, E>,
+        ) -> E2EResult<()> {
             // given
-            let constructor = TopicerRef::new();
+            let constructor = TopicsRef::new();
             let contract_acc_id = client
                 .instantiate(
                     "custom-environment",
@@ -113,7 +119,7 @@ mod runtime_call {
 
             // when
             let message =
-                MessageBuilder::<EnvironmentWithManyTopics, TopicerRef>::from_account_id(
+                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
                     contract_acc_id,
                 )
                 .call(|caller| caller.trigger());

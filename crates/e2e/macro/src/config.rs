@@ -28,7 +28,10 @@ pub struct E2EConfig {
     whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
-    /// Custom environment for the contracts, if specified. Otherwise `DefaultEnvironment` is used.
+    /// Custom [environment](https://docs.rs/ink_env/4.0.0-rc/ink_env/trait.Environment.html) for
+    /// the contracts, if specified. Otherwise
+    /// [`DefaultEnvironment`](https://docs.rs/ink_env/4.0.0-rc/ink_env/enum.DefaultEnvironment.html)
+    /// is used.
     environment: Option<syn::Path>,
 }
 
@@ -168,6 +171,19 @@ mod tests {
                 environment = "crate::CustomEnvironment",
             },
             Err("expected a path for `environment` ink! E2E test configuration argument"),
+        );
+    }
+
+    #[test]
+    fn specifying_environment_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                environment = crate::CustomEnvironment,
+            },
+            Ok(E2EConfig {
+                environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
+                ..Default::default()
+            }),
         );
     }
 
