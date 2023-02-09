@@ -701,7 +701,8 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
-/// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
+/// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet. Panics in the
+/// off-chain environment.
 ///
 /// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.
 ///
