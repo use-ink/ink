@@ -20,7 +20,6 @@ use ink_ir::{
         WhitelistedAttributes,
     },
 };
-use syn::Path;
 
 /// The End-to-End test configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -30,7 +29,7 @@ pub struct E2EConfig {
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
     /// Custom environment for the contracts, if specified. Otherwise `DefaultEnvironment` is used.
-    environment: Option<Path>,
+    environment: Option<syn::Path>,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
@@ -39,7 +38,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
-        let mut environment: Option<(Path, ast::MetaNameValue)> = None;
+        let mut environment: Option<(syn::Path, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
             if arg.name.is_ident("keep_attr") {
@@ -101,7 +100,7 @@ impl E2EConfig {
     }
 
     /// Custom environment for the contracts, if specified.
-    pub fn environment(&self) -> Option<Path> {
+    pub fn environment(&self) -> Option<syn::Path> {
         self.environment.clone()
     }
 }
