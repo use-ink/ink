@@ -3,6 +3,15 @@
 use ink::primitives::AccountId;
 use sp_runtime::MultiAddress;
 
+/// A part of the runtime dispatchable API.
+///
+/// For now, `ink!` doesn't provide any support for exposing the real `RuntimeCall` enum, which
+/// fully describes the composed API of all the pallets present in runtime. Hence, in order to use
+/// `call-runtime` functionality, we have to provide at least a partial object, which correctly
+/// encodes the target extrinsic.
+///
+/// You can investigate the full `RuntimeCall` definition by either expanding `construct_runtime!`
+/// macro application or by using secondary tools for reading chain metadata, like `subxt`.
 #[derive(scale::Encode)]
 enum RuntimeCall {
     // This index can be found by investigating runtime configuration. You can check the pallet
@@ -33,24 +42,41 @@ mod runtime_call {
         RuntimeCall,
     };
 
+    /// A trivial contract with a single message, that uses `call-runtime` API for performing
+    /// native token transfer.
     #[ink(storage)]
     #[derive(Default)]
     pub struct RuntimeCaller;
 
     impl RuntimeCaller {
+        /// The constructor is `payable`, so that during instantiation it can be given some tokens
+        /// that will be further transferred with `transfer_through_runtime` message.
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             Default::default()
         }
 
+        /// Tries to transfer `value` from the contract's balance to `receiver`.
+        ///
+        /// Fails if:
+        ///  - called in the off-chain environment
+        ///  - the chain doesn't allow `call-runtime` API (`UnsafeUnstableInterface` is turned off)
+        ///  - the chain forbids contracts to call `Balances::transfer` (`CallFilter` is too
+        ///    restrictive)
+        ///  - after the transfer, `receiver` doesn't have at least existential deposit  
+        ///  - the contract doesn't have enough balance
         #[ink(message)]
-        pub fn transfer_through_runtime(&mut self, receiver: AccountId, value: Balance) {
+        pub fn transfer_through_runtime(
+            &mut self,
+            receiver: AccountId,
+            value: Balance,
+        ) -> Result<(), ()> {
             self.env()
                 .call_runtime(&RuntimeCall::Balances(BalancesCall::Transfer {
                     dest: receiver.into(),
                     value,
                 }))
-                .expect("Should succeed");
+                .map_err(|_| ())
         }
     }
 
@@ -69,7 +95,7 @@ mod runtime_call {
         )]
         fn cannot_call_runtime_off_chain() {
             let mut contract = RuntimeCaller::new();
-            contract.transfer_through_runtime(
+            let _call_res = contract.transfer_through_runtime(
                 default_accounts::<DefaultEnvironment>().bob,
                 10,
             );
@@ -91,7 +117,11 @@ mod runtime_call {
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+        /// The contract will be given 1k tokens during instantiation.
         const CONTRACT_BALANCE: Balance = 1_000_000_000_000_000;
+        /// The receiver will get enough funds to have the required existential deposit.
+        ///
+        /// If your chain has this threshold higher, increase the transfer value.
         const TRANSFER_VALUE: Balance = 1_000_000_000;
 
         #[ink_e2e::test]
@@ -130,10 +160,12 @@ mod runtime_call {
             let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
                 .call(|caller| caller.transfer_through_runtime(receiver, TRANSFER_VALUE));
 
-            let _call_res = client
+            let call_res = client
                 .call(&ink_e2e::alice(), transfer_message, 0, None)
                 .await
                 .expect("call failed");
+
+            assert!(call_res.dry_run.exec_result.result.is_ok());
 
             // then
             let contract_balance_after = client
@@ -153,6 +185,35 @@ mod runtime_call {
                 receiver_balance_before,
                 receiver_balance_after - TRANSFER_VALUE
             );
+
+            Ok(())
+        }
+
+        /// In the standard configuration, the node doesn't allow for `call-runtime` usage.
+        #[ink_e2e::test]
+        async fn call_runtime_fails_when_forbidden(
+            mut client: Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = RuntimeCallerRef::new();
+            let contract_acc_id = client
+                .instantiate("call-runtime", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
+
+            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
+                .call(|caller| caller.transfer_through_runtime(receiver, TRANSFER_VALUE));
+
+            // when
+            let call_res = client
+                .call(&ink_e2e::alice(), transfer_message, 0, None)
+                .await;
+
+            // then
+            assert!(call_res.is_err());
 
             Ok(())
         }
