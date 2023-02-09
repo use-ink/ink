@@ -714,9 +714,10 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 /// - If the runtime doesn't allow for the contract unstable feature.
 /// - If the runtime doesn't allow for dispatching this call from a contract.
 ///
-/// Note however that `call_runtime` host function is still part of the
-/// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces)
-/// and thus can be changed anytime.
+/// # Note
+///
+/// The `call_runtime` host function is still part of `pallet-contracts`' unstable interface and
+/// thus can be changed at anytime.
 #[cfg(feature = "call-runtime")]
 pub fn call_runtime<E, Call>(call: &Call) -> Result<()>
 where
