@@ -704,8 +704,9 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
 ///
 /// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.
-/// Consult https://github.com/paritytech/substrate/blob/6f72780b87e41a025722284a52a7d85f41958a82/frame/contracts/src/wasm/runtime.rs#L2397
-/// for chain-side documentation.
+///
+/// For more details consult
+/// [chain-side documentation](https://github.com/paritytech/substrate/blob/6f72780b87e41a025722284a52a7d85f41958a82/frame/contracts/src/wasm/runtime.rs#L2397).
 ///
 /// # Errors
 ///
