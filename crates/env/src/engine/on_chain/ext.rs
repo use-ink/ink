@@ -77,7 +77,7 @@ define_error_codes! {
     /// recording was disabled.
     LoggingDisabled = 9,
     /// The call dispatched by `call_runtime` was executed but returned an error.
-    CallRuntimeFailed = 10,
+    CallRuntimeReturnedError = 10,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed = 11,
 }

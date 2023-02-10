@@ -52,13 +52,15 @@ mod runtime_call {
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum RuntimeError {
-        CallRuntimeFailed,
+        CallRuntimeReturnedError,
     }
 
     impl From<ink::env::Error> for RuntimeError {
         fn from(e: ink::env::Error) -> Self {
             match e {
-                ink::env::Error::CallRuntimeFailed => RuntimeError::CallRuntimeFailed,
+                ink::env::Error::CallRuntimeReturnedError => {
+                    RuntimeError::CallRuntimeReturnedError
+                }
                 _ => panic!(),
             }
         }

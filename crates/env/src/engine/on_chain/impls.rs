@@ -111,7 +111,7 @@ impl From<ext::Error> for Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::CallRuntimeFailed => Self::CallRuntimeFailed,
+            ext::Error::CallRuntimeReturnedError => Self::CallRuntimeReturnedError,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
