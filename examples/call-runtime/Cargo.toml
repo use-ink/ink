@@ -12,7 +12,10 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 # Substrate
-# We need to explicitly turn off some of the `sp-io` features, to avoid conflicts (especially for global allocator).
+#
+# We need to explicitly turn off some of the `sp-io` features, to avoid conflicts
+# (especially for global allocator).
+#
 # See also: https://substrate.stackexchange.com/questions/4733/error-when-compiling-a-contract-using-the-xcm-chain-extension.
 sp-io = { version = "12.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
 sp-runtime = { version = "12.0.0", default-features = false }
@@ -34,6 +37,7 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-# Assumes that the node used in E2E testing allows using `call-runtime` API, including triggering `Balances::transfer`
-# extrinsic.
+
+# Assumes that the node used in E2E testing allows using the `call-runtime` API,
+# including triggering `Balances::transfer` extrinsic.
 permissive-node = []

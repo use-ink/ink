@@ -707,7 +707,7 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 /// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.
 ///
 /// For more details consult
-/// [chain-side documentation](https://github.com/paritytech/substrate/blob/6f72780b87e41a025722284a52a7d85f41958a82/frame/contracts/src/wasm/runtime.rs#L2397).
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
 ///
 /// # Errors
 ///
