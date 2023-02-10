@@ -12,6 +12,8 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
+quickcheck = "1"
+quickcheck_macros = "1"
 
 [lib]
 path = "lib.rs"

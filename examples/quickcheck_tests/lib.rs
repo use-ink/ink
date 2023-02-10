@@ -66,8 +66,8 @@ mod quickcheck_tests {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test]
-        async fn it_works(mut client: ink_e2e::Client<C, E>, v: isize) -> E2EResult<()> {
+        #[ink_e2e::test(quickcheck = true)]
+        async fn it_works(mut client: ink_e2e::Client<C, E>, v: i32) -> E2EResult<()> {
             // given
             let constructor = QuickcheckTestsRef::new(0);
             let contract_acc_id = client
@@ -83,7 +83,7 @@ mod quickcheck_tests {
 
             // when
             let inc = build_message::<QuickcheckTestsRef>(contract_acc_id.clone())
-                .call(|quickcheck_tests| quickcheck_tests.inc(1));
+                .call(|quickcheck_tests| quickcheck_tests.inc(v));
             let _inc_res = client
                 .call(&ink_e2e::bob(), inc, 0, None)
                 .await
@@ -93,7 +93,10 @@ mod quickcheck_tests {
             let get = build_message::<QuickcheckTestsRef>(contract_acc_id.clone())
                 .call(|quickcheck_tests| quickcheck_tests.get());
             let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            assert!(matches!(get_res.return_value(), 1));
+            //would fail the test with output containing: thread 'quickcheck_tests::e2e_tests::it_works' panicked at '[quickcheck] TEST FAILED (runtime error). Arguments: (0)
+            //let v = v+1;
+            //otherwise, the test passes in ~80s
+            assert!(matches!(get_res.return_value(), v));
 
             Ok(())
         }

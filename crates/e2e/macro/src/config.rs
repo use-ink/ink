@@ -25,7 +25,7 @@ pub struct E2EConfig {
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
     /// Enables fuzz testing with `quickcheck`
-    quickchecked: bool,
+    quickcheck: bool,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
@@ -34,8 +34,8 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
-        let quickchecked_arg: Option<(syn::LitStr, ast::MetaNameValue)> = None;
-        let mut quickchecked = false;
+        let quickcheck_arg: Option<(syn::LitStr, ast::MetaNameValue)> = None;
+        let mut quickcheck = false;
 
         for arg in args.into_iter() {
             if arg.name.is_ident("keep_attr") {
@@ -58,11 +58,11 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     ));
                 }
             } else if arg.name.is_ident("quickcheck") {
-                if let Some((_, ast)) = quickchecked_arg {
+                if let Some((_, ast)) = quickcheck_arg {
                     return Err(duplicate_config_err(ast, arg, "quickcheck", "e2e test"));
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
-                    quickchecked = lit_bool.value;
+                    quickcheck = lit_bool.value;
                 } else {
                     return Err(format_err_spanned!(
                         arg,
@@ -82,7 +82,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
         Ok(E2EConfig {
             additional_contracts,
             whitelisted_attributes,
-            quickchecked,
+            quickcheck,
         })
     }
 }
@@ -92,6 +92,10 @@ impl E2EConfig {
     /// and imported before executing the test.
     pub fn additional_contracts(&self) -> Vec<String> {
         self.additional_contracts.clone()
+    }
+
+    pub fn quickchecked(&self) -> bool {
+        self.quickcheck
     }
 }
 
@@ -165,7 +169,7 @@ mod tests {
             Ok(E2EConfig {
                 whitelisted_attributes: attrs,
                 additional_contracts: Vec::new(),
-                quickchecked: false,
+                quickcheck: false,
             }),
         )
     }
@@ -187,7 +191,7 @@ mod tests {
             Ok(E2EConfig {
                 whitelisted_attributes: WhitelistedAttributes::default(),
                 additional_contracts: Vec::new(),
-                quickchecked: true,
+                quickcheck: true,
             }),
         )
     }
@@ -200,7 +204,7 @@ mod tests {
             Ok(E2EConfig {
                 whitelisted_attributes: WhitelistedAttributes::default(),
                 additional_contracts: Vec::new(),
-                quickchecked: false,
+                quickcheck: false,
             }),
         )
     }

@@ -17,10 +17,8 @@ use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::{
-    collections::HashMap,
-    sync::Once,
-};
+use std::{collections::HashMap, sync::Once};
+use syn::{punctuated::Punctuated, token::Comma, FnArg};
 
 /// We use this to only build the contracts once for all tests, at the
 /// time of generating the Rust code for the tests, so at compile time.
@@ -58,10 +56,13 @@ impl InkE2ETest {
     pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
-            return quote! {}
+            return quote! {};
         }
 
         let item_fn = &self.test.item_fn.item_fn;
+        // we skip the first arg as it is the client;
+        let fn_args: &Punctuated<FnArg, Comma> =
+            &item_fn.sig.inputs.clone().into_iter().skip(1).collect();
         let fn_name = &item_fn.sig.ident;
         let block = &item_fn.block;
         let fn_return_type = &item_fn.sig.output;
@@ -129,10 +130,34 @@ impl InkE2ETest {
             }
         }
 
+        let test_attr: TokenStream2 = if self.test.config.quickchecked(){
+            quote! {
+                #[allow(unused_variables)]
+                #[quickcheck_macros::quickcheck]
+            }
+        } else {
+            quote! {
+                #[test]
+            }
+        };
+
+        let checked = self.test.config.quickchecked();
+        println!("Checked: {checked}");
+
+        let fn_signature: TokenStream2 = if self.test.config.quickchecked() {
+            quote! {
+               #vis fn #fn_name (#fn_args) #ret
+            }
+        } else {
+            quote! {
+               #vis fn #fn_name () #ret
+            }
+        };
+
         quote! {
             #( #attrs )*
-            #[test]
-            #vis fn #fn_name () #ret {
+            #test_attr
+            #fn_signature {
                 use ::ink_e2e::log_info;
                 ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
                     let str = format!("test: {}", stringify!(#fn_name));
@@ -186,16 +211,8 @@ impl InkE2ETest {
 /// bundle build artifact.
 fn build_contract(path_to_cargo_toml: &str) -> String {
     use contract_build::{
-        BuildArtifacts,
-        BuildMode,
-        ExecuteArgs,
-        Features,
-        ManifestPath,
-        Network,
-        OptimizationPasses,
-        OutputType,
-        UnstableFlags,
-        Verbosity,
+        BuildArtifacts, BuildMode, ExecuteArgs, Features, ManifestPath, Network,
+        OptimizationPasses, OutputType, UnstableFlags, Verbosity,
     };
 
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
