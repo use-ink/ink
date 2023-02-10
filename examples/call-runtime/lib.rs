@@ -49,6 +49,21 @@ mod runtime_call {
     #[derive(Default)]
     pub struct RuntimeCaller;
 
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum RuntimeError {
+        CallRuntimeFailed,
+    }
+
+    impl From<ink::env::Error> for RuntimeError {
+        fn from(e: ink::env::Error) -> Self {
+            match e {
+                ink::env::Error::CallRuntimeFailed => RuntimeError::CallRuntimeFailed,
+                _ => panic!(),
+            }
+        }
+    }
+
     impl RuntimeCaller {
         /// The constructor is `payable`, so that during instantiation it can be given some tokens
         /// that will be further transferred with `transfer_through_runtime` message.
@@ -71,13 +86,13 @@ mod runtime_call {
             &mut self,
             receiver: AccountId,
             value: Balance,
-        ) -> Result<(), ()> {
+        ) -> Result<(), RuntimeError> {
             self.env()
                 .call_runtime(&RuntimeCall::Balances(BalancesCall::Transfer {
                     dest: receiver.into(),
                     value,
                 }))
-                .map_err(|_| ())
+                .map_err(Into::into)
         }
     }
 
@@ -196,7 +211,7 @@ mod runtime_call {
                 .await;
 
             // then
-            assert!(call_res.is_err());
+            assert!(matches!(call_res, Err(ink_e2e::Error::CallExtrinsic(_))));
 
             Ok(())
         }
