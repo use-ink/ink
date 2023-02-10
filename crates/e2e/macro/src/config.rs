@@ -13,12 +13,8 @@
 // limitations under the License.
 
 use ink_ir::{
-    ast,
-    format_err_spanned,
-    utils::{
-        duplicate_config_err,
-        WhitelistedAttributes,
-    },
+    ast, format_err_spanned,
+    utils::{duplicate_config_err, WhitelistedAttributes},
 };
 
 /// The End-to-End test configuration.
@@ -28,6 +24,8 @@ pub struct E2EConfig {
     whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
+    /// Enables fuzz testing with `quickcheck`
+    quickchecked: bool,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
@@ -36,6 +34,8 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
+        let quickchecked_arg: Option<(syn::LitStr, ast::MetaNameValue)> = None;
+        let mut quickchecked = false;
 
         for arg in args.into_iter() {
             if arg.name.is_ident("keep_attr") {
@@ -47,7 +47,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         arg,
                         "additional_contracts",
                         "e2e test",
-                    ))
+                    ));
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     additional_contracts = Some((lit_str.clone(), arg))
@@ -55,13 +55,25 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                     return Err(format_err_spanned!(
                         arg,
                         "expected a bool literal for `additional_contracts` ink! e2e test configuration argument",
-                    ))
+                    ));
+                }
+            } else if arg.name.is_ident("quickcheck") {
+                if let Some((_, ast)) = quickchecked_arg {
+                    return Err(duplicate_config_err(ast, arg, "quickcheck", "e2e test"));
+                }
+                if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
+                    quickchecked = lit_bool.value;
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a bool literal for `quickcheck` ink! e2e test configuration argument",
+                    ));
                 }
             } else {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! configuration argument",
-                ))
+                ));
             }
         }
         let additional_contracts = additional_contracts
@@ -70,6 +82,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
         Ok(E2EConfig {
             additional_contracts,
             whitelisted_attributes,
+            quickchecked,
         })
     }
 }
@@ -152,6 +165,7 @@ mod tests {
             Ok(E2EConfig {
                 whitelisted_attributes: attrs,
                 additional_contracts: Vec::new(),
+                quickchecked: false,
             }),
         )
     }
@@ -162,5 +176,32 @@ mod tests {
             syn::parse_quote! { keep_attr = 1u16 },
             Err("expected a string with attributes separated by `,`"),
         );
+    }
+
+    #[test]
+    fn enabling_quickcheck_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                quickcheck = true
+            },
+            Ok(E2EConfig {
+                whitelisted_attributes: WhitelistedAttributes::default(),
+                additional_contracts: Vec::new(),
+                quickchecked: true,
+            }),
+        )
+    }
+    #[test]
+    fn explicitly_disabling_quickcheck_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                quickcheck = false
+            },
+            Ok(E2EConfig {
+                whitelisted_attributes: WhitelistedAttributes::default(),
+                additional_contracts: Vec::new(),
+                quickchecked: false,
+            }),
+        )
     }
 }
