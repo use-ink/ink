@@ -13,8 +13,12 @@
 // limitations under the License.
 
 use ink_ir::{
-    ast, format_err_spanned,
-    utils::{duplicate_config_err, WhitelistedAttributes},
+    ast,
+    format_err_spanned,
+    utils::{
+        duplicate_config_err,
+        WhitelistedAttributes,
+    },
 };
 
 /// The End-to-End test configuration.
@@ -47,7 +51,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         arg,
                         "additional_contracts",
                         "e2e test",
-                    ));
+                    ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     additional_contracts = Some((lit_str.clone(), arg))
@@ -59,7 +63,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 }
             } else if arg.name.is_ident("quickcheck") {
                 if let Some((_, ast)) = quickcheck_arg {
-                    return Err(duplicate_config_err(ast, arg, "quickcheck", "e2e test"));
+                    return Err(duplicate_config_err(ast, arg, "quickcheck", "e2e test"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
                     quickcheck = lit_bool.value;
@@ -73,7 +77,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 return Err(format_err_spanned!(
                     arg,
                     "encountered unknown or unsupported ink! configuration argument",
-                ));
+                ))
             }
         }
         let additional_contracts = additional_contracts

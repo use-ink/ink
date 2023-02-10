@@ -17,8 +17,15 @@ use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::{collections::HashMap, sync::Once};
-use syn::{punctuated::Punctuated, token::Comma, FnArg};
+use std::{
+    collections::HashMap,
+    sync::Once,
+};
+use syn::{
+    punctuated::Punctuated,
+    token::Comma,
+    FnArg,
+};
 
 /// We use this to only build the contracts once for all tests, at the
 /// time of generating the Rust code for the tests, so at compile time.
@@ -56,7 +63,7 @@ impl InkE2ETest {
     pub fn generate_code(&self) -> TokenStream2 {
         #[cfg(clippy)]
         if true {
-            return quote! {};
+            return quote! {}
         }
 
         let item_fn = &self.test.item_fn.item_fn;
@@ -130,7 +137,7 @@ impl InkE2ETest {
             }
         }
 
-        let test_attr: TokenStream2 = if self.test.config.quickchecked(){
+        let test_attr: TokenStream2 = if self.test.config.quickchecked() {
             quote! {
                 #[allow(unused_variables)]
                 #[quickcheck_macros::quickcheck]
@@ -211,8 +218,16 @@ impl InkE2ETest {
 /// bundle build artifact.
 fn build_contract(path_to_cargo_toml: &str) -> String {
     use contract_build::{
-        BuildArtifacts, BuildMode, ExecuteArgs, Features, ManifestPath, Network,
-        OptimizationPasses, OutputType, UnstableFlags, Verbosity,
+        BuildArtifacts,
+        BuildMode,
+        ExecuteArgs,
+        Features,
+        ManifestPath,
+        Network,
+        OptimizationPasses,
+        OutputType,
+        UnstableFlags,
+        Verbosity,
     };
 
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
