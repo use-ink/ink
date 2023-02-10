@@ -28,7 +28,7 @@ serde_json = { version = "1.0.81" }
 tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = { version = "0.4" }
 env_logger = { version = "0.10" }
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 subxt = "0.27.0"
 
 # Substrate

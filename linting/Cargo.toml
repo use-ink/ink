@@ -33,7 +33,7 @@ ink = { path = "../crates/ink", default-features = false }
 ink_metadata = { path = "../crates/metadata", default-features = false }
 ink_primitives = { path = "../crates/primitives", default-features = false }
 ink_storage = { path = "../crates/storage", default-features = false }
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"] }
 
 # For the moment we have to include the tests as examples and
