@@ -66,6 +66,12 @@ mod quickcheck_tests {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+        // ink_e2e::quickcheck::quickcheck! {
+        //     fn some(v: isize) -> bool {
+        //         true
+        //     }
+        // }
+
         #[ink_e2e::test(quickcheck = true)]
         async fn it_works(mut client: ink_e2e::Client<C, E>, v: i32) -> E2EResult<()> {
             // given
@@ -76,7 +82,7 @@ mod quickcheck_tests {
                 .expect("instantiate failed")
                 .account_id;
 
-            let get = build_message::<QuickcheckTestsRef>(contract_acc_id.clone())
+            let get = build_message::<QuickcheckTestsRef>(contract_acc_id)
                 .call(|quickcheck_tests| quickcheck_tests.get());
             let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_res.return_value(), 0));
@@ -96,7 +102,7 @@ mod quickcheck_tests {
             //would fail the test with output containing: thread 'quickcheck_tests::e2e_tests::it_works' panicked at '[quickcheck] TEST FAILED (runtime error). Arguments: (0)
             //let v = v+1;
             //otherwise, the test passes in ~80s
-            assert!(matches!(get_res.return_value(), v));
+            assert!(get_res.return_value() == v);
 
             Ok(())
         }

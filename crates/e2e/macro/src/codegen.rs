@@ -136,21 +136,6 @@ impl InkE2ETest {
                 panic!("The contracts node executable '{contracts_node}' was not found.")
             }
         }
-
-        let test_attr: TokenStream2 = if self.test.config.quickchecked() {
-            quote! {
-                #[allow(unused_variables)]
-                #[quickcheck_macros::quickcheck]
-            }
-        } else {
-            quote! {
-                #[test]
-            }
-        };
-
-        let checked = self.test.config.quickchecked();
-        println!("Checked: {checked}");
-
         let fn_signature: TokenStream2 = if self.test.config.quickchecked() {
             quote! {
                #vis fn #fn_name (#fn_args) #ret
@@ -161,9 +146,7 @@ impl InkE2ETest {
             }
         };
 
-        quote! {
-            #( #attrs )*
-            #test_attr
+        let test_body = quote! {
             #fn_signature {
                 use ::ink_e2e::log_info;
                 ::ink_e2e::LOG_PREFIX.with(|log_prefix| {
@@ -209,6 +192,20 @@ impl InkE2ETest {
                         .unwrap_or_else(|err| panic!("Failed building the Runtime: {}", err))
                         .block_on(run);
                 }
+            }
+        };
+        if self.test.config.quickchecked() {
+            quote! {
+               #( #attrs )*
+               ::ink_e2e::quickcheck::quickcheck!{
+                    #test_body
+               }
+            }
+        } else {
+            quote! {
+                #( #attrs )*
+                #[test]
+                #test_body
             }
         }
     }

@@ -17,12 +17,6 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 
-#[cfg(test)]
-extern crate quickcheck;
-#[cfg(test)]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
-
 mod codegen;
 mod config;
 mod ir;

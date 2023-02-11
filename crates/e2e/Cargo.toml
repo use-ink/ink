@@ -31,6 +31,7 @@ log = { version = "0.4" }
 env_logger = { version = "0.10" }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 subxt = "0.26.0"
+quickcheck = "1"
 
 
 # Substrate
