@@ -96,6 +96,16 @@ mod runtime_call {
                 }))
                 .map_err(Into::into)
         }
+
+        /// Tries to trigger `call_runtime` API with rubbish data.
+        ///
+        /// # Note
+        ///
+        /// This message is for testing purposes only.
+        #[ink(message)]
+        pub fn call_nonexistent_extrinsic(&mut self) -> Result<(), RuntimeError> {
+            self.env().call_runtime(&()).map_err(Into::into)
+        }
     }
 
     #[cfg(all(test, feature = "e2e-tests"))]
@@ -125,6 +135,16 @@ mod runtime_call {
         /// If your chain has this threshold higher, increase the transfer value.
         const TRANSFER_VALUE: Balance = 1 / 10 * UNIT;
 
+        /// An amount that is below the existential deposit, so that a transfer to an empty account
+        /// fails.
+        ///
+        /// Must not be zero, because such an operation would be a successful no-op.
+        const INSUFFICIENT_TRANSFER_VALUE: Balance = 1;
+
+        /// Positive case scenario:
+        ///  - `call_runtime` is enabled
+        ///  - the call is valid
+        ///  - the call execution succeeds
         #[cfg(feature = "permissive-node")]
         #[ink_e2e::test]
         async fn transfer_with_call_runtime_works(
@@ -188,7 +208,89 @@ mod runtime_call {
             Ok(())
         }
 
-        /// In the standard configuration, the node doesn't allow for `call-runtime` usage.
+        /// Negative case scenario:
+        ///  - `call_runtime` is enabled
+        ///  - the call is valid
+        ///  - the call execution fails
+        #[cfg(feature = "permissive-node")]
+        #[ink_e2e::test]
+        async fn transfer_with_call_runtime_fails_when_execution_fails(
+            mut client: Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = RuntimeCallerRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "call-runtime",
+                    &ink_e2e::alice(),
+                    constructor,
+                    CONTRACT_BALANCE,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let receiver: AccountId = default_accounts::<DefaultEnvironment>().bob;
+
+            // when
+            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
+                .call(|caller| {
+                    caller.transfer_through_runtime(receiver, INSUFFICIENT_TRANSFER_VALUE)
+                });
+
+            let call_res = client
+                .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
+                .await
+                .return_value();
+
+            // then
+            assert!(matches!(
+                call_res,
+                Err(RuntimeError::CallRuntimeReturnedError)
+            ));
+
+            Ok(())
+        }
+
+        /// Negative case scenario:
+        ///  - `call_runtime` is enabled
+        ///  - the call is invalid
+        #[cfg(feature = "permissive-node")]
+        #[ink_e2e::test]
+        async fn transfer_with_call_runtime_fails_when_call_is_invalid(
+            mut client: Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = RuntimeCallerRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "call-runtime",
+                    &ink_e2e::alice(),
+                    constructor,
+                    CONTRACT_BALANCE,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let transfer_message = build_message::<RuntimeCallerRef>(contract_acc_id)
+                .call(|caller| caller.call_nonexistent_extrinsic());
+
+            let call_res = client
+                .call_dry_run(&ink_e2e::alice(), &transfer_message, 0, None)
+                .await;
+
+            // then
+            assert!(call_res.is_err());
+
+            Ok(())
+        }
+
+        /// Negative case scenario:
+        ///  - `call_runtime` is disabled
         #[cfg(not(feature = "permissive-node"))]
         #[ink_e2e::test]
         async fn call_runtime_fails_when_forbidden(
