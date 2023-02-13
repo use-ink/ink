@@ -87,7 +87,7 @@ mod runtime_call {
         }
     }
 
-    #[cfg(all(test, feature = "e2e-tests", feature = "permissive-node"))]
+    #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
 
@@ -95,6 +95,7 @@ mod runtime_call {
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+        #[cfg(feature = "permissive-node")]
         #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
         async fn calling_custom_environment_works(
             mut client: Client<C, E>,
@@ -127,6 +128,42 @@ mod runtime_call {
 
             // then
             call_res.contains_event("Contracts", "ContractEmitted");
+
+            Ok(())
+        }
+
+        #[cfg(not(feature = "permissive-node"))]
+        #[ink_e2e::test(environment = crate::EnvironmentWithManyTopics)]
+        async fn calling_custom_environment_fails_if_incompatible_with_node(
+            mut client: Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = TopicsRef::new();
+            let contract_acc_id = client
+                .instantiate(
+                    "custom-environment",
+                    &ink_e2e::alice(),
+                    constructor,
+                    0,
+                    None,
+                )
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            let message =
+                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
+                    contract_acc_id,
+                )
+                    .call(|caller| caller.trigger());
+
+            // when
+            let call_res = client
+                .call_dry_run(&ink_e2e::alice(), &message, 0, None)
+                .await;
+
+            // then
+            assert!(call_res.is_err());
 
             Ok(())
         }
