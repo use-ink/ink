@@ -61,7 +61,6 @@ workflow:
   - cargo +nightly --version
   - cargo spellcheck --version
   - bash --version
-  - sccache -s
 
 .test-refs:                        &test-refs
   rules:
@@ -76,11 +75,9 @@ workflow:
   image:                           "${CI_IMAGE}"
   before_script:
     - *rust-info-script
-    - ./scripts/ci/pre_cache.sh
-    - sccache -s
   interruptible:                   true
   tags:
-    - linux-docker
+    - linux-docker-vm-c2
 
 .kubernetes-env:                   &kubernetes-env
   interruptible:                   true
