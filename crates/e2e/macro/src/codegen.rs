@@ -72,8 +72,6 @@ impl InkE2ETest {
             syn::ReturnType::Type(rarrow, ret_type) => quote! { #rarrow #ret_type },
         };
 
-        let ws_url = &self.test.config.ws_url();
-
         let mut additional_contracts: Vec<String> =
             self.test.config.additional_contracts();
         let default_main_contract_manifest_path = String::from("Cargo.toml");
@@ -113,6 +111,24 @@ impl InkE2ETest {
             quote! { #bundle_path }
         });
 
+        const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
+
+        // use the user supplied `CONTRACTS_NODE` or default to `substrate-contracts-node`
+        let contracts_node: &'static str =
+            option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
+
+        // check the specified contracts node.
+        if which::which(contracts_node).is_err() {
+            if contracts_node == DEFAULT_CONTRACTS_NODE {
+                panic!(
+                    "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
+                    or specify the `CONTRACTS_NODE` environment variable.",
+                )
+            } else {
+                panic!("The contracts node executable '{contracts_node}' was not found.")
+            }
+        }
+
         quote! {
             #( #attrs )*
             #[test]
@@ -126,28 +142,25 @@ impl InkE2ETest {
 
                 ::ink_e2e::INIT.call_once(|| {
                     ::ink_e2e::env_logger::init();
-                    let check_async = ::ink_e2e::Client::<
-                        ::ink_e2e::PolkadotConfig,
-                        ink::env::DefaultEnvironment
-                    >::new(&#ws_url, []);
-
-                    ::ink_e2e::tokio::runtime::Builder::new_current_thread()
-                        .enable_all()
-                        .build()
-                        .unwrap_or_else(|err|
-                            panic!("Failed building the Runtime during initialization: {}", err))
-                        .block_on(check_async);
                 });
 
                 log_info("creating new client");
 
                 let run = async {
-                    // TODO(#xxx) Make those two generic environments customizable.
+                    // spawn a contracts node process just for this test
+                    let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
+                        ::build(#contracts_node)
+                        .spawn()
+                        .await
+                        .unwrap_or_else(|err|
+                            ::core::panic!("Error spawning substrate-contracts-node: {:?}", err)
+                        );
+
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
                         ink::env::DefaultEnvironment
                     >::new(
-                        &#ws_url,
+                        node_proc.client(),
                         [ #( #contracts ),* ]
                     ).await;
 

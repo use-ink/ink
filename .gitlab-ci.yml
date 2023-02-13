@@ -61,7 +61,6 @@ workflow:
   - cargo +nightly --version
   - cargo spellcheck --version
   - bash --version
-  - sccache -s
 
 .test-refs:                        &test-refs
   rules:
@@ -76,19 +75,14 @@ workflow:
   image:                           "${CI_IMAGE}"
   before_script:
     - *rust-info-script
-    - ./scripts/ci/pre_cache.sh
-    - sccache -s
   interruptible:                   true
   tags:
-    - linux-docker
+    - linux-docker-vm-c2
 
 .kubernetes-env:                   &kubernetes-env
   interruptible:                   true
   tags:
     - kubernetes-parity-build
-
-.start-substrate-contracts-node:                     &start-substrate-contracts-node
-    - substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
 #### stage:                        lint
 #
@@ -375,7 +369,6 @@ examples-test:
     - job:                         clippy-std
       artifacts:                   false
   script:
-    - *start-substrate-contracts-node
     - for example in examples/*/; do
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
