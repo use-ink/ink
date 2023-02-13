@@ -28,10 +28,12 @@ pub struct E2EConfig {
     whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
-    /// Custom [environment](https://docs.rs/ink_env/4.0.0-rc/ink_env/trait.Environment.html) for
-    /// the contracts, if specified. Otherwise
+    /// The [`Environment`](https://docs.rs/ink_env/4.0.0-rc/ink_env/trait.Environment.html) to use
+    /// during test execution.
+    ///
+    /// If no `Environment` is specified, the
     /// [`DefaultEnvironment`](https://docs.rs/ink_env/4.0.0-rc/ink_env/enum.DefaultEnvironment.html)
-    /// is used.
+    /// will be used.
     environment: Option<syn::Path>,
 }
 

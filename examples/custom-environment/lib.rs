@@ -66,6 +66,8 @@ mod runtime_call {
     mod tests {
         use super::*;
 
+        type Event = <Topics as ink::reflect::ContractEventBase>::Type;
+
         #[ink::test]
         fn emits_event_with_many_topics() {
             let mut contract = Topics::new();
@@ -74,8 +76,14 @@ mod runtime_call {
             let emitted_events = ink::env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events.len(), 1);
 
-            let _ = <<Topics as ink::reflect::ContractEventBase>::Type as scale::Decode>::decode(&mut &emitted_events[0].data[..])
-                .expect("encountered invalid contract event data buffer");
+            let emitted_event =
+                <Event as scale::Decode>::decode(&mut &emitted_events[0].data[..])
+                    .expect("encountered invalid contract event data buffer");
+
+            assert!(matches!(
+                emitted_event,
+                Event::EventWithTopics(EventWithTopics { .. })
+            ));
         }
     }
 
