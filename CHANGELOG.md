@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Version 4.0.0]
+
+TODO: release summary. Possibly aggregate together all changes since last proper release.
 
 ### Added
--  Support custom environment in E2E tests - [#1645](https://github.com/paritytech/ink/pull/1645)
+- Support custom environment in E2E tests - [#1645](https://github.com/paritytech/ink/pull/1645)
 
 ### Changed
 - E2E: spawn a separate contracts node instance per test ‒ [#1642](https://github.com/paritytech/ink/pull/1642)
@@ -41,7 +43,7 @@ breaking or otherwise.
 - Remove `Default` implementation for AccountId ‒ [#1255](https://github.com/paritytech/ink/pull/1255)
 
 ## Version 4.0.0-beta.1
-The coolest feature included in this release is the first first published version of
+The coolest feature included in this release is the first published version of
 ink!'s native ["end-to-end" (E2E) testing framework](https://github.com/paritytech/ink/issues/1234).
 
 This enables testing of a contract by deploying and calling it on a Substrate node with
