@@ -184,7 +184,7 @@ mod runtime_call {
                 .await
                 .expect("call failed");
 
-            assert!(call_res.dry_run.exec_result.result.is_ok());
+            assert!(call_res.return_value().is_ok());
 
             // then
             let contract_balance_after = client
