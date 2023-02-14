@@ -139,6 +139,7 @@ mod runtime_call {
         /// fails.
         ///
         /// Must not be zero, because such an operation would be a successful no-op.
+        #[cfg(feature = "permissive-node")]
         const INSUFFICIENT_TRANSFER_VALUE: Balance = 1;
 
         /// Positive case scenario:
