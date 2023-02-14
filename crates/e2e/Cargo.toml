@@ -1,6 +1,6 @@
 [package]
 name = "ink_e2e"
-version = "4.0.0-rc"
+version = "4.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
@@ -15,10 +15,10 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_e2e_macro = { version = "4.0.0-rc", path = "./macro" }
-ink = { version = "4.0.0-rc", path = "../ink" }
-ink_env = { version = "4.0.0-rc", path = "../env" }
-ink_primitives = { version = "4.0.0-rc", path = "../primitives" }
+ink_e2e_macro = { version = "4.0.0", path = "./macro" }
+ink = { version = "4.0.0", path = "../ink" }
+ink_env = { version = "4.0.0", path = "../env" }
+ink_primitives = { version = "4.0.0", path = "../primitives" }
 
 contract-metadata = { version = "2.0.0-rc.1" }
 funty = "2.0.0"
