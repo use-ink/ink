@@ -8,11 +8,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 TODO: release summary. Possibly aggregate together all changes since last proper release.
 
+## Version 4.0.0
+
 ### Added
-- Support custom environment in E2E tests - [#1645](https://github.com/paritytech/ink/pull/1645)
+- Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
+- Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248)
+- Add `version` field to ink! metadata ‒ [#1313](https://github.com/paritytech/ink/pull/1313)
+- The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
+- Add `ink_env::pay_with_call!` helper macro for off-chain emulation of sending payments with contract message calls ‒ [#1379](https://github.com/paritytech/ink/pull/1379)
+- Allow using `Result<Self, Error>` as a return type in constructors ‒ [#1446](https://github.com/paritytech/ink/pull/1446)
+- Add `Mapping::take()` function allowing to get a value removing it from storage ‒ [#1461](https://github.com/paritytech/ink/pull/1461)
+- Add E2E testing framework MVP ‒ [#1395](https://github.com/paritytech/ink/pull/1395)
+- Add E2E tests for `Mapping` functions - [#1492](https://github.com/paritytech/ink/pull/1492)
+- E2E: expose call dry-run method ‒ [#1624](https://github.com/paritytech/ink/pull/1624)
+- Make cross-contract callee non-optional ‒ [#1636](https://github.com/paritytech/ink/pull/1636)
+- Support custom environment in E2E tests - [#1645](https://github.com/paritytech/ink/pull/1645) (thanks [@pmikolajczyk41](https://github.com/pmikolajczyk41))
 
 ### Changed
+- Contract size optimization in case contract doesn't accept payment ‒ [#1267](https://github.com/paritytech/ink/pull/1267) (thanks [@xgreenx](https://github.com/xgreenx)).
+- Move ink! linter into `ink` repository ‒ [#1361](https://github.com/paritytech/ink/pull/1267)
+- Introduce `ink` entrance crate ‒ [#1223](https://github.com/paritytech/ink/pull/1223)
+- Use `XXH32` instead of `sha256` for calculating storage keys ‒ [#1393](https://github.com/paritytech/ink/pull/1393)
+- Add support for language level errors (`LangError`) ‒ [#1450](https://github.com/paritytech/ink/pull/1450)
+- Return `LangError`s from constructors ‒ [#1504](https://github.com/paritytech/ink/pull/1504)
+- Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
+- Merge `Mapping::insert(key, val)` and `Mapping::insert_return_size(key, val)` into one method - [#1463](https://github.com/paritytech/ink/pull/1463)
+- FFI: no more `__unstable__` wasm import module ‒ [#1522](https://github.com/paritytech/ink/pull/1522)
+- Clean up CallBuilder `return()` type ‒ [#1525](https://github.com/paritytech/ink/pull/1525)
+- Fix trait message return type metadata ‒ [#1531](https://github.com/paritytech/ink/pull/1531)
+- Bump Dylint dependencies ‒ [#1551](https://github.com/paritytech/ink/pull/1551)
+- Stabilize `take_storage` ‒ [#1568](https://github.com/paritytech/ink/pull/1568)
+- Chain Extension: Evaluation of method return type at compile time ‒ [#1569](https://github.com/paritytech/ink/pull/1569)
+- Make more functions be const ‒ [#1574](https://github.com/paritytech/ink/pull/1574) (thanks [@yjhmelody](https://github.com/yjhmelody))
+- Unify fallible and non fallible `instantiate` methods ‒ [#1591](https://github.com/paritytech/ink/pull/1591)
+- Make `CallBuilder` and `CreateBuilder` error handling optional ‒ [#1602](https://github.com/paritytech/ink/pull/1602)
+- Rename `CallBuilder::fire()` method to `invoke()` ‒ [#1604](https://github.com/paritytech/ink/pull/1604)
+- chore: add minimum rust version to the ink crate ‒ [#1609](https://github.com/paritytech/ink/pull/1609) (thanks [@Kurtsley](https://github.com/Kurtsley))
+- Rename `_checked` codegen call methods with `try_` ‒ [#1621](https://github.com/paritytech/ink/pull/1621)
+- Bump Substrate and `subxt` dependencies ‒ [#1549](https://github.com/paritytech/ink/pull/1549)
 - E2E: spawn a separate contracts node instance per test ‒ [#1642](https://github.com/paritytech/ink/pull/1642)
+
+### Fixed
+- Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
+- Allow pay_with_call to take multiple arguments ‒ [#1401](https://github.com/paritytech/ink/pull/1401)
+- Add Determinism enum from pallet-contracts ‒ [#1547](https://github.com/paritytech/ink/pull/1547)
+- Added missed `WhereClosure` for the generics into `storage_item` ‒ [#1536](https://github.com/paritytech/ink/pull/1536) (thanks [@xgreenx](https://github.com/xgreenx))
+
+### Removed
+- Implement `ecdsa_to_eth_address()` and remove `eth_compatibility` crate ‒ [#1233](https://github.com/paritytech/ink/pull/1233)
+- Remove `wee-alloc` ‒ [#1403](https://github.com/paritytech/ink/pull/1403)
+- Remove `ink_env::random` function ‒ [#1442](https://github.com/paritytech/ink/pull/1442)
+- Remove `Default` implementation for AccountId ‒ [#1255](https://github.com/paritytech/ink/pull/1255)
 
 ## Version 4.0.0-rc
 
