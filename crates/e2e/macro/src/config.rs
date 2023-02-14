@@ -28,6 +28,13 @@ pub struct E2EConfig {
     whitelisted_attributes: WhitelistedAttributes,
     /// Additional contracts that have to be built before executing the test.
     additional_contracts: Vec<String>,
+    /// The [`Environment`](https://docs.rs/ink_env/4.0.0-rc/ink_env/trait.Environment.html) to use
+    /// during test execution.
+    ///
+    /// If no `Environment` is specified, the
+    /// [`DefaultEnvironment`](https://docs.rs/ink_env/4.0.0-rc/ink_env/enum.DefaultEnvironment.html)
+    /// will be used.
+    environment: Option<syn::Path>,
 }
 
 impl TryFrom<ast::AttributeArgs> for E2EConfig {
@@ -36,6 +43,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut whitelisted_attributes = WhitelistedAttributes::default();
         let mut additional_contracts: Option<(syn::LitStr, ast::MetaNameValue)> = None;
+        let mut environment: Option<(syn::Path, ast::MetaNameValue)> = None;
 
         for arg in args.into_iter() {
             if arg.name.is_ident("keep_attr") {
@@ -46,7 +54,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         ast,
                         arg,
                         "additional_contracts",
-                        "e2e test",
+                        "E2E test",
                     ))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
@@ -54,7 +62,19 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `additional_contracts` ink! e2e test configuration argument",
+                        "expected a string literal for `additional_contracts` ink! E2E test configuration argument",
+                    ))
+                }
+            } else if arg.name.is_ident("environment") {
+                if let Some((_, ast)) = environment {
+                    return Err(duplicate_config_err(ast, arg, "environment", "E2E test"))
+                }
+                if let ast::PathOrLit::Path(path) = &arg.value {
+                    environment = Some((path.clone(), arg))
+                } else {
+                    return Err(format_err_spanned!(
+                        arg,
+                        "expected a path for `environment` ink! E2E test configuration argument",
                     ))
                 }
             } else {
@@ -67,9 +87,12 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
         let additional_contracts = additional_contracts
             .map(|(value, _)| value.value().split(' ').map(String::from).collect())
             .unwrap_or_else(Vec::new);
+        let environment = environment.map(|(path, _)| path);
+
         Ok(E2EConfig {
             additional_contracts,
             whitelisted_attributes,
+            environment,
         })
     }
 }
@@ -80,20 +103,10 @@ impl E2EConfig {
     pub fn additional_contracts(&self) -> Vec<String> {
         self.additional_contracts.clone()
     }
-}
 
-/// The environmental types definition.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Environment {
-    /// The underlying Rust type.
-    pub path: syn::Path,
-}
-
-impl Default for Environment {
-    fn default() -> Self {
-        Self {
-            path: syn::parse_quote! { ::ink_env::DefaultEnvironment },
-        }
+    /// Custom environment for the contracts, if specified.
+    pub fn environment(&self) -> Option<syn::Path> {
+        self.environment.clone()
     }
 }
 
@@ -128,15 +141,69 @@ mod tests {
     }
 
     #[test]
-    fn duplicate_args_fails() {
+    fn duplicate_additional_contracts_fails() {
         assert_try_from(
             syn::parse_quote! {
                 additional_contracts = "adder/Cargo.toml",
                 additional_contracts = "adder/Cargo.toml",
             },
             Err(
-                "encountered duplicate ink! e2e test `additional_contracts` configuration argument",
+                "encountered duplicate ink! E2E test `additional_contracts` configuration argument",
             ),
+        );
+    }
+
+    #[test]
+    fn duplicate_environment_fails() {
+        assert_try_from(
+            syn::parse_quote! {
+                environment = crate::CustomEnvironment,
+                environment = crate::CustomEnvironment,
+            },
+            Err(
+                "encountered duplicate ink! E2E test `environment` configuration argument",
+            ),
+        );
+    }
+
+    #[test]
+    fn environment_as_literal_fails() {
+        assert_try_from(
+            syn::parse_quote! {
+                environment = "crate::CustomEnvironment",
+            },
+            Err("expected a path for `environment` ink! E2E test configuration argument"),
+        );
+    }
+
+    #[test]
+    fn specifying_environment_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                environment = crate::CustomEnvironment,
+            },
+            Ok(E2EConfig {
+                environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
+                ..Default::default()
+            }),
+        );
+    }
+
+    #[test]
+    fn full_config_works() {
+        assert_try_from(
+            syn::parse_quote! {
+                additional_contracts = "adder/Cargo.toml flipper/Cargo.toml",
+                environment = crate::CustomEnvironment,
+            },
+            Ok(E2EConfig {
+                whitelisted_attributes: Default::default(),
+                additional_contracts: vec![
+                    "adder/Cargo.toml".into(),
+                    "flipper/Cargo.toml".into(),
+                ],
+                environment: Some(syn::parse_quote! { crate::CustomEnvironment }),
+            }),
         );
     }
 
@@ -152,6 +219,7 @@ mod tests {
             Ok(E2EConfig {
                 whitelisted_attributes: attrs,
                 additional_contracts: Vec::new(),
+                environment: None,
             }),
         )
     }

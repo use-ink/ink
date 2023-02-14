@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+-  Support custom environment in E2E tests - [#1645](https://github.com/paritytech/ink/pull/1645)
 -  Add `call-runtime` support - [#1641](https://github.com/paritytech/ink/pull/1641)
 
 ### Changed
