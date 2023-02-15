@@ -4,11 +4,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Version 4.0.0]
-
-TODO: release summary. Possibly aggregate together all changes since last proper release.
-
 ## Version 4.0.0
+
+The latest stable release of ink! is here 🥳
+
+This version brings a lot of usability improvements, making the language better suited
+for the needs of production parachains.
+
+A couple of highlights include:
+- Changes to how contract storage works, which significantly reduced the sizes of
+  contract binaries
+- A new end-to-end testing framework, letting you easily write integration tests
+- Changes to the metadata format, which (in part) makes error handling more expressive
+
+There's a lot more to dig through, so take some time to poke around the `CHANGELOG`
+(including the `4.0.0-alpha` and `4.0.0-beta` releases).
+
+You may notice there have been a few breaking changes. No need to be scared though, we
+wrote up a [migration guide](https://use.ink/faq/migrating-from-ink-3-to-4) covering all
+of the breaking changes and how to update your ink! 3.x contract accordingly.
+
+Thanks to everyone that helped make this release possible ❤️
+
+### Compatibility
+
+In order to build contracts which use ink! `v4.0.0` you need to use
+`cargo-contract`
+[`v2.0.0`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0).
+You can install it as follows:
+
+`cargo install cargo-contract --forced --locked`
+
+You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
+later than [TODO](https://github.com/paritytech/substrate/commit/todo)
+(January x, 2023) in your node.
+
+The [`TODO`](https://github.com/paritytech/substrate-contracts-node/releases/tag/TODO)
+release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) is
+compatible with the ink! `4.0.0` release.
 
 ### Added
 - Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
@@ -29,6 +62,7 @@ TODO: release summary. Possibly aggregate together all changes since last proper
 - Move ink! linter into `ink` repository ‒ [#1361](https://github.com/paritytech/ink/pull/1267)
 - Introduce `ink` entrance crate ‒ [#1223](https://github.com/paritytech/ink/pull/1223)
 - Use `XXH32` instead of `sha256` for calculating storage keys ‒ [#1393](https://github.com/paritytech/ink/pull/1393)
+- Storage Refactoring ‒ [#1331](https://github.com/paritytech/ink/pull/1331)
 - Add support for language level errors (`LangError`) ‒ [#1450](https://github.com/paritytech/ink/pull/1450)
 - Return `LangError`s from constructors ‒ [#1504](https://github.com/paritytech/ink/pull/1504)
 - Update `scale-info` requirement to `2.3` ‒ [#1467](https://github.com/paritytech/ink/pull/1467)
@@ -252,6 +286,7 @@ through a feature flag. `wee-alloc` is no longer maintained and we removed suppo
 ### Changed
 - Introduce `ink` entrance crate ‒ [#1223](https://github.com/paritytech/ink/pull/1223)
 - Use `XXH32` instead of `sha256` for calculating storage keys ‒ [#1393](https://github.com/paritytech/ink/pull/1393)
+- Storage Refactoring ‒ [#1331](https://github.com/paritytech/ink/pull/1331)
 
 ### Fixed
 - Trim single whitespace prefix in the metadata `docs` field ‒ [#1385](https://github.com/paritytech/ink/pull/1385)
