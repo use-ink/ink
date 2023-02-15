@@ -43,6 +43,8 @@ The [`v0.24.0`](https://github.com/paritytech/substrate-contracts-node/releases/
 release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) is
 compatible with the ink! `4.0.0` release.
 
+For full compatibility requirements see the [migration guide](https://use.ink/faq/migrating-from-ink-3-to-4/#compatibility).
+
 ### Added
 - Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 - Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248) (thanks [@kanishkatn](https://github.com/kanishkatn)!)
