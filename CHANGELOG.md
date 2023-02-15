@@ -36,10 +36,10 @@ You can install it as follows:
 `cargo install cargo-contract --forced --locked`
 
 You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
-later than [TODO](https://github.com/paritytech/substrate/commit/todo)
-(January x, 2023) in your node.
+later than [polkadot-v0.9.37](https://github.com/paritytech/substrate/tree/polkadot-v0.9.37)
+in your node.
 
-The [`TODO`](https://github.com/paritytech/substrate-contracts-node/releases/tag/TODO)
+The [`v0.24.0`](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.24.0)
 release of the [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) is
 compatible with the ink! `4.0.0` release.
 
