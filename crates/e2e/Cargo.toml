@@ -30,14 +30,14 @@ tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = { version = "0.4" }
 env_logger = { version = "0.10" }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
-subxt = "0.26.0"
+subxt = "0.27.0"
 
 # Substrate
-pallet-contracts-primitives = "12.0.0"
-sp-core = "11.0.0"
-sp-keyring = "12.0.0"
-sp-runtime = "12.0.0"
-sp-weights = "8.0.0"
+pallet-contracts-primitives = "18.0.0"
+sp-core = "16.0.0"
+sp-keyring = "18.0.0"
+sp-runtime = "18.0.0"
+sp-weights = "14.0.0"
 
 [dev-dependencies]
 # Required for the doctest of `MessageBuilder::call`
