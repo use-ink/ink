@@ -72,13 +72,12 @@ pub enum SubstrateConfig {}
 #[cfg(feature = "std")]
 impl subxt::Config for SubstrateConfig {
     type Index = u32;
-    type BlockNumber = u32;
     type Hash = sp_core::H256;
     type Hasher = subxt::config::substrate::BlakeTwo256;
     type AccountId = subxt::config::substrate::AccountId32;
     type Address = sp_runtime::MultiAddress<Self::AccountId, u32>;
     type Header = subxt::config::substrate::SubstrateHeader<
-        Self::BlockNumber,
+        u32,
         subxt::config::substrate::BlakeTwo256,
     >;
     type Signature = sp_runtime::MultiSignature;
