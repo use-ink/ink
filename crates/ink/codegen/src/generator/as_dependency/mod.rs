@@ -14,7 +14,7 @@
 
 mod call_builder;
 mod contract_ref;
-mod contract_caller;
+mod e2e;
 
 use self::{
     call_builder::CallBuilder,
