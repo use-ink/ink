@@ -67,14 +67,14 @@ Verify the following locally, otherwise the CI will fail:
     - `cargo clippy --all-targets --all-features` -- -D warnings;
 1. Does the code still compile?
     - `cargo check --all-features`
-1. Do all the examples still compile?
-    - `cargo contract check --manifest-path ./examples/.../Cargo.toml`
+1. Do all the integration tests/examples still compile?
+    - `cargo contract check --manifest-path ./integration-tests/.../Cargo.toml`
 1. Is the `wasm32` target still compiling?
     - `cargo check --no-default-features --target wasm32-unknown-unknown`
 1. Are all the tests passing?
     - `cargo test --all-features --workspace`
-1. Are all the tests for the examples passing?
-    - `cargo test --manifest-path ./examples/.../Cargo.toml`
+1. Are all the tests for the integration tests/examples passing?
+    - `cargo test --manifest-path ./integration-tests/.../Cargo.toml`
 
 ### Backwards Compatibility
 

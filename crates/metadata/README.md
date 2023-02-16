@@ -31,10 +31,10 @@ Next, we'll build our contract's metadata:
 
 ```bash
 # At the top level of the ink! repo
-cargo contract build --manifest-path ./examples/flipper/Cargo.toml
+cargo contract build --manifest-path ./integration-tests/flipper/Cargo.toml
 ```
 
-The generated metadata will be in: `$PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json`.
+The generated metadata will be in: `$PATH_TO_INK_REPO/integration-tests/flipper/target/ink/metadata.json`.
 
 Now, to validate our metadata we'll need the schemas. These schemas can be found in this
 folder: [`outer-schema.json`](./outer-schema.json) and [`ink-v3-schema.json`](ink-v3-schema.json).
@@ -42,7 +42,7 @@ folder: [`outer-schema.json`](./outer-schema.json) and [`ink-v3-schema.json`](in
 We can then use it to validate our metadata against our schema:
 
 ```bash
-jsonschema outer-schema.json --instance $PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json
+jsonschema outer-schema.json --instance $PATH_TO_INK_REPO/integration-tests/flipper/target/ink/metadata.json
 ```
 
 If `metadata.json` is respects our schema we should see the following:
@@ -62,7 +62,7 @@ alongside a list of the errors.
 We can do a similar thing for the ink! versioned metadata.
 
 ```bash
-jq '. | {V3}' $PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json > ink-v3-metadata.json
+jq '. | {V3}' $PATH_TO_INK_REPO/integration-tests/flipper/target/ink/metadata.json > ink-v3-metadata.json
 jsonschema ink-v3-schema.json --instance ink-v3-metadata.json
 ```
 
@@ -77,7 +77,7 @@ Right now the schemas are generated using a set of cobbled branches across `scal
 Now, in your patched version of `cargo-contract` run the following:
 
 ```
-cargo run -- contract build --manifest-path $PATH_TO_INK_REPO/examples/flipper/Cargo.toml > schema.json
+cargo run -- contract build --manifest-path $PATH_TO_INK_REPO/integration-tests/flipper/Cargo.toml > schema.json
 ```
 
 In `src/cmd/metadata.rs` you can change the schema being printed depending on what struct
