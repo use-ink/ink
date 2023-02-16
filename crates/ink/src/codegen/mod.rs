@@ -19,7 +19,7 @@ mod env;
 mod event;
 mod implies_return;
 mod trait_def;
-mod e2e;
+pub mod e2e;
 pub mod utils;
 
 pub use self::{

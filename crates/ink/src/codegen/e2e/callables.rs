@@ -1,7 +1,7 @@
 use ink_env::{
     call::{
         utils::{ReturnType, Set, Unset},
-        Call, CallBuilder, CreateBuilder, ExecutionInput, FromAccountId, CreateParams,
+        Call, CallBuilder, CreateBuilder, CreateParams, ExecutionInput, FromAccountId,
     },
     Environment,
 };
@@ -23,8 +23,8 @@ use scale::Encode;
 use std::collections::BTreeMap;
 
 use super::{
-    builders::{constructor_exec_input, finalise_constructor}, log_error, log_info, log_prefix, utils,
-    ContractsApi, Signer,
+    builders::{constructor_exec_input, finalise_constructor, CreateBuilderPartial},
+    log_error, log_info, log_prefix, utils, ContractsApi, Signer,
 };
 
 /// A contract was successfully instantiated.
@@ -133,22 +133,8 @@ where
     Balance(String),
 }
 
-/// The type returned from `ContractRef` constructors, partially initialized with the execution
-/// input arguments.
-pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
-    E,
-    ContractRef,
-    Unset<<E as Environment>::Hash>,
-    Unset<u64>,
-    Unset<<E as Environment>::Balance>,
-    Set<ExecutionInput<Args>>,
-    Unset<ink_env::call::state::Salt>,
-    Set<ReturnType<R>>,
->;
-
 pub struct ConstructorCallable<'a, ContractRef, Args, R, E, C>
 where
-    E::Balance: Debug + scale::HasCompact + serde::Serialize,
     C: subxt::Config,
     C::AccountId: From<sp_runtime::AccountId32>
         + scale::Codec
@@ -182,11 +168,11 @@ where
     <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
     E: Environment,
-    E: std::clone::Clone,
     E::AccountId: Debug,
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
 {
+    //TODO: need to figure out how to pass contracts and API in inside the test body
     pub fn new(
         constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
         contracts: &'a BTreeMap<String, ContractMetadata>,

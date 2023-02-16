@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Parity Technologies (UK) Ltd.
+// Copyright 2018-2023 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-};
+use crate::{generator, GenerateCode};
 use derive_more::From;
-use ir::{
-    Callable,
-    IsDocAttribute as _,
-};
+use ir::{Callable, IsDocAttribute as _};
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned as _;
 
 /// Generates code for the contract reference of the ink! smart contract.
@@ -73,6 +64,7 @@ impl ContractCaller<'_> {
     /// It is also the type that is going to be used by other smart contract
     /// dynamically depending on the smart contract. It mirrors the smart contract
     /// API but is just a typed thin-wrapper around an `AccountId`.
+    //TODO: add `contracts` and `API` there
     fn generate_struct(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let doc_attrs = self
@@ -86,10 +78,8 @@ impl ContractCaller<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
-            #[cfg_attr(feature = "std", derive(
-                ::scale_info::TypeInfo,
-                ::ink::storage::traits::StorageLayout,
-            ))]
+            #[cfg_attr(feature = "std"
+            )]
             #[derive(
                 ::core::fmt::Debug,
                 ::scale::Encode,
@@ -101,46 +91,9 @@ impl ContractCaller<'_> {
             )]
             #( #doc_attrs )*
             pub struct #ref_ident {
-                inner: <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type,
+                //TODO: contracts field
+                //TODO: api field
             }
-
-            const _: () = {
-                impl ::ink::env::ContractReference for #storage_ident {
-                    type Type = #ref_ident;
-                }
-
-                impl ::ink::env::call::ConstructorReturnType<#ref_ident> for #storage_ident {
-                    type Output = #ref_ident;
-                    type Error = ();
-
-                    fn ok(value: #ref_ident) -> Self::Output {
-                        value
-                    }
-                }
-
-                impl<E> ::ink::env::call::ConstructorReturnType<#ref_ident>
-                    for ::core::result::Result<#storage_ident, E>
-                where
-                    E: ::scale::Decode
-                {
-                    const IS_RESULT: bool = true;
-
-                    type Output = ::core::result::Result<#ref_ident, E>;
-                    type Error = E;
-
-                    fn ok(value: #ref_ident) -> Self::Output {
-                        ::core::result::Result::Ok(value)
-                    }
-
-                    fn err(err: Self::Error) -> ::core::option::Option<Self::Output> {
-                        ::core::option::Option::Some(::core::result::Result::Err(err))
-                    }
-                }
-
-                impl ::ink::env::ContractEnv for #ref_ident {
-                    type Env = <#storage_ident as ::ink::env::ContractEnv>::Env;
-                }
-            };
         )
     }
 
@@ -427,7 +380,8 @@ impl ContractCaller<'_> {
             .whitelisted_attributes()
             .filter_attr(constructor.attrs().to_vec());
         let constructor_ident = constructor.ident();
-        let selector_bytes = constructor.composed_selector().hex_lits();
+        let contract_ref_ident =
+            quote::format_ident!("{}Ref", self.contract.module().storage().ident());
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
@@ -435,32 +389,31 @@ impl ContractCaller<'_> {
             .output()
             .map(quote::ToTokens::to_token_stream)
             .unwrap_or_else(|| quote::quote! { Self });
+        let constructor_ref = quote! {
+            #contract_ref_ident::#constructor_ident(
+                #( #input_bindings ),*
+            )
+        };
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]
             #[allow(clippy::type_complexity)]
             pub fn #constructor_ident(
                 #( #input_bindings : #input_types ),*
-            ) -> ::ink::env::call::CreateBuilder<
-                Environment,
-                Self,
-                ::ink::env::call::utils::Unset<Hash>,
-                ::ink::env::call::utils::Unset<u64>,
-                ::ink::env::call::utils::Unset<Balance>,
+            ) -> ::ink::ConstructorCallable<
+                'a,
+                #contract_ref_ident,
                 ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
-                ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
                 ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+                Environment,
+                ::ink::PolkadotConfig,
             > {
-                ::ink::env::call::build_create::<Self>()
-                    .exec_input(
-                        ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([ #( #selector_bytes ),* ])
-                        )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
-                    .returns::<#ret_type>()
+                //TODO: need to figure out how to pass `contracts` and `API` respectively
+                ::ink::ConstructorCallable::new(
+                    constructor: #constructor_ref,
+                    contracts: &self.contracts,
+                    api: &self.api,
+                )
             }
         )
     }

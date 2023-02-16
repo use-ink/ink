@@ -78,3 +78,6 @@ pub use ink_primitives::{
     LangError,
     MessageResult,
 };
+
+pub use codegen::e2e::{callables::ConstructorCallable, PolkadotConfig};
+pub use codegen::e2e::xts;
