@@ -43,6 +43,8 @@ mod runtime_call {
         RuntimeCall,
     };
 
+    use ink::env::Error as EnvError;
+
     /// A trivial contract with a single message, that uses `call-runtime` API for performing
     /// native token transfer.
     #[ink(storage)]
@@ -55,13 +57,13 @@ mod runtime_call {
         CallRuntimeReturnedError,
     }
 
-    impl From<ink::env::Error> for RuntimeError {
-        fn from(e: ink::env::Error) -> Self {
+    impl From<EnvError> for RuntimeError {
+        fn from(e: EnvError) -> Self {
             match e {
-                ink::env::Error::CallRuntimeReturnedError => {
+                EnvError::CallRuntimeReturnedError => {
                     RuntimeError::CallRuntimeReturnedError
                 }
-                _ => panic!(),
+                _ => panic!("Unexpected error from `pallet-contracts`."),
             }
         }
     }
@@ -81,7 +83,7 @@ mod runtime_call {
         ///  - the chain doesn't allow `call-runtime` API (`UnsafeUnstableInterface` is turned off)
         ///  - the chain forbids contracts to call `Balances::transfer` (`CallFilter` is too
         ///    restrictive)
-        ///  - after the transfer, `receiver` doesn't have at least existential deposit  
+        ///  - after the transfer, `receiver` doesn't have at least existential deposit
         ///  - the contract doesn't have enough balance
         #[ink(message)]
         pub fn transfer_through_runtime(
