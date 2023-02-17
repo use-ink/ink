@@ -28,7 +28,6 @@ macro_rules! define_error_codes {
     ) => {
         /// Every error that can be returned to a contract when it calls any of the host functions.
         #[repr(u32)]
-        #[allow(clippy::enum_variant_names)]
         pub enum Error {
             $(
                 $( #[$attr] )*
@@ -74,7 +73,7 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is no contract.
     NotCallable = 8,
-     /// The call to `debug_message` had no effect because debug message
+    /// The call to `debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled = 9,
     /// The call dispatched by `call_runtime` was executed but returned an error.
