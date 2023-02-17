@@ -54,15 +54,13 @@ mod runtime_call {
     #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum RuntimeError {
-        CallRuntimeReturnedError,
+        CallRuntimeFailed,
     }
 
     impl From<EnvError> for RuntimeError {
         fn from(e: EnvError) -> Self {
             match e {
-                EnvError::CallRuntimeReturnedError => {
-                    RuntimeError::CallRuntimeReturnedError
-                }
+                EnvError::CallRuntimeFailed => RuntimeError::CallRuntimeFailed,
                 _ => panic!("Unexpected error from `pallet-contracts`."),
             }
         }
@@ -248,10 +246,7 @@ mod runtime_call {
                 .return_value();
 
             // then
-            assert!(matches!(
-                call_res,
-                Err(RuntimeError::CallRuntimeReturnedError)
-            ));
+            assert!(matches!(call_res, Err(RuntimeError::CallRuntimeFailed)));
 
             Ok(())
         }
