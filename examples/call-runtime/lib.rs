@@ -83,10 +83,6 @@ mod runtime_call {
         ///    restrictive)
         ///  - after the transfer, `receiver` doesn't have at least existential deposit
         ///  - the contract doesn't have enough balance
-        ///
-        ///  # Note
-        /// The contract account can be reaped with this call if its balance fails below existential
-        /// deposit.
         #[ink(message)]
         pub fn transfer_through_runtime(
             &mut self,
