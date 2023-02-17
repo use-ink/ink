@@ -5,7 +5,12 @@ use ink_env::{
     },
     Environment,
 };
+use pallet_contracts_primitives::{
+    CodeUploadResult, ContractExecResult, ContractInstantiateResult,
+};
+use scale::Encode;
 use sp_core::sr25519;
+use std::collections::BTreeMap;
 use std::{fmt::Debug, path::Path};
 use subxt::{
     blocks::ExtrinsicEvents,
@@ -15,16 +20,9 @@ use subxt::{
     tx::PairSigner,
 };
 
-use contract_metadata::ContractMetadata;
-use pallet_contracts_primitives::{
-    CodeUploadResult, ContractExecResult, ContractInstantiateResult,
-};
-use scale::Encode;
-use std::collections::BTreeMap;
-
 use super::{
     builders::{constructor_exec_input, finalise_constructor, CreateBuilderPartial},
-    log_error, log_info, log_prefix, utils, ContractsApi, Signer,
+    log_error, log_info, log_prefix, utils, ContractMetadata, ContractsApi, Signer,
 };
 
 /// A contract was successfully instantiated.
@@ -157,7 +155,6 @@ where
 
 impl<'a, ContractRef, Args, R, E, C> ConstructorCallable<'a, ContractRef, Args, R, E, C>
 where
-    Args: Encode,
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     C: subxt::Config,
     C::AccountId: From<sp_runtime::AccountId32>
@@ -177,7 +174,10 @@ where
         constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
         contracts: &'a BTreeMap<String, ContractMetadata>,
         api: &'a ContractsApi<C, E>,
-    ) -> Self {
+    ) -> Self
+    where
+        Args: Encode,
+    {
         let constructor = finalise_constructor(constructor);
         Self {
             contracts,

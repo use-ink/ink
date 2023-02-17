@@ -80,4 +80,5 @@ pub use ink_primitives::{
 };
 
 pub use codegen::e2e::{callables::ConstructorCallable, PolkadotConfig};
-pub use codegen::e2e::xts;
+pub use contract_metadata::ContractMetadata;
+pub use codegen::e2e::ContractsApi;

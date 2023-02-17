@@ -21,7 +21,9 @@ use std::{
     cell::RefCell,
     sync::Once,
 };
-use xts::ContractsApi;
+pub use xts::ContractsApi;
+use contract_metadata::ContractMetadata;
+
 
 
 /// Default set of commonly used types by Substrate runtimes.

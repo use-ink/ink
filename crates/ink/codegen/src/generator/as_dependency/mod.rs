@@ -19,6 +19,7 @@ mod e2e;
 use self::{
     call_builder::CallBuilder,
     contract_ref::ContractRef,
+    e2e::contract_caller::ContractCaller,
 };
 use crate::{
     traits::GenerateCodeUsing,
@@ -45,9 +46,11 @@ impl GenerateCode for ContractReference<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let call_builder = self.generate_code_using::<CallBuilder>();
         let call_forwarder = self.generate_code_using::<ContractRef>();
+        let e2e_caller = self.generate_code_using::<ContractCaller>();
         quote! {
             #call_builder
             #call_forwarder
+            #e2e_caller
         }
     }
 }

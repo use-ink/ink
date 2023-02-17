@@ -16,7 +16,7 @@ use crate::{generator, GenerateCode};
 use derive_more::From;
 use ir::{Callable, IsDocAttribute as _};
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{quote, quote_spanned};
+use quote::{quote, quote_spanned, ToTokens};
 use syn::spanned::Spanned as _;
 
 /// Generates code for the contract reference of the ink! smart contract.
@@ -38,24 +38,25 @@ pub struct ContractCaller<'a> {
 impl GenerateCode for ContractCaller<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract_ref = self.generate_struct();
-        let contract_ref_trait_impls = self.generate_contract_trait_impls();
+        // let contract_ref_trait_impls = self.generate_contract_trait_impls();
         let contract_ref_inherent_impls = self.generate_contract_inherent_impls();
-        let call_builder_trait_impl = self.generate_call_builder_trait_impl();
-        let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         quote! {
             #contract_ref
-            #contract_ref_trait_impls
+            // #contract_ref_trait_impls
             #contract_ref_inherent_impls
-            #call_builder_trait_impl
-            #auxiliary_trait_impls
         }
     }
 }
 
 impl ContractCaller<'_> {
     /// Generates the identifier of the contract reference struct.
-    fn generate_contract_ref_ident(&self) -> syn::Ident {
+    fn generate_contract_caller_ref_ident(&self) -> syn::Ident {
         quote::format_ident!("{}Caller", self.contract.module().storage().ident())
+    }
+
+    /// Generates the identifier of the contract reference struct.
+    fn generate_contract_ref_ident(&self) -> syn::Ident {
+        quote::format_ident!("{}Ref", self.contract.module().storage().ident())
     }
 
     /// Generates the code for the struct representing the contract reference.
@@ -75,81 +76,14 @@ impl ContractCaller<'_> {
             .iter()
             .cloned()
             .filter(syn::Attribute::is_doc_attribute);
-        let storage_ident = self.contract.module().storage().ident();
-        let ref_ident = self.generate_contract_ref_ident();
+        let ref_ident = self.generate_contract_caller_ref_ident();
         quote_spanned!(span=>
-            #[cfg_attr(feature = "std"
-            )]
-            #[derive(
-                ::core::fmt::Debug,
-                ::scale::Encode,
-                ::scale::Decode,
-                ::core::hash::Hash,
-                ::core::cmp::PartialEq,
-                ::core::cmp::Eq,
-                ::core::clone::Clone,
-            )]
+            #[cfg(feature = "std")]
             #( #doc_attrs )*
-            pub struct #ref_ident {
-                //TODO: contracts field
-                //TODO: api field
+            pub struct #ref_ident<'a> {
+                contracts: &'a std::collections::BTreeMap<String, ::ink::ContractMetadata>,
+                api: &'a ::ink::ContractsApi<::ink::PolkadotConfig, Environment>,
             }
-        )
-    }
-
-    /// Generates some ink! specific auxiliary trait implementations for the
-    /// smart contract reference type.
-    ///
-    /// These are required to properly interoperate with the contract reference.
-    fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
-        let storage_ident = self.contract.module().storage().ident();
-        let ref_ident = self.generate_contract_ref_ident();
-        quote_spanned!(span=>
-            impl ::ink::env::call::FromAccountId<Environment> for #ref_ident {
-                #[inline]
-                fn from_account_id(account_id: AccountId) -> Self {
-                    Self { inner: <<#storage_ident
-                        as ::ink::codegen::ContractCallBuilder>::Type
-                        as ::ink::env::call::FromAccountId<Environment>>::from_account_id(account_id)
-                    }
-                }
-            }
-
-            impl ::ink::ToAccountId<Environment> for #ref_ident {
-                #[inline]
-                fn to_account_id(&self) -> AccountId {
-                    <<#storage_ident as ::ink::codegen::ContractCallBuilder>::Type
-                        as ::ink::ToAccountId<Environment>>::to_account_id(&self.inner)
-                }
-            }
-        )
-    }
-
-    /// Generates the `CallBuilder` trait implementation for the contract reference.
-    ///
-    /// This creates the bridge between the ink! smart contract type and the
-    /// associated call builder.
-    fn generate_call_builder_trait_impl(&self) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
-        let ref_ident = self.generate_contract_ref_ident();
-        let storage_ident = self.contract.module().storage().ident();
-        quote_spanned!(span=>
-            const _: () = {
-                impl ::ink::codegen::TraitCallBuilder for #ref_ident {
-                    type Builder = <#storage_ident as ::ink::codegen::ContractCallBuilder>::Type;
-
-                    #[inline]
-                    fn call(&self) -> &Self::Builder {
-                        &self.inner
-                    }
-
-                    #[inline]
-                    fn call_mut(&mut self) -> &mut Self::Builder {
-                        &mut self.inner
-                    }
-                }
-            };
         )
     }
 
@@ -183,7 +117,7 @@ impl ContractCaller<'_> {
     ) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
-        let forwarder_ident = self.generate_contract_ref_ident();
+        let forwarder_ident = self.generate_contract_caller_ref_ident();
         let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
         quote_spanned!(span=>
             #( #attrs )*
@@ -282,18 +216,18 @@ impl ContractCaller<'_> {
     fn generate_contract_inherent_impl(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
-        let forwarder_ident = self.generate_contract_ref_ident();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_contract_inherent_impl_for_message(message));
+        let caller_ident = self.generate_contract_caller_ref_ident();
+        // let messages = impl_block
+        //     .iter_messages()
+        //     .map(|message| self.generate_contract_inherent_impl_for_message(message));
         let constructors = impl_block.iter_constructors().map(|constructor| {
             self.generate_contract_inherent_impl_for_constructor(constructor)
         });
         quote_spanned!(span=>
             #( #attrs )*
-            impl #forwarder_ident {
+            impl<'a> #caller_ident<'a> {
                 #( #constructors )*
-                #( #messages )*
+                // #( #messages )*
             }
         )
     }
@@ -380,15 +314,21 @@ impl ContractCaller<'_> {
             .whitelisted_attributes()
             .filter_attr(constructor.attrs().to_vec());
         let constructor_ident = constructor.ident();
-        let contract_ref_ident =
-            quote::format_ident!("{}Ref", self.contract.module().storage().ident());
+        let contract_ref_ident = self.generate_contract_ref_ident();
+        let contract_caller_ident = self.generate_contract_caller_ref_ident();
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
-        let ret_type = constructor
+        let ret_type: TokenStream2 = constructor
             .output()
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote::quote! { Self });
+            .map(|rt| {
+                rt.to_token_stream()
+                    .to_string()
+                    .replace("Self", &contract_ref_ident.to_string())
+                    .parse()
+                    .unwrap()
+            })
+            .unwrap_or_else(|| quote::quote! { #contract_ref_ident });
         let constructor_ref = quote! {
             #contract_ref_ident::#constructor_ident(
                 #( #input_bindings ),*
@@ -397,22 +337,27 @@ impl ContractCaller<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]
-            #[allow(clippy::type_complexity)]
+            #[allow(
+                clippy::type_complexity,
+                clippy::new_ret_no_self,
+                clippy::wrong_self_convention,
+            )]
             pub fn #constructor_ident(
+                self,
                 #( #input_bindings : #input_types ),*
             ) -> ::ink::ConstructorCallable<
                 'a,
                 #contract_ref_ident,
-                ::ink::env::call::utils::Set<::ink::env::call::ExecutionInput<#arg_list>>,
-                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<#ret_type>>,
+                #arg_list,
+                #ret_type,
                 Environment,
                 ::ink::PolkadotConfig,
             > {
                 //TODO: need to figure out how to pass `contracts` and `API` respectively
                 ::ink::ConstructorCallable::new(
-                    constructor: #constructor_ref,
-                    contracts: &self.contracts,
-                    api: &self.api,
+                    #constructor_ref,
+                    self.contracts,
+                    self.api,
                 )
             }
         )
