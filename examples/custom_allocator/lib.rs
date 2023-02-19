@@ -49,7 +49,10 @@ fn oom(_: core::alloc::Layout) -> ! {
 
 #[ink::contract]
 mod custom_allocator {
-    use ink::prelude::vec::Vec;
+    use ink::prelude::{
+        vec,
+        vec::Vec,
+    };
 
     #[ink(storage)]
     pub struct CustomAllocator {
@@ -66,10 +69,9 @@ mod custom_allocator {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            let mut value = Vec::new();
-            value.push(init_value);
-
-            Self { value }
+            Self {
+                value: vec![init_value],
+            }
         }
 
         /// Creates a new flipper smart contract initialized to `false`.
@@ -97,20 +99,18 @@ mod custom_allocator {
     mod tests {
         use super::*;
 
-        /// We test if the default constructor does its job.
         #[ink::test]
         fn default_works() {
             let custom_allocator = CustomAllocator::default();
-            assert_eq!(custom_allocator.get(), false);
+            assert!(!custom_allocator.get());
         }
 
-        /// We test a simple use case of our contract.
         #[ink::test]
         fn it_works() {
             let mut custom_allocator = CustomAllocator::new(false);
-            assert_eq!(custom_allocator.get(), false);
+            assert!(!custom_allocator.get());
             custom_allocator.flip();
-            assert_eq!(custom_allocator.get(), true);
+            assert!(custom_allocator.get());
         }
     }
 
