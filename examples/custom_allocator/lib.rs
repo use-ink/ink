@@ -9,6 +9,12 @@
 //! We **do not** recommend you opt-out of the provided allocator for production contract
 //! deployments!
 //!
+//! If you don't handle allocations correctly you can introduce security vulnerabilities to your
+//! contracts.
+//!
+//! You may also introduce performance issues. This is because the code of your allocator will
+//! be included in the final contract binary, potentially increasing gas usage significantly.
+//!
 //! ## Why Change the Allocator?
 //!
 //! The default memory allocator was designed to have a tiny size footprint, and made some
