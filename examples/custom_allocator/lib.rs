@@ -49,26 +49,30 @@ fn oom(_: core::alloc::Layout) -> ! {
 
 #[ink::contract]
 mod custom_allocator {
+    use ink::prelude::vec::Vec;
 
-    /// Defines the storage of your contract.
-    /// Add new fields to the below struct in order
-    /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct CustomAllocator {
         /// Stores a single `bool` value on the storage.
-        value: bool,
+        ///
+        /// # Note
+        ///
+        /// We're using a `Vec` here as it allocates its elements onto the heap, as opposed to the
+        /// stack. This allows us to demonstrate that our new allocator actually works.
+        value: Vec<bool>,
     }
 
     impl CustomAllocator {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+            let mut value = Vec::new();
+            value.push(init_value);
+
+            Self { value }
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
+        /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn default() -> Self {
             Self::new(Default::default())
@@ -79,22 +83,18 @@ mod custom_allocator {
         /// to `false` and vice versa.
         #[ink(message)]
         pub fn flip(&mut self) {
-            self.value = !self.value;
+            self.value[0] = !self.value[0];
         }
 
         /// Simply returns the current value of our `bool`.
         #[ink(message)]
         pub fn get(&self) -> bool {
-            self.value
+            self.value[0]
         }
     }
 
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
         /// We test if the default constructor does its job.
@@ -114,20 +114,12 @@ mod custom_allocator {
         }
     }
 
-    /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
-    ///
-    /// When running these you need to make sure that you:
-    /// - Compile the tests with the `e2e-tests` feature flag enabled (`--features e2e-tests`)
-    /// - Are running a Substrate node which contains `pallet-contracts` in the background
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        /// A helper function used for calling contract messages.
         use ink_e2e::build_message;
 
-        /// The End-to-End test `Result` type.
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         /// We test that we can upload and instantiate the contract using its default constructor.
