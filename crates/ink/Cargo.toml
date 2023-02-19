@@ -50,3 +50,6 @@ ink-debug = [
     "ink_env/ink-debug",
 ]
 show-codegen-docs = []
+
+# Disable the ink! provided global memory allocator.
+no-allocator = ["ink_env/no-allocator"]
