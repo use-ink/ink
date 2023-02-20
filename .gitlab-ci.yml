@@ -218,7 +218,7 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-dylint:
+dylint-test:
     stage:                           check
     <<:                              *docker-env
     <<:                              *test-refs
@@ -233,6 +233,22 @@ dylint:
     # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
     - unset RUSTC_WRAPPER
     - cargo test --verbose --all-features
+
+dylint-nextest:
+    stage:                           check
+    <<:                              *docker-env
+    <<:                              *test-refs
+    script:
+    - cd linting/
+    # we are using a toolchain file in this directory
+    # add required components for CI
+    - rustup component add rustfmt clippy
+    - cargo check --verbose
+    - cargo +nightly fmt --verbose --all -- --check
+    - cargo clippy --verbose -- -D warnings;
+    # Needed until https://github.com/mozilla/sccache/issues/1000 is fixed.
+    - unset RUSTC_WRAPPER
+    - cargo nextest run --verbose --all-features
 
 #### stage:                        workspace
 
@@ -277,6 +293,23 @@ test:
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace --doc
 
+nextest:
+  stage:                           workspace
+  <<:                              *docker-env
+  <<:                              *test-refs
+  needs:
+    - job:                         check-std
+      artifacts:                   false
+  variables:
+      # Since we run the tests with `--all-features` this implies the feature
+      # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+      # There's no way to disable a single feature while enabling all features
+      # at the same time, hence we use this workaround.
+      QUICKCHECK_TESTS:            0
+  script:
+    - cargo nextest run --verbose --all-features --no-fail-fast --workspace
+    - cargo nextest run --verbose --all-features --no-fail-fast --workspace --doc
+
 docs:
   stage:                           workspace
   <<:                              *docker-env
@@ -312,7 +345,7 @@ docs:
     - chown -R nonroot:nonroot ./crate-docs
 
 
-codecov:
+codecov-test:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -358,6 +391,53 @@ codecov:
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
     - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
 
+codecov-nextest:
+  stage:                           workspace
+  <<:                              *docker-env
+  <<:                              *test-refs
+  needs:
+    - job:                         check-std
+      artifacts:                   false
+  variables:
+    # For codecov it's sufficient to run the fuzz tests only once.
+    QUICKCHECK_TESTS:              1
+    INK_COVERAGE_REPORTING:        "true"
+    CARGO_INCREMENTAL:             0
+    # Needed because `codecov` requires nightly features to work
+    # (see `-Z` in the `RUSTFLAGS` below).
+    RUSTC_BOOTSTRAP:               "1"
+    # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
+    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
+                                    -Clink-dead-code -Copt-level=0 -Coverflow-checks=off"
+    # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
+    # produces better results for Rust codebases in general. However, unlike `grcov` it requires
+    # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+  before_script:
+    - *rust-info-script
+    # RUSTFLAGS are the cause target cache can't be used here
+    # FIXME: cust-covfix doesn't support the external target dir
+    # https://github.com/Kogia-sima/rust-covfix/issues/7
+    - unset "CARGO_TARGET_DIR"
+    - cargo clean
+    # make sure there's no stale coverage artifacts
+    - find . -name "*.profraw" -type f -delete
+    - find . -name "*.gcda" -type f -delete
+  script:
+    # RUSTFLAGS are the cause target cache can't be used here
+    - cargo build --verbose --all-features --workspace
+    - cargo nextest run --verbose --all-features --no-fail-fast --workspace
+    # coverage with branches
+    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch
+        --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
+    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
+    - codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
+    # lines coverage
+    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm
+        --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
+    - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+    - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
+
+
 
 #### stage:                        examples
 
@@ -391,6 +471,39 @@ examples-test:
         cargo test --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
     - cargo test --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+
+#### stage:                        examples
+
+examples-nextest:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  needs:
+    - job:                         clippy-std
+      artifacts:                   false
+  script:
+    - for example in examples/*/; do
+        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+        if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
+          cargo nextest run --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
+        else
+          cargo nextest run --verbose --manifest-path ${example}/Cargo.toml;
+        fi;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo nextest run --verbose --manifest-path ./examples/delegator/${contract}/Cargo.toml;
+      done
+    - for contract in ${UPGRADEABLE_CONTRACTS}; do
+        cargo nextest run --verbose --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+      done
+    # TODO (#1502): We need to clean before running, otherwise the CI fails with a
+    # linking error.
+    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
+        cargo clean --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo nextest run --verbose --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
+      done
+    - cargo nextest run --verbose --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
