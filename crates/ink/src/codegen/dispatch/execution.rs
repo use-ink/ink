@@ -20,7 +20,6 @@ use ink_env::Environment;
 /// # Errors
 ///
 /// If the caller did send some amount of transferred value to the callee.
-#[inline]
 pub fn deny_payment<E>() -> Result<(), DispatchError>
 where
     E: Environment,

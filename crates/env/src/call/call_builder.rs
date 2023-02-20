@@ -53,13 +53,11 @@ where
     E: Environment,
 {
     /// Returns the call flags.
-    #[inline]
     pub fn call_flags(&self) -> &CallFlags {
         &self.call_flags
     }
 
     /// Returns the execution input.
-    #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
@@ -70,19 +68,16 @@ where
     E: Environment,
 {
     /// Returns the account ID of the called contract instance.
-    #[inline]
     pub fn callee(&self) -> &E::AccountId {
         &self.call_type.callee
     }
 
     /// Returns the chosen gas limit for the called contract execution.
-    #[inline]
     pub fn gas_limit(&self) -> Gas {
         self.call_type.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
-    #[inline]
     pub fn transferred_value(&self) -> &E::Balance {
         &self.call_type.transferred_value
     }
@@ -93,7 +88,6 @@ where
     E: Environment,
 {
     /// Returns the code hash which we use to perform a delegate call.
-    #[inline]
     pub fn code_hash(&self) -> &E::Hash {
         &self.call_type.code_hash
     }
@@ -409,7 +403,6 @@ where
     E: Environment,
 {
     /// The type of the call.
-    #[inline]
     #[must_use]
     pub fn call_type<NewCallType>(
         self,
@@ -430,7 +423,6 @@ where
     E: Environment,
 {
     /// The flags used to change the behavior of the contract call.
-    #[inline]
     #[must_use]
     pub fn call_flags(
         self,
@@ -456,7 +448,6 @@ where
     ///
     /// Either use `.returns::<()>` to signal that the call does not return a value
     /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
-    #[inline]
     pub fn returns<R>(self) -> CallBuilder<E, CallType, Args, Set<ReturnType<R>>> {
         CallBuilder {
             call_type: self.call_type,

@@ -175,7 +175,6 @@ impl CallBuilder<'_> {
                 E: ::ink::env::Environment,
                 <E as ::ink::env::Environment>::AccountId: ::core::clone::Clone,
             {
-                #[inline]
                 fn clone(&self) -> Self {
                     Self {
                         account_id: ::core::clone::Clone::clone(&self.account_id),
@@ -213,7 +212,6 @@ impl CallBuilder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                #[inline]
                 fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
                     Self { account_id }
                 }
@@ -223,7 +221,6 @@ impl CallBuilder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                #[inline]
                 fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
                     <<E as ::ink::env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
@@ -313,7 +310,6 @@ impl CallBuilder<'_> {
             >;
 
             #( #attrs )*
-            #[inline]
             fn #message_ident(
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*

@@ -1031,12 +1031,10 @@ mod tests {
         assert!(contains_ink_attributes(&[syn::parse_quote! { #[ink] }]));
         assert!(contains_ink_attributes(&[syn::parse_quote! { #[ink(..)] }]));
         assert!(contains_ink_attributes(&[
-            syn::parse_quote! { #[inline] },
             syn::parse_quote! { #[likely] },
             syn::parse_quote! { #[ink(storage)] },
         ]));
         assert!(!contains_ink_attributes(&[
-            syn::parse_quote! { #[inline] },
             syn::parse_quote! { #[likely] },
         ]));
     }

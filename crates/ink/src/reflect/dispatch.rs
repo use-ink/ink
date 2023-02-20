@@ -410,7 +410,6 @@ impl<T> private::Sealed for ConstructorOutputValue<T> {}
 impl<C> ConstructorOutput<C> for ConstructorOutputValue<C> {
     type Error = &'static ();
 
-    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         Ok(&self.0)
     }
@@ -420,7 +419,6 @@ impl<C, E> ConstructorOutput<C> for ConstructorOutputValue<Result<C, E>> {
     const IS_RESULT: bool = true;
     type Error = E;
 
-    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
     }
@@ -617,7 +615,6 @@ impl Display for DispatchError {
 
 impl DispatchError {
     /// Returns a string representation of the error.
-    #[inline]
     fn as_str(&self) -> &'static str {
         match self {
             Self::InvalidSelector => "unable to decode selector",
@@ -630,7 +627,6 @@ impl DispatchError {
 }
 
 impl From<DispatchError> for scale::Error {
-    #[inline]
     fn from(error: DispatchError) -> Self {
         Self::from(error.as_str())
     }

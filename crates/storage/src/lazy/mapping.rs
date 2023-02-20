@@ -131,7 +131,6 @@ where
     /// Insert the given `value` to the contract storage.
     ///
     /// Returns the size in bytes of the pre-existing value at the specified key if any.
-    #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
@@ -143,7 +142,6 @@ where
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
-    #[inline]
     pub fn get<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
@@ -157,7 +155,6 @@ where
     /// Returns `None` if no `value` exists at the given `key`.
     /// **WARNING**: this method uses the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
     /// which is unsafe and normally is not available on production chains.
-    #[inline]
     pub fn take<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
@@ -169,7 +166,6 @@ where
     /// Get the size of a value stored at `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
-    #[inline]
     pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
@@ -180,7 +176,6 @@ where
     /// Checks if a value is stored at the given `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
-    #[inline]
     pub fn contains<Q>(&self, key: Q) -> bool
     where
         Q: scale::EncodeLike<K>,
@@ -189,7 +184,6 @@ where
     }
 
     /// Clears the value at `key` from storage.
-    #[inline]
     pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
@@ -203,10 +197,8 @@ where
     V: Packed,
     KeyType: StorageKey,
 {
-    #[inline]
     fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
 
-    #[inline]
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
     }

@@ -176,7 +176,6 @@ where
 }
 
 impl EnvInstance {
-    #[inline(always)]
     /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
@@ -187,7 +186,6 @@ impl EnvInstance {
     /// # Note
     ///
     /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
-    #[inline(always)]
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: FromLittleEndian,
@@ -198,7 +196,6 @@ impl EnvInstance {
     }
 
     /// Returns the contract property value.
-    #[inline(always)]
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
         T: scale::Decode,

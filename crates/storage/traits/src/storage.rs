@@ -33,12 +33,10 @@ impl<P> Storable for P
 where
     P: scale::Codec,
 {
-    #[inline]
     fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         scale::Encode::encode_to(self, dest)
     }
 
-    #[inline]
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
         scale::Decode::decode(input)
     }

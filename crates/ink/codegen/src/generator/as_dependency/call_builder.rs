@@ -120,14 +120,12 @@ impl CallBuilder<'_> {
         let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
             impl ::ink::env::call::FromAccountId<Environment> for #cb_ident {
-                #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { account_id }
                 }
             }
 
             impl ::ink::ToAccountId<Environment> for #cb_ident {
-                #[inline]
                 fn to_account_id(&self) -> AccountId {
                     <AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
@@ -186,7 +184,6 @@ impl CallBuilder<'_> {
             impl ::ink::codegen::TraitCallForwarderFor<{#trait_info_id}> for #cb_ident {
                 type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder;
 
-                #[inline]
                 fn forward(&self) -> &Self::Forwarder {
                     // SAFETY:
                     //
@@ -199,7 +196,6 @@ impl CallBuilder<'_> {
                     }
                 }
 
-                #[inline]
                 fn forward_mut(&mut self) -> &mut Self::Forwarder {
                     // SAFETY:
                     //
@@ -212,14 +208,12 @@ impl CallBuilder<'_> {
                     }
                 }
 
-                #[inline]
                 fn build(&self) -> &<Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
                     <_ as ::ink::codegen::TraitCallBuilder>::call(
                         <Self as ::ink::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward(self)
                     )
                 }
 
-                #[inline]
                 fn build_mut(&mut self)
                     -> &mut <Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder
                 {
@@ -289,7 +283,6 @@ impl CallBuilder<'_> {
                 as ::ink::codegen::TraitCallBuilder>::Builder
                 as #trait_path>::#output_ident;
 
-            #[inline]
             #( #attrs )*
             fn #message_ident(
                 & #mut_token self
@@ -385,7 +378,6 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             #[allow(clippy::type_complexity)]
-            #[inline]
             pub fn #message_ident(
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*

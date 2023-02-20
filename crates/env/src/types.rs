@@ -52,7 +52,6 @@ pub trait FromLittleEndian {
 impl FromLittleEndian for u8 {
     type Bytes = [u8; 1];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         u8::from_le_bytes(bytes)
     }
@@ -61,7 +60,6 @@ impl FromLittleEndian for u8 {
 impl FromLittleEndian for u16 {
     type Bytes = [u8; 2];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         u16::from_le_bytes(bytes)
     }
@@ -70,7 +68,6 @@ impl FromLittleEndian for u16 {
 impl FromLittleEndian for u32 {
     type Bytes = [u8; 4];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         u32::from_le_bytes(bytes)
     }
@@ -79,7 +76,6 @@ impl FromLittleEndian for u32 {
 impl FromLittleEndian for u64 {
     type Bytes = [u8; 8];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         u64::from_le_bytes(bytes)
     }
@@ -88,7 +84,6 @@ impl FromLittleEndian for u64 {
 impl FromLittleEndian for u128 {
     type Bytes = [u8; 16];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         u128::from_le_bytes(bytes)
     }

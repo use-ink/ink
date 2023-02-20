@@ -31,13 +31,11 @@ fn unit_struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::Storable for UnitStruct {
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(UnitStruct)
                     }
 
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
@@ -63,7 +61,6 @@ fn struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::Storable for NamedFields {
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
@@ -75,7 +72,6 @@ fn struct_works() {
                         )
                     }
 
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
@@ -123,7 +119,6 @@ fn one_variant_enum_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::Storable for OneVariantEnum {
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
@@ -135,7 +130,6 @@ fn one_variant_enum_works() {
                         )
                     }
 
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
@@ -168,7 +162,6 @@ fn enum_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::Storable for MixedEnum {
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
@@ -188,7 +181,6 @@ fn enum_works() {
                         )
                     }
 
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
@@ -272,7 +264,6 @@ fn generic_struct_works() {
                     T1: ::ink::storage::traits::Storable,
                     (T1 , T2): ::ink::storage::traits::Storable
                 {
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
@@ -287,7 +278,6 @@ fn generic_struct_works() {
                         )
                     }
 
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {
@@ -332,7 +322,6 @@ fn generic_enum_works() {
                     T1: ::ink::storage::traits::Storable,
                     T2: ::ink::storage::traits::Storable
                 {
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
@@ -351,7 +340,6 @@ fn generic_enum_works() {
                         )
                     }
 
-                    #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
                         match self {

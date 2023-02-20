@@ -90,7 +90,6 @@ mod erc20 {
         ///
         /// Prefer to call this method over `balance_of` since this
         /// works using references which are more efficient in Wasm.
-        #[inline]
         fn balance_of_impl(&self, owner: &AccountId) -> Balance {
             self.balances.get(owner).unwrap_or_default()
         }
@@ -111,7 +110,6 @@ mod erc20 {
         ///
         /// Prefer to call this method over `allowance` since this
         /// works using references which are more efficient in Wasm.
-        #[inline]
         fn allowance_impl(&self, owner: &AccountId, spender: &AccountId) -> Balance {
             self.allowances.get((owner, spender)).unwrap_or_default()
         }

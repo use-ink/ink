@@ -164,10 +164,8 @@ impl<V, KeyType> Storable for Lazy<V, KeyType>
 where
     KeyType: StorageKey,
 {
-    #[inline(always)]
     fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
 
-    #[inline(always)]
     fn decode<I: Input>(_input: &mut I) -> Result<Self, Error> {
         Ok(Default::default())
     }

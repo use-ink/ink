@@ -168,7 +168,6 @@ impl CallForwarder<'_> {
                 E: ::ink::env::Environment,
                 <E as ::ink::env::Environment>::AccountId: ::core::clone::Clone,
             {
-                #[inline]
                 fn clone(&self) -> Self {
                     Self {
                         builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
@@ -206,7 +205,6 @@ impl CallForwarder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                #[inline]
                 fn from_account_id(account_id: <E as ::ink::env::Environment>::AccountId) -> Self {
                     Self { builder: <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                         as ::ink::env::call::FromAccountId<E>>::from_account_id(account_id) }
@@ -217,7 +215,6 @@ impl CallForwarder<'_> {
             where
                 E: ::ink::env::Environment,
             {
-                #[inline]
                 fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
                     <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                         as ::ink::ToAccountId<E>>::to_account_id(&self.builder)
@@ -248,12 +245,10 @@ impl CallForwarder<'_> {
             {
                 type Builder = #call_builder_ident<E>;
 
-                #[inline]
                 fn call(&self) -> &<Self as ::ink::codegen::TraitCallBuilder>::Builder {
                     &self.builder
                 }
 
-                #[inline]
                 fn call_mut(&mut self) -> &mut <Self as ::ink::codegen::TraitCallBuilder>::Builder {
                     &mut self.builder
                 }
@@ -343,7 +338,6 @@ impl CallForwarder<'_> {
             type #output_ident = #output_type;
 
             #( #attrs )*
-            #[inline]
             fn #message_ident(
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*

@@ -38,7 +38,6 @@ macro_rules! define_error_codes {
         }
 
         impl From<ReturnCode> for Result {
-            #[inline]
             fn from(return_code: ReturnCode) -> Self {
                 match return_code.0 {
                     0 => Ok(()),
@@ -419,14 +418,12 @@ mod sys {
     }
 }
 
-#[inline(always)]
 fn extract_from_slice(output: &mut &mut [u8], new_len: usize) {
     debug_assert!(new_len <= output.len());
     let tmp = core::mem::take(output);
     *output = &mut tmp[..new_len];
 }
 
-#[inline(always)]
 pub fn instantiate(
     code_hash: &[u8],
     gas_limit: u64,
@@ -460,7 +457,6 @@ pub fn instantiate(
     ret_code.into()
 }
 
-#[inline(always)]
 pub fn call(
     flags: u32,
     callee: &[u8],
@@ -488,7 +484,6 @@ pub fn call(
     ret_code.into()
 }
 
-#[inline(always)]
 pub fn delegate_call(
     flags: u32,
     code_hash: &[u8],
@@ -553,7 +548,6 @@ pub fn clear_storage(key: &[u8]) -> Option<u32> {
     ret_code.into()
 }
 
-#[inline(always)]
 pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     let mut output_len = output.len() as u32;
     let ret_code = {
@@ -570,7 +564,6 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     ret_code.into()
 }
 
-#[inline(always)]
 pub fn take_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     let mut output_len = output.len() as u32;
     let ret_code = {
@@ -597,7 +590,6 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     unsafe { sys::terminate(Ptr32::from_slice(beneficiary)) }
 }
 
-#[inline(always)]
 pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) -> u32 {
     let mut output_len = output.len() as u32;
     let ret_code = {
@@ -615,7 +607,6 @@ pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) 
     ret_code.into_u32()
 }
 
-#[inline(always)]
 pub fn input(output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
@@ -642,7 +633,6 @@ pub fn return_value(flags: ReturnFlags, return_value: &[u8]) -> ! {
 macro_rules! impl_wrapper_for {
     ( $( $name:ident, )* ) => {
         $(
-            #[inline(always)]
             pub fn $name(output: &mut &mut [u8]) {
                 let mut output_len = output.len() as u32;
                 {
@@ -668,7 +658,6 @@ impl_wrapper_for! {
     minimum_balance,
 }
 
-#[inline(always)]
 pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {

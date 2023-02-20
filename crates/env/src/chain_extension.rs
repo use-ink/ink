@@ -82,7 +82,6 @@ pub struct ChainExtensionMethod<I, O, ErrorCode, const IS_RESULT: bool> {
 
 impl ChainExtensionMethod<(), (), (), false> {
     /// Creates a new chain extension method instance.
-    #[inline]
     pub fn build(func_id: u32) -> Self {
         Self {
             func_id,
@@ -101,7 +100,6 @@ impl<O, ErrorCode, const IS_RESULT: bool>
     /// `I` represents the input type of the chain extension method.
     /// All tuple types that may act as input parameters for the chain extension method are valid.
     /// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
-    #[inline]
     pub fn input<I>(self) -> ChainExtensionMethod<I, O, ErrorCode, IS_RESULT>
     where
         I: scale::Encode,
@@ -123,7 +121,6 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode, false> {
     ///
     /// If `O` is incorrectly indicated as `Return<T, E>`,
     /// the type will not satisfy trait bounds later in method builder pipeline.
-    #[inline]
     pub fn output<O, const IS_RESULT: bool>(
         self,
     ) -> ChainExtensionMethod<I, O, ErrorCode, IS_RESULT>
@@ -147,7 +144,6 @@ impl<I, O, const IS_RESULT: bool> ChainExtensionMethod<I, O, (), IS_RESULT> {
     /// code that represents failure.
     ///
     /// The output of the chain extension method call is always decoded and returned in this case.
-    #[inline]
     pub fn ignore_error_code(
         self,
     ) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode, IS_RESULT> {
@@ -163,7 +159,6 @@ impl<I, O, const IS_RESULT: bool> ChainExtensionMethod<I, O, (), IS_RESULT> {
     ///
     /// This will handle the returned status code and only loads and decodes the value
     /// returned as the output of the chain extension method call in case of success.
-    #[inline]
     pub fn handle_error_code<ErrorCode>(
         self,
     ) -> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>, IS_RESULT>
@@ -243,7 +238,6 @@ where
     /// #     fn from_status_code(status_code: u32) -> Result<(), Self> { Ok(()) }
     /// # }
     /// ```
-    #[inline]
     pub fn call(
         self,
         input: &I,
@@ -309,7 +303,6 @@ where
     /// #     fn from(_error: scale::Error) -> Self { Self {} }
     /// # }
     /// ```
-    #[inline]
     pub fn call(
         self,
         input: &I,
@@ -378,7 +371,6 @@ where
     /// #     fn from_status_code(status_code: u32) -> Result<(), Self> { Ok(()) }
     /// # }
     /// ```
-    #[inline]
     pub fn call(self, input: &I) -> Result<O, ErrorCode> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, ErrorCode, ErrorCode, _, _>(
@@ -427,7 +419,6 @@ where
     ///     .ignore_error_code()
     ///     .call(&(true, 42));
     /// ```
-    #[inline]
     pub fn call(self, input: &I) -> O {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, (), (), _, _>(

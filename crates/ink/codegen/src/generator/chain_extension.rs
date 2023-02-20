@@ -105,7 +105,6 @@ impl ChainExtension<'_> {
 
         quote_spanned!(span=>
                 #( #attrs )*
-                #[inline]
                 pub fn #ident(self, #inputs) -> #return_type
                 where
                     #where_output_impls_from_error_code

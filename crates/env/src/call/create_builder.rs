@@ -188,25 +188,21 @@ where
     E: Environment,
 {
     /// The code hash of the contract.
-    #[inline]
     pub fn code_hash(&self) -> &E::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
-    #[inline]
     pub fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
-    #[inline]
     pub fn endowment(&self) -> &E::Balance {
         &self.endowment
     }
 
     /// The raw encoded input data.
-    #[inline]
     pub fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
@@ -226,7 +222,6 @@ where
     Salt: AsRef<[u8]>,
 {
     /// The salt for determining the hash for the contract account ID.
-    #[inline]
     pub fn salt_bytes(&self) -> &Salt {
         &self.salt_bytes
     }
@@ -247,7 +242,6 @@ where
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
-    #[inline]
     pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
         crate::instantiate_contract(self)
             .unwrap_or_else(|env_error| {
@@ -265,7 +259,6 @@ where
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
     /// by the caller.
-    #[inline]
     pub fn try_instantiate(
         &self,
     ) -> Result<
@@ -444,7 +437,6 @@ where
     E: Environment,
 {
     /// Sets the used code hash for the contract instantiation.
-    #[inline]
     pub fn code_hash(
         self,
         code_hash: E::Hash,
@@ -476,7 +468,6 @@ where
     E: Environment,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
-    #[inline]
     pub fn gas_limit(
         self,
         gas_limit: u64,
@@ -509,7 +500,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn endowment(
         self,
         endowment: E::Balance,
@@ -550,7 +540,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
@@ -591,7 +580,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn salt_bytes<Salt>(
         self,
         salt: Salt,
@@ -643,7 +631,6 @@ where
     ///
     /// Therefore this must always be a reference (i.e `ContractRef`) to the contract you're trying
     /// to instantiate.
-    #[inline]
     pub fn returns<R>(
         self,
     ) -> CreateBuilder<
@@ -688,7 +675,6 @@ where
     GasLimit: Unwrap<Output = u64>,
 {
     /// Finalizes the create builder, allowing it to instantiate a contract.
-    #[inline]
     pub fn params(self) -> CreateParams<E, ContractRef, Args, Salt, RetType> {
         CreateParams {
             code_hash: self.code_hash.value(),
@@ -728,7 +714,6 @@ where
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
     /// use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
-    #[inline]
     pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
         self.params().instantiate()
     }
@@ -740,7 +725,6 @@ where
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
     /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
     /// by the caller.
-    #[inline]
     pub fn try_instantiate(
         self,
     ) -> Result<

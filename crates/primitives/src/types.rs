@@ -34,28 +34,24 @@ use scale_info::TypeInfo;
 pub struct AccountId([u8; 32]);
 
 impl AsRef<[u8; 32]> for AccountId {
-    #[inline]
     fn as_ref(&self) -> &[u8; 32] {
         &self.0
     }
 }
 
 impl AsMut<[u8; 32]> for AccountId {
-    #[inline]
     fn as_mut(&mut self) -> &mut [u8; 32] {
         &mut self.0
     }
 }
 
 impl AsRef<[u8]> for AccountId {
-    #[inline]
     fn as_ref(&self) -> &[u8] {
         &self.0[..]
     }
 }
 
 impl AsMut<[u8]> for AccountId {
-    #[inline]
     fn as_mut(&mut self) -> &mut [u8] {
         &mut self.0[..]
     }
