@@ -162,6 +162,19 @@ where
     })
 }
 
+/// Returns a boolean to indicate whether an account is a contract
+pub fn is_contract<T>(contract: T::AccountId)
+where
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .is_contract(scale::Encode::encode(&contract));
+    })
+}
+
 /// Gets the currently set callee.
 ///
 /// This is account id of the currently executing contract.

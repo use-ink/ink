@@ -14,8 +14,12 @@
 
 use crate::{
     ext::Engine,
-    types::{AccountId, Balance},
-    AccountError, Error,
+    types::{
+        AccountId,
+        Balance,
+    },
+    AccountError,
+    Error,
 };
 use std::collections::HashMap;
 
