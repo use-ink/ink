@@ -8,3 +8,10 @@ out [`link!`](https://github.com/paritytech/link).
 
 There is also [`awesome-ink`](https://github.com/paritytech/awesome-ink),
 a collection of great ink! projects – many of them are open source!
+
+## License
+
+The examples in this folder are released into the public domain.
+We hope they help you build something great with ink!.
+
+See the [LICENSE file](LICENSE) in this folder for more details.

@@ -71,16 +71,19 @@ More relevant links:
 
 ## Play with It
 
+The best way to start is to check out the [Getting Started](https://use.ink/getting-started/setup)
+page in our documentation.
+
 If you want to have a local setup you can use our [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) for a quickstart.
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
-We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-). Rococo is a Substrate based
+We also have a live testnet named "Contracts" on Rococo. Rococo is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
 testnet, follow the instructions in
 [our documentation](https://use.ink/testnet).
 
-For both types of chains the [Contracts UI](https://contracts-ui.substrate.io/)
-can be used to instantiate your contract to a chain and interact with it.
+The [Contracts UI](https://contracts-ui.substrate.io/) can be used to instantiate your
+contract to a chain and interact with it.
 
 ## Usage
 
@@ -111,7 +114,7 @@ In order to build the contract just execute this command in the `flipper` folder
 cargo contract build
 ```
 
-As a result you'll get a `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+As a result you'll get a `target/flipper.wasm` file, a `flipper.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
 The `.contract` file combines the Wasm and metadata into one file and needs to be used when instantiating the contract.
 
 
@@ -210,7 +213,7 @@ This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
 * ink! is a smart contract language which targets the API exposed by `contracts`.
 Hence ink! contracts are compiled to Wasm.
-* When executing `cargo contract build` an additional file `metadata.json` is created.
+* When executing `cargo contract build` an additional file `<contract-name>.json` is created.
 It contains information about e.g. what methods the contract provides for others to call.
 
 ## ink! Macros & Attributes Overview
