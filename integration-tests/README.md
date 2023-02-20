@@ -1,27 +1,22 @@
-# ink! code examples
+# ink! Integration Tests
 
 This folder contains a set of example contracts for ink!.
+The main purpose of the examples in this folder is for testing ink!
+end to end as part of the development/CI process. As such this
+folder contains examples which are testing specific features, which
+are distinct from real world examples.
 
-Have a look at the different examples to better understand how to use ink! to build your own Substrate smart contracts.
+We have an external repository for ink! contract examples:
+[`ink-examples`](https://github.com/paritytech/ink-examples).
 
-## Preparation
+A large number of the examples in this folder can also be found
+in this repository. The difference is that the contracts in this
+folder may already contain unreleased breaking changes.
 
-For building the example smart contracts found in this folder you will need to have [`cargo-contract`](https://github.com/paritytech/cargo-contract) installed.
-
-```
-cargo install cargo-contract --force
-```
-
-We use the `--force` to update to the most recent `cargo-contract` version.
-
-## Build example contract and generate the contracts metadata
-
-To build a single example and generate the contracts Wasm file, navigate to the root of the smart contract and run the following command:
-
-`cargo contract build`
-
-You should now have an optimized `<contract-name>.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
-The `.contract` file combines the Wasm and metadata into one file and can be used for instantiation.
+For end users it's better to take a look at the
+[`ink-examples`](https://github.com/paritytech/ink-examples)
+repository. The contracts in there are ensured to be running with
+the latest published ink! version.
 
 ## License
 
