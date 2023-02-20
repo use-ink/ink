@@ -1,7 +1,10 @@
 # ink! Metadata
 
 The ink! metadata is used to describe a contracts properties in a platform independent
-way. To learn more about it see the section in the ink! docs.
+way. To learn more about it see [the section in the ink! docs](http://use.ink/basics/metadata).
+
+__Note:__ The metadata version is independent of the ink! version!
+The version 3 of the metadata which is described here is also valid for ink! v4.
 
 ## Metadata JSON Schema
 
@@ -34,7 +37,7 @@ Next, we'll build our contract's metadata:
 cargo contract build --manifest-path ./examples/flipper/Cargo.toml
 ```
 
-The generated metadata will be in: `$PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json`.
+The generated metadata will be in: `$PATH_TO_INK_REPO/examples/flipper/target/ink/flipper.json`.
 
 Now, to validate our metadata we'll need the schemas. These schemas can be found in this
 folder: [`outer-schema.json`](./outer-schema.json) and [`ink-v3-schema.json`](ink-v3-schema.json).
@@ -42,19 +45,19 @@ folder: [`outer-schema.json`](./outer-schema.json) and [`ink-v3-schema.json`](in
 We can then use it to validate our metadata against our schema:
 
 ```bash
-jsonschema outer-schema.json --instance $PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json
+jsonschema outer-schema.json --instance $PATH_TO_INK_REPO/examples/flipper/target/ink/flipper.json
 ```
 
-If `metadata.json` is respects our schema we should see the following:
+If `flipper.json` is respects our schema we should see the following:
 
 ```
-metadata.json - VALID
+flipper.json - VALID
 ```
 
-Otherwise we will see:
+Otherwise, we will see:
 
 ```
-metadata.json - INVALID. Errors: ...
+flipper.json - INVALID. Errors: ...
 ```
 
 alongside a list of the errors.
@@ -62,7 +65,7 @@ alongside a list of the errors.
 We can do a similar thing for the ink! versioned metadata.
 
 ```bash
-jq '. | {V3}' $PATH_TO_INK_REPO/examples/flipper/target/ink/metadata.json > ink-v3-metadata.json
+jq '. | {V3}' $PATH_TO_INK_REPO/examples/flipper/target/ink/flipper.json > ink-v3-metadata.json
 jsonschema ink-v3-schema.json --instance ink-v3-metadata.json
 ```
 
