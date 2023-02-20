@@ -43,6 +43,8 @@ pub struct ExecContext {
     pub block_number: BlockNumber,
     /// The current block timestamp.
     pub block_timestamp: BlockTimestamp,
+    /// Known contract accounts
+    pub contracts: Vec<Vec<u8>>,
 }
 
 impl ExecContext {

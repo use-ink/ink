@@ -514,11 +514,11 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract<E>(&mut self, _account: &E::AccountId) -> bool
+    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support contract instantiation")
+        self.engine.get_is_contract(scale::Encode::encode(&account))
     }
 
     fn caller_is_origin<E>(&mut self) -> bool
