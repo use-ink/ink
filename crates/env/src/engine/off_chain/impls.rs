@@ -15,37 +15,14 @@
 use super::EnvInstance;
 use crate::{
     call::{
-        Call,
-        CallParams,
-        ConstructorReturnType,
-        CreateParams,
-        DelegateCall,
+        Call, CallParams, ConstructorReturnType, CreateParams, DelegateCall,
         FromAccountId,
     },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
-        Keccak256,
-        Sha2x256,
-    },
-    topics::{
-        Topics,
-        TopicsBuilderBackend,
-    },
-    Clear,
-    EnvBackend,
-    Environment,
-    Error,
-    Result,
-    ReturnFlags,
-    TypedEnvBackend,
+    hash::{Blake2x128, Blake2x256, CryptoHash, HashOutput, Keccak256, Sha2x256},
+    topics::{Topics, TopicsBuilderBackend},
+    Clear, EnvBackend, Environment, Error, Result, ReturnFlags, TypedEnvBackend,
 };
-use ink_engine::{
-    ext,
-    ext::Engine,
-};
+use ink_engine::{ext, ext::Engine};
 use ink_storage_traits::Storable;
 
 /// The capacity of the static buffer.
@@ -284,12 +261,8 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 33],
     ) -> Result<()> {
         use secp256k1::{
-            ecdsa::{
-                RecoverableSignature,
-                RecoveryId,
-            },
-            Message,
-            SECP256K1,
+            ecdsa::{RecoverableSignature, RecoveryId},
+            Message, SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
@@ -518,7 +491,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         E: Environment,
     {
-        self.engine.get_is_contract(scale::Encode::encode(&account))
+        self.engine.is_contract(scale::Encode::encode(&account))
     }
 
     fn caller_is_origin<E>(&mut self) -> bool

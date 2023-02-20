@@ -14,12 +14,8 @@
 
 use crate::{
     ext::Engine,
-    types::{
-        AccountId,
-        Balance,
-    },
-    AccountError,
-    Error,
+    types::{AccountId, Balance},
+    AccountError, Error,
 };
 use std::collections::HashMap;
 
@@ -237,7 +233,7 @@ impl Engine {
     }
 
     /// Returns boolean value indicating whether the account is a contract
-    pub fn get_is_contract(&self, account_id: Vec<u8>) -> bool {
+    pub fn is_contract(&self, account_id: Vec<u8>) -> bool {
         self.exec_context.contracts.contains(&account_id)
     }
 
