@@ -163,7 +163,7 @@ where
 }
 
 /// Returns a boolean to indicate whether an account is a contract
-pub fn is_contract<T>(contract: T::AccountId)
+pub fn is_contract<T>(contract: T::AccountId) -> bool
 where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
@@ -171,7 +171,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
-            .is_contract(scale::Encode::encode(&contract));
+            .is_contract(scale::Encode::encode(&contract))
     })
 }
 
