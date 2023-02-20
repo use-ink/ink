@@ -135,7 +135,21 @@ It's totally fine to extract changes made in one pull request to multiple pull r
 
 If you've already opened a pull request, avoid force-pushing any new changes.
 
+If your pull request is a work-in-progress, create it as a Draft pull request.
+
 For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
+
+### Reviews
+
+We have GitHub set up in a way that core developers will automatically
+be assigned to review your pull request. If you feel there is somebody
+missing you're always free to add more people for a review.
+
+For small changes one approval is typically enough to merge code, for
+significant or critical changes there should be at least two ✅.
+
+If you made major changes to your pull request since the last approval,
+ping them for another approval please.
 
 ## I don't want to contribute, I just have some questions
 
