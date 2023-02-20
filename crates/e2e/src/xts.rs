@@ -148,6 +148,7 @@ enum Code {
 }
 
 /// Provides functions for interacting with the `pallet-contracts` API.
+#[derive(Clone)]
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
     pub client: OnlineClient<C>,
     _phantom: PhantomData<fn() -> (C, E)>,

@@ -24,6 +24,7 @@ mod client;
 mod default_accounts;
 mod node_proc;
 pub mod utils;
+pub mod client_caller;
 mod xts;
 
 pub use builders::{

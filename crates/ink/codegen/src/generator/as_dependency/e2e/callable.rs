@@ -12,19 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::log_info;
+use crate::{
+    generator,
+    GenerateCode,
+};
+use derive_more::From;
+use ink_env::call::Call;
+use ir::{
+    Callable,
+    IsDocAttribute as _,
+};
+use proc_macro2::TokenStream as TokenStream2;
+use quote::{
+    quote,
+    quote_spanned,
+};
+use syn::spanned::Spanned as _;
 
-/// Extracts the Wasm blob from a contract bundle.
-pub fn extract_wasm(contract: &contract_metadata::ContractMetadata) -> Vec<u8> {
-    let code = contract
-        .source
-        .wasm
-        .clone()
-        .expect("contract bundle is missing `source.wasm`");
-    log_info(&format!(
-        "{:?} has {} KiB",
-        contract.contract.name,
-        code.0.len() / 1024
-    ));
-    code.0
+
+pub struct ContractCallable<'a> {
+    contract: &'a ir::Contract
+}
+
+impl GenerateCode for ContractCallable<'_> {
+    fn generate_code(&self) -> TokenStream2 {
+        quote! {
+
+        }
+    }
+}
+
+impl ContractCallable<'_> {
+    fn generate_constructor(&self) -> TokenStream2 {
+        quote!()
+    }
 }

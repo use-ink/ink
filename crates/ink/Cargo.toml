@@ -26,25 +26,6 @@ ink_macro = { version = "4.0.0", path = "macro", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 
-
-contract-metadata = { version = "2.0.0-rc.1" }
-funty = "2.0.0"
-impl-serde = { version = "0.3.1", default-features = false }
-jsonrpsee = { version = "0.16.0", features = ["ws-client"] }
-serde = { version = "1.0.137", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0.81" }
-tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
-log = { version = "0.4" }
-env_logger = { version = "0.10" }
-subxt = "0.27.0"
-
-# Substrate
-pallet-contracts-primitives = "18.0.0"
-sp-core = "16.0.0"
-sp-keyring = "18.0.0"
-sp-runtime = "18.0.0"
-sp-weights = "14.0.0"
-
 [dev-dependencies]
 ink_ir = { path = "./ir" }
 ink_metadata = { path = "../metadata", default-features = false }
@@ -52,6 +33,19 @@ ink_metadata = { path = "../metadata", default-features = false }
 trybuild = { version = "1.0.60", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
 scale-info = { version = "2.3", default-features = false, features = ["derive"] }
+
+contract-metadata = { version = "2.0.0" }
+funty = "2.0.0"
+impl-serde = { version = "0.3.1", default-features = false }
+serde = { version = "1.0.137", default-features = false, features = ["derive"] }
+serde_json = { version = "1.0.81" }
+log = { version = "0.4" }
+env_logger = { version = "0.10" }
+subxt = "0.27.0"
+
+# Substrate
+sp-core = "16.0.0"
+sp-runtime = "18.0.0"
 
 [features]
 default = ["std"]

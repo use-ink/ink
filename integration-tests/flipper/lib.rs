@@ -56,12 +56,12 @@ pub mod flipper {
     mod e2e_tests {
         use super::*;
         use ink_e2e::build_message;
+        use ink_e2e::client_caller::DispatchInstantiate;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
         #[ink_e2e::test]
         async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // given
             let constructor = FlipperRef::new(false);
             let contract_acc_id = client
                 .instantiate("flipper", &ink_e2e::alice(), constructor, 0, None)
@@ -108,6 +108,26 @@ pub mod flipper {
                 .call(|flipper| flipper.get());
             let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_res.return_value(), false));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn instantiate_with_caller(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // when
+            let contract_acc_id = FlipperCaller::new(true)
+                .instantiate("flipper", &ink_e2e::dave(), &mut client)
+                .await
+                .expect("instantiation failed")
+                .account_id;
+
+            // then
+            let get = build_message::<FlipperRef>(contract_acc_id.clone())
+                .call(|flipper| flipper.get());
+            let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
+            assert!(matches!(get_res.return_value(), true));
 
             Ok(())
         }

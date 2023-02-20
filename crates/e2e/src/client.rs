@@ -13,41 +13,22 @@
 // limitations under the License.
 
 use super::{
-    builders::{
-        constructor_exec_input,
-        CreateBuilderPartial,
-        Message,
-    },
-    log_error,
-    log_info,
-    sr25519,
-    CodeUploadResult,
-    ContractExecResult,
-    ContractInstantiateResult,
-    ContractsApi,
-    Signer,
+    builders::{constructor_exec_input, CreateBuilderPartial, Message},
+    log_error, log_info, sr25519, CodeUploadResult, ContractExecResult,
+    ContractInstantiateResult, ContractsApi, Signer,
 };
 use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
-use std::{
-    collections::BTreeMap,
-    fmt::Debug,
-    marker::PhantomData,
-    path::Path,
-};
+use std::{collections::BTreeMap, fmt::Debug, marker::PhantomData, path::Path};
 
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
-    },
+    ext::scale_value::{Composite, Value, ValueDef},
     tx::PairSigner,
 };
 
@@ -298,12 +279,10 @@ where
             Error::ContractNotFound(name) => {
                 f.write_str(&format!("ContractNotFound: {name}"))
             }
-            Error::InstantiateDryRun(res) => {
-                f.write_str(&format!(
-                    "InstantiateDryRun: {}",
-                    &String::from_utf8_lossy(&res.debug_message)
-                ))
-            }
+            Error::InstantiateDryRun(res) => f.write_str(&format!(
+                "InstantiateDryRun: {}",
+                &String::from_utf8_lossy(&res.debug_message)
+            )),
             Error::InstantiateExtrinsic(_) => f.write_str("InstantiateExtrinsic"),
             Error::UploadDryRun(_) => f.write_str("UploadDryRun"),
             Error::UploadExtrinsic(_) => f.write_str("UploadExtrinsic"),
@@ -374,6 +353,14 @@ where
     E::Balance: Debug + scale::HasCompact + serde::Serialize,
     E::Hash: Debug + scale::Encode,
 {
+    pub fn api(&mut self) -> &ContractsApi<C, E> {
+        &self.api
+    }
+
+    pub fn contracts(&mut self) -> &BTreeMap<String, ContractMetadata> {
+        &self.contracts
+    }
+
     /// Creates a new [`Client`] instance using a `subxt` client.
     pub async fn new(
         client: subxt::OnlineClient<C>,
@@ -503,7 +490,7 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<ContractRef, Args, R>(
+    pub async fn exec_instantiate<ContractRef, Args, R>(
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
@@ -535,7 +522,7 @@ where
         ));
         log_info(&format!("instantiate dry run result: {:?}", dry_run.result));
         if dry_run.result.is_err() {
-            return Err(Error::InstantiateDryRun(dry_run))
+            return Err(Error::InstantiateDryRun(dry_run));
         }
 
         let tx_events = self
@@ -581,7 +568,7 @@ where
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error:?}"
                 ));
-                return Err(Error::InstantiateExtrinsic(dispatch_error))
+                return Err(Error::InstantiateExtrinsic(dispatch_error));
             }
         }
 
@@ -646,7 +633,7 @@ where
             .await;
         log_info(&format!("upload dry run: {dry_run:?}"));
         if dry_run.is_err() {
-            return Err(Error::UploadDryRun(dry_run))
+            return Err(Error::UploadDryRun(dry_run));
         }
 
         let tx_events = self.api.upload(signer, code, storage_deposit_limit).await;
@@ -667,7 +654,7 @@ where
                     uploaded.code_hash
                 ));
                 hash = Some(uploaded.code_hash);
-                break
+                break;
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
                 let dispatch_error = subxt::error::DispatchError::decode_from(
@@ -675,7 +662,7 @@ where
                     &metadata,
                 );
                 log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
-                return Err(Error::UploadExtrinsic(dispatch_error))
+                return Err(Error::UploadExtrinsic(dispatch_error));
             }
         }
 
@@ -719,7 +706,7 @@ where
         let dry_run = self.call_dry_run(signer, &message, value, None).await;
 
         if dry_run.exec_result.result.is_err() {
-            return Err(Error::CallDryRun(dry_run.exec_result))
+            return Err(Error::CallDryRun(dry_run.exec_result));
         }
 
         let tx_events = self
@@ -746,7 +733,7 @@ where
                     &metadata,
                 );
                 log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
-                return Err(Error::CallExtrinsic(dispatch_error))
+                return Err(Error::CallExtrinsic(dispatch_error));
             }
         }
 
