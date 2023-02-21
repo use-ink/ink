@@ -29,6 +29,9 @@ use ink_primitives::{
 
 /// The private trait helping identify the [`AutoKey`] key type.
 trait KeyType {
+    /// It is `true` for [`AutoKey`] and `false` for [`ManualKey`].
+    /// It helps the [`ResolverKey`] select between the user-specified(left key)
+    /// and the auto-generated(right key) keys.
     const IS_AUTO_KEY: bool;
 }
 
