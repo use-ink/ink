@@ -332,6 +332,7 @@ where
 
 /// The default call type for cross-contract calls. Performs a cross-contract call to `callee`
 /// with gas limit `gas_limit`, transferring `transferred_value` of currency.
+#[derive(Clone)]
 pub struct Call<E: Environment> {
     callee: E::AccountId,
     gas_limit: Gas,

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink::codegen::{ContractCallBuilder, TraitCallBuilder};
 use ink_env::{
     call::{
         utils::{
@@ -20,11 +19,8 @@ use ink_env::{
             Set,
             Unset,
         },
-        Call,
-        CallBuilder,
         CreateBuilder,
         ExecutionInput,
-        FromAccountId,
     },
     Environment,
 };
@@ -58,13 +54,4 @@ where
         .params()
         .exec_input()
         .encode()
-}
-
-/// Captures the encoded input for an `ink!` message call, together with the account id of the
-/// contract being called.
-#[derive(Debug, Clone)]
-pub struct Message<E: Environment, RetType> {
-    account_id: E::AccountId,
-    exec_input: Vec<u8>,
-    _return_type: std::marker::PhantomData<RetType>,
 }

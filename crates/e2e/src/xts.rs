@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::{
-    builders::Message,
     log_info,
     sr25519,
     ContractExecResult,

@@ -16,7 +16,6 @@ use super::{
     builders::{
         constructor_exec_input,
         CreateBuilderPartial,
-        Message,
     },
     log_error,
     log_info,
@@ -29,20 +28,16 @@ use super::{
 };
 use contract_metadata::ContractMetadata;
 use ink::codegen::ContractCallBuilder;
-use ink_env::{
-    call::{
-        FromAccountId,
-        utils::{
-            ReturnType,
-            Set,
-            Unset,
-        },
-        Call,
-        CallBuilder,
-        ExecutionInput,
+use ink_env::{call::{
+    FromAccountId,
+    utils::{
+        ReturnType,
+        Set,
     },
-    Environment,
-};
+    Call,
+    CallBuilder,
+    ExecutionInput,
+}, ContractReference, Environment};
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
@@ -479,12 +474,12 @@ where
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
     where
-        Contract: ContractCallBuilder,
+        Contract: ContractCallBuilder + ContractReference,
         <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
@@ -537,12 +532,12 @@ where
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, Contract, Args, R>,
+        constructor: CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
     where
-        Contract: ContractCallBuilder,
+        Contract: ContractCallBuilder + ContractReference,
         <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
@@ -742,7 +737,7 @@ where
     pub async fn call<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: CallBuilder<
+        message: &CallBuilder<
             E,
             Set<Call<E>>,
             Set<ExecutionInput<Args>>,
@@ -765,7 +760,7 @@ where
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
         log_info(&format!("call: {:02X?}", exec_input));
 
-        let dry_run = self.call_dry_run(signer, &message, value, None).await;
+        let dry_run = self.call_dry_run(signer, message, value, None).await;
 
         if dry_run.exec_result.result.is_err() {
             return Err(Error::CallDryRun(dry_run.exec_result))
