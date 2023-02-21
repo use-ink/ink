@@ -37,9 +37,6 @@ jobs:
       RUST_BACKTRACE:           full
     steps:
 
-      - uses: actions/setup-node@v3
-      - run: npm install wasm-opt -g
-
       - name: Checkout sources & submodules
         uses: actions/checkout@v3
         with:
@@ -92,7 +89,6 @@ jobs:
 
       - name: Output versions
         run: |
-            wasm-opt --version
             cargo -vV
             cargo contract --version
 
