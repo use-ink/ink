@@ -238,7 +238,7 @@
 
 <span class="comment">// This extern crate definition is required since otherwise rustc
 // is not recognizing its allocator and panic handler definitions.
-</span><span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="attr">#[cfg(not(any(feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;no-allocator&quot;</span>)))]
 </span><span class="kw">extern crate </span>ink_allocator;
 
 <span class="kw">mod </span>api;
