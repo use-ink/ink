@@ -76,7 +76,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
             cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked && \
-            substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+            substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2.2.0
