@@ -4,7 +4,7 @@
 /model/target/
 /lang/target/
 /primitives/target/
-/examples/**/target/
+/integration-tests/**/target/
 /design/
 
 # Ignore backup files creates by cargo fmt.

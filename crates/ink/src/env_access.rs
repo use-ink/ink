@@ -474,7 +474,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
     /// for a complete contract example.
     ///
     /// # Note
