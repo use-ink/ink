@@ -28,7 +28,21 @@ use super::{
     Signer,
 };
 use contract_metadata::ContractMetadata;
-use ink_env::Environment;
+use ink::codegen::ContractCallBuilder;
+use ink_env::{
+    call::{
+        FromAccountId,
+        utils::{
+            ReturnType,
+            Set,
+            Unset,
+        },
+        Call,
+        CallBuilder,
+        ExecutionInput,
+    },
+    Environment,
+};
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
@@ -52,14 +66,27 @@ use subxt::{
 };
 
 /// Result of a contract instantiation.
-pub struct InstantiationResult<C: subxt::Config, E: Environment> {
+pub struct InstantiationResult<C: subxt::Config, E: Environment, Contract: ContractCallBuilder> {
     /// The account id at which the contract was instantiated.
     pub account_id: E::AccountId,
+    /// Call builder for constructing calls,
+    pub call_builder: <Contract as ContractCallBuilder>::Type,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
     /// Events that happened with the contract instantiation.
     pub events: ExtrinsicEvents<C>,
+}
+
+impl<C, E, Contract> InstantiationResult<C, E, Contract>
+where
+    C: subxt::Config,
+    E: Environment,
+    Contract: ContractCallBuilder,
+{
+    pub fn call(&mut self) -> &mut <Contract as ContractCallBuilder>::Type {
+        &mut self.call_builder
+    }
 }
 
 /// Result of a contract upload.
@@ -93,13 +120,14 @@ where
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
-impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
+impl<C, E, Contract> core::fmt::Debug for InstantiationResult<C, E, Contract>
 where
     C: subxt::Config,
     C::AccountId: Debug,
     E: Environment,
     <E as Environment>::AccountId: Debug,
     <E as Environment>::Balance: Debug,
+    Contract: ContractCallBuilder,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
@@ -447,15 +475,17 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<ContractRef, Args, R>(
+    pub async fn instantiate<Contract, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
+    ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
     where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
         let contract_metadata = self
@@ -471,11 +501,11 @@ where
     }
 
     /// Dry run contract instantiation using the given constructor.
-    pub async fn instantiate_dry_run<ContractRef, Args, R>(
+    pub async fn instantiate_dry_run<Contract, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractInstantiateResult<C::AccountId, E::Balance>
@@ -503,15 +533,17 @@ where
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
-    async fn exec_instantiate<ContractRef, Args, R>(
+    async fn exec_instantiate<Contract, Args, R>(
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, ContractRef, Args, R>,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
+    ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
     where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
         let salt = Self::salt();
@@ -584,12 +616,15 @@ where
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
+        let account_id = account_id.expect("cannot extract `account_id` from events");
+        let call_builder = <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(account_id.clone());
 
         Ok(InstantiationResult {
             dry_run,
+            call_builder,
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
-            account_id: account_id.expect("cannot extract `account_id` from events"),
+            account_id,
             events: tx_events,
         })
     }
@@ -704,17 +739,31 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn call<RetType>(
+    pub async fn call<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: Message<E, RetType>,
+        message: CallBuilder<
+            E,
+            Set<Call<E>>,
+            Set<ExecutionInput<Args>>,
+            Set<ReturnType<RetType>>,
+        >,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<C, E, RetType>, Error<C, E>>
     where
+        Args: scale::Encode,
         RetType: scale::Decode,
+        CallBuilder<
+            E,
+            Set<Call<E>>,
+            Set<ExecutionInput<Args>>,
+            Set<ReturnType<RetType>>,
+        >: Clone,
     {
-        log_info(&format!("call: {:02X?}", message.exec_input()));
+        let account_id = message.clone().params().callee().clone();
+        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
+        log_info(&format!("call: {:02X?}", exec_input));
 
         let dry_run = self.call_dry_run(signer, &message, value, None).await;
 
@@ -725,11 +774,11 @@ where
         let tx_events = self
             .api
             .call(
-                sp_runtime::MultiAddress::Id(message.account_id().clone()),
+                sp_runtime::MultiAddress::Id(account_id.clone()),
                 value,
                 dry_run.exec_result.gas_required,
                 storage_deposit_limit,
-                message.exec_input().to_vec(),
+                exec_input,
                 signer,
             )
             .await;
@@ -760,21 +809,37 @@ where
     ///
     /// Returns the result of the dry run, together with the decoded return value of the invoked
     /// message.
-    pub async fn call_dry_run<RetType>(
+    pub async fn call_dry_run<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: &Message<E, RetType>,
+        message: &CallBuilder<
+            E,
+            Set<Call<E>>,
+            Set<ExecutionInput<Args>>,
+            Set<ReturnType<RetType>>,
+        >,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> CallDryRunResult<E, RetType>
     where
+        Args: scale::Encode,
         RetType: scale::Decode,
+        CallBuilder<
+            E,
+            Set<Call<E>>,
+            Set<ExecutionInput<Args>>,
+            Set<ReturnType<RetType>>,
+        >: Clone,
     {
+        let dest = message.clone().params().callee().clone();
+        let exec_input = scale::Encode::encode(message.clone().params().exec_input());
+
         let exec_result = self
             .api
-            .call_dry_run(
+            .call_dry_run::<RetType>(
                 Signer::account_id(signer).clone(),
-                message,
+                dest,
+                exec_input,
                 value,
                 storage_deposit_limit,
             )

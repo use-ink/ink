@@ -392,6 +392,7 @@ impl<E: Environment> DelegateCall<E> {
 }
 
 /// Builds up a cross contract call.
+#[derive(Clone)]
 pub struct CallBuilder<E, CallType, Args, RetType>
 where
     E: Environment,

@@ -26,10 +26,6 @@ mod node_proc;
 pub mod utils;
 mod xts;
 
-pub use builders::{
-    build_message,
-    MessageBuilder,
-};
 pub use client::{
     CallDryRunResult,
     CallResult,
