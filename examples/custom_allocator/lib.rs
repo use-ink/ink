@@ -18,7 +18,7 @@
 //! ## Why Change the Allocator?
 //!
 //! The default memory allocator was designed to have a tiny size footprint, and made some
-//! compromises to achieve that, e.g it does not free/deallocate memory
+//! compromises to achieve that, e.g it does not free/deallocate memory.
 //!
 //! You may have a use case where you want to deallocate memory, or allocate it using a different
 //! strategy.
