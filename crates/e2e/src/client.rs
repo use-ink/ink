@@ -28,16 +28,20 @@ use super::{
 };
 use contract_metadata::ContractMetadata;
 use ink::codegen::ContractCallBuilder;
-use ink_env::{call::{
-    FromAccountId,
-    utils::{
-        ReturnType,
-        Set,
+use ink_env::{
+    call::{
+        utils::{
+            ReturnType,
+            Set,
+        },
+        Call,
+        CallBuilder,
+        ExecutionInput,
+        FromAccountId,
     },
-    Call,
-    CallBuilder,
-    ExecutionInput,
-}, ContractReference, Environment};
+    ContractReference,
+    Environment,
+};
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
@@ -61,7 +65,11 @@ use subxt::{
 };
 
 /// Result of a contract instantiation.
-pub struct InstantiationResult<C: subxt::Config, E: Environment, Contract: ContractCallBuilder> {
+pub struct InstantiationResult<
+    C: subxt::Config,
+    E: Environment,
+    Contract: ContractCallBuilder,
+> {
     /// The account id at which the contract was instantiated.
     pub account_id: E::AccountId,
     /// Call builder for constructing calls,
@@ -474,7 +482,12 @@ where
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
+        constructor: CreateBuilderPartial<
+            E,
+            <Contract as ContractReference>::Type,
+            Args,
+            R,
+        >,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
@@ -532,7 +545,12 @@ where
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<E, <Contract as ContractReference>::Type, Args, R>,
+        constructor: CreateBuilderPartial<
+            E,
+            <Contract as ContractReference>::Type,
+            Args,
+            R,
+        >,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
@@ -612,7 +630,9 @@ where
             }
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
-        let call_builder = <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(account_id.clone());
+        let call_builder = <<Contract as ContractCallBuilder>::Type as FromAccountId<
+            E,
+        >>::from_account_id(account_id.clone());
 
         Ok(InstantiationResult {
             dry_run,
@@ -749,12 +769,8 @@ where
     where
         Args: scale::Encode,
         RetType: scale::Decode,
-        CallBuilder<
-            E,
-            Set<Call<E>>,
-            Set<ExecutionInput<Args>>,
-            Set<ReturnType<RetType>>,
-        >: Clone,
+        CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>:
+            Clone,
     {
         let account_id = message.clone().params().callee().clone();
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
@@ -819,12 +835,8 @@ where
     where
         Args: scale::Encode,
         RetType: scale::Decode,
-        CallBuilder<
-            E,
-            Set<Call<E>>,
-            Set<ExecutionInput<Args>>,
-            Set<ReturnType<RetType>>,
-        >: Clone,
+        CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>:
+            Clone,
     {
         let dest = message.clone().params().callee().clone();
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
