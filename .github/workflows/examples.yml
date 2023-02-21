@@ -89,7 +89,6 @@ jobs:
 
       - name: Output versions
         run: |
-            wasm-opt --version
             cargo -vV
             cargo contract --version
 
