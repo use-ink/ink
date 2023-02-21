@@ -65,7 +65,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 
 // This extern crate definition is required since otherwise rustc
 // is not recognizing its allocator and panic handler definitions.
-#[cfg(not(feature = "std"))]
+#[cfg(not(any(feature = "std", feature = "no-allocator")))]
 extern crate ink_allocator;
 
 mod api;
