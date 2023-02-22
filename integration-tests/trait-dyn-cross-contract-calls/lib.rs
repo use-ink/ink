@@ -1,16 +1,17 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-/// We can't run e2e test without the contract. So add `Dummy` contract.
+/// We can't run E2E test without the contract. So add `Dummy` contract.
 #[ink::contract]
 pub mod dummy {
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Dummy {}
 
     impl Dummy {
         /// Dummy constructor.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {}
+            Default::default()
         }
 
         /// Dummy method.
