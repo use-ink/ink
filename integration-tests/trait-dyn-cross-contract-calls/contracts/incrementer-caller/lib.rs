@@ -3,8 +3,8 @@
 
 #[ink::contract]
 pub mod caller {
+    use dyn_traits::Increment;
     use ink::contract_ref;
-    use traits::Increment;
 
     /// The caller of the incrementer smart contract.
     #[ink(storage)]

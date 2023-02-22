@@ -3,7 +3,7 @@
 
 #[ink::contract]
 pub mod incrementer {
-    use traits::Increment;
+    use dyn_traits::Increment;
 
     /// A concrete incrementer smart contract.
     #[ink(storage)]

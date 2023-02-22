@@ -22,11 +22,11 @@ pub mod dummy {
 
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
+    use dyn_traits::Increment;
     use ink::contract_ref;
     use ink_e2e::build_message;
     use trait_incrementer::incrementer::IncrementerRef;
     use trait_incrementer_caller::caller::CallerRef;
-    use traits::Increment;
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
