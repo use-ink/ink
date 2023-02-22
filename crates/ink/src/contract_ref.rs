@@ -14,6 +14,93 @@
 
 use ink_env::Environment;
 
+/// The macro allows the creation of a wrapper around the trait defined with
+/// [`crate::trait_definition`]. This wrapper can be used for interaction with
+/// the contract.
+///
+/// The macro returns the native Rust type that implements the corresponding trait.
+///
+/// The macro expects two arguments:
+/// - The first argument is the path of the trait, like `Erc20` or `erc20::Erc20`.
+/// - The second argument is optional and specifies the type of the [`Environment`].
+///   If the environment is not specified, the macro uses the [`crate::env::DefaultEnvironment`].
+///
+/// ```rust
+/// #[ink::contract]
+/// mod trait_caller {
+///      use ink::contract_ref;
+/// #    #[ink::trait_definition]
+/// #    pub trait Erc20 {
+/// #       /// Returns the total supply of the ERC-20 smart contract.
+/// #       #[ink(message)]
+/// #       fn total_supply(&self) -> Balance;
+/// #
+/// #       /// Transfers balance from the caller to the given address.
+/// #       #[ink(message)]
+/// #       fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
+/// #    }
+/// #
+///     #[ink(storage)]
+///     pub struct Caller {
+///         erc20: contract_ref!(Erc20),
+///     }
+///
+///     impl Caller {
+///         #[ink(constructor)]
+///         pub fn new(erc20: contract_ref!(Erc20)) -> Self {
+///             Self { erc20 }
+///         }
+///
+///         #[ink(message)]
+///         pub fn change_account_id_1(&mut self, new_erc20: AccountId) {
+///             self.erc20 = new_erc20.into();
+///         }
+///
+///         #[ink(message)]
+///         pub fn change_account_id_2(&mut self, new_erc20: AccountId) {
+///             let erc20: contract_ref!(Erc20) = new_erc20.into();
+///             self.erc20 = erc20;
+///         }
+///
+///         #[ink(message)]
+///         pub fn change_account_id_3(&mut self, new_erc20: AccountId) {
+///             let erc20: contract_ref!(Erc20, ink::env::DefaultEnvironment) = new_erc20.into();
+///             self.erc20 = erc20;
+///         }
+///
+///         #[ink(message)]
+///         pub fn change_account_id_4(&mut self, new_erc20: AccountId) {
+///             let erc20: contract_ref!(Erc20, <Caller as ink::env::ContractEnv>::Env) = new_erc20.into();
+///             self.erc20 = erc20;
+///         }
+///
+///         #[ink(message)]
+///         pub fn total_supply(&self) -> Balance {
+///             self.erc20.total_supply()
+///         }
+///
+///         #[ink(message)]
+///         pub fn transfer_to_erc20(&mut self, amount: Balance) -> bool {
+///             let erc20_as_account_id = self.erc20.as_ref().clone();
+///             self.erc20.transfer(amount, erc20_as_account_id)
+///         }
+///     }
+/// }
+/// ```
+#[macro_export]
+macro_rules! contract_ref {
+    // The case of the default `Environment`
+    ( $trait_path:path ) => {
+        $crate::contract_ref!($trait_path, $crate::env::DefaultEnvironment)
+    };
+    // The case of the custom `Environment`
+    ( $trait_path:path, $env:ty ) => {
+        <<$crate::reflect::TraitDefinitionRegistry<$env> as $trait_path>
+                            ::__ink_TraitInfo as $crate::codegen::TraitCallForwarder>
+                                ::Forwarder
+    };
+}
+
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.

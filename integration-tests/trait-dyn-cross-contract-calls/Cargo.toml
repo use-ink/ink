@@ -1,0 +1,44 @@
+[package]
+name = "incrementer-e2e-test"
+version = "4.0.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+ink = { path = "../../crates/ink", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+
+traits = { path = "./traits", default-features = false }
+trait-incrementer = { path = "./contracts/incrementer", default-features = false, features = ["ink-as-dependency"] }
+trait-incrementer-caller = { path = "./contracts/incrementer-caller", default-features = false, features = ["ink-as-dependency"] }
+
+[dev-dependencies]
+ink_e2e = { path = "../../crates/e2e" }
+
+[lib]
+name = "incrementer_e2e_test"
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+
+    "trait-incrementer/std",
+    "trait-incrementer-caller/std",
+]
+e2e-tests = []
+ink-as-dependency = []
+
+# Required to be able to run e2e test with sub-contracts
+[workspace]
+members = [
+    "contracts/incrementer",
+    "contracts/incrementer-caller",
+]

@@ -195,6 +195,20 @@ impl CallBuilder<'_> {
                         .finish()
                 }
             }
+
+            #[cfg(feature = "std")]
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
+            impl<E> ::scale_info::TypeInfo for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::scale_info::TypeInfo + 'static,
+            {
+                type Identity = <E as ::ink::env::Environment>::AccountId;
+
+                fn type_info() -> ::scale_info::Type {
+                    <<E as ::ink::env::Environment>::AccountId as ::scale_info::TypeInfo>::type_info()
+                }
+            }
         )
     }
 
@@ -219,6 +233,16 @@ impl CallBuilder<'_> {
                 }
             }
 
+            impl<E, AccountId> ::core::convert::From<AccountId> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+                AccountId: ::ink::env::AccountIdGuard,
+            {
+                fn from(value: AccountId) -> Self {
+                    <Self as ::ink::env::call::FromAccountId<E>>::from_account_id(value)
+                }
+            }
+
             impl<E> ::ink::ToAccountId<E> for #call_builder_ident<E>
             where
                 E: ::ink::env::Environment,
@@ -226,6 +250,24 @@ impl CallBuilder<'_> {
                 #[inline]
                 fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
                     <<E as ::ink::env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::AsRef<AccountId> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                fn as_ref(&self) -> &AccountId {
+                    &self.account_id
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::AsMut<AccountId> for #call_builder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                fn as_mut(&mut self) -> &mut AccountId {
+                    &mut self.account_id
                 }
             }
         )

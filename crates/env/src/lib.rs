@@ -108,6 +108,7 @@ pub use self::{
     },
     topics::Topics,
     types::{
+        AccountIdGuard,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,

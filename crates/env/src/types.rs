@@ -94,6 +94,15 @@ impl FromLittleEndian for u128 {
     }
 }
 
+/// The trait shows that the type plans to be [`Environment::AccountId`].
+///
+/// If someone wants to use another type than [`AccountId`] in the [`Environment::AccountId`],
+/// he should implement this trait for the corresponding type.
+pub trait AccountIdGuard {}
+
+/// The [`AccountId`] is used in the [`DefaultEnvironment::AccountId`].
+impl AccountIdGuard for AccountId {}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
     /// The maximum number of supported event topics provided by the runtime.
