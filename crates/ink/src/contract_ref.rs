@@ -42,43 +42,65 @@ use ink_env::Environment;
 /// #
 ///     #[ink(storage)]
 ///     pub struct Caller {
+///         /// The example of `contract_ref!` as a struct type.
 ///         erc20: contract_ref!(Erc20),
 ///     }
 ///
 ///     impl Caller {
+///         /// The example of `contract_ref!` as an argument type.
 ///         #[ink(constructor)]
 ///         pub fn new(erc20: contract_ref!(Erc20)) -> Self {
 ///             Self { erc20 }
 ///         }
 ///
+///         /// The example of converting `AccountId` into `contract_ref!` implicitly.
 ///         #[ink(message)]
 ///         pub fn change_account_id_1(&mut self, new_erc20: AccountId) {
 ///             self.erc20 = new_erc20.into();
 ///         }
 ///
+///         /// The example of converting `AccountId` into `contract_ref!` explicitly.
 ///         #[ink(message)]
 ///         pub fn change_account_id_2(&mut self, new_erc20: AccountId) {
 ///             let erc20: contract_ref!(Erc20) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
+///         /// The example of converting `AccountId` into `contract_ref!` explicitly
+///         /// with custom environment.
 ///         #[ink(message)]
 ///         pub fn change_account_id_3(&mut self, new_erc20: AccountId) {
 ///             let erc20: contract_ref!(Erc20, ink::env::DefaultEnvironment) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
+///         /// The example of converting `AccountId` into `contract_ref!` explicitly
+///         /// with custom environment from the associated type.
 ///         #[ink(message)]
 ///         pub fn change_account_id_4(&mut self, new_erc20: AccountId) {
 ///             let erc20: contract_ref!(Erc20, <Caller as ink::env::ContractEnv>::Env) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
+///         /// The example of how to do common calls.
 ///         #[ink(message)]
-///         pub fn total_supply(&self) -> Balance {
+///         pub fn total_supply_1(&self) -> Balance {
 ///             self.erc20.total_supply()
 ///         }
 ///
+///         /// The example of how to use the call builder with `contract_ref!`.
+///         #[ink(message)]
+///         pub fn total_supply_2(&self) -> Balance {
+///             use ink::codegen::TraitCallBuilder;
+///             let erc20_builder = self.erc20.call();
+///             let err: ink::env::Result<ink::primitives::MessageResult<Balance>> =
+///                 erc20_builder.total_supply().transferred_value(0).try_invoke();
+///             err
+///                 .expect("The cross-contract call should be executed without ink::env::Error")
+///                 .expect("The cross-contract call should be executed without ink::primitives::LangError")
+///         }
+///
+///         /// The example of how to do common calls and convert the `contract_ref!` into `AccountId`.
 ///         #[ink(message)]
 ///         pub fn transfer_to_erc20(&mut self, amount: Balance) -> bool {
 ///             let erc20_as_account_id = self.erc20.as_ref().clone();
