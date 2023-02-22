@@ -24,7 +24,7 @@ jobs:
           - macos-latest
 # Windows installation of `cargo-contract` currently fails due to https://github.com/paritytech/cargo-contract/issues/649
 # Once this is resolved we should re-enable building the examples on windows
-          - windows-latest
+          - windows-2022
         toolchain:
           - stable
         job:
@@ -73,7 +73,7 @@ jobs:
             ./artifacts/substrate-contracts-node-mac/substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Install and run latest `substrate-contracts-node` binary
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2022'
         run: |
             cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked && \
             substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
@@ -93,7 +93,7 @@ jobs:
             cargo contract --version
 
       - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2022'
         run: |
            $delegator_subcontracts = "accumulator","adder","subber"
            foreach ($contract in $delegator_subcontracts) {
