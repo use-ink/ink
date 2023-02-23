@@ -51,3 +51,6 @@ ink-debug = [
 ]
 call-runtime = ["ink_env/call-runtime"]
 show-codegen-docs = []
+
+# Disable the ink! provided global memory allocator.
+no-allocator = ["ink_env/no-allocator"]

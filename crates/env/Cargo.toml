@@ -70,7 +70,12 @@ std = [
     "sha3",
     "blake2",
 ]
+
 # Enable direct call to a pallet dispatchable via `call_runtime()`.
 call-runtime = []
+
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
+
+# Disable the ink! provided global memory allocator.
+no-allocator = ["ink_allocator/no-allocator"]

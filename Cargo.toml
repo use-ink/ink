@@ -19,7 +19,7 @@ members = [
     "crates/storage/traits",
 ]
 exclude = [
-    "examples/",
+    "integration-tests/",
 ]
 
 [profile.release]
