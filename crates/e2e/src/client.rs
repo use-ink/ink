@@ -493,7 +493,7 @@ where
     fn load_code(&self, contract: &str) -> Vec<u8> {
         let wasm_path = self
             .contracts
-            .get(&contract.replace("-", "_"))
+            .get(&contract.replace('-', '_'))
             .unwrap_or_else(|| panic!("Unknown contract {contract}"));
         let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
             panic!("Error loading '{}': {:?}", wasm_path.display(), err)
