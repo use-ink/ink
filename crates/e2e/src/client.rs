@@ -489,7 +489,7 @@ where
             .await
     }
 
-    /// Load the wasm code for the given contract.
+    /// Load the Wasm code for the given contract.
     fn load_code(&self, contract: &str) -> Vec<u8> {
         let wasm_path = self
             .contracts
