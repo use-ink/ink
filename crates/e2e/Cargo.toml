@@ -20,7 +20,6 @@ ink = { version = "4.0.0", path = "../ink" }
 ink_env = { version = "4.0.0", path = "../env" }
 ink_primitives = { version = "4.0.0", path = "../primitives" }
 
-contract-metadata = { version = "2.0.0-rc.1" }
 funty = "2.0.0"
 impl-serde = { version = "0.3.1", default-features = false }
 jsonrpsee = { version = "0.16.0", features = ["ws-client"] }
