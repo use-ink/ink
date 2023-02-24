@@ -23,7 +23,10 @@ pub mod dummy {
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
     use dyn_traits::Increment;
-    use ink::contract_ref;
+    use ink::{
+        contract_ref,
+        env::DefaultEnvironment,
+    };
     use ink_e2e::build_message;
     use trait_incrementer::incrementer::IncrementerRef;
     use trait_incrementer_caller::caller::CallerRef;
@@ -92,9 +95,10 @@ mod e2e_tests {
         // Ask the `trait-increment` about a value. It should be updated by the caller.
         // Also use `contract_ref!(Increment)` instead of `IncrementerRef`
         // to check that it also works with e2e testing.
-        let get =
-            build_message::<contract_ref!(Increment)>(incrementer_account_id.clone())
-                .call(|contract| contract.get());
+        let get = build_message::<contract_ref!(Increment, DefaultEnvironment)>(
+            incrementer_account_id.clone(),
+        )
+        .call(|contract| contract.get());
         let value = client
             .call_dry_run(&ink_e2e::bob(), &get, 0, None)
             .await
