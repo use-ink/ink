@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixing `ManualKey<0>` to act properly - [#1670](https://github.com/paritytech/ink/pull/1670)
+
+### Added
 - Add `call-runtime` support - [#1641](https://github.com/paritytech/ink/pull/1641)
 
 ## Version 4.0.0
