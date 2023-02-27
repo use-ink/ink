@@ -1,6 +1,6 @@
 [package]
 name = "ink_allocator"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -25,3 +25,4 @@ quickcheck_macros = "1"
 default = ["std"]
 std = []
 ink-fuzz-tests = ["std"]
+no-allocator = []

@@ -27,7 +27,7 @@
 //!
 //! You can see how the generated code looks by installing
 //! [`cargo-expand`](https://github.com/dtolnay/cargo-expand)
-//! and executing `cargo expand --manifest-path ./examples/flipper/Cargo.toml` in this repository.
+//! and executing `cargo expand --manifest-path ./integration-tests/flipper/Cargo.toml` in this repository.
 
 #![doc(
     html_logo_url = "https://use.ink/img/crate-docs/logo.png",

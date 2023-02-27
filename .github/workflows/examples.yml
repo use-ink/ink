@@ -22,9 +22,7 @@ jobs:
       matrix:
         platform:
           - macos-latest
-# Windows installation of `cargo-contract` currently fails due to https://github.com/paritytech/cargo-contract/issues/649
-# Once this is resolved we should re-enable building the examples on windows
-#          - windows-latest
+          - windows-latest
         toolchain:
           - stable
         job:
@@ -36,9 +34,6 @@ jobs:
       DELEGATOR_SUBCONTRACTS:   "accumulator adder subber"
       RUST_BACKTRACE:           full
     steps:
-
-      - uses: actions/setup-node@v3
-      - run: npm install wasm-opt -g
 
       - name: Checkout sources & submodules
         uses: actions/checkout@v3
@@ -68,7 +63,7 @@ jobs:
           version: 1
 
       - name: Download and run latest `substrate-contracts-node` binary
-        if: runner.os == 'macOS'
+        if: matrix.os == 'macOS-latest'
         run: |
             curl -L -o substrate-contracts-node.zip 'https://gitlab.parity.io/parity/mirrors/substrate-contracts-node/-/jobs/artifacts/main/download?job=build-mac' && \
             unzip substrate-contracts-node.zip && \
@@ -76,10 +71,10 @@ jobs:
             ./artifacts/substrate-contracts-node-mac/substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Install and run latest `substrate-contracts-node` binary
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         run: |
             cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force --locked && \
-            substrate-contracts-node -linfo,runtime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
+            substrate-contracts-node -lruntime::contracts=debug  2>&1 | tee /tmp/contracts-node.log &
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2.2.0
@@ -92,25 +87,24 @@ jobs:
 
       - name: Output versions
         run: |
-            wasm-opt --version
             cargo -vV
             cargo contract --version
 
       - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         run: |
            $delegator_subcontracts = "accumulator","adder","subber"
            foreach ($contract in $delegator_subcontracts) {
                echo "Processing delegator contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
            }
            $upgradeable_contracts = "forward-calls","set-code-hash"
            foreach ($contract in $upgradeable_contracts) {
                echo "Processing upgradeable contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
            }
-           cargo ${{ matrix.job }} --verbose --manifest-path examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
-           foreach ($example in Get-ChildItem  -Directory "examples\*") {
+           cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+           foreach ($example in Get-ChildItem  -Directory "integration-tests\*") {
                if ($example -Match 'upgradeable-contracts') { continue }
                if ($example -Match 'lang-err-integration-tests') { continue }
                echo "Processing example: $example";
@@ -118,21 +112,21 @@ jobs:
                cargo clean --manifest-path=$example/Cargo.toml;
            }
 
-      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
-        if: runner.os == 'macOS'
+      - name: ${{ matrix.job }} integration-tests on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        if: matrix.os == 'macOS-latest'
         run: |
            for contract in ${DELEGATOR_SUBCONTRACTS}; do
                echo "Processing delegator contract: $contract";
-               cargo ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+               cargo ${{ matrix.job }} --verbose --manifest-path integration-tests/delegator/${contract}/Cargo.toml;
            done
            for contract in ${UPGRADEABLE_CONTRACTS}; do
                 echo "Processing upgradeable contract: $contract";
-                cargo ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/$contract/Cargo.toml;
+                cargo ${{ matrix.job }} --verbose --manifest-path=integration-tests/upgradeable-contracts/$contract/Cargo.toml;
            done
-           cargo ${{ matrix.job }} --verbose --manifest-path=examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
-           for example in examples/*/; do
-               if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-               if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+           cargo ${{ matrix.job }} --verbose --manifest-path=integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml;
+           for example in integration-tests/*/; do
+               if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
+               if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
                echo "Processing example: $example";
                cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            done
