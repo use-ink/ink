@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixing `ManualKey<0>` to act properly - [#1670](https://github.com/paritytech/ink/pull/1670)
+- Indicated latest release of `cargo-contract` in `e2e` crate
 
 ## Version 4.0.0
 
