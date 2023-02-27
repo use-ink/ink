@@ -543,6 +543,14 @@
 <a href="#542" id="542">542</a>
 <a href="#543" id="543">543</a>
 <a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1085,6 +1093,14 @@
         </span>E: Environment,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `own_code_hash`&quot;</span>)
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">&quot;call-runtime&quot;</span>)]
+    </span><span class="kw">fn </span>call_runtime&lt;E, Call&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _call: <span class="kw-2">&amp;</span>Call) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>E: Environment,
+    {
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support `call_runtime`&quot;</span>)
     }
 }
 </code></pre></div>
