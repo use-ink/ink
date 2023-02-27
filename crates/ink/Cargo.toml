@@ -49,7 +49,12 @@ std = [
 ink-debug = [
     "ink_env/ink-debug",
 ]
-call-runtime = ["ink_env/call-runtime"]
+
+# Enable direct call to a pallet dispatchable via `call_runtime()`.
+call-runtime = [
+    "ink_env/call-runtime",
+]
+
 show-codegen-docs = []
 
 # Disable the ink! provided global memory allocator.
