@@ -111,6 +111,7 @@ impl From<ext::Error> for Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
+            ext::Error::CallRuntimeFailed => Self::CallRuntimeFailed,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
@@ -571,5 +572,16 @@ impl TypedEnvBackend for EnvInstance {
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
+    }
+
+    #[cfg(feature = "call-runtime")]
+    fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_call = scope.take_encoded(call);
+        ext::call_runtime(enc_call).map_err(Into::into)
     }
 }
