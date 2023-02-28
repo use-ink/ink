@@ -98,8 +98,8 @@ impl InkE2ETest {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
                 for manifest_path in contracts_to_build_and_import {
-                    let dest_metadata = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_metadata);
+                    let dest_wasm = build_contract(&manifest_path);
+                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
                 }
                 set_already_built_contracts(already_built_contracts.clone());
             });
@@ -109,8 +109,8 @@ impl InkE2ETest {
             // that haven't been build before
             for manifest_path in contracts_to_build_and_import {
                 if already_built_contracts.get("Cargo.toml").is_none() {
-                    let dest_metadata = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_metadata);
+                    let dest_wasm = build_contract(&manifest_path);
+                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
                 }
             }
             set_already_built_contracts(already_built_contracts.clone());
@@ -121,8 +121,8 @@ impl InkE2ETest {
             "built contract artifacts must exist here"
         );
 
-        let contracts = already_built_contracts.values().map(|bundle_path| {
-            quote! { #bundle_path }
+        let contracts = already_built_contracts.values().map(|wasm_path| {
+            quote! { #wasm_path }
         });
 
         const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
@@ -228,7 +228,7 @@ fn workspace_contract_manifests() -> Vec<String> {
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
-/// bundle build artifact.
+/// Wasm build artifact.
 fn build_contract(path_to_cargo_toml: &str) -> String {
     use contract_build::{
         BuildArtifacts,
@@ -252,7 +252,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         build_mode: BuildMode::Debug,
         features: Features::default(),
         network: Network::Online,
-        build_artifact: BuildArtifacts::All,
+        build_artifact: BuildArtifacts::CodeOnly,
         unstable_flags: UnstableFlags::default(),
         optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,
@@ -263,11 +263,9 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
 
     match contract_build::execute(args) {
         Ok(build_result) => {
-            let metadata_result = build_result
-                .metadata_result
-                .expect("Metadata artifacts not generated");
-            metadata_result
-                .dest_bundle
+            build_result
+                .dest_wasm
+                .expect("Wasm code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")
                 .to_string_lossy()
