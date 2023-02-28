@@ -1034,9 +1034,9 @@ mod tests {
             syn::parse_quote! { #[likely] },
             syn::parse_quote! { #[ink(storage)] },
         ]));
-        assert!(!contains_ink_attributes(&[
-            syn::parse_quote! { #[likely] },
-        ]));
+        assert!(!contains_ink_attributes(
+            &[syn::parse_quote! { #[likely] },]
+        ));
     }
 
     /// Asserts that the given input yields the expected first argument or the
