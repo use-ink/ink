@@ -78,11 +78,19 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
-        let mut additional_contracts: Vec<String> =
-            self.test.config.additional_contracts();
-        let default_main_contract_manifest_path = String::from("Cargo.toml");
-        let mut contracts_to_build_and_import = vec![default_main_contract_manifest_path];
-        contracts_to_build_and_import.append(&mut additional_contracts);
+        let contracts_to_build_and_import =
+            if self.test.config.additional_contracts().is_empty() {
+                workspace_contract_manifests()
+            } else {
+                // backwards compatibility if `additional_contracts` specified
+                let mut additional_contracts: Vec<String> =
+                    self.test.config.additional_contracts();
+                let default_main_contract_manifest_path = String::from("Cargo.toml");
+                let mut contracts_to_build_and_import =
+                    vec![default_main_contract_manifest_path];
+                contracts_to_build_and_import.append(&mut additional_contracts);
+                contracts_to_build_and_import
+            };
 
         let mut already_built_contracts = already_built_contracts();
         if already_built_contracts.is_empty() {
@@ -186,6 +194,37 @@ impl InkE2ETest {
             }
         }
     }
+}
+
+/// Returns a list of manifests of workspace members which are inferred to be `ink!` contracts.
+///
+/// It is assumed that an `ink!` contract will have the `ink-as-dependency` feature specified.
+fn workspace_contract_manifests() -> Vec<String> {
+    let cmd = cargo_metadata::MetadataCommand::new();
+    let metadata = cmd
+        .exec()
+        .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {:?}", err));
+    metadata
+        .workspace_members
+        .iter()
+        .filter_map(|workspace_member| {
+            let package = metadata
+                .packages
+                .iter()
+                .find(|package| &package.id == workspace_member)
+                .unwrap_or_else(|| {
+                    panic!(
+                        "Failed to find workspace member package '{}'",
+                        workspace_member
+                    )
+                });
+            package
+                .features
+                .iter()
+                .any(|(feat, _)| feat == "ink-as-dependency")
+                .then(|| package.manifest_path.to_string())
+        })
+        .collect()
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
