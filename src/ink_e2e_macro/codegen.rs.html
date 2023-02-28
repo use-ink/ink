@@ -238,8 +238,6 @@
 <a href="#237" id="237">237</a>
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -332,8 +330,8 @@
             </span>BUILD_ONCE.call_once(|| {
                 env_logger::init();
                 <span class="kw">for </span>manifest_path <span class="kw">in </span>contracts_to_build_and_import {
-                    <span class="kw">let </span>dest_metadata = build_contract(<span class="kw-2">&amp;</span>manifest_path);
-                    <span class="kw">let _ </span>= already_built_contracts.insert(manifest_path, dest_metadata);
+                    <span class="kw">let </span>dest_wasm = build_contract(<span class="kw-2">&amp;</span>manifest_path);
+                    <span class="kw">let _ </span>= already_built_contracts.insert(manifest_path, dest_wasm);
                 }
                 set_already_built_contracts(already_built_contracts.clone());
             });
@@ -343,8 +341,8 @@
             // that haven&#39;t been build before
             </span><span class="kw">for </span>manifest_path <span class="kw">in </span>contracts_to_build_and_import {
                 <span class="kw">if </span>already_built_contracts.get(<span class="string">&quot;Cargo.toml&quot;</span>).is_none() {
-                    <span class="kw">let </span>dest_metadata = build_contract(<span class="kw-2">&amp;</span>manifest_path);
-                    <span class="kw">let _ </span>= already_built_contracts.insert(manifest_path, dest_metadata);
+                    <span class="kw">let </span>dest_wasm = build_contract(<span class="kw-2">&amp;</span>manifest_path);
+                    <span class="kw">let _ </span>= already_built_contracts.insert(manifest_path, dest_wasm);
                 }
             }
             set_already_built_contracts(already_built_contracts.clone());
@@ -355,8 +353,8 @@
             <span class="string">&quot;built contract artifacts must exist here&quot;
         </span>);
 
-        <span class="kw">let </span>contracts = already_built_contracts.values().map(|bundle_path| {
-            <span class="macro">quote! </span>{ #bundle_path }
+        <span class="kw">let </span>contracts = already_built_contracts.values().map(|wasm_path| {
+            <span class="macro">quote! </span>{ #wasm_path }
         });
 
         <span class="kw">const </span>DEFAULT_CONTRACTS_NODE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;substrate-contracts-node&quot;</span>;
@@ -431,7 +429,7 @@
 }
 
 <span class="doccomment">/// Builds the contract at `manifest_path`, returns the path to the contract
-/// bundle build artifact.
+/// Wasm build artifact.
 </span><span class="kw">fn </span>build_contract(path_to_cargo_toml: <span class="kw-2">&amp;</span>str) -&gt; String {
     <span class="kw">use </span>contract_build::{
         BuildArtifacts,
@@ -455,7 +453,7 @@
         build_mode: BuildMode::Debug,
         features: Features::default(),
         network: Network::Online,
-        build_artifact: BuildArtifacts::All,
+        build_artifact: BuildArtifacts::CodeOnly,
         unstable_flags: UnstableFlags::default(),
         optimization_passes: <span class="prelude-val">Some</span>(OptimizationPasses::default()),
         keep_debug_symbols: <span class="bool-val">false</span>,
@@ -466,11 +464,9 @@
 
     <span class="kw">match </span>contract_build::execute(args) {
         <span class="prelude-val">Ok</span>(build_result) =&gt; {
-            <span class="kw">let </span>metadata_result = build_result
-                .metadata_result
-                .expect(<span class="string">&quot;Metadata artifacts not generated&quot;</span>);
-            metadata_result
-                .dest_bundle
+            build_result
+                .dest_wasm
+                .expect(<span class="string">&quot;Wasm code artifact not generated&quot;</span>)
                 .canonicalize()
                 .expect(<span class="string">&quot;Invalid dest bundle path&quot;</span>)
                 .to_string_lossy()

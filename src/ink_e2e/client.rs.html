@@ -873,10 +873,6 @@
 <a href="#872" id="872">872</a>
 <a href="#873" id="873">873</a>
 <a href="#874" id="874">874</a>
-<a href="#875" id="875">875</a>
-<a href="#876" id="876">876</a>
-<a href="#877" id="877">877</a>
-<a href="#878" id="878">878</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -906,7 +902,6 @@
     ContractsApi,
     Signer,
 };
-<span class="kw">use </span>contract_metadata::ContractMetadata;
 <span class="kw">use </span>ink_env::Environment;
 <span class="kw">use </span>ink_primitives::MessageResult;
 <span class="kw">use </span>pallet_contracts_primitives::ExecReturnValue;
@@ -915,7 +910,7 @@
     collections::BTreeMap,
     fmt::Debug,
     marker::PhantomData,
-    path::Path,
+    path::PathBuf,
 };
 
 <span class="kw">use </span>subxt::{
@@ -1235,7 +1230,7 @@
     E: Environment,
 {
     api: ContractsApi&lt;C, E&gt;,
-    contracts: BTreeMap&lt;String, ContractMetadata&gt;,
+    contracts: BTreeMap&lt;String, PathBuf&gt;,
 }
 
 <span class="kw">impl</span>&lt;C, E&gt; Client&lt;C, E&gt;
@@ -1261,15 +1256,11 @@
         <span class="kw">let </span>contracts = contracts
             .into_iter()
             .map(|path| {
-                <span class="kw">let </span>path = Path::new(path);
-                <span class="kw">let </span>contract = ContractMetadata::load(path).unwrap_or_else(|err| {
-                    <span class="macro">panic!</span>(
-                        <span class="string">&quot;Error loading contract metadata {}: {:?}&quot;</span>,
-                        path.display(),
-                        err
-                    )
+                <span class="kw">let </span>wasm_path = PathBuf::from(path);
+                <span class="kw">let </span>contract_name = wasm_path.file_stem().unwrap_or_else(|| {
+                    <span class="macro">panic!</span>(<span class="string">&quot;Invalid contract wasm path &#39;{}&#39;&quot;</span>, wasm_path.display(),)
                 });
-                (contract.contract.name.clone(), contract)
+                (contract_name.to_string_lossy().to_string(), wasm_path)
             })
             .collect();
 
@@ -1337,11 +1328,7 @@
     <span class="kw">where
         </span>Args: scale::Encode,
     {
-        <span class="kw">let </span>contract_metadata = <span class="self">self
-            </span>.contracts
-            .get(contract_name)
-            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))<span class="question-mark">?</span>;
-        <span class="kw">let </span>code = <span class="kw">crate</span>::utils::extract_wasm(contract_metadata);
+        <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
         <span class="kw">let </span>ret = <span class="self">self
             </span>.exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
             .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1361,11 +1348,7 @@
     <span class="kw">where
         </span>Args: scale::Encode,
     {
-        <span class="kw">let </span>contract_metadata = <span class="self">self
-            </span>.contracts
-            .get(contract_name)
-            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Unknown contract {contract_name}&quot;</span>));
-        <span class="kw">let </span>code = <span class="kw">crate</span>::utils::extract_wasm(contract_metadata);
+        <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
         <span class="kw">let </span>data = constructor_exec_input(constructor);
 
         <span class="kw">let </span>salt = <span class="self">Self</span>::salt();
@@ -1380,6 +1363,19 @@
             )
             .<span class="kw">await
     </span>}
+
+    <span class="doccomment">/// Load the Wasm code for the given contract.
+    </span><span class="kw">fn </span>load_code(<span class="kw-2">&amp;</span><span class="self">self</span>, contract: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;u8&gt; {
+        <span class="kw">let </span>wasm_path = <span class="self">self
+            </span>.contracts
+            .get(<span class="kw-2">&amp;</span>contract.replace(<span class="string">&#39;-&#39;</span>, <span class="string">&quot;_&quot;</span>))
+            .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Unknown contract {contract}&quot;</span>));
+        <span class="kw">let </span>code = std::fs::read(wasm_path).unwrap_or_else(|err| {
+            <span class="macro">panic!</span>(<span class="string">&quot;Error loading &#39;{}&#39;: {:?}&quot;</span>, wasm_path.display(), err)
+        });
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:?} has {} KiB&quot;</span>, contract, code.len() / <span class="number">1024</span>));
+        code
+    }
 
     <span class="doccomment">/// Executes an `instantiate_with_code` call and captures the resulting events.
     </span><span class="kw">async fn </span>exec_instantiate&lt;ContractRef, Args, R&gt;(
@@ -1499,11 +1495,7 @@
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UploadResult&lt;C, E&gt;, Error&lt;C, E&gt;&gt; {
-        <span class="kw">let </span>contract_metadata = <span class="self">self
-            </span>.contracts
-            .get(contract_name)
-            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))<span class="question-mark">?</span>;
-        <span class="kw">let </span>code = <span class="kw">crate</span>::utils::extract_wasm(contract_metadata);
+        <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
         <span class="kw">let </span>ret = <span class="self">self
             </span>.exec_upload(signer, code, storage_deposit_limit)
             .<span class="kw">await</span><span class="question-mark">?</span>;
