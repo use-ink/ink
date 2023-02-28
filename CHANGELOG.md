@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.0.1
+
 ### Fixed
 - Fixing `ManualKey<0>` to act properly - [#1670](https://github.com/paritytech/ink/pull/1670)
+- Indicated latest release of `cargo-contract` in `e2e` crate
+
+### Added
+- Add `call-runtime` support - [#1641](https://github.com/paritytech/ink/pull/1641)
 
 ## Version 4.0.0
 
@@ -50,7 +56,6 @@ compatible with the ink! `4.0.0` release.
 
 For full compatibility requirements see the [migration guide](https://use.ink/faq/migrating-from-ink-3-to-4/#compatibility).
 
-### Added
 - Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
 - Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248) (thanks [@kanishkatn](https://github.com/kanishkatn)!)
 - Add `version` field to ink! metadata ‒ [#1313](https://github.com/paritytech/ink/pull/1313)

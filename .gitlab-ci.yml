@@ -445,9 +445,7 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-# Temporarily disabled until https://github.com/paritytech/ink-waterfall/issues/41
-# is fixed.
-.ink-waterfall:
+ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
