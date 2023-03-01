@@ -44,7 +44,9 @@ pub mod incrementer {
         /// Modifies the code which is used to execute calls to this contract address (`AccountId`).
         ///
         /// We use this to upgrade the contract logic. We don't do any authorization here, any caller
-        /// can execute this method. In a production contract you would do some authorization here.
+        /// can execute this method.
+        ///
+        /// In a production contract you would do some authorization here!
         #[ink(message)]
         pub fn set_code(&mut self, code_hash: [u8; 32]) {
             ink::env::set_code_hash(&code_hash).unwrap_or_else(|err| {
