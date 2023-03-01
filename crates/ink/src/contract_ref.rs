@@ -92,11 +92,7 @@ use ink_env::Environment;
 ///             use ink::codegen::TraitCallBuilder;
 ///             // Returns the `CallBuilder` that implements `Erc20` trait.
 ///             let erc20_builder = self.erc20.call();
-///             let err: ink::env::Result<ink::primitives::MessageResult<Balance>> =
-///                 erc20_builder.total_supply().transferred_value(0).try_invoke();
-///             err
-///                 .expect("The cross-contract call should be executed without ink::env::Error")
-///                 .expect("The cross-contract call should be executed without ink::primitives::LangError")
+///             erc20_builder.total_supply().transferred_value(0).invoke()
 ///         }
 ///
 ///         /// The example of how to do common calls and convert the `contract_ref!` into `AccountId`.
