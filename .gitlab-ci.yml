@@ -439,21 +439,21 @@ examples-no-std-check:
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
-    - for example in examples/*/; do
-        if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
-        if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
+    - for example in integration-tests/*/; do
+        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         pushd $example &&
         cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
-    - pushd ./examples/delegator/ && ./build-all.sh && popd
+    - pushd ./integration-tests/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
-    - cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc"  --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
+    - cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc"  --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
