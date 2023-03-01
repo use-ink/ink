@@ -10,8 +10,8 @@ use pallet_contracts::chain_extension::{
     InitState,
     RetVal,
     SysConfig,
-    UncheckedFrom,
 };
+use sp_core::crypto::UncheckedFrom;
 use sp_runtime::DispatchError;
 
 /// Contract extension for `FetchRandom`
