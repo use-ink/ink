@@ -28,3 +28,7 @@ std = [
 ink-as-dependency = []
 
 
+
+[profile.release]
+opt-level = 's'
+lto = true

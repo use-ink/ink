@@ -43,3 +43,7 @@ members = [
     "adder",
     "subber",
 ]
+
+[profile.release]
+opt-level = 's'
+lto = true
