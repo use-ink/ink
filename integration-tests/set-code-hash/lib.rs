@@ -3,9 +3,17 @@
 #[ink::contract]
 pub mod incrementer {
 
-    /// This struct contains the smart contract storage.
-    /// The storage will always be retained, even when `set_code_hash` is called.
+    /// Track a counter in storage.
+    ///
+    /// # Note
+    ///
+    /// Is is important to realize that after the call to `set_code_hash` the contract's storage
+    /// remains the same.
+    ///
+    /// If you change the storage layout in your storage struct you may introduce undefined
+    /// behaviour to your contract!
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Incrementer {
         count: u32,
     }
@@ -13,14 +21,8 @@ pub mod incrementer {
     impl Incrementer {
         /// Creates a new counter smart contract initialized with the given base value.
         #[ink(constructor)]
-        pub fn new(init_value: u32) -> Self {
-            Self { count: init_value }
-        }
-
-        /// Creates a new counter smart contract initialized to `0`.
-        #[ink(constructor)]
-        pub fn new_default() -> Self {
-            Self::new(0)
+        pub fn new() -> Self {
+            Default::default()
         }
 
         /// Increments the counter value which is stored in the contract's storage.

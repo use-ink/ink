@@ -1,22 +1,18 @@
 [package]
-name = "updated-incrementer"
+name = "updated_incrementer"
 version = "4.0.1"
 edition = "2021"
 authors = ["Parity Technologies <admin@parity.io>"]
 publish = false
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-ink = { path = "../../../../crates/ink", default-features = false }
+ink = { path = "../../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "updated_incrementer"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]

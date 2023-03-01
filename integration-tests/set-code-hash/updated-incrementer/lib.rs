@@ -3,10 +3,16 @@
 #[ink::contract]
 pub mod incrementer {
 
-    /// This struct contains the smart contract storage.
+    /// Track a counter in storage.
     ///
-    /// *Note:* We use exactly the same storage struct as in the originally deployed `incrementer`.
+    /// # Note
+    ///
+    /// We have kept the same storage layout as in our original `incrementer` contract.
+    ///
+    /// Had we changed `count` to, for example, an `AccountId` we would end up with undefined
+    /// behaviour in our contract.
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Incrementer {
         count: u32,
     }
@@ -18,14 +24,8 @@ pub mod incrementer {
         /// since we merely replace the code used to execute a contract that was already
         /// initiated on-chain.
         #[ink(constructor)]
-        pub fn new(init_value: u32) -> Self {
-            Self { count: init_value }
-        }
-
-        /// Creates a new counter smart contract initialized to `0`.
-        #[ink(constructor)]
-        pub fn new_default() -> Self {
-            Self::new(0)
+        pub fn new() -> Self {
+            Default::default()
         }
 
         /// Increments the counter value which is stored in the contract's storage.
