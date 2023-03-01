@@ -8,6 +8,7 @@ pub mod caller {
     /// The caller of the incrementer smart contract.
     #[ink(storage)]
     pub struct Caller {
+        /// Here we generate and accept a type which implements the `Incrementer` ink! trait.
         incrementer: ink::contract_ref!(Increment),
     }
 
