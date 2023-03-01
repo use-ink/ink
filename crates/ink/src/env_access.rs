@@ -969,4 +969,9 @@ where
     pub fn own_code_hash(self) -> Result<E::Hash> {
         ink_env::own_code_hash::<E>()
     }
+
+    #[cfg(feature = "call-runtime")]
+    pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
+        ink_env::call_runtime::<E, _>(call)
+    }
 }

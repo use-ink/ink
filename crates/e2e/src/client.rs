@@ -26,7 +26,6 @@ use super::{
     ContractsApi,
     Signer,
 };
-use contract_metadata::ContractMetadata;
 use ink::codegen::ContractCallBuilder;
 use ink_env::{
     call::{
@@ -49,7 +48,7 @@ use std::{
     collections::BTreeMap,
     fmt::Debug,
     marker::PhantomData,
-    path::Path,
+    path::PathBuf,
 };
 
 use subxt::{
@@ -387,7 +386,7 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
-    contracts: BTreeMap<String, ContractMetadata>,
+    contracts: BTreeMap<String, PathBuf>,
 }
 
 impl<C, E> Client<C, E>
@@ -413,15 +412,11 @@ where
         let contracts = contracts
             .into_iter()
             .map(|path| {
-                let path = Path::new(path);
-                let contract = ContractMetadata::load(path).unwrap_or_else(|err| {
-                    panic!(
-                        "Error loading contract metadata {}: {:?}",
-                        path.display(),
-                        err
-                    )
+                let wasm_path = PathBuf::from(path);
+                let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
+                    panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
                 });
-                (contract.contract.name.clone(), contract)
+                (contract_name.to_string_lossy().to_string(), wasm_path)
             })
             .collect();
 
@@ -496,11 +491,7 @@ where
         <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
-        let contract_metadata = self
-            .contracts
-            .get(contract_name)
-            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
-        let code = crate::utils::extract_wasm(contract_metadata);
+        let code = self.load_code(contract_name);
         let ret = self
             .exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
             .await?;
@@ -520,11 +511,7 @@ where
     where
         Args: scale::Encode,
     {
-        let contract_metadata = self
-            .contracts
-            .get(contract_name)
-            .unwrap_or_else(|| panic!("Unknown contract {contract_name}"));
-        let code = crate::utils::extract_wasm(contract_metadata);
+        let code = self.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
         let salt = Self::salt();
@@ -538,6 +525,19 @@ where
                 signer,
             )
             .await
+    }
+
+    /// Load the Wasm code for the given contract.
+    fn load_code(&self, contract: &str) -> Vec<u8> {
+        let wasm_path = self
+            .contracts
+            .get(&contract.replace('-', "_"))
+            .unwrap_or_else(|| panic!("Unknown contract {contract}"));
+        let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
+            panic!("Error loading '{}': {:?}", wasm_path.display(), err)
+        });
+        log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
+        code
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -670,11 +670,7 @@ where
         signer: &Signer<C>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
-        let contract_metadata = self
-            .contracts
-            .get(contract_name)
-            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
-        let code = crate::utils::extract_wasm(contract_metadata);
+        let code = self.load_code(contract_name);
         let ret = self
             .exec_upload(signer, code, storage_deposit_limit)
             .await?;

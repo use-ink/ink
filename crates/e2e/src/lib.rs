@@ -23,7 +23,6 @@ mod builders;
 mod client;
 mod default_accounts;
 mod node_proc;
-pub mod utils;
 mod xts;
 
 pub use client::{
