@@ -94,7 +94,7 @@ impl FromLittleEndian for u128 {
     }
 }
 
-/// The trait shows that the type plans to be [`Environment::AccountId`].
+/// A trait to enforce that a type should be an [`Environment::AccountId`].
 ///
 /// If someone wants to use another type than [`AccountId`] in the [`Environment::AccountId`],
 /// he should implement this trait for the corresponding type.

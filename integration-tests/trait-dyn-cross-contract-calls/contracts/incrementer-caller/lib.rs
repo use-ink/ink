@@ -4,12 +4,11 @@
 #[ink::contract]
 pub mod caller {
     use dyn_traits::Increment;
-    use ink::contract_ref;
 
     /// The caller of the incrementer smart contract.
     #[ink(storage)]
     pub struct Caller {
-        incrementer: contract_ref!(Increment),
+        incrementer: ink::contract_ref!(Increment),
     }
 
     impl Caller {
