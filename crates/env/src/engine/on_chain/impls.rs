@@ -111,6 +111,7 @@ impl From<ext::Error> for Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
+            ext::Error::CallRuntimeFailed => Self::CallRuntimeFailed,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
@@ -180,21 +181,6 @@ impl EnvInstance {
     /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
-    }
-
-    /// Returns the contract property value into the given result buffer.
-    ///
-    /// # Note
-    ///
-    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
-    #[inline(always)]
-    fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
-    where
-        T: Default + AsMut<[u8]>,
-    {
-        let mut result = T::default();
-        ext_fn(&mut result.as_mut());
-        result
     }
 
     /// Returns the contract property value from its little-endian representation.
@@ -372,7 +358,8 @@ impl EnvBackend for EnvInstance {
 
 impl TypedEnvBackend for EnvInstance {
     fn caller<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property_inplace::<E::AccountId>(ext::caller)
+        self.get_property::<E::AccountId>(ext::caller)
+            .expect("The executed contract must have a caller with a valid account id.")
     }
 
     fn transferred_value<E: Environment>(&mut self) -> E::Balance {
@@ -388,7 +375,8 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<E: Environment>(&mut self) -> E::AccountId {
-        self.get_property_inplace::<E::AccountId>(ext::address)
+        self.get_property::<E::AccountId>(ext::address)
+            .expect("A contract being executed must have a valid account id.")
     }
 
     fn balance<E: Environment>(&mut self) -> E::Balance {
@@ -587,5 +575,16 @@ impl TypedEnvBackend for EnvInstance {
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
+    }
+
+    #[cfg(feature = "call-runtime")]
+    fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_call = scope.take_encoded(call);
+        ext::call_runtime(enc_call).map_err(Into::into)
     }
 }

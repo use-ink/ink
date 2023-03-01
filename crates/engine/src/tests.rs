@@ -69,7 +69,7 @@ fn setting_getting_balance() {
 
     // then
     let output = <u128 as scale::Decode>::decode(&mut &output[..16])
-        .unwrap_or_else(|err| panic!("decoding balance failed: {}", err));
+        .unwrap_or_else(|err| panic!("decoding balance failed: {err}"));
     assert_eq!(output, balance);
 }
 

@@ -474,7 +474,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
     /// for a complete contract example.
     ///
     /// # Note
@@ -524,8 +524,7 @@ where
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .call_type(
-    ///                 Call::new()
-    ///                     .callee(AccountId::from([0x42; 32]))
+    ///                 Call::new(AccountId::from([0x42; 32]))
     ///                     .gas_limit(5000)
     ///                     .transferred_value(10))
     ///             .exec_input(
@@ -588,8 +587,7 @@ where
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .call_type(
-    ///                 DelegateCall::new()
-    ///                  .code_hash(<DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH))
+    ///                 DelegateCall::new(<DefaultEnvironment as ink::env::Environment>::Hash::CLEAR_HASH))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
@@ -970,5 +968,10 @@ where
     /// For more details visit: [`ink_env::own_code_hash`]
     pub fn own_code_hash(self) -> Result<E::Hash> {
         ink_env::own_code_hash::<E>()
+    }
+
+    #[cfg(feature = "call-runtime")]
+    pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
+        ink_env::call_runtime::<E, _>(call)
     }
 }

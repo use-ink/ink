@@ -72,7 +72,11 @@ impl InkE2ETest {
             syn::ReturnType::Type(rarrow, ret_type) => quote! { #rarrow #ret_type },
         };
 
-        let ws_url = &self.test.config.ws_url();
+        let environment = self
+            .test
+            .config
+            .environment()
+            .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
         let mut additional_contracts: Vec<String> =
             self.test.config.additional_contracts();
@@ -86,8 +90,8 @@ impl InkE2ETest {
             BUILD_ONCE.call_once(|| {
                 env_logger::init();
                 for manifest_path in contracts_to_build_and_import {
-                    let dest_metadata = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_metadata);
+                    let dest_wasm = build_contract(&manifest_path);
+                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
                 }
                 set_already_built_contracts(already_built_contracts.clone());
             });
@@ -97,8 +101,8 @@ impl InkE2ETest {
             // that haven't been build before
             for manifest_path in contracts_to_build_and_import {
                 if already_built_contracts.get("Cargo.toml").is_none() {
-                    let dest_metadata = build_contract(&manifest_path);
-                    let _ = already_built_contracts.insert(manifest_path, dest_metadata);
+                    let dest_wasm = build_contract(&manifest_path);
+                    let _ = already_built_contracts.insert(manifest_path, dest_wasm);
                 }
             }
             set_already_built_contracts(already_built_contracts.clone());
@@ -109,9 +113,27 @@ impl InkE2ETest {
             "built contract artifacts must exist here"
         );
 
-        let contracts = already_built_contracts.values().map(|bundle_path| {
-            quote! { #bundle_path }
+        let contracts = already_built_contracts.values().map(|wasm_path| {
+            quote! { #wasm_path }
         });
+
+        const DEFAULT_CONTRACTS_NODE: &str = "substrate-contracts-node";
+
+        // use the user supplied `CONTRACTS_NODE` or default to `substrate-contracts-node`
+        let contracts_node: &'static str =
+            option_env!("CONTRACTS_NODE").unwrap_or(DEFAULT_CONTRACTS_NODE);
+
+        // check the specified contracts node.
+        if which::which(contracts_node).is_err() {
+            if contracts_node == DEFAULT_CONTRACTS_NODE {
+                panic!(
+                    "The '{DEFAULT_CONTRACTS_NODE}' executable was not found. Install '{DEFAULT_CONTRACTS_NODE}' on the PATH, \
+                    or specify the `CONTRACTS_NODE` environment variable.",
+                )
+            } else {
+                panic!("The contracts node executable '{contracts_node}' was not found.")
+            }
+        }
 
         quote! {
             #( #attrs )*
@@ -126,28 +148,25 @@ impl InkE2ETest {
 
                 ::ink_e2e::INIT.call_once(|| {
                     ::ink_e2e::env_logger::init();
-                    let check_async = ::ink_e2e::Client::<
-                        ::ink_e2e::PolkadotConfig,
-                        ink::env::DefaultEnvironment
-                    >::new(&#ws_url, []);
-
-                    ::ink_e2e::tokio::runtime::Builder::new_current_thread()
-                        .enable_all()
-                        .build()
-                        .unwrap_or_else(|err|
-                            panic!("Failed building the Runtime during initialization: {}", err))
-                        .block_on(check_async);
                 });
 
                 log_info("creating new client");
 
                 let run = async {
-                    // TODO(#xxx) Make those two generic environments customizable.
+                    // spawn a contracts node process just for this test
+                    let node_proc = ::ink_e2e::TestNodeProcess::<::ink_e2e::PolkadotConfig>
+                        ::build(#contracts_node)
+                        .spawn()
+                        .await
+                        .unwrap_or_else(|err|
+                            ::core::panic!("Error spawning substrate-contracts-node: {:?}", err)
+                        );
+
                     let mut client = ::ink_e2e::Client::<
                         ::ink_e2e::PolkadotConfig,
-                        ink::env::DefaultEnvironment
+                        #environment
                     >::new(
-                        &#ws_url,
+                        node_proc.client(),
                         [ #( #contracts ),* ]
                     ).await;
 
@@ -170,7 +189,7 @@ impl InkE2ETest {
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
-/// bundle build artifact.
+/// Wasm build artifact.
 fn build_contract(path_to_cargo_toml: &str) -> String {
     use contract_build::{
         BuildArtifacts,
@@ -186,7 +205,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
     };
 
     let manifest_path = ManifestPath::new(path_to_cargo_toml).unwrap_or_else(|err| {
-        panic!("Invalid manifest path {}: {}", path_to_cargo_toml, err)
+        panic!("Invalid manifest path {path_to_cargo_toml}: {err}")
     });
     let args = ExecuteArgs {
         manifest_path,
@@ -194,7 +213,7 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         build_mode: BuildMode::Debug,
         features: Features::default(),
         network: Network::Online,
-        build_artifact: BuildArtifacts::All,
+        build_artifact: BuildArtifacts::CodeOnly,
         unstable_flags: UnstableFlags::default(),
         optimization_passes: Some(OptimizationPasses::default()),
         keep_debug_symbols: false,
@@ -205,18 +224,16 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
 
     match contract_build::execute(args) {
         Ok(build_result) => {
-            let metadata_result = build_result
-                .metadata_result
-                .expect("Metadata artifacts not generated");
-            metadata_result
-                .dest_bundle
+            build_result
+                .dest_wasm
+                .expect("Wasm code artifact not generated")
                 .canonicalize()
                 .expect("Invalid dest bundle path")
                 .to_string_lossy()
                 .into()
         }
         Err(err) => {
-            panic!("contract build for {} failed: {}", path_to_cargo_toml, err)
+            panic!("contract build for {path_to_cargo_toml} failed: {err}")
         }
     }
 }

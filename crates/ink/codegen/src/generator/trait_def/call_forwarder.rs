@@ -337,8 +337,7 @@ impl CallForwarder<'_> {
         };
         let mut_tok = message.mutates().then(|| quote! { mut });
         let panic_str = format!(
-            "encountered error while calling <{} as {}>::{}",
-            forwarder_ident, trait_ident, message_ident,
+            "encountered error while calling <{forwarder_ident} as {trait_ident}>::{message_ident}",
         );
         quote_spanned!(span =>
             type #output_ident = #output_type;

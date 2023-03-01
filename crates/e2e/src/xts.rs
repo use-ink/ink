@@ -18,21 +18,11 @@ use super::{
     sr25519,
     ContractExecResult,
     ContractInstantiateResult,
-    IdentifyAccount,
     Signer,
-    Verify,
 };
 use ink_env::Environment;
 
 use core::marker::PhantomData;
-use jsonrpsee::{
-    core::client::ClientT,
-    rpc_params,
-    ws_client::{
-        WsClient,
-        WsClientBuilder,
-    },
-};
 use pallet_contracts_primitives::CodeUploadResult;
 use sp_core::{
     Bytes,
@@ -41,7 +31,9 @@ use sp_core::{
 use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
-    tx::ExtrinsicParams,
+    config::ExtrinsicParams,
+    rpc_params,
+    tx,
     OnlineClient,
 };
 
@@ -60,17 +52,6 @@ pub struct InstantiateWithCode<B> {
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Encode, scale::Decode)]
 pub struct Call<E: Environment, B> {
-    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
-    #[codec(compact)]
-    value: B,
-    gas_limit: Weight,
-    storage_deposit_limit: Option<B>,
-    data: Vec<u8>,
-}
-
-/// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct Call2<E: Environment, B> {
     dest: sp_runtime::MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
     value: B,
@@ -169,38 +150,24 @@ enum Code {
 /// Provides functions for interacting with the `pallet-contracts` API.
 pub struct ContractsApi<C: subxt::Config, E: Environment> {
     pub client: OnlineClient<C>,
-    ws_client: WsClient,
     _phantom: PhantomData<fn() -> (C, E)>,
 }
 
 impl<C, E> ContractsApi<C, E>
 where
     C: subxt::Config,
-    C::AccountId: Into<C::Address> + serde::de::DeserializeOwned,
-    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
-
+    C::AccountId: serde::de::DeserializeOwned,
+    C::AccountId: scale::Codec,
     C::Signature: From<sr25519::Signature>,
-    <C::Signature as Verify>::Signer: From<sr25519::Public>,
-    <C::Signature as Verify>::Signer:
-        From<sr25519::Public> + IdentifyAccount<AccountId = C::AccountId>,
-    sr25519::Signature: Into<C::Signature>,
+    <C::ExtrinsicParams as ExtrinsicParams<C::Index, C::Hash>>::OtherParams: Default,
 
     E: Environment,
     E::Balance: scale::HasCompact + serde::Serialize,
 {
     /// Creates a new [`ContractsApi`] instance.
-    pub async fn new(client: OnlineClient<C>, url: &str) -> Self {
-        let ws_client =
-            WsClientBuilder::default()
-                .build(&url)
-                .await
-                .unwrap_or_else(|err| {
-                    panic!("error on ws request: {:?}", err);
-                });
-
+    pub async fn new(client: OnlineClient<C>) -> Self {
         Self {
             client,
-            ws_client,
             _phantom: Default::default(),
         }
     }
@@ -233,7 +200,7 @@ where
             .await?;
 
         tx_progress.wait_for_in_block().await.unwrap_or_else(|err| {
-            panic!("error on call `wait_for_in_block`: {:?}", err);
+            panic!("error on call `wait_for_in_block`: {err:?}");
         });
 
         Ok(())
@@ -251,7 +218,7 @@ where
     ) -> ContractInstantiateResult<C::AccountId, E::Balance> {
         let code = Code::Upload(code);
         let call_request = RpcInstantiateRequest::<C, E> {
-            origin: signer.account_id().clone(),
+            origin: subxt::tx::Signer::account_id(signer).clone(),
             value,
             gas_limit: None,
             storage_deposit_limit,
@@ -262,15 +229,51 @@ where
         let func = "ContractsApi_instantiate";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
         let bytes: Bytes = self
-            .ws_client
+            .client
+            .rpc()
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_instantiate`: {:?}", err);
+                panic!("error on ws request `contracts_instantiate`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref()).unwrap_or_else(|err| {
-            panic!("decoding ContractInstantiateResult failed: {}", err)
+            panic!("decoding ContractInstantiateResult failed: {err}")
         })
+    }
+
+    /// Sign and submit an extrinsic with the given call payload.
+    pub async fn submit_extrinsic<Call>(
+        &self,
+        call: &Call,
+        signer: &Signer<C>,
+    ) -> ExtrinsicEvents<C>
+    where
+        Call: tx::TxPayload,
+    {
+        self.client
+            .tx()
+            .sign_and_submit_then_watch_default(call, signer)
+            .await
+            .map(|tx_progress| {
+                log_info(&format!(
+                    "signed and submitted tx with hash {:?}",
+                    tx_progress.extrinsic_hash()
+                ));
+                tx_progress
+            })
+            .unwrap_or_else(|err| {
+                panic!("error on call `sign_and_submit_then_watch_default`: {err:?}");
+            })
+            .wait_for_in_block()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `wait_for_in_block`: {err:?}");
+            })
+            .fetch_events()
+            .await
+            .unwrap_or_else(|err| {
+                panic!("error on call `fetch_events`: {err:?}");
+            })
     }
 
     /// Submits an extrinsic to instantiate a contract with the given code.
@@ -303,33 +306,7 @@ where
         )
         .unvalidated();
 
-        self.client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
-            .await
-            .map(|tx_progress| {
-                log_info(&format!(
-                    "signed and submitted tx with hash {:?}",
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
-            })
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs the upload of the given `code`.
@@ -340,7 +317,7 @@ where
         storage_deposit_limit: Option<E::Balance>,
     ) -> CodeUploadResult<E::Hash, E::Balance> {
         let call_request = RpcCodeUploadRequest::<C, E> {
-            origin: signer.account_id().clone(),
+            origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
             determinism: Determinism::Deterministic,
@@ -348,14 +325,15 @@ where
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
         let bytes: Bytes = self
-            .ws_client
+            .client
+            .rpc()
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `upload_code`: {:?}", err);
+                panic!("error on ws request `upload_code`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {}", err))
+            .unwrap_or_else(|err| panic!("decoding CodeUploadResult failed: {err}"))
     }
 
     /// Submits an extrinsic to upload a given code.
@@ -380,33 +358,7 @@ where
         )
         .unvalidated();
 
-        self.client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
-            .await
-            .map(|tx_progress| {
-                log_info(&format!(
-                    "signed and submitted tx with hash {:?}",
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
-            })
+        self.submit_extrinsic(&call, signer).await
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
@@ -428,14 +380,15 @@ where
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
         let bytes: Bytes = self
-            .ws_client
+            .client
+            .rpc()
             .request("state_call", params)
             .await
             .unwrap_or_else(|err| {
-                panic!("error on ws request `contracts_call`: {:?}", err);
+                panic!("error on ws request `contracts_call`: {err:?}");
             });
         scale::Decode::decode(&mut bytes.as_ref())
-            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {}", err))
+            .unwrap_or_else(|err| panic!("decoding ContractExecResult failed: {err}"))
     }
 
     /// Submits an extrinsic to call a contract with the given parameters.
@@ -465,32 +418,6 @@ where
         )
         .unvalidated();
 
-        self.client
-            .tx()
-            .sign_and_submit_then_watch_default(&call, signer)
-            .await
-            .map(|tx_progress| {
-                log_info(&format!(
-                    "signed and submitted call with extrinsic hash {:?}",
-                    tx_progress.extrinsic_hash()
-                ));
-                tx_progress
-            })
-            .unwrap_or_else(|err| {
-                panic!(
-                    "error on call `sign_and_submit_then_watch_default`: {:?}",
-                    err
-                );
-            })
-            .wait_for_in_block()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `wait_for_in_block`: {:?}", err);
-            })
-            .fetch_events()
-            .await
-            .unwrap_or_else(|err| {
-                panic!("error on call `fetch_events`: {:?}", err);
-            })
+        self.submit_extrinsic(&call, signer).await
     }
 }

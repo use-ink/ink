@@ -1007,7 +1007,7 @@ impl TypeSpec {
         Self {
             ty: meta_type::<T>(),
             display_name: DisplayName::from_segments(segments)
-                .unwrap_or_else(|err| panic!("display name is invalid: {:?}", err)),
+                .unwrap_or_else(|err| panic!("display name is invalid: {err:?}")),
         }
     }
 

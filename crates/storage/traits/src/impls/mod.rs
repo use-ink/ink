@@ -27,6 +27,14 @@ use ink_primitives::{
     KeyComposer,
 };
 
+/// The private trait helping identify the [`AutoKey`] key type.
+trait KeyType {
+    /// It is `true` for [`AutoKey`] and `false` for [`ManualKey`].
+    /// It helps the [`ResolverKey`] select between the user-specified (left key)
+    /// and the auto-generated (right key) keys.
+    const IS_AUTO_KEY: bool;
+}
+
 /// Auto key type means that the storage key should be calculated automatically.
 #[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -34,6 +42,10 @@ pub struct AutoKey;
 
 impl StorageKey for AutoKey {
     const KEY: Key = 0;
+}
+
+impl KeyType for AutoKey {
+    const IS_AUTO_KEY: bool = true;
 }
 
 impl Debug for AutoKey {
@@ -55,6 +67,10 @@ impl<const KEY: Key, ParentKey: StorageKey> StorageKey for ManualKey<KEY, Parent
     const KEY: Key = KeyComposer::concat(KEY, ParentKey::KEY);
 }
 
+impl<const KEY: Key, ParentKey: StorageKey> KeyType for ManualKey<KEY, ParentKey> {
+    const IS_AUTO_KEY: bool = false;
+}
+
 impl<const KEY: Key, ParentKey: StorageKey> Debug for ManualKey<KEY, ParentKey> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("ManualKey")
@@ -67,11 +83,26 @@ impl<const KEY: Key, ParentKey: StorageKey> Debug for ManualKey<KEY, ParentKey> 
 /// If the `L` type is `AutoKey` it returns auto-generated `R` else `L`.
 #[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Debug)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct ResolverKey<L: StorageKey, R: StorageKey>(PhantomData<fn() -> (L, R)>);
+pub struct ResolverKey<L, R>(PhantomData<fn() -> (L, R)>);
 
-impl<L: StorageKey, R: StorageKey> StorageKey for ResolverKey<L, R> {
-    /// `KEY` of the `AutoKey` is zero. If left key is zero, then use right manual key.
-    const KEY: Key = if L::KEY == 0 { R::KEY } else { L::KEY };
+impl<L, R> StorageKey for ResolverKey<L, R>
+where
+    L: StorageKey + KeyType,
+    R: StorageKey + KeyType,
+{
+    /// If the left key is [`AutoKey`], then use the right auto-generated storage key.
+    /// Otherwise use the left [`ManualKey`].
+    const KEY: Key = if L::IS_AUTO_KEY { R::KEY } else { L::KEY };
+}
+
+impl<L, R> KeyType for ResolverKey<L, R>
+where
+    L: KeyType,
+    R: KeyType,
+{
+    /// The right key is always an auto-generated key, the user can specify only the left key.
+    /// So the left key defines the [`KeyType::IS_AUTO_KEY`] of the [`ResolverKey`].
+    const IS_AUTO_KEY: bool = L::IS_AUTO_KEY;
 }
 
 type FinalKey<T, const KEY: Key, ParentKey> =
@@ -84,6 +115,7 @@ type FinalKey<T, const KEY: Key, ParentKey> =
 impl<T, const KEY: Key, ParentKey> AutoStorableHint<ManualKey<KEY, ParentKey>> for T
 where
     T: StorableHint<ParentKey>,
+    <T as StorableHint<ParentKey>>::PreferredKey: KeyType,
     T: StorableHint<FinalKey<T, KEY, ParentKey>>,
     ParentKey: StorageKey,
 {
@@ -111,6 +143,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     /// Creates test to verify that the primitive types are packed.
     #[macro_export]
     macro_rules! storage_hint_works_for_primitive {
@@ -173,5 +207,25 @@ mod tests {
 
         type TupleSix = (i32, u32, String, u8, bool, Box<Option<i32>>);
         storage_hint_works_for_primitive!(TupleSix);
+    }
+
+    #[test]
+    fn storage_key_types_works() {
+        assert_eq!(<AutoKey as StorageKey>::KEY, 0);
+        assert_eq!(<ManualKey<123> as StorageKey>::KEY, 123);
+        assert_eq!(<ManualKey<0> as StorageKey>::KEY, 0);
+        assert_eq!(<ResolverKey<AutoKey, AutoKey> as StorageKey>::KEY, 0);
+        assert_eq!(
+            <ResolverKey<AutoKey, ManualKey<123>> as StorageKey>::KEY,
+            123
+        );
+        assert_eq!(
+            <ResolverKey<ManualKey<456>, ManualKey<123>> as StorageKey>::KEY,
+            456
+        );
+        assert_eq!(
+            <ResolverKey<ManualKey<0>, ManualKey<123>> as StorageKey>::KEY,
+            0
+        );
     }
 }

@@ -20,9 +20,9 @@ Reasons for doing it this way:
 
 ## Examples
 
-Examples (so anything in the `examples/` folder) are a bit of a special case in our
-release pipeline since they are considered as ink! internals and not part of the library
-per-say.
+Examples (so anything in the `integration-tests/` folder) are a bit of a special case
+in our release pipeline since they are considered as ink! internals and not part of
+the library per-say.
 
 What this means is that any changes to the examples (breaking or not) should only be
 considered a `PATCH` level change. Additionally, they should not be published to
@@ -76,7 +76,7 @@ in the future.
        `master` during the release.
      - The above are to ensure that the bundled code pushed to crates.io is the same as 
        the tagged release on GitHub.
-1. Publish with `export PUBLISH_GRACE_SLEEP=5 && cargo release [new_version] -v --no-tag --no-push --execute`
+1. Publish with `cargo release [new_version] -v --no-tag --no-push --execute`
     - Ensure the same `[new_version]` as the dry run, which should be the **exact** SemVer 
       compatible version you are attempting to release e.g. `4.0.0-alpha.3`.
     - We add the grace period since crates depend on one another.
@@ -92,6 +92,11 @@ in the future.
     - Ensure your tag is signed with an offline GPG key!
     - Alternatively, the `Create release` GitHub UI below allows creating this tag when 
       creating the release.
+1. Update the [`ink-examples`](https://github.com/paritytech/ink-examples) repository with
+   the content of `integration-tests` (minus `mother`, `lang-err-integration-tests` and
+   `mapping-integration-tests`). Besides copying those folders over, the only change you
+   need to do manually is to switch the dependencies in the `Cargo.toml`'s to use the
+   published version of your release.
 1. Create a GitHub release for this tag. In the [tag overview](https://github.com/paritytech/ink/tags)
    you'll see your new tag appear. Click the `…` on the right of the tag and then 
    `Create release`.

@@ -1,0 +1,34 @@
+[package]
+name = "adder"
+version = "4.0.1"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
+
+[dependencies]
+ink = { path = "../../../crates/ink", default-features = false }
+
+accumulator = { path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+
+[lib]
+name = "adder"
+path = "lib.rs"
+crate-type = [
+    # Used for normal contract Wasm blobs.
+    "cdylib",
+    # Used for ABI generation.
+    "rlib",
+]
+
+[features]
+default = ["std"]
+std = [
+    "ink/std",
+    "scale/std",
+    "scale-info/std",
+
+    "accumulator/std",
+]
+ink-as-dependency = []
