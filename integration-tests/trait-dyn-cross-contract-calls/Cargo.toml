@@ -19,9 +19,7 @@ trait-incrementer-caller = { path = "./contracts/incrementer-caller", default-fe
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "incrementer_e2e_test"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]

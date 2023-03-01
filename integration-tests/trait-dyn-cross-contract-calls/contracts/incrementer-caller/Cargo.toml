@@ -14,14 +14,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 dyn-traits = { path = "../../traits", default-features = false }
 
 [lib]
-name = "trait_incrementer_caller"
 path = "lib.rs"
-crate-type = [
-    # Used for normal contract Wasm blobs.
-    "cdylib",
-    # Used for ABI generation.
-    "rlib",
-]
 
 [features]
 default = ["std"]
