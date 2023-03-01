@@ -373,7 +373,6 @@ examples-test:
         cargo clean --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
         cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
-    # NANDO: Don't think we need this
     - cargo test --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml;
 
 examples-contract-build:
