@@ -19,7 +19,7 @@ pub mod incrementer {
     /// remains the same.
     ///
     /// If you change the storage layout in your storage struct you may introduce undefined
-    /// behaviour to your contract!
+    /// behavior to your contract!
     #[ink(storage)]
     #[derive(Default)]
     pub struct Incrementer {
