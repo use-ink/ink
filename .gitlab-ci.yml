@@ -40,6 +40,9 @@ variables:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
+  # This is a target that does not have a std lib in contrast to wasm. We compile against
+  # this target to make sure that we don't pull in std by accident (through dependencies).
+  NO_STD_TARGET:                   "bpfel-unknown-none"
 
 workflow:
   rules:
@@ -227,7 +230,7 @@ check-no-std:
     RUSTC_BOOTSTRAP:               "1"
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo check --verbose --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
+        cargo check --verbose --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 dylint:
@@ -440,17 +443,17 @@ examples-no-std-check:
         if [ "$example" = "examples/upgradeable-contracts/" ]; then continue; fi;
         if [ "$example" = "examples/lang-err-integration-tests/" ]; then continue; fi;
         pushd $example &&
-        cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" &&
+        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
     - pushd ./examples/delegator/ && ./build-all.sh && popd
     - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
+        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./examples/upgradeable-contracts/${contract}/Cargo.toml;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc" --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
+        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./examples/lang-err-integration-tests/${contract}/Cargo.toml;
       done
-    - cargo +stable check --no-default-features --target bpfel-unknown-none -Zbuild-std="core,alloc"  --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
+    - cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc"  --manifest-path ./examples/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
