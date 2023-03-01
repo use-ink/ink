@@ -84,7 +84,7 @@ mod test {
 
         main_contract.set_callee(address2);
 
-        assert_eq!(main_contract.get_callee(), address2);
+        assert_eq!(main_contract.get_callee(), Some(address2));
 
         println!(
             "main_contract.get_callee_address(): {:?}",

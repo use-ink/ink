@@ -27,7 +27,7 @@ mod main_contract {
         /// Stores a single `bool` value on the storage.
         value: u32,
 
-        callee: AccountId,
+        callee: Option<AccountId>,
     }
 
     #[derive(scale::Encode, scale::Decode, Debug, Ord, PartialOrd, Eq, PartialEq)]
@@ -56,11 +56,11 @@ mod main_contract {
 
         #[ink(message)]
         pub fn set_callee(&mut self, callee: AccountId) {
-            self.callee = callee;
+            self.callee = Some(callee);
         }
 
         #[ink(message)]
-        pub fn get_callee(&self) -> AccountId {
+        pub fn get_callee(&self) -> Option<AccountId> {
             self.callee
         }
 
@@ -78,7 +78,7 @@ mod main_contract {
             );
 
             build_call::<DefaultEnvironment>()
-                .call_type(Call::new().callee(self.callee))
+                .call_type(Call::new(self.callee.unwrap()))
                 .call_flags(CallFlags::default().set_allow_reentry(true))
                 .try_invoke()
                 .unwrap_or_else(|err| panic!("failed to call callee: {:?}", err))
