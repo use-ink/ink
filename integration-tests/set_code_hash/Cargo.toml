@@ -1,8 +1,8 @@
 [package]
 name = "incrementer"
 version = "4.0.1"
-edition = "2021"
 authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
 publish = false
 
 [dependencies]
