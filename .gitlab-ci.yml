@@ -219,7 +219,7 @@ check-wasm:
       done
 
 # We just check on a target which doesn't have std to make sure that we don't pull in std by accident
-check-nostd:
+check-no-std:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -427,7 +427,7 @@ examples-contract-build:
       done
     - cargo +stable contract build --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
-examples-nostd-check:
+examples-no-std-check:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
