@@ -14,9 +14,10 @@
 
 use ink_env::Environment;
 
-/// The macro allows the creation of a wrapper around the trait defined with
-/// [`crate::trait_definition`]. This wrapper can be used for interaction with
-/// the contract.
+/// Generates a wrapper which can be use for interaction with the contract.
+///
+/// This is done by creating a wrapper around the trait defined with the
+/// [`ink::trait_definition`](crate::trait_definition) macro.
 ///
 /// The macro returns the native Rust type that implements the corresponding trait,
 /// so it can be used in any Rust construction that expects types.
@@ -29,12 +30,13 @@ use ink_env::Environment;
 /// #[ink::contract]
 /// mod trait_caller {
 ///     use ink::contract_ref;
+///
 ///     #[ink::trait_definition]
 ///     pub trait Erc20 {
 ///        /// Returns the total supply of the ERC-20 smart contract.
 ///        #[ink(message)]
 ///        fn total_supply(&self) -> Balance;
-///  
+///
 ///        /// Transfers balance from the caller to the given address.
 ///        #[ink(message)]
 ///        fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;

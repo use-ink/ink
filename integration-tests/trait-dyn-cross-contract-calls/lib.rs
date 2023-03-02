@@ -75,11 +75,11 @@ mod e2e_tests {
             .expect("instantiate failed")
             .account_id;
 
-        // Check throw the caller that the value of the incrementer is zero
+        // Check through the caller that the value of the incrementer is zero
         let get = build_message::<CallerRef>(caller_account_id.clone())
             .call(|contract| contract.get());
         let value = client
-            .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &get, 0, None)
             .await
             .return_value();
         assert_eq!(value, 0);

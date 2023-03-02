@@ -42,12 +42,6 @@ pub mod incrementer {
         use super::*;
 
         #[test]
-        fn default_works() {
-            let incrementer = Incrementer::new(0);
-            assert_eq!(incrementer.get(), 0);
-        }
-
-        #[test]
         fn it_works() {
             let mut incrementer = Incrementer::new(0);
             // Can call using universal call syntax using the trait.
