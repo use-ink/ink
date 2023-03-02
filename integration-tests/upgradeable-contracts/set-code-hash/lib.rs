@@ -44,7 +44,7 @@ pub mod incrementer {
         /// We use this to upgrade the contract logic. We don't do any authorization here, any caller
         /// can execute this method. In a production contract you would do some authorization here.
         #[ink(message)]
-        pub fn set_code(&mut self, code_hash: [u8; 32]) {
+        pub fn set_code(&mut self, code_hash: Hash) {
             self.env().set_code_hash(&code_hash).unwrap_or_else(|err| {
                 panic!("Failed to `set_code_hash` to {code_hash:?} due to {err:?}")
             });
