@@ -166,9 +166,7 @@ mod call_builder {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(
-            additional_contracts = "../integration-flipper/Cargo.toml ../constructors-return-value/Cargo.toml"
-        )]
+        #[ink_e2e::test]
         async fn e2e_invalid_message_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -221,7 +219,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_invalid_message_selector_panics_on_invoke(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -258,7 +256,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_works_with_valid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -299,7 +297,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_fails_with_invalid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -340,7 +338,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -385,7 +383,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -426,7 +424,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -474,7 +472,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -519,7 +517,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
