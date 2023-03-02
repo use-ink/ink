@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::ir;
+use contract_build::ManifestPath;
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
@@ -78,16 +79,17 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
+        let contract_manifests = ContractManifests::from_crate_metadata();
+
         let contracts_to_build_and_import =
             if self.test.config.additional_contracts().is_empty() {
-                workspace_contract_manifests()
+                contract_manifests.all_contracts_to_build()
             } else {
                 // backwards compatibility if `additional_contracts` specified
                 let mut additional_contracts: Vec<String> =
                     self.test.config.additional_contracts();
-                let default_main_contract_manifest_path = String::from("Cargo.toml");
-                let mut contracts_to_build_and_import =
-                    vec![default_main_contract_manifest_path];
+                let mut contracts_to_build_and_import: Vec<String> =
+                    contract_manifests.root_package.iter().cloned().collect();
                 contracts_to_build_and_import.append(&mut additional_contracts);
                 contracts_to_build_and_import
             };
@@ -196,35 +198,59 @@ impl InkE2ETest {
     }
 }
 
-/// Returns a list of manifests of workspace members which are inferred to be `ink!` contracts.
-///
-/// It is assumed that an `ink!` contract will have the `ink-as-dependency` feature specified.
-fn workspace_contract_manifests() -> Vec<String> {
-    let cmd = cargo_metadata::MetadataCommand::new();
-    let metadata = cmd
-        .exec()
-        .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {:?}", err));
-    metadata
-        .workspace_members
-        .iter()
-        .filter_map(|workspace_member| {
-            let package = metadata
-                .packages
-                .iter()
-                .find(|package| &package.id == workspace_member)
-                .unwrap_or_else(|| {
-                    panic!(
-                        "Failed to find workspace member package '{}'",
-                        workspace_member
-                    )
-                });
+#[derive(Debug)]
+struct ContractManifests {
+    /// The manifest path of the root package where the e2e test is defined.
+    /// `None` if the root package is not an `ink!` contract definition.
+    root_package: Option<String>,
+    /// The manifest paths of any dependencies which are `ink!` contracts.
+    contract_dependencies: Vec<String>,
+}
+
+impl ContractManifests {
+    /// Load any manifests for packages which are detected to be `ink!` contracts. Any package
+    /// with the `ink-as-dependency` feature enabled is assumed to be an `ink!` contract.
+    fn from_crate_metadata() -> Self {
+        let manifest_path = ManifestPath::default();
+        let crate_metadata = contract_build::CrateMetadata::collect(&manifest_path)
+            .unwrap_or_else(|err| {
+                panic!(
+                    "Error loading crate metadata for '{}': {}",
+                    manifest_path.as_ref().display(),
+                    err
+                )
+            });
+
+        fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
             package
                 .features
                 .iter()
                 .any(|(feat, _)| feat == "ink-as-dependency")
                 .then(|| package.manifest_path.to_string())
-        })
-        .collect()
+        }
+
+        let root_package = maybe_contract_package(&crate_metadata.root_package);
+
+        let contract_dependencies = crate_metadata
+            .cargo_meta
+            .packages
+            .iter()
+            .filter_map(maybe_contract_package)
+            .collect();
+
+        Self {
+            root_package,
+            contract_dependencies,
+        }
+    }
+
+    /// Returns all the contract manifests which are to be built, including the root package
+    /// if it is determined to be an `ink!` contract.
+    fn all_contracts_to_build(&self) -> Vec<String> {
+        let mut all_manifests: Vec<String> = self.root_package.iter().cloned().collect();
+        all_manifests.append(&mut self.contract_dependencies.clone());
+        all_manifests
+    }
 }
 
 /// Builds the contract at `manifest_path`, returns the path to the contract
@@ -235,7 +261,6 @@ fn build_contract(path_to_cargo_toml: &str) -> String {
         BuildMode,
         ExecuteArgs,
         Features,
-        ManifestPath,
         Network,
         OptimizationPasses,
         OutputType,
