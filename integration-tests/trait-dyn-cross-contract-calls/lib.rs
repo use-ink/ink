@@ -1,27 +1,49 @@
+//! This crate contains the `Caller` contract with no functionality except forwarding
+//! all calls to the `trait_incrementer::Incrementer` contract.
+//!
+//! The `Caller` doesn't use the `trait_incrementer::IncrementerRef`. Instead,
+//! all interactions with the `Incrementer` is done through the wrapper from
+//! `ink::contract_ref!` and the trait `dyn_traits::Increment`.
 #![cfg_attr(not(feature = "std"), no_std)]
+#![allow(clippy::new_without_default)]
 
-/// We can't run E2E test without the contract. So add `Dummy` contract.
 #[ink::contract]
-pub mod dummy {
-    #[ink(storage)]
-    #[derive(Default)]
-    pub struct Dummy {}
+pub mod caller {
+    use dyn_traits::Increment;
 
-    impl Dummy {
-        /// Dummy constructor.
+    /// The caller of the incrementer smart contract.
+    #[ink(storage)]
+    pub struct Caller {
+        /// Here we accept a type which implements the `Incrementer` ink! trait.
+        incrementer: ink::contract_ref!(Increment),
+    }
+
+    impl Caller {
+        /// Creates a new caller smart contract around the `incrementer` account id.
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Default::default()
+        pub fn new(incrementer: AccountId) -> Self {
+            Self {
+                incrementer: incrementer.into(),
+            }
+        }
+    }
+
+    impl Increment for Caller {
+        #[ink(message)]
+        fn inc(&mut self) {
+            self.incrementer.inc()
         }
 
-        /// Dummy method.
         #[ink(message)]
-        pub fn workaround(&self) {}
+        fn get(&self) -> u64 {
+            self.incrementer.get()
+        }
     }
 }
 
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
+    use super::caller::CallerRef;
     use dyn_traits::Increment;
     use ink::{
         contract_ref,
@@ -29,13 +51,16 @@ mod e2e_tests {
     };
     use ink_e2e::build_message;
     use trait_incrementer::incrementer::IncrementerRef;
-    use trait_incrementer_caller::caller::CallerRef;
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-    #[ink_e2e::test(
-        additional_contracts = "contracts/incrementer/Cargo.toml contracts/incrementer-caller/Cargo.toml"
-    )]
+    /// A test deploys and instantiates the `trait_incrementer::Incrementer` and
+    /// `trait_incrementer_caller::Caller` contracts, where the `Caller` uses the account id
+    /// of the `Incrementer` for instantiation.
+    ///
+    /// The test verifies that we can increment the value of the `Incrementer` contract
+    /// through the `Caller` contract.
+    #[ink_e2e::test(additional_contracts = "contracts/incrementer/Cargo.toml")]
     async fn e2e_cross_contract_calls(
         mut client: ink_e2e::Client<C, E>,
     ) -> E2EResult<()> {
@@ -51,9 +76,7 @@ mod e2e_tests {
             .expect("uploading `trait-incrementer-caller` failed")
             .code_hash;
 
-        let constructor = IncrementerRef::new(
-            0, // initial value
-        );
+        let constructor = IncrementerRef::new();
 
         let incrementer_account_id = client
             .instantiate("trait-incrementer", &ink_e2e::alice(), constructor, 0, None)
@@ -88,7 +111,7 @@ mod e2e_tests {
         let inc = build_message::<CallerRef>(caller_account_id.clone())
             .call(|contract| contract.inc());
         let _ = client
-            .call(&ink_e2e::bob(), inc, 0, None)
+            .call(&ink_e2e::alice(), inc, 0, None)
             .await
             .expect("calling `inc` failed");
 
@@ -100,7 +123,7 @@ mod e2e_tests {
         )
         .call(|contract| contract.get());
         let value = client
-            .call_dry_run(&ink_e2e::bob(), &get, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &get, 0, None)
             .await
             .return_value();
         assert_eq!(value, 1);

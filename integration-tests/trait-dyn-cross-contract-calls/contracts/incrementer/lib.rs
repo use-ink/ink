@@ -14,8 +14,10 @@ pub mod incrementer {
     impl Incrementer {
         /// Creates a new incrementer smart contract initialized with zero.
         #[ink(constructor)]
-        pub fn new(init_value: u64) -> Self {
-            Self { value: init_value }
+        pub fn new() -> Self {
+            Self {
+                value: u64::default(),
+            }
         }
 
         /// Increases the value of the incrementer by an amount.
@@ -43,7 +45,7 @@ pub mod incrementer {
 
         #[test]
         fn it_works() {
-            let mut incrementer = Incrementer::new(0);
+            let mut incrementer = Incrementer::new();
             // Can call using universal call syntax using the trait.
             assert_eq!(<Incrementer as Increment>::get(&incrementer), 0);
             <Incrementer as Increment>::inc(&mut incrementer);
