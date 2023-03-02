@@ -200,7 +200,7 @@ impl InkE2ETest {
 
 #[derive(Debug)]
 struct ContractManifests {
-    /// The manifest path of the root package where the e2e test is defined.
+    /// The manifest path of the root package where the E2E test is defined.
     /// `None` if the root package is not an `ink!` contract definition.
     root_package: Option<String>,
     /// The manifest paths of any dependencies which are `ink!` contracts.
