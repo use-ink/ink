@@ -110,7 +110,7 @@ impl InkE2ETest {
             // `additional_contracts` for this particular test contain ones
             // that haven't been build before
             for manifest_path in contracts_to_build_and_import {
-                if already_built_contracts.get("Cargo.toml").is_none() {
+                if already_built_contracts.get(&manifest_path).is_none() {
                     let dest_wasm = build_contract(&manifest_path);
                     let _ = already_built_contracts.insert(manifest_path, dest_wasm);
                 }
