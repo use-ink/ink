@@ -211,6 +211,8 @@ impl ContractManifests {
     /// Load any manifests for packages which are detected to be `ink!` contracts. Any package
     /// with the `ink-as-dependency` feature enabled is assumed to be an `ink!` contract.
     fn from_crate_metadata() -> Self {
+        // The default manifest path is the `Cargo.toml` in the current directory.
+        // So in this case the package within which the E2E test is defined.
         let manifest_path = ManifestPath::default();
         let crate_metadata = contract_build::CrateMetadata::collect(&manifest_path)
             .unwrap_or_else(|err| {
