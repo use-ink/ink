@@ -41,7 +41,3 @@ e2e-tests = []
 # Assumes that the node used in E2E testing allows using the `call-runtime` API, including triggering
 # `Balances::transfer` extrinsic.
 permissive-node = []
-
-[profile.release]
-opt-level = 's'
-lto = true
