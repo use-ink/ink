@@ -86,6 +86,18 @@ pub mod incrementer {
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_res.return_value(), 0));
 
+            let inc = build_message::<IncrementerRef>(contract_acc_id.clone())
+                .call(|incrementer| incrementer.inc());
+            let _inc_result = client
+                .call(&ink_e2e::alice(), inc, 0, None)
+                .await
+                .expect("`inc` failed");
+
+            let get = build_message::<IncrementerRef>(contract_acc_id.clone())
+                .call(|incrementer| incrementer.get());
+            let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
+            assert!(matches!(get_res.return_value(), 1));
+
             // When
             let new_code_hash = client
                 .upload("updated_incrementer", &ink_e2e::alice(), None)
@@ -118,7 +130,7 @@ pub mod incrementer {
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
 
             // Remember, we updated our incrementer contract to increment by `4`.
-            assert!(matches!(get_res.return_value(), 4));
+            assert!(matches!(get_res.return_value(), 5));
 
             Ok(())
         }
