@@ -37,3 +37,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+
+[profile.release]
+opt-level = 's'
