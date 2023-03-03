@@ -698,9 +698,7 @@ where
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.set_code_hash(code_hash.as_ref())
-    })
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
