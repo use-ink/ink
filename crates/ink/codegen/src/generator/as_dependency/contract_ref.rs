@@ -168,6 +168,18 @@ impl ContractRef<'_> {
                         as ::ink::ToAccountId<Environment>>::to_account_id(&self.inner)
                 }
             }
+
+            impl ::core::convert::AsRef<AccountId> for #ref_ident {
+                fn as_ref(&self) -> &AccountId {
+                    <_ as ::core::convert::AsRef<AccountId>>::as_ref(&self.inner)
+                }
+            }
+
+            impl ::core::convert::AsMut<AccountId> for #ref_ident {
+                fn as_mut(&mut self) -> &mut AccountId {
+                    <_ as ::core::convert::AsMut<AccountId>>::as_mut(&mut self.inner)
+                }
+            }
         )
     }
 

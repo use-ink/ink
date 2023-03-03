@@ -1,11 +1,9 @@
 [package]
-name = "updated-incrementer"
-version = "4.0.1"
-edition = "2021"
+name = "trait-incrementer"
+version = "4.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2021"
 publish = false
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 ink = { path = "../../../../crates/ink", default-features = false }
@@ -13,10 +11,10 @@ ink = { path = "../../../../crates/ink", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
+dyn-traits = { path = "../../traits", default-features = false }
+
 [lib]
-name = "updated_incrementer"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
@@ -24,5 +22,6 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
+    "dyn-traits/std",
 ]
 ink-as-dependency = []

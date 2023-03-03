@@ -44,6 +44,8 @@ pub mod state {
 ///
 /// This is needed because of conflicting implementations of `From<T> for T`
 /// in the generated code of `ink`.
+///
+/// But it is possible to use `From<AccountId> for T` with [`crate::AccountIdGuard`] bound.
 pub trait FromAccountId<T>
 where
     T: Environment,
