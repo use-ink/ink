@@ -163,6 +163,7 @@ impl CallForwarder<'_> {
         let span = self.span();
         let call_forwarder_ident = self.ident();
         quote_spanned!(span=>
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::core::clone::Clone for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
@@ -177,6 +178,7 @@ impl CallForwarder<'_> {
                 }
             }
 
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::core::fmt::Debug for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
@@ -186,6 +188,24 @@ impl CallForwarder<'_> {
                     f.debug_struct(::core::stringify!(#call_forwarder_ident))
                         .field("account_id", &self.builder.account_id)
                         .finish()
+                }
+            }
+
+            #[cfg(feature = "std")]
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
+            impl<E> ::scale_info::TypeInfo for #call_forwarder_ident<E>
+            where
+                E: ::ink::env::Environment,
+                <E as ::ink::env::Environment>::AccountId: ::scale_info::TypeInfo + 'static,
+            {
+                type Identity = <
+                    <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::scale_info::TypeInfo
+                >::Identity;
+
+                fn type_info() -> ::scale_info::Type {
+                    <
+                        <Self as ::ink::codegen::TraitCallBuilder>::Builder as ::scale_info::TypeInfo
+                    >::type_info()
                 }
             }
         )
@@ -213,6 +233,16 @@ impl CallForwarder<'_> {
                 }
             }
 
+            impl<E, AccountId> ::core::convert::From<AccountId> for #call_forwarder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+                AccountId: ::ink::env::AccountIdGuard,
+            {
+                fn from(value: AccountId) -> Self {
+                    <Self as ::ink::env::call::FromAccountId<E>>::from_account_id(value)
+                }
+            }
+
             impl<E> ::ink::ToAccountId<E> for #call_forwarder_ident<E>
             where
                 E: ::ink::env::Environment,
@@ -221,6 +251,24 @@ impl CallForwarder<'_> {
                 fn to_account_id(&self) -> <E as ::ink::env::Environment>::AccountId {
                     <<Self as ::ink::codegen::TraitCallBuilder>::Builder
                         as ::ink::ToAccountId<E>>::to_account_id(&self.builder)
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::AsRef<AccountId> for #call_forwarder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                fn as_ref(&self) -> &AccountId {
+                    <_ as ::core::convert::AsRef<AccountId>>::as_ref(&self.builder)
+                }
+            }
+
+            impl<E, AccountId> ::core::convert::AsMut<AccountId> for #call_forwarder_ident<E>
+            where
+                E: ::ink::env::Environment<AccountId = AccountId>,
+            {
+                fn as_mut(&mut self) -> &mut AccountId {
+                    <_ as ::core::convert::AsMut<AccountId>>::as_mut(&mut self.builder)
                 }
             }
         )
