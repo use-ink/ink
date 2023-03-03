@@ -96,11 +96,13 @@ impl FromLittleEndian for u128 {
 
 /// A trait to enforce that a type should be an [`Environment::AccountId`].
 ///
-/// If someone wants to use another type than [`AccountId`] in the [`Environment::AccountId`],
-/// he should implement this trait for the corresponding type.
+/// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other than the ink!
+/// provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// you will need to implement this trait for your [`Environment::AccountId`] concrete type.
 pub trait AccountIdGuard {}
 
-/// The [`AccountId`] is used in the [`DefaultEnvironment::AccountId`].
+/// The ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
 
 /// The environmental types usable by contracts defined with ink!.
