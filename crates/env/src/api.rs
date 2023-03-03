@@ -697,10 +697,7 @@ where
 /// Please refer to the
 /// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
 /// for more details and examples.
-pub fn set_code_hash<E>(code_hash: &E::Hash) -> Result<()>
-where
-    E: Environment,
-{
+pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.set_code_hash(code_hash.as_ref())
     })
