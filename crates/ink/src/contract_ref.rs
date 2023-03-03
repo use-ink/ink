@@ -14,17 +14,17 @@
 
 use ink_env::Environment;
 
-/// Generates a wrapper which can be use for interaction with the contract.
+/// Generates a wrapper which can be used for interacting with the contract.
 ///
 /// This is done by creating a wrapper around the trait defined with the
 /// [`ink::trait_definition`](crate::trait_definition) macro.
 ///
 /// The macro returns the native Rust type that implements the corresponding trait,
-/// so it can be used in any Rust construction that expects types.
+/// so it can be used in any Rust context that expects types.
 ///
 /// # Usage in the `#[ink::contract]` context
 ///
-/// A macro expects the one argument - the path to the trait to create a wrapper around it.
+/// The macro expects one argument ‒ the path to the trait, in order to create a wrapper around it.
 ///
 /// ```rust
 /// #[ink::contract]
@@ -49,26 +49,26 @@ use ink_env::Environment;
 ///     }
 ///
 ///     impl Caller {
-///         /// The example of `contract_ref!` as an argument type.
+///         /// Example of `contract_ref!` as an argument type.
 ///         #[ink(constructor)]
 ///         pub fn new(erc20: contract_ref!(Erc20)) -> Self {
 ///             Self { erc20 }
 ///         }
 ///
-///         /// The example of converting `AccountId` into `contract_ref!` implicitly.
+///         /// Example of converting `AccountId` into `contract_ref!` implicitly.
 ///         #[ink(message)]
 ///         pub fn change_account_id_1(&mut self, new_erc20: AccountId) {
 ///             self.erc20 = new_erc20.into();
 ///         }
 ///
-///         /// The example of converting `AccountId` into `contract_ref!` explicitly.
+///         /// Example of converting `AccountId` into `contract_ref!` explicitly.
 ///         #[ink(message)]
 ///         pub fn change_account_id_2(&mut self, new_erc20: AccountId) {
 ///             let erc20: contract_ref!(Erc20) = new_erc20.into();
 ///             self.erc20 = erc20;
 ///         }
 ///
-///         /// The example of converting `AccountId` into an alias from `contract_ref!`.
+///         /// Example of converting `AccountId` into an alias from `contract_ref!`.
 ///         #[ink(message)]
 ///         pub fn change_account_id_3(&mut self, new_erc20: AccountId) {
 ///             type Erc20Wrapper = contract_ref!(Erc20);
@@ -76,19 +76,19 @@ use ink_env::Environment;
 ///             self.erc20 = erc20;
 ///         }
 ///
-///         /// The example of how to do common calls via fully qualified syntax.
+///         /// Example of how to do common calls via fully qualified syntax.
 ///         #[ink(message)]
 ///         pub fn total_supply_1(&self) -> Balance {
 ///             Erc20::total_supply(&self.erc20)
 ///         }
 ///
-///         /// The example of how to do common calls without fully qualified syntax.
+///         /// Example of how to do common calls without fully qualified syntax.
 ///         #[ink(message)]
 ///         pub fn total_supply_2(&self) -> Balance {
 ///             self.erc20.total_supply()
 ///         }
 ///
-///         /// The example of how to use the call builder with `contract_ref!`.
+///         /// Example of how to use the call builder with `contract_ref!`.
 ///         #[ink(message)]
 ///         pub fn total_supply_3(&self) -> Balance {
 ///             use ink::codegen::TraitCallBuilder;
@@ -97,7 +97,8 @@ use ink_env::Environment;
 ///             erc20_builder.total_supply().transferred_value(0).invoke()
 ///         }
 ///
-///         /// The example of how to do common calls and convert the `contract_ref!` into `AccountId`.
+///         /// Example of how to do common calls and convert
+///         /// the `contract_ref!` into `AccountId`.
 ///         #[ink(message)]
 ///         pub fn transfer_to_erc20(&mut self, amount: Balance) -> bool {
 ///             let erc20_as_account_id = self.erc20.as_ref().clone();
@@ -110,7 +111,7 @@ use ink_env::Environment;
 /// # Usage outside of the `#[ink::contract]` context
 ///
 /// The macro expects two arguments:
-/// - The first argument is the path to the trait, like `Erc20` or `erc20::Erc20`.
+/// - The first argument is the path to the trait, e.g. `Erc20` or `erc20::Erc20`.
 /// - The second argument is the type of the [`ink_env::Environment`].
 ///
 /// If the second argument is not specified, the macro uses the `Environment` type alias.
