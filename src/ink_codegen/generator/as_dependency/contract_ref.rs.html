@@ -466,6 +466,18 @@
 <a href="#465" id="465">465</a>
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -636,6 +648,18 @@
                 </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AccountId {
                     &lt;&lt;#storage_ident <span class="kw">as </span>::ink::codegen::ContractCallBuilder&gt;::Type
                         <span class="kw">as </span>::ink::ToAccountId&lt;Environment&gt;&gt;::to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>.inner)
+                }
+            }
+
+            <span class="kw">impl </span>::core::convert::AsRef&lt;AccountId&gt; <span class="kw">for </span>#ref_ident {
+                <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AccountId {
+                    &lt;<span class="kw">_ as </span>::core::convert::AsRef&lt;AccountId&gt;&gt;::as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.inner)
+                }
+            }
+
+            <span class="kw">impl </span>::core::convert::AsMut&lt;AccountId&gt; <span class="kw">for </span>#ref_ident {
+                <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>AccountId {
+                    &lt;<span class="kw">_ as </span>::core::convert::AsMut&lt;AccountId&gt;&gt;::as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>.inner)
                 }
             }
         )

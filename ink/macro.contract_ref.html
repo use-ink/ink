@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Generates a wrapper which can be used for interacting with the contract."><meta name="keywords" content="rust, rustlang, rust-lang, contract_ref"><title>contract_ref in ink - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="icon" href="https://use.ink/crate-docs/favicon.png"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container"><img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../ink/index.html"><div class="logo-container">
+                    <img src="https://use.ink/img/crate-docs/logo.png" alt="logo"></div></a><div class="sidebar-elems"><h2><a href="index.html">In ink</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Macro <a href="index.html">ink</a>::<wbr><a class="macro" href="#">contract_ref</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/ink/contract_ref.rs.html#198-208">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><div class="example-wrap"><pre class="rust macro"><code><span class="macro">macro_rules! </span>contract_ref {
+    ( <span class="macro-nonterminal">$trait_path</span>:path ) =&gt; { ... };
+    ( <span class="macro-nonterminal">$trait_path</span>:path, <span class="macro-nonterminal">$env</span>:ty ) =&gt; { ... };
+}</code></pre></div>
+</div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Generates a wrapper which can be used for interacting with the contract.</p>
+<p>This is done by creating a wrapper around the trait defined with the
+<a href="attr.trait_definition.html"><code>ink::trait_definition</code></a> macro.</p>
+<p>The macro returns the native Rust type that implements the corresponding trait,
+so it can be used in any Rust context that expects types.</p>
+<h2 id="usage-in-the-inkcontract-context"><a href="#usage-in-the-inkcontract-context">Usage in the <code>#[ink::contract]</code> context</a></h2>
+<p>The macro expects one argument ‒ the path to the trait, in order to create a wrapper around it.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract]
+</span><span class="kw">mod </span>trait_caller {
+    <span class="kw">use </span>ink::contract_ref;
+
+    <span class="attr">#[ink::trait_definition]
+    </span><span class="kw">pub trait </span>Erc20 {
+       <span class="doccomment">/// Returns the total supply of the ERC-20 smart contract.
+       </span><span class="attr">#[ink(message)]
+       </span><span class="kw">fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Balance;
+
+       <span class="doccomment">/// Transfers balance from the caller to the given address.
+       </span><span class="attr">#[ink(message)]
+       </span><span class="kw">fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: Balance, to: AccountId) -&gt; bool;
+    }
+
+    <span class="attr">#[ink(storage)]
+    </span><span class="kw">pub struct </span>Caller {
+        <span class="doccomment">/// The example of `contract_ref!` as a struct type.
+        </span>erc20: <span class="macro">contract_ref!</span>(Erc20),
+    }
+
+    <span class="kw">impl </span>Caller {
+        <span class="doccomment">/// Example of `contract_ref!` as an argument type.
+        </span><span class="attr">#[ink(constructor)]
+        </span><span class="kw">pub fn </span>new(erc20: <span class="macro">contract_ref!</span>(Erc20)) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{ erc20 }
+        }
+
+        <span class="doccomment">/// Example of converting `AccountId` into `contract_ref!` implicitly.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>change_account_id_1(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_erc20: AccountId) {
+            <span class="self">self</span>.erc20 = new_erc20.into();
+        }
+
+        <span class="doccomment">/// Example of converting `AccountId` into `contract_ref!` explicitly.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>change_account_id_2(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_erc20: AccountId) {
+            <span class="kw">let </span>erc20: <span class="macro">contract_ref!</span>(Erc20) = new_erc20.into();
+            <span class="self">self</span>.erc20 = erc20;
+        }
+
+        <span class="doccomment">/// Example of converting `AccountId` into an alias from `contract_ref!`.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>change_account_id_3(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_erc20: AccountId) {
+            <span class="kw">type </span>Erc20Wrapper = <span class="macro">contract_ref!</span>(Erc20);
+            <span class="kw">let </span>erc20: Erc20Wrapper = new_erc20.into();
+            <span class="self">self</span>.erc20 = erc20;
+        }
+
+        <span class="doccomment">/// Example of how to do common calls via fully qualified syntax.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>total_supply_1(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Balance {
+            Erc20::total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>.erc20)
+        }
+
+        <span class="doccomment">/// Example of how to do common calls without fully qualified syntax.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>total_supply_2(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Balance {
+            <span class="self">self</span>.erc20.total_supply()
+        }
+
+        <span class="doccomment">/// Example of how to use the call builder with `contract_ref!`.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>total_supply_3(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Balance {
+            <span class="kw">use </span>ink::codegen::TraitCallBuilder;
+            <span class="comment">// Returns the `CallBuilder` that implements `Erc20` trait.
+            </span><span class="kw">let </span>erc20_builder = <span class="self">self</span>.erc20.call();
+            erc20_builder.total_supply().transferred_value(<span class="number">0</span>).invoke()
+        }
+
+        <span class="doccomment">/// Example of how to do common calls and convert
+        /// the `contract_ref!` into `AccountId`.
+        </span><span class="attr">#[ink(message)]
+        </span><span class="kw">pub fn </span>transfer_to_erc20(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: Balance) -&gt; bool {
+            <span class="kw">let </span>erc20_as_account_id = <span class="self">self</span>.erc20.as_ref().clone();
+            <span class="self">self</span>.erc20.transfer(amount, erc20_as_account_id)
+        }
+    }
+}</code></pre></div>
+<h2 id="usage-outside-of-the-inkcontract-context"><a href="#usage-outside-of-the-inkcontract-context">Usage outside of the <code>#[ink::contract]</code> context</a></h2>
+<p>The macro expects two arguments:</p>
+<ul>
+<li>The first argument is the path to the trait, e.g. <code>Erc20</code> or <code>erc20::Erc20</code>.</li>
+<li>The second argument is the type of the <a href="../ink_env/types/trait.Environment.html" title="ink_env::Environment"><code>ink_env::Environment</code></a>.</li>
+</ul>
+<p>If the second argument is not specified, the macro uses the <code>Environment</code> type alias.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ink::contract_ref;
+<span class="kw">use </span>ink_env::DefaultEnvironment;
+<span class="kw">use </span>ink_primitives::AccountId;
+
+<span class="attr">#[ink::trait_definition]
+</span><span class="kw">pub trait </span>Erc20 {
+    <span class="doccomment">/// Returns the total supply of the ERC-20 smart contract.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>total_supply(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u128;
+
+    <span class="doccomment">/// Transfers balance from the caller to the given address.
+    </span><span class="attr">#[ink(message)]
+    </span><span class="kw">fn </span>transfer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amount: u128, to: AccountId) -&gt; bool;
+}
+
+<span class="kw">pub struct </span>CustomEnv;
+
+<span class="kw">impl </span>ink_env::Environment <span class="kw">for </span>CustomEnv {
+    <span class="kw">const </span>MAX_EVENT_TOPICS: usize = <span class="number">3</span>;
+    <span class="kw">type </span>AccountId = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Balance = u64;
+    <span class="kw">type </span>Hash = [u8; <span class="number">32</span>];
+    <span class="kw">type </span>Timestamp = u64;
+    <span class="kw">type </span>BlockNumber = u64;
+    <span class="kw">type </span>ChainExtension = ();
+}
+
+<span class="kw">type </span>AliasWithDefaultEnv = <span class="macro">contract_ref!</span>(Erc20, DefaultEnvironment);
+<span class="kw">type </span>AliasWithCustomEnv = <span class="macro">contract_ref!</span>(Erc20, CustomEnv);
+<span class="kw">type </span>AliasWithGenericEnv&lt;E&gt; = <span class="macro">contract_ref!</span>(Erc20, E);
+
+<span class="kw">fn </span>default(<span class="kw-2">mut </span>contract: <span class="macro">contract_ref!</span>(Erc20, DefaultEnvironment)) {
+    <span class="kw">let </span>total_supply = contract.total_supply();
+    <span class="kw">let </span>to: AccountId = contract.as_ref().clone();
+    contract.transfer(total_supply, to);
+}
+
+<span class="kw">fn </span>default_alias(<span class="kw-2">mut </span>contract: AliasWithDefaultEnv) {
+    default(contract)
+}
+
+<span class="kw">fn </span>custom(<span class="kw-2">mut </span>contract: <span class="macro">contract_ref!</span>(Erc20, CustomEnv)) {
+    <span class="kw">let </span>total_supply = contract.total_supply();
+    <span class="kw">let </span>to: [u8; <span class="number">32</span>] = contract.as_ref().clone();
+    contract.transfer(total_supply, to.into());
+}
+
+<span class="kw">fn </span>custom_alias(<span class="kw-2">mut </span>contract: AliasWithCustomEnv) {
+    custom(contract)
+}
+
+<span class="kw">fn </span>generic&lt;E, A&gt;(<span class="kw-2">mut </span>contract: <span class="macro">contract_ref!</span>(Erc20, E))
+<span class="kw">where
+    </span>E: ink_env::Environment&lt;AccountId = A&gt;,
+    A: Into&lt;AccountId&gt; + Clone,
+{
+    <span class="kw">let </span>total_supply = contract.total_supply();
+    <span class="kw">let </span>to = contract.as_ref().clone();
+    contract.transfer(total_supply, to.into());
+}
+
+<span class="kw">fn </span>generic_alias&lt;E, A&gt;(<span class="kw-2">mut </span>contract: AliasWithGenericEnv&lt;E&gt;)
+<span class="kw">where
+    </span>E: ink_env::Environment&lt;AccountId = A&gt;,
+    A: Into&lt;AccountId&gt; + Clone,
+{
+    generic(contract)
+}
+
+<span class="kw">type </span>Environment = DefaultEnvironment;
+
+<span class="kw">fn </span>contract_ref_default_behaviour(<span class="kw-2">mut </span>contract: <span class="macro">contract_ref!</span>(Erc20)) {
+    <span class="kw">let </span>total_supply = contract.total_supply();
+    <span class="kw">let </span>to: AccountId = contract.as_ref().clone();
+    contract.transfer(total_supply, to);
+}</code></pre></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="ink" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

@@ -334,6 +334,48 @@
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -531,6 +573,20 @@
                         .finish()
                 }
             }
+
+            <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+            </span><span class="doccomment">/// We require this manual implementation since the derive produces incorrect trait bounds.
+            </span><span class="kw">impl</span>&lt;E&gt; ::scale_info::TypeInfo <span class="kw">for </span>#call_builder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment,
+                &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId: ::scale_info::TypeInfo + <span class="lifetime">&#39;static</span>,
+            {
+                <span class="kw">type </span>Identity = &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId;
+
+                <span class="kw">fn </span>type_info() -&gt; ::scale_info::Type {
+                    &lt;&lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId <span class="kw">as </span>::scale_info::TypeInfo&gt;::type_info()
+                }
+            }
         )
     }
 
@@ -555,6 +611,16 @@
                 }
             }
 
+            <span class="kw">impl</span>&lt;E, AccountId&gt; ::core::convert::From&lt;AccountId&gt; <span class="kw">for </span>#call_builder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment&lt;AccountId = AccountId&gt;,
+                AccountId: ::ink::env::AccountIdGuard,
+            {
+                <span class="kw">fn </span>from(value: AccountId) -&gt; <span class="self">Self </span>{
+                    &lt;<span class="self">Self </span><span class="kw">as </span>::ink::env::call::FromAccountId&lt;E&gt;&gt;::from_account_id(value)
+                }
+            }
+
             <span class="kw">impl</span>&lt;E&gt; ::ink::ToAccountId&lt;E&gt; <span class="kw">for </span>#call_builder_ident&lt;E&gt;
             <span class="kw">where
                 </span>E: ::ink::env::Environment,
@@ -562,6 +628,24 @@
                 <span class="attr">#[inline]
                 </span><span class="kw">fn </span>to_account_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId {
                     &lt;&lt;E <span class="kw">as </span>::ink::env::Environment&gt;::AccountId <span class="kw">as </span>::core::clone::Clone&gt;::clone(<span class="kw-2">&amp;</span><span class="self">self</span>.account_id)
+                }
+            }
+
+            <span class="kw">impl</span>&lt;E, AccountId&gt; ::core::convert::AsRef&lt;AccountId&gt; <span class="kw">for </span>#call_builder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment&lt;AccountId = AccountId&gt;,
+            {
+                <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>AccountId {
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.account_id
+                }
+            }
+
+            <span class="kw">impl</span>&lt;E, AccountId&gt; ::core::convert::AsMut&lt;AccountId&gt; <span class="kw">for </span>#call_builder_ident&lt;E&gt;
+            <span class="kw">where
+                </span>E: ::ink::env::Environment&lt;AccountId = AccountId&gt;,
+            {
+                <span class="kw">fn </span>as_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>AccountId {
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.account_id
                 }
             }
         )

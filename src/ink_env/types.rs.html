@@ -193,6 +193,17 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -288,6 +299,17 @@
         u128::from_le_bytes(bytes)
     }
 }
+
+<span class="doccomment">/// A trait to enforce that a type should be an [`Environment::AccountId`].
+///
+/// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other than the ink!
+/// provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// you will need to implement this trait for your [`Environment::AccountId`] concrete type.
+</span><span class="kw">pub trait </span>AccountIdGuard {}
+
+<span class="doccomment">/// The ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// used in the [`DefaultEnvironment`].
+</span><span class="kw">impl </span>AccountIdGuard <span class="kw">for </span>AccountId {}
 
 <span class="doccomment">/// The environmental types usable by contracts defined with ink!.
 </span><span class="kw">pub trait </span>Environment {

@@ -753,6 +753,8 @@
 <a href="#752" id="752">752</a>
 <a href="#753" id="753">753</a>
 <a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -799,6 +801,8 @@
 ///
 /// This is needed because of conflicting implementations of `From&lt;T&gt; for T`
 /// in the generated code of `ink`.
+///
+/// But it is possible to use `From&lt;AccountId&gt; for T` with [`crate::AccountIdGuard`] bound.
 </span><span class="kw">pub trait </span>FromAccountId&lt;T&gt;
 <span class="kw">where
     </span>T: Environment,
