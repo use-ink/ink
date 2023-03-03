@@ -701,6 +701,106 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
+/// **New version of this function which will replace [`set_code_hash`] in `v5.0`**
+///
+/// Replace the contract code at the specified address with new code.
+///
+/// # Note
+///
+/// There are a couple of important considerations which must be taken into account when
+/// using this API:
+///
+/// 1. The storage at the code hash will remain untouched. This means that contract developers
+/// must ensure that the storage layout of the new code is compatible with that of the old code.
+///
+/// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
+/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+///
+/// 3. If a contract calls into itself after changing its code the new call would use
+/// the new code. However, if the original caller panics after returning from the sub call it
+/// would revert the changes made by `set_code_hash` and the next caller would use
+/// the old code.
+///
+/// # Errors
+///
+/// `ReturnCode::CodeNotFound` in case the supplied `code_hash` cannot be found on-chain.
+///
+/// # Storage Compatibility
+///
+/// When the smart contract code is modified,
+/// it is important to observe an additional virtual restriction
+/// that is imposed on this procedure:
+/// you should not change the order in which the contract state variables
+/// are declared, nor their type.
+///
+/// Violating the restriction will not prevent a successful compilation,
+/// but will result in the mix-up of values or failure to read the storage correctly.
+/// This can result in severe errors in the application utilizing the contract.
+///
+/// If the storage of your contract looks like this:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// The procedures listed below will make it invalid:
+///
+/// Changing the order of variables:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     y: bool,
+///     x: u32,
+/// }
+/// ```
+///
+/// Removing existing variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u32,
+/// }
+/// ```
+///
+/// Changing type of a variable:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     x: u64,
+///     y: bool,
+/// }
+/// ```
+///
+/// Introducing a new variable before any of the existing ones:
+///
+/// ```ignore
+/// #[ink(storage)]
+/// pub struct YourContract {
+///     z: Vec<u32>,
+///     x: u32,
+///     y: bool,
+/// }
+/// ```
+///
+/// Please refer to the
+/// [Open Zeppelin docs](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#modifying-your-contracts)
+/// for more details and examples.
+pub fn set_code_hash2<E>(code_hash: &E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.set_code_hash(code_hash.as_ref())
+    })
+}
+
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
 ///
 /// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.

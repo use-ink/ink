@@ -997,11 +997,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::set_code_hash`]
-    pub fn set_code_hash(self, code_hash: &E::Hash) -> Result<()>
-    where
-        E::Hash: AsRef<[u8; 32]>,
-    {
-        ink_env::set_code_hash(code_hash.as_ref())
+    pub fn set_code_hash(self, code_hash: &E::Hash) -> Result<()> {
+        ink_env::set_code_hash2::<E>(code_hash)
     }
 
     #[cfg(feature = "call-runtime")]

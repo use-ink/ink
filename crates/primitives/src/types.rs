@@ -108,12 +108,6 @@ impl AsRef<[u8]> for Hash {
     }
 }
 
-impl AsRef<[u8; 32]> for Hash {
-    fn as_ref(&self) -> &[u8; 32] {
-        &self.0
-    }
-}
-
 impl AsMut<[u8]> for Hash {
     fn as_mut(&mut self) -> &mut [u8] {
         &mut self.0[..]
