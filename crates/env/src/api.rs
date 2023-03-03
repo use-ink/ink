@@ -612,14 +612,17 @@ where
 ///
 /// # Note
 ///
-/// There are a couple of important considerations which must be taken into account when
+/// There are a few important considerations which must be taken into account when
 /// using this API:
 ///
 /// 1. The storage at the code hash will remain untouched. This means that contract developers
 /// must ensure that the storage layout of the new code is compatible with that of the old code.
 ///
-/// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
-/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+/// 2. Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++ salt)`.
+/// This makes it possible to determine a contracts address using the `code_hash` of the *initial*
+/// code used to instantiate the contract. However, because `set_code_hash` can modify the
+/// underlying `code_hash` of a contract, it should not be relied upon that a contracts address can
+/// always be derived from its stored `code_hash`.
 ///
 /// 3. If a contract calls into itself after changing its code the new call would use
 /// the new code. However, if the original caller panics after returning from the sub call it
