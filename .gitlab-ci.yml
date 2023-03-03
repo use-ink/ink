@@ -430,12 +430,11 @@ examples-contract-build:
       done
     - cargo +stable contract build --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
+# we only check a few basic contracts here. no need to check them all.
 examples-no-std-check:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
-  variables:
-    RUSTC_BOOTSTRAP:               "1"
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
@@ -446,14 +445,6 @@ examples-no-std-check:
         cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
-    - pushd ./integration-tests/delegator/ && ./build-all.sh && popd
-    - for contract in ${UPGRADEABLE_CONTRACTS}; do
-        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./integration-tests/upgradeable-contracts/${contract}/Cargo.toml;
-      done
-    - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
-        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
-      done
-    - cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc"  --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
 examples-docs:
   stage:                           examples
