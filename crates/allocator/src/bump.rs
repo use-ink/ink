@@ -29,7 +29,7 @@ use core::alloc::{
 /// A page in Wasm is `64KiB`
 const PAGE_SIZE: usize = 64 * 1024;
 
-static mut INNER: InnerAlloc = InnerAlloc::new();
+static mut INNER: Option<InnerAlloc> = None;
 
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
@@ -37,7 +37,14 @@ pub struct BumpAllocator;
 unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        match INNER.alloc(layout) {
+        if INNER.is_none() {
+            INNER = Some(InnerAlloc::new());
+        };
+        match INNER
+            .as_mut()
+            .expect("We just set the value above; qed")
+            .alloc(layout)
+        {
             Some(start) => start as *mut u8,
             None => core::ptr::null_mut(),
         }
@@ -66,10 +73,10 @@ struct InnerAlloc {
 }
 
 impl InnerAlloc {
-    const fn new() -> Self {
+    fn new() -> Self {
         Self {
-            next: 0,
-            upper_limit: 0,
+            next: Self::heap_start(),
+            upper_limit: Self::heap_end(),
         }
     }
 
@@ -84,12 +91,24 @@ impl InnerAlloc {
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 Some(self.upper_limit)
             }
+            fn heap_start() -> usize {
+                0
+            }
+            fn heap_end() -> usize {
+                0
+            }
         } else if #[cfg(feature = "std")] {
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 unreachable!(
                     "This branch is only used to keep the compiler happy when building tests, and
                      should never actually be called outside of a test run."
                 )
+            }
+            fn heap_start() -> usize {
+                unreachable!()
+            }
+            fn heap_end() -> usize {
+                unreachable!()
             }
         } else if #[cfg(target_arch = "wasm32")] {
             /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
@@ -101,12 +120,35 @@ impl InnerAlloc {
                     return None;
                 }
 
-                prev_page.checked_mul(PAGE_SIZE)
+                // cannot overflow on this arch
+                Some(prev_page * PAGE_SIZE)
+            }
+            fn heap_start() -> usize {
+                extern "C" {
+                    static __heap_base: usize;
+                }
+                let heap_start =  unsafe { &__heap_base as *const usize as usize };
+                // if the symbol isn't found it will resolve to 0
+                // for that to happen the rust compiler or linker need to break or change
+                assert_ne!(heap_start, 0);
+                heap_start
+            }
+            fn heap_end() -> usize {
+                // cannot overflow on this arch
+                core::arch::wasm32::memory_size(0) * PAGE_SIZE
             }
         } else {
             /// On other architectures growing memory probably doesn't make sense.
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 None
+            }
+            /// Other archs are not supported, yet.
+            fn heap_start() -> usize {
+               0
+            }
+            /// Other archs are not supported, yet.
+            fn heap_end() -> usize {
+                0
             }
         }
     }
