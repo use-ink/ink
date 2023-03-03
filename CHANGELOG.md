@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Basic support for `dyn Trait` to allow cross-contract calls only with trait - [#1673](https://github.com/paritytech/ink/pull/1673)
+- Add `set_code_hash` to `EnvAccess` - [#1698](https://github.com/paritytech/ink/pull/1698)
 
 ## Version 4.0.1
 
