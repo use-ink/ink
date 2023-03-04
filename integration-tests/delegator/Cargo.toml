@@ -1,5 +1,5 @@
 [package]
-name = "delegator"
+name = "multi_contract_ref"
 version = "4.0.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -19,9 +19,7 @@ accumulator = { path = "accumulator", default-features = false, features = ["ink
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "delegator"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
