@@ -615,19 +615,25 @@ where
 /// There are a few important considerations which must be taken into account when
 /// using this API:
 ///
-/// 1. The storage at the code hash will remain untouched. This means that contract developers
-/// must ensure that the storage layout of the new code is compatible with that of the old code.
+/// 1. The storage at the code hash will remain untouched.
 ///
-/// 2. Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++ salt)`.
-/// This makes it possible to determine a contracts address using the `code_hash` of the *initial*
-/// code used to instantiate the contract. However, because `set_code_hash` can modify the
-/// underlying `code_hash` of a contract, it should not be relied upon that a contracts address can
-/// always be derived from its stored `code_hash`.
+/// Contract developers **must ensure** that the storage layout of the new code is compatible with
+/// that of the old code.
 ///
-/// 3. If a contract calls into itself after changing its code the new call would use
-/// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `set_code_hash` and the next caller would use
-/// the old code.
+/// 2. The contract address (`AccountId`) remains the same, while the `code_hash` changes.
+///
+/// Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++ salt)`.
+/// This makes it possible to determine a contracts address (`AccountId`) using the `code_hash` of
+/// the *initial* code used to instantiate the contract.
+///
+/// However, because `set_code_hash` can modify the underlying `code_hash` of a contract, it should
+/// not be relied upon that a contracts address can always be derived from its stored `code_hash`.
+///
+/// 3. Re-entrant calls use new `code_hash`.
+///
+/// If a contract calls into itself after changing its code the new call would use the new code.
+/// However, if the original caller panics after returning from the sub call it would revert the
+/// changes made by `set_code_hash` and the next caller would use the old code.
 ///
 /// # Errors
 ///
@@ -704,9 +710,12 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
-/// **New version of this function which will replace [`set_code_hash`] in the next MAJOR release**
-///
 /// Replace the contract code at the specified address with new code.
+///
+/// # Compatibility
+///
+/// This ia new version of the existing [`set_code_hash`] function. We plan to place the old
+/// function with this in the next `MAJOR` release.
 ///
 /// See the original [`set_code_hash`] function for full details.
 pub fn set_code_hash2<E>(code_hash: &E::Hash) -> Result<()>
