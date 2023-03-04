@@ -1,5 +1,5 @@
 [package]
-name = "multi_contract_ref"
+name = "multi_contract_caller"
 version = "4.0.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"

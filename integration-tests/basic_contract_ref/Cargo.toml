@@ -1,5 +1,5 @@
 [package]
-name = "basic_contract_ref"
+name = "basic_contract_caller"
 version = "4.0.1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"

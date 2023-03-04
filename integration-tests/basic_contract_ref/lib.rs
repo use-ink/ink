@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::contract]
-mod basic_contract_ref {
+mod basic_contract_caller {
     /// We import the generated `ContractRef` of our other contract.
     ///
     /// Note that the other contract must have re-exported it (`pub use OtherContractRef`) for us
@@ -9,12 +9,12 @@ mod basic_contract_ref {
     use other_contract::OtherContractRef;
 
     #[ink(storage)]
-    pub struct BasicContractRef {
+    pub struct BasicContractCaller {
         /// We specify that our contract will store a reference to the `OtherContract`.
         other_contract: OtherContractRef,
     }
 
-    impl BasicContractRef {
+    impl BasicContractCaller {
         /// In order to use the `OtherContract` we first need to **instantiate** it.
         ///
         /// To do this we will use the uploaded `code_hash` of `OtherContract`.
