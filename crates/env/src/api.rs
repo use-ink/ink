@@ -714,7 +714,7 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 ///
 /// # Compatibility
 ///
-/// This ia new version of the existing [`set_code_hash`] function. We plan to place the old
+/// This is new version of the existing [`set_code_hash`] function. We plan to place the old
 /// function with this in the next `MAJOR` release.
 ///
 /// See the original [`set_code_hash`] function for full details.
