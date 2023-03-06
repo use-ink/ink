@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E: auto detect contracts to be built - [#1691](https://github.com/paritytech/ink/pull/1691)
 - Add `set_code_hash` to `EnvAccess` - [#1698](https://github.com/paritytech/ink/pull/1698)
 
+### Removed
+- Remove wildcard selectors [#1706](https://github.com/paritytech/ink/pull/1706)
+
 ## Version 4.0.1
 
 ### Fixed
