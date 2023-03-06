@@ -585,13 +585,4 @@ mod tests {
             )
         }
     }
-
-    #[test]
-    fn try_from_wildcard_constructor_works() {
-        let item: syn::ImplItemMethod = syn::parse_quote! {
-            #[ink(constructor, selector = _)]
-            pub fn my_constructor() -> Self {}
-        };
-        assert!(<ir::Constructor as TryFrom<_>>::try_from(item).is_ok());
-    }
 }

@@ -802,68 +802,40 @@ mod tests {
     }
 
     #[test]
-    fn overlapping_wildcard_selectors_fails() {
+    fn wildcard_selector_on_constructor_fails() {
         assert_fail(
             syn::parse_quote! {
-                mod my_module {
-                    #[ink(storage)]
-                    pub struct MyStorage {}
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
 
-                    impl MyStorage {
-                        #[ink(constructor)]
-                        pub fn my_constructor() -> Self {}
+                impl MyStorage {
+                    #[ink(constructor, selector = _)]
+                    pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = _)]
-                        pub fn my_message1(&self) {}
-
-                        #[ink(message, selector = _)]
-                        pub fn my_message2(&self) {}
-                    }
+                    #[ink(message)]
+                    pub fn my_message(&self) {}
                 }
-            },
-            "encountered ink! messages with overlapping wildcard selectors",
-        );
+            }
+        }, "wildcard selectors no longer supported message");
     }
 
     #[test]
-    fn wildcard_selector_on_constructor_works() {
-        assert!(
-            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
-                mod my_module {
-                    #[ink(storage)]
-                    pub struct MyStorage {}
-
-                    impl MyStorage {
-                        #[ink(constructor, selector = _)]
-                        pub fn my_constructor() -> Self {}
-
-                        #[ink(message)]
-                        pub fn my_message(&self) {}
-                    }
-                }
-            })
-            .is_ok()
-        );
-    }
-
-    #[test]
-    fn overlap_between_wildcard_selector_and_composed_selector_fails() {
+    fn wildcard_selector_on_message_fails() {
         assert_fail(
             syn::parse_quote! {
-                mod my_module {
-                    #[ink(storage)]
-                    pub struct MyStorage {}
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
 
-                    impl MyStorage {
-                        #[ink(constructor)]
-                        pub fn my_constructor() -> Self {}
+                impl MyStorage {
+                    #[ink(constructor)]
+                    pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = _, selector = 0xCAFEBABE)]
-                        pub fn my_message(&self) {}
-                    }
+                    #[ink(message, selector = _)]
+                    pub fn my_message(&self) {}
                 }
-            },
-            "encountered ink! attribute arguments with equal kinds",
-        );
+            }
+        }, "wildcard selectors no longer supported message");
     }
 }

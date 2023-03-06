@@ -332,7 +332,6 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
-    /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
     /// `#[ink(extension = N: u32)]`
@@ -384,14 +383,10 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
-    /// Can be either one of:
+    /// `#[ink(selector = 0xDEADBEEF)]`
     ///
-    /// - `#[ink(selector = 0xDEADBEEF)]`
-    ///   Applied on ink! constructors or messages to manually control their
-    ///   selectors.
-    /// - `#[ink(selector = _)]`
-    ///   Applied on ink! messages to define a fallback messages that is invoked
-    ///   if no other ink! message matches a given selector.
+    /// Applied on ink! constructors or messages to manually control their
+    /// selectors.
     Selector(Selector),
     /// `#[ink(namespace = "my_namespace")]`
     ///
@@ -711,6 +706,9 @@ impl From<InkAttribute> for Attribute {
 /// This is done because `syn::Attribute::parse_meta` does not support parsing a
 /// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
 /// which requires a more in-depth rewrite of our IR parsing.
+///
+/// **Note** Although wildcard selectors have been removed, we keep this method to
+/// detect whether a wildcard selector is being used to show a helpful error message.
 fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
     let mut found_selector = false;
     let mut found_equal = false;
