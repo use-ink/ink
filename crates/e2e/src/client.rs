@@ -494,7 +494,14 @@ where
         let wasm_path = self
             .contracts
             .get(&contract.replace('-', "_"))
-            .unwrap_or_else(|| panic!("Unknown contract {contract}"));
+            .unwrap_or_else(||
+                panic!(
+                    "Unknown contract {contract}. Available contracts: {:?}.\n\
+                     For a contract to be built, add it as a dependency to the `Cargo.toml`, or add \
+                     the manifest path to `#[ink_e2e::test(additional_contracts = ..)]`",
+                    self.contracts.keys()
+                )
+            );
         let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
             panic!("Error loading '{}': {:?}", wasm_path.display(), err)
         });

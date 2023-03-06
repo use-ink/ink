@@ -118,9 +118,7 @@ mod delegator {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(
-            additional_contracts = "accumulator/Cargo.toml adder/Cargo.toml subber/Cargo.toml"
-        )]
+        #[ink_e2e::test]
         async fn e2e_delegator(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // given
             let accumulator_hash = client

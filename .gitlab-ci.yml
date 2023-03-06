@@ -420,7 +420,9 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+# Disabled because `polkadot-js` doesn't support WeightsV2 for
+# contracts yet.
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
