@@ -12,21 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    ensure_callable_invariants,
-    Callable,
-    CallableKind,
-    InputsIter,
-    Visibility,
-};
-use crate::{
-    ir,
-    ir::attrs::SelectorOrWildcard,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-};
+use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
+use crate::{ir, ir::attrs::SelectorOrWildcard};
+use itertools::Itertools;
+use proc_macro2::{Ident, Span, TokenStream};
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -95,7 +84,7 @@ impl Constructor {
             return Err(format_err_spanned!(
                 &method_item.sig,
                 "missing return for ink! constructor",
-            ))
+            ));
         }
         Ok(())
     }
@@ -133,13 +122,11 @@ impl Constructor {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Constructor
-                    | ir::AttributeArg::Payable
-                    | ir::AttributeArg::Selector(_) => Ok(()),
-                    _ => Err(None),
-                }
+            |arg| match arg.kind() {
+                ir::AttributeArg::Constructor
+                | ir::AttributeArg::Payable
+                | ir::AttributeArg::Selector(_) => Ok(()),
+                _ => Err(None),
             },
         )
     }
@@ -177,14 +164,14 @@ impl Callable for Constructor {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector)
+            return Some(selector);
         }
         None
     }
 
     fn has_wildcard_selector(&self) -> bool {
         if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true
+            return true;
         }
         false
     }
@@ -218,6 +205,18 @@ impl Constructor {
     /// Returns a slice of all non-ink! attributes of the ink! constructor.
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
+    }
+
+    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
+    ///
+    /// see [syn::attr::Attribute] for more.
+    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
+        self.item
+            .attrs
+            .iter()
+            .filter(|a| a.path.is_ident("cfg"))
+            .map(|a| a.tokens.clone())
+            .collect_vec()
     }
 
     /// Returns the return type of the ink! constructor if any.

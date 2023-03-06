@@ -17,9 +17,10 @@ use crate::{
     ir,
     ir::attrs::Attrs as _,
 };
+use itertools::Itertools;
 use proc_macro2::{
     Ident,
-    Span,
+    Span, TokenStream,
 };
 
 mod callable;
@@ -204,6 +205,13 @@ impl ItemImpl {
             }
         }
         Ok(false)
+    }
+
+    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
+    ///
+    /// see [syn::attr::Attribute] for more.
+    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
+        self.attrs.iter().filter(|a| a.path.is_ident("cfg")).map(|a| a.tokens.clone()).collect_vec()
     }
 }
 

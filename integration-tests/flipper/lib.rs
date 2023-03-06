@@ -31,6 +31,13 @@ pub mod flipper {
         pub fn get(&self) -> bool {
             self.value
         }
+
+        /// Returns the current value of the Flipper's boolean.
+        #[cfg(feature = "foo")]
+        #[ink(message)]
+        pub fn get_foo(&self) -> bool {
+            self.value
+        }
     }
 
     #[cfg(test)]

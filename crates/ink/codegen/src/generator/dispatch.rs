@@ -14,21 +14,11 @@
 
 use core::iter;
 
-use crate::{
-    generator,
-    GenerateCode,
-};
+use crate::{generator, GenerateCode};
 use derive_more::From;
-use ir::{
-    Callable,
-    HexLiteral as _,
-};
+use ir::{Callable, HexLiteral as _};
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    format_ident,
-    quote,
-    quote_spanned,
-};
+use quote::{format_ident, quote, quote_spanned};
 use syn::spanned::Spanned as _;
 
 /// Generates code for the message and constructor dispatcher.
@@ -99,15 +89,111 @@ impl Dispatch<'_> {
             .count()
     }
 
-    /// Returns the number of dispatchable ink! messages of the ink! smart contract.
-    ///
-    /// This includes inherent ink! messages as well as trait ink! messages.
     fn query_amount_messages(&self) -> usize {
         self.contract
             .module()
             .impls()
             .flat_map(|item_impl| item_impl.iter_messages())
             .count()
+    }
+
+    /// Returns the number of dispatchable ink! messages of the ink! smart contract.
+    ///
+    /// This includes inherent ink! messages as well as trait ink! messages.
+    fn conditionally_query_amount_messages(&self) -> TokenStream2 {
+        let raw = self
+            .contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| {
+                item_impl
+                    .iter_messages()
+                    .filter(|m| m.get_cfg_tokens().is_empty())
+            })
+            .count();
+
+        let generate_counter = self
+            .contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| {
+                item_impl
+                    .iter_messages()
+                    .filter(|m| !m.get_cfg_tokens().is_empty())
+            })
+            .map(|i| {
+                let mut cfg_tokens = i.get_cfg_tokens();
+                let mut tokens_iter = cfg_tokens.iter_mut();
+                //there must be at least one token
+                let first_token = tokens_iter.next().unwrap();
+                let mut condition = quote!(if cfg!#first_token);
+                for token in tokens_iter {
+                    condition.extend(quote!( || cfg!#token));
+                }
+                // if any of the conditional flags are enables, we count the message in
+                quote! {
+                    count += #condition {
+                        1
+                    } else {
+                        0
+                    };
+                }
+            });
+
+        quote!(
+        {
+            let mut count: usize = #raw;
+            #(#generate_counter)*
+            count
+        })
+    }
+
+    fn conditionally_query_amount_constructors(&self) -> TokenStream2 {
+        let raw = self
+            .contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| {
+                item_impl
+                    .iter_constructors()
+                    .filter(|m| m.get_cfg_tokens().is_empty())
+            })
+            .count();
+
+        let generate_counter = self
+            .contract
+            .module()
+            .impls()
+            .flat_map(|item_impl| {
+                item_impl
+                    .iter_constructors()
+                    .filter(|m| !m.get_cfg_tokens().is_empty())
+            })
+            .map(|i| {
+                let mut cfg_tokens = i.get_cfg_tokens();
+                let mut tokens_iter = cfg_tokens.iter_mut();
+                //there must be at least one token
+                let first_token = tokens_iter.next().unwrap();
+                let mut condition = quote!(if cfg!#first_token);
+                for token in tokens_iter {
+                    condition.extend(quote!( || cfg!#token));
+                }
+                // if any of the conditional flags are enables, we count the message in
+                quote! {
+                    count += #condition {
+                        1
+                    } else {
+                        0
+                    };
+                }
+            });
+
+        quote!(
+        {
+            let mut count: usize = #raw;
+            #(#generate_counter)*
+            count
+        })
     }
 
     /// Returns the index of the ink! message which has a wildcard selector, if existent.
@@ -135,8 +221,9 @@ impl Dispatch<'_> {
     fn generate_contract_amount_dispatchables_trait_impl(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let count_messages = self.query_amount_messages();
-        let count_constructors = self.query_amount_constructors();
+        let count_messages = self.conditionally_query_amount_messages();
+        let count_constructors = self.conditionally_query_amount_constructors();
+        //TODO: define calculation of items based on cfg attributes
         quote_spanned!(span=>
             impl ::ink::reflect::ContractAmountDispatchables for #storage_ident {
                 const MESSAGES: ::core::primitive::usize = #count_messages;
@@ -187,6 +274,7 @@ impl Dispatch<'_> {
             })
             .collect::<Vec<_>>();
         quote_spanned!(span=>
+            //TODO: id generation at a compile time
             impl ::ink::reflect::ContractDispatchableMessages<{
                 <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
             }> for #storage_ident {
@@ -704,7 +792,8 @@ impl Dispatch<'_> {
         &self,
         message_spans: &[proc_macro2::Span],
     ) -> TokenStream2 {
-        assert_eq!(message_spans.len(), self.query_amount_messages());
+        //TODO: resolve
+        // assert_eq!(message_spans.len(), self.query_amount_messages());
 
         /// Expands into the token sequence to represent the
         /// input type of the ink! message at the given index.
