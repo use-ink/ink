@@ -817,7 +817,7 @@ mod tests {
                     pub fn my_message(&self) {}
                 }
             }
-        }, "wildcard selectors no longer supported message");
+        }, "#[ink(selector = _)] wildcard attributes are no longer supported. For upgradeable contracts use `set_code_hash` instead.");
     }
 
     #[test]
@@ -836,6 +836,6 @@ mod tests {
                     pub fn my_message(&self) {}
                 }
             }
-        }, "wildcard selectors no longer supported message");
+        }, "#[ink(selector = _)] wildcard attributes are no longer supported. For upgradeable contracts use `set_code_hash` instead.");
     }
 }
