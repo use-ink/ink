@@ -976,6 +976,37 @@
 <a href="#975" id="975">975</a>
 <a href="#976" id="976">976</a>
 <a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1946,6 +1977,37 @@
     /// For more details visit: [`ink_env::own_code_hash`]
     </span><span class="kw">pub fn </span>own_code_hash(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;E::Hash&gt; {
         ink_env::own_code_hash::&lt;E&gt;()
+    }
+
+    <span class="doccomment">/// Replace the contract code at the specified address with new code.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -&gt; Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn set_code_hash(&amp;mut self, code_hash: Hash) {
+    ///     self.env().set_code_hash(&amp;code_hash).unwrap_or_else(|err| panic!(&quot;failed to set code hash: {:?}&quot;, err))
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::set_code_hash`]
+    </span><span class="kw">pub fn </span>set_code_hash(<span class="self">self</span>, code_hash: <span class="kw-2">&amp;</span>E::Hash) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        ink_env::set_code_hash2::&lt;E&gt;(code_hash)
     }
 
     <span class="attr">#[cfg(feature = <span class="string">&quot;call-runtime&quot;</span>)]

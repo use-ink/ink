@@ -733,6 +733,32 @@
 <a href="#732" id="732">732</a>
 <a href="#733" id="733">733</a>
 <a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1347,19 +1373,28 @@
 ///
 /// # Note
 ///
-/// There are a couple of important considerations which must be taken into account when
+/// There are a few important considerations which must be taken into account when
 /// using this API:
 ///
-/// 1. The storage at the code hash will remain untouched. This means that contract developers
-/// must ensure that the storage layout of the new code is compatible with that of the old code.
+/// 1. The storage at the code hash will remain untouched.
 ///
-/// 2. Contracts using this API can&#39;t be assumed as having deterministic addresses. Said another way,
-/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+/// Contract developers **must ensure** that the storage layout of the new code is compatible with
+/// that of the old code.
 ///
-/// 3. If a contract calls into itself after changing its code the new call would use
-/// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `set_code_hash` and the next caller would use
-/// the old code.
+/// 2. The contract address (`AccountId`) remains the same, while the `code_hash` changes.
+///
+/// Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++ salt)`.
+/// This makes it possible to determine a contracts address (`AccountId`) using the `code_hash` of
+/// the *initial* code used to instantiate the contract.
+///
+/// However, because `set_code_hash` can modify the underlying `code_hash` of a contract, it should
+/// not be relied upon that a contracts address can always be derived from its stored `code_hash`.
+///
+/// 3. Re-entrant calls use new `code_hash`.
+///
+/// If a contract calls into itself after changing its code the new call would use the new code.
+/// However, if the original caller panics after returning from the sub call it would revert the
+/// changes made by `set_code_hash` and the next caller would use the old code.
 ///
 /// # Errors
 ///
@@ -1434,6 +1469,23 @@
 /// for more details and examples.
 </span><span class="kw">pub fn </span>set_code_hash(code_hash: <span class="kw-2">&amp;</span>[u8; <span class="number">32</span>]) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| instance.set_code_hash(code_hash))
+}
+
+<span class="doccomment">/// Replace the contract code at the specified address with new code.
+///
+/// # Compatibility
+///
+/// This is new version of the existing [`set_code_hash`] function. We plan to place the old
+/// function with this in the next `MAJOR` release.
+///
+/// See the original [`set_code_hash`] function for full details.
+</span><span class="kw">pub fn </span>set_code_hash2&lt;E&gt;(code_hash: <span class="kw-2">&amp;</span>E::Hash) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+<span class="kw">where
+    </span>E: Environment,
+{
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance.set_code_hash(code_hash.as_ref())
+    })
 }
 
 <span class="doccomment">/// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
