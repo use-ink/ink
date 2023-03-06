@@ -34,12 +34,12 @@ mod contract {
     #[ink::trait_definition]
     pub trait Messages2 {
         #[ink(message, selector = 0x12345678)]
-        fn message_4(&self);
+        fn message_3(&self);
     }
 
     impl Messages2 for Contract {
         #[ink(message, selector = 0x12345678)]
-        fn message_4(&self) {}
+        fn message_3(&self) {}
     }
 }
 
@@ -90,6 +90,6 @@ fn main() {
                 >>::IDS[3]
             },
         >>::SELECTOR,
-        [0xB6, 0xC3, 0x27, 0x49],
+        0x12345678_u32.to_be_bytes(),
     );
 }
