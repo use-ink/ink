@@ -850,7 +850,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     return Err(format_err!(
                                         name_value,
                                         "#[ink(selector = _)] wildcard attributes are no longer supported. \
-                                        For upgradeable contracts use [`set_code_hash`](ink::env::api::set_code_hash) instead."
+                                        For upgradeable contracts use `set_code_hash` instead."
                                     ))
                                 } else {
                                     return Err(format_err!(
@@ -1146,7 +1146,7 @@ mod tests {
                 #[ink(selector = 42)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::UserProvided(Selector::from([0, 0, 0, 42])),
+                Selector::from([0, 0, 0, 42]),
             )])),
         );
         assert_attribute_try_from(
@@ -1154,7 +1154,7 @@ mod tests {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::selector([0xDE, 0xAD, 0xBE, 0xEF]),
+                Selector::from([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
         );
     }

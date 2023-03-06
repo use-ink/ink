@@ -1,0 +1,5 @@
+error: #[ink(selector = _)] wildcard attributes are no longer supported. For upgradeable contracts use `set_code_hash` instead.
+  --> tests/ui/contract/fail/message-wildcard-selector.rs:18:24
+   |
+18 |         #[ink(message, selector = _)]
+   |                        ^^^^^^^^
