@@ -264,7 +264,7 @@ impl InkAttribute {
     }
 
     /// Returns the selector of the ink! attribute if any.
-    pub fn selector(&self) -> Option<SelectorOrWildcard> {
+    pub fn selector(&self) -> Option<Selector> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Selector(selector) = arg.kind() {
                 return Some(*selector)
@@ -277,16 +277,6 @@ impl InkAttribute {
     pub fn is_payable(&self) -> bool {
         self.args()
             .any(|arg| matches!(arg.kind(), AttributeArg::Payable))
-    }
-
-    /// Returns `true` if the ink! attribute contains the wildcard selector.
-    pub fn has_wildcard_selector(&self) -> bool {
-        self.args().any(|arg| {
-            matches!(
-                arg.kind(),
-                AttributeArg::Selector(SelectorOrWildcard::Wildcard)
-            )
-        })
     }
 
     /// Returns `true` if the ink! attribute contains the `anonymous` argument.
@@ -402,7 +392,7 @@ pub enum AttributeArg {
     /// - `#[ink(selector = _)]`
     ///   Applied on ink! messages to define a fallback messages that is invoked
     ///   if no other ink! message matches a given selector.
-    Selector(SelectorOrWildcard),
+    Selector(Selector),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -490,7 +480,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
+            Self::Selector(selector) => core::fmt::Debug::fmt(&selector, f),
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
             }
@@ -499,32 +489,6 @@ impl core::fmt::Display for AttributeArg {
             }
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
-        }
-    }
-}
-
-/// Either a wildcard selector or a specified selector.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum SelectorOrWildcard {
-    /// A wildcard selector. If no other selector matches, the message/constructor
-    /// annotated with the wildcard selector will be invoked.
-    Wildcard,
-    /// A user provided selector.
-    UserProvided(ir::Selector),
-}
-
-impl SelectorOrWildcard {
-    /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
-    fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
-        SelectorOrWildcard::UserProvided(Selector::from(bytes))
-    }
-}
-
-impl core::fmt::Display for SelectorOrWildcard {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
-        match self {
-            Self::UserProvided(selector) => core::fmt::Debug::fmt(&selector, f),
-            Self::Wildcard => write!(f, "_"),
         }
     }
 }
@@ -884,17 +848,19 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let argument = lit_str.value();
                                 // We've pre-processed the verbatim `_` to `"_"`. This was done
                                 // because `syn::Attribute::parse_meta` does not support verbatim.
-                                if argument != "_" {
+                                if argument == "_" {
+                                    return Err(format_err!(
+                                        name_value,
+                                        "#[ink(selector = _)] wildcard attributes are no longer supported. \
+                                        For upgradeable contracts use [`set_code_hash`](ink::env::api::set_code_hash) instead."
+                                    ))
+                                } else {
                                     return Err(format_err!(
                                         name_value,
                                         "#[ink(selector = ..)] attributes with string inputs are deprecated. \
                                         use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
                                     ))
                                 }
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
-                                })
                             }
 
                             if let syn::Lit::Int(lit_int) = &name_value.lit {
@@ -909,7 +875,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let selector = Selector::from(selector_u32.to_be_bytes());
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
+                                    arg: AttributeArg::Selector(selector),
                                 })
                             }
                             return Err(format_err!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))

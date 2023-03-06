@@ -110,24 +110,6 @@ impl Dispatch<'_> {
             .count()
     }
 
-    /// Returns the index of the ink! message which has a wildcard selector, if existent.
-    fn query_wildcard_message(&self) -> Option<usize> {
-        self.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_messages())
-            .position(|item| item.has_wildcard_selector())
-    }
-
-    /// Returns the index of the ink! constructor which has a wildcard selector, if existent.
-    fn query_wildcard_constructor(&self) -> Option<usize> {
-        self.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .position(|item| item.has_wildcard_selector())
-    }
-
     /// Generates code for the [`ink::ContractDispatchables`] trait implementation.
     ///
     /// This trait implementation stores information of how many dispatchable
@@ -558,30 +540,6 @@ impl Dispatch<'_> {
                 }
             )
         });
-        let possibly_wildcard_selector_constructor = match self
-            .query_wildcard_constructor()
-        {
-            Some(wildcard_index) => {
-                let constructor_span = constructor_spans[wildcard_index];
-                let constructor_ident = constructor_variant_ident(wildcard_index);
-                let constructor_input = expand_constructor_input(
-                    constructor_span,
-                    storage_ident,
-                    wildcard_index,
-                );
-                quote! {
-                    ::core::result::Result::Ok(Self::#constructor_ident(
-                        <#constructor_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
-                    ))
-                }
-            }
-            None => {
-                quote! {
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
-                }
-            }
-        };
         let any_constructor_accept_payment =
             self.any_constructor_accepts_payment_expr(constructor_spans);
 
@@ -665,7 +623,9 @@ impl Dispatch<'_> {
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
                         {
                             #( #constructor_match , )*
-                            _invalid => #possibly_wildcard_selector_constructor
+                            _invalid => ::core::result::Result::Err(
+                                ::ink::reflect::DispatchError::UnknownSelector
+                            )
                         }
                     }
                 }
@@ -764,25 +724,6 @@ impl Dispatch<'_> {
                 }
             )
         });
-        let possibly_wildcard_selector_message = match self.query_wildcard_message() {
-            Some(wildcard_index) => {
-                let message_span = message_spans[wildcard_index];
-                let message_ident = message_variant_ident(wildcard_index);
-                let message_input =
-                    expand_message_input(message_span, storage_ident, wildcard_index);
-                quote! {
-                    ::core::result::Result::Ok(Self::#message_ident(
-                        <#message_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink::reflect::DispatchError::InvalidParameters)?
-                    ))
-                }
-            }
-            None => {
-                quote! {
-                    ::core::result::Result::Err(::ink::reflect::DispatchError::UnknownSelector)
-                }
-            }
-        };
         let any_message_accept_payment =
             self.any_message_accepts_payment_expr(message_spans);
 
@@ -864,7 +805,9 @@ impl Dispatch<'_> {
                             .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
                         {
                             #( #message_match , )*
-                            _invalid => #possibly_wildcard_selector_message
+                            _invalid => ::core::result::Result::Err(
+                                ::ink::reflect::DispatchError::UnknownSelector
+                            )
                         }
                     }
                 }

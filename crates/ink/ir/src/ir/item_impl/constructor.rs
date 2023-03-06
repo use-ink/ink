@@ -19,9 +19,9 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::{
-    ir,
-    ir::attrs::SelectorOrWildcard,
+use crate::ir::{
+    self,
+    Selector,
 };
 use proc_macro2::{
     Ident,
@@ -72,7 +72,7 @@ pub struct Constructor {
     ///
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
-    selector: Option<SelectorOrWildcard>,
+    selector: Option<Selector>,
 }
 
 impl quote::ToTokens for Constructor {
@@ -176,17 +176,10 @@ impl Callable for Constructor {
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
+        if let Some(selector) = self.selector.as_ref() {
             return Some(selector)
         }
         None
-    }
-
-    fn has_wildcard_selector(&self) -> bool {
-        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true
-        }
-        false
     }
 
     fn is_payable(&self) -> bool {

@@ -26,10 +26,7 @@ pub use self::{
 use super::TraitDefinitionConfig;
 use crate::{
     ir,
-    ir::{
-        attrs::SelectorOrWildcard,
-        idents_lint,
-    },
+    ir::idents_lint,
     Selector,
 };
 use ir::TraitPrefix;
@@ -359,9 +356,7 @@ impl InkItemTrait {
             let ident = callable.ident();
             let ink_attrs = callable.ink_attrs();
             let selector = match ink_attrs.selector() {
-                Some(SelectorOrWildcard::UserProvided(manual_selector)) => {
-                    manual_selector
-                }
+                Some(manual_selector) => manual_selector,
                 _ => Selector::compose(trait_prefix, ident),
             };
             let (duplicate_selector, duplicate_ident) = match callable {
