@@ -435,6 +435,8 @@ examples-no-std-check:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
