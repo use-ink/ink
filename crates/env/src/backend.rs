@@ -510,4 +510,10 @@ pub trait TypedEnvBackend: EnvBackend {
     fn own_code_hash<E>(&mut self) -> Result<E::Hash>
     where
         E: Environment;
+
+    #[cfg(feature = "call-runtime")]
+    fn call_runtime<E, Call>(&mut self, call: &Call) -> Result<()>
+    where
+        E: Environment,
+        Call: scale::Encode;
 }

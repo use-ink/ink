@@ -474,7 +474,7 @@ where
     /// # }
     /// ```
     ///
-    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/examples/delegator)
+    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/integration-tests/integration%20tests/examples/delegator)
     /// for a complete contract example.
     ///
     /// # Note
@@ -968,5 +968,41 @@ where
     /// For more details visit: [`ink_env::own_code_hash`]
     pub fn own_code_hash(self) -> Result<E::Hash> {
         ink_env::own_code_hash::<E>()
+    }
+
+    /// Replace the contract code at the specified address with new code.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn set_code_hash(&mut self, code_hash: Hash) {
+    ///     self.env().set_code_hash(&code_hash).unwrap_or_else(|err| panic!("failed to set code hash: {:?}", err))
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::set_code_hash`]
+    pub fn set_code_hash(self, code_hash: &E::Hash) -> Result<()> {
+        ink_env::set_code_hash2::<E>(code_hash)
+    }
+
+    #[cfg(feature = "call-runtime")]
+    pub fn call_runtime<Call: scale::Encode>(self, call: &Call) -> Result<()> {
+        ink_env::call_runtime::<E, _>(call)
     }
 }

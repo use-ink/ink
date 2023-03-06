@@ -373,7 +373,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// );
 /// ```
 ///
-/// See `examples/contract-terminate` for a complete usage example.
+/// See `integration-tests/contract-terminate` for a complete usage example.
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
     expected_beneficiary: T::AccountId,

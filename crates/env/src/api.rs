@@ -612,19 +612,28 @@ where
 ///
 /// # Note
 ///
-/// There are a couple of important considerations which must be taken into account when
+/// There are a few important considerations which must be taken into account when
 /// using this API:
 ///
-/// 1. The storage at the code hash will remain untouched. This means that contract developers
-/// must ensure that the storage layout of the new code is compatible with that of the old code.
+/// 1. The storage at the code hash will remain untouched.
 ///
-/// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
-/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+/// Contract developers **must ensure** that the storage layout of the new code is compatible with
+/// that of the old code.
 ///
-/// 3. If a contract calls into itself after changing its code the new call would use
-/// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `set_code_hash` and the next caller would use
-/// the old code.
+/// 2. The contract address (`AccountId`) remains the same, while the `code_hash` changes.
+///
+/// Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++ salt)`.
+/// This makes it possible to determine a contracts address (`AccountId`) using the `code_hash` of
+/// the *initial* code used to instantiate the contract.
+///
+/// However, because `set_code_hash` can modify the underlying `code_hash` of a contract, it should
+/// not be relied upon that a contracts address can always be derived from its stored `code_hash`.
+///
+/// 3. Re-entrant calls use new `code_hash`.
+///
+/// If a contract calls into itself after changing its code the new call would use the new code.
+/// However, if the original caller panics after returning from the sub call it would revert the
+/// changes made by `set_code_hash` and the next caller would use the old code.
 ///
 /// # Errors
 ///
@@ -699,4 +708,53 @@ where
 /// for more details and examples.
 pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
+}
+
+/// Replace the contract code at the specified address with new code.
+///
+/// # Compatibility
+///
+/// This is new version of the existing [`set_code_hash`] function. We plan to place the old
+/// function with this in the next `MAJOR` release.
+///
+/// See the original [`set_code_hash`] function for full details.
+pub fn set_code_hash2<E>(code_hash: &E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.set_code_hash(code_hash.as_ref())
+    })
+}
+
+/// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
+///
+/// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.
+///
+/// For more details consult
+/// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
+///
+/// # Errors
+///
+/// - If the call cannot be properly decoded on the pallet contracts side.
+/// - If the runtime doesn't allow for the contract unstable feature.
+/// - If the runtime doesn't allow for dispatching this call from a contract.
+///
+/// # Note
+///
+/// The `call_runtime` host function is still part of `pallet-contracts`' unstable interface and
+/// thus can be changed at anytime.
+///
+/// # Panics
+///
+/// Panics in the off-chain environment.
+#[cfg(feature = "call-runtime")]
+pub fn call_runtime<E, Call>(call: &Call) -> Result<()>
+where
+    E: Environment,
+    Call: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::call_runtime::<E, _>(instance, call)
+    })
 }

@@ -132,6 +132,18 @@ impl CallBuilder<'_> {
                     <AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
             }
+
+            impl ::core::convert::AsRef<AccountId> for #cb_ident {
+                fn as_ref(&self) -> &AccountId {
+                    &self.account_id
+                }
+            }
+
+            impl ::core::convert::AsMut<AccountId> for #cb_ident {
+                fn as_mut(&mut self) -> &mut AccountId {
+                    &mut self.account_id
+                }
+            }
         )
     }
 
