@@ -17,7 +17,7 @@ fn oom(_: core::alloc::Layout) -> ! {
     #[cfg(target_arch = "wasm32")]
     core::arch::wasm32::unreachable();
 
-    // For any other nostd architecture we just call an imaginary
+    // For any other `no_std` architecture we just call an imaginary
     // `abort` function. No other architecture is supported. We
     // just have this to check if compilation does not break
     // for other true nostd targets.

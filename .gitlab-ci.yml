@@ -40,8 +40,8 @@ variables:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
-  # This is a target that does not have a std lib in contrast to wasm. We compile against
-  # this target to make sure that we don't pull in std by accident (through dependencies).
+  # This is a target that does not have a standard library in contrast to Wasm. We compile against
+  # this target to make sure that we don't pull in `std` by accident (through dependencies).
   NO_STD_TARGET:                   "bpfel-unknown-none"
 
 workflow:
@@ -221,7 +221,7 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-# We just check on a target which doesn't have std to make sure that we don't pull in std by accident
+# We just check on a target which doesn't have `std` to make sure that we don't pull in `std` by accident
 check-no-std:
   stage:                           check
   <<:                              *docker-env
@@ -430,7 +430,7 @@ examples-contract-build:
       done
     - cargo +stable contract build --manifest-path ./integration-tests/upgradeable-contracts/set-code-hash/updated-incrementer/Cargo.toml
 
-# we only check a few basic contracts here. no need to check them all.
+# We only check a few basic contracts here, no need to check them all.
 examples-no-std-check:
   stage:                           examples
   <<:                              *docker-env
@@ -441,7 +441,6 @@ examples-no-std-check:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     - for example in integration-tests/*/; do
-        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         pushd $example &&
         cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
