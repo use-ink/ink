@@ -20,7 +20,8 @@ use crate::{
 use itertools::Itertools;
 use proc_macro2::{
     Ident,
-    Span, TokenStream,
+    Span,
+    TokenStream,
 };
 
 mod callable;
@@ -211,7 +212,11 @@ impl ItemImpl {
     ///
     /// see [syn::attr::Attribute] for more.
     pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
-        self.attrs.iter().filter(|a| a.path.is_ident("cfg")).map(|a| a.tokens.clone()).collect_vec()
+        self.attrs
+            .iter()
+            .filter(|a| a.path.is_ident("cfg"))
+            .map(|a| a.tokens.clone())
+            .collect_vec()
     }
 }
 

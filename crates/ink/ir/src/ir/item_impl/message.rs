@@ -12,10 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
-use crate::ir::{self, attrs::SelectorOrWildcard, utils};
+use super::{
+    ensure_callable_invariants,
+    Callable,
+    CallableKind,
+    InputsIter,
+    Visibility,
+};
+use crate::ir::{
+    self,
+    attrs::SelectorOrWildcard,
+    utils,
+};
 use itertools::Itertools;
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{
+    Ident,
+    Span,
+    TokenStream,
+};
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
@@ -128,7 +142,7 @@ impl Message {
             Some(syn::FnArg::Typed(pat_typed)) => return Err(bail(pat_typed.span())),
             Some(syn::FnArg::Receiver(receiver)) => {
                 if receiver.reference.is_none() {
-                    return Err(bail(receiver.span()));
+                    return Err(bail(receiver.span()))
                 }
             }
         }
@@ -151,7 +165,7 @@ impl Message {
                         return Err(format_err!(
                             ret_type,
                             "ink! messages must not return `Self`"
-                        ));
+                        ))
                     }
                 }
             }
@@ -169,11 +183,13 @@ impl Message {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Message,
-            |arg| match arg.kind() {
-                ir::AttributeArg::Message
-                | ir::AttributeArg::Payable
-                | ir::AttributeArg::Selector(_) => Ok(()),
-                _ => Err(None),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Message
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )
     }
@@ -211,14 +227,14 @@ impl Callable for Message {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector);
+            return Some(selector)
         }
         None
     }
 
     fn has_wildcard_selector(&self) -> bool {
         if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true;
+            return true
         }
         false
     }
@@ -258,10 +274,12 @@ impl Message {
     ///
     /// see [syn::attr::Attribute] for more.
     pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
-        self.item.attrs
+        self.item
+            .attrs
             .iter()
             .filter(|a| a.path.is_ident("cfg"))
-            .map(|a| a.tokens.clone()).collect_vec()
+            .map(|a| a.tokens.clone())
+            .collect_vec()
     }
 
     /// Returns the `self` receiver of the ink! message.

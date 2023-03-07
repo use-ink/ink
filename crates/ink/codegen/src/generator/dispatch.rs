@@ -14,12 +14,25 @@
 
 use core::iter;
 
-use crate::{generator, GenerateCode};
+use crate::{
+    generator,
+    GenerateCode,
+};
 use derive_more::From;
-use ir::{Callable, CallableWithSelector, Constructor, HexLiteral as _, Message};
+use ir::{
+    Callable,
+    CallableWithSelector,
+    Constructor,
+    HexLiteral as _,
+    Message,
+};
 use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote, quote_spanned};
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
 use syn::spanned::Spanned as _;
 
 pub struct MessageDispatchable<'a> {
@@ -123,7 +136,7 @@ impl Dispatch<'_> {
             .map(|i| {
                 let mut cfg_tokens = i.get_cfg_tokens();
                 let mut tokens_iter = cfg_tokens.iter_mut();
-                //there must be at least one token
+                // there must be at least one token
                 let first_token = tokens_iter.next().unwrap();
                 let mut condition = quote!(if cfg!#first_token);
                 for token in tokens_iter {
@@ -169,7 +182,7 @@ impl Dispatch<'_> {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         let count_constructors = self.conditionally_query_amount_constructors();
-        //TODO: define calculation of items based on cfg attributes
+        // TODO: define calculation of items based on cfg attributes
         quote_spanned!(span=>
             impl ::ink::reflect::ContractAmountDispatchables for #storage_ident {
                 const CONSTRUCTORS: ::core::primitive::usize = #count_constructors;
@@ -725,7 +738,7 @@ impl Dispatch<'_> {
         &self,
         messages: &[MessageDispatchable],
     ) -> TokenStream2 {
-        //TODO: resolve
+        // TODO: resolve
         // assert_eq!(message_spans.len(), self.query_amount_messages());
 
         /// Expands into the token sequence to represent the

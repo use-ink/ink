@@ -12,10 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{ensure_callable_invariants, Callable, CallableKind, InputsIter, Visibility};
-use crate::{ir, ir::attrs::SelectorOrWildcard};
+use super::{
+    ensure_callable_invariants,
+    Callable,
+    CallableKind,
+    InputsIter,
+    Visibility,
+};
+use crate::{
+    ir,
+    ir::attrs::SelectorOrWildcard,
+};
 use itertools::Itertools;
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::{
+    Ident,
+    Span,
+    TokenStream,
+};
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -84,7 +97,7 @@ impl Constructor {
             return Err(format_err_spanned!(
                 &method_item.sig,
                 "missing return for ink! constructor",
-            ));
+            ))
         }
         Ok(())
     }
@@ -122,11 +135,13 @@ impl Constructor {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |arg| match arg.kind() {
-                ir::AttributeArg::Constructor
-                | ir::AttributeArg::Payable
-                | ir::AttributeArg::Selector(_) => Ok(()),
-                _ => Err(None),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )
     }
@@ -164,14 +179,14 @@ impl Callable for Constructor {
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
         if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
-            return Some(selector);
+            return Some(selector)
         }
         None
     }
 
     fn has_wildcard_selector(&self) -> bool {
         if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true;
+            return true
         }
         false
     }
