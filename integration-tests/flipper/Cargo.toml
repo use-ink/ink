@@ -20,7 +20,7 @@ path = "lib.rs"
 crate-type = ["cdylib"]
 
 [features]
-default = ["std"]
+default = ["std", "foo"]
 std = [
     "ink/std",
     "scale/std",

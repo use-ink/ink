@@ -59,7 +59,7 @@ use core::fmt::Display;
 /// ```
 pub trait ContractAmountDispatchables {
     /// The number of dispatchable ink! messages.
-    const MESSAGES: usize;
+    // const MESSAGES: usize;
     /// The number of dispatchable ink! constructors.
     const CONSTRUCTORS: usize;
 }

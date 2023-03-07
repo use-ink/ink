@@ -15,19 +15,9 @@
 use crate::GenerateCode;
 use ::core::iter;
 use derive_more::From;
-use ir::{
-    Callable as _,
-    HexLiteral,
-    IsDocAttribute,
-};
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-};
-use quote::{
-    quote,
-    quote_spanned,
-};
+use ir::{Callable as _, HexLiteral, IsDocAttribute};
+use proc_macro2::{Ident, TokenStream as TokenStream2};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned as _;
 
 /// Generates code to generate the metadata of the contract.
@@ -184,11 +174,11 @@ impl Metadata<'_> {
 
         if let syn::Type::Path(type_path) = ty {
             if type_path.qself.is_some() {
-                return without_display_name(ty)
+                return without_display_name(ty);
             }
             let path = &type_path.path;
             if path.segments.is_empty() {
-                return without_display_name(ty)
+                return without_display_name(ty);
             }
             let segs = path
                 .segments
@@ -237,8 +227,14 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
+                let cfg_tokens = message.get_cfg_tokens();
+                let cfg_attrs = cfg_tokens.iter().map(|token| {
+                    quote_spanned!(span =>
+                    #[cfg #token])
+                });
                 let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 quote_spanned!(span =>
+                    #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([
                             #( #selector_bytes ),*
@@ -285,6 +281,9 @@ impl Metadata<'_> {
                 let message_args = message
                     .inputs()
                     .map(Self::generate_dispatch_argument);
+                let cfg_tokens = message.get_cfg_tokens();
+                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(message_span=>
+                    #[cfg #token]));
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{
@@ -300,6 +299,7 @@ impl Metadata<'_> {
                 let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
+                    #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(#label)
                         .selector(#selector)
                         .args([

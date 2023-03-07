@@ -144,24 +144,10 @@ pub mod flipper {
         use ::ink::codegen::{Env as _, StaticEnv as _};
     };
     impl ::ink::reflect::ContractAmountDispatchables for Flipper {
-        const MESSAGES: ::core::primitive::usize = {
-            let mut count: usize = 2usize;
-            count += if false { 1 } else { 0 };
-            count
-        };
         const CONSTRUCTORS: ::core::primitive::usize = {
             let mut count: usize = 2usize;
             count
         };
-    }
-    impl ::ink::reflect::ContractDispatchableMessages<
-        { <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES },
-    > for Flipper {
-        const IDS: [::core::primitive::u32; <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES] = [
-            0x633AA551_u32,
-            0x2F865BD9_u32,
-            0x9DDCDAB1_u32,
-        ];
     }
     impl ::ink::reflect::ContractDispatchableConstructors<
         { <Flipper as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
@@ -231,24 +217,7 @@ pub mod flipper {
         const MUTATES: ::core::primitive::bool = true;
         const LABEL: &'static ::core::primitive::str = "flip";
     }
-    impl ::ink::reflect::DispatchableMessageInfo<0x2F865BD9_u32> for Flipper {
-        type Input = ();
-        type Output = bool;
-        type Storage = Flipper;
-        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
-            storage,
-            _|
-        { Flipper::get(storage) };
-        const SELECTOR: [::core::primitive::u8; 4usize] = [
-            0x2F_u8,
-            0x86_u8,
-            0x5B_u8,
-            0xD9_u8,
-        ];
-        const PAYABLE: ::core::primitive::bool = false;
-        const MUTATES: ::core::primitive::bool = false;
-        const LABEL: &'static ::core::primitive::str = "get";
-    }
+    #[cfg(feature = "foo")]
     impl ::ink::reflect::DispatchableMessageInfo<0x9DDCDAB1_u32> for Flipper {
         type Input = ();
         type Output = bool;
@@ -266,6 +235,24 @@ pub mod flipper {
         const PAYABLE: ::core::primitive::bool = false;
         const MUTATES: ::core::primitive::bool = false;
         const LABEL: &'static ::core::primitive::str = "get_foo";
+    }
+    impl ::ink::reflect::DispatchableMessageInfo<0x2F865BD9_u32> for Flipper {
+        type Input = ();
+        type Output = bool;
+        type Storage = Flipper;
+        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
+            storage,
+            _|
+        { Flipper::get(storage) };
+        const SELECTOR: [::core::primitive::u8; 4usize] = [
+            0x2F_u8,
+            0x86_u8,
+            0x5B_u8,
+            0xD9_u8,
+        ];
+        const PAYABLE: ::core::primitive::bool = false;
+        const MUTATES: ::core::primitive::bool = false;
+        const LABEL: &'static ::core::primitive::str = "get";
     }
     const _: () = {
         #[allow(non_camel_case_types)]
@@ -600,35 +587,18 @@ pub mod flipper {
         pub enum __ink_MessageDecoder {
             Message0(
                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    {
-                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                            {
-                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                            },
-                        >>::IDS[0usize]
-                    },
+                    0x633AA551_u32,
                 >>::Input,
             ),
+            #[cfg(feature = "foo")]
             Message1(
                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    {
-                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                            {
-                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                            },
-                        >>::IDS[1usize]
-                    },
+                    0x9DDCDAB1_u32,
                 >>::Input,
             ),
             Message2(
                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    {
-                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                            {
-                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                            },
-                        >>::IDS[2usize]
-                    },
+                    0x2F865BD9_u32,
                 >>::Input,
             ),
         }
@@ -640,31 +610,14 @@ pub mod flipper {
                 I: ::scale::Input,
             {
                 const MESSAGE_0: [::core::primitive::u8; 4usize] = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    {
-                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                            {
-                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                            },
-                        >>::IDS[0usize]
-                    },
+                    { 0x633AA551_u32 },
                 >>::SELECTOR;
+                #[cfg(feature = "foo")]
                 const MESSAGE_1: [::core::primitive::u8; 4usize] = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    {
-                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                            {
-                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                            },
-                        >>::IDS[1usize]
-                    },
+                    { 0x9DDCDAB1_u32 },
                 >>::SELECTOR;
                 const MESSAGE_2: [::core::primitive::u8; 4usize] = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    {
-                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                            {
-                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                            },
-                        >>::IDS[2usize]
-                    },
+                    { 0x2F865BD9_u32 },
                 >>::SELECTOR;
                 match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
                     .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
@@ -673,13 +626,7 @@ pub mod flipper {
                         ::core::result::Result::Ok(
                             Self::Message0(
                                 <<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                                    0x633AA551_u32,
                                 >>::Input as ::scale::Decode>::decode(input)
                                     .map_err(|_| {
                                         ::ink::reflect::DispatchError::InvalidParameters
@@ -687,17 +634,12 @@ pub mod flipper {
                             ),
                         )
                     }
+                    #[cfg(feature = "foo")]
                     MESSAGE_1 => {
                         ::core::result::Result::Ok(
                             Self::Message1(
                                 <<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
+                                    0x9DDCDAB1_u32,
                                 >>::Input as ::scale::Decode>::decode(input)
                                     .map_err(|_| {
                                         ::ink::reflect::DispatchError::InvalidParameters
@@ -709,13 +651,7 @@ pub mod flipper {
                         ::core::result::Result::Ok(
                             Self::Message2(
                                 <<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
+                                    0x2F865BD9_u32,
                                 >>::Input as ::scale::Decode>::decode(input)
                                     .map_err(|_| {
                                         ::ink::reflect::DispatchError::InvalidParameters
@@ -773,79 +709,40 @@ pub mod flipper {
                 );
                 match self {
                     Self::Message0(input) => {
-                        if {
-                            false
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                        let message_0 = false;
+                        let message_1 = false;
+                        let message_2 = false;
+                        let message_0 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x633AA551_u32 },
+                        >>::PAYABLE;
+                        #[cfg(feature = "foo")]
+                        let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x9DDCDAB1_u32 },
+                        >>::PAYABLE;
+                        let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x2F865BD9_u32 },
+                        >>::PAYABLE;
+                        if false || message_0 || message_1
+                            || message_2
+                                && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
+                                    { 0x633AA551_u32 },
                                 >>::PAYABLE
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
-                                >>::PAYABLE
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
-                                >>::PAYABLE
-                        }
-                            && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                {
-                                    <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                        {
-                                            <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                        },
-                                    >>::IDS[0usize]
-                                },
-                            >>::PAYABLE
                         {
                             ::ink::codegen::deny_payment::<
                                 <Flipper as ::ink::env::ContractEnv>::Env,
                             >()?;
                         }
                         let result: <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            {
-                                <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                    },
-                                >>::IDS[0usize]
-                            },
+                            { 0x633AA551_u32 },
                         >>::Output = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            {
-                                <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                    },
-                                >>::IDS[0usize]
-                            },
+                            { 0x633AA551_u32 },
                         >>::CALLABLE(&mut contract, input);
                         let is_reverted = {
                             #[allow(unused_imports)]
                             use ::ink::result_info::IsResultTypeFallback as _;
                             ::ink::result_info::IsResultType::<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                                    { 0x633AA551_u32 },
                                 >>::Output,
                             >::VALUE
                         }
@@ -858,26 +755,14 @@ pub mod flipper {
                             push_contract(
                                 contract,
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                                    { 0x633AA551_u32 },
                                 >>::MUTATES,
                             );
                         }
                         ::ink::env::return_value::<
                             ::ink::MessageResult<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                                    { 0x633AA551_u32 },
                                 >>::Output,
                             >,
                         >(
@@ -885,80 +770,42 @@ pub mod flipper {
                             &::ink::MessageResult::Ok(result),
                         )
                     }
+                    #[cfg(feature = "foo")]
                     Self::Message1(input) => {
-                        if {
-                            false
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                        let message_0 = false;
+                        let message_1 = false;
+                        let message_2 = false;
+                        let message_0 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x633AA551_u32 },
+                        >>::PAYABLE;
+                        #[cfg(feature = "foo")]
+                        let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x9DDCDAB1_u32 },
+                        >>::PAYABLE;
+                        let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x2F865BD9_u32 },
+                        >>::PAYABLE;
+                        if false || message_0 || message_1
+                            || message_2
+                                && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
+                                    { 0x9DDCDAB1_u32 },
                                 >>::PAYABLE
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
-                                >>::PAYABLE
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
-                                >>::PAYABLE
-                        }
-                            && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                {
-                                    <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                        {
-                                            <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                        },
-                                    >>::IDS[1usize]
-                                },
-                            >>::PAYABLE
                         {
                             ::ink::codegen::deny_payment::<
                                 <Flipper as ::ink::env::ContractEnv>::Env,
                             >()?;
                         }
                         let result: <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            {
-                                <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                    },
-                                >>::IDS[1usize]
-                            },
+                            { 0x9DDCDAB1_u32 },
                         >>::Output = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            {
-                                <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                    },
-                                >>::IDS[1usize]
-                            },
+                            { 0x9DDCDAB1_u32 },
                         >>::CALLABLE(&mut contract, input);
                         let is_reverted = {
                             #[allow(unused_imports)]
                             use ::ink::result_info::IsResultTypeFallback as _;
                             ::ink::result_info::IsResultType::<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
+                                    { 0x9DDCDAB1_u32 },
                                 >>::Output,
                             >::VALUE
                         }
@@ -971,26 +818,14 @@ pub mod flipper {
                             push_contract(
                                 contract,
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
+                                    { 0x9DDCDAB1_u32 },
                                 >>::MUTATES,
                             );
                         }
                         ::ink::env::return_value::<
                             ::ink::MessageResult<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
+                                    { 0x9DDCDAB1_u32 },
                                 >>::Output,
                             >,
                         >(
@@ -999,79 +834,40 @@ pub mod flipper {
                         )
                     }
                     Self::Message2(input) => {
-                        if {
-                            false
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[0usize]
-                                    },
+                        let message_0 = false;
+                        let message_1 = false;
+                        let message_2 = false;
+                        let message_0 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x633AA551_u32 },
+                        >>::PAYABLE;
+                        #[cfg(feature = "foo")]
+                        let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x9DDCDAB1_u32 },
+                        >>::PAYABLE;
+                        let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                            { 0x2F865BD9_u32 },
+                        >>::PAYABLE;
+                        if false || message_0 || message_1
+                            || message_2
+                                && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
+                                    { 0x2F865BD9_u32 },
                                 >>::PAYABLE
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[1usize]
-                                    },
-                                >>::PAYABLE
-                                || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
-                                >>::PAYABLE
-                        }
-                            && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                {
-                                    <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                        {
-                                            <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                        },
-                                    >>::IDS[2usize]
-                                },
-                            >>::PAYABLE
                         {
                             ::ink::codegen::deny_payment::<
                                 <Flipper as ::ink::env::ContractEnv>::Env,
                             >()?;
                         }
                         let result: <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            {
-                                <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                    },
-                                >>::IDS[2usize]
-                            },
+                            { 0x2F865BD9_u32 },
                         >>::Output = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            {
-                                <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                    },
-                                >>::IDS[2usize]
-                            },
+                            { 0x2F865BD9_u32 },
                         >>::CALLABLE(&mut contract, input);
                         let is_reverted = {
                             #[allow(unused_imports)]
                             use ::ink::result_info::IsResultTypeFallback as _;
                             ::ink::result_info::IsResultType::<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
+                                    { 0x2F865BD9_u32 },
                                 >>::Output,
                             >::VALUE
                         }
@@ -1084,26 +880,14 @@ pub mod flipper {
                             push_contract(
                                 contract,
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
+                                    { 0x2F865BD9_u32 },
                                 >>::MUTATES,
                             );
                         }
                         ::ink::env::return_value::<
                             ::ink::MessageResult<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    {
-                                        <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                            {
-                                                <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                            },
-                                        >>::IDS[2usize]
-                                    },
+                                    { 0x2F865BD9_u32 },
                                 >>::Output,
                             >,
                         >(
@@ -1177,36 +961,20 @@ pub mod flipper {
         #[no_mangle]
         #[allow(clippy::nonminimal_bool)]
         fn call() {
-            if !{
-                false
-                    || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                        {
-                            <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                {
-                                    <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                },
-                            >>::IDS[0usize]
-                        },
-                    >>::PAYABLE
-                    || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                        {
-                            <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                {
-                                    <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                },
-                            >>::IDS[1usize]
-                        },
-                    >>::PAYABLE
-                    || <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                        {
-                            <Flipper as ::ink::reflect::ContractDispatchableMessages<
-                                {
-                                    <Flipper as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                                },
-                            >>::IDS[2usize]
-                        },
-                    >>::PAYABLE
-            } {
+            let message_0 = false;
+            let message_1 = false;
+            let message_2 = false;
+            let message_0 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                { 0x633AA551_u32 },
+            >>::PAYABLE;
+            #[cfg(feature = "foo")]
+            let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                { 0x9DDCDAB1_u32 },
+            >>::PAYABLE;
+            let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
+                { 0x2F865BD9_u32 },
+            >>::PAYABLE;
+            if !(false || message_0 || message_1 || message_2) {
                 ::ink::codegen::deny_payment::<
                     <Flipper as ::ink::env::ContractEnv>::Env,
                 >()
@@ -1254,6 +1022,11 @@ pub mod flipper {
             /// Flips the current value of the Flipper's boolean.
             pub fn flip(&mut self) {
                 self.value = !self.value;
+            }
+            /// Returns the current value of the Flipper's boolean.
+            #[cfg(feature = "foo")]
+            pub fn get_foo(&self) -> bool {
+                self.value
             }
             /// Returns the current value of the Flipper's boolean.
             pub fn get(&self) -> bool {
@@ -1482,6 +1255,36 @@ pub mod flipper {
                         ),
                     )
                     .returns::<()>()
+            }
+            /// Returns the current value of the Flipper's boolean.
+            #[cfg(feature = "foo")]
+            #[allow(clippy::type_complexity)]
+            #[inline]
+            pub fn get_foo(
+                &self,
+            ) -> ::ink::env::call::CallBuilder<
+                Environment,
+                ::ink::env::call::utils::Set<::ink::env::call::Call<Environment>>,
+                ::ink::env::call::utils::Set<
+                    ::ink::env::call::ExecutionInput<
+                        ::ink::env::call::utils::EmptyArgumentList,
+                    >,
+                >,
+                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<bool>>,
+            > {
+                ::ink::env::call::build_call::<Environment>()
+                    .call(::ink::ToAccountId::to_account_id(self))
+                    .exec_input(
+                        ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([
+                                0x9D_u8,
+                                0xDC_u8,
+                                0xDA_u8,
+                                0xB1_u8,
+                            ]),
+                        ),
+                    )
+                    .returns::<bool>()
             }
             /// Returns the current value of the Flipper's boolean.
             #[allow(clippy::type_complexity)]
@@ -1782,6 +1585,32 @@ pub mod flipper {
                 ))
         }
         /// Returns the current value of the Flipper's boolean.
+        #[cfg(feature = "foo")]
+        #[inline]
+        pub fn get_foo(&self) -> bool {
+            self.try_get_foo()
+                .unwrap_or_else(|error| ::core::panicking::panic_fmt(
+                    format_args!(
+                        "encountered error while calling {0}::{1}: {2:?}", "Flipper",
+                        "get_foo", error
+                    ),
+                ))
+        }
+        /// Returns the current value of the Flipper's boolean.
+        #[cfg(feature = "foo")]
+        #[inline]
+        pub fn try_get_foo(&self) -> ::ink::MessageResult<bool> {
+            <Self as ::ink::codegen::TraitCallBuilder>::call(self)
+                .get_foo()
+                .try_invoke()
+                .unwrap_or_else(|error| ::core::panicking::panic_fmt(
+                    format_args!(
+                        "encountered error while calling {0}::{1}: {2:?}", "Flipper",
+                        "get_foo", error
+                    ),
+                ))
+        }
+        /// Returns the current value of the Flipper's boolean.
         #[inline]
         pub fn get(&self) -> bool {
             self.try_get()
@@ -1979,8 +1808,9 @@ pub mod flipper {
                             .payable(false)
                             .docs([" Flips the current value of the Flipper's boolean."])
                             .done(),
-                        ::ink::metadata::MessageSpec::from_label("get")
-                            .selector([0x2F_u8, 0x86_u8, 0x5B_u8, 0xD9_u8])
+                        #[cfg(feature = "foo")]
+                        ::ink::metadata::MessageSpec::from_label("get_foo")
+                            .selector([0x9D_u8, 0xDC_u8, 0xDA_u8, 0xB1_u8])
                             .args([])
                             .returns(
                                 ::ink::metadata::ReturnTypeSpec::new(
@@ -2004,8 +1834,8 @@ pub mod flipper {
                                 " Returns the current value of the Flipper's boolean.",
                             ])
                             .done(),
-                        ::ink::metadata::MessageSpec::from_label("get_foo")
-                            .selector([0x9D_u8, 0xDC_u8, 0xDA_u8, 0xB1_u8])
+                        ::ink::metadata::MessageSpec::from_label("get")
+                            .selector([0x2F_u8, 0x86_u8, 0x5B_u8, 0xD9_u8])
                             .args([])
                             .returns(
                                 ::ink::metadata::ReturnTypeSpec::new(
