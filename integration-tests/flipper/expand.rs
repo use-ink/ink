@@ -218,23 +218,23 @@ pub mod flipper {
         const LABEL: &'static ::core::primitive::str = "flip";
     }
     #[cfg(feature = "foo")]
-    impl ::ink::reflect::DispatchableMessageInfo<0x9DDCDAB1_u32> for Flipper {
-        type Input = ();
-        type Output = bool;
+    impl ::ink::reflect::DispatchableMessageInfo<0x8212E40D_u32> for Flipper {
+        type Input = bool;
+        type Output = ();
         type Storage = Flipper;
         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
             storage,
-            _|
-        { Flipper::get_foo(storage) };
+            __ink_binding_0|
+        { Flipper::push_foo(storage, __ink_binding_0) };
         const SELECTOR: [::core::primitive::u8; 4usize] = [
-            0x9D_u8,
-            0xDC_u8,
-            0xDA_u8,
-            0xB1_u8,
+            0x82_u8,
+            0x12_u8,
+            0xE4_u8,
+            0x0D_u8,
         ];
         const PAYABLE: ::core::primitive::bool = false;
-        const MUTATES: ::core::primitive::bool = false;
-        const LABEL: &'static ::core::primitive::str = "get_foo";
+        const MUTATES: ::core::primitive::bool = true;
+        const LABEL: &'static ::core::primitive::str = "push_foo";
     }
     impl ::ink::reflect::DispatchableMessageInfo<0x2F865BD9_u32> for Flipper {
         type Input = ();
@@ -593,7 +593,7 @@ pub mod flipper {
             #[cfg(feature = "foo")]
             Message1(
                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    0x9DDCDAB1_u32,
+                    0x8212E40D_u32,
                 >>::Input,
             ),
             Message2(
@@ -614,7 +614,7 @@ pub mod flipper {
                 >>::SELECTOR;
                 #[cfg(feature = "foo")]
                 const MESSAGE_1: [::core::primitive::u8; 4usize] = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                    { 0x9DDCDAB1_u32 },
+                    { 0x8212E40D_u32 },
                 >>::SELECTOR;
                 const MESSAGE_2: [::core::primitive::u8; 4usize] = <Flipper as ::ink::reflect::DispatchableMessageInfo<
                     { 0x2F865BD9_u32 },
@@ -639,7 +639,7 @@ pub mod flipper {
                         ::core::result::Result::Ok(
                             Self::Message1(
                                 <<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    0x9DDCDAB1_u32,
+                                    0x8212E40D_u32,
                                 >>::Input as ::scale::Decode>::decode(input)
                                     .map_err(|_| {
                                         ::ink::reflect::DispatchError::InvalidParameters
@@ -717,16 +717,15 @@ pub mod flipper {
                         >>::PAYABLE;
                         #[cfg(feature = "foo")]
                         let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            { 0x9DDCDAB1_u32 },
+                            { 0x8212E40D_u32 },
                         >>::PAYABLE;
                         let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
                             { 0x2F865BD9_u32 },
                         >>::PAYABLE;
-                        if false || message_0 || message_1
-                            || message_2
-                                && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    { 0x633AA551_u32 },
-                                >>::PAYABLE
+                        if (false || message_0 || message_1 || message_2)
+                            && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
+                                { 0x633AA551_u32 },
+                            >>::PAYABLE
                         {
                             ::ink::codegen::deny_payment::<
                                 <Flipper as ::ink::env::ContractEnv>::Env,
@@ -780,32 +779,31 @@ pub mod flipper {
                         >>::PAYABLE;
                         #[cfg(feature = "foo")]
                         let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            { 0x9DDCDAB1_u32 },
+                            { 0x8212E40D_u32 },
                         >>::PAYABLE;
                         let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
                             { 0x2F865BD9_u32 },
                         >>::PAYABLE;
-                        if false || message_0 || message_1
-                            || message_2
-                                && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    { 0x9DDCDAB1_u32 },
-                                >>::PAYABLE
+                        if (false || message_0 || message_1 || message_2)
+                            && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
+                                { 0x8212E40D_u32 },
+                            >>::PAYABLE
                         {
                             ::ink::codegen::deny_payment::<
                                 <Flipper as ::ink::env::ContractEnv>::Env,
                             >()?;
                         }
                         let result: <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            { 0x9DDCDAB1_u32 },
+                            { 0x8212E40D_u32 },
                         >>::Output = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            { 0x9DDCDAB1_u32 },
+                            { 0x8212E40D_u32 },
                         >>::CALLABLE(&mut contract, input);
                         let is_reverted = {
                             #[allow(unused_imports)]
                             use ::ink::result_info::IsResultTypeFallback as _;
                             ::ink::result_info::IsResultType::<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    { 0x9DDCDAB1_u32 },
+                                    { 0x8212E40D_u32 },
                                 >>::Output,
                             >::VALUE
                         }
@@ -818,14 +816,14 @@ pub mod flipper {
                             push_contract(
                                 contract,
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    { 0x9DDCDAB1_u32 },
+                                    { 0x8212E40D_u32 },
                                 >>::MUTATES,
                             );
                         }
                         ::ink::env::return_value::<
                             ::ink::MessageResult<
                                 <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    { 0x9DDCDAB1_u32 },
+                                    { 0x8212E40D_u32 },
                                 >>::Output,
                             >,
                         >(
@@ -842,16 +840,15 @@ pub mod flipper {
                         >>::PAYABLE;
                         #[cfg(feature = "foo")]
                         let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                            { 0x9DDCDAB1_u32 },
+                            { 0x8212E40D_u32 },
                         >>::PAYABLE;
                         let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
                             { 0x2F865BD9_u32 },
                         >>::PAYABLE;
-                        if false || message_0 || message_1
-                            || message_2
-                                && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
-                                    { 0x2F865BD9_u32 },
-                                >>::PAYABLE
+                        if (false || message_0 || message_1 || message_2)
+                            && !<Flipper as ::ink::reflect::DispatchableMessageInfo<
+                                { 0x2F865BD9_u32 },
+                            >>::PAYABLE
                         {
                             ::ink::codegen::deny_payment::<
                                 <Flipper as ::ink::env::ContractEnv>::Env,
@@ -969,7 +966,7 @@ pub mod flipper {
             >>::PAYABLE;
             #[cfg(feature = "foo")]
             let message_1 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
-                { 0x9DDCDAB1_u32 },
+                { 0x8212E40D_u32 },
             >>::PAYABLE;
             let message_2 = <Flipper as ::ink::reflect::DispatchableMessageInfo<
                 { 0x2F865BD9_u32 },
@@ -1025,8 +1022,8 @@ pub mod flipper {
             }
             /// Returns the current value of the Flipper's boolean.
             #[cfg(feature = "foo")]
-            pub fn get_foo(&self) -> bool {
-                self.value
+            pub fn push_foo(&mut self, value: bool) {
+                self.value = value;
             }
             /// Returns the current value of the Flipper's boolean.
             pub fn get(&self) -> bool {
@@ -1035,9 +1032,7 @@ pub mod flipper {
         }
         const _: () = {
             ::ink::codegen::utils::consume_type::<::ink::codegen::DispatchInput<bool>>();
-            ::ink::codegen::utils::consume_type::<
-                ::ink::codegen::DispatchOutput<bool>,
-            >();
+            ::ink::codegen::utils::consume_type::<::ink::codegen::DispatchInput<bool>>();
             ::ink::codegen::utils::consume_type::<
                 ::ink::codegen::DispatchOutput<bool>,
             >();
@@ -1260,31 +1255,36 @@ pub mod flipper {
             #[cfg(feature = "foo")]
             #[allow(clippy::type_complexity)]
             #[inline]
-            pub fn get_foo(
-                &self,
+            pub fn push_foo(
+                &mut self,
+                __ink_binding_0: bool,
             ) -> ::ink::env::call::CallBuilder<
                 Environment,
                 ::ink::env::call::utils::Set<::ink::env::call::Call<Environment>>,
                 ::ink::env::call::utils::Set<
                     ::ink::env::call::ExecutionInput<
-                        ::ink::env::call::utils::EmptyArgumentList,
+                        ::ink::env::call::utils::ArgumentList<
+                            ::ink::env::call::utils::Argument<bool>,
+                            ::ink::env::call::utils::EmptyArgumentList,
+                        >,
                     >,
                 >,
-                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<bool>>,
+                ::ink::env::call::utils::Set<::ink::env::call::utils::ReturnType<()>>,
             > {
                 ::ink::env::call::build_call::<Environment>()
                     .call(::ink::ToAccountId::to_account_id(self))
                     .exec_input(
                         ::ink::env::call::ExecutionInput::new(
-                            ::ink::env::call::Selector::new([
-                                0x9D_u8,
-                                0xDC_u8,
-                                0xDA_u8,
-                                0xB1_u8,
-                            ]),
-                        ),
+                                ::ink::env::call::Selector::new([
+                                    0x82_u8,
+                                    0x12_u8,
+                                    0xE4_u8,
+                                    0x0D_u8,
+                                ]),
+                            )
+                            .push_arg(__ink_binding_0),
                     )
-                    .returns::<bool>()
+                    .returns::<()>()
             }
             /// Returns the current value of the Flipper's boolean.
             #[allow(clippy::type_complexity)]
@@ -1587,26 +1587,26 @@ pub mod flipper {
         /// Returns the current value of the Flipper's boolean.
         #[cfg(feature = "foo")]
         #[inline]
-        pub fn get_foo(&self) -> bool {
-            self.try_get_foo()
+        pub fn push_foo(&mut self, value: bool) {
+            self.try_push_foo(value)
                 .unwrap_or_else(|error| ::core::panicking::panic_fmt(
                     format_args!(
                         "encountered error while calling {0}::{1}: {2:?}", "Flipper",
-                        "get_foo", error
+                        "push_foo", error
                     ),
                 ))
         }
         /// Returns the current value of the Flipper's boolean.
         #[cfg(feature = "foo")]
         #[inline]
-        pub fn try_get_foo(&self) -> ::ink::MessageResult<bool> {
-            <Self as ::ink::codegen::TraitCallBuilder>::call(self)
-                .get_foo()
+        pub fn try_push_foo(&mut self, value: bool) -> ::ink::MessageResult<()> {
+            <Self as ::ink::codegen::TraitCallBuilder>::call_mut(self)
+                .push_foo(value)
                 .try_invoke()
                 .unwrap_or_else(|error| ::core::panicking::panic_fmt(
                     format_args!(
                         "encountered error while calling {0}::{1}: {2:?}", "Flipper",
-                        "get_foo", error
+                        "push_foo", error
                     ),
                 ))
         }
@@ -1809,13 +1809,27 @@ pub mod flipper {
                             .docs([" Flips the current value of the Flipper's boolean."])
                             .done(),
                         #[cfg(feature = "foo")]
-                        ::ink::metadata::MessageSpec::from_label("get_foo")
-                            .selector([0x9D_u8, 0xDC_u8, 0xDA_u8, 0xB1_u8])
-                            .args([])
+                        ::ink::metadata::MessageSpec::from_label("push_foo")
+                            .selector([0x82_u8, 0x12_u8, 0xE4_u8, 0x0D_u8])
+                            .args([
+                                ::ink::metadata::MessageParamSpec::new("value")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            bool,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter(["bool"]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                            ])
                             .returns(
                                 ::ink::metadata::ReturnTypeSpec::new(
                                     ::ink::metadata::TypeSpec::with_name_segs::<
-                                        ::ink::MessageResult<bool>,
+                                        ::ink::MessageResult<()>,
                                         _,
                                     >(
                                         ::core::iter::Iterator::map(
@@ -1828,7 +1842,7 @@ pub mod flipper {
                                     ),
                                 ),
                             )
-                            .mutates(false)
+                            .mutates(true)
                             .payable(false)
                             .docs([
                                 " Returns the current value of the Flipper's boolean.",
