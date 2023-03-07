@@ -32,7 +32,7 @@ variables:
   PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro"
   ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro ink/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  MULTI_CONTRACT_CALLER_SUBCONTRACTS: "accumulator adder subber"
   LANG_ERR_INTEGRATION_CONTRACTS:  "integration-flipper call-builder contract-ref constructors-return-value"
   # TODO `cargo clippy --verbose --all-targets --all-features` for this crate
   # currently fails on `stable`, but succeeds on `nightly`. This is due to
@@ -118,8 +118,8 @@ examples-fmt:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml -- --check;
+    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
+        cargo +nightly fmt --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml -- --check;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
@@ -157,8 +157,8 @@ examples-clippy-std:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
+        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
@@ -175,8 +175,8 @@ examples-clippy-wasm:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
+        cargo clippy --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
@@ -364,8 +364,8 @@ examples-test:
           cargo test --verbose --manifest-path ${example}/Cargo.toml;
         fi;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml;
+    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
+        cargo test --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml;
       done
     # TODO (#1502): We need to clean before running, otherwise the CI fails with a
     # linking error.
@@ -388,7 +388,7 @@ examples-contract-build:
         cargo +stable contract build &&
         popd;
       done
-    - pushd ./integration-tests/delegator/ && ./build-all.sh && popd
+    - pushd ./integration-tests/multi_contract_caller/ && ./build-all.sh && popd
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
@@ -409,8 +409,8 @@ examples-docs:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+    - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
+        cargo doc --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
