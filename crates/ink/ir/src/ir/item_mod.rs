@@ -239,10 +239,16 @@ impl ItemMod {
         Ok(())
     }
 
-    /// Ensures that at most one wildcard selector exists among ink! messages, as well as
+    /// Ensures that:
+    /// - At most one wildcard selector exists among ink! messages, as well as
     /// ink! constructors.
-    fn ensure_only_one_wildcard_selector(items: &[ir::Item]) -> Result<(), syn::Error> {
+    /// - Where a wildcard selector is defined for a message, at most one other
+    /// message is defined which must have a well known selector.
+    fn ensure_valid_wildcard_selector_usage(
+        items: &[ir::Item],
+    ) -> Result<(), syn::Error> {
         let mut wildcard_selector: Option<&ir::Message> = None;
+        let mut other_messages = Vec::new();
         for item_impl in items
             .iter()
             .filter_map(ir::Item::map_ink_item)
@@ -250,6 +256,7 @@ impl ItemMod {
         {
             for message in item_impl.iter_messages() {
                 if !message.has_wildcard_selector() {
+                    other_messages.push(message);
                     continue
                 }
                 match wildcard_selector {
@@ -267,6 +274,25 @@ impl ItemMod {
                     }
                 }
             }
+
+            if let Some(wildcard) = wildcard_selector {
+                match other_messages.len() as u32 {
+                    0 => (),
+                    1 => {
+                        if other_messages[0].composed_selector().to_bytes() == [0x00, 0x00, 0x00, 0x00] { // todo well known selector constant?
+                            return Err(format_err!(
+                                wildcard.span(),
+                                "at most one other message can be defined together with a wildcard selector",
+                            ))
+                        }
+                    }
+                    2.. => return Err(format_err!(
+                        wildcard.span(), // todo: make span cover other messages?
+                        "at most one other message can be defined together with a wildcard selector",
+                    ))
+                }
+            }
+
             let mut wildcard_selector: Option<&ir::Constructor> = None;
             for constructor in item_impl.iter_constructors() {
                 if !constructor.has_wildcard_selector() {
@@ -329,7 +355,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         Self::ensure_contains_message(module_span, &items)?;
         Self::ensure_contains_constructor(module_span, &items)?;
         Self::ensure_no_overlapping_selectors(&items)?;
-        Self::ensure_only_one_wildcard_selector(&items)?;
+        Self::ensure_valid_wildcard_selector_usage(&items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,
@@ -920,4 +946,51 @@ mod tests {
             "encountered ink! attribute arguments with equal kinds",
         );
     }
+
+    #[test]
+    fn wildcard_selector_on_message_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+                    }
+                }
+            }).is_ok()
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_and_one_other_message_with_well_known_selector_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        // #[ink(message, selector = 0x00000000)] // todo: well known selector
+                        // pub fn well_known_other_message(&self) {}
+                    }
+                }
+            }).is_ok()
+        );
+    }
+
+    // todo: test 1 other message with incorrect selector
+    // todo: test more than 1 other message, one with correct well known selector
+    // todo: test well known selector used not in combination with a wildcard selector
 }
