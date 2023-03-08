@@ -438,7 +438,8 @@ impl Dispatch<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let any_constructor_accept_payment =
             self.any_constructor_accepts_payment_expr(constructor_spans);
-        let any_message_accept_payment = self.any_message_accepts_payment_expr(messages);
+        let msg_accepts_payment_assignments =
+            self.any_message_accepts_payment_vars(messages);
         let message_vars = self.generate_message_vars(messages);
         let message_var_idents = Self::generate_messages_idents(messages);
         quote_spanned!(span=>
@@ -486,7 +487,7 @@ impl Dispatch<'_> {
             fn call() {
                  #( #message_vars )*
 
-                #any_message_accept_payment
+                #msg_accepts_payment_assignments
                 if !( false #( || #message_var_idents )* ) {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
@@ -738,9 +739,6 @@ impl Dispatch<'_> {
         &self,
         messages: &[MessageDispatchable],
     ) -> TokenStream2 {
-        // TODO: resolve
-        // assert_eq!(message_spans.len(), self.query_amount_messages());
-
         /// Expands into the token sequence to represent the
         /// input type of the ink! message at the given index.
         fn expand_message_input(
@@ -839,7 +837,8 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let any_message_accept_payment = self.any_message_accepts_payment_expr(messages);
+        let msg_accepts_payment_assignments =
+            self.any_message_accepts_payment_vars(messages);
 
         let message_execute = messages
             .iter()
@@ -874,7 +873,7 @@ impl Dispatch<'_> {
                     Self::#message_ident(input) => {
                         #( #message_vars )*
 
-                        #any_message_accept_payment
+                        #msg_accepts_payment_assignments
 
                         if (false #( || #message_var_idents )*) && #deny_payment {
                             ::ink::codegen::deny_payment::<
@@ -975,6 +974,9 @@ impl Dispatch<'_> {
             };
         )
     }
+
+    /// Generates tokens of variables relates to message index.
+    /// Used alongside `any_message_accepts_payment_vars()`
     fn generate_message_vars(
         &self,
         messages: &[MessageDispatchable],
@@ -1007,10 +1009,14 @@ impl Dispatch<'_> {
 
     /// Generates code to express if any dispatchable ink! message accepts payment.
     ///
+    /// Generates code in the form of variable assignments
+    /// which can be conditionally omitted
+    /// in which case the default assignment `let message_{id} = false` exists.
+    ///
     /// This information can be used to speed-up dispatch since denying of payment
     /// can be generalized to work before dispatch happens if none of the ink! messages
     /// accept payment anyways.
-    fn any_message_accepts_payment_expr(
+    fn any_message_accepts_payment_vars(
         &self,
         messages: &[MessageDispatchable],
     ) -> TokenStream2 {
