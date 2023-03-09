@@ -206,6 +206,7 @@ impl TraitRegistry<'_> {
             }
         };
         quote_spanned!(span=>
+            #( #attrs )*
             type #output_ident = #output_type;
 
             #( #attrs )*

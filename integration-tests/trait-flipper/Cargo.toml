@@ -24,3 +24,4 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
+foo = []

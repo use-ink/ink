@@ -195,6 +195,7 @@ impl ItemImpls<'_> {
             .unwrap_or_else(|| syn::parse_quote! { () });
         let statements = message.statements();
         quote_spanned!(span =>
+            #( #attrs )*
             type #output_ident = #output;
 
             #( #attrs )*

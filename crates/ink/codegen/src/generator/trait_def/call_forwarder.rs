@@ -388,6 +388,7 @@ impl CallForwarder<'_> {
             "encountered error while calling <{forwarder_ident} as {trait_ident}>::{message_ident}",
         );
         quote_spanned!(span =>
+            #( #attrs )*
             type #output_ident = #output_type;
 
             #( #attrs )*

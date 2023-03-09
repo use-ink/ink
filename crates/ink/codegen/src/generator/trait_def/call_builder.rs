@@ -347,6 +347,7 @@ impl CallBuilder<'_> {
         let mut_tok = message.mutates().then(|| quote! { mut });
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
+            #( #attrs )*
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,

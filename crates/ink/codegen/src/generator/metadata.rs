@@ -145,7 +145,13 @@ impl Metadata<'_> {
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         let storage_ident = self.contract.module().storage().ident();
         let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
+        let cfg_tokens = constructor.get_cfg_tokens();
+        let cfg_attrs = cfg_tokens.iter().map(|token| {
+            quote_spanned!(span=>
+                #[cfg #token])
+        });
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
                     #( #selector_bytes ),*

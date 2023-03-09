@@ -275,6 +275,12 @@ impl CallBuilder<'_> {
         let span = message.span();
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
+        let cfg_tokens = message.get_cfg_tokens();
+        let cfg_attrs = cfg_tokens.iter().map(|token| {
+            quote_spanned!(span=>
+                    #[cfg #token])
+        });
+        let cfg_attrs2 = cfg_attrs.clone();
         let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
             .callable()
@@ -295,6 +301,7 @@ impl CallBuilder<'_> {
             .whitelisted_attributes()
             .filter_attr(message.attrs().to_vec());
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             type #output_ident = <<<
                 Self
                 as ::ink::codegen::TraitCallForwarderFor<{#trait_info_id}>>::Forwarder
@@ -302,6 +309,7 @@ impl CallBuilder<'_> {
                 as #trait_path>::#output_ident;
 
             #[inline]
+            #( #cfg_attrs2 )*
             #( #attrs )*
             fn #message_ident(
                 & #mut_token self

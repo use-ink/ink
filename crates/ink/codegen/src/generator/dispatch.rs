@@ -33,7 +33,10 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::spanned::Spanned as _;
+use syn::{
+    spanned::Spanned as _,
+    LitInt,
+};
 
 pub struct MessageDispatchable<'a> {
     message: CallableWithSelector<'a, Message>,
@@ -41,8 +44,8 @@ pub struct MessageDispatchable<'a> {
 }
 
 pub struct ConstructorDispatchable<'a> {
-    message: CallableWithSelector<'a, Constructor>,
-    id: TokenStream2,
+    constructor: CallableWithSelector<'a, Constructor>,
+    id: LitInt,
 }
 
 /// Generates code for the message and constructor dispatcher.
@@ -66,28 +69,18 @@ impl_as_ref_for_generator!(Dispatch);
 
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let mut constructor_spans = Vec::new();
-
         let messages = self.compose_messages_with_ids();
+        let constructors = self.compose_constructors_with_ids();
 
-        let amount_dispatchables =
-            self.generate_contract_amount_dispatchables_trait_impl();
-
-        let contract_dispatchable_constructors = self
-            .generate_contract_dispatchable_constructors_trait_impl(
-                &mut constructor_spans,
-            );
         let contract_dispatchable_constructor_infos =
             self.generate_dispatchable_constructor_infos();
         let contract_dispatchable_messages_infos =
             self.generate_dispatchable_message_infos();
         let constructor_decoder_type =
-            self.generate_constructor_decoder_type(&constructor_spans);
+            self.generate_constructor_decoder_type(&constructors);
         let message_decoder_type = self.generate_message_decoder_type(&messages);
-        let entry_points = self.generate_entry_points(&constructor_spans, &messages);
+        let entry_points = self.generate_entry_points(&constructors, &messages);
         quote! {
-            #amount_dispatchables
-            #contract_dispatchable_constructors
             #contract_dispatchable_constructor_infos
             #contract_dispatchable_messages_infos
             #constructor_decoder_type
@@ -103,63 +96,6 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
-    /// Returns the number of dispatchable ink! constructors of the ink! smart contract.
-    fn query_amount_constructors(&self) -> usize {
-        self.contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .count()
-    }
-
-    fn conditionally_query_amount_constructors(&self) -> TokenStream2 {
-        let raw = self
-            .contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| {
-                item_impl
-                    .iter_constructors()
-                    .filter(|m| m.get_cfg_tokens().is_empty())
-            })
-            .count();
-
-        let generate_counter = self
-            .contract
-            .module()
-            .impls()
-            .flat_map(|item_impl| {
-                item_impl
-                    .iter_constructors()
-                    .filter(|m| !m.get_cfg_tokens().is_empty())
-            })
-            .map(|i| {
-                let mut cfg_tokens = i.get_cfg_tokens();
-                let mut tokens_iter = cfg_tokens.iter_mut();
-                // there must be at least one token
-                let first_token = tokens_iter.next().unwrap();
-                let mut condition = quote!(if cfg!#first_token);
-                for token in tokens_iter {
-                    condition.extend(quote!( || cfg!#token));
-                }
-                // if any of the conditional flags are enables, we count the message in
-                quote! {
-                    count += #condition {
-                        1
-                    } else {
-                        0
-                    };
-                }
-            });
-
-        quote!(
-        {
-            let mut count: usize = #raw;
-            #(#generate_counter)*
-            count
-        })
-    }
-
     /// Returns the index of the ink! message which has a wildcard selector, if existent.
     fn query_wildcard_message(&self) -> Option<usize> {
         self.contract
@@ -178,22 +114,9 @@ impl Dispatch<'_> {
             .position(|item| item.has_wildcard_selector())
     }
 
-    fn generate_contract_amount_dispatchables_trait_impl(&self) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
-        let storage_ident = self.contract.module().storage().ident();
-        let count_constructors = self.conditionally_query_amount_constructors();
-        // TODO: define calculation of items based on cfg attributes
-        quote_spanned!(span=>
-            impl ::ink::reflect::ContractAmountDispatchables for #storage_ident {
-                const CONSTRUCTORS: ::core::primitive::usize = #count_constructors;
-            }
-        )
-    }
-
     fn compose_messages_with_ids(&self) -> Vec<MessageDispatchable> {
         let storage_ident = self.contract.module().storage().ident();
-        self
-        .contract
+        self.contract
             .module()
             .impls()
             .flat_map(|item_impl| {
@@ -226,42 +149,21 @@ impl Dispatch<'_> {
             .collect::<Vec<_>>()
     }
 
-    /// Generates code for the [`ink::ContractDispatchableConstructors`] trait implementation.
-    ///
-    /// This trait implementation stores the selector ID of each dispatchable
-    /// ink! constructor of the ink! smart contract.
-    fn generate_contract_dispatchable_constructors_trait_impl(
-        &self,
-        constructor_spans: &mut Vec<proc_macro2::Span>,
-    ) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
-        let storage_ident = self.contract.module().storage().ident();
-        let constructor_ids = self
-            .contract
+    fn compose_constructors_with_ids(&self) -> Vec<ConstructorDispatchable> {
+        self.contract
             .module()
             .impls()
-            .flat_map(|item_impl| item_impl.iter_constructors())
-            .map(|constructor| {
-                let span = constructor.span();
-                constructor_spans.push(span);
+            .flat_map(|item_impl| {
+                iter::repeat(item_impl.trait_path()).zip(item_impl.iter_constructors())
+            })
+            .map(|(_, constructor)| {
                 let id = constructor
                     .composed_selector()
                     .into_be_u32()
                     .hex_padded_suffixed();
-                quote_spanned!(span=> #id)
-            });
-        quote_spanned!(span=>
-            impl ::ink::reflect::ContractDispatchableConstructors<{
-                <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-            }> for #storage_ident {
-                const IDS: [
-                    ::core::primitive::u32;
-                    <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                ] = [
-                    #( #constructor_ids ),*
-                ];
-            }
-        )
+                ConstructorDispatchable { constructor, id }
+            })
+            .collect::<Vec<_>>()
     }
 
     /// Generate code for the [`ink::DispatchableConstructorInfo`] trait implementations.
@@ -282,6 +184,9 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
+                let cfg_tokens = constructor.get_cfg_tokens();
+                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(constructor_span=>
+                    #[cfg #token]));
                 let output_type = constructor.output().map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(constructor.inputs());
@@ -292,6 +197,7 @@ impl Dispatch<'_> {
                         as ::ink::reflect::ConstructorOutput<#storage_ident>>
                 );
                 quote_spanned!(constructor_span=>
+                    #( #cfg_attrs )*
                     impl ::ink::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_type;
@@ -402,7 +308,11 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let label = format!("{trait_ident}::{message_ident}");
+                let cfg_tokens = message.get_cfg_tokens();
+                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(message_span=>
+                    #[cfg #token]));
                 quote_spanned!(message_span=>
+                    #( #cfg_attrs )*
                     impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
@@ -431,13 +341,15 @@ impl Dispatch<'_> {
     /// contract runtime mainly interacts with the ink! smart contract.
     fn generate_entry_points(
         &self,
-        constructor_spans: &[proc_macro2::Span],
+        constructors: &[ConstructorDispatchable],
         messages: &[MessageDispatchable],
     ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let any_constructor_accept_payment =
-            self.any_constructor_accepts_payment_expr(constructor_spans);
+        let constructor_vars = self.generate_constructor_vars(constructors);
+        let constructor_var_idents = Self::generate_constructor_idents(constructors);
+        let constructor_accept_payment_assignments =
+            self.any_constructor_accepts_payment_vars(constructors);
         let msg_accepts_payment_assignments =
             self.any_message_accepts_payment_vars(messages);
         let message_vars = self.generate_message_vars(messages);
@@ -447,7 +359,10 @@ impl Dispatch<'_> {
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
-                if !#any_constructor_accept_payment {
+                #( #constructor_vars )*
+
+                #constructor_accept_payment_assignments
+                if !( false #( || #constructor_var_idents )* ) {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
@@ -530,23 +445,17 @@ impl Dispatch<'_> {
     /// into one of the available dispatchable ink! constructors and their arguments.
     fn generate_constructor_decoder_type(
         &self,
-        constructor_spans: &[proc_macro2::Span],
+        constructors: &[ConstructorDispatchable],
     ) -> TokenStream2 {
-        assert_eq!(constructor_spans.len(), self.query_amount_constructors());
-
         /// Expands into the token sequence to represent the
         /// input type of the ink! constructor at the given index.
         fn expand_constructor_input(
             span: proc_macro2::Span,
             storage_ident: &syn::Ident,
-            constructor_index: usize,
+            constructor_id: LitInt,
         ) -> TokenStream2 {
             quote_spanned!(span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#constructor_index]
-                }>>::Input
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #constructor_id >>::Input
             )
         }
 
@@ -557,34 +466,54 @@ impl Dispatch<'_> {
 
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let count_constructors = self.query_amount_constructors();
-        let constructors_variants = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
-            let constructor_ident = constructor_variant_ident(index);
-            let constructor_input =
-                expand_constructor_input(constructor_span, storage_ident, index);
-            quote_spanned!(constructor_span=>
-                #constructor_ident(#constructor_input)
-            )
-        });
+        let constructors_variants =
+            constructors.iter().enumerate().map(|(index, item)| {
+                let constructor_span = item.constructor.span();
+                let constructor_ident = constructor_variant_ident(index);
+                let cfg_tokens = item.constructor.get_cfg_tokens();
+                let cfg_attrs = cfg_tokens.iter().map(|token| {
+                    quote_spanned!(constructor_span=>
+                    #[cfg #token])
+                });
+                let constructor_input = expand_constructor_input(
+                    constructor_span,
+                    storage_ident,
+                    item.id.clone(),
+                );
+                quote_spanned!(constructor_span=>
+                    #( #cfg_attrs )*
+                    #constructor_ident(#constructor_input)
+                )
+            });
 
-        let constructor_selector = (0..count_constructors).map(|index| {
+        let constructor_selector=
+            constructors.iter().enumerate().map(|(index, item)| {
+            let constructor_span = item.constructor.span();
             let const_ident = format_ident!("CONSTRUCTOR_{}", index);
+            let id = item.id.clone();
+            let cfg_tokens = item.constructor.get_cfg_tokens();
+            let cfg_attrs = cfg_tokens.iter().map(|token| {
+                    quote_spanned!(constructor_span=>
+                    #[cfg #token])
+                });
             quote_spanned!(span=>
-                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#index]
-                }>>::SELECTOR;
+                #( #cfg_attrs )*
+                const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::SELECTOR;
             )
         });
 
-        let constructor_match = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
+        let constructor_match = constructors.iter().enumerate().map(|(index, item)| {
+            let constructor_span = item.constructor.span();
             let constructor_ident = constructor_variant_ident(index);
             let const_ident = format_ident!("CONSTRUCTOR_{}", index);
-            let constructor_input = expand_constructor_input(constructor_span, storage_ident, index);
+            let constructor_input = expand_constructor_input(constructor_span, storage_ident, item.id.clone());
+            let cfg_tokens = item.constructor.get_cfg_tokens();
+            let cfg_attrs = cfg_tokens.iter().map(|token| {
+                    quote_spanned!(constructor_span=>
+                    #[cfg #token])
+                });
             quote_spanned!(constructor_span=>
+                #( #cfg_attrs )*
                 #const_ident => {
                     ::core::result::Result::Ok(Self::#constructor_ident(
                         <#constructor_input as ::scale::Decode>::decode(input)
@@ -597,12 +526,13 @@ impl Dispatch<'_> {
             .query_wildcard_constructor()
         {
             Some(wildcard_index) => {
-                let constructor_span = constructor_spans[wildcard_index];
+                let item = constructors.get(wildcard_index).unwrap();
+                let constructor_span = item.constructor.span();
                 let constructor_ident = constructor_variant_ident(wildcard_index);
                 let constructor_input = expand_constructor_input(
                     constructor_span,
                     storage_ident,
-                    wildcard_index,
+                    item.id.clone(),
                 );
                 quote! {
                     ::core::result::Result::Ok(Self::#constructor_ident(
@@ -617,41 +547,43 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let any_constructor_accept_payment =
-            self.any_constructor_accepts_payment_expr(constructor_spans);
+        let constructor_accept_payment_assignment =
+            self.any_constructor_accepts_payment_vars(constructors);
 
-        let constructor_execute = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
+        let constructor_execute = constructors.iter().enumerate().map(|(index, item)| {
+            let constructor_span = item.constructor.span();
             let constructor_ident = constructor_variant_ident(index);
+            let id = item.id.clone();
+            let cfg_tokens = item.constructor.get_cfg_tokens();
+            let cfg_attrs = cfg_tokens.iter().map(|token| {
+                quote_spanned!(constructor_span=>
+                        #[cfg #token])
+                });
             let constructor_callable = quote_spanned!(constructor_span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#index]
-                }>>::CALLABLE
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::CALLABLE
             );
             let constructor_output = quote_spanned!(constructor_span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#index]
-                }>>::Output
+                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::Output
             );
             let deny_payment = quote_spanned!(constructor_span=>
-                !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#index]
-                }>>::PAYABLE
+                !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::PAYABLE
             );
             let constructor_value = quote_spanned!(constructor_span=>
                 <::ink::reflect::ConstructorOutputValue<#constructor_output>
                     as ::ink::reflect::ConstructorOutput::<#storage_ident>>
             );
 
+            let constructor_vars = self.generate_constructor_vars(constructors);
+            let constructor_var_idents = Self::generate_constructor_idents(constructors);
+
             quote_spanned!(constructor_span=>
+                #( #cfg_attrs )*
                 Self::#constructor_ident(input) => {
-                    if #any_constructor_accept_payment && #deny_payment {
+                    #( #constructor_vars )*
+
+                    #constructor_accept_payment_assignment
+
+                    if (false #( || #constructor_var_idents )* ) && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                     }
@@ -788,9 +720,7 @@ impl Dispatch<'_> {
                     });
                 quote_spanned!(span=>
                     #( #cfg_attrs )*
-                    const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{
-                        #id
-                    }>>::SELECTOR;
+                    const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::SELECTOR;
                 )
         });
 
@@ -846,23 +776,23 @@ impl Dispatch<'_> {
             .map(|(index, item)| {
                 let message_span = item.message.span();
                 let message_ident = message_variant_ident(index);
-                let cfg_tokens = item.message.get_cfg_tokens();
                 let id = item.id.clone();
+                let cfg_tokens = item.message.get_cfg_tokens();
                 let cfg_attrs = cfg_tokens.iter().map(|token| {
                     quote_spanned!(message_span=>
                         #[cfg #token])
                     });
                 let message_callable = quote_spanned!(message_span=>
-                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{ #id }>>::CALLABLE
+                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::CALLABLE
                 );
                 let message_output = quote_spanned!(message_span=>
-                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{ #id }>>::Output
+                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::Output
                 );
                 let deny_payment = quote_spanned!(message_span=>
-                    !<#storage_ident as ::ink::reflect::DispatchableMessageInfo<{ #id }>>::PAYABLE
+                    !<#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::PAYABLE
                 );
                 let mutates_storage = quote_spanned!(message_span=>
-                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{ #id }>>::MUTATES
+                    <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::MUTATES
                 );
 
                 let message_vars = self.generate_message_vars(messages);
@@ -1036,7 +966,7 @@ impl Dispatch<'_> {
                 });
             quote_spanned!(message_span=>
                 #( #cfg_attrs )*
-                let #ident = <#storage_ident as ::ink::reflect::DispatchableMessageInfo<{ #id }>>::PAYABLE;
+                let #ident = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::PAYABLE;
             )
         });
         quote_spanned!(span=>
@@ -1044,32 +974,66 @@ impl Dispatch<'_> {
         )
     }
 
+    /// Generates tokens of variables relates to message index.
+    /// Used alongside `any_message_accepts_payment_vars()`
+    fn generate_constructor_vars(
+        &self,
+        constructors: &[ConstructorDispatchable],
+    ) -> Vec<TokenStream2> {
+        let span = self.contract.module().storage().span();
+
+        constructors
+            .iter()
+            .enumerate()
+            .map(|(index, _)| {
+                let ident = quote::format_ident!("constructor_{}", index);
+                quote_spanned!(span =>
+                        let #ident = false;
+                )
+            })
+            .collect_vec()
+    }
+
+    fn generate_constructor_idents(
+        constructors: &[ConstructorDispatchable],
+    ) -> Vec<syn::Ident> {
+        fn message_var_ident(n: usize) -> syn::Ident {
+            quote::format_ident!("constructor_{}", n)
+        }
+        constructors
+            .iter()
+            .enumerate()
+            .map(|(index, _)| message_var_ident(index))
+            .collect_vec()
+    }
+
     /// Generates code to express if any dispatchable ink! constructor accepts payment.
     ///
     /// This information can be used to speed-up dispatch since denying of payment
     /// can be generalized to work before dispatch happens if none of the ink! constructors
     /// accept payment anyways.
-    fn any_constructor_accepts_payment_expr(
+    fn any_constructor_accepts_payment_vars(
         &self,
-        constructor_spans: &[proc_macro2::Span],
+        constructors: &[ConstructorDispatchable],
     ) -> TokenStream2 {
-        assert_eq!(constructor_spans.len(), self.query_amount_constructors());
-
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let count_constructors = self.query_amount_constructors();
-        let constructor_is_payable = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
+        let constructor_is_payable = constructors.iter().enumerate().map(|(index, item)| {
+            let constructor_span = item.constructor.span();
+            let cfg_tokens = item.constructor.get_cfg_tokens();
+            let id = item.id.clone();
+            let ident = quote::format_ident!("constructor_{}", index);
+            let cfg_attrs = cfg_tokens.iter().map(|token| {
+                quote_spanned!(constructor_span=>
+                    #[cfg #token])
+                });
             quote_spanned!(constructor_span=>
-                <#storage_ident as ::ink::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#index]
-                }>>::PAYABLE
+                #( #cfg_attrs )*
+                let #ident = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::PAYABLE;
             )
         });
         quote_spanned!(span=>
-            { false #( || #constructor_is_payable )* }
+            #( #constructor_is_payable )*
         )
     }
 }

@@ -10,6 +10,10 @@ pub trait Flip {
     /// Returns the current value of the Flipper's boolean.
     #[ink(message)]
     fn get(&self) -> bool;
+
+    #[cfg(feature = "foo")]
+    #[ink(message)]
+    fn get_foo(&self) -> bool;
 }
 
 #[ink::contract]
@@ -39,6 +43,12 @@ pub mod flipper {
 
         #[ink(message)]
         fn get(&self) -> bool {
+            self.value
+        }
+
+        #[cfg(feature = "foo")]
+        #[ink(message)]
+        fn get_foo(&self) -> bool {
             self.value
         }
     }

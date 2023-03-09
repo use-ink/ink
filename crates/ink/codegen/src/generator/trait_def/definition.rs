@@ -38,6 +38,7 @@ impl<'a> TraitDefinition<'a> {
             format_ident!("{}Output", ident.to_string().to_lower_camel_case());
         quote_spanned!(span =>
             /// Output type of the respective trait message.
+            #(#attrs)*
             type #output_ident: ::ink::codegen::ImpliesReturn<#output>;
 
             #(#attrs)*
