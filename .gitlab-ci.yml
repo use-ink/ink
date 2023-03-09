@@ -440,8 +440,19 @@ examples-no-std-check:
   script:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
+    # We skip some examples for those reasons:
+    # There are no manifests in those two directories and hence it would fall back to the workspace. 
+    #  - lang-err-integration-tests
+    #  - upgradeable-contracts
+    # This uses dlmalloc which is only supported on select targets.
+    #   - custom_allocator
+    # Pulls in sp-std which needlessly requires atomic pointers.
+    #   - call-runtime
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/custom_allocator/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
         pushd $example &&
         cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
         popd;
