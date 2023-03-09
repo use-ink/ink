@@ -172,6 +172,16 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -224,17 +234,27 @@
 #[allow(unused_extern_crates)]
 </span><span class="kw">extern crate </span>rlibc;
 
-<span class="attr">#[cfg(all(not(feature = <span class="string">&quot;std&quot;</span>), target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+<span class="attr">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
 #[allow(unused_variables)]
 #[panic_handler]
 </span><span class="kw">fn </span>panic(info: <span class="kw-2">&amp;</span>core::panic::PanicInfo) -&gt; ! {
     <span class="comment">// This code gets removed in release builds where the macro will expand into nothing.
     </span><span class="macro">debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, info);
 
-    <span class="comment">// We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    // This is used in order to make any panic a direct abort avoiding Rust&#39;s general
-    // panic infrastructure.
+    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
     </span>core::arch::wasm32::unreachable();
+
+    <span class="comment">// For any other nostd architecture we just call an imaginary
+    // `abort` function. No other architecture is supported. We
+    // just have this to check if compilation does not break
+    // for other true nostd targets.
+    </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    </span><span class="kw">unsafe </span>{
+        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
+            <span class="kw">fn </span>abort() -&gt; !;
+        }
+        abort();
+    }
 }
 
 <span class="comment">// This extern crate definition is required since otherwise rustc
