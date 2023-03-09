@@ -28,7 +28,7 @@ itertools = "0.10"
 either = { version = "1.5", default-features = false }
 blake2 = "0.10"
 heck = "0.4.0"
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 impl-serde = "0.4.0"
 
 serde = { version = "1.0.137", default-features = false, features = ["derive"] }

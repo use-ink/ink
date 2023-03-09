@@ -29,8 +29,8 @@ variables:
   # CI_IMAGE is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
-  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro"
-  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro ink/ir"
+  PURELY_STD_CRATES:               "ink/codegen metadata engine e2e e2e/macro ink/ir"
+  ALSO_WASM_CRATES:                "env storage storage/traits allocator prelude primitives ink ink/macro"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   MULTI_CONTRACT_CALLER_SUBCONTRACTS: "accumulator adder subber"
   LANG_ERR_INTEGRATION_CONTRACTS:  "integration-flipper call-builder contract-ref constructors-return-value"
@@ -39,6 +39,9 @@ variables:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
+  # This is a target that does not have a standard library in contrast to Wasm. We compile against
+  # this target to make sure that we don't pull in `std` by accident (through dependencies).
+  NO_STD_TARGET:                   "bpfel-unknown-none"
 
 workflow:
   rules:
@@ -203,6 +206,18 @@ check-wasm:
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
+      done
+
+# We just check on a target which doesn't have `std` to make sure that we don't pull in `std` by accident
+check-no-std:
+  stage:                           check
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - for crate in ${ALSO_WASM_CRATES}; do
+        cargo check --verbose --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 dylint:
@@ -393,6 +408,34 @@ examples-contract-build:
         cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
     - cargo +stable contract build --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml
+
+# We only check a few basic contracts here, no need to check them all.
+examples-no-std-check:
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTC_BOOTSTRAP:               "1"
+  script:
+    - rustup component add rust-src --toolchain stable
+    - cargo contract -V
+    # We skip some examples for those reasons:
+    # There are no manifests in those two directories and hence it would fall back to the workspace. 
+    #  - lang-err-integration-tests
+    #  - upgradeable-contracts
+    # This uses dlmalloc which is only supported on select targets.
+    #   - custom_allocator
+    # Pulls in sp-std which needlessly requires atomic pointers.
+    #   - call-runtime
+    - for example in integration-tests/*/; do
+        if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/upgradeable-contracts/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/custom_allocator/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
+        pushd $example &&
+        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
+        popd;
+      done
 
 examples-docs:
   stage:                           examples
