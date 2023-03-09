@@ -275,14 +275,17 @@ impl ItemMod {
                 }
             }
 
+            const WELL_KNOWN_SELECTOR: [u8; 4] = [0x00, 0x00, 0x00, 0x00];
+
             if let Some(wildcard) = wildcard_selector {
                 match other_messages.len() as u32 {
                     0 => (),
                     1 => {
-                        if other_messages[0].composed_selector().to_bytes() == [0x00, 0x00, 0x00, 0x00] { // todo well known selector constant?
+                        if other_messages[0].composed_selector().to_bytes() != WELL_KNOWN_SELECTOR { // todo well known selector constant?
                             return Err(format_err!(
-                                wildcard.span(),
-                                "at most one other message can be defined together with a wildcard selector",
+                                other_messages[0].span(),
+                                "when using a wildcard selector, the other message must use the \
+                                 reserved selector TODO",
                             ))
                         }
                     }
@@ -963,7 +966,8 @@ mod tests {
                         pub fn fallback(&self) {}
                     }
                 }
-            }).is_ok()
+            })
+            .is_ok()
         );
     }
 
@@ -982,15 +986,97 @@ mod tests {
                         #[ink(message, selector = _)]
                         pub fn fallback(&self) {}
 
-                        // #[ink(message, selector = 0x00000000)] // todo: well known selector
-                        // pub fn well_known_other_message(&self) {}
+                        #[ink(message, selector = 0x00000000)] // todo: well known selector
+                        pub fn well_known_other_message(&self) {}
                     }
                 }
-            }).is_ok()
+            })
+            .is_ok()
         );
     }
 
-    // todo: test 1 other message with incorrect selector
-    // todo: test more than 1 other message, one with correct well known selector
+    #[test]
+    fn wildcard_selector_and_one_other_message_without_well_known_selector_fails() {
+        assert_fail(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message)]
+                        pub fn other_message_without_well_known_selector(&self) {}
+                    }
+                }
+            },
+"when using a wildcard selector, the other message must use the reserved selector TODO"
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_with_two_other_messages() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message, selector = 0x00000000)]
+                        pub fn well_known_other_message(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed(&self) {}
+                    }
+                }
+            },
+            "at most one other message can be defined together with a wildcard selector",
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_with_many_other_messages() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
+                        #[ink(message, selector = 0x00000000)]
+                        pub fn well_known_other_message(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed1(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed2(&self) {}
+
+                        #[ink(message)]
+                        pub fn another_message_not_allowed3(&self) {}
+                    }
+                }
+            },
+            "at most one other message can be defined together with a wildcard selector",
+        );
+    }
+
     // todo: test well known selector used not in combination with a wildcard selector
 }
