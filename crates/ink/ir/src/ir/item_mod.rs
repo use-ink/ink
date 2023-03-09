@@ -1078,5 +1078,24 @@ mod tests {
         );
     }
 
-    // todo: test well known selector used not in combination with a wildcard selector
+    #[test]
+    fn wildcard_reserved_selector_used_without_wildcard_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = 0x00000000)]
+                        pub fn uses_reserved_wildcard_other_message_selector(&self) {}
+                    }
+                }
+            },
+            "the selector TODO is reserved for use in tandem with a wildcard selector",
+        );
+    }
 }
