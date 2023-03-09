@@ -21,6 +21,7 @@ use ir::{
     Callable,
     IsDocAttribute as _,
 };
+use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -297,15 +298,14 @@ impl ContractRef<'_> {
         let cfg_attrs = cfg_tokens.iter().map(|token| {
             quote_spanned!(span=>
                     #[cfg #token])
-        });
-        let cfg_attrs2 = cfg_attrs.clone();
+        }).collect_vec();
         quote_spanned!(span=>
             #( #cfg_attrs )*
             type #output_ident =
                 <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
 
             #[inline]
-            #( #cfg_attrs2 )*
+            #( #cfg_attrs )*
             fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*

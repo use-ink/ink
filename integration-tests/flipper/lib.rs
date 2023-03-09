@@ -7,6 +7,16 @@ pub mod flipper {
         value: bool,
     }
 
+    #[cfg(feature = "foo")]
+    #[ink(event)]
+    pub struct SomeEvent {
+        some_value: bool,
+        #[ink(topic)]
+        some_topic: u8,
+        #[ink(topic)]
+        some_other_topic: u16,
+    }
+
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[cfg(feature = "foo")]
@@ -38,7 +48,6 @@ pub mod flipper {
         pub fn get(&self) -> bool {
             self.value
         }
-
     }
 
     #[cfg(test)]

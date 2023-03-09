@@ -18,6 +18,7 @@ use crate::{
 };
 use derive_more::From;
 use ir::Callable;
+use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -279,8 +280,7 @@ impl CallBuilder<'_> {
         let cfg_attrs = cfg_tokens.iter().map(|token| {
             quote_spanned!(span=>
                     #[cfg #token])
-        });
-        let cfg_attrs2 = cfg_attrs.clone();
+        }).collect_vec();
         let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
             .callable()
@@ -309,7 +309,7 @@ impl CallBuilder<'_> {
                 as #trait_path>::#output_ident;
 
             #[inline]
-            #( #cfg_attrs2 )*
+            #( #cfg_attrs )*
             #( #attrs )*
             fn #message_ident(
                 & #mut_token self

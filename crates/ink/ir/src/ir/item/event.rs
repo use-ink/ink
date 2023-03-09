@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    error::ExtError as _,
-    ir,
-    ir::utils,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-};
+use crate::{error::ExtError as _, ir, ir::utils};
+use itertools::Itertools;
+use proc_macro2::{Ident, Span, TokenStream};
 use syn::spanned::Spanned as _;
 
 /// An ink! event struct definition.
@@ -64,7 +58,7 @@ impl Event {
         item_struct: &syn::ItemStruct,
     ) -> Result<bool, syn::Error> {
         if !ir::contains_ink_attributes(&item_struct.attrs) {
-            return Ok(false)
+            return Ok(false);
         }
         // At this point we know that there must be at least one ink!
         // attribute. This can be either the ink! storage struct,
@@ -84,25 +78,23 @@ impl TryFrom<syn::ItemStruct> for Event {
             struct_span,
             item_struct.attrs,
             &ir::AttributeArgKind::Event,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
-                    _ => Err(None),
-                }
+            |arg| match arg.kind() {
+                ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
+                _ => Err(None),
             },
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(
                 item_struct.generics.params,
                 "generic ink! event structs are not supported",
-            ))
+            ));
         }
         utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
             let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
             if ink_attrs.is_empty() {
-                continue 'repeat
+                continue 'repeat;
             }
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -112,14 +104,14 @@ impl TryFrom<syn::ItemStruct> for Event {
                 return Err(format_err!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
-                ))
+                ));
             }
             for arg in normalized.args() {
                 if !matches!(arg.kind(), ir::AttributeArg::Topic) {
                     return Err(format_err!(
                         arg.span(),
                         "encountered conflicting ink! attribute for event field",
-                    ))
+                    ));
                 }
             }
         }
@@ -149,6 +141,18 @@ impl Event {
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
     }
+
+    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
+    ///
+    /// see [syn::attr::Attribute] for more.
+    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
+        self.item
+            .attrs
+            .iter()
+            .filter(|a| a.path.is_ident("cfg"))
+            .map(|a| a.tokens.clone())
+            .collect_vec()
+    }
 }
 
 /// An event field with a flag indicating if this field is an event topic.
@@ -173,6 +177,18 @@ impl<'a> EventField<'a> {
                 panic!("encountered invalid event field attributes: {err}")
             });
         non_ink_attrs
+    }
+
+    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
+    ///
+    /// see [syn::attr::Attribute] for more.
+    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
+        self.field
+            .attrs
+            .iter()
+            .filter(|a| a.path.is_ident("cfg"))
+            .map(|a| a.tokens.clone())
+            .collect_vec()
     }
 
     /// Returns the visibility of the event field.
