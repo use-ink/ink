@@ -812,7 +812,7 @@ impl IntoPortable for EventSpec {
                 .into_iter()
                 .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs.into_iter().map(|s| s.into()).collect(),
+            docs: self.docs.into_iter().map(|s| trim_extra_whitespace(s).into()).collect(),
         }
     }
 }
