@@ -153,7 +153,7 @@ impl<'a> Events<'a> {
                                     <#event_idents as ::ink::env::Topics>::topics::<E, B>(event, builder)
                                 }
                             )*,
-                            _ => todo!()
+                            _ => panic!("Event does not exist!")
                         }
                     }
                 }

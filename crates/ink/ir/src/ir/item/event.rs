@@ -179,18 +179,6 @@ impl<'a> EventField<'a> {
         non_ink_attrs
     }
 
-    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
-    ///
-    /// see [syn::attr::Attribute] for more.
-    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
-        self.field
-            .attrs
-            .iter()
-            .filter(|a| a.path.is_ident("cfg"))
-            .map(|a| a.tokens.clone())
-            .collect_vec()
-    }
-
     /// Returns the visibility of the event field.
     pub fn vis(self) -> &'a syn::Visibility {
         &self.field.vis
@@ -232,6 +220,10 @@ impl<'a> Iterator for EventFieldsIter<'a> {
                     .unwrap_or_default()
                     .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
                     .unwrap_or_default();
+                let some_cfg = field.attrs.iter().find(|attr| attr.path.is_ident("cfg"));
+                if some_cfg.is_some() {
+                    panic!("An event's field has cfg attribute which is not allowed in this context.");
+                }
                 Some(EventField { is_topic, field })
             }
         }
