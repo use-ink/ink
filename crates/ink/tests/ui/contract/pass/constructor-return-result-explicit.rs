@@ -31,8 +31,7 @@ fn main() {
         true
     );
     assert_eq!(
-        TypeId::of::<
-            <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::Error>(
+        TypeId::of::<<Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::Error>(
         ),
         TypeId::of::<contract::Error>(),
     )
