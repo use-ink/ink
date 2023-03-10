@@ -106,7 +106,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             if some_cfg_attrs.is_some() {
                 return Err(format_err!(
                     field_span,
-                    "conditional compilation is not allowed for event topics"
+                    "conditional compilation is not allowed for event field"
                 ))
             }
             let (ink_attrs, _) = ir::partition_attributes(field.attrs.clone())?;
@@ -160,8 +160,6 @@ impl Event {
     }
 
     /// Returns the list of tokens that are present in `cfg` attribute macro if any.
-    ///
-    /// see [syn::attr::Attribute] for more.
     pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
         self.item
             .attrs

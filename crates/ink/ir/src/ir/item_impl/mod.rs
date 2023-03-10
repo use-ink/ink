@@ -208,8 +208,6 @@ impl ItemImpl {
     }
 
     /// Returns the list of tokens that are present in `cfg` attribute macro if any.
-    ///
-    /// see [syn::attr::Attribute] for more.
     pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
         self.attrs
             .iter()
