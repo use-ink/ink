@@ -9,7 +9,6 @@ pub mod flipper {
 
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
-        #[cfg(feature = "foo")]
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
             Self { value: init_value }
@@ -18,7 +17,7 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn new_default() -> Self {
-            Self { value: false }
+            Self::new(Default::default())
         }
 
         /// Flips the current value of the Flipper's boolean.

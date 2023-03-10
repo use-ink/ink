@@ -41,12 +41,6 @@ pub mod flipper {
         fn get(&self) -> bool {
             self.value
         }
-
-        #[cfg(feature = "foo")]
-        #[ink(message)]
-        fn get_foo(&self) -> bool {
-            self.value
-        }
     }
 
     #[cfg(test)]
