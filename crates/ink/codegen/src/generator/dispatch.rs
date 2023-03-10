@@ -38,11 +38,15 @@ use syn::{
     LitInt,
 };
 
+/// A message to be dispatched.
+/// Contains its callable and calculated unique id
 pub struct MessageDispatchable<'a> {
     message: CallableWithSelector<'a, Message>,
     id: TokenStream2,
 }
 
+/// A constructor to be dispatched.
+/// Contains its callable and calculated unique id
 pub struct ConstructorDispatchable<'a> {
     constructor: CallableWithSelector<'a, Constructor>,
     id: LitInt,
@@ -114,6 +118,9 @@ impl Dispatch<'_> {
             .position(|item| item.has_wildcard_selector())
     }
 
+    /// Puts messages and their calculated selector ids in a single data structure
+    ///
+    /// See [MessageDispatchable]
     fn compose_messages_with_ids(&self) -> Vec<MessageDispatchable> {
         let storage_ident = self.contract.module().storage().ident();
         self.contract
@@ -149,6 +156,9 @@ impl Dispatch<'_> {
             .collect::<Vec<_>>()
     }
 
+    /// Puts constructors and their calculated selector ids in a single data structure
+    ///
+    /// See [ConstructorDispatchable]
     fn compose_constructors_with_ids(&self) -> Vec<ConstructorDispatchable> {
         self.contract
             .module()
@@ -994,6 +1004,8 @@ impl Dispatch<'_> {
             .collect_vec()
     }
 
+    /// Generates tokens of variables relates to constructor index.
+    /// Used alongside `any_constructor_accepts_payment_vars()`
     fn generate_constructor_idents(
         constructors: &[ConstructorDispatchable],
     ) -> Vec<syn::Ident> {
@@ -1008,6 +1020,10 @@ impl Dispatch<'_> {
     }
 
     /// Generates code to express if any dispatchable ink! constructor accepts payment.
+    ///
+    /// Generates code in the form of variable assignments
+    /// which can be conditionally omitted
+    /// in which case the default assignment `let constructor_{id} = false` exists.
     ///
     /// This information can be used to speed-up dispatch since denying of payment
     /// can be generalized to work before dispatch happens if none of the ink! constructors

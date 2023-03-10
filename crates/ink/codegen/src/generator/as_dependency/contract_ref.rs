@@ -295,10 +295,13 @@ impl ContractRef<'_> {
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let cfg_tokens = message.get_cfg_tokens();
-        let cfg_attrs = cfg_tokens.iter().map(|token| {
-            quote_spanned!(span=>
+        let cfg_attrs = cfg_tokens
+            .iter()
+            .map(|token| {
+                quote_spanned!(span=>
                     #[cfg #token])
-        }).collect_vec();
+            })
+            .collect_vec();
         quote_spanned!(span=>
             #( #cfg_attrs )*
             type #output_ident =

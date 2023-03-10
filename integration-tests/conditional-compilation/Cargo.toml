@@ -1,9 +1,8 @@
 [package]
-name = "flipper"
-version = "4.0.1"
+name = "conditional-compilation"
+version = "0.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
-publish = false
 
 [dependencies]
 ink = { path = "../../crates/ink", default-features = false }
@@ -15,9 +14,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "flipper"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
@@ -28,3 +25,5 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
+# user-defined feature
+foo = []

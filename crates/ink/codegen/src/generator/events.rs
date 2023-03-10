@@ -15,8 +15,14 @@
 use crate::GenerateCode;
 use derive_more::From;
 use itertools::Itertools;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{quote, quote_spanned};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use quote::{
+    quote,
+    quote_spanned,
+};
 use syn::spanned::Spanned as _;
 
 /// Generates code for the ink! event structs of the contract.
@@ -30,7 +36,7 @@ impl GenerateCode for Events<'_> {
     fn generate_code(&self) -> TokenStream2 {
         if self.contract.module().events().next().is_none() {
             // Generate no code in case there are no event definitions.
-            return TokenStream2::new();
+            return TokenStream2::new()
         }
         let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         let event_base = self.generate_event_base();
@@ -93,9 +99,11 @@ impl<'a> Events<'a> {
                 let cfg_tokens = event.get_cfg_tokens();
                 cfg_tokens
                     .iter()
-                    .map(|token| quote!(
-                        #[cfg #token]
-                    ))
+                    .map(|token| {
+                        quote!(
+                            #[cfg #token]
+                        )
+                    })
                     .collect::<Vec<TokenStream2>>()
             })
             .collect::<Vec<_>>();
@@ -167,11 +175,14 @@ impl<'a> Events<'a> {
         let storage_ident = self.contract.module().storage().ident();
         let event_ident = event.ident();
         let cfg_tokens = event.get_cfg_tokens();
-        let cfg_attrs = cfg_tokens.iter().map(|token| {
-            quote_spanned!(span=>
+        let cfg_attrs = cfg_tokens
+            .iter()
+            .map(|token| {
+                quote_spanned!(span=>
                     #[cfg #token]
                 )
-        }).collect_vec();
+            })
+            .collect_vec();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
             <<#storage_ident as ::ink::env::ContractEnv>::Env

@@ -14,7 +14,6 @@
 
 use core::fmt::Display;
 
-
 /// Stores various information of the respective dispatchable ink! message.
 ///
 /// # Note

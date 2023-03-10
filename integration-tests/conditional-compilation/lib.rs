@@ -10,18 +10,32 @@ pub trait Flip {
     /// Returns the current value of the Flipper's boolean.
     #[ink(message)]
     fn get(&self) -> bool;
+
+    #[cfg(feature = "foo")]
+    #[ink(message)]
+    fn push_foo(&mut self, value: bool);
 }
 
 #[ink::contract]
-pub mod flipper {
+pub mod conditional_compilation {
     use super::Flip;
 
+    /// Feature gated event
+    #[cfg(feature = "foo")]
+    #[ink(event)]
+    pub struct Changes {
+        // attributing event field with `cfg` is not allowed
+        new_value: bool,
+        #[ink(topic)]
+        by: AccountId,
+    }
+
     #[ink(storage)]
-    pub struct Flipper {
+    pub struct ConditionalCompilation {
         value: bool,
     }
 
-    impl Flipper {
+    impl ConditionalCompilation {
         /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn new() -> Self {
@@ -31,7 +45,7 @@ pub mod flipper {
         }
     }
 
-    impl Flip for Flipper {
+    impl Flip for ConditionalCompilation {
         #[ink(message)]
         fn flip(&mut self) {
             self.value = !self.value;
@@ -42,10 +56,16 @@ pub mod flipper {
             self.value
         }
 
+        /// Feature gated mutating message
         #[cfg(feature = "foo")]
         #[ink(message)]
-        fn get_foo(&self) -> bool {
-            self.value
+        fn push_foo(&mut self, value: bool) {
+            let caller = Self::env().caller();
+            Self::env().emit_event(Changes {
+                new_value: value,
+                by: caller,
+            });
+            self.value = value;
         }
     }
 
@@ -55,16 +75,16 @@ pub mod flipper {
 
         #[ink::test]
         fn default_works() {
-            let flipper = Flipper::new();
+            let flipper = ConditionalCompilation::new();
             assert!(!flipper.get());
         }
 
         #[ink::test]
         fn it_works() {
-            let mut flipper = Flipper::new();
+            let mut flipper = ConditionalCompilation::new();
             // Can call using universal call syntax using the trait.
-            assert!(!<Flipper as Flip>::get(&flipper));
-            <Flipper as Flip>::flip(&mut flipper);
+            assert!(!<ConditionalCompilation as Flip>::get(&flipper));
+            <ConditionalCompilation as Flip>::flip(&mut flipper);
             // Normal call syntax possible to as long as the trait is in scope.
             assert!(flipper.get());
         }

@@ -47,64 +47,26 @@ mod contract {
 }
 
 fn main() {
+    const TRAIT_ID: u32 = ::ink::selector_id!("Messages::message_0");
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                    },
-                >>::IDS[0]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableMessageInfo<TRAIT_ID>>::SELECTOR,
         [0xFB, 0xAB, 0x03, 0xCE],
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                    },
-                >>::IDS[1]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableMessageInfo<1_u32>>::SELECTOR,
         1_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                    },
-                >>::IDS[2]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0xC0DE_CAFE_u32>>::SELECTOR,
         0xC0DE_CAFE_u32.to_be_bytes(),
     );
+   const INHERENT_ID: u32 = ::ink::selector_id!("message_3");
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                    },
-                >>::IDS[3]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableMessageInfo<INHERENT_ID>>::SELECTOR,
         [0xB6, 0xC3, 0x27, 0x49],
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableMessageInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableMessages<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
-                    },
-                >>::IDS[4]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableMessageInfo<0x12345678_u32>>::SELECTOR,
         0x12345678_u32.to_be_bytes(),
     );
 }

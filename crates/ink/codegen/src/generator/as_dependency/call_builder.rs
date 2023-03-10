@@ -277,10 +277,13 @@ impl CallBuilder<'_> {
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
         let cfg_tokens = message.get_cfg_tokens();
-        let cfg_attrs = cfg_tokens.iter().map(|token| {
-            quote_spanned!(span=>
+        let cfg_attrs = cfg_tokens
+            .iter()
+            .map(|token| {
+                quote_spanned!(span=>
                     #[cfg #token])
-        }).collect_vec();
+            })
+            .collect_vec();
         let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
             .callable()

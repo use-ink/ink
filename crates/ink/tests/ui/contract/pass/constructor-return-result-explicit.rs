@@ -24,17 +24,15 @@ fn main() {
     use contract::Contract;
     use std::any::TypeId;
 
-    const ID: u32 = <Contract as ::ink::reflect::ContractDispatchableConstructors<
-        { <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
-    >>::IDS[0];
+    const ID: u32 = ::ink::selector_id!("constructor");
 
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::IS_RESULT,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::IS_RESULT,
         true
     );
     assert_eq!(
         TypeId::of::<
-            <Contract as ::ink::reflect::DispatchableConstructorInfo<{ ID }>>::Error,
+            <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::Error,
         >(),
         TypeId::of::<contract::Error>(),
     )
