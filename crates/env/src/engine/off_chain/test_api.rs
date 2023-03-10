@@ -321,7 +321,6 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
         instance
             .engine
             .get_emitted_events()
-            .into_iter()
             .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
     })
 }
