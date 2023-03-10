@@ -52,7 +52,10 @@ pub use self::{
         Receiver,
     },
 };
-use quote::TokenStreamExt as _;
+use quote::{
+    quote_spanned,
+    TokenStreamExt as _,
+};
 use syn::spanned::Spanned;
 
 /// An ink! implementation block.
@@ -207,12 +210,18 @@ impl ItemImpl {
         Ok(false)
     }
 
-    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
-    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
         self.attrs
             .iter()
             .filter(|a| a.path.is_ident("cfg"))
-            .map(|a| a.tokens.clone())
+            .map(|a| {
+                a.tokens
+                    .clone()
+                    .into_iter()
+                    .map(|token| quote_spanned!(span=> #[cfg #token]))
+                    .collect()
+            })
             .collect()
     }
 }
@@ -319,7 +328,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             return Err(format_err!(
                 impl_block_span,
                 "namespace ink! property is not allowed on ink! trait implementation blocks",
-            ))
+            ));
         }
         Ok(Self {
             attrs: other_attrs,

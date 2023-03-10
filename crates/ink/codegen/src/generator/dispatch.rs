@@ -193,9 +193,7 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
-                let cfg_tokens = constructor.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(constructor_span=>
-                    #[cfg #token]));
+                let cfg_attrs = constructor.get_cfg_attrs(constructor_span);
                 let output_type = constructor.output().map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
                 let input_bindings = generator::input_bindings(constructor.inputs());
@@ -248,9 +246,7 @@ impl Dispatch<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
-                let cfg_tokens = message.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(message_span=>
-                    #[cfg #token]));
+                let cfg_attrs = message.get_cfg_attrs(message_span);
                 let output_tuple_type = message
                     .output()
                     .map(quote::ToTokens::to_token_stream)
@@ -317,9 +313,7 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let label = format!("{trait_ident}::{message_ident}");
-                let cfg_tokens = message.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(message_span=>
-                    #[cfg #token]));
+                let cfg_attrs = message.get_cfg_attrs(message_span);
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     impl ::ink::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -479,11 +473,7 @@ impl Dispatch<'_> {
             constructors.iter().enumerate().map(|(index, item)| {
                 let constructor_span = item.constructor.span();
                 let constructor_ident = constructor_variant_ident(index);
-                let cfg_tokens = item.constructor.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(constructor_span=>
-                    #[cfg #token])
-                });
+                let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
                 let constructor_input = expand_constructor_input(
                     constructor_span,
                     storage_ident,
@@ -500,11 +490,7 @@ impl Dispatch<'_> {
             let constructor_span = item.constructor.span();
             let const_ident = format_ident!("CONSTRUCTOR_{}", index);
             let id = item.id.clone();
-            let cfg_tokens = item.constructor.get_cfg_tokens();
-            let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(constructor_span=>
-                    #[cfg #token])
-                });
+            let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
             quote_spanned!(span=>
                 #( #cfg_attrs )*
                 const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::SELECTOR;
@@ -516,11 +502,7 @@ impl Dispatch<'_> {
             let constructor_ident = constructor_variant_ident(index);
             let const_ident = format_ident!("CONSTRUCTOR_{}", index);
             let constructor_input = expand_constructor_input(constructor_span, storage_ident, item.id.clone());
-            let cfg_tokens = item.constructor.get_cfg_tokens();
-            let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(constructor_span=>
-                    #[cfg #token])
-                });
+            let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 #const_ident => {
@@ -563,11 +545,7 @@ impl Dispatch<'_> {
             let constructor_span = item.constructor.span();
             let constructor_ident = constructor_variant_ident(index);
             let id = item.id.clone();
-            let cfg_tokens = item.constructor.get_cfg_tokens();
-            let cfg_attrs = cfg_tokens.iter().map(|token| {
-                quote_spanned!(constructor_span=>
-                        #[cfg #token])
-                });
+            let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
             let constructor_callable = quote_spanned!(constructor_span=>
                 <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::CALLABLE
             );
@@ -702,11 +680,7 @@ impl Dispatch<'_> {
         let message_variants = messages.iter().enumerate().map(|(index, item)| {
             let message_span = item.message.span();
             let message_ident = message_variant_ident(index);
-            let cfg_tokens = item.message.get_cfg_tokens();
-            let cfg_attrs = cfg_tokens.iter().map(|token| {
-                quote_spanned!(message_span=>
-                    #[cfg #token])
-            });
+            let cfg_attrs = item.message.get_cfg_attrs(message_span);
             let message_input =
                 expand_message_input(message_span, storage_ident, item.id.clone());
             quote_spanned!(message_span=>
@@ -721,12 +695,8 @@ impl Dispatch<'_> {
             .map(|(index, item)|  {
                 let message_span = item.message.span();
                 let const_ident = format_ident!("MESSAGE_{}", index);
-                let cfg_tokens = item.message.get_cfg_tokens();
+                let cfg_attrs = item.message.get_cfg_attrs(message_span);
                 let id = item.id.clone();
-                let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(message_span=>
-                        #[cfg #token])
-                    });
                 quote_spanned!(span=>
                     #( #cfg_attrs )*
                     const #const_ident: [::core::primitive::u8; 4usize] = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::SELECTOR;
@@ -739,12 +709,8 @@ impl Dispatch<'_> {
             .map(|(index, item)| {
                 let message_ident = message_variant_ident(index);
                 let const_ident = format_ident!("MESSAGE_{}", index);
-                let cfg_tokens = item.message.get_cfg_tokens();
                 let message_span = item.message.span();
-                let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(message_span=>
-                        #[cfg #token])
-                    });
+                let cfg_attrs = item.message.get_cfg_attrs(message_span);
                 let message_input = expand_message_input(message_span, storage_ident, item.id.clone());
                 quote_spanned!(message_span=>
                    #( #cfg_attrs )*
@@ -786,11 +752,7 @@ impl Dispatch<'_> {
                 let message_span = item.message.span();
                 let message_ident = message_variant_ident(index);
                 let id = item.id.clone();
-                let cfg_tokens = item.message.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(message_span=>
-                        #[cfg #token])
-                    });
+                let cfg_attrs = item.message.get_cfg_attrs(message_span);
                 let message_callable = quote_spanned!(message_span=>
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::CALLABLE
                 );
@@ -966,13 +928,9 @@ impl Dispatch<'_> {
             .enumerate()
             .map(|(index, item)| {
             let message_span = item.message.span();
-            let cfg_tokens = item.message.get_cfg_tokens();
+            let cfg_attrs = item.message.get_cfg_attrs(message_span);
             let id = item.id.clone();
             let ident = quote::format_ident!("message_{}", index);
-            let cfg_attrs = cfg_tokens.iter().map(|token| {
-                quote_spanned!(message_span=>
-                    #[cfg #token])
-                });
             quote_spanned!(message_span=>
                 #( #cfg_attrs )*
                 let #ident = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::PAYABLE;
@@ -1035,13 +993,9 @@ impl Dispatch<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let constructor_is_payable = constructors.iter().enumerate().map(|(index, item)| {
             let constructor_span = item.constructor.span();
-            let cfg_tokens = item.constructor.get_cfg_tokens();
+            let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
             let id = item.id.clone();
             let ident = quote::format_ident!("constructor_{}", index);
-            let cfg_attrs = cfg_tokens.iter().map(|token| {
-                quote_spanned!(constructor_span=>
-                    #[cfg #token])
-                });
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 let #ident = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::PAYABLE;

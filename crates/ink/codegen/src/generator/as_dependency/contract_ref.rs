@@ -293,14 +293,7 @@ impl ContractRef<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        let cfg_tokens = message.get_cfg_tokens();
-        let cfg_attrs: Vec<TokenStream2> = cfg_tokens
-            .iter()
-            .map(|token| {
-                quote_spanned!(span=>
-                    #[cfg #token])
-            })
-            .collect();
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span=>
             #( #cfg_attrs )*
             type #output_ident =

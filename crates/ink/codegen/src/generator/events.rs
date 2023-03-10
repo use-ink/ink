@@ -94,17 +94,7 @@ impl<'a> Events<'a> {
             .contract
             .module()
             .events()
-            .map(|event| {
-                let cfg_tokens = event.get_cfg_tokens();
-                cfg_tokens
-                    .iter()
-                    .map(|token| {
-                        quote!(
-                            #[cfg #token]
-                        )
-                    })
-                    .collect::<Vec<TokenStream2>>()
-            })
+            .map(|event| event.get_cfg_attrs(event.span()))
             .collect::<Vec<_>>();
         let base_event_ident =
             proc_macro2::Ident::new("__ink_EventBase", Span::call_site());
@@ -173,15 +163,7 @@ impl<'a> Events<'a> {
         let span = event.span();
         let storage_ident = self.contract.module().storage().ident();
         let event_ident = event.ident();
-        let cfg_tokens = event.get_cfg_tokens();
-        let cfg_attrs: Vec<TokenStream2> = cfg_tokens
-            .iter()
-            .map(|token| {
-                quote_spanned!(span=>
-                    #[cfg #token]
-                )
-            })
-            .collect();
+        let cfg_attrs = event.get_cfg_attrs(span);
         let len_topics = event.fields().filter(|event| event.is_topic).count();
         let max_len_topics = quote_spanned!(span=>
             <<#storage_ident as ::ink::env::ContractEnv>::Env
@@ -260,11 +242,7 @@ impl<'a> Events<'a> {
                 0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
                 n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
             };
-            let cfg_tokens = event.get_cfg_tokens();
-            let cfg_attrs: Vec<TokenStream2> = cfg_tokens.iter().map(|token| {
-                quote_spanned!(span=>
-                        #[cfg #token])
-            }).collect();
+            let cfg_attrs = event.get_cfg_attrs(span);
             quote_spanned!(span =>
                 #( #cfg_attrs )*
                 const _: () = {

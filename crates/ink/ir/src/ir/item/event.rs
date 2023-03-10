@@ -22,6 +22,7 @@ use proc_macro2::{
     Span,
     TokenStream,
 };
+use quote::quote_spanned;
 use syn::spanned::Spanned as _;
 
 /// An ink! event struct definition.
@@ -159,13 +160,19 @@ impl Event {
         &self.item.attrs
     }
 
-    /// Returns the list of tokens that are present in `cfg` attribute macro if any.
-    pub fn get_cfg_tokens(&self) -> Vec<TokenStream> {
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
         self.item
             .attrs
             .iter()
             .filter(|a| a.path.is_ident("cfg"))
-            .map(|a| a.tokens.clone())
+            .map(|a| {
+                a.tokens
+                    .clone()
+                    .into_iter()
+                    .map(|token| quote_spanned!(span=> #[cfg #token]))
+                    .collect()
+            })
             .collect()
     }
 }

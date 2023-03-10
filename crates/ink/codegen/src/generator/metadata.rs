@@ -145,11 +145,7 @@ impl Metadata<'_> {
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         let storage_ident = self.contract.module().storage().ident();
         let ret_ty = Self::generate_constructor_return_type(storage_ident, selector_id);
-        let cfg_tokens = constructor.get_cfg_tokens();
-        let cfg_attrs = cfg_tokens.iter().map(|token| {
-            quote_spanned!(span=>
-                #[cfg #token])
-        });
+        let cfg_attrs = constructor.get_cfg_attrs(span);
         quote_spanned!(span=>
             #( #cfg_attrs )*
             ::ink::metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
@@ -243,11 +239,7 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
                 let args = message.inputs().map(Self::generate_dispatch_argument);
-                let cfg_tokens = message.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| {
-                    quote_spanned!(span =>
-                    #[cfg #token])
-                });
+                let cfg_attrs = message.get_cfg_attrs(span);
                 let ret_ty = Self::generate_return_type(Some(&message.wrapped_output()));
                 quote_spanned!(span =>
                     #( #cfg_attrs )*
@@ -297,9 +289,7 @@ impl Metadata<'_> {
                 let message_args = message
                     .inputs()
                     .map(Self::generate_dispatch_argument);
-                let cfg_tokens = message.get_cfg_tokens();
-                let cfg_attrs = cfg_tokens.iter().map(|token| quote_spanned!(message_span=>
-                    #[cfg #token]));
+                let cfg_attrs = message.get_cfg_attrs(message_span);
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{
@@ -380,14 +370,7 @@ impl Metadata<'_> {
             let ident = event.ident();
             let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
             let args = Self::generate_event_args(event);
-            let cfg_tokens = event.get_cfg_tokens();
-            let cfg_attrs: Vec<TokenStream2> = cfg_tokens
-                .iter()
-                .map(|token| {
-                    quote_spanned!(span=>
-                    #[cfg #token])
-                })
-                .collect();
+            let cfg_attrs = event.get_cfg_attrs(span);
             quote_spanned!(span =>
                 #( #cfg_attrs )*
                 ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
