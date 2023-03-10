@@ -21,7 +21,6 @@ use ir::{
     Callable,
     IsDocAttribute as _,
 };
-use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -295,13 +294,13 @@ impl ContractRef<'_> {
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let cfg_tokens = message.get_cfg_tokens();
-        let cfg_attrs = cfg_tokens
+        let cfg_attrs: Vec<TokenStream2> = cfg_tokens
             .iter()
             .map(|token| {
                 quote_spanned!(span=>
                     #[cfg #token])
             })
-            .collect_vec();
+            .collect();
         quote_spanned!(span=>
             #( #cfg_attrs )*
             type #output_ident =

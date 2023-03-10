@@ -26,7 +26,6 @@ use ir::{
     HexLiteral as _,
     Message,
 };
-use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -932,7 +931,7 @@ impl Dispatch<'_> {
                         let #ident = false;
                 )
             })
-            .collect_vec()
+            .collect()
     }
 
     fn generate_messages_idents(messages: &[MessageDispatchable]) -> Vec<syn::Ident> {
@@ -944,7 +943,7 @@ impl Dispatch<'_> {
             .iter()
             .enumerate()
             .map(|(index, _)| message_var_ident(index))
-            .collect_vec()
+            .collect()
     }
 
     /// Generates code to express if any dispatchable ink! message accepts payment.
@@ -1001,7 +1000,7 @@ impl Dispatch<'_> {
                         let #ident = false;
                 )
             })
-            .collect_vec()
+            .collect()
     }
 
     /// Generates tokens of variables relates to constructor index.
@@ -1016,7 +1015,7 @@ impl Dispatch<'_> {
             .iter()
             .enumerate()
             .map(|(index, _)| message_var_ident(index))
-            .collect_vec()
+            .collect()
     }
 
     /// Generates code to express if any dispatchable ink! constructor accepts payment.

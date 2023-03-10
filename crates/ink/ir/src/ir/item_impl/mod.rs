@@ -17,7 +17,6 @@ use crate::{
     ir,
     ir::attrs::Attrs as _,
 };
-use itertools::Itertools;
 use proc_macro2::{
     Ident,
     Span,
@@ -216,7 +215,7 @@ impl ItemImpl {
             .iter()
             .filter(|a| a.path.is_ident("cfg"))
             .map(|a| a.tokens.clone())
-            .collect_vec()
+            .collect()
     }
 }
 

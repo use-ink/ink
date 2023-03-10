@@ -24,7 +24,6 @@ use crate::ir::{
     attrs::SelectorOrWildcard,
     utils,
 };
-use itertools::Itertools;
 use proc_macro2::{
     Ident,
     Span,
@@ -279,7 +278,7 @@ impl Message {
             .iter()
             .filter(|a| a.path.is_ident("cfg"))
             .map(|a| a.tokens.clone())
-            .collect_vec()
+            .collect()
     }
 
     /// Returns the `self` receiver of the ink! message.

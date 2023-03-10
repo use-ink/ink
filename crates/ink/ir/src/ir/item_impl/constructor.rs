@@ -23,7 +23,6 @@ use crate::{
     ir,
     ir::attrs::SelectorOrWildcard,
 };
-use itertools::Itertools;
 use proc_macro2::{
     Ident,
     Span,
@@ -231,7 +230,7 @@ impl Constructor {
             .iter()
             .filter(|a| a.path.is_ident("cfg"))
             .map(|a| a.tokens.clone())
-            .collect_vec()
+            .collect()
     }
 
     /// Returns the return type of the ink! constructor if any.

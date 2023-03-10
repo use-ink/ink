@@ -20,7 +20,6 @@ use ir::{
     HexLiteral,
     IsDocAttribute,
 };
-use itertools::Itertools;
 use proc_macro2::{
     Ident,
     TokenStream as TokenStream2,
@@ -382,13 +381,13 @@ impl Metadata<'_> {
             let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
             let args = Self::generate_event_args(event);
             let cfg_tokens = event.get_cfg_tokens();
-            let cfg_attrs = cfg_tokens
+            let cfg_attrs: Vec<TokenStream2> = cfg_tokens
                 .iter()
                 .map(|token| {
                     quote_spanned!(span=>
                     #[cfg #token])
                 })
-                .collect_vec();
+                .collect();
             quote_spanned!(span =>
                 #( #cfg_attrs )*
                 ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
