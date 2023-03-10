@@ -60,7 +60,7 @@ fn main() {
         <Contract as ::ink::reflect::DispatchableMessageInfo<0xC0DE_CAFE_u32>>::SELECTOR,
         0xC0DE_CAFE_u32.to_be_bytes(),
     );
-   const INHERENT_ID: u32 = ::ink::selector_id!("message_3");
+    const INHERENT_ID: u32 = ::ink::selector_id!("message_3");
     assert_eq!(
         <Contract as ::ink::reflect::DispatchableMessageInfo<INHERENT_ID>>::SELECTOR,
         [0xB6, 0xC3, 0x27, 0x49],
