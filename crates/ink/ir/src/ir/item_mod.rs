@@ -279,7 +279,11 @@ impl ItemMod {
 
             if let Some(wildcard) = wildcard_selector {
                 match other_messages.len() as u32 {
-                    0 => (),
+                    0 => return Err(format_err!(
+                        wildcard.span(),
+                        "missing definition of another message with TODO in tandem with a wildcard \
+                        selector",
+                    )),
                     1 => {
                         if other_messages[0].composed_selector().to_bytes() != WELL_KNOWN_SELECTOR { // todo well known selector constant?
                             return Err(format_err!(
@@ -291,7 +295,7 @@ impl ItemMod {
                     }
                     2.. => return Err(format_err!(
                         wildcard.span(), // todo: make span cover other messages?
-                        "at most one other message can be defined together with a wildcard selector",
+                        "exactly one other message can be defined together with a wildcard selector",
                     ))
                 }
             }
@@ -951,27 +955,6 @@ mod tests {
     }
 
     #[test]
-    fn wildcard_selector_on_message_works() {
-        assert!(
-            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
-                mod my_module {
-                    #[ink(storage)]
-                    pub struct MyStorage {}
-
-                    impl MyStorage {
-                        #[ink(constructor)]
-                        pub fn my_constructor() -> Self {}
-
-                        #[ink(message, selector = _)]
-                        pub fn fallback(&self) {}
-                    }
-                }
-            })
-            .is_ok()
-        );
-    }
-
-    #[test]
     fn wildcard_selector_and_one_other_message_with_well_known_selector_works() {
         assert!(
             <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
@@ -993,6 +976,26 @@ mod tests {
             })
             .is_ok()
         );
+    }
+
+    #[test]
+    fn wildcard_selector_without_other_message_fails() {
+        assert_fail(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+                    }
+                }
+            },
+            "missing definition of another message with TODO in tandem with a wildcard selector"
+        )
     }
 
     #[test]
@@ -1041,7 +1044,7 @@ mod tests {
                     }
                 }
             },
-            "at most one other message can be defined together with a wildcard selector",
+            "exactly one other message can be defined together with a wildcard selector",
         );
     }
 
@@ -1074,7 +1077,7 @@ mod tests {
                     }
                 }
             },
-            "at most one other message can be defined together with a wildcard selector",
+            "exactly one other message can be defined together with a wildcard selector",
         );
     }
 
@@ -1096,6 +1099,6 @@ mod tests {
                 }
             },
             "the selector TODO is reserved for use in tandem with a wildcard selector",
-        );
+        )
     }
 }
