@@ -50,17 +50,27 @@
 #[allow(unused_extern_crates)]
 extern crate rlibc;
 
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+#[cfg(not(feature = "std"))]
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     // This code gets removed in release builds where the macro will expand into nothing.
     debug_print!("{}\n", info);
 
-    // We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    // This is used in order to make any panic a direct abort avoiding Rust's general
-    // panic infrastructure.
+    #[cfg(target_arch = "wasm32")]
     core::arch::wasm32::unreachable();
+
+    // For any other nostd architecture we just call an imaginary
+    // `abort` function. No other architecture is supported. We
+    // just have this to check if compilation does not break
+    // for other true nostd targets.
+    #[cfg(not(target_arch = "wasm32"))]
+    unsafe {
+        extern "C" {
+            fn abort() -> !;
+        }
+        abort();
+    }
 }
 
 // This extern crate definition is required since otherwise rustc

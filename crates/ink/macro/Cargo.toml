@@ -19,7 +19,7 @@ ink_ir = { version = "4.0.1", path = "../ir", default-features = false }
 ink_codegen = { version = "4.0.1", path = "../codegen", default-features = false }
 ink_primitives = { version = "4.0.1", path = "../../primitives/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 syn = "1"
 synstructure = "0.12.6"
 proc-macro2 = "1"
