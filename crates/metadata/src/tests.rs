@@ -310,7 +310,7 @@ fn should_trim_whitespaces_in_events() {
     let args = [EventParamSpec::new("something".into())
         .of_type(spec)
         .indexed(true)
-        .docs(vec![])
+        .docs(vec!["test".to_string()])
         .done()];
     let es = EventSpec::new("foobar".into())
         .args(args)
@@ -324,7 +324,7 @@ fn should_trim_whitespaces_in_events() {
         {
             "args": [
               {
-                "docs": [],
+                "docs": ["test"],
                 "indexed": true,
                 "label": "something",
                 "type": {
