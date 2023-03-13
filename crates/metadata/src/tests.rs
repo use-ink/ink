@@ -314,10 +314,10 @@ fn should_trim_whitespaces_in_events_docs() {
         .done()];
     let es = EventSpec::new("foobar".into())
         .args(args)
-        .docs([" FooBarEvent  ".into()])
+        .docs([" FooBarEvent  "])
         .done();
 
-    let event_spec_name = serde_json::to_value(&es).unwrap();
+    let event_spec_name = serde_json::to_value(es).unwrap();
 
     // WHEN
     let expected_event_spec = serde_json::json!(
@@ -391,7 +391,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .done()];
     EventSpec::new("foobar".into())
         .args(args)
-        .docs(["foobar event".into()])
+        .docs(["foobar event"])
         .done()
 }
 
