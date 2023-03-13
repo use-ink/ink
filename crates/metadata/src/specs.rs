@@ -785,13 +785,17 @@ where
     }
 
     /// Sets the input arguments of the event specification.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
-        D: IntoIterator<Item = <F as Form>::String>,
+        D: IntoIterator<Item = &'a str>,
+        F::String: From<&'a str>,
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this.spec.docs = docs
+            .into_iter()
+            .map(|s| trim_extra_whitespace(s).into())
+            .collect::<Vec<_>>();
         this
     }
 
@@ -823,7 +827,6 @@ where
 {
     /// Creates a new event specification builder.
     pub fn new(label: <F as Form>::String) -> EventSpecBuilder<F> {
-        println!("hello there!");
         EventSpecBuilder {
             spec: Self {
                 label,

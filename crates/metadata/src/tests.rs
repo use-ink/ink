@@ -302,7 +302,7 @@ fn trim_docs_with_code() {
 }
 
 #[test]
-fn should_trim_whitespaces_in_events() {
+fn should_trim_whitespaces_in_events_docs() {
     // GIVEN
     let path: Path<PortableForm> =
         Path::from_segments_unchecked(["FooBarEvent".to_string()]);
@@ -314,7 +314,7 @@ fn should_trim_whitespaces_in_events() {
         .done()];
     let es = EventSpec::new("foobar".into())
         .args(args)
-        .docs([" Foo event".into()])
+        .docs([" FooBarEvent  ".into()])
         .done();
 
     let event_spec_name = serde_json::to_value(&es).unwrap();
@@ -323,23 +323,22 @@ fn should_trim_whitespaces_in_events() {
     let expected_event_spec = serde_json::json!(
         {
             "args": [
-              {
+            {
                 "docs": ["test"],
                 "indexed": true,
                 "label": "something",
                 "type": {
-                  "displayName": [
-                    "FooBarEvent"
-                  ],
-                  "type": 789
+                    "displayName": [
+                        "FooBarEvent"
+                    ],
+                    "type": 789
                 }
-              }
-            ],
+            }],
             "docs": [
-              "Foo event"
+                "FooBarEvent"
             ],
             "label": "foobar"
-          }
+        }
     );
 
     // THEN
