@@ -42,7 +42,7 @@ variables:
   # This is a target that does not have a standard library in contrast to Wasm. We compile against
   # this target to make sure that we don't pull in `std` by accident (through dependencies).
   # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2.
-  NO_STD_TARGET:                   "thumbv7m-none-eabi"
+  NO_STD_TARGET:                   "aarch64-unknown-none"
 
 workflow:
   rules:
