@@ -79,7 +79,7 @@ impl InkE2ETest {
             .environment()
             .unwrap_or_else(|| syn::parse_quote! { ::ink::env::DefaultEnvironment });
 
-        let contract_manifests = ContractManifests::from_crate_metadata();
+        let contract_manifests = ContractManifests::from_cargo_metadata();
 
         let contracts_to_build_and_import =
             if self.test.config.additional_contracts().is_empty() {
@@ -210,18 +210,11 @@ struct ContractManifests {
 impl ContractManifests {
     /// Load any manifests for packages which are detected to be `ink!` contracts. Any package
     /// with the `ink-as-dependency` feature enabled is assumed to be an `ink!` contract.
-    fn from_crate_metadata() -> Self {
-        // The default manifest path is the `Cargo.toml` in the current directory.
-        // So in this case the package within which the E2E test is defined.
-        let manifest_path = ManifestPath::default();
-        let crate_metadata = contract_build::CrateMetadata::collect(&manifest_path)
-            .unwrap_or_else(|err| {
-                panic!(
-                    "Error loading crate metadata for '{}': {}",
-                    manifest_path.as_ref().display(),
-                    err
-                )
-            });
+    fn from_cargo_metadata() -> Self {
+        let cmd = cargo_metadata::MetadataCommand::new();
+        let metadata = cmd
+            .exec()
+            .unwrap_or_else(|err| panic!("Error invoking `cargo metadata`: {}", err));
 
         fn maybe_contract_package(package: &cargo_metadata::Package) -> Option<String> {
             package
@@ -231,10 +224,19 @@ impl ContractManifests {
                 .then(|| package.manifest_path.to_string())
         }
 
-        let root_package = maybe_contract_package(&crate_metadata.root_package);
+        let root_package = metadata
+            .resolve
+            .as_ref()
+            .and_then(|resolve| resolve.root.as_ref())
+            .and_then(|root_package_id| {
+                metadata
+                    .packages
+                    .iter()
+                    .find(|package| &package.id == root_package_id)
+            })
+            .and_then(maybe_contract_package);
 
-        let contract_dependencies = crate_metadata
-            .cargo_meta
+        let contract_dependencies = metadata
             .packages
             .iter()
             .filter_map(maybe_contract_package)
