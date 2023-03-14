@@ -304,7 +304,6 @@ impl CallBuilder<'_> {
                 as #trait_path>::#output_ident;
 
             #[inline]
-            #( #cfg_attrs )*
             #( #attrs )*
             fn #message_ident(
                 & #mut_token self

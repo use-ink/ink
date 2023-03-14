@@ -14,8 +14,11 @@
 
 use crate::{
     error::ExtError as _,
-    ir,
-    ir::utils,
+    ir::{
+        self,
+        utils,
+        CFG_IDENT,
+    },
 };
 use proc_macro2::{
     Ident,
@@ -102,8 +105,10 @@ impl TryFrom<syn::ItemStruct> for Event {
         utils::ensure_pub_visibility("event structs", struct_span, &item_struct.vis)?;
         'repeat: for field in item_struct.fields.iter() {
             let field_span = field.span();
-            let some_cfg_attrs =
-                field.attrs.iter().find(|attr| attr.path.is_ident("cfg"));
+            let some_cfg_attrs = field
+                .attrs
+                .iter()
+                .find(|attr| attr.path.is_ident(CFG_IDENT));
             if some_cfg_attrs.is_some() {
                 return Err(format_err!(
                     field_span,
@@ -165,7 +170,7 @@ impl Event {
         self.item
             .attrs
             .iter()
-            .filter(|a| a.path.is_ident("cfg"))
+            .filter(|a| a.path.is_ident(CFG_IDENT))
             .map(|a| {
                 a.tokens
                     .clone()

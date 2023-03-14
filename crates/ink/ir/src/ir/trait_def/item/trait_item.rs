@@ -18,11 +18,16 @@ use crate::{
         self,
         attrs::SelectorOrWildcard,
         utils,
+        CFG_IDENT,
     },
     InputsIter,
     Receiver,
 };
-use proc_macro2::Span;
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
+use quote::quote_spanned;
 use syn::{
     spanned::Spanned as _,
     Result,
@@ -101,6 +106,22 @@ impl<'a> InkTraitMessage<'a> {
         let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
             .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
         rust_attrs
+    }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        self.item
+            .attrs
+            .iter()
+            .filter(|a| a.path.is_ident(CFG_IDENT))
+            .map(|a| {
+                a.tokens
+                    .clone()
+                    .into_iter()
+                    .map(|token| quote_spanned!(span=> #[cfg #token]))
+                    .collect()
+            })
+            .collect()
     }
 
     /// Returns all ink! attributes.

@@ -23,6 +23,7 @@ use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
     utils,
+    CFG_IDENT,
 };
 use proc_macro2::{
     Ident,
@@ -275,7 +276,7 @@ impl Message {
         self.item
             .attrs
             .iter()
-            .filter(|a| a.path.is_ident("cfg"))
+            .filter(|a| a.path.is_ident(CFG_IDENT))
             .map(|a| {
                 a.tokens
                     .clone()

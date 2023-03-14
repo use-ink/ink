@@ -58,6 +58,8 @@ use quote::{
 };
 use syn::spanned::Spanned;
 
+use super::CFG_IDENT;
+
 /// An ink! implementation block.
 ///
 /// # Note
@@ -214,7 +216,7 @@ impl ItemImpl {
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
         self.attrs
             .iter()
-            .filter(|a| a.path.is_ident("cfg"))
+            .filter(|a| a.path.is_ident(CFG_IDENT))
             .map(|a| {
                 a.tokens
                     .clone()

@@ -162,10 +162,8 @@ impl Dispatch<'_> {
         self.contract
             .module()
             .impls()
-            .flat_map(|item_impl| {
-                iter::repeat(item_impl.trait_path()).zip(item_impl.iter_constructors())
-            })
-            .map(|(_, constructor)| {
+            .flat_map(|item_impl| item_impl.iter_constructors())
+            .map(|constructor| {
                 let id = constructor
                     .composed_selector()
                     .into_be_u32()
@@ -349,23 +347,16 @@ impl Dispatch<'_> {
     ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let constructor_vars = self.generate_constructor_vars(constructors);
-        let constructor_var_idents = Self::generate_constructor_idents(constructors);
         let constructor_accept_payment_assignments =
             self.any_constructor_accepts_payment_vars(constructors);
         let msg_accepts_payment_assignments =
             self.any_message_accepts_payment_vars(messages);
-        let message_vars = self.generate_message_vars(messages);
-        let message_var_idents = Self::generate_messages_idents(messages);
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
-                #( #constructor_vars )*
-
-                #constructor_accept_payment_assignments
-                if !( false #( || #constructor_var_idents )* ) {
+                if !#constructor_accept_payment_assignments {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
@@ -403,10 +394,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn call() {
-                 #( #message_vars )*
-
-                #msg_accepts_payment_assignments
-                if !( false #( || #message_var_idents )* ) {
+                if !#msg_accepts_payment_assignments {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
@@ -517,7 +505,7 @@ impl Dispatch<'_> {
             .query_wildcard_constructor()
         {
             Some(wildcard_index) => {
-                let item = constructors.get(wildcard_index).unwrap();
+                let item = &constructors[wildcard_index];
                 let constructor_span = item.constructor.span();
                 let constructor_ident = constructor_variant_ident(wildcard_index);
                 let constructor_input = expand_constructor_input(
@@ -538,8 +526,6 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let constructor_accept_payment_assignment =
-            self.any_constructor_accepts_payment_vars(constructors);
 
         let constructor_execute = constructors.iter().enumerate().map(|(index, item)| {
             let constructor_span = item.constructor.span();
@@ -560,17 +546,14 @@ impl Dispatch<'_> {
                     as ::ink::reflect::ConstructorOutput::<#storage_ident>>
             );
 
-            let constructor_vars = self.generate_constructor_vars(constructors);
-            let constructor_var_idents = Self::generate_constructor_idents(constructors);
+            let constructor_accept_payment_assignment =
+                self.any_constructor_accepts_payment_vars(constructors);
 
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 Self::#constructor_ident(input) => {
-                    #( #constructor_vars )*
 
-                    #constructor_accept_payment_assignment
-
-                    if (false #( || #constructor_var_idents )* ) && #deny_payment {
+                    if #constructor_accept_payment_assignment && #deny_payment {
                         ::ink::codegen::deny_payment::<
                             <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                     }
@@ -742,8 +725,6 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let msg_accepts_payment_assignments =
-            self.any_message_accepts_payment_vars(messages);
 
         let message_execute = messages
             .iter()
@@ -766,17 +747,14 @@ impl Dispatch<'_> {
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::MUTATES
                 );
 
-                let message_vars = self.generate_message_vars(messages);
-                let message_var_idents = Self::generate_messages_idents(messages);
+                let msg_accepts_payment_assignments =
+                    self.any_message_accepts_payment_vars(messages);
 
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
-                        #( #message_vars )*
 
-                        #msg_accepts_payment_assignments
-
-                        if (false #( || #message_var_idents )*) && #deny_payment {
+                        if #msg_accepts_payment_assignments && #deny_payment {
                             ::ink::codegen::deny_payment::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                         }
@@ -876,38 +854,6 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generates tokens of variables relates to message index.
-    /// Used alongside `any_message_accepts_payment_vars()`
-    fn generate_message_vars(
-        &self,
-        messages: &[MessageDispatchable],
-    ) -> Vec<TokenStream2> {
-        let span = self.contract.module().storage().span();
-
-        messages
-            .iter()
-            .enumerate()
-            .map(|(index, _)| {
-                let ident = quote::format_ident!("message_{}", index);
-                quote_spanned!(span =>
-                        let #ident = false;
-                )
-            })
-            .collect()
-    }
-
-    fn generate_messages_idents(messages: &[MessageDispatchable]) -> Vec<syn::Ident> {
-        fn message_var_ident(n: usize) -> syn::Ident {
-            quote::format_ident!("message_{}", n)
-        }
-
-        messages
-            .iter()
-            .enumerate()
-            .map(|(index, _)| message_var_ident(index))
-            .collect()
-    }
-
     /// Generates code to express if any dispatchable ink! message accepts payment.
     ///
     /// Generates code in the form of variable assignments
@@ -932,48 +878,19 @@ impl Dispatch<'_> {
             let id = item.id.clone();
             let ident = quote::format_ident!("message_{}", index);
             quote_spanned!(message_span=>
-                #( #cfg_attrs )*
-                let #ident = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::PAYABLE;
+                {
+                    let #ident = false;
+                    #( #cfg_attrs )*
+                    let #ident = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::PAYABLE;
+                    #ident
+                }
             )
         });
         quote_spanned!(span=>
-            #( #message_is_payable )*
+            {
+                false #( || #message_is_payable )*
+            }
         )
-    }
-
-    /// Generates tokens of variables relates to message index.
-    /// Used alongside `any_message_accepts_payment_vars()`
-    fn generate_constructor_vars(
-        &self,
-        constructors: &[ConstructorDispatchable],
-    ) -> Vec<TokenStream2> {
-        let span = self.contract.module().storage().span();
-
-        constructors
-            .iter()
-            .enumerate()
-            .map(|(index, _)| {
-                let ident = quote::format_ident!("constructor_{}", index);
-                quote_spanned!(span =>
-                        let #ident = false;
-                )
-            })
-            .collect()
-    }
-
-    /// Generates tokens of variables relates to constructor index.
-    /// Used alongside `any_constructor_accepts_payment_vars()`
-    fn generate_constructor_idents(
-        constructors: &[ConstructorDispatchable],
-    ) -> Vec<syn::Ident> {
-        fn message_var_ident(n: usize) -> syn::Ident {
-            quote::format_ident!("constructor_{}", n)
-        }
-        constructors
-            .iter()
-            .enumerate()
-            .map(|(index, _)| message_var_ident(index))
-            .collect()
     }
 
     /// Generates code to express if any dispatchable ink! constructor accepts payment.
@@ -997,12 +914,18 @@ impl Dispatch<'_> {
             let id = item.id.clone();
             let ident = quote::format_ident!("constructor_{}", index);
             quote_spanned!(constructor_span=>
-                #( #cfg_attrs )*
-                let #ident = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::PAYABLE;
+                {
+                    let #ident = false;
+                    #( #cfg_attrs )*
+                    let #ident = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::PAYABLE;
+                    #ident
+                }
             )
         });
         quote_spanned!(span=>
-            #( #constructor_is_payable )*
+            {
+                false #( || #constructor_is_payable )*
+            }
         )
     }
 }

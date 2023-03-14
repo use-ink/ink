@@ -194,8 +194,9 @@ impl ItemImpls<'_> {
             .cloned()
             .unwrap_or_else(|| syn::parse_quote! { () });
         let statements = message.statements();
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
-            #( #attrs )*
+            #( #cfg_attrs )*
             type #output_ident = #output;
 
             #( #attrs )*

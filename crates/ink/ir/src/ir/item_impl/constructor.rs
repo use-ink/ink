@@ -21,7 +21,10 @@ use super::{
 };
 use crate::{
     ir,
-    ir::attrs::SelectorOrWildcard,
+    ir::{
+        attrs::SelectorOrWildcard,
+        CFG_IDENT,
+    },
 };
 use proc_macro2::{
     Ident,
@@ -227,7 +230,7 @@ impl Constructor {
         self.item
             .attrs
             .iter()
-            .filter(|a| a.path.is_ident("cfg"))
+            .filter(|a| a.path.is_ident(CFG_IDENT))
             .map(|a| {
                 a.tokens
                     .clone()
