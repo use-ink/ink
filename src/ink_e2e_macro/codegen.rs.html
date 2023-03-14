@@ -304,6 +304,8 @@
 <a href="#303" id="303">303</a>
 <a href="#304" id="304">304</a>
 <a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -385,7 +387,7 @@
             .environment()
             .unwrap_or_else(|| <span class="macro">syn::parse_quote! </span>{ ::ink::env::DefaultEnvironment });
 
-        <span class="kw">let </span>contract_manifests = ContractManifests::from_crate_metadata();
+        <span class="kw">let </span>contract_manifests = ContractManifests::from_cargo_metadata();
 
         <span class="kw">let </span>contracts_to_build_and_import =
             <span class="kw">if </span><span class="self">self</span>.test.config.additional_contracts().is_empty() {
@@ -516,18 +518,11 @@
 <span class="kw">impl </span>ContractManifests {
     <span class="doccomment">/// Load any manifests for packages which are detected to be `ink!` contracts. Any package
     /// with the `ink-as-dependency` feature enabled is assumed to be an `ink!` contract.
-    </span><span class="kw">fn </span>from_crate_metadata() -&gt; <span class="self">Self </span>{
-        <span class="comment">// The default manifest path is the `Cargo.toml` in the current directory.
-        // So in this case the package within which the E2E test is defined.
-        </span><span class="kw">let </span>manifest_path = ManifestPath::default();
-        <span class="kw">let </span>crate_metadata = contract_build::CrateMetadata::collect(<span class="kw-2">&amp;</span>manifest_path)
-            .unwrap_or_else(|err| {
-                <span class="macro">panic!</span>(
-                    <span class="string">&quot;Error loading crate metadata for &#39;{}&#39;: {}&quot;</span>,
-                    manifest_path.as_ref().display(),
-                    err
-                )
-            });
+    </span><span class="kw">fn </span>from_cargo_metadata() -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>cmd = cargo_metadata::MetadataCommand::new();
+        <span class="kw">let </span>metadata = cmd
+            .exec()
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;Error invoking `cargo metadata`: {}&quot;</span>, err));
 
         <span class="kw">fn </span>maybe_contract_package(package: <span class="kw-2">&amp;</span>cargo_metadata::Package) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
             package
@@ -537,10 +532,19 @@
                 .then(|| package.manifest_path.to_string())
         }
 
-        <span class="kw">let </span>root_package = maybe_contract_package(<span class="kw-2">&amp;</span>crate_metadata.root_package);
+        <span class="kw">let </span>root_package = metadata
+            .resolve
+            .as_ref()
+            .and_then(|resolve| resolve.root.as_ref())
+            .and_then(|root_package_id| {
+                metadata
+                    .packages
+                    .iter()
+                    .find(|package| <span class="kw-2">&amp;</span>package.id == root_package_id)
+            })
+            .and_then(maybe_contract_package);
 
-        <span class="kw">let </span>contract_dependencies = crate_metadata
-            .cargo_meta
+        <span class="kw">let </span>contract_dependencies = metadata
             .packages
             .iter()
             .filter_map(maybe_contract_package)
