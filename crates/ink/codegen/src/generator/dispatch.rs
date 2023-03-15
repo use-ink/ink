@@ -347,16 +347,16 @@ impl Dispatch<'_> {
     ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let constructor_accept_payment_assignments =
-            self.any_constructor_accepts_payment_vars(constructors);
-        let msg_accepts_payment_assignments =
-            self.any_message_accepts_payment_vars(messages);
+        let any_constructor_accept_payment =
+            self.any_constructor_accepts_payment(constructors);
+        let any_message_accepts_payment =
+            self.any_message_accepts_payment(messages);
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
-                if !#constructor_accept_payment_assignments {
+                if !#any_constructor_accept_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
@@ -394,7 +394,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn call() {
-                if !#msg_accepts_payment_assignments {
+                if !#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
@@ -547,7 +547,7 @@ impl Dispatch<'_> {
             );
 
             let constructor_accept_payment_assignment =
-                self.any_constructor_accepts_payment_vars(constructors);
+                self.any_constructor_accepts_payment(constructors);
 
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
@@ -747,14 +747,14 @@ impl Dispatch<'_> {
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::MUTATES
                 );
 
-                let msg_accepts_payment_assignments =
-                    self.any_message_accepts_payment_vars(messages);
+                let any_message_accepts_payment =
+                    self.any_message_accepts_payment(messages);
 
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
 
-                        if #msg_accepts_payment_assignments && #deny_payment {
+                        if #any_message_accepts_payment && #deny_payment {
                             ::ink::codegen::deny_payment::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                         }
@@ -863,7 +863,7 @@ impl Dispatch<'_> {
     /// This information can be used to speed-up dispatch since denying of payment
     /// can be generalized to work before dispatch happens if none of the ink! messages
     /// accept payment anyways.
-    fn any_message_accepts_payment_vars(
+    fn any_message_accepts_payment(
         &self,
         messages: &[MessageDispatchable],
     ) -> TokenStream2 {
@@ -902,7 +902,7 @@ impl Dispatch<'_> {
     /// This information can be used to speed-up dispatch since denying of payment
     /// can be generalized to work before dispatch happens if none of the ink! constructors
     /// accept payment anyways.
-    fn any_constructor_accepts_payment_vars(
+    fn any_constructor_accepts_payment(
         &self,
         constructors: &[ConstructorDispatchable],
     ) -> TokenStream2 {

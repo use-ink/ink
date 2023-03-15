@@ -23,7 +23,7 @@ use crate::{
     ir,
     ir::{
         attrs::SelectorOrWildcard,
-        CFG_IDENT,
+        extract_cfg_attributes,
     },
 };
 use proc_macro2::{
@@ -31,7 +31,6 @@ use proc_macro2::{
     Span,
     TokenStream,
 };
-use quote::quote_spanned;
 use syn::spanned::Spanned as _;
 
 /// An ink! constructor definition.
@@ -227,18 +226,7 @@ impl Constructor {
 
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
-        self.item
-            .attrs
-            .iter()
-            .filter(|a| a.path.is_ident(CFG_IDENT))
-            .map(|a| {
-                a.tokens
-                    .clone()
-                    .into_iter()
-                    .map(|token| quote_spanned!(span=> #[cfg #token]))
-                    .collect()
-            })
-            .collect()
+        extract_cfg_attributes(self.attrs(), span)
     }
 
     /// Returns the return type of the ink! constructor if any.

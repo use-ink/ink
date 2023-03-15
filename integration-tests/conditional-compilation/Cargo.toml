@@ -25,5 +25,6 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-# user-defined feature
+# user-defined features
 foo = []
+bar = []

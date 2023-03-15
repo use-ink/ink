@@ -23,14 +23,13 @@ use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
     utils,
-    CFG_IDENT,
+    extract_cfg_attributes,
 };
 use proc_macro2::{
     Ident,
     Span,
     TokenStream,
 };
-use quote::quote_spanned;
 use syn::spanned::Spanned as _;
 
 /// The receiver of an ink! message.
@@ -273,18 +272,7 @@ impl Message {
 
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
-        self.item
-            .attrs
-            .iter()
-            .filter(|a| a.path.is_ident(CFG_IDENT))
-            .map(|a| {
-                a.tokens
-                    .clone()
-                    .into_iter()
-                    .map(|token| quote_spanned!(span=> #[cfg #token]))
-                    .collect()
-            })
-            .collect()
+        extract_cfg_attributes(self.attrs(), span)
     }
 
     /// Returns the `self` receiver of the ink! message.

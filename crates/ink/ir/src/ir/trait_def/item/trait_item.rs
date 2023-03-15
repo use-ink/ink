@@ -14,24 +14,11 @@
 
 use super::super::InkAttribute;
 use crate::{
-    ir::{
-        self,
-        attrs::SelectorOrWildcard,
-        utils,
-        CFG_IDENT,
-    },
-    InputsIter,
-    Receiver,
+    ir::{self, attrs::SelectorOrWildcard, extract_cfg_attributes, utils},
+    InputsIter, Receiver,
 };
-use proc_macro2::{
-    Span,
-    TokenStream,
-};
-use quote::quote_spanned;
-use syn::{
-    spanned::Spanned as _,
-    Result,
-};
+use proc_macro2::{Span, TokenStream};
+use syn::{spanned::Spanned as _, Result};
 
 /// An ink! item within an ink! trait definition.
 #[derive(Debug, Clone)]
@@ -110,18 +97,7 @@ impl<'a> InkTraitMessage<'a> {
 
     /// Returns a list of `cfg` attributes if any.
     pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
-        self.item
-            .attrs
-            .iter()
-            .filter(|a| a.path.is_ident(CFG_IDENT))
-            .map(|a| {
-                a.tokens
-                    .clone()
-                    .into_iter()
-                    .map(|token| quote_spanned!(span=> #[cfg #token]))
-                    .collect()
-            })
-            .collect()
+        extract_cfg_attributes(&self.attrs(), span)
     }
 
     /// Returns all ink! attributes.
@@ -191,19 +167,15 @@ impl<'a> InkTraitMessage<'a> {
     pub fn mutates(&self) -> bool {
         self.sig()
             .receiver()
-            .map(|fn_arg| {
-                match fn_arg {
-                    syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
-                        true
-                    }
-                    syn::FnArg::Typed(pat_type) => {
-                        matches!(
-                            &*pat_type.ty,
-                            syn::Type::Reference(reference) if reference.mutability.is_some()
-                        )
-                    }
-                    _ => false,
+            .map(|fn_arg| match fn_arg {
+                syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => true,
+                syn::FnArg::Typed(pat_type) => {
+                    matches!(
+                        &*pat_type.ty,
+                        syn::Type::Reference(reference) if reference.mutability.is_some()
+                    )
                 }
+                _ => false,
             })
             .expect("encountered missing receiver for ink! message")
     }

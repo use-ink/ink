@@ -30,6 +30,17 @@ pub mod conditional_compilation {
         by: AccountId,
     }
 
+    /// Feature gated event
+    #[cfg(feature = "bar")]
+    #[ink(event)]
+    pub struct ChangesDated {
+        // attributing event field with `cfg` is not allowed
+        new_value: bool,
+        #[ink(topic)]
+        by: AccountId,
+        when: BlockNumber,
+    }
+
     #[ink(storage)]
     pub struct ConditionalCompilation {
         value: bool,
@@ -42,6 +53,52 @@ pub mod conditional_compilation {
             Self {
                 value: Default::default(),
             }
+        }
+
+        /// Constructor that included when `foo` is enabled
+        #[cfg(feature = "foo")]
+        #[ink(constructor)]
+        pub fn new_foo(value: bool) -> Self {
+            Self { value }
+        }
+
+        /// Constructor that included when `bar` is enabled
+        #[cfg(feature = "bar")]
+        #[ink(constructor)]
+        pub fn new_bar(value: bool) -> Self {
+            Self { value }
+        }
+
+        /// Constructor that included with either `foo` or `bar` features enabled
+        #[cfg(feature = "foo")]
+        #[cfg(feature = "bar")]
+        #[ink(constructor)]
+        pub fn new_foo_bar(value: bool) -> Self {
+            Self { value }
+        }
+
+        #[cfg(feature = "foo")]
+        #[ink(message)]
+        pub fn inherent_flip_foo(&mut self) {
+            self.value = !self.value;
+            let caller = Self::env().caller();
+            Self::env().emit_event(Changes {
+                new_value: self.value,
+                by: caller,
+            });
+        }
+
+        #[cfg(feature = "bar")]
+        #[ink(message)]
+        pub fn inherent_flip_bar(&mut self) {
+            let caller = Self::env().caller();
+            let block_number = Self::env().block_number();
+            self.value = !self.value;
+            Self::env().emit_event(ChangesDated {
+                new_value: self.value,
+                by: caller,
+                when: block_number,
+            });
         }
     }
 
