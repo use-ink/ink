@@ -394,6 +394,12 @@ impl Engine {
         set_output(output, &block_number[..])
     }
 
+    /// Set the execution context block timestamp (expressed in ms).
+    pub fn set_block_timestamp(&mut self, block_timestamp : BlockTimestamp) -> Result {
+        self.exec_context.set_block_timestamp(block_timestamp);
+        Ok(())
+    }
+
     /// Returns the timestamp of the current block.
     pub fn block_timestamp(&self, output: &mut &mut [u8]) {
         let block_timestamp: Vec<u8> =

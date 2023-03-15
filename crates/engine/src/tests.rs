@@ -272,3 +272,20 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     // then
     assert_eq!(output, pubkey.serialize());
 }
+
+#[test]
+fn setting_getting_block_timestamp() {
+    // given 
+    let mut engine = Engine::new();
+    let new_block_timestamp: u64 = 1000;
+    let output = &mut &mut get_buffer()[..];
+
+    // when 
+    engine.set_block_timestamp(new_block_timestamp).unwrap();
+    engine.block_timestamp(output);
+
+    // then
+    let output = <u64 as scale::Decode>::decode(&mut &output[..16])
+        .expect("decoding value transferred failed");
+    assert_eq!(output, new_block_timestamp);
+}
