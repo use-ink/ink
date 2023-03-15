@@ -14,11 +14,23 @@
 
 use super::super::InkAttribute;
 use crate::{
-    ir::{self, attrs::SelectorOrWildcard, extract_cfg_attributes, utils},
-    InputsIter, Receiver,
+    ir::{
+        self,
+        attrs::SelectorOrWildcard,
+        extract_cfg_attributes,
+        utils,
+    },
+    InputsIter,
+    Receiver,
 };
-use proc_macro2::{Span, TokenStream};
-use syn::{spanned::Spanned as _, Result};
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 /// An ink! item within an ink! trait definition.
 #[derive(Debug, Clone)]

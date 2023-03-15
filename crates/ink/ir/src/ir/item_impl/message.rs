@@ -22,8 +22,8 @@ use super::{
 use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
-    utils,
     extract_cfg_attributes,
+    utils,
 };
 use proc_macro2::{
     Ident,

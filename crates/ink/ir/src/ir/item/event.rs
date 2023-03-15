@@ -16,8 +16,9 @@ use crate::{
     error::ExtError as _,
     ir::{
         self,
+        extract_cfg_attributes,
         utils,
-        CFG_IDENT, extract_cfg_attributes,
+        CFG_IDENT,
     },
 };
 use proc_macro2::{

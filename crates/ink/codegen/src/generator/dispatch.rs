@@ -349,8 +349,7 @@ impl Dispatch<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let any_constructor_accept_payment =
             self.any_constructor_accepts_payment(constructors);
-        let any_message_accepts_payment =
-            self.any_message_accepts_payment(messages);
+        let any_message_accepts_payment = self.any_message_accepts_payment(messages);
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
