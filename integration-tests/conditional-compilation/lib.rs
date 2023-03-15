@@ -145,5 +145,17 @@ pub mod conditional_compilation {
             // Normal call syntax possible to as long as the trait is in scope.
             assert!(flipper.get());
         }
+
+        #[cfg(feature = "foo")]
+        #[ink::test]
+        fn foo_works() {
+            let mut flipper = ConditionalCompilation::new_foo(false);
+
+            flipper.inherent_flip_foo();
+            assert!(flipper.get());
+
+            <ConditionalCompilation as Flip>::push_foo(&mut flipper, false);
+            assert!(!flipper.get())
+        }
     }
 }
