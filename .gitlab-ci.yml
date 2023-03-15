@@ -375,6 +375,8 @@ examples-test:
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/conditional-compilation/" ]; then
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo";
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "bar";
         cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo, bar";
         fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
@@ -404,6 +406,12 @@ examples-contract-build:
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/conditional-compilation/" ]; then
+        pushd $example &&
+        cargo +stable contract build --features "foo" &&
+        popd;
+        pushd $example &&
+        cargo +stable contract build --features "bar" &&
+        popd;
         pushd $example &&
         cargo +stable contract build --features "foo, bar" &&
         popd;
