@@ -375,6 +375,7 @@ examples-test:
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
         if [ "$example" = "integration-tests/conditional-compilation/" ]; then
         cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo, bar";
+        fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
           cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
