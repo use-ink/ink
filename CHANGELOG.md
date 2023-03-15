@@ -48,7 +48,7 @@ In order to build contracts which use ink! `v4.0.0` you need to use
 [`v2.0.0`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0).
 You can install it as follows:
 
-`cargo install cargo-contract --forced --locked`
+`cargo install cargo-contract --force --locked`
 
 You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [polkadot-v0.9.37](https://github.com/paritytech/substrate/tree/polkadot-v0.9.37)
