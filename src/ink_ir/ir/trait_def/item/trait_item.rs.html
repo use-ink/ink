@@ -194,6 +194,11 @@
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -214,11 +219,15 @@
         <span class="self">self</span>,
         attrs::SelectorOrWildcard,
         utils,
+        utils::extract_cfg_attributes,
     },
     InputsIter,
     Receiver,
 };
-<span class="kw">use </span>proc_macro2::Span;
+<span class="kw">use </span>proc_macro2::{
+    Span,
+    TokenStream,
+};
 <span class="kw">use </span>syn::{
     spanned::Spanned <span class="kw">as _</span>,
     <span class="prelude-ty">Result</span>,
@@ -299,6 +308,11 @@
         rust_attrs
     }
 
+    <span class="doccomment">/// Returns a list of `cfg` attributes if any.
+    </span><span class="kw">pub fn </span>get_cfg_attrs(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Vec&lt;TokenStream&gt; {
+        extract_cfg_attributes(<span class="kw-2">&amp;</span><span class="self">self</span>.attrs(), span)
+    }
+
     <span class="doccomment">/// Returns all ink! attributes.
     </span><span class="kw">pub fn </span>ink_attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; InkAttribute {
         <span class="kw">let </span>(ink_attrs, <span class="kw">_</span>) = <span class="self">Self</span>::extract_attributes(<span class="self">self</span>.span(), <span class="kw-2">&amp;</span><span class="self">self</span>.item.attrs)
@@ -366,19 +380,15 @@
     </span><span class="kw">pub fn </span>mutates(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.sig()
             .receiver()
-            .map(|fn_arg| {
-                <span class="kw">match </span>fn_arg {
-                    syn::FnArg::Receiver(receiver) <span class="kw">if </span>receiver.mutability.is_some() =&gt; {
-                        <span class="bool-val">true
-                    </span>}
-                    syn::FnArg::Typed(pat_type) =&gt; {
-                        <span class="macro">matches!</span>(
-                            <span class="kw-2">&amp;*</span>pat_type.ty,
-                            syn::Type::Reference(reference) <span class="kw">if </span>reference.mutability.is_some()
-                        )
-                    }
-                    <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+            .map(|fn_arg| <span class="kw">match </span>fn_arg {
+                syn::FnArg::Receiver(receiver) <span class="kw">if </span>receiver.mutability.is_some() =&gt; <span class="bool-val">true</span>,
+                syn::FnArg::Typed(pat_type) =&gt; {
+                    <span class="macro">matches!</span>(
+                        <span class="kw-2">&amp;*</span>pat_type.ty,
+                        syn::Type::Reference(reference) <span class="kw">if </span>reference.mutability.is_some()
+                    )
                 }
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             })
             .expect(<span class="string">&quot;encountered missing receiver for ink! message&quot;</span>)
     }

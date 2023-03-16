@@ -320,6 +320,8 @@
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
 <a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -516,7 +518,9 @@
             .cloned()
             .unwrap_or_else(|| <span class="macro">syn::parse_quote! </span>{ () });
         <span class="kw">let </span>statements = message.statements();
+        <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
         <span class="macro">quote_spanned!</span>(span =&gt;
+            #( #cfg_attrs )*
             <span class="kw">type </span>#output_ident = #output;
 
             #( #attrs )*

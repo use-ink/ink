@@ -603,6 +603,15 @@
 <a href="#602" id="602">602</a>
 <a href="#603" id="603">603</a>
 <a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -626,11 +635,15 @@
 };
 <span class="kw">use crate</span>::{
     ir,
-    ir::attrs::SelectorOrWildcard,
+    ir::{
+        attrs::SelectorOrWildcard,
+        utils::extract_cfg_attributes,
+    },
 };
 <span class="kw">use </span>proc_macro2::{
     Ident,
     Span,
+    TokenStream,
 };
 <span class="kw">use </span>syn::spanned::Spanned <span class="kw">as _</span>;
 
@@ -823,6 +836,11 @@
     <span class="doccomment">/// Returns a slice of all non-ink! attributes of the ink! constructor.
     </span><span class="kw">pub fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Attribute] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.item.attrs
+    }
+
+    <span class="doccomment">/// Returns a list of `cfg` attributes if any.
+    </span><span class="kw">pub fn </span>get_cfg_attrs(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Vec&lt;TokenStream&gt; {
+        extract_cfg_attributes(<span class="self">self</span>.attrs(), span)
     }
 
     <span class="doccomment">/// Returns the return type of the ink! constructor if any.

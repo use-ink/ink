@@ -332,6 +332,8 @@
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -501,6 +503,7 @@
         <span class="kw">let </span>span = message.span();
         <span class="kw">let </span>ident = message.ident();
         <span class="kw">let </span>attrs = message.attrs();
+        <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
         <span class="kw">let </span>output_ident = generator::output_ident(message.ident());
         <span class="kw">let </span>output_type = message
             .output()
@@ -540,6 +543,7 @@
             }
         };
         <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #cfg_attrs )*
             <span class="kw">type </span>#output_ident = #output_type;
 
             #( #attrs )*

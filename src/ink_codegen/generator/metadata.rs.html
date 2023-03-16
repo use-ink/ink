@@ -485,6 +485,14 @@
 <a href="#484" id="484">484</a>
 <a href="#485" id="485">485</a>
 <a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -632,7 +640,9 @@
         <span class="kw">let </span>args = constructor.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
         <span class="kw">let </span>storage_ident = <span class="self">self</span>.contract.module().storage().ident();
         <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_constructor_return_type(storage_ident, selector_id);
+        <span class="kw">let </span>cfg_attrs = constructor.get_cfg_attrs(span);
         <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #cfg_attrs )*
             ::ink::metadata::ConstructorSpec::from_label(<span class="macro">::core::stringify!</span>(#ident))
                 .selector([
                     #( #selector_bytes ),*
@@ -724,8 +734,10 @@
                 <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
                 <span class="kw">let </span>ident = message.ident();
                 <span class="kw">let </span>args = message.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
+                <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
                 <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>message.wrapped_output()));
                 <span class="macro">quote_spanned!</span>(span =&gt;
+                    #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(<span class="macro">::core::stringify!</span>(#ident))
                         .selector([
                             #( #selector_bytes ),*
@@ -772,6 +784,7 @@
                 <span class="kw">let </span>message_args = message
                     .inputs()
                     .map(<span class="self">Self</span>::generate_dispatch_argument);
+                <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(message_span);
                 <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
                 <span class="kw">let </span>local_id = message.local_id().hex_padded_suffixed();
                 <span class="kw">let </span>is_payable = <span class="macro">quote! </span>{{
@@ -787,6 +800,7 @@
                 <span class="kw">let </span>ret_ty = <span class="self">Self</span>::generate_return_type(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>message.wrapped_output()));
                 <span class="kw">let </span>label = [trait_ident.to_string(), message_ident.to_string()].join(<span class="string">&quot;::&quot;</span>);
                 <span class="macro">quote_spanned!</span>(message_span=&gt;
+                    #( #cfg_attrs )*
                     ::ink::metadata::MessageSpec::from_label(#label)
                         .selector(#selector)
                         .args([
@@ -851,7 +865,9 @@
             <span class="kw">let </span>ident = event.ident();
             <span class="kw">let </span>docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
             <span class="kw">let </span>args = <span class="self">Self</span>::generate_event_args(event);
+            <span class="kw">let </span>cfg_attrs = event.get_cfg_attrs(span);
             <span class="macro">quote_spanned!</span>(span =&gt;
+                #( #cfg_attrs )*
                 ::ink::metadata::EventSpec::new(<span class="macro">::core::stringify!</span>(#ident))
                     .args([
                         #( #args ),*

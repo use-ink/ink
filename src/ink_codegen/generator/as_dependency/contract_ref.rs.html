@@ -478,6 +478,9 @@
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -773,12 +776,15 @@
         <span class="kw">let </span>mut_token = message.receiver().is_ref_mut().then(|| <span class="macro">quote! </span>{ <span class="kw-2">mut </span>});
         <span class="kw">let </span>input_bindings = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.pat).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>input_types = message.inputs().map(|input| <span class="kw-2">&amp;</span>input.ty).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
         <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #cfg_attrs )*
             <span class="kw">type </span>#output_ident =
                 &lt;&lt;<span class="self">Self</span>::__ink_TraitInfo <span class="kw">as </span>::ink::codegen::TraitCallForwarder&gt;::Forwarder <span class="kw">as </span>#trait_path&gt;::#output_ident;
 
             <span class="attr">#[inline]
-            </span><span class="kw">fn </span>#message_ident(
+            </span>#( #cfg_attrs )*
+            <span class="kw">fn </span>#message_ident(
                 &amp; #mut_token <span class="self">self
                 </span>#( , #input_bindings : #input_types )*
             ) -&gt; <span class="self">Self</span>::#output_ident {

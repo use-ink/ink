@@ -418,6 +418,8 @@
 <a href="#417" id="417">417</a>
 <a href="#418" id="418">418</a>
 <a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -695,6 +697,7 @@
         <span class="kw">let </span>span = message.span();
         <span class="kw">let </span>message_ident = message.ident();
         <span class="kw">let </span>output_ident = generator::output_ident(message_ident);
+        <span class="kw">let </span>cfg_attrs = message.get_cfg_attrs(span);
         <span class="kw">let </span>trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         <span class="kw">let </span>(input_bindings, input_types): (Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;) = message
             .callable()
@@ -715,6 +718,7 @@
             .whitelisted_attributes()
             .filter_attr(message.attrs().to_vec());
         <span class="macro">quote_spanned!</span>(span=&gt;
+            #( #cfg_attrs )*
             <span class="kw">type </span>#output_ident = &lt;&lt;&lt;
                 <span class="self">Self
                 </span><span class="kw">as </span>::ink::codegen::TraitCallForwarderFor&lt;{#trait_info_id}&gt;&gt;::Forwarder

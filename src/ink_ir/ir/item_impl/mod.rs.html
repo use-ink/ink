@@ -374,6 +374,14 @@
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -396,6 +404,7 @@
 <span class="kw">use </span>proc_macro2::{
     Ident,
     Span,
+    TokenStream,
 };
 
 <span class="kw">mod </span>callable;
@@ -429,6 +438,8 @@
 };
 <span class="kw">use </span>quote::TokenStreamExt <span class="kw">as _</span>;
 <span class="kw">use </span>syn::spanned::Spanned;
+
+<span class="kw">use </span><span class="kw">super</span>::utils::extract_cfg_attributes;
 
 <span class="doccomment">/// An ink! implementation block.
 ///
@@ -581,6 +592,11 @@
         }
         <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
     }
+
+    <span class="doccomment">/// Returns a list of `cfg` attributes if any.
+    </span><span class="kw">pub fn </span>get_cfg_attrs(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; Vec&lt;TokenStream&gt; {
+        extract_cfg_attributes(<span class="self">self</span>.attrs(), span)
+    }
 }
 
 <span class="kw">impl </span>TryFrom&lt;syn::ItemImpl&gt; <span class="kw">for </span>ItemImpl {
@@ -685,7 +701,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                 impl_block_span,
                 <span class="string">&quot;namespace ink! property is not allowed on ink! trait implementation blocks&quot;</span>,
-            ))
+            ));
         }
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             attrs: other_attrs,
