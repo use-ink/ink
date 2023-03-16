@@ -33,10 +33,7 @@ pub use self::{
     dispatch::{
         ConstructorOutput,
         ConstructorOutputValue,
-        ContractAmountDispatchables,
         ContractConstructorDecoder,
-        ContractDispatchableConstructors,
-        ContractDispatchableMessages,
         ContractMessageDecoder,
         DecodeDispatch,
         DispatchError,

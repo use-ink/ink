@@ -165,3 +165,21 @@ pub fn find_storage_key_salt(input: &syn::DeriveInput) -> Option<syn::TypeParam>
         None
     })
 }
+
+/// Extracts `cfg` attributes from the given set of attributes
+pub fn extract_cfg_attributes(
+    attrs: &[syn::Attribute],
+    span: Span,
+) -> Vec<proc_macro2::TokenStream> {
+    attrs
+        .iter()
+        .filter(|a| a.path.is_ident(super::CFG_IDENT))
+        .map(|a| {
+            a.tokens
+                .clone()
+                .into_iter()
+                .map(|token| quote::quote_spanned!(span=> #[cfg #token]))
+                .collect()
+        })
+        .collect()
+}
