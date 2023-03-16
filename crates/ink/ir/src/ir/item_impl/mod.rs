@@ -55,7 +55,7 @@ pub use self::{
 use quote::TokenStreamExt as _;
 use syn::spanned::Spanned;
 
-use super::extract_cfg_attributes;
+use super::utils::extract_cfg_attributes;
 
 /// An ink! implementation block.
 ///

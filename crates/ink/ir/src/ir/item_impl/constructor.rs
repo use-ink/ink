@@ -23,7 +23,7 @@ use crate::{
     ir,
     ir::{
         attrs::SelectorOrWildcard,
-        extract_cfg_attributes,
+        utils::extract_cfg_attributes,
     },
 };
 use proc_macro2::{

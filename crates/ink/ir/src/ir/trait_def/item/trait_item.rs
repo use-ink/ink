@@ -17,8 +17,8 @@ use crate::{
     ir::{
         self,
         attrs::SelectorOrWildcard,
-        extract_cfg_attributes,
         utils,
+        utils::extract_cfg_attributes,
     },
     InputsIter,
     Receiver,

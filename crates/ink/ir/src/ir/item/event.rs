@@ -16,8 +16,8 @@ use crate::{
     error::ExtError as _,
     ir::{
         self,
-        extract_cfg_attributes,
         utils,
+        utils::extract_cfg_attributes,
         CFG_IDENT,
     },
 };

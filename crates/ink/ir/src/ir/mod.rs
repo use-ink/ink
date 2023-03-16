@@ -31,21 +31,6 @@ pub mod utils;
 
 const CFG_IDENT: &str = "cfg";
 
-/// Extracts `cfg` attributes from the given set of attributes
-fn extract_cfg_attributes(attrs: &[syn::Attribute], span: Span) -> Vec<TokenStream> {
-    attrs
-        .iter()
-        .filter(|a| a.path.is_ident(CFG_IDENT))
-        .map(|a| {
-            a.tokens
-                .clone()
-                .into_iter()
-                .map(|token| quote::quote_spanned!(span=> #[cfg #token]))
-                .collect()
-        })
-        .collect()
-}
-
 /// Marker types and definitions.
 pub mod marker {
     pub use super::selector::{
@@ -53,11 +38,6 @@ pub mod marker {
         SelectorId,
     };
 }
-
-use proc_macro2::{
-    Span,
-    TokenStream,
-};
 
 #[cfg(test)]
 use self::attrs::Attribute;
