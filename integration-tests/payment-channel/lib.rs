@@ -38,6 +38,7 @@
 //! of `claim_timeout` to claim the funds. This will terminate the payment channel.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_main)]
 
 #[ink::contract]
 mod payment_channel {

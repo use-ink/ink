@@ -54,6 +54,7 @@
 //! with the wallet as a sender.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_main)]
 
 pub use self::multisig::{
     ConfirmationStatus,

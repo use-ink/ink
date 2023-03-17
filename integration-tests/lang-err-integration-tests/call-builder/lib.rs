@@ -14,6 +14,7 @@
 //! have a node which includes the Contracts pallet running alongside your tests.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_main)]
 
 #[ink::contract]
 mod call_builder {

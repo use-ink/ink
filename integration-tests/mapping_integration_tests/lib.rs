@@ -1,6 +1,7 @@
 //! A smart contract which demonstrates functionality of `Mapping` functions.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_main)]
 
 #[ink::contract]
 mod mapping_integration_tests {

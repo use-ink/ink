@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::trait_definition]
