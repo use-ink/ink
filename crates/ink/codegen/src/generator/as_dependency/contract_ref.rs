@@ -293,11 +293,14 @@ impl ContractRef<'_> {
         let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             type #output_ident =
                 <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
 
             #[inline]
+            #( #cfg_attrs )*
             fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*

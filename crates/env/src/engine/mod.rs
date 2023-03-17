@@ -38,16 +38,12 @@ pub trait OnInstance: EnvBackend + TypedEnvBackend {
 }
 
 cfg_if! {
-    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
+    if #[cfg(not(feature = "std"))] {
         mod on_chain;
         pub use self::on_chain::EnvInstance;
-    } else if #[cfg(feature = "std")] {
+    } else {
         pub mod off_chain;
         pub use self::off_chain::EnvInstance;
-    } else {
-        compile_error! {
-            "ink! only support compilation as `std` or `no_std` + `wasm32-unknown`"
-        }
     }
 }
 

@@ -167,6 +167,7 @@ impl TraitRegistry<'_> {
         let span = message.span();
         let ident = message.ident();
         let attrs = message.attrs();
+        let cfg_attrs = message.get_cfg_attrs(span);
         let output_ident = generator::output_ident(message.ident());
         let output_type = message
             .output()
@@ -206,6 +207,7 @@ impl TraitRegistry<'_> {
             }
         };
         quote_spanned!(span=>
+            #( #cfg_attrs )*
             type #output_ident = #output_type;
 
             #( #attrs )*

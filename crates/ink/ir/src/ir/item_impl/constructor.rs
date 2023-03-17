@@ -19,13 +19,17 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir::{
-    self,
-    Selector,
+use crate::{
+    ir,
+    ir::{
+        attrs::Selector,
+        utils::extract_cfg_attributes,
+    },
 };
 use proc_macro2::{
     Ident,
     Span,
+    TokenStream,
 };
 use syn::spanned::Spanned as _;
 
@@ -211,6 +215,11 @@ impl Constructor {
     /// Returns a slice of all non-ink! attributes of the ink! constructor.
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
+    }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        extract_cfg_attributes(self.attrs(), span)
     }
 
     /// Returns the return type of the ink! constructor if any.

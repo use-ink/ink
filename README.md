@@ -189,7 +189,7 @@ In the [`examples`](https://github.com/paritytech/ink-examples) repository you'l
 
 Some of the most interesting ones:
 
-* `delegator` ‒ Implements cross-contract calling.
+* `basic_contract_ref` ‒ Implements cross-contract calling.
 * `trait-erc20` ‒ Defines a trait for `Erc20` contracts and implements it.
 * `erc721` ‒ An exemplary implementation of `Erc721` NFT tokens.
 * `dns` ‒  A simple `DomainNameService` smart contract.

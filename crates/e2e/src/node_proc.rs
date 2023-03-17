@@ -178,7 +178,7 @@ fn find_substrate_port_from_output(r: impl Read + Send + 'static) -> u16 {
                 .map(|(_, port_str)| port_str)?;
 
             // trim non-numeric chars from the end of the port part of the line.
-            let port_str = line_end.trim_end_matches(|b| !('0'..='9').contains(&b));
+            let port_str = line_end.trim_end_matches(|b: char| !b.is_ascii_digit());
 
             // expect to have a number here (the chars after '127.0.0.1:') and parse them into a u16.
             let port_num = port_str.parse().unwrap_or_else(|_| {

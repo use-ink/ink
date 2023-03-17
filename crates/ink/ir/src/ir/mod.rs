@@ -29,6 +29,8 @@ mod storage_item;
 mod trait_def;
 pub mod utils;
 
+const CFG_IDENT: &str = "cfg";
+
 /// Marker types and definitions.
 pub mod marker {
     pub use super::selector::{
