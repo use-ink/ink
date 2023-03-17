@@ -187,10 +187,11 @@ impl Callable for Constructor {
     }
 
     fn has_wildcard_selector(&self) -> bool {
-        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true
-        }
-        false
+        matches!(self.selector, Some(SelectorOrWildcard::Wildcard))
+    }
+
+    fn has_wildcard_complement_selector(&self) -> bool {
+        matches!(self.selector, Some(SelectorOrWildcard::WildcardComplement))
     }
 
     fn is_payable(&self) -> bool {

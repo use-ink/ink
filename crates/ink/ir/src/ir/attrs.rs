@@ -762,7 +762,9 @@ fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
             match tt {
                 TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
                 TokenTree2::Ident(ident)
-                    if found_selector && found_equal && (ident == "_" || ident == "@") =>
+                    if found_selector
+                        && found_equal
+                        && (ident == "_" || ident == "@") =>
                 {
                     let mut lit = proc_macro2::Literal::string(&ident.to_string());
                     lit.set_span(ident.span());

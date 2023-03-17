@@ -287,7 +287,7 @@ impl ItemMod {
                         selector",
                     )),
                     1 => {
-                        if other_messages[0].callable().has_wildcard_selector() != IIP2_WILDCARD_COMPLEMENT_SELECTOR {
+                        if !other_messages[0].callable().has_wildcard_complement_selector() {
                             return Err(format_err!(
                                 other_messages[0].span(),
                                 "when using a wildcard selector, the other message must use the \
@@ -301,7 +301,7 @@ impl ItemMod {
                             "only one other message must be defined together with a wildcard selector",
                         );
                         for message in &other_messages {
-                            if message.composed_selector().to_bytes() != IIP2_WILDCARD_COMPLEMENT_SELECTOR {
+                            if !message.callable().has_wildcard_complement_selector() {
                                 combined.combine(
                                     format_err!(
                                         message.span(),
