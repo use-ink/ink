@@ -239,6 +239,10 @@ impl Callable for Message {
         false
     }
 
+    fn has_wildcard_complement_selector(&self) -> bool {
+        matches!(self.selector, SelectorOrWildcard::WildcardComplement)
+    }
+
     fn is_payable(&self) -> bool {
         self.is_payable
     }

@@ -509,8 +509,11 @@ pub enum SelectorOrWildcard {
     /// A wildcard selector. If no other selector matches, the message/constructor
     /// annotated with the wildcard selector will be invoked.
     Wildcard,
+    /// A wildcard selector complement, must be used in combination with a message
+    /// wildcard selector
+    WildcardComplement,
     /// A user provided selector.
-    UserProvided(ir::Selector),
+    UserProvided(Selector),
 }
 
 impl SelectorOrWildcard {
@@ -525,6 +528,7 @@ impl core::fmt::Display for SelectorOrWildcard {
         match self {
             Self::UserProvided(selector) => core::fmt::Debug::fmt(&selector, f),
             Self::Wildcard => write!(f, "_"),
+            Self::WildcardComplement => write!(f, "@"),
         }
     }
 }
@@ -742,7 +746,7 @@ impl From<InkAttribute> for Attribute {
 }
 
 /// This function replaces occurrences of a `TokenTree::Ident` of the sequence
-/// `selector = _` with the sequence `selector = "_"`.
+/// `selector = _` or `selector = @` with the sequence `selector = "_"` or `selector = "@"`.
 ///
 /// This is done because `syn::Attribute::parse_meta` does not support parsing a
 /// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
@@ -758,9 +762,9 @@ fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
             match tt {
                 TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
                 TokenTree2::Ident(ident)
-                    if found_selector && found_equal && ident == "_" =>
+                    if found_selector && found_equal && (ident == "_" || ident == "@") =>
                 {
-                    let mut lit = proc_macro2::Literal::string("_");
+                    let mut lit = proc_macro2::Literal::string(&ident.to_string());
                     lit.set_span(ident.span());
                     found_selector = false;
                     found_equal = false;
@@ -884,17 +888,21 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let argument = lit_str.value();
                                 // We've pre-processed the verbatim `_` to `"_"`. This was done
                                 // because `syn::Attribute::parse_meta` does not support verbatim.
-                                if argument != "_" {
-                                    return Err(format_err!(
+                                return match argument.as_str() {
+                                    "_" => Ok(AttributeFrag {
+                                        ast: meta,
+                                        arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
+                                    }),
+                                    "@" => Ok(AttributeFrag {
+                                        ast: meta,
+                                        arg: AttributeArg::Selector(SelectorOrWildcard::WildcardComplement),
+                                    }),
+                                    _ => Err(format_err!(
                                         name_value,
                                         "#[ink(selector = ..)] attributes with string inputs are deprecated. \
                                         use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
                                     ))
                                 }
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
-                                })
                             }
 
                             if let syn::Lit::Int(lit_int) = &name_value.lit {

@@ -287,18 +287,30 @@ impl ItemMod {
                         selector",
                     )),
                     1 => {
-                        if other_messages[0].composed_selector().to_bytes() != IIP2_WILDCARD_COMPLEMENT_SELECTOR {
+                        if other_messages[0].callable().has_wildcard_selector() != IIP2_WILDCARD_COMPLEMENT_SELECTOR {
                             return Err(format_err!(
                                 other_messages[0].span(),
                                 "when using a wildcard selector, the other message must use the \
-                                 reserved selector TODO",
+                                 reserved selector `::ink::IIP2_WILDCARD_COMPLEMENT_SELECTOR`"
                             ))
                         }
                     }
-                    2.. => return Err(format_err!(
-                        wildcard.span(), // todo: make span cover other messages?
-                        "exactly one other message can be defined together with a wildcard selector",
-                    ))
+                    2.. => {
+                        let mut combined = format_err!(
+                            wildcard.span(),
+                            "only one other message must be defined together with a wildcard selector",
+                        );
+                        for message in &other_messages {
+                            if message.composed_selector().to_bytes() != IIP2_WILDCARD_COMPLEMENT_SELECTOR {
+                                combined.combine(
+                                    format_err!(
+                                        message.span(),
+                                        "additional message not permitted together with a wildcard selector",
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
