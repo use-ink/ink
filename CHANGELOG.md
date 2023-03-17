@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E: auto detect contracts to be built - [#1691](https://github.com/paritytech/ink/pull/1691)
 - Add `set_code_hash` to `EnvAccess` - [#1698](https://github.com/paritytech/ink/pull/1698)
 
+### Changed
+- Support conditional compilation - [#1707](https://github.com/paritytech/ink/pull/1707)
+
 ## Version 4.0.1
 
 ### Fixed
@@ -48,7 +51,7 @@ In order to build contracts which use ink! `v4.0.0` you need to use
 [`v2.0.0`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0).
 You can install it as follows:
 
-`cargo install cargo-contract --forced --locked`
+`cargo install cargo-contract --force --locked`
 
 You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [polkadot-v0.9.37](https://github.com/paritytech/substrate/tree/polkadot-v0.9.37)

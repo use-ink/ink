@@ -28,40 +28,17 @@ mod contract {
 }
 
 fn main() {
+    const ID: u32 = ::ink::selector_id!("constructor_0");
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    },
-                >>::IDS[0]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<ID>>::SELECTOR,
         selector_bytes!("constructor_0")
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    },
-                >>::IDS[1]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<1_u32>>::SELECTOR,
         1_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink::reflect::DispatchableConstructorInfo<
-            {
-                <Contract as ::ink::reflect::ContractDispatchableConstructors<
-                    {
-                        <Contract as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    },
-                >>::IDS[2]
-            },
-        >>::SELECTOR,
+        <Contract as ::ink::reflect::DispatchableConstructorInfo<0xC0DE_CAFE_u32>>::SELECTOR,
         0xC0DE_CAFE_u32.to_be_bytes(),
     );
 }

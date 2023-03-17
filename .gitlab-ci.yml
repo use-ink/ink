@@ -41,7 +41,8 @@ variables:
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
   # This is a target that does not have a standard library in contrast to Wasm. We compile against
   # this target to make sure that we don't pull in `std` by accident (through dependencies).
-  NO_STD_TARGET:                   "bpfel-unknown-none"
+  # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2.
+  NO_STD_TARGET:                   "aarch64-unknown-none"
 
 workflow:
   rules:
@@ -373,6 +374,11 @@ examples-test:
   script:
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/conditional-compilation/" ]; then
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo";
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "bar";
+        cargo test --verbose --manifest-path ${example}/Cargo.toml --features "foo, bar";
+        fi;
         if grep -q "e2e-tests = \[\]" "${example}/Cargo.toml"; then
           cargo test --verbose --manifest-path ${example}/Cargo.toml --features e2e-tests;
         else
@@ -399,6 +405,17 @@ examples-contract-build:
     - cargo contract -V
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
+        if [ "$example" = "integration-tests/conditional-compilation/" ]; then
+        pushd $example &&
+        cargo +stable contract build --features "foo" &&
+        popd;
+        pushd $example &&
+        cargo +stable contract build --features "bar" &&
+        popd;
+        pushd $example &&
+        cargo +stable contract build --features "foo, bar" &&
+        popd;
+        fi;
         pushd $example &&
         cargo +stable contract build &&
         popd;
@@ -420,7 +437,7 @@ examples-no-std-check:
     - rustup component add rust-src --toolchain stable
     - cargo contract -V
     # We skip some examples for those reasons:
-    # There are no manifests in those two directories and hence it would fall back to the workspace. 
+    # There are no manifests in those two directories and hence it would fall back to the workspace.
     #  - lang-err-integration-tests
     #  - upgradeable-contracts
     # This uses dlmalloc which is only supported on select targets.
