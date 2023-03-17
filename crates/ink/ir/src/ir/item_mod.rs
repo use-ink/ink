@@ -28,6 +28,10 @@ use syn::{
     token,
 };
 
+/// A well know selector reserved for the message required to be defined
+/// alongside a wildcard selector. See https://github.com/paritytech/ink/issues/1676.
+pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0xFF, 0xFF, 0xFF, 0xFF]; // todo: selector_bytes!("IIP2_WILDCARD_COMPLEMENT");
+
 /// The ink! module.
 ///
 /// This is the root of all ink! smart contracts and is defined similarly to
@@ -275,8 +279,6 @@ impl ItemMod {
                 }
             }
 
-            const WELL_KNOWN_SELECTOR: [u8; 4] = [0x00, 0x00, 0x00, 0x00];
-
             if let Some(wildcard) = wildcard_selector {
                 match other_messages.len() as u32 {
                     0 => return Err(format_err!(
@@ -285,7 +287,7 @@ impl ItemMod {
                         selector",
                     )),
                     1 => {
-                        if other_messages[0].composed_selector().to_bytes() != WELL_KNOWN_SELECTOR { // todo well known selector constant?
+                        if other_messages[0].composed_selector().to_bytes() != IIP2_WILDCARD_COMPLEMENT_SELECTOR {
                             return Err(format_err!(
                                 other_messages[0].span(),
                                 "when using a wildcard selector, the other message must use the \
