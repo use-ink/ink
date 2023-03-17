@@ -18,11 +18,15 @@ use crate::{
         self,
         attrs::SelectorOrWildcard,
         utils,
+        utils::extract_cfg_attributes,
     },
     InputsIter,
     Receiver,
 };
-use proc_macro2::Span;
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
 use syn::{
     spanned::Spanned as _,
     Result,
@@ -103,6 +107,11 @@ impl<'a> InkTraitMessage<'a> {
         rust_attrs
     }
 
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        extract_cfg_attributes(&self.attrs(), span)
+    }
+
     /// Returns all ink! attributes.
     pub fn ink_attrs(&self) -> InkAttribute {
         let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
@@ -170,19 +179,15 @@ impl<'a> InkTraitMessage<'a> {
     pub fn mutates(&self) -> bool {
         self.sig()
             .receiver()
-            .map(|fn_arg| {
-                match fn_arg {
-                    syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
-                        true
-                    }
-                    syn::FnArg::Typed(pat_type) => {
-                        matches!(
-                            &*pat_type.ty,
-                            syn::Type::Reference(reference) if reference.mutability.is_some()
-                        )
-                    }
-                    _ => false,
+            .map(|fn_arg| match fn_arg {
+                syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => true,
+                syn::FnArg::Typed(pat_type) => {
+                    matches!(
+                        &*pat_type.ty,
+                        syn::Type::Reference(reference) if reference.mutability.is_some()
+                    )
                 }
+                _ => false,
             })
             .expect("encountered missing receiver for ink! message")
     }

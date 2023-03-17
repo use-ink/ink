@@ -104,8 +104,9 @@ impl InnerAlloc {
                 prev_page.checked_mul(PAGE_SIZE)
             }
         } else {
-            compile_error! {
-                "ink! only supports compilation as `std` or `no_std` + `wasm32-unknown`"
+            /// On other architectures growing memory probably doesn't make sense.
+            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
+                None
             }
         }
     }

@@ -345,8 +345,10 @@ impl CallBuilder<'_> {
         let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = message.mutates().then(|| quote! { mut });
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
+            #( #cfg_attrs )*
             type #output_ident = ::ink::env::call::CallBuilder<
                 Self::Env,
                 ::ink::env::call::utils::Set< ::ink::env::call::Call< Self::Env > >,

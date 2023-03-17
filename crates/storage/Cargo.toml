@@ -21,7 +21,7 @@ ink_primitives = { version = "4.0.1", path = "../primitives/", default-features 
 ink_storage_traits = { version = "4.0.1", path = "traits", default-features = false }
 ink_prelude = { version = "4.0.1", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"

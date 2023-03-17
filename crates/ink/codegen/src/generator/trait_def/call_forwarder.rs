@@ -387,7 +387,9 @@ impl CallForwarder<'_> {
         let panic_str = format!(
             "encountered error while calling <{forwarder_ident} as {trait_ident}>::{message_ident}",
         );
+        let cfg_attrs = message.get_cfg_attrs(span);
         quote_spanned!(span =>
+            #( #cfg_attrs )*
             type #output_ident = #output_type;
 
             #( #attrs )*

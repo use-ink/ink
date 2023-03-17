@@ -20,6 +20,7 @@ use crate::{
 use proc_macro2::{
     Ident,
     Span,
+    TokenStream,
 };
 
 mod callable;
@@ -53,6 +54,8 @@ pub use self::{
 };
 use quote::TokenStreamExt as _;
 use syn::spanned::Spanned;
+
+use super::utils::extract_cfg_attributes;
 
 /// An ink! implementation block.
 ///
@@ -205,6 +208,11 @@ impl ItemImpl {
         }
         Ok(false)
     }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        extract_cfg_attributes(self.attrs(), span)
+    }
 }
 
 impl TryFrom<syn::ItemImpl> for ItemImpl {
@@ -309,7 +317,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             return Err(format_err!(
                 impl_block_span,
                 "namespace ink! property is not allowed on ink! trait implementation blocks",
-            ))
+            ));
         }
         Ok(Self {
             attrs: other_attrs,
