@@ -22,7 +22,7 @@ use super::{
 use crate::{
     ir,
     ir::{
-        attrs::Selector,
+        Selector,
         utils::extract_cfg_attributes,
     },
 };
