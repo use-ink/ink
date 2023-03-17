@@ -22,8 +22,8 @@ use super::{
 use crate::{
     ir,
     ir::{
-        Selector,
         utils::extract_cfg_attributes,
+        Selector,
     },
 };
 use proc_macro2::{
