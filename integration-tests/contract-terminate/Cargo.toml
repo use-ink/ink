@@ -15,9 +15,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "contract_terminate"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]

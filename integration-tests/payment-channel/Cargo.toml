@@ -16,9 +16,7 @@ hex-literal = { version = "0.3" }
 sp-core = "6.0.0"
 
 [lib]
-name = "payment_channel"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]

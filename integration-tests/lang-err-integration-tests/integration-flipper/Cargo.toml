@@ -15,14 +15,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 ink_e2e = { path = "../../../crates/e2e" }
 
 [lib]
-name = "integration_flipper"
 path = "lib.rs"
-crate-type = [
-    # Used for normal contract Wasm blobs.
-    "cdylib",
-    # Used for ABI generation.
-    "rlib",
-]
 
 [features]
 default = ["std"]

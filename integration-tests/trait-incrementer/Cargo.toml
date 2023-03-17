@@ -13,9 +13,7 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 traits = { path = "./traits", default-features = false }
 
 [lib]
-name = "trait_incrementer"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
