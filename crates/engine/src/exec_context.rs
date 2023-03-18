@@ -65,7 +65,7 @@ impl ExecContext {
         *self = Default::default();
     }
 
-    /// Set the execution context block timestamp 
+    /// Set the execution context block timestamp
     pub fn set_block_timestamp(&mut self, block_timestamp: BlockTimestamp) {
         self.block_timestamp = block_timestamp
     }

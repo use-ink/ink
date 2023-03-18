@@ -250,7 +250,6 @@ where
     })
 }
 
-
 /// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>

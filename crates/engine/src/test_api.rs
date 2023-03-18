@@ -16,7 +16,7 @@ use crate::{
     ext::Engine,
     types::{
         AccountId,
-        Balance, 
+        Balance,
         BlockTimestamp,
     },
     AccountError,

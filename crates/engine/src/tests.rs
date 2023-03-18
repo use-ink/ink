@@ -275,12 +275,12 @@ fn ecdsa_recovery_with_secp256k1_crate() {
 
 #[test]
 fn setting_getting_block_timestamp() {
-    // given 
+    // given
     let mut engine = Engine::new();
     let new_block_timestamp: u64 = 1000;
     let output = &mut &mut get_buffer()[..];
 
-    // when 
+    // when
     engine.set_block_timestamp(new_block_timestamp);
     engine.block_timestamp(output);
 
