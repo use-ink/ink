@@ -16,7 +16,7 @@ use super::types::{
     AccountId, 
     Balance, 
     BlockNumber, 
-    BlockTimestamp
+    BlockTimestamp,
 };
 
 /// The context of a contract execution.
@@ -73,7 +73,10 @@ impl ExecContext {
 
 #[cfg(test)]
 mod tests {
-    use super::{AccountId, ExecContext};
+    use super::{
+        AccountId, 
+        ExecContext,
+    };
 
     #[test]
     fn basic_operations() {
