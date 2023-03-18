@@ -13,9 +13,9 @@
 // limitations under the License.
 
 use super::types::{
-    AccountId, 
-    Balance, 
-    BlockNumber, 
+    AccountId,
+    Balance,
+    BlockNumber,
     BlockTimestamp,
 };
 
@@ -74,7 +74,7 @@ impl ExecContext {
 #[cfg(test)]
 mod tests {
     use super::{
-        AccountId, 
+        AccountId,
         ExecContext,
     };
 
