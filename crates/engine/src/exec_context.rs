@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::types::{AccountId, Balance, BlockNumber, BlockTimestamp};
+use super::types::{
+    AccountId, 
+    Balance, 
+    BlockNumber, 
+    BlockTimestamp
+};
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
