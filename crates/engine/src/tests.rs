@@ -281,7 +281,7 @@ fn setting_getting_block_timestamp() {
     let output = &mut &mut get_buffer()[..];
 
     // when 
-    engine.set_block_timestamp(new_block_timestamp).unwrap();
+    engine.set_block_timestamp(new_block_timestamp);
     engine.block_timestamp(output);
 
     // then

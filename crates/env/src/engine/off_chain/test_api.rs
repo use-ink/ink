@@ -240,6 +240,17 @@ where
     })
 }
 
+/// Sets block timestamp for the next advance block.
+pub fn set_block_timestamp<T>(value: T::Timestamp)
+where
+    T: Environment<Timestamp = u64>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_block_timestamp(value);
+    })
+}
+
+
 /// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>

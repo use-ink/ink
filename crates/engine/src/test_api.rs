@@ -16,7 +16,7 @@ use crate::{
     ext::Engine,
     types::{
         AccountId,
-        Balance,
+        Balance, BlockTimestamp,
     },
     AccountError,
     Error,
@@ -256,6 +256,11 @@ impl Engine {
     /// Sets the value transferred from the caller to the callee as part of the call.
     pub fn set_value_transferred(&mut self, value: Balance) {
         self.exec_context.value_transferred = value;
+    }
+
+    pub fn set_block_timestamp(&mut self, new_block_timestamp: BlockTimestamp)
+    {
+        self.exec_context.block_timestamp = new_block_timestamp;
     }
 }
 
