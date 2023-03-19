@@ -309,17 +309,20 @@ mod multisig {
         /// ```should_panic
         /// use ink::env::{
         ///     call::{
+        ///         Call,
         ///         utils::ArgumentList,
         ///         CallParams,
         ///         ExecutionInput,
         ///         Selector,
         ///     },
-        ///     AccountId,
         ///     DefaultEnvironment as Env,
+        ///     Environment,
         /// };
         /// use ink::selector_bytes;
         /// use scale::Encode;
         /// use multisig::{Transaction, ConfirmationStatus};
+        ///
+        /// type AccountId = <Env as Environment>::AccountId;
         ///
         /// // address of an existing `Multisig` contract
         /// let wallet_id: AccountId = [7u8; 32].into();
@@ -333,15 +336,16 @@ mod multisig {
         ///     selector: selector_bytes!("add_owner"),
         ///     input: add_owner_args.encode(),
         ///     transferred_value: 0,
-        ///     gas_limit: 0
+        ///     gas_limit: 0,
+        ///     allow_reentry: true,
         /// };
         ///
         /// // Submit the transaction for confirmation
         /// //
         /// // Note that the selector bytes of the `submit_transaction` method
         /// // are `[86, 244, 13, 223]`.
-        /// let (id, _status) = ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-        ///     .call_type(Call::new().callee(wallet_id))
+        /// let (id, _status) = ink::env::call::build_call::<Env>()
+        ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(ExecutionInput::new(Selector::new([86, 244, 13, 223]))
         ///         .push_arg(&transaction_candidate)
@@ -353,8 +357,8 @@ mod multisig {
         /// //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
-        /// ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-        ///     .call_type(Call::new().callee(wallet_id))
+        /// ink::env::call::build_call::<Env>()
+        ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236]))
         ///         .push_arg(&id)
