@@ -39,10 +39,12 @@ variables:
   # this fix not yet in stable: https://github.com/rust-lang/rust-clippy/issues/8895.
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
-  # This is a target that does not have a standard library in contrast to Wasm. We compile against
-  # this target to make sure that we don't pull in `std` by accident (through dependencies).
-  # See https://doc.rust-lang.org/nightly/rustc/platform-support.html#tier-2.
-  NO_STD_TARGET:                   "aarch64-unknown-none"
+  # We plan to fully support RISC-V as a bytecode for contracts soon.
+  # RISC-V does not have a standard library in contrast to Wasm. Compiloing against
+  # this target also makes sure that we don't pull in `std` by accident (through dependencies).
+  # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
+  # later. For example, `riscv32imc-unknown-none-elf`.
+  RISCV_TARGET:                   "riscv32i-unknown-none-elf"
 
 workflow:
   rules:
@@ -209,8 +211,7 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
-# We just check on a target which doesn't have `std` to make sure that we don't pull in `std` by accident
-check-no-std:
+check-riscv:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -218,7 +219,7 @@ check-no-std:
     RUSTC_BOOTSTRAP:               "1"
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo check --verbose --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
+        cargo check --verbose --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" --manifest-path ./crates/${crate}/Cargo.toml;
       done
 
 dylint:
@@ -426,8 +427,8 @@ examples-contract-build:
       done
     - cargo +stable contract build --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml
 
-# We only check a few basic contracts here, no need to check them all.
-examples-no-std-check:
+# TODO: Use cargo contract as soon as it has RISC-V support
+examples-contract-build-riscv:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -442,7 +443,7 @@ examples-no-std-check:
     #  - upgradeable-contracts
     # This uses dlmalloc which is only supported on select targets.
     #   - custom_allocator
-    # Pulls in sp-std which needlessly requires atomic pointers.
+    # Pulls in sp-std which needlessly requires atomic pointers (TODO: Fix sp-std and enable this example)
     #   - call-runtime
     - for example in integration-tests/*/; do
         if [ "$example" = "integration-tests/lang-err-integration-tests/" ]; then continue; fi;
@@ -450,7 +451,7 @@ examples-no-std-check:
         if [ "$example" = "integration-tests/custom_allocator/" ]; then continue; fi;
         if [ "$example" = "integration-tests/call-runtime/" ]; then continue; fi;
         pushd $example &&
-        cargo +stable check --no-default-features --target $NO_STD_TARGET -Zbuild-std="core,alloc" &&
+        cargo +stable build --no-default-features --target $RISCV_TARGET -Zbuild-std="core,alloc" &&
         popd;
       done
 
