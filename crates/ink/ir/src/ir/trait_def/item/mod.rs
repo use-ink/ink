@@ -303,9 +303,9 @@ impl InkItemTrait {
         match message.sig.receiver() {
             None => {
                 return Err(format_err_spanned!(
-                message.sig,
-                "missing `&self` or `&mut self` receiver for ink! message",
-            ))
+                    message.sig,
+                    "missing `&self` or `&mut self` receiver for ink! message",
+                ))
             }
             Some(receiver) => {
                 if receiver.reference.is_none() {
