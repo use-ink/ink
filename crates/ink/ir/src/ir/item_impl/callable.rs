@@ -373,7 +373,6 @@ pub(super) fn ensure_callable_invariants(
     let bad_visibility = match &method_item.vis {
         syn::Visibility::Inherited => None,
         syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
         syn::Visibility::Public(_) => None,
     };
     if let Some(bad_visibility) = bad_visibility {

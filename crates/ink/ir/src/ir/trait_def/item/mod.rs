@@ -301,13 +301,13 @@ impl InkItemTrait {
     fn analyse_trait_message(message: &syn::TraitItemFn) -> Result<()> {
         InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
         match message.sig.receiver() {
-            None | Some(syn::FnArg::Typed(_)) => {
+            None => {
                 return Err(format_err_spanned!(
                 message.sig,
-                "missing or malformed `&self` or `&mut self` receiver for ink! message",
+                "missing `&self` or `&mut self` receiver for ink! message",
             ))
             }
-            Some(syn::FnArg::Receiver(receiver)) => {
+            Some(receiver) => {
                 if receiver.reference.is_none() {
                     return Err(format_err_spanned!(
                         receiver,

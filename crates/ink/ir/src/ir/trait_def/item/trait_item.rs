@@ -179,16 +179,7 @@ impl<'a> InkTraitMessage<'a> {
     pub fn mutates(&self) -> bool {
         self.sig()
             .receiver()
-            .map(|fn_arg| match fn_arg {
-                syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => true,
-                syn::FnArg::Typed(pat_type) => {
-                    matches!(
-                        &*pat_type.ty,
-                        syn::Type::Reference(reference) if reference.mutability.is_some()
-                    )
-                }
-                _ => false,
-            })
+            .map(|receiver| receiver.mutability.is_some())
             .expect("encountered missing receiver for ink! message")
     }
 }
