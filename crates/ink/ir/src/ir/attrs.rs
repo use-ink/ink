@@ -29,6 +29,7 @@ use proc_macro2::{
     TokenTree as TokenTree2,
 };
 use std::collections::HashMap;
+use quote::ToTokens;
 use syn::spanned::Spanned;
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -138,16 +139,24 @@ pub struct InkAttribute {
     args: Vec<AttributeFrag>,
 }
 
-impl Spanned for InkAttribute {
-    fn span(&self) -> Span {
-        self.args
-            .iter()
-            .map(|arg| arg.span())
-            .fold(self.first().span(), |fst, snd| {
-                fst.join(snd).unwrap_or_else(|| self.first().span())
-            })
+impl ToTokens for InkAttribute {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        for arg in self.args {
+            arg.to_tokens(tokens)
+        }
     }
 }
+
+// impl Spanned for InkAttribute {
+//     fn span(&self) -> Span {
+//         self.args
+//             .iter()
+//             .map(|arg| arg.span())
+//             .fold(self.first().span(), |fst, snd| {
+//                 fst.join(snd).unwrap_or_else(|| self.first().span())
+//             })
+//     }
+// }
 
 impl InkAttribute {
     /// Ensure that the first ink! attribute argument is of expected kind.
@@ -318,9 +327,9 @@ impl AttributeFrag {
     }
 }
 
-impl Spanned for AttributeFrag {
-    fn span(&self) -> Span {
-        self.ast.span()
+impl ToTokens for AttributeFrag {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        self.ast.to_tokens()
     }
 }
 
