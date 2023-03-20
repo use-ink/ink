@@ -20,7 +20,7 @@ ink_codegen = { version = "4.0.1", path = "../codegen", default-features = false
 ink_primitives = { version = "4.0.1", path = "../../primitives/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-syn = "1"
+syn = "2"
 synstructure = "0.12.6"
 proc-macro2 = "1"
 quote = "1"
