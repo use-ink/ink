@@ -444,7 +444,7 @@ pub(super) fn ensure_callable_invariants(
 /// The visibility of an ink! message or constructor.
 #[derive(Debug, Clone)]
 pub enum Visibility {
-    Public(syn::VisPublic),
+    Public(syn::Token![pub]),
     Inherited,
 }
 
