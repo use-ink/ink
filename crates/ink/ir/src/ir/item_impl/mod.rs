@@ -74,7 +74,7 @@ pub struct ItemImpl {
     unsafety: Option<syn::token::Unsafe>,
     impl_token: syn::token::Impl,
     generics: syn::Generics,
-    trait_: Option<(Option<syn::token::Bang>, syn::Path, syn::token::For)>,
+    trait_: Option<(Option<syn::Token![!]>, syn::Path, syn::token::For)>,
     self_ty: Box<syn::Type>,
     brace_token: syn::token::Brace,
     items: Vec<ImplItem>,
