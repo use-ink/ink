@@ -64,7 +64,7 @@ impl<'a> InkTraitItem<'a> {
 /// A checked ink! message of an ink! trait definition.
 #[derive(Debug, Clone)]
 pub struct InkTraitMessage<'a> {
-    item: &'a syn::TraitItemMethod,
+    item: &'a syn::TraitItemFn,
 }
 
 impl<'a> InkTraitMessage<'a> {
@@ -73,7 +73,7 @@ impl<'a> InkTraitMessage<'a> {
         "encountered invalid attributes for ink! trait message";
 
     /// Creates a new ink! trait definition message.
-    pub(super) fn new(item: &'a syn::TraitItemMethod) -> Self {
+    pub(super) fn new(item: &'a syn::TraitItemFn) -> Self {
         Self { item }
     }
 

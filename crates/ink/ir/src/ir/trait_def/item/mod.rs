@@ -214,7 +214,7 @@ impl InkItemTrait {
     /// - If the method is variadic or has generic parameters.
     /// - If the method does not respect the properties of either an
     ///   ink! message or ink! constructor.
-    fn analyse_trait_method(method: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_method(method: &syn::TraitItemFn) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
@@ -286,7 +286,7 @@ impl InkItemTrait {
     }
 
     /// Constructors are generally not allowed in ink! trait definitions.
-    fn analyse_trait_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_constructor(constructor: &syn::TraitItemFn) -> Result<()> {
         Err(format_err!(
             constructor.span(),
             "ink! trait definitions must not have constructors",
@@ -298,7 +298,7 @@ impl InkItemTrait {
     /// # Errors
     ///
     /// - If the message has no `&self` or `&mut self` receiver.
-    fn analyse_trait_message(message: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_message(message: &syn::TraitItemFn) -> Result<()> {
         InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
