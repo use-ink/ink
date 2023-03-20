@@ -55,7 +55,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 }
 
 #[test]
-#[should_panic(expected = "only one default message allowed")]
+#[should_panic(expected = "only one default message is allowed")]
 fn spec_contract_only_one_default_message_allowed() {
     ContractSpec::new()
         .constructors(vec![ConstructorSpec::from_label("new")
@@ -104,7 +104,7 @@ fn spec_contract_only_one_default_message_allowed() {
 }
 
 #[test]
-#[should_panic(expected = "only one default constructor allowed")]
+#[should_panic(expected = "only one default constructor is allowed")]
 fn spec_contract_only_one_default_constructor_allowed() {
     ContractSpec::new()
         .constructors(vec![
