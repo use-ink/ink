@@ -22,10 +22,8 @@ use crate::{
 };
 use core::result::Result;
 use proc_macro2::{
-    Group as Group2,
     Span,
     TokenStream as TokenStream2,
-    TokenTree as TokenTree2,
 };
 use quote::ToTokens;
 use std::collections::HashMap;
@@ -50,7 +48,7 @@ impl IsDocAttribute for syn::Attribute {
             return None
         }
         let mut docs = None;
-        self.parse_nested_meta(|meta| {
+        let _ = self.parse_nested_meta(|meta| {
             let lit: syn::LitStr = meta.input.parse()?;
             docs = Some(lit.value());
             Ok(())
@@ -139,22 +137,11 @@ pub struct InkAttribute {
 
 impl ToTokens for InkAttribute {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        for arg in self.args {
+        for arg in &self.args {
             arg.to_tokens(tokens)
         }
     }
 }
-
-// impl Spanned for InkAttribute {
-//     fn span(&self) -> Span {
-//         self.args
-//             .iter()
-//             .map(|arg| arg.span())
-//             .fold(self.first().span(), |fst, snd| {
-//                 fst.join(snd).unwrap_or_else(|| self.first().span())
-//             })
-//     }
-// }
 
 impl InkAttribute {
     /// Ensure that the first ink! attribute argument is of expected kind.
@@ -747,72 +734,20 @@ impl From<InkAttribute> for Attribute {
     }
 }
 
-/// This function replaces occurrences of a `TokenTree::Ident` of the sequence
-/// `selector = _` with the sequence `selector = "_"`.
-///
-/// This is done because `syn::Attribute::parse_meta` does not support parsing a
-/// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
-/// which requires a more in-depth rewrite of our IR parsing.
-fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
-    let mut found_selector = false;
-    let mut found_equal = false;
-
-    let new_group: TokenStream2 = group
-        .stream()
-        .into_iter()
-        .map(|tt| {
-            match tt {
-                TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
-                TokenTree2::Ident(ident)
-                    if found_selector && found_equal && ident == "_" =>
-                {
-                    let mut lit = proc_macro2::Literal::string("_");
-                    lit.set_span(ident.span());
-                    found_selector = false;
-                    found_equal = false;
-                    TokenTree2::Literal(lit)
-                }
-                TokenTree2::Ident(ident) if ident == "selector" => {
-                    found_selector = true;
-                    TokenTree2::Ident(ident)
-                }
-                TokenTree2::Punct(punct) if punct.as_char() == '=' => {
-                    found_equal = true;
-                    TokenTree2::Punct(punct)
-                }
-                _ => tt,
-            }
-        })
-        .collect();
-    TokenTree2::Group(Group2::new(group.delimiter(), new_group))
-}
-
 impl TryFrom<syn::Attribute> for InkAttribute {
     type Error = syn::Error;
 
-    fn try_from(mut attr: syn::Attribute) -> Result<Self, Self::Error> {
+    fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path().is_ident("ink") {
             return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
-
-        // let ts: TokenStream2 = attr
-        //     .tokens
-        //     .into_iter()
-        //     .map(|tt| {
-        //         match tt {
-        //             TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
-        //             _ => tt,
-        //         }
-        //     })
-        //     .collect();
-        // attr.tokens = ts;
 
         let mut args = Vec::new();
         attr.parse_nested_meta(|meta| {
             let frag = <AttributeFrag as TryFrom<_>>::try_from(meta)?;
             args.push(frag);
             Ok(())
-        });
+        })?;
 
         Self::ensure_no_duplicate_args(&args)?;
         if args.is_empty() {
