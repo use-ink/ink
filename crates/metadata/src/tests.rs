@@ -57,20 +57,18 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 #[test]
 #[should_panic(expected = "only one default message allowed")]
 fn spec_contract_only_one_default_message_allowed() {
-        ContractSpec::new()
-        .constructors(vec![
-            ConstructorSpec::from_label("new")
-                .selector([94u8, 189u8, 136u8, 214u8])
-                .payable(true)
-                .args(vec![MessageParamSpec::new("init_value")
-                    .of_type(TypeSpec::with_name_segs::<i32, _>(
-                        vec!["i32"].into_iter().map(AsRef::as_ref),
-                    ))
-                    .done()])
-                .returns(ReturnTypeSpec::new(None))
-                .docs(Vec::new())
-                .done()
-        ])
+    ContractSpec::new()
+        .constructors(vec![ConstructorSpec::from_label("new")
+            .selector([94u8, 189u8, 136u8, 214u8])
+            .payable(true)
+            .args(vec![MessageParamSpec::new("init_value")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .docs(Vec::new())
+            .done()])
         .messages(vec![
             MessageSpec::from_label("inc")
                 .selector([231u8, 208u8, 89u8, 15u8])
@@ -108,7 +106,7 @@ fn spec_contract_only_one_default_message_allowed() {
 #[test]
 #[should_panic(expected = "only one default constructor allowed")]
 fn spec_contract_only_one_default_constructor_allowed() {
-        ContractSpec::new()
+    ContractSpec::new()
         .constructors(vec![
             ConstructorSpec::from_label("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
@@ -129,22 +127,20 @@ fn spec_contract_only_one_default_constructor_allowed() {
                 .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
                 .default(true)
-                .done()
+                .done(),
         ])
-        .messages(vec![
-            MessageSpec::from_label("inc")
-                .selector([231u8, 208u8, 89u8, 15u8])
-                .mutates(true)
-                .payable(true)
-                .args(vec![MessageParamSpec::new("by")
-                    .of_type(TypeSpec::with_name_segs::<i32, _>(
-                        vec!["i32"].into_iter().map(AsRef::as_ref),
-                    ))
-                    .done()])
-                .returns(ReturnTypeSpec::new(None))
-                .default(true)
-                .done()
-        ])
+        .messages(vec![MessageSpec::from_label("inc")
+            .selector([231u8, 208u8, 89u8, 15u8])
+            .mutates(true)
+            .payable(true)
+            .args(vec![MessageParamSpec::new("by")
+                .of_type(TypeSpec::with_name_segs::<i32, _>(
+                    vec!["i32"].into_iter().map(AsRef::as_ref),
+                ))
+                .done()])
+            .returns(ReturnTypeSpec::new(None))
+            .default(true)
+            .done()])
         .events(Vec::new())
         .lang_error(TypeSpec::with_name_segs::<ink_primitives::LangError, _>(
             ::core::iter::Iterator::map(

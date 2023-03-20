@@ -223,7 +223,6 @@ impl Callable for Constructor {
     fn statements(&self) -> &[syn::Stmt] {
         &self.item.block.stmts
     }
-
 }
 
 impl Constructor {

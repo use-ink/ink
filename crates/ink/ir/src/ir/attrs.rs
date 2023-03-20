@@ -519,7 +519,7 @@ impl core::fmt::Display for AttributeArg {
             }
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
-            Self::Default => write!(f, "default")
+            Self::Default => write!(f, "default"),
         }
     }
 }
@@ -1238,7 +1238,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(default)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArg::Default]))
+            Ok(test::Attribute::Ink(vec![AttributeArg::Default])),
         )
     }
 

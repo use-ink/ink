@@ -228,10 +228,14 @@ where
             !self.spec.messages.is_empty(),
             "must have at least one message"
         );
-        assert!(self.spec.constructors.iter().filter(|c| c.default).count() < 2,
-                "only one default constructor is allowed");
-        assert!(self.spec.messages.iter().filter(|m| m.default).count() < 2,
-                "only one default message is allowed");
+        assert!(
+            self.spec.constructors.iter().filter(|c| c.default).count() < 2,
+            "only one default constructor is allowed"
+        );
+        assert!(
+            self.spec.messages.iter().filter(|m| m.default).count() < 2,
+            "only one default message is allowed"
+        );
         self.spec
     }
 }
@@ -280,7 +284,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The deployment handler documentation.
     pub docs: Vec<F::String>,
     /// If the constructor is default
-    default: bool
+    default: bool,
 }
 
 impl IntoPortable for ConstructorSpec {
@@ -340,7 +344,9 @@ where
         &self.docs
     }
 
-    pub fn default(&self) -> &bool { &self.default }
+    pub fn default(&self) -> &bool {
+        &self.default
+    }
 }
 
 /// A builder for constructors.
@@ -473,8 +479,7 @@ where
     }
 
     /// Sets the default of the constructor specification.
-    pub fn default(self, default: bool) -> Self
-    {
+    pub fn default(self, default: bool) -> Self {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 default,
@@ -483,7 +488,6 @@ where
             marker: PhantomData,
         }
     }
-
 }
 
 impl<F> ConstructorSpecBuilder<F, state::Selector, state::IsPayable, state::Returns>
@@ -522,7 +526,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The message documentation.
     docs: Vec<F::String>,
     /// If the message is default
-    default: bool
+    default: bool,
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
@@ -615,7 +619,9 @@ where
         &self.docs
     }
 
-    pub fn default(&self) -> &bool { &self.default }
+    pub fn default(&self) -> &bool {
+        &self.default
+    }
 }
 
 /// A builder for messages.
@@ -739,8 +745,7 @@ where
     }
 
     /// Sets the default of the message specification.
-    pub fn default(self, default: bool) -> Self
-    {
+    pub fn default(self, default: bool) -> Self {
         MessageSpecBuilder {
             spec: MessageSpec {
                 default,
@@ -749,7 +754,6 @@ where
             marker: PhantomData,
         }
     }
-
 }
 
 impl<F>
