@@ -101,7 +101,6 @@ impl Attrs for syn::Item {
             | Item::ForeignMod(syn::ItemForeignMod { attrs, .. })
             | Item::Impl(syn::ItemImpl { attrs, .. })
             | Item::Macro(syn::ItemMacro { attrs, .. })
-            | Item::Macro2(syn::ItemMacro2 { attrs, .. })
             | Item::Mod(syn::ItemMod { attrs, .. })
             | Item::Static(syn::ItemStatic { attrs, .. })
             | Item::Struct(syn::ItemStruct { attrs, .. })
