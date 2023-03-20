@@ -154,9 +154,7 @@ impl Message {
     /// # Errors
     ///
     /// If the given Rust method has a `Self` return type.
-    fn ensure_not_return_self(
-        method_item: &syn::ImplItemFn,
-    ) -> Result<(), syn::Error> {
+    fn ensure_not_return_self(method_item: &syn::ImplItemFn) -> Result<(), syn::Error> {
         match &method_item.sig.output {
             syn::ReturnType::Default => (),
             syn::ReturnType::Type(_arrow, ret_type) => {

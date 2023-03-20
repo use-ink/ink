@@ -191,8 +191,8 @@ impl InkItemTrait {
                         "encountered unsupported item in ink! trait definition"
                     ))
                 }
-                syn::TraitItem::Method(method_trait_item) => {
-                    Self::analyse_trait_method(method_trait_item)?;
+                syn::TraitItem::Fn(fn_trait_item) => {
+                    Self::analyse_trait_fn(fn_trait_item)?;
                 }
                 unknown => {
                     return Err(format_err_spanned!(
@@ -214,7 +214,7 @@ impl InkItemTrait {
     /// - If the method is variadic or has generic parameters.
     /// - If the method does not respect the properties of either an
     ///   ink! message or ink! constructor.
-    fn analyse_trait_method(method: &syn::TraitItemFn) -> Result<()> {
+    fn analyse_trait_fn(method: &syn::TraitItemFn) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,

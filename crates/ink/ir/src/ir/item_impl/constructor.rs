@@ -112,9 +112,7 @@ impl Constructor {
     ///
     /// If the ink! constructor has a `&self`, `&mut self`, `self` or any other
     /// kind of a `self` receiver as first argument.
-    fn ensure_no_self_receiver(
-        method_item: &syn::ImplItemFn,
-    ) -> Result<(), syn::Error> {
+    fn ensure_no_self_receiver(method_item: &syn::ImplItemFn) -> Result<(), syn::Error> {
         match method_item.sig.inputs.iter().next() {
             None | Some(syn::FnArg::Typed(_)) => (),
             Some(syn::FnArg::Receiver(receiver)) => {

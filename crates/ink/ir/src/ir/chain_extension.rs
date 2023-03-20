@@ -351,8 +351,8 @@ impl ChainExtension {
                         "encountered unsupported item in ink! chain extensions"
                     ))
                 }
-                syn::TraitItem::Method(method_trait_item) => {
-                    let method = Self::analyse_methods(method_trait_item)?;
+                syn::TraitItem::Fn(fn_trait_item) => {
+                    let method = Self::analyse_methods(fn_trait_item)?;
                     let method_id = method.id();
                     if let Some(previous) = seen_ids.get(&method_id) {
                         return Err(format_err!(
