@@ -190,11 +190,11 @@ impl ItemImpl {
         // an ink! constructor or an ink! message:
         'repeat: for item in &item_impl.items {
             match item {
-                syn::ImplItem::Method(method_item) => {
-                    if !ir::contains_ink_attributes(&method_item.attrs) {
+                syn::ImplItem::Fn(fn_item) => {
+                    if !ir::contains_ink_attributes(&fn_item.attrs) {
                         continue 'repeat
                     }
-                    let attr = ir::first_ink_attribute(&method_item.attrs)?
+                    let attr = ir::first_ink_attribute(&fn_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
                         ir::AttributeArg::Constructor | ir::AttributeArg::Message => {
