@@ -240,7 +240,7 @@ where
     })
 }
 
-/// Sets block timestamp for the next advance block.
+/// Sets the block timestamp for the next [`advance_block`] invocation.
 pub fn set_block_timestamp<T>(value: T::Timestamp)
 where
     T: Environment<Timestamp = u64>,
