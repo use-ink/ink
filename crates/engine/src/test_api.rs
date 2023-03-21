@@ -259,6 +259,7 @@ impl Engine {
         self.exec_context.value_transferred = value;
     }
 
+    /// Set the block timestamp for the execution context.
     pub fn set_block_timestamp(&mut self, new_block_timestamp: BlockTimestamp) {
         self.exec_context.block_timestamp = new_block_timestamp;
     }
