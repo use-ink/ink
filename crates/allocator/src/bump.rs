@@ -91,9 +91,11 @@ impl InnerAlloc {
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 Some(self.upper_limit)
             }
+
             fn heap_start() -> usize {
                 0
             }
+
             fn heap_end() -> usize {
                 0
             }
@@ -104,9 +106,11 @@ impl InnerAlloc {
                      should never actually be called outside of a test run."
                 )
             }
+
             fn heap_start() -> usize {
                 unreachable!()
             }
+
             fn heap_end() -> usize {
                 unreachable!()
             }
@@ -120,9 +124,10 @@ impl InnerAlloc {
                     return None;
                 }
 
-                // cannot overflow on this arch
+                // Cannot overflow on this architecture
                 Some(prev_page * PAGE_SIZE)
             }
+
             fn heap_start() -> usize {
                 extern "C" {
                     static __heap_base: usize;
@@ -133,8 +138,9 @@ impl InnerAlloc {
                 assert_ne!(heap_start, 0);
                 heap_start
             }
+
             fn heap_end() -> usize {
-                // cannot overflow on this arch
+                // Cannot overflow on this architecture
                 core::arch::wasm32::memory_size(0) * PAGE_SIZE
             }
         } else {
@@ -142,11 +148,13 @@ impl InnerAlloc {
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 None
             }
-            /// Other archs are not supported, yet.
+
+            /// Other architectures are not supported, yet.
             fn heap_start() -> usize {
                0
             }
-            /// Other archs are not supported, yet.
+
+            /// Other architectures are not supported, yet.
             fn heap_end() -> usize {
                 0
             }
