@@ -381,6 +381,32 @@
 <a href="#380" id="380">380</a>
 <a href="#381" id="381">381</a>
 <a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -529,6 +555,32 @@
 {
     &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
         instance.engine.set_callee(scale::Encode::encode(<span class="kw-2">&amp;</span>callee));
+    })
+}
+
+<span class="doccomment">/// Sets an account as a contract
+</span><span class="kw">pub fn </span>set_contract&lt;T&gt;(contract: T::AccountId)
+<span class="kw">where
+    </span>T: Environment,
+    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+{
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance
+            .engine
+            .set_contract(scale::Encode::encode(<span class="kw-2">&amp;</span>contract));
+    })
+}
+
+<span class="doccomment">/// Returns a boolean to indicate whether an account is a contract
+</span><span class="kw">pub fn </span>is_contract&lt;T&gt;(contract: T::AccountId) -&gt; bool
+<span class="kw">where
+    </span>T: Environment,
+    &lt;T <span class="kw">as </span>Environment&gt;::AccountId: From&lt;[u8; <span class="number">32</span>]&gt;,
+{
+    &lt;EnvInstance <span class="kw">as </span>OnInstance&gt;::on_instance(|instance| {
+        instance
+            .engine
+            .is_contract(scale::Encode::encode(<span class="kw-2">&amp;</span>contract))
     })
 }
 
