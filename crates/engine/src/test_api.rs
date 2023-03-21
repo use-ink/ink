@@ -201,6 +201,11 @@ impl Engine {
         self.exec_context.caller = Some(caller.into());
     }
 
+    /// Sets a known contract by adding it to a vector of known contracts accounts
+    pub fn set_contract(&mut self, caller: Vec<u8>) {
+        self.exec_context.contracts.push(caller);
+    }
+
     /// Sets the callee for the next call.
     pub fn set_callee(&mut self, callee: Vec<u8>) {
         self.exec_context.callee = Some(callee.into());
@@ -229,6 +234,11 @@ impl Engine {
     /// Returns the callee, i.e. the currently executing contract.
     pub fn get_callee(&self) -> Vec<u8> {
         self.exec_context.callee()
+    }
+
+    /// Returns boolean value indicating whether the account is a contract
+    pub fn is_contract(&self, account_id: Vec<u8>) -> bool {
+        self.exec_context.contracts.contains(&account_id)
     }
 
     /// Returns the contents of the past performed environmental `debug_message` in order.
