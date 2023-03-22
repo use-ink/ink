@@ -20,11 +20,15 @@ use proc_macro2::{
     TokenStream as TokenStream2,
 };
 use quote::ToTokens;
-use syn::parse::{
-    Parse,
-    ParseStream,
+use syn::{
+    parse::{
+        Parse,
+        ParseStream,
+    },
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Token,
 };
-use syn::spanned::Spanned;
 
 use crate::{
     error::ExtError as _,
@@ -749,12 +753,10 @@ impl TryFrom<syn::Attribute> for InkAttribute {
             return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
 
-        let mut args = Vec::new();
-        attr.parse_nested_meta(|meta| {
-            let frag = <AttributeFrag as TryFrom<_>>::try_from(meta)?;
-            args.push(frag);
-            Ok(())
-        })?;
+        let args: Vec<_> = attr
+            .parse_args_with(Punctuated::<AttributeFrag, Token![,]>::parse_terminated)?
+            .into_iter()
+            .collect();
 
         Self::ensure_no_duplicate_args(&args)?;
         if args.is_empty() {
@@ -819,9 +821,9 @@ impl Parse for AttributeFrag {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let path = input.call(syn::Path::parse_mod_style)?;
         if path.is_ident("selector") {
-            let _: syn::Token![=] = input.parse()?;
-            if input.peek(syn::Token![_]) {
-                let _: syn::Token![_] = input.parse()?;
+            let _: Token![=] = input.parse()?;
+            if input.peek(Token![_]) {
+                let _: Token![_] = input.parse()?;
                 Ok(AttributeFrag {
                     path: path.clone(),
                     arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
@@ -852,7 +854,7 @@ impl Parse for AttributeFrag {
                 }
             }
         } else if path.is_ident("namespace") {
-            let _: syn::Token![=] = input.parse()?;
+            let _: Token![=] = input.parse()?;
             let lit_str: syn::LitStr = input.parse()?;
 
             let argument = lit_str.value();
@@ -864,7 +866,7 @@ impl Parse for AttributeFrag {
                 arg: AttributeArg::Namespace(Namespace::from(argument.into_bytes())),
             })
         } else if path.is_ident("extension") {
-            let _: syn::Token![=] = input.parse()?;
+            let _: Token![=] = input.parse()?;
             let lit_int: syn::LitInt = input.parse()?;
 
             let id = lit_int.base10_parse::<u32>()
@@ -876,7 +878,7 @@ impl Parse for AttributeFrag {
                 arg: AttributeArg::Extension(ExtensionId::from_u32(id)),
             })
         } else if path.is_ident("handle_status") {
-            let _: syn::Token![=] = input.parse()?;
+            let _: Token![=] = input.parse()?;
             let lit_bool: syn::LitBool = input.parse()?;
 
             let value = lit_bool.value;
@@ -917,109 +919,6 @@ impl Parse for AttributeFrag {
                     _ => Err(input.error("unknown ink! attribute (path)"))
                 })
                 .map(|kind| AttributeFrag { path: path.clone(), arg: kind, })
-        }
-    }
-}
-
-impl<'a> TryFrom<syn::meta::ParseNestedMeta<'a>> for AttributeFrag {
-    type Error = syn::Error;
-
-    fn try_from(meta: syn::meta::ParseNestedMeta<'a>) -> Result<Self, Self::Error> {
-        if meta.path.is_ident("selector") {
-            let value = meta.value()?; // this parses the `=`
-            if meta.input.peek(syn::token::Underscore) {
-                return Ok(AttributeFrag {
-                    path: meta.path.clone(),
-                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
-                })
-            } else {
-                let lit: syn::Lit = value.parse()?;
-                match lit {
-                    syn::Lit::Str(_) => {
-                        Err(meta.error(
-                            "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                             use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].")
-                        )
-                    }
-                    syn::Lit::Int(lit_int) => {
-                        let selector_u32 = lit_int.base10_parse::<u32>()
-                            .map_err(|error| {
-                                meta.error(format!("selector value out of range. selector must be a valid `u32` integer: {}", error))
-                            })?;
-                        let selector = Selector::from(selector_u32.to_be_bytes());
-                        Ok(AttributeFrag {
-                            path: meta.path.clone(),
-                            arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
-                        })
-                    },
-                    _ => {
-                        Err(meta.error("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
-                    }
-                }
-            }
-        } else if meta.path.is_ident("namespace") {
-            let value = meta.value()?;
-            let lit_str: syn::LitStr = value.parse()?;
-            let argument = lit_str.value();
-            syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
-                meta.error("encountered invalid Rust identifier for namespace argument")
-            })?;
-            Ok(AttributeFrag {
-                path: meta.path.clone(),
-                arg: AttributeArg::Namespace(Namespace::from(argument.into_bytes())),
-            })
-        } else if meta.path.is_ident("extension") {
-            let value = meta.value()?;
-            let lit_int: syn::LitInt = value.parse()?;
-            let id = lit_int.base10_parse::<u32>()
-                .map_err(|error| {
-                    meta.error(format!("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error))
-                })?;
-            Ok(AttributeFrag {
-                path: meta.path.clone(),
-                arg: AttributeArg::Extension(ExtensionId::from_u32(id)),
-            })
-        } else if meta.path.is_ident("handle_status") {
-            let value = meta.value()?;
-            let lit_bool: syn::LitBool = value.parse()?;
-            let value = lit_bool.value;
-            Ok(AttributeFrag {
-                path: meta.path.clone(),
-                arg: AttributeArg::HandleStatus(value),
-            })
-        } else {
-            meta.path
-                .get_ident()
-                .map(proc_macro2::Ident::to_string)
-                .ok_or_else(|| meta.error("unknown ink! attribute (path)"))
-                .and_then(|ident| match ident.as_str() {
-                    "storage" => Ok(AttributeArg::Storage),
-                    "message" => Ok(AttributeArg::Message),
-                    "constructor" => Ok(AttributeArg::Constructor),
-                    "event" => Ok(AttributeArg::Event),
-                    "anonymous" => Ok(AttributeArg::Anonymous),
-                    "topic" => Ok(AttributeArg::Topic),
-                    "payable" => Ok(AttributeArg::Payable),
-                    "impl" => Ok(AttributeArg::Implementation),
-                    "selector" => Err(meta.error(
-                        "encountered #[ink(selector)] that is missing its u32 parameter. \
-                         Did you mean #[ink(selector = value: u32)] ?"
-                    )),
-                    "namespace" => Err(meta.error(
-                        "encountered #[ink(namespace)] that is missing its string parameter. \
-                         Did you mean #[ink(namespace = name: str)] ?"
-                    )),
-                    "extension" => Err(meta.error(
-                        "encountered #[ink(extension)] that is missing its `id` parameter. \
-                         Did you mean #[ink(extension = id: u32)] ?"
-                    )),
-                    "handle_status" => Err(meta.error(
-                        "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
-                         Did you mean #[ink(handle_status = flag: bool)] ?"
-                    )),
-                    _ => Err(meta.error("unknown ink! attribute (path)"))
-                })
-                .map(|kind| AttributeFrag { path: meta.path.clone(), arg: kind, })
         }
     }
 }
