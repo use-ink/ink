@@ -349,7 +349,8 @@ mod multisig {
         /// //
         /// // Note that the selector bytes of the `submit_transaction` method
         /// // are `[86, 244, 13, 223]`.
-        /// let (id, _status) = ink::env::call::build_call::<ink::env::DefaultEnvironment>()
+        /// let (id, _status) =
+        /// ink::env::call::build_call::<ink::env::DefaultEnvironment>()
         ///     .call_type(Call::new().callee(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(
@@ -359,15 +360,15 @@ mod multisig {
         ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .invoke();
         ///
-        /// // Wait until all required owners have confirmed and then execute the transaction
-        /// //
+        /// // Wait until all required owners have confirmed and then execute the
+        /// transaction //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
         /// ink::env::call::build_call::<ink::env::DefaultEnvironment>()
         ///     .call_type(Call::new().callee(wallet_id))
         ///     .gas_limit(0)
-        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236])).push_arg(&id))
-        ///     .returns::<()>()
+        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225,
+        /// 236])).push_arg(&id))     .returns::<()>()
         ///     .invoke();
         /// ```
         #[ink(message)]
