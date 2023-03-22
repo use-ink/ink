@@ -262,7 +262,8 @@ where
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The label of the constructor.
     ///
-    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    /// In case of a trait provided constructor the label is prefixed with the trait
+    /// label.
     pub label: F::String,
     /// The selector hash of the message.
     pub selector: Selector,
@@ -301,7 +302,8 @@ where
 {
     /// Returns the label of the constructor.
     ///
-    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    /// In case of a trait provided constructor the label is prefixed with the trait
+    /// label.
     pub fn label(&self) -> &F::String {
         &self.label
     }
@@ -628,7 +630,8 @@ impl<F, S, P, R> MessageSpecBuilder<F, S, Missing<state::Mutates>, P, R>
 where
     F: Form,
 {
-    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
+    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking
+    /// `&self`.
     pub fn mutates(
         self,
         mutates: bool,

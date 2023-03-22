@@ -129,8 +129,7 @@ where
     ///
     /// # Panics
     /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value
-    ///   type.
+    /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
         self.dry_run.message_result()
     }
@@ -216,8 +215,7 @@ where
     ///
     /// # Panics
     /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value
-    ///   type.
+    /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
@@ -397,8 +395,9 @@ where
 
     /// Generate a new keypair and fund with the given amount from the origin account.
     ///
-    /// Because many tests may execute this in parallel, transfers may fail due to a race condition
-    /// with account indices. Therefore this will reattempt transfers a number of times.
+    /// Because many tests may execute this in parallel, transfers may fail due to a race
+    /// condition with account indices. Therefore this will reattempt transfers a
+    /// number of times.
     pub async fn create_and_fund_account(
         &self,
         origin: &Signer<C>,
@@ -683,9 +682,9 @@ where
         }
 
         // The `pallet-contracts` behavior is that if the code was already stored on the
-        // chain we won't get an event with the hash, but the extrinsic will still succeed.
-        // We then don't error (`cargo-contract` would), but instead return the hash from
-        // the dry-run.
+        // chain we won't get an event with the hash, but the extrinsic will still
+        // succeed. We then don't error (`cargo-contract` would), but instead
+        // return the hash from the dry-run.
         let code_hash = match hash {
             Some(hash) => hash,
             None => {
@@ -761,8 +760,8 @@ where
 
     /// Executes a dry-run `call`.
     ///
-    /// Returns the result of the dry run, together with the decoded return value of the invoked
-    /// message.
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
     pub async fn call_dry_run<RetType>(
         &mut self,
         signer: &Signer<C>,
@@ -806,7 +805,8 @@ where
             "System",
             "Account",
             vec![
-                // Something that encodes to an AccountId32 is what we need for the map key here:
+                // Something that encodes to an AccountId32 is what we need for the map
+                // key here:
                 Value::from_bytes(&account_id),
             ],
         );

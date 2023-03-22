@@ -62,11 +62,11 @@ use super::utils::extract_cfg_attributes;
 /// # Note
 ///
 /// - This can be either an inherent implementation block that implements some
-///   constructors, messages or internal functions for the storage struct; OR it
-///   can be a trait implementation for the storage struct.
+///   constructors, messages or internal functions for the storage struct; OR it can be a
+///   trait implementation for the storage struct.
 /// - We try to support all fields that are supported by the underlying `syn`
-///   implementation for [`syn::ItemImpl`] even though they are not really
-///   required to represent ink!. This is done for consistency with `syn`.
+///   implementation for [`syn::ItemImpl`] even though they are not really required to
+///   represent ink!. This is done for consistency with `syn`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ItemImpl {
     attrs: Vec<syn::Attribute>,
@@ -130,22 +130,22 @@ impl ItemImpl {
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_function(&self) {
-    ///         /* inherent method implementation */
+    ///         // inherent method implementation
     ///         unimplemented!()
     ///     }
     /// }
     /// # }).unwrap();
     /// ```
     ///
-    /// - Or if any of the ink! implementation block methods do have ink!
-    ///   specific annotations:
+    /// - Or if any of the ink! implementation block methods do have ink! specific
+    ///   annotations:
     ///
     /// ```
     /// # <ink_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]
     ///     pub fn my_constructor() -> Self {
-    ///         /* constructor implementation */
+    ///         // constructor implementation
     ///         unimplemented!()
     ///     }
     /// }

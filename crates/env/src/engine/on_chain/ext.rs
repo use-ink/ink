@@ -368,28 +368,30 @@ mod sys {
         //
         // # Return Value
         //
-        // Returns the size of the pre-existing value at the specified key if any. Otherwise
-        // `SENTINEL` is returned as a sentinel value.
+        // Returns the size of the pre-existing value at the specified key if any.
+        // Otherwise `SENTINEL` is returned as a sentinel value.
         pub fn clear_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
 
         // # Parameters
         //
-        // - `key_ptr`: pointer into the linear memory where the key of the requested value is placed.
+        // - `key_ptr`: pointer into the linear memory where the key of the requested
+        //   value is placed.
         // - `key_len`: the length of the key in bytes.
         //
         // # Return Value
         //
-        // Returns the size of the pre-existing value at the specified key if any. Otherwise
-        // `SENTINEL` is returned as a sentinel value.
+        // Returns the size of the pre-existing value at the specified key if any.
+        // Otherwise `SENTINEL` is returned as a sentinel value.
         pub fn contains_storage(key_ptr: Ptr32<[u8]>, key_len: u32) -> ReturnCode;
 
         // # Parameters
         //
-        // - `key_ptr`: pointer into the linear memory where the key of the requested value is placed.
+        // - `key_ptr`: pointer into the linear memory where the key of the requested
+        //   value is placed.
         // - `key_len`: the length of the key in bytes.
         // - `out_ptr`: pointer to the linear memory where the value is written to.
-        // - `out_len_ptr`: in-out pointer into linear memory where the buffer length
-        //   is read from and the value length is written to.
+        // - `out_len_ptr`: in-out pointer into linear memory where the buffer length is
+        //   read from and the value length is written to.
         //
         // # Errors
         //
@@ -406,15 +408,16 @@ mod sys {
     extern "C" {
         // # Parameters
         //
-        // - `key_ptr`: pointer into the linear memory where the location to store the value is placed.
+        // - `key_ptr`: pointer into the linear memory where the location to store the
+        //   value is placed.
         // - `key_len`: the length of the key in bytes.
         // - `value_ptr`: pointer into the linear memory where the value to set is placed.
         // - `value_len`: the length of the value in bytes.
         //
         // # Return Value
         //
-        // Returns the size of the pre-existing value at the specified key if any. Otherwise
-        // `SENTINEL` is returned as a sentinel value.
+        // Returns the size of the pre-existing value at the specified key if any.
+        // Otherwise `SENTINEL` is returned as a sentinel value.
         pub fn set_storage(
             key_ptr: Ptr32<[u8]>,
             key_len: u32,
@@ -713,9 +716,10 @@ pub fn debug_message(message: &str) {
     // SAFETY: safe because executing in a single threaded context
     // We need those two variables in order to make sure that the assignment is performed
     // in the "logging enabled" case. This is because during RPC execution logging might
-    // be enabled while it is disabled during the actual execution as part of a transaction.
-    // The gas estimation takes place during RPC execution. We want to overestimate instead
-    // of underestimate gas usage. Otherwise using this estimate could lead to a out of gas error.
+    // be enabled while it is disabled during the actual execution as part of a
+    // transaction. The gas estimation takes place during RPC execution. We want to
+    // overestimate instead of underestimate gas usage. Otherwise using this estimate
+    // could lead to a out of gas error.
     if unsafe { DEBUG_ENABLED || FIRST_RUN } {
         let bytes = message.as_bytes();
         let ret_code =

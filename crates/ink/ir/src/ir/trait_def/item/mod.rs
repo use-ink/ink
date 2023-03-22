@@ -147,7 +147,8 @@ impl InkItemTrait {
         Ok(())
     }
 
-    /// Returns `Ok` if all trait items respects the requirements for an ink! trait definition.
+    /// Returns `Ok` if all trait items respects the requirements for an ink! trait
+    /// definition.
     ///
     /// # Errors
     ///
@@ -157,9 +158,10 @@ impl InkItemTrait {
     ///     - macros definitions or usages
     ///     - unknown token sequences (verbatim)
     ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
-    ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`
-    ///       and need to respect their respective rules.
+    /// - If the trait contains methods which do not respect the ink! trait definition
+    ///   requirements:
+    ///     - All trait methods need to be declared as either `#[ink(message)]` or
+    ///       `#[ink(constructor)]` and need to respect their respective rules.
     ///
     /// # Note
     ///

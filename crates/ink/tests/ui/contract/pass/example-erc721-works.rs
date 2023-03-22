@@ -287,7 +287,8 @@ mod erc721 {
             Ok(())
         }
 
-        /// Approve the passed `AccountId` to transfer the specified token on behalf of the message's sender.
+        /// Approve the passed `AccountId` to transfer the specified token on behalf of
+        /// the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(id);

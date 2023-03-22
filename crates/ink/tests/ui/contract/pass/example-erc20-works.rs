@@ -133,7 +133,8 @@ mod erc20 {
         /// Allows `spender` to withdraw from the caller's account multiple times, up to
         /// the `value` amount.
         ///
-        /// If this function is called again it overwrites the current allowance with `value`.
+        /// If this function is called again it overwrites the current allowance with
+        /// `value`.
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]

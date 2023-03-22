@@ -32,7 +32,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
+///         pub fn constructor() -> Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}

@@ -61,7 +61,8 @@ pub fn local_message_id(ident: &syn::Ident) -> u32 {
     selector.into_be_u32()
 }
 
-/// The set of attributes that can be passed to call builder or call forwarder in the codegen.
+/// The set of attributes that can be passed to call builder or call forwarder in the
+/// codegen.
 #[derive(Debug, PartialEq, Eq)]
 pub struct WhitelistedAttributes(pub HashMap<String, ()>);
 
