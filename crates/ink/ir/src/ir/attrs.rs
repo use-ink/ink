@@ -12,6 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::result::Result;
+use std::collections::HashMap;
+
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use quote::ToTokens;
+use syn::parse::{
+    Parse,
+    ParseStream,
+};
+use syn::spanned::Spanned;
+
 use crate::{
     error::ExtError as _,
     ir,
@@ -20,18 +34,6 @@ use crate::{
         Selector,
     },
 };
-use core::result::Result;
-use proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
-use quote::ToTokens;
-use std::collections::HashMap;
-use syn::parse::{
-    ParseStream,
-    Parse,
-};
-use syn::spanned::Spanned;
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
 pub trait IsDocAttribute {
@@ -815,6 +817,40 @@ impl InkAttribute {
 
 impl Parse for AttributeFrag {
     fn parse(input: ParseStream) -> syn::Result<Self> {
+        let path = input.call(syn::Path::parse_mod_style)?;
+        if path.is_ident("selector") {
+            let value = meta.value()?; // this parses the `=`
+            if input.peek(syn::token::Underscore) {
+                return Ok(AttributeFrag {
+                    path: meta.path.clone(),
+                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
+                })
+            } else {
+                let lit: syn::Lit = input.parse()?;
+                match lit {
+                    syn::Lit::Str(_) => {
+                        Err(meta.error(
+                            "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                             use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].")
+                        )
+                    }
+                    syn::Lit::Int(lit_int) => {
+                        let selector_u32 = lit_int.base10_parse::<u32>()
+                            .map_err(|error| {
+                                meta.error(format!("selector value out of range. selector must be a valid `u32` integer: {}", error))
+                            })?;
+                        let selector = Selector::from(selector_u32.to_be_bytes());
+                        Ok(AttributeFrag {
+                            path: meta.path.clone(),
+                            arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
+                        })
+                    },
+                    _ => {
+                        Err(meta.error("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
+                    }
+                }
+            }
+        }
         todo!()
     }
 }
