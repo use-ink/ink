@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic support for `dyn Trait` to allow cross-contract calls only with trait - [#1673](https://github.com/paritytech/ink/pull/1673)
 - E2E: auto detect contracts to be built - [#1691](https://github.com/paritytech/ink/pull/1691)
 - Add `set_code_hash` to `EnvAccess` - [#1698](https://github.com/paritytech/ink/pull/1698)
+- Add `set_block_timestamp` to off-chain test api `Engine` - [#1721](https://github.com/paritytech/ink/pull/1721)
 
 ## Version 4.0.1
 
