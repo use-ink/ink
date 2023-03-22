@@ -373,13 +373,13 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///             Flipper { value: false }
 ///         }
 ///
-///         # /// Flips the current value.
-///         # #[ink(message)]
-///         # #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.
-///         # pub fn flip(&mut self) {
-///         #     self.value = !self.value;
-///         # }
-///         #
+///         /// Flips the current value.
+///         #[ink(message)]
+///         #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.
+///         pub fn flip(&mut self) {
+///             self.value = !self.value;
+///         }
+///
 ///         /// Returns the current value.
 ///         #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.
 ///         pub fn get(&self) -> bool {
