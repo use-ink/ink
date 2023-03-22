@@ -1296,6 +1296,9 @@
 <a href="#1295" id="1295">1295</a>
 <a href="#1296" id="1296">1296</a>
 <a href="#1297" id="1297">1297</a>
+<a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1560,7 +1563,8 @@
 </span><span class="kw">pub struct </span>ConstructorSpec&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The label of the constructor.
     ///
-    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    /// In case of a trait provided constructor the label is prefixed with the trait
+    /// label.
     </span><span class="kw">pub </span>label: F::String,
     <span class="doccomment">/// The selector hash of the message.
     </span><span class="kw">pub </span>selector: Selector,
@@ -1599,7 +1603,8 @@
 {
     <span class="doccomment">/// Returns the label of the constructor.
     ///
-    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    /// In case of a trait provided constructor the label is prefixed with the trait
+    /// label.
     </span><span class="kw">pub fn </span>label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::String {
         <span class="kw-2">&amp;</span><span class="self">self</span>.label
     }
@@ -1926,7 +1931,8 @@
 <span class="kw">where
     </span>F: Form,
 {
-    <span class="doccomment">/// Sets if the message is mutable, thus taking `&amp;mut self` or not thus taking `&amp;self`.
+    <span class="doccomment">/// Sets if the message is mutable, thus taking `&amp;mut self` or not thus taking
+    /// `&amp;self`.
     </span><span class="kw">pub fn </span>mutates(
         <span class="self">self</span>,
         mutates: bool,

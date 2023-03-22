@@ -5,15 +5,14 @@
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-Selector" class="impl has-srclink"><a class="srclink rightside" href="../src/ink_ir/ir/selector.rs.html#66-142">source</a><a href="#impl-Selector" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="struct.Selector.html" title="struct ink_ir::Selector">Selector</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.compute" class="method has-srclink"><a class="srclink rightside" href="../src/ink_ir/ir/selector.rs.html#68-72">source</a><h4 class="code-header">pub fn <a href="#method.compute" class="fn">compute</a>(input: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.68.0/std/primitive.u8.html">u8</a>]) -&gt; Self</h4></section></summary><div class="docblock"><p>Computes the BLAKE-2 256-bit based selector from the given input bytes.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="method.compose" class="method has-srclink"><a class="srclink rightside" href="../src/ink_ir/ir/selector.rs.html#107-126">source</a><h4 class="code-header">pub fn <a href="#method.compose" class="fn">compose</a>&lt;'a, T&gt;(trait_prefix: T, fn_ident: &amp;<a class="struct" href="https://docs.rs/proc-macro2/1.0.53/proc_macro2/struct.Ident.html" title="struct proc_macro2::Ident">Ident</a>) -&gt; Self<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/1.68.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="enum" href="https://doc.rust-lang.org/1.68.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;TraitPrefix&lt;'a&gt;&gt;&gt;,</span></h4></section></summary><div class="docblock"><h5 id="note-1"><a href="#note-1">Note</a></h5>
 <ul>
-<li><code>trait_prefix</code> is <code>None</code> when computing the selector of ink! constructors
-and messages in inherent implementation blocks.</li>
-<li><code>trait_prefix</code> is <code>Some</code> when computing the selector of ink! constructors
-and messages in trait implementation blocks. In this case the <code>namespace</code>
-is either the full path of the trait definition gained by Rust’s
-<code>module_path!</code> macro by default or it is customized by manual application
-of the <code>#[ink(namespace = &quot;my_namespace&quot;)]</code> ink! attribute. In the
-example <code>my_namespace</code> concatenated with <code>::</code> and the identifier of the
-trait definition would then be part of the provided <code>trait_prefix</code> parameter.</li>
+<li><code>trait_prefix</code> is <code>None</code> when computing the selector of ink! constructors and
+messages in inherent implementation blocks.</li>
+<li><code>trait_prefix</code> is <code>Some</code> when computing the selector of ink! constructors and
+messages in trait implementation blocks. In this case the <code>namespace</code> is either
+the full path of the trait definition gained by Rust’s <code>module_path!</code> macro by
+default or it is customized by manual application of the <code>#[ink(namespace = &quot;my_namespace&quot;)]</code> ink! attribute. In the example <code>my_namespace</code> concatenated
+with <code>::</code> and the identifier of the trait definition would then be part of the
+provided <code>trait_prefix</code> parameter.</li>
 <li><code>fn_ident</code> refers to the ink! constructor or message identifier.</li>
 </ul>
 <h5 id="inherent-implementation-blocks"><a href="#inherent-implementation-blocks">Inherent Implementation Blocks</a></h5>

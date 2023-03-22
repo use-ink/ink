@@ -1011,8 +1011,7 @@
     ///
     /// # Panics
     /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value
-    ///   type.
+    /// - if message result cannot be decoded into the expected return value type.
     </span><span class="kw">pub fn </span>message_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MessageResult&lt;V&gt; {
         <span class="self">self</span>.dry_run.message_result()
     }
@@ -1098,8 +1097,7 @@
     ///
     /// # Panics
     /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value
-    ///   type.
+    /// - if message result cannot be decoded into the expected return value type.
     </span><span class="kw">pub fn </span>message_result(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MessageResult&lt;V&gt; {
         <span class="kw">let </span>data = <span class="kw-2">&amp;</span><span class="self">self</span>.exec_return_value().data;
         scale::Decode::decode(<span class="kw-2">&amp;mut </span>data.as_ref()).unwrap_or_else(|env_err| {
@@ -1279,8 +1277,9 @@
 
     <span class="doccomment">/// Generate a new keypair and fund with the given amount from the origin account.
     ///
-    /// Because many tests may execute this in parallel, transfers may fail due to a race condition
-    /// with account indices. Therefore this will reattempt transfers a number of times.
+    /// Because many tests may execute this in parallel, transfers may fail due to a race
+    /// condition with account indices. Therefore this will reattempt transfers a
+    /// number of times.
     </span><span class="kw">pub async fn </span>create_and_fund_account(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         origin: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
@@ -1565,9 +1564,9 @@
         }
 
         <span class="comment">// The `pallet-contracts` behavior is that if the code was already stored on the
-        // chain we won&#39;t get an event with the hash, but the extrinsic will still succeed.
-        // We then don&#39;t error (`cargo-contract` would), but instead return the hash from
-        // the dry-run.
+        // chain we won&#39;t get an event with the hash, but the extrinsic will still
+        // succeed. We then don&#39;t error (`cargo-contract` would), but instead
+        // return the hash from the dry-run.
         </span><span class="kw">let </span>code_hash = <span class="kw">match </span>hash {
             <span class="prelude-val">Some</span>(hash) =&gt; hash,
             <span class="prelude-val">None </span>=&gt; {
@@ -1643,8 +1642,8 @@
 
     <span class="doccomment">/// Executes a dry-run `call`.
     ///
-    /// Returns the result of the dry run, together with the decoded return value of the invoked
-    /// message.
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
     </span><span class="kw">pub async fn </span>call_dry_run&lt;RetType&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
@@ -1688,7 +1687,8 @@
             <span class="string">&quot;System&quot;</span>,
             <span class="string">&quot;Account&quot;</span>,
             <span class="macro">vec!</span>[
-                <span class="comment">// Something that encodes to an AccountId32 is what we need for the map key here:
+                <span class="comment">// Something that encodes to an AccountId32 is what we need for the map
+                // key here:
                 </span>Value::from_bytes(<span class="kw-2">&amp;</span>account_id),
             ],
         );

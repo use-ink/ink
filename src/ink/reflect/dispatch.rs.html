@@ -580,6 +580,44 @@
 <a href="#579" id="579">579</a>
 <a href="#580" id="580">580</a>
 <a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -617,7 +655,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -&gt; Self { Contract {} }
+///         pub fn constructor() -&gt; Self {
+///             Contract {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message1(&amp;self) {}
@@ -641,28 +681,36 @@
 ///     payable: bool,
 ///     selector: [u8; 4],
 ///     label: &amp;str,
-/// )
-/// where
-///     Contract: DispatchableMessageInfo&lt;{ID}, Input = In, Output = Out&gt;,
+/// ) where
+///     Contract: DispatchableMessageInfo&lt;{ ID }, Input = In, Output = Out&gt;,
 /// {
-///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::MUTATES, mutates);
-///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::PAYABLE, payable);
 ///     assert_eq!(
-///         &lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::SELECTOR,
+///         &lt;Contract as DispatchableMessageInfo&lt;{ ID }&gt;&gt;::MUTATES,
+///         mutates
+///     );
+///     assert_eq!(
+///         &lt;Contract as DispatchableMessageInfo&lt;{ ID }&gt;&gt;::PAYABLE,
+///         payable
+///     );
+///     assert_eq!(
+///         &lt;Contract as DispatchableMessageInfo&lt;{ ID }&gt;&gt;::SELECTOR,
 ///         selector,
 ///     );
-///     assert_eq!(
-///         &lt;Contract as DispatchableMessageInfo&lt;{ID}&gt;&gt;::LABEL,
-///         label,
-///     );
+///     assert_eq!(&lt;Contract as DispatchableMessageInfo&lt;{ ID }&gt;&gt;::LABEL, label,);
 /// }
 ///
 /// fn main() {
-///     assert_message_info::&lt;(), (), {selector_id!(&quot;message1&quot;)}&gt;(
-///         false, false, selector_bytes!(&quot;message1&quot;), &quot;message1&quot;
+///     assert_message_info::&lt;(), (), { selector_id!(&quot;message1&quot;) }&gt;(
+///         false,
+///         false,
+///         selector_bytes!(&quot;message1&quot;),
+///         &quot;message1&quot;,
 ///     );
 ///     assert_message_info::&lt;(i32, i64), (bool, i32), 0xC0DECAFE_u32&gt;(
-///         true, true, [0xC0, 0xDE, 0xCA, 0xFE], &quot;message2&quot;
+///         true,
+///         true,
+///         [0xC0, 0xDE, 0xCA, 0xFE],
+///         &quot;message2&quot;,
 ///     );
 /// }
 /// ```
@@ -714,7 +762,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor1() -&gt; Self { Contract {} }
+///         pub fn constructor1() -&gt; Self {
+///             Contract {}
+///         }
 ///
 ///         #[ink(constructor, selector = 0xC0DECAFE)]
 ///         pub fn constructor2(input1: i32, input2: i64) -&gt; Self {
@@ -733,29 +783,28 @@
 /// /// # Note
 /// ///
 /// /// The `In` and `Out` generic parameters describe the input and output types.
-/// fn assert_constructor_info&lt;In, const ID: u32&gt;(
-///     selector: [u8; 4],
-///     label: &amp;str,
-/// )
+/// fn assert_constructor_info&lt;In, const ID: u32&gt;(selector: [u8; 4], label: &amp;str)
 /// where
-///     Contract: DispatchableConstructorInfo&lt;{ID}, Input = In&gt;,
+///     Contract: DispatchableConstructorInfo&lt;{ ID }, Input = In&gt;,
 /// {
 ///     assert_eq!(
-///         &lt;Contract as DispatchableConstructorInfo&lt;{ID}&gt;&gt;::SELECTOR,
+///         &lt;Contract as DispatchableConstructorInfo&lt;{ ID }&gt;&gt;::SELECTOR,
 ///         selector,
 ///     );
 ///     assert_eq!(
-///         &lt;Contract as DispatchableConstructorInfo&lt;{ID}&gt;&gt;::LABEL,
+///         &lt;Contract as DispatchableConstructorInfo&lt;{ ID }&gt;&gt;::LABEL,
 ///         label,
 ///     );
 /// }
 ///
 /// fn main() {
-///     assert_constructor_info::&lt;(), {selector_id!(&quot;constructor1&quot;)}&gt;(
-///         selector_bytes!(&quot;constructor1&quot;), &quot;constructor1&quot;
+///     assert_constructor_info::&lt;(), { selector_id!(&quot;constructor1&quot;) }&gt;(
+///         selector_bytes!(&quot;constructor1&quot;),
+///         &quot;constructor1&quot;,
 ///     );
 ///     assert_constructor_info::&lt;(i32, i64), 0xC0DECAFE_u32&gt;(
-///         [0xC0, 0xDE, 0xCA, 0xFE], &quot;constructor2&quot;
+///         [0xC0, 0xDE, 0xCA, 0xFE],
+///         &quot;constructor2&quot;,
 ///     );
 /// }
 /// ```
@@ -860,12 +909,14 @@
     }
 }
 
-<span class="doccomment">/// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
+<span class="doccomment">/// Generated type used to decode all dispatchable ink! messages of the ink! smart
+/// contract.
 ///
 /// # Note
 ///
 /// The decoder follows the ink! calling ABI where all ink! message calls start with
-/// 4 bytes dedicated to the ink! message selector followed by the SCALE encoded parameters.
+/// 4 bytes dedicated to the ink! message selector followed by the SCALE encoded
+/// parameters.
 ///
 /// # Usage
 ///
@@ -881,7 +932,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -&gt; Self { Self {} }
+///         pub fn constructor() -&gt; Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message1(&amp;self) {}
@@ -900,7 +953,9 @@
 ///         input_bytes.extend(selector_bytes!(&quot;message1&quot;));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_ok()
 ///         );
 ///     }
 ///     // Call to `message2` with 2 parameters.
@@ -911,7 +966,9 @@
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_ok()
 ///         );
 ///     }
 ///     // Call with invalid ink! message selector.
@@ -920,7 +977,9 @@
 ///         input_bytes.extend(selector_bytes!(&quot;non_existing_message&quot;));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_err()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_err()
 ///         );
 ///     }
 ///     // Call with invalid ink! message parameters.
@@ -929,7 +988,9 @@
 ///         input_bytes.extend(selector_bytes!(&quot;message2&quot;));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractMessageDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_err()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_err()
 ///         );
 ///     }
 /// }
@@ -939,12 +1000,14 @@
     </span><span class="kw">type </span>Type: scale::Decode + ExecuteDispatchable;
 }
 
-<span class="doccomment">/// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.
+<span class="doccomment">/// Generated type used to decode all dispatchable ink! constructors of the ink! smart
+/// contract.
 ///
 /// # Note
 ///
 /// The decoder follows the ink! calling ABI where all ink! constructor calls start with
-/// 4 bytes dedicated to the ink! constructor selector followed by the SCALE encoded parameters.
+/// 4 bytes dedicated to the ink! constructor selector followed by the SCALE encoded
+/// parameters.
 ///
 /// # Usage
 ///
@@ -960,10 +1023,14 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor1() -&gt; Self { Self {} }
+///         pub fn constructor1() -&gt; Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(constructor)]
-///         pub fn constructor2(input1: bool, input2: i32) -&gt; Self { Self {} }
+///         pub fn constructor2(input1: bool, input2: i32) -&gt; Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&amp;self) {}
@@ -979,7 +1046,9 @@
 ///         input_bytes.extend(selector_bytes!(&quot;constructor1&quot;));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_ok()
 ///         );
 ///     }
 ///     // Call to `constructor2` with 2 parameters.
@@ -990,7 +1059,9 @@
 ///         input_bytes.extend(42i32.encode());
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_ok()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_ok()
 ///         );
 ///     }
 ///     // Call with invalid ink! constructor selector.
@@ -999,7 +1070,9 @@
 ///         input_bytes.extend(selector_bytes!(&quot;non_existing_constructor&quot;));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_err()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_err()
 ///         );
 ///     }
 ///     // Call with invalid ink! constructor parameters.
@@ -1008,7 +1081,9 @@
 ///         input_bytes.extend(selector_bytes!(&quot;constructor2&quot;));
 ///         assert!(
 ///             &lt;&lt;Contract as ContractConstructorDecoder&gt;::Type as Decode&gt;::decode(
-///                 &amp;mut &amp;input_bytes[..]).is_err()
+///                 &amp;mut &amp;input_bytes[..]
+///             )
+///             .is_err()
 ///         );
 ///     }
 /// }
@@ -1080,7 +1155,8 @@
 ///
 /// Returns an error if any of the decode steps failed:
 ///
-/// - `InvalidSelector`: The first four bytes could not properly decoded into the selector.
+/// - `InvalidSelector`: The first four bytes could not properly decoded into the
+///   selector.
 /// - `UnknownSelector`: The decoded selector did not match any of the expected ones.
 /// - `InvalidParameters`: Failed to decoded the parameters for the selected dispatchable.
 ///

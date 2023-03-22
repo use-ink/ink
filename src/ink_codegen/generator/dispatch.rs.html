@@ -929,6 +929,9 @@
 <a href="#928" id="928">928</a>
 <a href="#929" id="929">929</a>
 <a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1039,7 +1042,8 @@
             .position(|item| item.has_wildcard_selector())
     }
 
-    <span class="doccomment">/// Returns the index of the ink! constructor which has a wildcard selector, if existent.
+    <span class="doccomment">/// Returns the index of the ink! constructor which has a wildcard selector, if
+    /// existent.
     </span><span class="kw">fn </span>query_wildcard_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="self">self</span>.contract
             .module()
@@ -1362,8 +1366,9 @@
 
     <span class="doccomment">/// Generates code for the ink! constructor decoder type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `deploy`
-    /// into one of the available dispatchable ink! constructors and their arguments.
+    /// This type can be used in order to decode the input bytes received by a call to
+    /// `deploy` into one of the available dispatchable ink! constructors and their
+    /// arguments.
     </span><span class="kw">fn </span>generate_constructor_decoder_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         constructors: <span class="kw-2">&amp;</span>[ConstructorDispatchable],
@@ -1565,8 +1570,9 @@
 
     <span class="doccomment">/// Generates code for the ink! message decoder type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `call`
-    /// into one of the available dispatchable ink! messages and their arguments.
+    /// This type can be used in order to decode the input bytes received by a call to
+    /// `call` into one of the available dispatchable ink! messages and their
+    /// arguments.
     </span><span class="kw">fn </span>generate_message_decoder_type(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         messages: <span class="kw-2">&amp;</span>[MessageDispatchable],
@@ -1830,8 +1836,8 @@
     /// in which case the default assignment `let constructor_{id} = false` exists.
     ///
     /// This information can be used to speed-up dispatch since denying of payment
-    /// can be generalized to work before dispatch happens if none of the ink! constructors
-    /// accept payment anyways.
+    /// can be generalized to work before dispatch happens if none of the ink!
+    /// constructors accept payment anyways.
     </span><span class="kw">fn </span>any_constructor_accepts_payment(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         constructors: <span class="kw-2">&amp;</span>[ConstructorDispatchable],

@@ -11,13 +11,8 @@ not return any value back to its caller. The called function:</p>
 <li>has a selector equal to <code>0xDEADBEEF</code></li>
 <li>is provided with 5000 units of gas for its execution</li>
 <li>is provided with 10 units of transferred value for the contract instance</li>
-<li>receives the following arguments in order
-<ol>
-<li>an <code>i32</code> with value <code>42</code></li>
-<li>a <code>bool</code> with value <code>true</code></li>
-<li>an array of 32 <code>u8</code> with value <code>0x10</code></li>
-</ol>
-</li>
+<li>receives the following arguments in order 1. an <code>i32</code> with value <code>42</code> 2. a <code>bool</code>
+with value <code>true</code> 3. an array of 32 <code>u8</code> with value <code>0x10</code></li>
 </ul>
 
 <div class="example-wrap should_panic"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code>build_call::&lt;DefaultEnvironment&gt;()
@@ -28,7 +23,7 @@ not return any value back to its caller. The called function:</p>
         ExecutionInput::new(Selector::new([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]))
             .push_arg(<span class="number">42u8</span>)
             .push_arg(<span class="bool-val">true</span>)
-            .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>])
+            .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>]),
     )
     .returns::&lt;()&gt;()
     .invoke();</code></pre></div>
@@ -39,13 +34,8 @@ return a <code>i32</code> value back to its caller. The called function:</p>
 <li>has a selector equal to <code>0xDEADBEEF</code></li>
 <li>is provided with 5000 units of gas for its execution</li>
 <li>is provided with 10 units of transferred value for the contract instance</li>
-<li>receives the following arguments in order
-<ol>
-<li>an <code>i32</code> with value <code>42</code></li>
-<li>a <code>bool</code> with value <code>true</code></li>
-<li>an array of 32 <code>u8</code> with value <code>0x10</code></li>
-</ol>
-</li>
+<li>receives the following arguments in order 1. an <code>i32</code> with value <code>42</code> 2. a <code>bool</code>
+with value <code>true</code> 3. an array of 32 <code>u8</code> with value <code>0x10</code></li>
 </ul>
 
 <div class="example-wrap should_panic"><div class='tooltip'>ⓘ</div><pre class="rust rust-example-rendered"><code><span class="kw">let </span>my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()
@@ -56,7 +46,7 @@ return a <code>i32</code> value back to its caller. The called function:</p>
         ExecutionInput::new(Selector::new([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]))
             .push_arg(<span class="number">42u8</span>)
             .push_arg(<span class="bool-val">true</span>)
-            .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>])
+            .push_arg(<span class="kw-2">&amp;</span>[<span class="number">0x10u8</span>; <span class="number">32</span>]),
     )
     .returns::&lt;i32&gt;()
     .invoke();</code></pre></div>
@@ -76,10 +66,11 @@ should work fine in on-chain environments.</p>
     .returns::&lt;i32&gt;()
     .invoke();</code></pre></div>
 <h2 id="handling-langerrors"><a href="#handling-langerrors">Handling <code>LangError</code>s</a></h2>
-<p>It is also important to note that there are certain types of errors which can happen during
-cross-contract calls which can be handled know as [<code>LangError</code>][<code>ink_primitives::LangError</code>].</p>
-<p>If you want to handle these errors use the <a href="struct.CallBuilder.html#method.try_invoke" title="CallBuilder::try_invoke"><code>CallBuilder::try_invoke</code></a> methods instead of the
-<a href="struct.CallBuilder.html#method.invoke" title="CallBuilder::invoke"><code>CallBuilder::invoke</code></a> ones.</p>
+<p>It is also important to note that there are certain types of errors which can happen
+during cross-contract calls which can be handled know as
+[<code>LangError</code>][<code>ink_primitives::LangError</code>].</p>
+<p>If you want to handle these errors use the <a href="struct.CallBuilder.html#method.try_invoke" title="CallBuilder::try_invoke"><code>CallBuilder::try_invoke</code></a> methods instead
+of the <a href="struct.CallBuilder.html#method.invoke" title="CallBuilder::invoke"><code>CallBuilder::invoke</code></a> ones.</p>
 <p><strong>Note:</strong> The shown examples panic because there is currently no cross-calling
 support in the off-chain testing environment. However, this code
 should work fine in on-chain environments.</p>

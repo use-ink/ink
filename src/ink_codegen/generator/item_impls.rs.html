@@ -322,6 +322,8 @@
 <a href="#321" id="321">321</a>
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -552,7 +554,8 @@
         )
     }
 
-    <span class="doccomment">/// Generates the code for the given ink! constructor within an inherent implementation block.
+    <span class="doccomment">/// Generates the code for the given ink! constructor within an inherent
+    /// implementation block.
     ///
     /// # Developer Note
     ///
@@ -575,7 +578,8 @@
         )
     }
 
-    <span class="doccomment">/// Generates the code for the given ink! message within an inherent implementation block.
+    <span class="doccomment">/// Generates the code for the given ink! message within an inherent implementation
+    /// block.
     </span><span class="kw">fn </span>generate_inherent_message(message: <span class="kw-2">&amp;</span>ir::Message) -&gt; TokenStream2 {
         <span class="kw">let </span>span = message.span();
         <span class="kw">let </span>attrs = message.attrs();
@@ -620,8 +624,8 @@
         )
     }
 
-    <span class="doccomment">/// Generates code to guard against ink! implementations that have not been implemented
-    /// for the ink! storage struct.
+    <span class="doccomment">/// Generates code to guard against ink! implementations that have not been
+    /// implemented for the ink! storage struct.
     </span><span class="kw">fn </span>generate_item_impl_self_ty_guard(<span class="kw-2">&amp;</span><span class="self">self</span>, item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
         <span class="kw">let </span>self_ty = item_impl.self_type();
         <span class="kw">let </span>span = self_ty.span();

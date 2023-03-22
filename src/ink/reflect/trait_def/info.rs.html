@@ -148,9 +148,6 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -181,18 +178,15 @@
 ///
 /// # Note
 ///
-/// - The `TraitMessageInfo&lt;LOCAL_ID&gt;` is implemented by the
-///   automatically generated ink! trait definition information object
-///   associated to the ink! trait definition at hand.
-/// - For every ink! trait message defined by the ink! trait definition
-///   the associated ink! trait definition information object implements
-///   this trait given the `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait
-///   message respectively.
-/// - The local IDs uniquely identifying all the ink! trait messages
-///   of the ink! trait definition are computed solely using the Rust
-///   identifier of the ink! trait message which can be derived from
-///   ink! implementation blocks in order to query the information
-///   stored by this ink! trait information object trait implementation.
+/// - The `TraitMessageInfo&lt;LOCAL_ID&gt;` is implemented by the automatically generated ink!
+///   trait definition information object associated to the ink! trait definition at hand.
+/// - For every ink! trait message defined by the ink! trait definition the associated
+///   ink! trait definition information object implements this trait given the
+///   `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait message respectively.
+/// - The local IDs uniquely identifying all the ink! trait messages of the ink! trait
+///   definition are computed solely using the Rust identifier of the ink! trait message
+///   which can be derived from ink! implementation blocks in order to query the
+///   information stored by this ink! trait information object trait implementation.
 ///
 /// # Usage
 ///

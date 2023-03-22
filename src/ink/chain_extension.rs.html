@@ -95,6 +95,10 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -115,12 +119,14 @@
 ///
 /// # Note
 ///
-/// This trait is automatically implemented when using `#[ink::chain_extension]` procedural macro.
+/// This trait is automatically implemented when using `#[ink::chain_extension]`
+/// procedural macro.
 </span><span class="kw">pub trait </span>ChainExtensionInstance {
     <span class="doccomment">/// The type of the chain extension instance.
     </span><span class="kw">type </span>Instance;
 
-    <span class="doccomment">/// Creates a new instance of the chain extension to use methods with method chaining syntax.
+    <span class="doccomment">/// Creates a new instance of the chain extension to use methods with method chaining
+    /// syntax.
     </span><span class="kw">fn </span>instantiate() -&gt; <span class="self">Self</span>::Instance;
 }
 
@@ -129,7 +135,8 @@
 /// Every chain extension defines a set of chain extension methods
 /// that share a common error code type.
 </span><span class="kw">pub trait </span>ChainExtension {
-    <span class="doccomment">/// The error code that determines whether a chain extension method call was successful.
+    <span class="doccomment">/// The error code that determines whether a chain extension method call was
+    /// successful.
     </span><span class="kw">type </span>ErrorCode: ink_env::chain_extension::FromStatusCode;
 }
 
@@ -186,7 +193,8 @@
 }
 
 <span class="kw">mod </span>private {
-    <span class="doccomment">/// Seals the `IsResultType` trait so that it cannot be implemented outside this module.
+    <span class="doccomment">/// Seals the `IsResultType` trait so that it cannot be implemented outside this
+    /// module.
     </span><span class="kw">pub trait </span>IsResultSealed {}
     <span class="doccomment">/// Seals the `Output` trait so that it cannot be implemented outside this module.
     </span><span class="kw">pub trait </span>OutputSealed {}

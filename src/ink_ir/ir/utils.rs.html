@@ -184,6 +184,7 @@
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -248,7 +249,8 @@
     selector.into_be_u32()
 }
 
-<span class="doccomment">/// The set of attributes that can be passed to call builder or call forwarder in the codegen.
+<span class="doccomment">/// The set of attributes that can be passed to call builder or call forwarder in the
+/// codegen.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>WhitelistedAttributes(<span class="kw">pub </span>HashMap&lt;String, ()&gt;);
 

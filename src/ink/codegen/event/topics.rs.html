@@ -87,9 +87,6 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -128,10 +125,7 @@
 /// // definitions respects the topic limitation: it must have an amount of
 /// // topics less than or equal to the topic limit.
 /// const _: () = ::ink::codegen::utils::consume_type::&lt;
-///     ::ink::codegen::EventRespectsTopicLimit&lt;
-///         ExampleEvent,
-///         TOPICS_LIMIT,
-///     &gt;
+///     ::ink::codegen::EventRespectsTopicLimit&lt;ExampleEvent, TOPICS_LIMIT&gt;,
 /// &gt;();
 /// ```
 </span><span class="kw">pub struct </span>EventRespectsTopicLimit&lt;Event, <span class="kw">const </span>LEN_MAX_TOPICS: usize&gt;

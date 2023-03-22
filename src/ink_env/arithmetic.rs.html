@@ -243,6 +243,8 @@
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -366,34 +368,36 @@
 
 <span class="doccomment">/// A meta trait for arithmetic (copied from substrate).
 ///
-/// Arithmetic types do all the usual stuff you&#39;d expect numbers to do. They are guaranteed to
-/// be able to represent at least `u32` values without loss, hence the trait implies `From&lt;u32&gt;`
-/// and smaller integers. All other conversions are fallible.
+/// Arithmetic types do all the usual stuff you&#39;d expect numbers to do. They are
+/// guaranteed to be able to represent at least `u32` values without loss, hence the trait
+/// implies `From&lt;u32&gt;` and smaller integers. All other conversions are fallible.
 </span><span class="kw">pub trait </span>AtLeast32Bit: BaseArithmetic + From&lt;u16&gt; + From&lt;u32&gt; {}
 
 <span class="kw">impl</span>&lt;T&gt; AtLeast32Bit <span class="kw">for </span>T <span class="kw">where </span>T: BaseArithmetic + From&lt;u16&gt; + From&lt;u32&gt; {}
 
-<span class="doccomment">/// A meta trait for arithmetic.  Same as [`AtLeast32Bit `], but also bounded to be unsigned.
+<span class="doccomment">/// A meta trait for arithmetic.  Same as [`AtLeast32Bit `], but also bounded to be
+/// unsigned.
 </span><span class="kw">pub trait </span>AtLeast32BitUnsigned: AtLeast32Bit + Unsigned {}
 
 <span class="kw">impl</span>&lt;T&gt; AtLeast32BitUnsigned <span class="kw">for </span>T <span class="kw">where </span>T: AtLeast32Bit + Unsigned {}
 
-<span class="doccomment">/// Saturating arithmetic operations, returning maximum or minimum values instead of overflowing.
+<span class="doccomment">/// Saturating arithmetic operations, returning maximum or minimum values instead of
+/// overflowing.
 </span><span class="kw">pub trait </span>Saturating {
-    <span class="doccomment">/// Saturating addition. Compute `self + rhs`, saturating at the numeric bounds instead of
-    /// overflowing.
+    <span class="doccomment">/// Saturating addition. Compute `self + rhs`, saturating at the numeric bounds
+    /// instead of overflowing.
     </span><span class="kw">fn </span>saturating_add(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Saturating subtraction. Compute `self - rhs`, saturating at the numeric bounds instead of
-    /// overflowing.
+    <span class="doccomment">/// Saturating subtraction. Compute `self - rhs`, saturating at the numeric bounds
+    /// instead of overflowing.
     </span><span class="kw">fn </span>saturating_sub(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Saturating multiply. Compute `self * rhs`, saturating at the numeric bounds instead of
-    /// overflowing.
+    <span class="doccomment">/// Saturating multiply. Compute `self * rhs`, saturating at the numeric bounds
+    /// instead of overflowing.
     </span><span class="kw">fn </span>saturating_mul(<span class="self">self</span>, rhs: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Saturating exponentiation. Compute `self.pow(exp)`, saturating at the numeric bounds
-    /// instead of overflowing.
+    <span class="doccomment">/// Saturating exponentiation. Compute `self.pow(exp)`, saturating at the numeric
+    /// bounds instead of overflowing.
     </span><span class="kw">fn </span>saturating_pow(<span class="self">self</span>, exp: usize) -&gt; <span class="self">Self</span>;
 }
 

@@ -98,6 +98,8 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -127,8 +129,8 @@
     </span><span class="kw">fn </span>decode&lt;I: scale::Input&gt;(input: <span class="kw-2">&amp;mut </span>I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, scale::Error&gt;;
 }
 
-<span class="doccomment">/// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default because
-/// they can be written directly into the storage cell.
+<span class="doccomment">/// Types which implement `scale::Encode` and `scale::Decode` are `Storable` by default
+/// because they can be written directly into the storage cell.
 </span><span class="kw">impl</span>&lt;P&gt; Storable <span class="kw">for </span>P
 <span class="kw">where
     </span>P: scale::Codec,
@@ -149,8 +151,8 @@
     </span><span class="kw">pub trait </span>Sealed {}
 }
 
-<span class="doccomment">/// Trait for describing types that can be read and written to storage while all fields occupy
-/// only a single storage cell.
+<span class="doccomment">/// Trait for describing types that can be read and written to storage while all fields
+/// occupy only a single storage cell.
 ///
 /// If at least one of the fields in the type occupies its own storage cell, this type
 /// is considered non-packed.
@@ -177,7 +179,8 @@
     }
 }
 
-<span class="doccomment">/// Describes the type that should be used for storing the value and preferred storage key.
+<span class="doccomment">/// Describes the type that should be used for storing the value and preferred storage
+/// key.
 ///
 /// # Note
 ///
@@ -186,7 +189,8 @@
 </span><span class="kw">pub trait </span>StorableHint&lt;Key: StorageKey&gt; {
     <span class="doccomment">/// Storable type with storage key inside.
     </span><span class="kw">type </span>Type: Storable;
-    <span class="doccomment">/// The storage key that the type prefers. It can be overwritten by an auto-generated storage key.
+    <span class="doccomment">/// The storage key that the type prefers. It can be overwritten by an auto-generated
+    /// storage key.
     </span><span class="kw">type </span>PreferredKey: StorageKey;
 }
 

@@ -755,6 +755,10 @@
 <a href="#754" id="754">754</a>
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -802,17 +806,19 @@
 /// This is needed because of conflicting implementations of `From&lt;T&gt; for T`
 /// in the generated code of `ink`.
 ///
-/// But it is possible to use `From&lt;AccountId&gt; for T` with [`crate::AccountIdGuard`] bound.
+/// But it is possible to use `From&lt;AccountId&gt; for T` with [`crate::AccountIdGuard`]
+/// bound.
 </span><span class="kw">pub trait </span>FromAccountId&lt;T&gt;
 <span class="kw">where
     </span>T: Environment,
 {
-    <span class="doccomment">/// Creates the contract instance from the account ID of the already instantiated contract.
+    <span class="doccomment">/// Creates the contract instance from the account ID of the already instantiated
+    /// contract.
     </span><span class="kw">fn </span>from_account_id(account_id: &lt;T <span class="kw">as </span>Environment&gt;::AccountId) -&gt; <span class="self">Self</span>;
 }
 
-<span class="doccomment">/// Represents any type that can be returned from an `ink!` constructor. The following contract
-/// implements the four different return type signatures implementing this trait:
+<span class="doccomment">/// Represents any type that can be returned from an `ink!` constructor. The following
+/// contract implements the four different return type signatures implementing this trait:
 ///
 /// - `Self`
 /// - `Result&lt;Self, Error&gt;`
@@ -877,7 +883,8 @@
 
     <span class="doccomment">/// Construct an error value of the `Output` type.
     ///
-    /// `Result` implementations should return `Some(Err(err))`, otherwise default to `None`.
+    /// `Result` implementations should return `Some(Err(err))`, otherwise default to
+    /// `None`.
     </span><span class="kw">fn </span>err(_err: <span class="self">Self</span>::Error) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="prelude-val">None
     </span>}
@@ -1004,8 +1011,9 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
+    /// instead.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>instantiate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;R <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output {
         <span class="kw">crate</span>::instantiate_contract(<span class="self">self</span>)
@@ -1022,8 +1030,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>try_instantiate(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1059,7 +1067,8 @@
     _phantom: PhantomData&lt;<span class="kw">fn</span>() -&gt; (E, ContractRef)&gt;,
 }
 
-<span class="doccomment">/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
+<span class="doccomment">/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+/// instantiation.
 ///
 /// # Example
 ///
@@ -1076,10 +1085,8 @@
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 4000 units of gas for its execution
 /// - is provided with 25 units of transferred value for the new contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a `bool`
+///   with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -1111,7 +1118,7 @@
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!(&quot;my_constructor&quot;)))
 ///             .push_arg(42)
 ///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
+///             .push_arg(&amp;[0x10u8; 32]),
 ///     )
 ///     .salt_bytes(&amp;[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::&lt;MyContractRef&gt;()
@@ -1156,7 +1163,7 @@
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!(&quot;my_constructor&quot;)))
 ///             .push_arg(42)
 ///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
+///             .push_arg(&amp;[0x10u8; 32]),
 ///     )
 ///     .salt_bytes(&amp;[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::&lt;Result&lt;MyContractRef, ConstructorError&gt;&gt;()
@@ -1397,11 +1404,11 @@
     ///
     /// # Note
     ///
-    /// Constructors are not able to return arbitrary values. Instead a successful call to a
-    /// constructor returns the address at which the contract was instantiated.
+    /// Constructors are not able to return arbitrary values. Instead a successful call to
+    /// a constructor returns the address at which the contract was instantiated.
     ///
-    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract you&#39;re trying
-    /// to instantiate.
+    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract
+    /// you&#39;re trying to instantiate.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>returns&lt;R&gt;(
         <span class="self">self</span>,
@@ -1485,8 +1492,9 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
+    /// instead.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>instantiate(<span class="self">self</span>) -&gt; &lt;RetType <span class="kw">as </span>ConstructorReturnType&lt;ContractRef&gt;&gt;::Output {
         <span class="self">self</span>.params().instantiate()
@@ -1497,8 +1505,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>try_instantiate(
         <span class="self">self</span>,

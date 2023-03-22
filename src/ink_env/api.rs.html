@@ -759,6 +759,16 @@
 <a href="#758" id="758">758</a>
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -946,12 +956,13 @@
     })
 }
 
-<span class="doccomment">/// Writes the value to the contract storage under the given storage key and returns the size
-/// of pre-existing value if any.
+<span class="doccomment">/// Writes the value to the contract storage under the given storage key and returns the
+/// size of pre-existing value if any.
 ///
 /// # Panics
 ///
-/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+/// - If the encode length of value exceeds the configured maximum value length of a
+///   storage entry.
 </span><span class="kw">pub fn </span>set_contract_storage&lt;K, V&gt;(key: <span class="kw-2">&amp;</span>K, value: <span class="kw-2">&amp;</span>V) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
 <span class="kw">where
     </span>K: scale::Encode,
@@ -992,7 +1003,8 @@
     })
 }
 
-<span class="doccomment">/// Checks whether there is a value stored under the given storage key in the contract&#39;s storage.
+<span class="doccomment">/// Checks whether there is a value stored under the given storage key in the contract&#39;s
+/// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
 </span><span class="kw">pub fn </span>contains_contract_storage&lt;K&gt;(key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
@@ -1006,7 +1018,8 @@
 
 <span class="doccomment">/// Clears the contract&#39;s storage entry under the given storage key.
 ///
-/// If a value was stored under the specified storage key, the size of the value is returned.
+/// If a value was stored under the specified storage key, the size of the value is
+/// returned.
 </span><span class="kw">pub fn </span>clear_contract_storage&lt;K&gt;(key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;u32&gt;
 <span class="kw">where
     </span>K: scale::Encode,
@@ -1075,7 +1088,8 @@
 ///
 /// This is a low level way to instantiate another smart contract.
 ///
-/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// Prefer to use methods on a `ContractRef` or the
+/// [`CreateBuilder`](`crate::call::CreateBuilder`)
 /// through [`build_create`](`crate::call::build_create`) instead.
 ///
 /// # Errors
@@ -1135,9 +1149,8 @@
 /// # Errors
 ///
 /// - If the contract does not have sufficient free funds.
-/// - If the transfer had brought the sender&#39;s total balance below the
-///   minimum balance. You need to use [`terminate_contract`] in case
-///   this is your intention.
+/// - If the transfer had brought the sender&#39;s total balance below the minimum balance.
+///   You need to use [`terminate_contract`] in case this is your intention.
 </span><span class="kw">pub fn </span>transfer&lt;E&gt;(destination: E::AccountId, value: E::Balance) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
 <span class="kw">where
     </span>E: Environment,
@@ -1151,10 +1164,10 @@
 ///
 /// # Note
 ///
-/// - The input is the 4-bytes selector followed by the arguments
-///   of the called function in their SCALE encoded representation.
-/// - No prior interaction with the environment must take place before
-///   calling this procedure.
+/// - The input is the 4-bytes selector followed by the arguments of the called function
+///   in their SCALE encoded representation.
+/// - No prior interaction with the environment must take place before calling this
+///   procedure.
 ///
 /// # Usage
 ///
@@ -1205,10 +1218,13 @@
 /// # Example
 ///
 /// ```
-/// use ink_env::hash::{Sha2x256, HashOutput};
+/// use ink_env::hash::{
+///     HashOutput,
+///     Sha2x256,
+/// };
 /// let input: &amp;[u8] = &amp;[13, 14, 15];
 /// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer
-/// let hash  = ink_env::hash_bytes::&lt;Sha2x256&gt;(input, &amp;mut output);
+/// let hash = ink_env::hash_bytes::&lt;Sha2x256&gt;(input, &amp;mut output);
 /// ```
 </span><span class="kw">pub fn </span>hash_bytes&lt;H&gt;(input: <span class="kw-2">&amp;</span>[u8], output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
 <span class="kw">where
@@ -1226,8 +1242,8 @@
 /// ```
 /// # use ink_env::hash::{Sha2x256, HashOutput};
 /// const EXPECTED: [u8; 32] = [
-///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
-///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+///     243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248, 29, 136, 145, 115, 186,
+///     134, 14, 175, 178, 99, 183, 21, 4, 94, 92, 69, 199, 207, 241, 179,
 /// ];
 /// let encodable = (42, &quot;foo&quot;, true); // Implements `scale::Encode`
 /// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer
@@ -1287,7 +1303,7 @@
 ///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
 ///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
 /// ];
-///  let EXPECTED_ETH_ADDRESS = [
+/// let EXPECTED_ETH_ADDRESS = [
 ///     253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
 ///     37, 21, 191,
 /// ];
@@ -1348,14 +1364,15 @@
     })
 }
 
-<span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call stack.
+<span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
+/// stack.
 ///
-/// Prefer this over [`is_contract`] when checking whether your contract is being called by
-/// a contract or a plain account. The reason is that it performs better since it does not
-/// need to do any storage lookups.
+/// Prefer this over [`is_contract`] when checking whether your contract is being called
+/// by a contract or a plain account. The reason is that it performs better since it does
+/// not need to do any storage lookups.
 ///
-/// A return value of `true` indicates that this contract is being called by a plain account.
-/// and `false` indicates that the caller is another contract.
+/// A return value of `true` indicates that this contract is being called by a plain
+/// account. and `false` indicates that the caller is another contract.
 ///
 /// # Errors
 ///
@@ -1378,23 +1395,25 @@
 ///
 /// 1. The storage at the code hash will remain untouched.
 ///
-/// Contract developers **must ensure** that the storage layout of the new code is compatible with
-/// that of the old code.
+/// Contract developers **must ensure** that the storage layout of the new code is
+/// compatible with that of the old code.
 ///
 /// 2. The contract address (`AccountId`) remains the same, while the `code_hash` changes.
 ///
-/// Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++ salt)`.
-/// This makes it possible to determine a contracts address (`AccountId`) using the `code_hash` of
-/// the *initial* code used to instantiate the contract.
+/// Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++
+/// salt)`. This makes it possible to determine a contracts address (`AccountId`) using
+/// the `code_hash` of the *initial* code used to instantiate the contract.
 ///
-/// However, because `set_code_hash` can modify the underlying `code_hash` of a contract, it should
-/// not be relied upon that a contracts address can always be derived from its stored `code_hash`.
+/// However, because `set_code_hash` can modify the underlying `code_hash` of a contract,
+/// it should not be relied upon that a contracts address can always be derived from its
+/// stored `code_hash`.
 ///
 /// 3. Re-entrant calls use new `code_hash`.
 ///
-/// If a contract calls into itself after changing its code the new call would use the new code.
-/// However, if the original caller panics after returning from the sub call it would revert the
-/// changes made by `set_code_hash` and the next caller would use the old code.
+/// If a contract calls into itself after changing its code the new call would use the new
+/// code. However, if the original caller panics after returning from the sub call it
+/// would revert the changes made by `set_code_hash` and the next caller would use the old
+/// code.
 ///
 /// # Errors
 ///
@@ -1475,8 +1494,8 @@
 ///
 /// # Compatibility
 ///
-/// This is new version of the existing [`set_code_hash`] function. We plan to place the old
-/// function with this in the next `MAJOR` release.
+/// This is new version of the existing [`set_code_hash`] function. We plan to place the
+/// old function with this in the next `MAJOR` release.
 ///
 /// See the original [`set_code_hash`] function for full details.
 </span><span class="kw">pub fn </span>set_code_hash2&lt;E&gt;(code_hash: <span class="kw-2">&amp;</span>E::Hash) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
@@ -1490,7 +1509,8 @@
 
 <span class="doccomment">/// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
 ///
-/// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.
+/// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall`
+/// enum.
 ///
 /// For more details consult
 /// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
@@ -1503,8 +1523,8 @@
 ///
 /// # Note
 ///
-/// The `call_runtime` host function is still part of `pallet-contracts`&#39; unstable interface and
-/// thus can be changed at anytime.
+/// The `call_runtime` host function is still part of `pallet-contracts`&#39; unstable
+/// interface and thus can be changed at anytime.
 ///
 /// # Panics
 ///

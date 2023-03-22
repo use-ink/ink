@@ -772,6 +772,12 @@
 <a href="#771" id="771">771</a>
 <a href="#772" id="772">772</a>
 <a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -886,8 +892,8 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
     </span><span class="kw">pub fn </span>invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R {
         <span class="kw">crate</span>::invoke_contract(<span class="self">self</span>)
             .unwrap_or_else(|env_error| {
@@ -905,8 +911,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;, <span class="kw">crate</span>::Error&gt; {
         <span class="kw">crate</span>::invoke_contract(<span class="self">self</span>)
     }
@@ -918,28 +924,31 @@
     Args: scale::Encode,
     R: scale::Decode,
 {
-    <span class="doccomment">/// Invoke the contract using Delegate Call semantics with the given built-up call parameters.
+    <span class="doccomment">/// Invoke the contract using Delegate Call semantics with the given built-up call
+    /// parameters.
     ///
     /// Returns the result of the contract execution.
     ///
     /// # Panics
     ///
-    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you want to
-    /// handle those use the [`try_invoke`][`CallParams::try_invoke`] method instead.
+    /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]. If you
+    /// want to handle those use the [`try_invoke`][`CallParams::try_invoke`] method
+    /// instead.
     </span><span class="kw">pub fn </span>invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; R {
         <span class="kw">crate</span>::invoke_contract_delegate(<span class="self">self</span>).unwrap_or_else(|env_error| {
             <span class="macro">panic!</span>(<span class="string">&quot;Cross-contract call failed with {env_error:?}&quot;</span>)
         })
     }
 
-    <span class="doccomment">/// Invoke the contract using Delegate Call semantics with the given built-up call parameters.
+    <span class="doccomment">/// Invoke the contract using Delegate Call semantics with the given built-up call
+    /// parameters.
     ///
     /// Returns the result of the contract execution.
     ///
     /// # Note
     ///
-    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be handled by the
-    /// caller.
+    /// On failure this returns an [`ink::env::Error`][`crate::Error`] which can be
+    /// handled by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, <span class="kw">crate</span>::Error&gt; {
         <span class="kw">crate</span>::invoke_contract_delegate(<span class="self">self</span>)
     }
@@ -961,10 +970,8 @@
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 5000 units of gas for its execution
 /// - is provided with 10 units of transferred value for the contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a `bool`
+///   with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -983,7 +990,7 @@
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
 ///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
+///             .push_arg(&amp;[0x10u8; 32]),
 ///     )
 ///     .returns::&lt;()&gt;()
 ///     .invoke();
@@ -997,10 +1004,8 @@
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 5000 units of gas for its execution
 /// - is provided with 10 units of transferred value for the contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a `bool`
+///   with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -1017,7 +1022,7 @@
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
 ///             .push_arg(true)
-///             .push_arg(&amp;[0x10u8; 32])
+///             .push_arg(&amp;[0x10u8; 32]),
 ///     )
 ///     .returns::&lt;i32&gt;()
 ///     .invoke();
@@ -1051,11 +1056,12 @@
 ///
 /// # Handling `LangError`s
 ///
-/// It is also important to note that there are certain types of errors which can happen during
-/// cross-contract calls which can be handled know as [`LangError`][`ink_primitives::LangError`].
+/// It is also important to note that there are certain types of errors which can happen
+/// during cross-contract calls which can be handled know as
+/// [`LangError`][`ink_primitives::LangError`].
 ///
-/// If you want to handle these errors use the [`CallBuilder::try_invoke`] methods instead of the
-/// [`CallBuilder::invoke`] ones.
+/// If you want to handle these errors use the [`CallBuilder::try_invoke`] methods instead
+/// of the [`CallBuilder::invoke`] ones.
 ///
 /// **Note:** The shown examples panic because there is currently no cross-calling
 ///           support in the off-chain testing environment. However, this code
@@ -1104,8 +1110,8 @@
     }
 }
 
-<span class="doccomment">/// The default call type for cross-contract calls. Performs a cross-contract call to `callee`
-/// with gas limit `gas_limit`, transferring `transferred_value` of currency.
+<span class="doccomment">/// The default call type for cross-contract calls. Performs a cross-contract call to
+/// `callee` with gas limit `gas_limit`, transferring `transferred_value` of currency.
 </span><span class="kw">pub struct </span>Call&lt;E: Environment&gt; {
     callee: E::AccountId,
     gas_limit: Gas,
@@ -1441,8 +1447,8 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
     </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) {
         <span class="self">self</span>.params().invoke()
     }
@@ -1452,8 +1458,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;()&gt;, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
@@ -1474,7 +1480,8 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
-    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`]
+    /// method instead.
     </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) {
         <span class="self">self</span>.params().invoke()
     }
@@ -1483,7 +1490,8 @@
     ///
     /// # Note
     ///
-    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
+    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the
+    /// caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
@@ -1501,8 +1509,8 @@
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
     </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) -&gt; R {
         <span class="self">self</span>.params().invoke()
     }
@@ -1512,8 +1520,8 @@
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ink_primitives::MessageResult&lt;R&gt;, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }
@@ -1526,21 +1534,25 @@
     Args: scale::Encode,
     R: scale::Decode,
 {
-    <span class="doccomment">/// Invokes the cross-chain function call using Delegate Call semantics and returns the result.
+    <span class="doccomment">/// Invokes the cross-chain function call using Delegate Call semantics and returns
+    /// the result.
     ///
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`]
-    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`] method instead.
+    /// If you want to handle those use the [`try_invoke`][`CallBuilder::try_invoke`]
+    /// method instead.
     </span><span class="kw">pub fn </span>invoke(<span class="self">self</span>) -&gt; R {
         <span class="self">self</span>.params().invoke()
     }
 
-    <span class="doccomment">/// Invokes the cross-chain function call using Delegate Call semantics and returns the result.
+    <span class="doccomment">/// Invokes the cross-chain function call using Delegate Call semantics and returns
+    /// the result.
     ///
     /// # Note
     ///
-    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the caller.
+    /// On failure this an [`ink::env::Error`][`crate::Error`] which can be handled by the
+    /// caller.
     </span><span class="kw">pub fn </span>try_invoke(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;R, Error&gt; {
         <span class="self">self</span>.params().try_invoke()
     }

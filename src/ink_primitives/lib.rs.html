@@ -64,6 +64,7 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -80,12 +81,13 @@
 
 </span><span class="doccomment">//! Utilities in use by ink!.
 //!
-//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate dependencies.
-//! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `ink` (or others) to `ink_env` or `ink_storage` impossible.
+//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate
+//! dependencies. The main problem is that today Cargo manages crate features on a
+//! per-crate basis instead of a per-crate-target basis thus making dependencies from
+//! `ink` (or others) to `ink_env` or `ink_storage` impossible.
 //!
-//! By introducing `ink_primitives` we have a way to share utility components between `ink_env` or `ink_storage` and
-//! other parts of the framework, like `ink`.
+//! By introducing `ink_primitives` we have a way to share utility components between
+//! `ink_env` or `ink_storage` and other parts of the framework, like `ink`.
 
 </span><span class="attr">#![doc(
     html_logo_url = <span class="string">&quot;https://use.ink/img/crate-docs/logo.png&quot;</span>,

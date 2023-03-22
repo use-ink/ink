@@ -178,6 +178,7 @@
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -210,8 +211,8 @@
 };
 <span class="kw">use </span>scale::Encode;
 
-<span class="doccomment">/// The type returned from `ContractRef` constructors, partially initialized with the execution
-/// input arguments.
+<span class="doccomment">/// The type returned from `ContractRef` constructors, partially initialized with the
+/// execution input arguments.
 </span><span class="kw">pub type </span>CreateBuilderPartial&lt;E, ContractRef, Args, R&gt; = CreateBuilder&lt;
     E,
     ContractRef,
@@ -240,8 +241,8 @@
         .encode()
 }
 
-<span class="doccomment">/// Captures the encoded input for an `ink!` message call, together with the account id of the
-/// contract being called.
+<span class="doccomment">/// Captures the encoded input for an `ink!` message call, together with the account id of
+/// the contract being called.
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>Message&lt;E: Environment, RetType&gt; {
     account_id: E::AccountId,
@@ -268,8 +269,8 @@
 ///
 /// # Note
 ///
-/// This is hardcoded to [`ink_env::DefaultEnvironment`] so the user does not have to specify this
-/// generic parameter, which currently is hardcoded in the E2E testing suite.
+/// This is hardcoded to [`ink_env::DefaultEnvironment`] so the user does not have to
+/// specify this generic parameter, which currently is hardcoded in the E2E testing suite.
 </span><span class="kw">pub fn </span>build_message&lt;Ref&gt;(
     account_id: &lt;ink_env::DefaultEnvironment <span class="kw">as </span>Environment&gt;::AccountId,
 ) -&gt; MessageBuilder&lt;ink_env::DefaultEnvironment, Ref&gt;
@@ -299,11 +300,12 @@
         }
     }
 
-    <span class="doccomment">/// Build an encoded call for a message from a [`CallBuilder`] instance returned from a
-    /// contract ref method.
+    <span class="doccomment">/// Build an encoded call for a message from a [`CallBuilder`] instance returned from
+    /// a contract ref method.
     ///
-    /// This utilizes the generated message inherent methods on the contract ref implementation,
-    /// which returns a [`CallBuilder`] initialized with the selector and message arguments.
+    /// This utilizes the generated message inherent methods on the contract ref
+    /// implementation, which returns a [`CallBuilder`] initialized with the selector
+    /// and message arguments.
     ///
     /// # Example
     /// ```

@@ -412,6 +412,10 @@
 <a href="#411" id="411">411</a>
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -446,13 +450,12 @@
     ///
     /// # Note
     ///
-    /// - The generated call forwarder type implements the ink! trait definition
-    ///   and allows to build up contract calls that allow for customization by
-    ///   the user to provide gas limit, endowment etc.
-    /// - The call forwarder is associated to the call builder for the same ink!
-    ///   trait definition and handles all ink! trait calls into another contract
-    ///   instance on-chain. For constructing custom calls it forwards to the call
-    ///   builder.
+    /// - The generated call forwarder type implements the ink! trait definition and
+    ///   allows to build up contract calls that allow for customization by the user to
+    ///   provide gas limit, endowment etc.
+    /// - The call forwarder is associated to the call builder for the same ink! trait
+    ///   definition and handles all ink! trait calls into another contract instance
+    ///   on-chain. For constructing custom calls it forwards to the call builder.
     </span><span class="kw">pub fn </span>generate_call_forwarder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         CallForwarder::from(<span class="kw-2">*</span><span class="self">self</span>).generate_code()
     }
@@ -543,7 +546,8 @@
     /// # Note
     ///
     /// Due to the generic parameter `E` and Rust&#39;s default rules for derive generated
-    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    /// trait bounds it is not recommended to derive the `StorageLayout` trait
+    /// implementation.
     </span><span class="kw">fn </span>generate_storage_layout_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>span = <span class="self">self</span>.span();
         <span class="kw">let </span>call_forwarder_ident = <span class="self">self</span>.ident();
@@ -625,7 +629,8 @@
         )
     }
 
-    <span class="doccomment">/// Generate trait impls for `FromAccountId` and `ToAccountId` for the account wrapper.
+    <span class="doccomment">/// Generate trait impls for `FromAccountId` and `ToAccountId` for the account
+    /// wrapper.
     ///
     /// # Note
     ///
@@ -688,7 +693,8 @@
         )
     }
 
-    <span class="doccomment">/// Generate the trait implementation for `CallBuilder` for the ink! trait call forwarder.
+    <span class="doccomment">/// Generate the trait implementation for `CallBuilder` for the ink! trait call
+    /// forwarder.
     ///
     /// # Note
     ///
@@ -755,7 +761,8 @@
         )
     }
 
-    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait call forwarder.
+    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait call
+    /// forwarder.
     </span><span class="kw">fn </span>generate_ink_trait_impl_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>messages =
             <span class="self">self</span>.trait_def
@@ -771,7 +778,8 @@
         }
     }
 
-    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait call forwarder.
+    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait call
+    /// forwarder.
     </span><span class="kw">fn </span>generate_ink_trait_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         message: <span class="kw-2">&amp;</span>ir::InkTraitMessage,

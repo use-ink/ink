@@ -114,6 +114,7 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -151,7 +152,8 @@
         <span class="kw">let </span>storage_struct = <span class="self">self</span>.generate_storage_struct();
         <span class="kw">let </span>use_emit_event =
             <span class="self">self</span>.contract.module().events().next().is_some().then(|| {
-                <span class="comment">// Required to allow for `self.env().emit_event(...)` in messages and constructors.
+                <span class="comment">// Required to allow for `self.env().emit_event(...)` in messages and
+                // constructors.
                 </span><span class="macro">quote! </span>{ <span class="kw">use </span>::ink::codegen::EmitEvent <span class="kw">as _</span>; }
             });
         <span class="macro">quote_spanned!</span>(storage_span =&gt;

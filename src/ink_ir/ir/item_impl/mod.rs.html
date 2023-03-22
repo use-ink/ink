@@ -446,11 +446,11 @@
 /// # Note
 ///
 /// - This can be either an inherent implementation block that implements some
-///   constructors, messages or internal functions for the storage struct; OR it
-///   can be a trait implementation for the storage struct.
+///   constructors, messages or internal functions for the storage struct; OR it can be a
+///   trait implementation for the storage struct.
 /// - We try to support all fields that are supported by the underlying `syn`
-///   implementation for [`syn::ItemImpl`] even though they are not really
-///   required to represent ink!. This is done for consistency with `syn`.
+///   implementation for [`syn::ItemImpl`] even though they are not really required to
+///   represent ink!. This is done for consistency with `syn`.
 </span><span class="attr">#[derive(Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>ItemImpl {
     attrs: Vec&lt;syn::Attribute&gt;,
@@ -514,22 +514,22 @@
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_function(&amp;self) {
-    ///         /* inherent method implementation */
+    ///         // inherent method implementation
     ///         unimplemented!()
     ///     }
     /// }
     /// # }).unwrap();
     /// ```
     ///
-    /// - Or if any of the ink! implementation block methods do have ink!
-    ///   specific annotations:
+    /// - Or if any of the ink! implementation block methods do have ink! specific
+    ///   annotations:
     ///
     /// ```
     /// # &lt;ink_ir::ItemImpl as TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]
     ///     pub fn my_constructor() -&gt; Self {
-    ///         /* constructor implementation */
+    ///         // constructor implementation
     ///         unimplemented!()
     ///     }
     /// }

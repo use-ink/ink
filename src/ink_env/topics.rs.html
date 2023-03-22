@@ -235,6 +235,9 @@
 <a href="#234" id="234">234</a>
 <a href="#235" id="235">235</a>
 <a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -315,7 +318,8 @@
     </span>E: Environment,
     B: TopicsBuilderBackend&lt;E&gt;,
 {
-    <span class="doccomment">/// Initializes the topics builder and informs it about how many topics it must expect to serialize.
+    <span class="doccomment">/// Initializes the topics builder and informs it about how many topics it must expect
+    /// to serialize.
     ///
     /// The number of expected topics is given implicitly by the `E` type parameter.
     </span><span class="kw">pub fn </span>build&lt;Event: Topics&gt;(
@@ -422,11 +426,13 @@
     <span class="kw">const </span>AMOUNT: usize = <span class="number">0</span>;
 }
 
-<span class="doccomment">/// Implemented by event types to guide the event topic serialization using the topics builder.
+<span class="doccomment">/// Implemented by event types to guide the event topic serialization using the topics
+/// builder.
 ///
 /// Normally this trait should be implemented automatically via the ink! codegen.
 </span><span class="kw">pub trait </span>Topics {
-    <span class="doccomment">/// Type state indicating how many event topics are to be expected by the topics builder.
+    <span class="doccomment">/// Type state indicating how many event topics are to be expected by the topics
+    /// builder.
     </span><span class="kw">type </span>RemainingTopics: EventTopicsAmount;
 
     <span class="doccomment">/// Guides event topic serialization using the given topics builder.

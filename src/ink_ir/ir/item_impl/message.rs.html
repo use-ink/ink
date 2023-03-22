@@ -808,6 +808,7 @@
 <a href="#807" id="807">807</a>
 <a href="#808" id="808">808</a>
 <a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -884,7 +885,7 @@
 /// impl MyStorage {
 ///     #[ink(message)]
 ///     pub fn my_message(&amp;self, input: i32) -&gt; bool {
-///         /* message implementation goes here */
+///         // message implementation goes here
 /// #       unimplemented!()
 ///     }
 /// }
@@ -1110,8 +1111,8 @@
 
     <span class="doccomment">/// Returns the return type of the message, but wrapped within a `Result`.
     ///
-    /// This is used to to allow callers to handle certain types of errors which are not exposed
-    /// by messages.
+    /// This is used to to allow callers to handle certain types of errors which are not
+    /// exposed by messages.
     </span><span class="kw">pub fn </span>wrapped_output(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; syn::Type {
         <span class="kw">let </span>return_type = <span class="self">self
             </span>.output()
@@ -1123,7 +1124,8 @@
         }
     }
 
-    <span class="doccomment">/// Returns a local ID unique to the ink! message with respect to its implementation block.
+    <span class="doccomment">/// Returns a local ID unique to the ink! message with respect to its implementation
+    /// block.
     ///
     /// # Note
     ///

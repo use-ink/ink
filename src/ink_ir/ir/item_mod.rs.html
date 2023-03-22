@@ -922,6 +922,7 @@
 <a href="#921" id="921">921</a>
 <a href="#922" id="922">922</a>
 <a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -969,23 +970,23 @@
 /// mod my_contract {
 ///     #[ink(storage)]
 ///     pub struct MyStorage {
-///         /* storage fields */
+///         // storage fields
 ///     }
 ///
 ///     #[ink(event)]
 ///     pub struct MyEvent {
-///         /* event fields */
+///         // event fields
 ///     }
 ///
 ///     impl MyStorage {
 ///         #[ink(constructor)]
 ///         pub fn my_constructor() -&gt; Self {
-///             /* constructor initialization */
+///             // constructor initialization
 ///         }
 ///
 ///         #[ink(message)]
 ///         pub fn my_message(&amp;self) {
-///             /* message statements */
+///             // message statements
 ///         }
 ///     }
 /// }
@@ -1003,7 +1004,7 @@
 ///
 /// ```
 /// mod rust_module {
-///     /* some Rust item definitions */
+///     // some Rust item definitions
 /// }
 /// ```
 ///
@@ -1321,7 +1322,8 @@
         storage
     }
 
-    <span class="doccomment">/// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.
+    <span class="doccomment">/// Returns all (ink! and non-ink! specific) item definitions of the ink! inline
+    /// module.
     </span><span class="kw">pub fn </span>items(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[ir::Item] {
         <span class="self">self</span>.items.as_slice()
     }
@@ -1351,7 +1353,7 @@
     /// #
     ///     #[ink(message)]
     ///     pub fn my_message(&amp;self) {
-    ///         /* message implementation */
+    ///         // message implementation
     ///     }
     /// }
     /// # }}).unwrap();
@@ -1374,7 +1376,7 @@
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_method(&amp;self) -&gt; i32 {
-    ///         /* method implementation */
+    ///         // method implementation
     ///     }
     /// }
     /// #

@@ -218,6 +218,7 @@
 <a href="#217" id="217">217</a>
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -244,7 +245,8 @@
 ///
 /// # Usage in the `#[ink::contract]` context
 ///
-/// The macro expects one argument ‒ the path to the trait, in order to create a wrapper around it.
+/// The macro expects one argument ‒ the path to the trait, in order to create a wrapper
+/// around it.
 ///
 /// ```rust
 /// #[ink::contract]
@@ -253,13 +255,13 @@
 ///
 ///     #[ink::trait_definition]
 ///     pub trait Erc20 {
-///        /// Returns the total supply of the ERC-20 smart contract.
-///        #[ink(message)]
-///        fn total_supply(&amp;self) -&gt; Balance;
+///         /// Returns the total supply of the ERC-20 smart contract.
+///         #[ink(message)]
+///         fn total_supply(&amp;self) -&gt; Balance;
 ///
-///        /// Transfers balance from the caller to the given address.
-///        #[ink(message)]
-///        fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool;
+///         /// Transfers balance from the caller to the given address.
+///         #[ink(message)]
+///         fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool;
 ///     }
 ///
 ///     #[ink(storage)]

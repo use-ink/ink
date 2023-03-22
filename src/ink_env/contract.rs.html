@@ -133,6 +133,13 @@
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
 </pre><pre class="rust"><code><span class="doccomment">/// Stores the used host environment type of the ink! smart contract.
 ///
 /// # Note
@@ -149,7 +156,6 @@
 /// # Usage: Default Environment
 ///
 /// ```
-/// 
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]
@@ -157,7 +163,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -&gt; Self { Self {} }
+///         pub fn constructor() -&gt; Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&amp;self) {}
@@ -201,7 +209,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -&gt; Self { Self {} }
+///         pub fn constructor() -&gt; Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&amp;self) {}
@@ -238,7 +248,6 @@
 /// # Usage
 ///
 /// ```
-/// 
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]
@@ -246,14 +255,19 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -&gt; Self { Self {} }
+///         pub fn constructor() -&gt; Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&amp;self) {}
 ///     }
 /// }
 ///
-/// use contract::{Contract, ContractRef};
+/// use contract::{
+///     Contract,
+///     ContractRef,
+/// };
 /// # use ink::codegen::utils::IsSameType;
 /// # use ink::env::ContractReference;
 ///

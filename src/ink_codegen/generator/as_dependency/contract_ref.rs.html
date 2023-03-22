@@ -481,6 +481,9 @@
 <a href="#480" id="480">480</a>
 <a href="#481" id="481">481</a>
 <a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -818,12 +821,14 @@
             .collect()
     }
 
-    <span class="doccomment">/// Generates the code for a single ink! inherent implementation of the contract itself.
+    <span class="doccomment">/// Generates the code for a single ink! inherent implementation of the contract
+    /// itself.
     ///
     /// # Note
     ///
-    /// This produces the short-hand calling notation for the inherent contract implementation.
-    /// The generated code simply forwards its calling logic to the associated call builder.
+    /// This produces the short-hand calling notation for the inherent contract
+    /// implementation. The generated code simply forwards its calling logic to the
+    /// associated call builder.
     </span><span class="kw">fn </span>generate_contract_inherent_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, impl_block: <span class="kw-2">&amp;</span>ir::ItemImpl) -&gt; TokenStream2 {
         <span class="kw">let </span>span = impl_block.span();
         <span class="kw">let </span>attrs = impl_block.attrs();
@@ -848,7 +853,8 @@
     /// # Note
     ///
     /// This produces the short-hand calling notation for the inherent contract message.
-    /// The generated code simply forwards its calling logic to the associated call builder.
+    /// The generated code simply forwards its calling logic to the associated call
+    /// builder.
     </span><span class="kw">fn </span>generate_contract_inherent_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         message: ir::CallableWithSelector&lt;ir::Message&gt;,
@@ -911,9 +917,9 @@
     ///
     /// # Note
     ///
-    /// Unlike with ink! messages this does not forward to the call builder since constructor
-    /// calls in ink! do not have a short-hand notation and therefore this implements the
-    /// long-hand calling notation code directly.
+    /// Unlike with ink! messages this does not forward to the call builder since
+    /// constructor calls in ink! do not have a short-hand notation and therefore this
+    /// implements the long-hand calling notation code directly.
     </span><span class="kw">fn </span>generate_contract_inherent_impl_for_constructor(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         constructor: ir::CallableWithSelector&lt;ir::Constructor&gt;,

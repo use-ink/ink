@@ -54,6 +54,7 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -76,7 +77,8 @@
 //! from and to the contract&#39;s storage.
 //!
 //! The [`Packed`] shows that the type can be stored into single storage cell.
-//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed structures.
+//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed
+//! structures.
 //!
 //! If at least one of the type&#39;s fields occupies its own separate storage cell, it is a
 //! non-[`Packed`] type because it occupies more than one storage cell.

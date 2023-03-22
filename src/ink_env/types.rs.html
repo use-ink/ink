@@ -204,6 +204,9 @@
 <a href="#203" id="203">203</a>
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -302,9 +305,10 @@
 
 <span class="doccomment">/// A trait to enforce that a type should be an [`Environment::AccountId`].
 ///
-/// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other than the ink!
-/// provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
-/// you will need to implement this trait for your [`Environment::AccountId`] concrete type.
+/// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other
+/// than the ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// you will need to implement this trait for your [`Environment::AccountId`] concrete
+/// type.
 </span><span class="kw">pub trait </span>AccountIdGuard {}
 
 <span class="doccomment">/// The ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
@@ -315,7 +319,8 @@
 </span><span class="kw">pub trait </span>Environment {
     <span class="doccomment">/// The maximum number of supported event topics provided by the runtime.
     ///
-    /// The value must match the maximum number of supported event topics of the used runtime.
+    /// The value must match the maximum number of supported event topics of the used
+    /// runtime.
     </span><span class="kw">const </span>MAX_EVENT_TOPICS: usize;
 
     <span class="doccomment">/// The account id type.
@@ -372,8 +377,9 @@
 
     <span class="doccomment">/// The chain extension for the environment.
     ///
-    /// This is a type that is defined through the `#[ink::chain_extension]` procedural macro.
-    /// For more information about usage and definition click [this][chain_extension] link.
+    /// This is a type that is defined through the `#[ink::chain_extension]` procedural
+    /// macro. For more information about usage and definition click
+    /// [this][chain_extension] link.
     ///
     /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
     </span><span class="kw">type </span>ChainExtension;

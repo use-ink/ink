@@ -965,6 +965,13 @@
 <a href="#964" id="964">964</a>
 <a href="#965" id="965">965</a>
 <a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1040,18 +1047,20 @@
     </span>item: syn::TraitItemMethod,
     <span class="doccomment">/// The unique identifier of the chain extension method.
     </span>id: ExtensionId,
-    <span class="doccomment">/// If `false` the `u32` status code of the chain extension method call is going to be
-    /// ignored and assumed to be always successful. The output buffer in this case is going
-    /// to be queried and decoded into the chain extension method&#39;s output type.
+    <span class="doccomment">/// If `false` the `u32` status code of the chain extension method call is going to
+    /// be ignored and assumed to be always successful. The output buffer in this
+    /// case is going to be queried and decoded into the chain extension method&#39;s
+    /// output type.
     ///
     /// If `true` the returned `u32` status code `code` is queried and
     /// `&lt;Self::ErrorCode as ink::FromStatusCode&gt;::from_status_code(code)` is called.
     /// The call to `from_status_code` returns `Result&lt;(), Self::ErrorCode&gt;`. If `Ok(())`
     /// the output buffer is queried and decoded as described above.
-    /// If `Err(Self::ErrorCode)` the `Self::ErrorCode` is converted into `E` of `Result&lt;T, E&gt;`
-    /// if the chain extension method returns a `Result` type.
-    /// In case the chain extension method does _NOT_ return a `Result` type the call returns
-    /// `Result&lt;T, Self::ErrorCode&gt;` where `T` is the chain extension method&#39;s return type.
+    /// If `Err(Self::ErrorCode)` the `Self::ErrorCode` is converted into `E` of
+    /// `Result&lt;T, E&gt;` if the chain extension method returns a `Result` type.
+    /// In case the chain extension method does _NOT_ return a `Result` type the call
+    /// returns `Result&lt;T, Self::ErrorCode&gt;` where `T` is the chain extension
+    /// method&#39;s return type.
     ///
     /// The default for this flag is `true`.
     </span>handle_status: bool,
@@ -1094,7 +1103,8 @@
         }
     }
 
-    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.
+    <span class="doccomment">/// Returns `true` if the chain extension method was flagged with
+    /// `#[ink(handle_status)]`.
     </span><span class="kw">pub fn </span>handle_status(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.handle_status
     }
@@ -1270,7 +1280,8 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns `Ok` if all trait items respect the requirements for an ink! chain extension.
+    <span class="doccomment">/// Returns `Ok` if all trait items respect the requirements for an ink! chain
+    /// extension.
     ///
     /// # Errors
     ///
@@ -1280,15 +1291,17 @@
     ///     - macros definitions or usages
     ///     - unknown token sequences (`Verbatim`s)
     ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
+    /// - If the trait contains methods which do not respect the ink! trait definition
+    ///   requirements:
     ///     - All trait methods must not have a `self` receiver.
-    ///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that is the ID that
-    ///       corresponds with the function ID of the respective chain extension call.
+    ///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that
+    ///       is the ID that corresponds with the function ID of the respective chain
+    ///       extension call.
     ///
     /// # Note
     ///
-    /// The input Rust trait item is going to be replaced with a concrete chain extension type definition
-    /// as a result of this procedural macro invocation.
+    /// The input Rust trait item is going to be replaced with a concrete chain extension
+    /// type definition as a result of this procedural macro invocation.
     </span><span class="kw">fn </span>analyse_items(
         item_trait: <span class="kw-2">&amp;</span>syn::ItemTrait,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(syn::TraitItemType, Vec&lt;ChainExtensionMethod&gt;)&gt; {
@@ -1465,7 +1478,8 @@
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Checks if the token stream in `$chain_extension` results in the expected error message.
+    <span class="doccomment">/// Checks if the token stream in `$chain_extension` results in the expected error
+    /// message.
     </span><span class="macro">macro_rules! </span>assert_ink_chain_extension_eq_err {
         ( error: <span class="macro-nonterminal">$err_str</span>:literal, $(<span class="macro-nonterminal">$chain_extension</span>:tt)* ) =&gt; {
             <span class="macro">assert_eq!</span>(

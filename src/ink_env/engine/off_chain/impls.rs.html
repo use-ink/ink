@@ -551,6 +551,7 @@
 <a href="#550" id="550">550</a>
 <a href="#551" id="551">551</a>
 <a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -846,7 +847,8 @@
         };
 
         <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added
-        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+        // as well.
         </span><span class="kw">let </span>recovery_byte = <span class="kw">if </span>signature[<span class="number">64</span>] &gt; <span class="number">26 </span>{
             signature[<span class="number">64</span>] - <span class="number">27
         </span>} <span class="kw">else </span>{

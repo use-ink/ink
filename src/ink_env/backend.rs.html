@@ -518,6 +518,10 @@
 <a href="#517" id="517">517</a>
 <a href="#518" id="518">518</a>
 <a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -697,7 +701,8 @@
         </span>K: scale::Encode,
         V: Storable;
 
-    <span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if any.
+    <span class="doccomment">/// Returns the value stored under the given storage key in the contract&#39;s storage if
+    /// any.
     ///
     /// # Errors
     ///
@@ -707,8 +712,8 @@
         </span>K: scale::Encode,
         R: Storable;
 
-    <span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage if
-    /// any.
+    <span class="doccomment">/// Removes the `value` at `key`, returning the previous `value` at `key` from storage
+    /// if any.
     ///
     /// # Errors
     ///
@@ -734,10 +739,10 @@
     ///
     /// # Note
     ///
-    /// - The input is the 4-bytes selector followed by the arguments
-    ///   of the called function in their SCALE encoded representation.
-    /// - No prior interaction with the environment must take place before
-    ///   calling this procedure.
+    /// - The input is the 4-bytes selector followed by the arguments of the called
+    ///   function in their SCALE encoded representation.
+    /// - No prior interaction with the environment must take place before calling this
+    ///   procedure.
     ///
     /// # Usage
     ///
@@ -772,12 +777,12 @@
 
     <span class="doccomment">/// Emit a custom debug message.
     ///
-    /// The message is appended to the debug buffer which is then supplied to the calling RPC
-    /// client. This buffer is also printed as a debug message to the node console if the
-    /// `debug` log level is enabled for the `runtime::contracts` target.
+    /// The message is appended to the debug buffer which is then supplied to the calling
+    /// RPC client. This buffer is also printed as a debug message to the node console
+    /// if the `debug` log level is enabled for the `runtime::contracts` target.
     ///
-    /// If debug message recording is disabled in the contracts pallet, which is always the case
-    /// when the code is executing on-chain, then this will have no effect.
+    /// If debug message recording is disabled in the contracts pallet, which is always
+    /// the case when the code is executing on-chain, then this will have no effect.
     </span><span class="kw">fn </span>debug_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, content: <span class="kw-2">&amp;</span>str);
 
     <span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.
@@ -785,7 +790,8 @@
     <span class="kw">where
         </span>H: CryptoHash;
 
-    <span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+    <span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in
+    /// `output`.
     </span><span class="kw">fn </span>hash_encoded&lt;H, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>T, output: <span class="kw-2">&amp;mut </span>&lt;H <span class="kw">as </span>HashOutput&gt;::Type)
     <span class="kw">where
         </span>H: CryptoHash,
@@ -946,7 +952,8 @@
     ///
     /// # Note
     ///
-    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
+    /// For more details visit:
+    /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
     </span><span class="kw">fn </span>invoke_contract_delegate&lt;E, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         call_data: <span class="kw-2">&amp;</span>CallParams&lt;E, DelegateCall&lt;E&gt;, Args, R&gt;,
@@ -1004,7 +1011,8 @@
     <span class="kw">where
         </span>E: Environment;
 
-    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call stack.
+    <span class="doccomment">/// Checks whether the caller of the current contract is the origin of the whole call
+    /// stack.
     ///
     /// # Note
     ///

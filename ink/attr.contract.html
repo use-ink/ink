@@ -31,17 +31,18 @@ generated for contracts.</p>
     //    #[foo]
     // ...
 </span>}</code></pre></div>
-<p><strong>Allowed attributes by default:</strong> <code>cfg</code>, <code>cfg_attr</code>, <code>allow</code>, <code>warn</code>, <code>deny</code>, <code>forbid</code>,
-<code>deprecated</code>, <code>must_use</code>, <code>doc</code>, <code>rustfmt</code>.</p>
+<p><strong>Allowed attributes by default:</strong> <code>cfg</code>, <code>cfg_attr</code>, <code>allow</code>, <code>warn</code>, <code>deny</code>,
+<code>forbid</code>,         <code>deprecated</code>, <code>must_use</code>, <code>doc</code>, <code>rustfmt</code>.</p>
 </li>
 <li>
 <p><code>env: impl Environment</code></p>
-<p>Tells the ink! code generator which environment to use for the ink! smart contract.
-The environment must implement the <code>Environment</code> (defined in <code>ink_env</code>) trait and provides
-all the necessary fundamental type definitions for <code>Balance</code>, <code>AccountId</code> etc.</p>
+<p>Tells the ink! code generator which environment to use for the ink! smart
+contract.     The environment must implement the <code>Environment</code> (defined in <code>ink_env</code>)
+trait and provides     all the necessary fundamental type definitions for <code>Balance</code>,
+<code>AccountId</code> etc.</p>
 <p>When using a custom <code>Environment</code> implementation for a smart contract all types
-that it exposes to the ink! smart contract and the mirrored types used in the runtime
-must be aligned with respect to SCALE encoding and semantics.</p>
+that it exposes to the ink! smart contract and the mirrored types used in the
+runtime     must be aligned with respect to SCALE encoding and semantics.</p>
 <p><strong>Usage Example:</strong></p>
 <p>Given a custom <code>Environment</code> implementation:</p>
 
@@ -56,8 +57,8 @@ must be aligned with respect to SCALE encoding and semantics.</p>
     <span class="kw">type </span>BlockNumber = u32;
     <span class="kw">type </span>ChainExtension = ::ink::env::NoChainExtension;
 }</code></pre></div>
-<p>A user might implement their ink! smart contract using the above custom <code>Environment</code>
-implementation as demonstrated below:</p>
+<p>A user might implement their ink! smart contract using the above custom
+<code>Environment</code>     implementation as demonstrated below:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[ink::contract(env = MyEnvironment)]
 </span><span class="kw">mod </span>my_contract {
@@ -73,9 +74,10 @@ against invalid arguments and structure.</p>
 <ul>
 <li>
 <p>There must be exactly one <code>#[ink(storage)]</code> struct.</p>
-<p>This struct defines the layout of the storage that the ink! smart contract operates on.
-The user is able to use a variety of built-in facilities, combine them in various ways
-or even provide their own implementations of storage data structures.</p>
+<p>This struct defines the layout of the storage that the ink! smart contract
+operates on.     The user is able to use a variety of built-in facilities, combine
+them in various ways     or even provide their own implementations of storage data
+structures.</p>
 <p>For more information visit the <code>ink::storage</code> crate documentation.</p>
 <p><strong>Example:</strong></p>
 
@@ -89,9 +91,10 @@ or even provide their own implementations of storage data structures.</p>
 </li>
 <li>
 <p>There must be at least one <code>#[ink(constructor)]</code> defined method.</p>
-<p>Methods flagged with <code>#[ink(constructor)]</code> are special in that they are dispatchable
-upon contract instantiation. A contract may define multiple such constructors which
-allow users of the contract to instantiate a contract in multiple different ways.</p>
+<p>Methods flagged with <code>#[ink(constructor)]</code> are special in that they are
+dispatchable     upon contract instantiation. A contract may define multiple such
+constructors which     allow users of the contract to instantiate a contract in
+multiple different ways.</p>
 <p><strong>Example:</strong></p>
 <p>Given the <code>Flipper</code> contract definition above we add an <code>#[ink(constructor)]</code>
 as follows:</p>
@@ -106,17 +109,17 @@ as follows:</p>
 <li>
 <p>There must be at least one <code>#[ink(message)]</code> defined method.</p>
 <p>Methods flagged with <code>#[ink(message)]</code> are special in that they are dispatchable
-upon contract invocation. The set of ink! messages defined for an ink! smart contract
-define its API surface with which users are allowed to interact.</p>
+upon contract invocation. The set of ink! messages defined for an ink! smart
+contract     define its API surface with which users are allowed to interact.</p>
 <p>An ink! smart contract can have multiple such ink! messages defined.</p>
 <p><strong>Note:</strong></p>
 <ul>
-<li>An ink! message with a <code>&amp;self</code> receiver may only read state whereas an ink! message
-with a <code>&amp;mut self</code> receiver may mutate the contract’s storage.</li>
+<li>An ink! message with a <code>&amp;self</code> receiver may only read state whereas an ink!
+message with a <code>&amp;mut self</code> receiver may mutate the contract’s storage.</li>
 </ul>
 <p><strong>Example:</strong></p>
-<p>Given the <code>Flipper</code> contract definition above we add some <code>#[ink(message)]</code> definitions
-as follows:</p>
+<p>Given the <code>Flipper</code> contract definition above we add some <code>#[ink(message)]</code>
+definitions     as follows:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
     <span class="doccomment">/// Flips the current value.
@@ -132,11 +135,11 @@ as follows:</p>
     }
 }</code></pre></div>
 <p><strong>Payable Messages:</strong></p>
-<p>An ink! message by default will reject calls that additional fund the smart contract.
-Authors of ink! smart contracts can make an ink! message payable by adding the <code>payable</code>
-flag to it. An example below:</p>
-<p>Note that ink! constructors are always implicitly payable and thus cannot be flagged
-as such.</p>
+<p>An ink! message by default will reject calls that additional fund the smart
+contract.     Authors of ink! smart contracts can make an ink! message payable by
+adding the <code>payable</code>     flag to it. An example below:</p>
+<p>Note that ink! constructors are always implicitly payable and thus cannot be
+flagged     as such.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl </span>Flipper {
     <span class="doccomment">/// Flips the current value.
@@ -164,6 +167,13 @@ constructor using the <code>selector</code> flag. An example is shown below:</p>
     #[ink(selector = <span class="number">0xDEADBEEF</span>)] </span><span class="comment">// Works on constructors as well.
     </span><span class="kw">pub fn </span>new(initial_value: bool) -&gt; <span class="self">Self </span>{
         Flipper { value: <span class="bool-val">false </span>}
+    }
+
+    <span class="doccomment">/// Flips the current value.
+    </span><span class="attr">#[ink(message)]
+    #[ink(selector = <span class="number">0xCAFEBABE</span>)] </span><span class="comment">// You can either specify selector out-of-line.
+    </span><span class="kw">pub fn </span>flip(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.value = !<span class="self">self</span>.value;
     }
 
     <span class="doccomment">/// Returns the current value.
@@ -208,8 +218,8 @@ via its environment accessor. An example below:</p>
 }</code></pre></div>
 <h3 id="events"><a href="#events">Events</a></h3>
 <p>An ink! smart contract may define events that it can emit during contract execution.
-Emitting events can be used by third party tools to query information about a contract’s
-execution and state.</p>
+Emitting events can be used by third party tools to query information about a
+contract’s execution and state.</p>
 <p>The following example ink! contract shows how an event <code>Transferred</code> is defined and
 emitted in the <code>#[ink(constructor)]</code>.</p>
 
@@ -238,7 +248,9 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
                 to: <span class="prelude-val">Some</span>(caller),
                 value: initial_supply,
             });
-            <span class="self">Self </span>{ total_supply: initial_supply }
+            <span class="self">Self </span>{
+                total_supply: initial_supply,
+            }
         }
 
         <span class="attr">#[ink(message)]

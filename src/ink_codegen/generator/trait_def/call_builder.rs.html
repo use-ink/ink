@@ -378,6 +378,9 @@
 <a href="#377" id="377">377</a>
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -412,12 +415,11 @@
     ///
     /// # Note
     ///
-    /// - The generated call builder type implements the ink! trait definition
-    ///   and allows to build up contract calls that allow for customization by
-    ///   the user to provide gas limit, endowment etc.
-    /// - The call builder is used directly by the generated call forwarder.
-    ///   There exists one global call forwarder and call builder pair for every
-    ///   ink! trait definition.
+    /// - The generated call builder type implements the ink! trait definition and allows
+    ///   to build up contract calls that allow for customization by the user to provide
+    ///   gas limit, endowment etc.
+    /// - The call builder is used directly by the generated call forwarder. There exists
+    ///   one global call forwarder and call builder pair for every ink! trait definition.
     </span><span class="kw">pub fn </span>generate_call_builder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         CallBuilder::from(<span class="kw-2">*</span><span class="self">self</span>).generate_code()
     }
@@ -505,7 +507,8 @@
     /// # Note
     ///
     /// Due to the generic parameter `E` and Rust&#39;s default rules for derive generated
-    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    /// trait bounds it is not recommended to derive the `StorageLayout` trait
+    /// implementation.
     </span><span class="kw">fn </span>generate_storage_layout_impl(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>span = <span class="self">self</span>.span();
         <span class="kw">let </span>call_builder_ident = <span class="self">self</span>.ident();
@@ -592,7 +595,8 @@
         )
     }
 
-    <span class="doccomment">/// Generate trait implementations for `FromAccountId` and `ToAccountId` for the account wrapper.
+    <span class="doccomment">/// Generate trait implementations for `FromAccountId` and `ToAccountId` for the
+    /// account wrapper.
     ///
     /// # Note
     ///
@@ -688,7 +692,8 @@
         )
     }
 
-    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait call builder.
+    <span class="doccomment">/// Generate the code for all ink! trait messages implemented by the trait call
+    /// builder.
     </span><span class="kw">fn </span>generate_ink_trait_impl_messages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream2 {
         <span class="kw">let </span>messages = <span class="self">self</span>.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
@@ -702,7 +707,8 @@
         }
     }
 
-    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait call builder.
+    <span class="doccomment">/// Generate the code for a single ink! trait message implemented by the trait call
+    /// builder.
     </span><span class="kw">fn </span>generate_ink_trait_impl_for_message(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         message: <span class="kw-2">&amp;</span>ir::InkTraitMessage,

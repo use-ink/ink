@@ -422,6 +422,7 @@
 <a href="#421" id="421">421</a>
 <a href="#422" id="422">422</a>
 <a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -496,10 +497,11 @@
     Debug, Clone, Copy, scale::Encode, scale::Decode, PartialEq, Eq, serde::Serialize,
 )]
 </span><span class="kw">pub enum </span>Determinism {
-    <span class="doccomment">/// The execution should be deterministic and hence no indeterministic instructions are
-    /// allowed.
+    <span class="doccomment">/// The execution should be deterministic and hence no indeterministic instructions
+    /// are allowed.
     ///
-    /// Dispatchables always use this mode in order to make on-chain execution deterministic.
+    /// Dispatchables always use this mode in order to make on-chain execution
+    /// deterministic.
     </span>Deterministic,
     <span class="doccomment">/// Allow calling or uploading an indeterministic code.
     ///

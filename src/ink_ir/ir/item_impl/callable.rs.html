@@ -654,7 +654,6 @@
 <a href="#653" id="653">653</a>
 <a href="#654" id="654">654</a>
 <a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -855,15 +854,13 @@
 /// Then the selector is composed in the following way:
 ///
 /// - If `s` is given we simply return `s`.
-/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate
-///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.
-///   If `T` refers to a relative path or is just an identifier we only take
-///   its last segment `p` (e.g. the trait&#39;s identifier) into consideration
-///   and use it instead of `P` in the above concatenation.
+/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate `S`, `T` and `i`
+///   with `::` as separator if `T` refers to a full-path. If `T` refers to a relative
+///   path or is just an identifier we only take its last segment `p` (e.g. the trait&#39;s
+///   identifier) into consideration and use it instead of `P` in the above concatenation.
 ///   In the following we refer to the resulting concatenation as `C`.
-/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output
-///   and take the first 4 bytes that are returned in order as the composed
-///   selector.
+/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output and take the
+///   first 4 bytes that are returned in order as the composed selector.
 ///
 /// # Examples
 ///
@@ -958,9 +955,9 @@
 /// wherever possible; OR import the trait and use only its identifier with
 /// an additional namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.
-/// - Avoid directly setting the selector of an ink! message or constructor.
-///   Only do this if nothing else helps and you need a very specific selector,
-///   e.g. in case of backwards compatibility.
+/// - Avoid directly setting the selector of an ink! message or constructor. Only do this
+///   if nothing else helps and you need a very specific selector, e.g. in case of
+///   backwards compatibility.
 /// - Do not use the namespace unless required to disambiguate.
 </span><span class="kw">pub fn </span>compose_selector&lt;C&gt;(item_impl: <span class="kw-2">&amp;</span>ir::ItemImpl, callable: <span class="kw-2">&amp;</span>C) -&gt; ir::Selector
 <span class="kw">where
@@ -1021,8 +1018,8 @@
 ///  - `const` (compile-time evaluable)
 ///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)
 ///  - `unsafe` (caller provided assertions not yet stable)
-/// - Furthermore this is `true` if the externally callable is defined for a
-///   non default ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.
+/// - Furthermore this is `true` if the externally callable is defined for a non default
+///   ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>ensure_callable_invariants(
     method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
     kind: CallableKind,
@@ -1115,7 +1112,8 @@
 }
 
 <span class="kw">impl </span>Visibility {
-    <span class="doccomment">/// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
+    <span class="doccomment">/// Returns `true` if the visibility of the ink! message of constructor is public
+    /// (`pub`).
     ///
     /// # Note
     ///
