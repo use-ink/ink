@@ -30,8 +30,8 @@ use ink_env::{
 };
 use scale::Encode;
 
-/// The type returned from `ContractRef` constructors, partially initialized with the execution
-/// input arguments.
+/// The type returned from `ContractRef` constructors, partially initialized with the
+/// execution input arguments.
 pub type CreateBuilderPartial<E, ContractRef, Args, R> = CreateBuilder<
     E,
     ContractRef,
@@ -60,8 +60,8 @@ where
         .encode()
 }
 
-/// Captures the encoded input for an `ink!` message call, together with the account id of the
-/// contract being called.
+/// Captures the encoded input for an `ink!` message call, together with the account id of
+/// the contract being called.
 #[derive(Debug, Clone)]
 pub struct Message<E: Environment, RetType> {
     account_id: E::AccountId,
@@ -88,8 +88,8 @@ where
 ///
 /// # Note
 ///
-/// This is hardcoded to [`ink_env::DefaultEnvironment`] so the user does not have to specify this
-/// generic parameter, which currently is hardcoded in the E2E testing suite.
+/// This is hardcoded to [`ink_env::DefaultEnvironment`] so the user does not have to
+/// specify this generic parameter, which currently is hardcoded in the E2E testing suite.
 pub fn build_message<Ref>(
     account_id: <ink_env::DefaultEnvironment as Environment>::AccountId,
 ) -> MessageBuilder<ink_env::DefaultEnvironment, Ref>
@@ -119,11 +119,12 @@ where
         }
     }
 
-    /// Build an encoded call for a message from a [`CallBuilder`] instance returned from a
-    /// contract ref method.
+    /// Build an encoded call for a message from a [`CallBuilder`] instance returned from
+    /// a contract ref method.
     ///
-    /// This utilizes the generated message inherent methods on the contract ref implementation,
-    /// which returns a [`CallBuilder`] initialized with the selector and message arguments.
+    /// This utilizes the generated message inherent methods on the contract ref
+    /// implementation, which returns a [`CallBuilder`] initialized with the selector
+    /// and message arguments.
     ///
     /// # Example
     /// ```

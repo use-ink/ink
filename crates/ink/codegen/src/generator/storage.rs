@@ -35,7 +35,8 @@ impl GenerateCode for Storage<'_> {
         let storage_struct = self.generate_storage_struct();
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
-                // Required to allow for `self.env().emit_event(...)` in messages and constructors.
+                // Required to allow for `self.env().emit_event(...)` in messages and
+                // constructors.
                 quote! { use ::ink::codegen::EmitEvent as _; }
             });
         quote_spanned!(storage_span =>

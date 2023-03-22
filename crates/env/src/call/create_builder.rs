@@ -45,17 +45,19 @@ pub mod state {
 /// This is needed because of conflicting implementations of `From<T> for T`
 /// in the generated code of `ink`.
 ///
-/// But it is possible to use `From<AccountId> for T` with [`crate::AccountIdGuard`] bound.
+/// But it is possible to use `From<AccountId> for T` with [`crate::AccountIdGuard`]
+/// bound.
 pub trait FromAccountId<T>
 where
     T: Environment,
 {
-    /// Creates the contract instance from the account ID of the already instantiated contract.
+    /// Creates the contract instance from the account ID of the already instantiated
+    /// contract.
     fn from_account_id(account_id: <T as Environment>::AccountId) -> Self;
 }
 
-/// Represents any type that can be returned from an `ink!` constructor. The following contract
-/// implements the four different return type signatures implementing this trait:
+/// Represents any type that can be returned from an `ink!` constructor. The following
+/// contract implements the four different return type signatures implementing this trait:
 ///
 /// - `Self`
 /// - `Result<Self, Error>`
@@ -120,7 +122,8 @@ pub trait ConstructorReturnType<C> {
 
     /// Construct an error value of the `Output` type.
     ///
-    /// `Result` implementations should return `Some(Err(err))`, otherwise default to `None`.
+    /// `Result` implementations should return `Some(Err(err))`, otherwise default to
+    /// `None`.
     fn err(_err: Self::Error) -> Option<Self::Output> {
         None
     }
@@ -247,8 +250,9 @@ where
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_instantiate`][`CreateParams::try_instantiate`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateParams::try_instantiate`] method
+    /// instead.
     #[inline]
     pub fn instantiate(&self) -> <R as ConstructorReturnType<ContractRef>>::Output {
         crate::instantiate_contract(self)
@@ -265,8 +269,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     #[inline]
     pub fn try_instantiate(
         &self,
@@ -302,7 +306,8 @@ pub struct CreateBuilder<
     _phantom: PhantomData<fn() -> (E, ContractRef)>,
 }
 
-/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
+/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract
+/// instantiation.
 ///
 /// # Example
 ///
@@ -319,10 +324,8 @@ pub struct CreateBuilder<
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 4000 units of gas for its execution
 /// - is provided with 25 units of transferred value for the new contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a `bool`
+///   with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -354,7 +357,7 @@ pub struct CreateBuilder<
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
-///             .push_arg(&[0x10u8; 32])
+///             .push_arg(&[0x10u8; 32]),
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<MyContractRef>()
@@ -399,7 +402,7 @@ pub struct CreateBuilder<
 ///         ExecutionInput::new(Selector::new(ink::selector_bytes!("my_constructor")))
 ///             .push_arg(42)
 ///             .push_arg(true)
-///             .push_arg(&[0x10u8; 32])
+///             .push_arg(&[0x10u8; 32]),
 ///     )
 ///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .returns::<Result<MyContractRef, ConstructorError>>()
@@ -640,11 +643,11 @@ where
     ///
     /// # Note
     ///
-    /// Constructors are not able to return arbitrary values. Instead a successful call to a
-    /// constructor returns the address at which the contract was instantiated.
+    /// Constructors are not able to return arbitrary values. Instead a successful call to
+    /// a constructor returns the address at which the contract was instantiated.
     ///
-    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract you're trying
-    /// to instantiate.
+    /// Therefore this must always be a reference (i.e `ContractRef`) to the contract
+    /// you're trying to instantiate.
     #[inline]
     pub fn returns<R>(
         self,
@@ -728,8 +731,9 @@ where
     /// # Panics
     ///
     /// This method panics if it encounters an [`ink::env::Error`][`crate::Error`] or an
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle those
-    /// use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method instead.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`]. If you want to handle
+    /// those use the [`try_instantiate`][`CreateBuilder::try_instantiate`] method
+    /// instead.
     #[inline]
     pub fn instantiate(self) -> <RetType as ConstructorReturnType<ContractRef>>::Output {
         self.params().instantiate()
@@ -740,8 +744,8 @@ where
     /// # Note
     ///
     /// On failure this returns an outer [`ink::env::Error`][`crate::Error`] or inner
-    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be handled
-    /// by the caller.
+    /// [`ink::primitives::LangError`][`ink_primitives::LangError`], both of which can be
+    /// handled by the caller.
     #[inline]
     pub fn try_instantiate(
         self,

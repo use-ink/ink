@@ -58,7 +58,7 @@ use syn::spanned::Spanned as _;
 /// impl MyTrait for MyStorage {
 ///     #[ink(constructor)]
 ///     fn new(init_value: i32) -> Self {
-///         /* contract initialization goes here */
+///         // contract initialization goes here
 /// #       unimplemented!()
 ///     }
 /// }

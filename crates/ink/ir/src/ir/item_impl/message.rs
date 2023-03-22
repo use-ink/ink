@@ -74,7 +74,7 @@ impl Receiver {
 /// impl MyStorage {
 ///     #[ink(message)]
 ///     pub fn my_message(&self, input: i32) -> bool {
-///         /* message implementation goes here */
+///         // message implementation goes here
 /// #       unimplemented!()
 ///     }
 /// }
@@ -300,8 +300,8 @@ impl Message {
 
     /// Returns the return type of the message, but wrapped within a `Result`.
     ///
-    /// This is used to to allow callers to handle certain types of errors which are not exposed
-    /// by messages.
+    /// This is used to to allow callers to handle certain types of errors which are not
+    /// exposed by messages.
     pub fn wrapped_output(&self) -> syn::Type {
         let return_type = self
             .output()
@@ -313,7 +313,8 @@ impl Message {
         }
     }
 
-    /// Returns a local ID unique to the ink! message with respect to its implementation block.
+    /// Returns a local ID unique to the ink! message with respect to its implementation
+    /// block.
     ///
     /// # Note
     ///
