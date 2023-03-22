@@ -214,8 +214,8 @@ impl InkItemTrait {
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    /// - If the method does not respect the properties of either an
-    ///   ink! message or ink! constructor.
+    /// - If the method does not respect the properties of either an ink! message or ink!
+    ///   constructor.
     fn analyse_trait_fn(method: &syn::TraitItemFn) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
