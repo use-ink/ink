@@ -228,7 +228,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! constructor within an inherent implementation block.
+    /// Generates the code for the given ink! constructor within an inherent
+    /// implementation block.
     ///
     /// # Developer Note
     ///
@@ -251,7 +252,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! message within an inherent implementation block.
+    /// Generates the code for the given ink! message within an inherent implementation
+    /// block.
     fn generate_inherent_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
@@ -296,8 +298,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates code to guard against ink! implementations that have not been implemented
-    /// for the ink! storage struct.
+    /// Generates code to guard against ink! implementations that have not been
+    /// implemented for the ink! storage struct.
     fn generate_item_impl_self_ty_guard(&self, item_impl: &ir::ItemImpl) -> TokenStream2 {
         let self_ty = item_impl.self_type();
         let span = self_ty.span();

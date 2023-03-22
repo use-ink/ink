@@ -132,8 +132,8 @@ mod tests {
         let root_2 = key_for_root_2.into();
         let root_3 = key_for_root_3.into();
         let root_4 = key_for_root_4.into();
-        // Below the description of the layout tree. Inside `(...)` the expected storage key.
-        //              Root(0)
+        // Below the description of the layout tree. Inside `(...)` the expected storage
+        // key.              Root(0)
         //                |
         //            Contract(0)
         //          /     |     \

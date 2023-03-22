@@ -27,7 +27,8 @@ pub struct IterInkTraitItemsRaw<'a> {
 }
 
 impl<'a> IterInkTraitItemsRaw<'a> {
-    /// Creates a new iterator yielding ink! trait items over the raw Rust trait definition.
+    /// Creates a new iterator yielding ink! trait items over the raw Rust trait
+    /// definition.
     pub(super) fn from_raw(item_trait: &'a syn::ItemTrait) -> Self {
         Self {
             iter: item_trait.items.iter(),

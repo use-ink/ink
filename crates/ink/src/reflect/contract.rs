@@ -28,7 +28,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
+///         pub fn constructor() -> Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}
@@ -38,10 +40,7 @@
 /// use contract::Contract;
 ///
 /// # use ink::reflect::ContractName;
-/// assert_eq!(
-///     <Contract as ContractName>::NAME,
-///     "Contract",
-/// );
+/// assert_eq!(<Contract as ContractName>::NAME, "Contract",);
 /// ```
 pub trait ContractName {
     /// The name of the ink! smart contract.
