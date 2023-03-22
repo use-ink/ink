@@ -27,6 +27,10 @@ use proc_macro2::{
 };
 use quote::ToTokens;
 use std::collections::HashMap;
+use syn::parse::{
+    ParseStream,
+    Parse,
+};
 use syn::spanned::Spanned;
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -809,7 +813,11 @@ impl InkAttribute {
     }
 }
 
-impl syn::Parse for AttributeFrag {}
+impl Parse for AttributeFrag {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        todo!()
+    }
+}
 
 impl<'a> TryFrom<syn::meta::ParseNestedMeta<'a>> for AttributeFrag {
     type Error = syn::Error;
