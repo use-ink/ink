@@ -807,6 +807,10 @@ impl InkAttribute {
     }
 }
 
+impl syn::Parse for AttributeFrag {
+
+}
+
 impl<'a> TryFrom<syn::meta::ParseNestedMeta<'a>> for AttributeFrag {
     type Error = syn::Error;
 
