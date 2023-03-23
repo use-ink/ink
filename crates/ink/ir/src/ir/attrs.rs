@@ -844,9 +844,8 @@ impl Parse for AttributeFrag {
                                         error
                                     ))
                                 })?;
-                            Ok(AttributeArg::Selector(SelectorOrWildcard::Selector(
-                                selector_u32,
-                            )))
+                            let selector = Selector::from(selector_u32.to_be_bytes());
+                            Ok(AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)))
                         }
                         _ => Err(input.error(
                             "#[ink(selector = ..)] attributes only support integer inputs",
@@ -900,6 +899,8 @@ impl Parse for AttributeFrag {
                 )))
             }
         }?;
+
+        Ok(Self { ident, arg })
     }
 }
 
