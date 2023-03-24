@@ -31,7 +31,8 @@ pub struct TraitDefinitionConfig {
     /// selectors of the ink! trait messages. This is useful to disambiguate
     /// ink! trait definitions with equal names.
     namespace: Option<syn::LitStr>,
-    /// The set of attributes that can be passed to call builder and forwarder in the codegen.
+    /// The set of attributes that can be passed to call builder and forwarder in the
+    /// codegen.
     whitelisted_attributes: WhitelistedAttributes,
 }
 

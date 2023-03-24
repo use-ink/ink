@@ -122,8 +122,9 @@ impl TryFrom<u16> for FuncId {
 
     fn try_from(func_id: u16) -> Result<Self, Self::Error> {
         let id = match func_id {
-            // Note: We use the first two bytes of PSP22 interface selectors as function IDs,
-            // While we can use anything here, it makes sense from a convention perspective.
+            // Note: We use the first two bytes of PSP22 interface selectors as function
+            // IDs, While we can use anything here, it makes sense from a
+            // convention perspective.
             0x3d26 => Self::Metadata(Metadata::Name),
             0x3420 => Self::Metadata(Metadata::Symbol),
             0x7271 => Self::Metadata(Metadata::Decimals),
@@ -230,8 +231,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
-    // debug_message weight is a good approximation of the additional overhead of going from
-    // contract layer to substrate layer.
+    // debug_message weight is a good approximation of the additional overhead of going
+    // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_contracts::Config>::Schedule::get()
             .host_fn_weights
@@ -272,8 +273,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::transfer();
-    // debug_message weight is a good approximation of the additional overhead of going from
-    // contract layer to substrate layer.
+    // debug_message weight is a good approximation of the additional overhead of going
+    // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_contracts::Config>::Schedule::get()
             .host_fn_weights
@@ -313,8 +314,8 @@ where
 {
     let mut env = env.buf_in_buf_out();
     let base_weight = <T as pallet_assets::Config>::WeightInfo::approve_transfer();
-    // debug_message weight is a good approximation of the additional overhead of going from
-    // contract layer to substrate layer.
+    // debug_message weight is a good approximation of the additional overhead of going
+    // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_contracts::Config>::Schedule::get()
             .host_fn_weights
@@ -357,8 +358,8 @@ where
 
     let base_weight = <T as pallet_assets::Config>::WeightInfo::cancel_approval()
         .saturating_add(<T as pallet_assets::Config>::WeightInfo::approve_transfer());
-    // debug_message weight is a good approximation of the additional overhead of going from
-    // contract layer to substrate layer.
+    // debug_message weight is a good approximation of the additional overhead of going
+    // from contract layer to substrate layer.
     let overhead = Weight::from_ref_time(
         <T as pallet_contracts::Config>::Schedule::get()
             .host_fn_weights

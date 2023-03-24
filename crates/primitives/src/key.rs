@@ -23,10 +23,10 @@ const XXH32_SEED: u32 = 0;
 /// # Note
 ///
 /// - The storage of an ink! smart contract can be viewed as a key-value store.
-/// - In order to manipulate its storage an ink! smart contract is required
-///   to indicate the respective cells using this primitive type.
-/// - The `Key` type can be compared to a raw pointer and also allows operations
-///   similar to pointer arithmetic.
+/// - In order to manipulate its storage an ink! smart contract is required to indicate
+///   the respective cells using this primitive type.
+/// - The `Key` type can be compared to a raw pointer and also allows operations similar
+///   to pointer arithmetic.
 pub type Key = u32;
 
 /// Contains all rules related to storage key creation.
@@ -62,15 +62,16 @@ impl KeyComposer {
     /// Evaluates the storage key of the field in the structure, variant or union.
     ///
     /// 1. Compute the ASCII byte representation of `struct_name` and call it `S`.
-    /// 1. If `variant_name` is not empty then computes the ASCII byte representation and call it `V`.
-    /// 1. Compute the ASCII byte representation of `field_name` and call it `F`.
-    /// 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as separator and call it `C`.
-    /// 1. The `XXH32` hash of `C` is the storage key.
+    /// 1. If `variant_name` is not empty then computes the ASCII byte representation and
+    /// call it `V`. 1. Compute the ASCII byte representation of `field_name` and call
+    /// it `F`. 1. Concatenate (`S` and `F`) or (`S`, `V` and `F`) using `::` as
+    /// separator and call it `C`. 1. The `XXH32` hash of `C` is the storage key.
     ///
     /// # Note
     ///
     /// - `variant_name` is empty for structures and unions.
-    /// - if the field is unnamed then `field_name` is `"{}"` where `{}` is a number of the field.
+    /// - if the field is unnamed then `field_name` is `"{}"` where `{}` is a number of
+    ///   the field.
     pub fn compute_key(
         struct_name: &str,
         variant_name: &str,

@@ -10,8 +10,8 @@ pub mod incrementer {
     ///
     /// We have kept the same storage layout as in our original `incrementer` contract.
     ///
-    /// Had we changed `count` to, for example, an `AccountId` we would end up with undefined
-    /// behaviour in our contract.
+    /// Had we changed `count` to, for example, an `AccountId` we would end up with
+    /// undefined behaviour in our contract.
     #[ink(storage)]
     pub struct Incrementer {
         count: u32,
@@ -22,8 +22,9 @@ pub mod incrementer {
         ///
         /// # Note
         ///
-        /// When upgrading using the `set_code_hash` workflow we only need to point to a contract's
-        /// uploaded code hash, **not** an instantiated contract's `AccountId`.
+        /// When upgrading using the `set_code_hash` workflow we only need to point to a
+        /// contract's uploaded code hash, **not** an instantiated contract's
+        /// `AccountId`.
         ///
         /// Because of this we will never actually call the constructor of this contract.
         #[ink(constructor)]
@@ -50,10 +51,11 @@ pub mod incrementer {
             self.count
         }
 
-        /// Modifies the code which is used to execute calls to this contract address (`AccountId`).
+        /// Modifies the code which is used to execute calls to this contract address
+        /// (`AccountId`).
         ///
-        /// We use this to upgrade the contract logic. We don't do any authorization here, any caller
-        /// can execute this method.
+        /// We use this to upgrade the contract logic. We don't do any authorization here,
+        /// any caller can execute this method.
         ///
         /// In a production contract you would do some authorization here!
         #[ink(message)]

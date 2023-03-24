@@ -8,8 +8,8 @@ mod multi_contract_caller {
 
     /// Specifies the state of the `multi_contract_caller` contract.
     ///
-    /// In `Adder` state the `multi_contract_caller` contract will call the `Adder` contract
-    /// and in `Subber` state will call to the `Subber` contract.
+    /// In `Adder` state the `multi_contract_caller` contract will call the `Adder`
+    /// contract and in `Subber` state will call to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Decode, scale::Encode)]
@@ -22,7 +22,8 @@ mod multi_contract_caller {
         Subber,
     }
 
-    /// Calls to an `adder` or `subber` contract to mutate a value in an `accumulator` contract.
+    /// Calls to an `adder` or `subber` contract to mutate a value in an `accumulator`
+    /// contract.
     ///
     /// # Note
     ///
@@ -47,7 +48,8 @@ mod multi_contract_caller {
     }
 
     impl MultiContractCaller {
-        /// Instantiate a `multi_contract_caller` contract with the given sub-contract codes.
+        /// Instantiate a `multi_contract_caller` contract with the given sub-contract
+        /// codes.
         #[ink(constructor)]
         pub fn new(
             init_value: i32,

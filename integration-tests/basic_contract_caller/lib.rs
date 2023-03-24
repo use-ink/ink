@@ -4,8 +4,8 @@
 mod basic_contract_caller {
     /// We import the generated `ContractRef` of our other contract.
     ///
-    /// Note that the other contract must have re-exported it (`pub use OtherContractRef`) for us
-    /// to have access to it.
+    /// Note that the other contract must have re-exported it (`pub use
+    /// OtherContractRef`) for us to have access to it.
     use other_contract::OtherContractRef;
 
     #[ink(storage)]
@@ -29,8 +29,9 @@ mod basic_contract_caller {
             Self { other_contract }
         }
 
-        /// Using the `ContractRef` we can call all the messages of the `OtherContract` as if they
-        /// were normal Rust methods (because at the end of the day, they are!).
+        /// Using the `ContractRef` we can call all the messages of the `OtherContract` as
+        /// if they were normal Rust methods (because at the end of the day, they
+        /// are!).
         #[ink(message)]
         pub fn flip_and_get(&mut self) -> bool {
             self.other_contract.flip();

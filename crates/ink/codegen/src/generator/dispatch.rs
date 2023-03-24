@@ -413,8 +413,9 @@ impl Dispatch<'_> {
 
     /// Generates code for the ink! constructor decoder type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `deploy`
-    /// into one of the available dispatchable ink! constructors and their arguments.
+    /// This type can be used in order to decode the input bytes received by a call to
+    /// `deploy` into one of the available dispatchable ink! constructors and their
+    /// arguments.
     fn generate_constructor_decoder_type(
         &self,
         constructors: &[ConstructorDispatchable],
@@ -593,8 +594,9 @@ impl Dispatch<'_> {
 
     /// Generates code for the ink! message decoder type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `call`
-    /// into one of the available dispatchable ink! messages and their arguments.
+    /// This type can be used in order to decode the input bytes received by a call to
+    /// `call` into one of the available dispatchable ink! messages and their
+    /// arguments.
     fn generate_message_decoder_type(
         &self,
         messages: &[MessageDispatchable],
@@ -840,8 +842,8 @@ impl Dispatch<'_> {
     /// in which case the default assignment `let constructor_{id} = false` exists.
     ///
     /// This information can be used to speed-up dispatch since denying of payment
-    /// can be generalized to work before dispatch happens if none of the ink! constructors
-    /// accept payment anyways.
+    /// can be generalized to work before dispatch happens if none of the ink!
+    /// constructors accept payment anyways.
     fn any_constructor_accepts_payment(
         &self,
         constructors: &[ConstructorDispatchable],

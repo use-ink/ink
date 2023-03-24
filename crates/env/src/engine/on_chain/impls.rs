@@ -187,7 +187,8 @@ impl EnvInstance {
     ///
     /// # Note
     ///
-    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    /// This skips the potentially costly decoding step that is often equivalent to a
+    /// `memcpy`.
     #[inline(always)]
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where

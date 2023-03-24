@@ -26,7 +26,8 @@ mod mapping_integration_tests {
 
         /// Demonstrates the usage of `Mapping::get()`.
         ///
-        /// Returns the balance of a account, or `None` if the account is not in the `Mapping`.
+        /// Returns the balance of a account, or `None` if the account is not in the
+        /// `Mapping`.
         #[ink(message)]
         pub fn get_balance(&self) -> Option<Balance> {
             let caller = Self::env().caller();

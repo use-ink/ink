@@ -1,6 +1,6 @@
 [package]
 name = "ink_macro"
-version = "4.0.1"
+version = "4.1.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -15,9 +15,9 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_ir = { version = "4.0.1", path = "../ir", default-features = false }
-ink_codegen = { version = "4.0.1", path = "../codegen", default-features = false }
-ink_primitives = { version = "4.0.1", path = "../../primitives/", default-features = false }
+ink_ir = { version = "4.1.0", path = "../ir", default-features = false }
+ink_codegen = { version = "4.1.0", path = "../codegen", default-features = false }
+ink_primitives = { version = "4.1.0", path = "../../primitives/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 syn = "1"

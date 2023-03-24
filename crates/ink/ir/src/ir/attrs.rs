@@ -285,7 +285,8 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 
-    /// Returns `false` if the ink! attribute contains the `handle_status = false` argument.
+    /// Returns `false` if the ink! attribute contains the `handle_status = false`
+    /// argument.
     ///
     /// Otherwise returns `true`.
     pub fn is_handle_status(&self) -> bool {
@@ -385,8 +386,7 @@ pub enum AttributeArg {
     Payable,
     /// `#[ink(selector = 0xDEADBEEF)]`
     ///
-    /// Applied on ink! constructors or messages to manually control their
-    /// selectors.
+    /// Applied on ink! constructors or messages to manually control their selectors.
     Selector(Selector),
     /// `#[ink(namespace = "my_namespace")]`
     ///
@@ -582,7 +582,8 @@ where
 ///
 /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
 /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-/// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+/// and `Err(Some(reason))` if the attribute conflicts given additional context
+/// information.
 ///
 /// # Errors
 ///
@@ -628,7 +629,8 @@ where
 ///
 /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
 /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-/// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+/// and `Err(Some(reason))` if the attribute conflicts given additional context
+/// information.
 ///
 /// # Errors
 ///
@@ -795,8 +797,9 @@ impl InkAttribute {
     /// # Parameters
     ///
     /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
-    /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-    /// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+    /// returns `Err(None)` if the attribute conflicts but without providing further
+    /// reasoning and `Err(Some(reason))` if the attribute conflicts given additional
+    /// context information.
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,

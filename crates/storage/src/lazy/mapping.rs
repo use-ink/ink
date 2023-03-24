@@ -39,11 +39,12 @@ use scale::{
 ///
 /// # Important
 ///
-/// The mapping requires its own pre-defined storage key where to store values. By default,
-/// the is automatically calculated using [`AutoKey`](crate::traits::AutoKey) during compilation.
-/// However, anyone can specify a storage key using [`ManualKey`](crate::traits::ManualKey).
-/// Specifying the storage key can be helpful for upgradeable contracts or you want to be resistant
-/// to future changes of storage key calculation strategy.
+/// The mapping requires its own pre-defined storage key where to store values. By
+/// default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// during compilation. However, anyone can specify a storage key using
+/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
+/// upgradeable contracts or you want to be resistant to future changes of storage key
+/// calculation strategy.
 ///
 /// This is an example of how you can do this:
 /// ```rust
@@ -55,7 +56,10 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::storage::{traits::ManualKey, Mapping};
+/// use ink::storage::{
+///     traits::ManualKey,
+///     Mapping,
+/// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
@@ -152,7 +156,8 @@ where
             .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {error:?}"))
     }
 
-    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from
+    /// storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     ///

@@ -14,12 +14,13 @@
 
 //! Utilities in use by ink!.
 //!
-//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate dependencies.
-//! The main problem is that today Cargo manages crate features on a per-crate basis instead of
-//! a per-crate-target basis thus making dependencies from `ink` (or others) to `ink_env` or `ink_storage` impossible.
+//! These are kept separate from ink! core utilities to allow for more dynamic inter-crate
+//! dependencies. The main problem is that today Cargo manages crate features on a
+//! per-crate basis instead of a per-crate-target basis thus making dependencies from
+//! `ink` (or others) to `ink_env` or `ink_storage` impossible.
 //!
-//! By introducing `ink_primitives` we have a way to share utility components between `ink_env` or `ink_storage` and
-//! other parts of the framework, like `ink`.
+//! By introducing `ink_primitives` we have a way to share utility components between
+//! `ink_env` or `ink_storage` and other parts of the framework, like `ink`.
 
 #![doc(
     html_logo_url = "https://use.ink/img/crate-docs/logo.png",
