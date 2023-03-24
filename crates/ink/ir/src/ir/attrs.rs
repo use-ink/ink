@@ -844,10 +844,10 @@ impl Parse for AttributeFrag {
                                     let selector_u32 = lit_int.base10_parse::<u32>()
                                         .map_err(|error| {
                                             format_err_spanned!(
-                                            lit_int,
-                                            "selector value out of range. selector must be a valid `u32` integer: {}",
-                                            error
-                                        )
+                                                lit_int,
+                                                "selector value out of range. selector must be a valid `u32` integer: {}",
+                                                error
+                                            )
                                         })?;
                                     let selector = Selector::from(selector_u32.to_be_bytes());
                                     Ok(AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)))
