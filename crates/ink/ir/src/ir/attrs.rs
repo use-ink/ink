@@ -32,6 +32,7 @@ use syn::{
 };
 
 use crate::{
+    ast,
     error::ExtError as _,
     ir,
     ir::{
@@ -311,7 +312,7 @@ impl InkAttribute {
 /// An ink! specific attribute argument.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AttributeFrag {
-    ident: syn::Ident,
+    ast: ast::Meta,
     arg: AttributeArg,
 }
 
@@ -324,12 +325,8 @@ impl AttributeFrag {
 
 impl ToTokens for AttributeFrag {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        self.ident.to_tokens(tokens)
+        self.ast.to_tokens(tokens)
     }
-}
-
-pub enum AttributeFragMeta {
-    NameValue(MetaName)
 }
 
 /// The kind of an ink! attribute argument.
@@ -822,88 +819,131 @@ impl InkAttribute {
 
 impl Parse for AttributeFrag {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let ident = input.call(syn::Ident::parse_any)?;
+        let ast: ast::Meta = input.parse()?;
 
-        let arg = match ident.to_string().as_str() {
-            "selector" => {
-                let _: Token![=] = input.parse()?;
-                if input.peek(Token![_]) {
-                    let _: Token![_] = input.parse()?;
-                    Ok(AttributeArg::Selector(SelectorOrWildcard::Wildcard))
-                } else {
-                    let lit: syn::Lit = input.parse()?;
-                    match lit {
-                        syn::Lit::Str(_) => {
-                            Err(input.error(
-                                "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                 use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].")
-                            )
-                        }
-                        syn::Lit::Int(lit_int) => {
-                            let selector_u32 = lit_int.base10_parse::<u32>()
-                                .map_err(|error| {
-                                    input.error(format!(
-                                        "failed to parse selector value: {}",
-                                        error
+        let arg = match &ast {
+            ast::Meta::NameValue(name_value) => {
+                let ident = name_value.name.get_ident().ok_or_else(|| {
+                    format_err_spanned!(
+                        name_value.name,
+                        "expected identifier for ink! attribute argument",
+                    )
+                })?;
+                match ident.to_string().as_str() {
+                    "selector" => {
+                        if let ast::PathOrLit::Lit(lit) = &name_value.value {
+                            match lit {
+                                syn::Lit::Str(_) => {
+                                    Err(format_err_spanned!(
+                                        lit,
+                                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
                                     ))
-                                })?;
-                            let selector = Selector::from(selector_u32.to_be_bytes());
-                            Ok(AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)))
+                                }
+                                syn::Lit::Int(lit_int) => {
+                                    let selector_u32 = lit_int.base10_parse::<u32>()
+                                        .map_err(|error| {
+                                            format_err_spanned!(
+                                            lit_int,
+                                            "selector value out of range. selector must be a valid `u32` integer: {}",
+                                            error
+                                        )
+                                        })?;
+                                    let selector = Selector::from(selector_u32.to_be_bytes());
+                                    Ok(AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)))
+                                }
+                                _ => Err(input.error(
+                                    "#[ink(selector = ..)] attributes only support integer inputs",
+                                )),
+                            }
+                        } else {
+                            Err(format_err_spanned!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
-                        _ => Err(input.error(
-                            "#[ink(selector = ..)] attributes only support integer inputs",
-                        )),
+                    }
+                    "namespace" => {
+                        if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) =
+                            &name_value.value
+                        {
+                            let argument = lit_str.value();
+                            syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
+                                format_err_spanned!(
+                                    lit_str,
+                                    "encountered invalid Rust identifier for namespace argument",
+                                )
+                            })?;
+                            Ok(AttributeArg::Namespace(Namespace::from(
+                                argument.into_bytes(),
+                            )))
+                        } else {
+                            Err(format_err_spanned!(
+                                name_value.value,
+                                "encountered invalid namespace argument, expected string literal",
+                            ))
+                        }
+                    }
+                    "extension" => {
+                        if let ast::PathOrLit::Lit(syn::Lit::Int(lit_int)) =
+                            &name_value.value
+                        {
+                            let id = lit_int.base10_parse::<u32>()
+                                .map_err(|error| {
+                                    input.error(format!("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error))
+                                })?;
+                            Ok(AttributeArg::Extension(ExtensionId::from_u32(id)))
+                        } else {
+                            Err(format_err_spanned!(
+                                name_value.value,
+                                "encountered invalid extension argument, expected integer literal",
+                            ))
+                        }
+                    }
+                    "handle_status" => {
+                        if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) =
+                            &name_value.value
+                        {
+                            Ok(AttributeArg::HandleStatus(lit_bool.value))
+                        } else {
+                            Err(format_err_spanned!(
+                                name_value.value,
+                                "encountered invalid handle_status argument, expected bool literal",
+                            ))
+                        }
+                    }
+                    _ => {
+                        Err(input.error(format!(
+                            "encountered unknown ink! attribute argument: {}",
+                            ident
+                        )))
                     }
                 }
             }
-            "namespace" => {
-                let _: Token![=] = input.parse()?;
-                let lit_str: syn::LitStr = input.parse()?;
-
-                let argument = lit_str.value();
-                syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
-                    input.error(
-                        "encountered invalid Rust identifier for namespace argument",
+            ast::Meta::Path(path) => {
+                let ident = path.get_ident().ok_or_else(|| {
+                    format_err_spanned!(
+                        path,
+                        "expected identifier for ink! attribute argument",
                     )
                 })?;
-                Ok(AttributeArg::Namespace(Namespace::from(
-                    argument.into_bytes(),
-                )))
-            }
-            "extension" => {
-                let _: Token![=] = input.parse()?;
-                let lit_int: syn::LitInt = input.parse()?;
-
-                let id = lit_int.base10_parse::<u32>()
-                    .map_err(|error| {
-                        input.error(format!("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error))
-                    })?;
-                Ok(AttributeArg::Extension(ExtensionId::from_u32(id)))
-            }
-            "handle_status" => {
-                let _: Token![=] = input.parse()?;
-                let lit_bool: syn::LitBool = input.parse()?;
-
-                let value = lit_bool.value;
-                Ok(AttributeArg::HandleStatus(value))
-            }
-            "storage" => Ok(AttributeArg::Storage),
-            "message" => Ok(AttributeArg::Message),
-            "constructor" => Ok(AttributeArg::Constructor),
-            "event" => Ok(AttributeArg::Event),
-            "anonymous" => Ok(AttributeArg::Anonymous),
-            "topic" => Ok(AttributeArg::Topic),
-            "payable" => Ok(AttributeArg::Payable),
-            "impl" => Ok(AttributeArg::Implementation),
-            _ => {
-                Err(input.error(format!(
-                    "encountered unknown ink! attribute argument: {}",
-                    ident
-                )))
+                match ident.to_string().as_str() {
+                    "storage" => Ok(AttributeArg::Storage),
+                    "message" => Ok(AttributeArg::Message),
+                    "constructor" => Ok(AttributeArg::Constructor),
+                    "event" => Ok(AttributeArg::Event),
+                    "anonymous" => Ok(AttributeArg::Anonymous),
+                    "topic" => Ok(AttributeArg::Topic),
+                    "payable" => Ok(AttributeArg::Payable),
+                    "impl" => Ok(AttributeArg::Implementation),
+                    _ => {
+                        Err(input.error(format!(
+                            "encountered unknown ink! attribute argument: {}",
+                            ident
+                        )))
+                    }
+                }
             }
         }?;
 
-        Ok(Self { ident, arg })
+        Ok(Self { ast, arg })
     }
 }
 
