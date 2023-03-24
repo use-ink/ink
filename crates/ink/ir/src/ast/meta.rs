@@ -25,6 +25,7 @@ use syn::{
     },
     punctuated::Punctuated,
     spanned::Spanned,
+    LitInt,
     Token,
 };
 
@@ -72,26 +73,10 @@ pub struct MetaNameValue {
     pub value: PathOrLit,
 }
 
-/// Either a path or a literal.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum PathOrLit {
-    Path(syn::Path),
-    Lit(syn::Lit),
-}
-
 impl Parse for MetaNameValue {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         let path = input.call(parse_meta_path)?;
         Self::parse_meta_name_value_after_path(path, input)
-    }
-}
-
-impl ToTokens for PathOrLit {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        match self {
-            Self::Lit(lit) => lit.to_tokens(tokens),
-            Self::Path(path) => path.to_tokens(tokens),
-        }
     }
 }
 
@@ -122,6 +107,13 @@ impl MetaNameValue {
     }
 }
 
+/// Either a path or a literal.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum PathOrLit {
+    Path(syn::Path),
+    Lit(syn::Lit),
+}
+
 impl Parse for PathOrLit {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
         if input.fork().peek(syn::Lit) {
@@ -131,6 +123,41 @@ impl Parse for PathOrLit {
             return input.call(parse_meta_path).map(PathOrLit::Path)
         }
         Err(input.error("cannot parse into either literal or path"))
+    }
+}
+
+impl ToTokens for PathOrLit {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        match self {
+            Self::Lit(lit) => lit.to_tokens(tokens),
+            Self::Path(path) => path.to_tokens(tokens),
+        }
+    }
+}
+
+impl PathOrLit {
+    /// Returns the value of the literal if it is a boolean literal.
+    pub fn as_bool(&self) -> Option<bool> {
+        match self {
+            Self::Lit(syn::Lit::Bool(lit_bool)) => Some(lit_bool.value),
+            _ => None,
+        }
+    }
+
+    /// Returns the value of the literal if it is a string literal.
+    pub fn as_string(&self) -> Option<String> {
+        match self {
+            Self::Lit(syn::Lit::Str(lit_str)) => Some(lit_str.value()),
+            _ => None,
+        }
+    }
+
+    /// Returns the the literal if it is an integer literal.
+    pub fn as_lit_int(&self) -> Option<&LitInt> {
+        match self {
+            Self::Lit(syn::Lit::Int(lit_int)) => Some(lit_int),
+            _ => None,
+        }
     }
 }
 

@@ -906,9 +906,7 @@ impl Parse for AttributeFrag {
                             .map(AttributeArg::Namespace)
                     }
                     "extension" => {
-                        if let ast::PathOrLit::Lit(syn::Lit::Int(lit_int)) =
-                            &name_value.value
-                        {
+                        if let Some(lit_int) = name_value.value.as_lit_int() {
                             let id = lit_int.base10_parse::<u32>()
                                 .map_err(|error| {
                                     input.error(format!("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error))
@@ -922,10 +920,8 @@ impl Parse for AttributeFrag {
                         }
                     }
                     "handle_status" => {
-                        if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) =
-                            &name_value.value
-                        {
-                            Ok(AttributeArg::HandleStatus(lit_bool.value))
+                        if let Some(value) = name_value.value.as_bool() {
+                            Ok(AttributeArg::HandleStatus(value))
                         } else {
                             Err(format_err_spanned!(
                                 name_value.value,
