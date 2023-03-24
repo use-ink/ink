@@ -583,6 +583,28 @@ pub struct Namespace {
     bytes: Vec<u8>,
 }
 
+impl TryFrom<&ast::PathOrLit> for Namespace {
+    type Error = syn::Error;
+
+    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
+        if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = value {
+            let argument = lit_str.value();
+            syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
+                format_err_spanned!(
+                    lit_str,
+                    "encountered invalid Rust identifier for namespace argument",
+                )
+            })?;
+            Ok(Namespace::from(argument.into_bytes()))
+        } else {
+            Err(format_err_spanned!(
+                value,
+                "encountered invalid namespace argument, expected string literal",
+            ))
+        }
+    }
+}
+
 impl From<Vec<u8>> for Namespace {
     fn from(bytes: Vec<u8>) -> Self {
         Self { bytes }
@@ -880,25 +902,8 @@ impl Parse for AttributeFrag {
                             .map(AttributeArg::Selector)
                     }
                     "namespace" => {
-                        if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) =
-                            &name_value.value
-                        {
-                            let argument = lit_str.value();
-                            syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
-                                format_err_spanned!(
-                                    lit_str,
-                                    "encountered invalid Rust identifier for namespace argument",
-                                )
-                            })?;
-                            Ok(AttributeArg::Namespace(Namespace::from(
-                                argument.into_bytes(),
-                            )))
-                        } else {
-                            Err(format_err_spanned!(
-                                name_value.value,
-                                "encountered invalid namespace argument, expected string literal",
-                            ))
-                        }
+                        Namespace::try_from(&name_value.value)
+                            .map(AttributeArg::Namespace)
                     }
                     "extension" => {
                         if let ast::PathOrLit::Lit(syn::Lit::Int(lit_int)) =
