@@ -21,7 +21,6 @@ use proc_macro2::{
 };
 use quote::ToTokens;
 use syn::{
-    ext::IdentExt,
     parse::{
         Parse,
         ParseStream,
@@ -149,7 +148,9 @@ pub struct InkAttribute {
 
 impl ToTokens for InkAttribute {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        todo!()
+        for arg in &self.args {
+            arg.to_tokens(tokens)
+        }
     }
 }
 
@@ -522,6 +523,38 @@ impl SelectorOrWildcard {
     }
 }
 
+impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
+    type Error = syn::Error;
+
+    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
+        if let ast::PathOrLit::Lit(lit) = value {
+            if let syn::Lit::Str(_) = lit {
+                return Err(format_err_spanned!(
+                    lit,
+                    "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                    use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                ))
+            }
+            if let syn::Lit::Int(lit_int) = lit {
+                let selector_u32 = lit_int.base10_parse::<u32>()
+                    .map_err(|error| {
+                        format_err_spanned!(
+                                lit_int,
+                                "selector value out of range. selector must be a valid `u32` integer: {}",
+                                error
+                            )
+                    })?;
+                let selector = Selector::from(selector_u32.to_be_bytes());
+                return Ok(SelectorOrWildcard::UserProvided(selector))
+            }
+        }
+        return Err(format_err_spanned!(
+            value,
+            "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
+        ))
+    }
+}
+
 impl core::fmt::Display for SelectorOrWildcard {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         match self {
@@ -831,34 +864,8 @@ impl Parse for AttributeFrag {
                 })?;
                 match ident.to_string().as_str() {
                     "selector" => {
-                        if let ast::PathOrLit::Lit(lit) = &name_value.value {
-                            match lit {
-                                syn::Lit::Str(_) => {
-                                    Err(format_err_spanned!(
-                                        lit,
-                                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                                    ))
-                                }
-                                syn::Lit::Int(lit_int) => {
-                                    let selector_u32 = lit_int.base10_parse::<u32>()
-                                        .map_err(|error| {
-                                            format_err_spanned!(
-                                                lit_int,
-                                                "selector value out of range. selector must be a valid `u32` integer: {}",
-                                                error
-                                            )
-                                        })?;
-                                    let selector = Selector::from(selector_u32.to_be_bytes());
-                                    Ok(AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)))
-                                }
-                                _ => Err(input.error(
-                                    "#[ink(selector = ..)] attributes only support integer inputs",
-                                )),
-                            }
-                        } else {
-                            Err(format_err_spanned!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
-                        }
+                        SelectorOrWildcard::try_from(&name_value.value)
+                            .map(AttributeArg::Selector)
                     }
                     "namespace" => {
                         if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) =
