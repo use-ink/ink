@@ -42,7 +42,7 @@ pub enum Meta {
 
 impl Parse for Meta {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let path = input.call(MetaNameValue::parse_meta_path)?;
+        let path = input.call(parse_meta_path)?;
         if input.peek(Token![=]) {
             MetaNameValue::parse_meta_name_value_after_path(path, input)
                 .map(Meta::NameValue)
@@ -81,7 +81,7 @@ pub enum PathOrLit {
 
 impl Parse for MetaNameValue {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let path = input.call(Self::parse_meta_path)?;
+        let path = input.call(parse_meta_path)?;
         Self::parse_meta_name_value_after_path(path, input)
     }
 }
@@ -104,36 +104,6 @@ impl ToTokens for MetaNameValue {
 }
 
 impl MetaNameValue {
-    /// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.
-    ///
-    /// # Note
-    ///
-    /// This code was taken from the `syn` implementation for a very similar
-    /// syntactical pattern.
-    fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
-        Ok(syn::Path {
-            leading_colon: input.parse()?,
-            segments: {
-                let mut segments = Punctuated::new();
-                while input.peek(Ident::peek_any) {
-                    let ident = Ident::parse_any(input)?;
-                    segments.push_value(syn::PathSegment::from(ident));
-                    if !input.peek(syn::Token![::]) {
-                        break
-                    }
-                    let punct = input.parse()?;
-                    segments.push_punct(punct);
-                }
-                if segments.is_empty() {
-                    return Err(input.error("expected path"))
-                } else if segments.trailing_punct() {
-                    return Err(input.error("expected path segment"))
-                }
-                segments
-            },
-        })
-    }
-
     fn parse_meta_name_value_after_path(
         name: syn::Path,
         input: ParseStream,
@@ -158,8 +128,57 @@ impl Parse for PathOrLit {
             return input.parse::<syn::Lit>().map(PathOrLit::Lit)
         }
         if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
-            return input.parse::<syn::Path>().map(PathOrLit::Path)
+            return input.call(parse_meta_path).map(PathOrLit::Path)
         }
         Err(input.error("cannot parse into either literal or path"))
+    }
+}
+
+/// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.
+///
+/// # Note
+///
+/// This code was taken from the `syn` implementation for a very similar
+/// syntactical pattern.
+fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
+    Ok(syn::Path {
+        leading_colon: input.parse()?,
+        segments: {
+            let mut segments = Punctuated::new();
+            while input.peek(Ident::peek_any) {
+                let ident = Ident::parse_any(input)?;
+                segments.push_value(syn::PathSegment::from(ident));
+                if !input.peek(syn::Token![::]) {
+                    break
+                }
+                let punct = input.parse()?;
+                segments.push_punct(punct);
+            }
+            if segments.is_empty() {
+                return Err(input.error("expected path"))
+            } else if segments.trailing_punct() {
+                return Err(input.error("expected path segment"))
+            }
+            segments
+        },
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::PathOrLit;
+    use quote::quote;
+
+    #[test]
+    fn underscore_token_works() {
+        assert_eq!(
+            syn::parse2::<Meta>(quote! { selector = _ }).unwrap(),
+            Meta::NameValue(MetaNameValue {
+                name: syn::parse_quote! { selector },
+                eq_token: syn::parse_quote! { = },
+                value: PathOrLit::Path(syn::Path::from(quote::format_ident!("_"))),
+            })
+        )
     }
 }

@@ -527,31 +527,43 @@ impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
     type Error = syn::Error;
 
     fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
-        if let ast::PathOrLit::Lit(lit) = value {
-            if let syn::Lit::Str(_) = lit {
-                return Err(format_err_spanned!(
-                    lit,
-                    "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                    use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                ))
-            }
-            if let syn::Lit::Int(lit_int) = lit {
-                let selector_u32 = lit_int.base10_parse::<u32>()
-                    .map_err(|error| {
-                        format_err_spanned!(
+        match value {
+            ast::PathOrLit::Lit(lit) => {
+                if let syn::Lit::Str(_) = lit {
+                    return Err(format_err_spanned!(
+                        lit,
+                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                    ))
+                }
+                if let syn::Lit::Int(lit_int) = lit {
+                    let selector_u32 = lit_int.base10_parse::<u32>()
+                        .map_err(|error| {
+                            format_err_spanned!(
                                 lit_int,
                                 "selector value out of range. selector must be a valid `u32` integer: {}",
                                 error
                             )
-                    })?;
-                let selector = Selector::from(selector_u32.to_be_bytes());
-                return Ok(SelectorOrWildcard::UserProvided(selector))
+                        })?;
+                    let selector = Selector::from(selector_u32.to_be_bytes());
+                    return Ok(SelectorOrWildcard::UserProvided(selector))
+                }
+                Err(format_err_spanned!(
+                    value,
+                    "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
+                ))
+            }
+            ast::PathOrLit::Path(path) => {
+                if path.is_ident("_") {
+                    Ok(SelectorOrWildcard::Wildcard)
+                } else {
+                    Err(format_err_spanned!(
+                        path,
+                        "expected `selector` argument to be either a 4-digit hexcode or `_`"
+                    ))
+                }
             }
         }
-        return Err(format_err_spanned!(
-            value,
-            "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
-        ))
     }
 }
 
