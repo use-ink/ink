@@ -111,7 +111,7 @@ A new trait, `Storable`, was introduced instead. It represents types that can be
 automatically implements `Storable`.
 
 You can also use `#[ink::storage_item]` to automatically implement `Storable`
-and make your struct fully compatible with contract's storage. This attribute
+and make [your struct](https://use.ink/datastructures/custom-datastructure#using-custom-types-on-storage) fully compatible with contract's storage. This attribute
 automatically implements all necessary traits and calculates storage keys for types.
 You can also set `#[ink::storage_item(derive = false)]` to remove auto-derive
 and derive everything manually later:
@@ -135,7 +135,7 @@ struct MyAnotherNonPackedStruct {
 }
 ```
 
-For precise storage key configuration several new types were introduced:
+For [precise storage key configuration](https://use.ink/datastructures/storage-layout#manual-vs-automatic-key-generation) several new types were introduced:
 
 * `StorableHint` is a trait that describes the stored type, and its storage key.
 * `ManualKey` is a type, that describes the storage key itself. You can, for example,
@@ -153,7 +153,7 @@ struct MyStruct {
 }
 ```
 
-For packed structs, a new trait was introduced - `Packed`. It represents structs,
+For [packed structs](https://use.ink/datastructures/storage-layout#packed-vs-non-packed-layout), a new trait was introduced - `Packed`. It represents structs,
 all fields of which occupy a single storage cell. Any type that implements
 `scale::Encode` and `scale::Decode` receives a `Packed` implementation:
 
@@ -206,7 +206,7 @@ struct NonPackedComplex<KEY: StorageKey> {
 Every non-packed type also has `StorageKey` trait implemented for them. This trait is used for calculating storage key types.
 
 There also exists way to use `StorageKey` for types that are packed - you can just use `Lazy`, a wrapper around type
-which allows to store it in separate storage cell under it's own storage key. You can use it like this:
+which allows to store it in [separate storage cell under it's own storage key](https://use.ink/datastructures/storage-layout#eager-loading-vs-lazy-loading). You can use it like this:
 
 ```rust
 #[ink::storage_item]
@@ -335,3 +335,6 @@ struct MyNonPackedStruct<D: Packed> {
     second_field: D,
 }
 ```
+
+You should also check the [ink! storage layout documentation](https://use.ink/datastructures/storage-layout#considerations) for more
+details on known caveats and considerations.
