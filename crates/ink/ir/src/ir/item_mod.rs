@@ -49,23 +49,23 @@ pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0xFF, 0xFF, 0xFF, 0xFF];
 /// mod my_contract {
 ///     #[ink(storage)]
 ///     pub struct MyStorage {
-///         /* storage fields */
+///         // storage fields
 ///     }
 ///
 ///     #[ink(event)]
 ///     pub struct MyEvent {
-///         /* event fields */
+///         // event fields
 ///     }
 ///
 ///     impl MyStorage {
 ///         #[ink(constructor)]
 ///         pub fn my_constructor() -> Self {
-///             /* constructor initialization */
+///             // constructor initialization
 ///         }
 ///
 ///         #[ink(message)]
 ///         pub fn my_message(&self) {
-///             /* message statements */
+///             // message statements
 ///         }
 ///     }
 /// }
@@ -83,7 +83,7 @@ pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0xFF, 0xFF, 0xFF, 0xFF];
 ///
 /// ```
 /// mod rust_module {
-///     /* some Rust item definitions */
+///     // some Rust item definitions
 /// }
 /// ```
 ///
@@ -444,7 +444,8 @@ impl ItemMod {
         storage
     }
 
-    /// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.
+    /// Returns all (ink! and non-ink! specific) item definitions of the ink! inline
+    /// module.
     pub fn items(&self) -> &[ir::Item] {
         self.items.as_slice()
     }
@@ -474,7 +475,7 @@ impl ItemMod {
     /// #
     ///     #[ink(message)]
     ///     pub fn my_message(&self) {
-    ///         /* message implementation */
+    ///         // message implementation
     ///     }
     /// }
     /// # }}).unwrap();
@@ -497,7 +498,7 @@ impl ItemMod {
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_method(&self) -> i32 {
-    ///         /* method implementation */
+    ///         // method implementation
     ///     }
     /// }
     /// #

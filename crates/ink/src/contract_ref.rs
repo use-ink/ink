@@ -24,7 +24,8 @@ use ink_env::Environment;
 ///
 /// # Usage in the `#[ink::contract]` context
 ///
-/// The macro expects one argument ‒ the path to the trait, in order to create a wrapper around it.
+/// The macro expects one argument ‒ the path to the trait, in order to create a wrapper
+/// around it.
 ///
 /// ```rust
 /// #[ink::contract]
@@ -33,13 +34,13 @@ use ink_env::Environment;
 ///
 ///     #[ink::trait_definition]
 ///     pub trait Erc20 {
-///        /// Returns the total supply of the ERC-20 smart contract.
-///        #[ink(message)]
-///        fn total_supply(&self) -> Balance;
+///         /// Returns the total supply of the ERC-20 smart contract.
+///         #[ink(message)]
+///         fn total_supply(&self) -> Balance;
 ///
-///        /// Transfers balance from the caller to the given address.
-///        #[ink(message)]
-///        fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
+///         /// Transfers balance from the caller to the given address.
+///         #[ink(message)]
+///         fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
 ///     }
 ///
 ///     #[ink(storage)]

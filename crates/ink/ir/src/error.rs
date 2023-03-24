@@ -31,8 +31,8 @@ impl ExtError for syn::Error {
 ///
 /// # Parameters
 ///
-/// - The first argument must implement [`quote::ToTokens`] in order to
-///   infer a [`Span`](`proc_macro2::Span`).
+/// - The first argument must implement [`quote::ToTokens`] in order to infer a
+///   [`Span`](`proc_macro2::Span`).
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///
