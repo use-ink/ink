@@ -142,14 +142,13 @@ impl Attrs for syn::Item {
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InkAttribute {
-    attr: syn::Attribute,
     /// The internal non-empty sequence of arguments of the ink! attribute.
     args: Vec<AttributeFrag>,
 }
 
 impl ToTokens for InkAttribute {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        self.attr.to_tokens(tokens)
+        todo!()
     }
 }
 
@@ -312,8 +311,8 @@ impl InkAttribute {
 /// An ink! specific attribute argument.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AttributeFrag {
-    pub ident: syn::Ident,
-    pub arg: AttributeArg,
+    ident: syn::Ident,
+    arg: AttributeArg,
 }
 
 impl AttributeFrag {
@@ -327,6 +326,10 @@ impl ToTokens for AttributeFrag {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         self.ident.to_tokens(tokens)
     }
+}
+
+pub enum AttributeFragMeta {
+    NameValue(MetaName)
 }
 
 /// The kind of an ink! attribute argument.
@@ -765,7 +768,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                 "encountered unsupported empty ink! attribute"
             ))
         }
-        Ok(InkAttribute { attr, args })
+        Ok(InkAttribute { args })
     }
 }
 
