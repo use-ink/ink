@@ -747,7 +747,8 @@ impl From<InkAttribute> for Attribute {
 }
 
 /// This function replaces occurrences of a `TokenTree::Ident` of the sequence
-/// `selector = _` or `selector = @` with the sequence `selector = "_"` or `selector = "@"`.
+/// `selector = _` or `selector = @` with the sequence `selector = "_"` or `selector =
+/// "@"`.
 ///
 /// This is done because `syn::Attribute::parse_meta` does not support parsing a
 /// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
@@ -763,12 +764,19 @@ fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
             match tt {
                 TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
                 TokenTree2::Ident(ident)
-                    if found_selector
-                        && found_equal
-                        && (ident == "_" || ident == "@") =>
+                    if found_selector && found_equal && ident == "_" =>
                 {
-                    let mut lit = proc_macro2::Literal::string(&ident.to_string());
+                    let mut lit = proc_macro2::Literal::string("_");
                     lit.set_span(ident.span());
+                    found_selector = false;
+                    found_equal = false;
+                    TokenTree2::Literal(lit)
+                }
+                TokenTree2::Punct(punct)
+                    if found_selector && found_equal && punct.as_char() == '@' =>
+                {
+                    let mut lit = proc_macro2::Literal::string("@");
+                    lit.set_span(punct.span());
                     found_selector = false;
                     found_equal = false;
                     TokenTree2::Literal(lit)
