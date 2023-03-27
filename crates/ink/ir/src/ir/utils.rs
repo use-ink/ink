@@ -19,12 +19,12 @@ use crate::{
     error::ExtError as _,
     format_err,
 };
-use proc_macro2::{
-    Span,
-    TokenStream,
-};
+use proc_macro2::Span;
 use std::collections::HashMap;
-use syn::spanned::Spanned;
+use syn::{
+    spanned::Spanned,
+    Expr,
+};
 
 /// Ensures that the given visibility is `pub` and otherwise returns an appropriate error.
 ///
@@ -178,11 +178,8 @@ pub fn extract_cfg_attributes(
         .iter()
         .filter(|a| a.path().is_ident(super::CFG_IDENT))
         .map(|a| {
-            a.parse_args::<TokenStream>()
-                .unwrap()
-                .into_iter()
-                .map(|token| quote::quote_spanned!(span=> #[cfg #token]))
-                .collect()
+            let expr = a.parse_args::<Expr>().unwrap();
+            quote::quote_spanned!(span=> #[cfg( #expr )])
         })
         .collect()
 }
