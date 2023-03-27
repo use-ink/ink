@@ -31,7 +31,7 @@ use syn::{
 };
 
 use crate::{
-    ast,
+    ast::{self,},
     error::ExtError as _,
     ir,
     ir::{
@@ -58,13 +58,17 @@ impl IsDocAttribute for syn::Attribute {
         if !self.is_doc_attribute() {
             return None
         }
-        let mut docs = None;
-        let _ = self.parse_nested_meta(|meta| {
-            let lit: syn::LitStr = meta.input.parse()?;
-            docs = Some(lit.value());
-            Ok(())
-        });
-        docs
+        match &self.meta {
+            syn::Meta::NameValue(nv) => {
+                if let syn::Expr::Lit(l) = &nv.value {
+                    if let syn::Lit::Str(s) = &l.lit {
+                        return Some(s.value())
+                    }
+                }
+            }
+            _ => return None,
+        }
+        None
     }
 }
 
