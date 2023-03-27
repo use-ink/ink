@@ -740,7 +740,7 @@ mod tests {
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "unknown ink! attribute (path)",
+            error: "encountered unknown ink! attribute argument: unknown",
             pub trait MyChainExtension {
                 #[ink(unknown)]
                 fn unknown_ink_attribute(&self);
@@ -751,7 +751,8 @@ mod tests {
     #[test]
     fn chain_extension_containing_method_with_invalid_marker() {
         assert_ink_chain_extension_eq_err!(
-            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
+            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            invalid digit found in string",
             pub trait MyChainExtension {
                 #[ink(extension = -1)]
                 fn has_self_receiver();
@@ -759,7 +760,8 @@ mod tests {
         );
         let too_large = (u32::MAX as u64) + 1;
         assert_ink_chain_extension_eq_err!(
-            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
+            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            number too large to fit in target type",
             pub trait MyChainExtension {
                 #[ink(extension = #too_large)]
                 fn has_self_receiver();

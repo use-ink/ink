@@ -557,7 +557,7 @@ mod tests {
         let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
-                crate fn my_constructor() -> Self {}
+                pub(crate) fn my_constructor() -> Self {}
             },
             syn::parse_quote! {
                 #[ink(constructor)]

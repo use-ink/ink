@@ -15,10 +15,16 @@
 use core::result::Result;
 use std::collections::HashMap;
 
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
 use quote::ToTokens;
 use syn::{
-    parse::{Parse, ParseStream},
+    parse::{
+        Parse,
+        ParseStream,
+    },
     punctuated::Punctuated,
     spanned::Spanned,
     Token,
@@ -28,7 +34,10 @@ use crate::{
     ast,
     error::ExtError as _,
     ir,
-    ir::{ExtensionId, Selector},
+    ir::{
+        ExtensionId,
+        Selector,
+    },
 };
 
 /// An extension trait for [`syn::Attribute`] in order to query for documentation.
@@ -47,7 +56,7 @@ impl IsDocAttribute for syn::Attribute {
 
     fn extract_docs(&self) -> Option<String> {
         if !self.is_doc_attribute() {
-            return None;
+            return None
         }
         let mut docs = None;
         let _ = self.parse_nested_meta(|meta| {
@@ -156,7 +165,7 @@ impl InkAttribute {
             return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
-            ));
+            ))
         }
         Ok(())
     }
@@ -184,7 +193,7 @@ impl InkAttribute {
                 .into_combine(format_err!(
                     seen.span(),
                     "first equal ink! attribute argument here"
-                )));
+                )))
             }
             if let Some(seen) = seen2.get(&arg.kind().kind()) {
                 return Err(format_err!(
@@ -194,7 +203,7 @@ impl InkAttribute {
                 .into_combine(format_err!(
                     *seen,
                     "first equal ink! attribute argument with equal kind here"
-                )));
+                )))
             }
             seen.insert(arg);
             seen2.insert(arg.kind().kind(), arg.span());
@@ -226,7 +235,7 @@ impl InkAttribute {
             return Err(format_err!(
                 Span::call_site(),
                 "encountered unexpected empty expanded ink! attribute arguments",
-            ));
+            ))
         }
         Self::ensure_no_duplicate_args(&args)?;
         Ok(Self { args })
@@ -252,7 +261,7 @@ impl InkAttribute {
     pub fn namespace(&self) -> Option<ir::Namespace> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Namespace(namespace) = arg.kind() {
-                return Some(namespace.clone());
+                return Some(namespace.clone())
             }
             None
         })
@@ -262,7 +271,7 @@ impl InkAttribute {
     pub fn selector(&self) -> Option<SelectorOrWildcard> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Selector(selector) = arg.kind() {
-                return Some(*selector);
+                return Some(*selector)
             }
             None
         })
@@ -537,7 +546,7 @@ impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
                             )
                         })?;
                     let selector = Selector::from(selector_u32.to_be_bytes());
-                    return Ok(SelectorOrWildcard::UserProvided(selector));
+                    return Ok(SelectorOrWildcard::UserProvided(selector))
                 }
                 Err(format_err_spanned!(
                     value,
@@ -590,7 +599,7 @@ impl TryFrom<&ast::PathOrLit> for Namespace {
         } else {
             Err(format_err_spanned!(
                 value,
-                "encountered invalid namespace argument, expected string literal",
+                "expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]",
             ))
         }
     }
@@ -661,9 +670,11 @@ where
         .map(<Attribute as TryFrom<_>>::try_from)
         .collect::<Result<Vec<Attribute>, syn::Error>>()?
         .into_iter()
-        .partition_map(|attr| match attr {
-            Attribute::Ink(ink_attr) => Either::Left(ink_attr),
-            Attribute::Other(other_attr) => Either::Right(other_attr),
+        .partition_map(|attr| {
+            match attr {
+                Attribute::Ink(ink_attr) => Either::Left(ink_attr),
+                Attribute::Other(other_attr) => Either::Right(other_attr),
+            }
         });
     Attribute::ensure_no_duplicate_attrs(&ink_attrs)?;
     Ok((ink_attrs, others))
@@ -747,7 +758,7 @@ where
 {
     let (ink_attrs, rust_attrs) = ir::partition_attributes(attrs)?;
     if ink_attrs.is_empty() {
-        return Ok((None, rust_attrs));
+        return Ok((None, rust_attrs))
     }
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err!(parent_span, "at this invocation",))
@@ -776,7 +787,7 @@ impl Attribute {
                     attr.span(),
                     "encountered duplicate ink! attribute"
                 )
-                .into_combine(format_err!(seen.span(), "first ink! attribute here")));
+                .into_combine(format_err!(seen.span(), "first ink! attribute here")))
             }
             seen.insert(attr);
         }
@@ -789,7 +800,7 @@ impl TryFrom<syn::Attribute> for Attribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if attr.path().is_ident("ink") {
-            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into);
+            return <InkAttribute as TryFrom<_>>::try_from(attr).map(Into::into)
         }
         Ok(Attribute::Other(attr))
     }
@@ -806,7 +817,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path().is_ident("ink") {
-            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"));
+            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
 
         let args: Vec<_> = attr
@@ -819,7 +830,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
             return Err(format_err_spanned!(
                 attr,
                 "encountered unsupported empty ink! attribute"
-            ));
+            ))
         }
         Ok(InkAttribute { args })
     }
@@ -867,7 +878,7 @@ impl InkAttribute {
             }
         }
         if let Some(err) = err {
-            return Err(err);
+            return Err(err)
         }
         Ok(())
     }
@@ -886,21 +897,27 @@ impl Parse for AttributeFrag {
                     )
                 })?;
                 match ident.to_string().as_str() {
-                    "selector" => SelectorOrWildcard::try_from(&name_value.value)
-                        .map(AttributeArg::Selector),
-                    "namespace" => Namespace::try_from(&name_value.value)
-                        .map(AttributeArg::Namespace),
+                    "selector" => {
+                        SelectorOrWildcard::try_from(&name_value.value)
+                            .map(AttributeArg::Selector)
+                    }
+                    "namespace" => {
+                        Namespace::try_from(&name_value.value)
+                            .map(AttributeArg::Namespace)
+                    }
                     "extension" => {
                         if let Some(lit_int) = name_value.value.as_lit_int() {
                             let id = lit_int.base10_parse::<u32>()
                                 .map_err(|error| {
-                                    input.error(format!("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error))
+                                    format_err_spanned!(
+                                        lit_int,
+                                        "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}", error)
                                 })?;
                             Ok(AttributeArg::Extension(ExtensionId::from_u32(id)))
                         } else {
                             Err(format_err_spanned!(
                                 name_value.value,
-                                "encountered invalid extension argument, expected integer literal",
+                                "expected `u32` integer type for `N` in #[ink(extension = N)]",
                             ))
                         }
                     }
@@ -910,14 +927,17 @@ impl Parse for AttributeFrag {
                         } else {
                             Err(format_err_spanned!(
                                 name_value.value,
-                                "encountered invalid handle_status argument, expected bool literal",
+                                "expected `bool` value type for `flag` in #[ink(handle_status = flag)]",
                             ))
                         }
                     }
-                    _ => Err(input.error(format!(
-                        "encountered unknown ink! attribute argument: {}",
-                        ident
-                    ))),
+                    _ => {
+                        Err(format_err_spanned!(
+                            ident,
+                            "encountered unknown ink! attribute argument: {}",
+                            ident
+                        ))
+                    }
                 }
             }
             ast::Meta::Path(path) => {
@@ -937,14 +957,31 @@ impl Parse for AttributeFrag {
                     "payable" => Ok(AttributeArg::Payable),
                     "impl" => Ok(AttributeArg::Implementation),
                     _ => match ident.to_string().as_str() {
-                        "extension" => Err(input.error(format!(
-                            "encountered #[ink({})] that is missing its `id` parameter. \
-                            Did you mean #[ink(extension = id: u32)] ?", ident
-                        ))),
-                        _ => Err(input.error(format!(
+                        "extension" => Err(format_err_spanned!(
+                            path,
+                            "encountered #[ink(extension)] that is missing its `id` parameter. \
+                            Did you mean #[ink(extension = id: u32)] ?"
+                        )),
+                        "handle_status" => Err(format_err_spanned!(
+                            path,
+                           "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
+                            Did you mean #[ink(handle_status = flag: bool)] ?"
+                        )),
+                        "namespace" => Err(format_err_spanned!(
+                            path,
+                           "encountered #[ink(namespace)] that is missing its string parameter. \
+                            Did you mean #[ink(namespace = name: str)] ?"
+                        )),
+                        "selector" => Err(format_err_spanned!(
+                            path,
+                           "encountered #[ink(selector)] that is missing its u32 parameter. \
+                            Did you mean #[ink(selector = value: u32)] ?"
+                        )),
+                        _ => Err(format_err_spanned!(
+                            path,
                             "encountered unknown ink! attribute argument: {}",
                             ident
-                        ))),
+                        )),
                     },
                 }
             }
@@ -1005,7 +1042,7 @@ mod tests {
         );
         assert_first_ink_attribute(
             &[syn::parse_quote! { #[ink(invalid)] }],
-            Err("unknown ink! attribute (path)"),
+            Err("encountered unknown ink! attribute argument: invalid"),
         );
     }
 
@@ -1022,13 +1059,15 @@ mod tests {
         impl From<ir::Attribute> for Attribute {
             fn from(attr: ir::Attribute) -> Self {
                 match attr {
-                    ir::Attribute::Ink(ink_attr) => Self::Ink(
-                        ink_attr
-                            .args
-                            .into_iter()
-                            .map(|arg| arg.arg)
-                            .collect::<Vec<_>>(),
-                    ),
+                    ir::Attribute::Ink(ink_attr) => {
+                        Self::Ink(
+                            ink_attr
+                                .args
+                                .into_iter()
+                                .map(|arg| arg.arg)
+                                .collect::<Vec<_>>(),
+                        )
+                    }
                     ir::Attribute::Other(other_attr) => Self::Other(other_attr),
                 }
             }
@@ -1237,7 +1276,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(extension = "string")]
             },
-            Err("encountered invalid extension argument, expected integer literal"),
+            Err("expected `u32` integer type for `N` in #[ink(extension = N)]"),
         );
     }
 
@@ -1247,7 +1286,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(extension = -1)]
             },
-            Err("unexpected end of input, could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: invalid digit found in string")
+            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: invalid digit found in string")
         );
     }
 
@@ -1258,7 +1297,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(extension = #max_u32_plus_1)]
             },
-            Err("unexpected end of input, could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: number too large to fit in target type"),
+            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: number too large to fit in target type"),
         );
     }
 
@@ -1269,7 +1308,7 @@ mod tests {
                 #[ink(extension)]
             },
             Err(
-                "unexpected end of input, encountered #[ink(extension)] that is missing its `id` parameter. \
+                "encountered #[ink(extension)] that is missing its `id` parameter. \
                 Did you mean #[ink(extension = id: u32)] ?",
             ),
         );

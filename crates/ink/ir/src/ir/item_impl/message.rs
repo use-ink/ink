@@ -752,12 +752,12 @@ mod tests {
             // &self + crate visibility
             syn::parse_quote! {
                 #[ink(message)]
-                crate fn my_message(&self) {}
+                pub(crate) fn my_message(&self) {}
             },
             // &mut self + crate visibility
             syn::parse_quote! {
                 #[ink(message)]
-                crate fn my_message(&mut self) {}
+                pub(crate) fn my_message(&mut self) {}
             },
             // &self + pub restricted visibility
             syn::parse_quote! {
