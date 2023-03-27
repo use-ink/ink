@@ -19,7 +19,10 @@ use crate::{
     error::ExtError as _,
     format_err,
 };
-use proc_macro2::Span;
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
@@ -174,16 +177,12 @@ pub fn extract_cfg_attributes(
     attrs
         .iter()
         .filter(|a| a.path().is_ident(super::CFG_IDENT))
-        // .map(|a| {
-        //     a.tokens
-        //         .clone()
-        //         .into_iter()
-        //         .map(|token| quote::quote_spanned!(span=> #[cfg #token]))
-        //         .collect()
-        // })
-        .map(|attr| {
-            // todo [AJ] test this is correct
-            quote::quote_spanned!(span=> #attr)
+        .map(|a| {
+            a.parse_args::<TokenStream>()
+                .unwrap()
+                .into_iter()
+                .map(|token| quote::quote_spanned!(span=> #[cfg #token]))
+                .collect()
         })
         .collect()
 }

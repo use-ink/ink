@@ -197,7 +197,7 @@ impl Callable for Constructor {
 
     fn visibility(&self) -> Visibility {
         match &self.item.vis {
-            syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
+            syn::Visibility::Public(vis_public) => Visibility::Public(*vis_public),
             syn::Visibility::Inherited => Visibility::Inherited,
             _ => unreachable!("encountered invalid visibility for ink! constructor"),
         }
