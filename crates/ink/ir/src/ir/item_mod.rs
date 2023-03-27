@@ -310,6 +310,16 @@ impl ItemMod {
                         return Err(combined)
                     }
                 }
+            } else {
+                for message in &other_messages {
+                    if message.callable().has_wildcard_complement_selector() {
+                        return Err(format_err!(
+                            message.callable().span(),
+                            "encountered ink! message with wildcard complement `selector = @` but no \
+                             wildcard `selector = _` defined"
+                        ))
+                    }
+                }
             }
 
             let mut wildcard_selector: Option<&ir::Constructor> = None;
@@ -1105,12 +1115,13 @@ mod tests {
                         #[ink(constructor)]
                         pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = 0x00000000)]
+                        #[ink(message, selector = @)]
                         pub fn uses_reserved_wildcard_other_message_selector(&self) {}
                     }
                 }
             },
-            "the selector TODO is reserved for use in tandem with a wildcard selector",
+            "encountered ink! message with wildcard complement `selector = @` but no \
+            wildcard `selector = _` defined",
         )
     }
 }
