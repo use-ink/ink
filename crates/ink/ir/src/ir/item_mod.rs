@@ -287,8 +287,8 @@ impl ItemMod {
                         if !other_messages[0].callable().has_wildcard_complement_selector() {
                             return Err(format_err!(
                                 other_messages[0].callable().span(),
-                                "when using a wildcard selector, the other message must use the \
-                                 reserved selector `::ink::IIP2_WILDCARD_COMPLEMENT_SELECTOR`"
+                                "when using a wildcard selector `selector = _` for an ink! message \
+                                then the other message must use the wildcard complement `selector = @`"
                             ))
                         }
                     }
@@ -991,7 +991,7 @@ mod tests {
                         #[ink(message, selector = _)]
                         pub fn fallback(&self) {}
 
-                        #[ink(message, selector = 0x00000000)] // todo: well known selector
+                        #[ink(message, selector = @)]
                         pub fn well_known_other_message(&self) {}
                     }
                 }
@@ -1039,7 +1039,8 @@ mod tests {
                     }
                 }
             },
-"when using a wildcard selector, the other message must use the reserved selector TODO"
+"when using a wildcard selector `selector = _` for an ink! message then the other \
+            message must use the wildcard complement `selector = @`"
         );
     }
 
