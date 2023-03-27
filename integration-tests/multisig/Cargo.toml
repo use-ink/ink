@@ -1,6 +1,6 @@
 [package]
 name = "multisig"
-version = "4.0.1"
+version = "4.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false

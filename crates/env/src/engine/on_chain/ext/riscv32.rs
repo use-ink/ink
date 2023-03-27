@@ -315,9 +315,10 @@ pub fn debug_message(message: &str) {
     // SAFETY: safe because executing in a single threaded context
     // We need those two variables in order to make sure that the assignment is performed
     // in the "logging enabled" case. This is because during RPC execution logging might
-    // be enabled while it is disabled during the actual execution as part of a transaction.
-    // The gas estimation takes place during RPC execution. We want to overestimate instead
-    // of underestimate gas usage. Otherwise using this estimate could lead to a out of gas error.
+    // be enabled while it is disabled during the actual execution as part of a
+    // transaction. The gas estimation takes place during RPC execution. We want to
+    // overestimate instead of underestimate gas usage. Otherwise using this estimate
+    // could lead to a out of gas error.
     if unsafe { DEBUG_ENABLED || FIRST_RUN } {
         let bytes = message.as_bytes();
         let ret_code = (Ptr32::from_slice(bytes), bytes.len() as u32)

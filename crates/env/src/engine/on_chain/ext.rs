@@ -197,10 +197,11 @@ impl From<ReturnCode> for Option<u32> {
     fn from(code: ReturnCode) -> Self {
         /// Used as a sentinel value when reading and writing contract memory.
         ///
-        /// We use this value to signal `None` to a contract when only a primitive is allowed
-        /// and we don't want to go through encoding a full Rust type. Using `u32::Max` is a safe
-        /// sentinel because contracts are never allowed to use such a large amount of resources.
-        /// So this value doesn't make sense for a memory location or length.
+        /// We use this value to signal `None` to a contract when only a primitive is
+        /// allowed and we don't want to go through encoding a full Rust type.
+        /// Using `u32::Max` is a safe sentinel because contracts are never
+        /// allowed to use such a large amount of resources. So this value doesn't
+        /// make sense for a memory location or length.
         const SENTINEL: u32 = u32::MAX;
 
         (code.0 < SENTINEL).then_some(code.0)

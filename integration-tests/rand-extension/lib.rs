@@ -13,7 +13,8 @@ pub trait FetchRandom {
     type ErrorCode = RandomReadErr;
 
     /// Note: this gives the operation a corresponding `func_id` (1101 in this case),
-    /// and the chain-side chain extension will get the `func_id` to do further operations.
+    /// and the chain-side chain extension will get the `func_id` to do further
+    /// operations.
     #[ink(extension = 1101)]
     fn fetch_random(subject: [u8; 32]) -> [u8; 32];
 }
@@ -86,8 +87,8 @@ mod rand_extension {
         }
 
         /// Seed a random value by passing some known argument `subject` to the runtime's
-        /// random source. Then, update the current `value` stored in this contract with the
-        /// new random value.
+        /// random source. Then, update the current `value` stored in this contract with
+        /// the new random value.
         #[ink(message)]
         pub fn update(&mut self, subject: [u8; 32]) -> Result<(), RandomReadErr> {
             // Get the on-chain random seed

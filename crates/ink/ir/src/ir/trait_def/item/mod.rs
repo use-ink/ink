@@ -147,7 +147,8 @@ impl InkItemTrait {
         Ok(())
     }
 
-    /// Returns `Ok` if all trait items respects the requirements for an ink! trait definition.
+    /// Returns `Ok` if all trait items respects the requirements for an ink! trait
+    /// definition.
     ///
     /// # Errors
     ///
@@ -157,9 +158,10 @@ impl InkItemTrait {
     ///     - macros definitions or usages
     ///     - unknown token sequences (verbatim)
     ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
-    ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`
-    ///       and need to respect their respective rules.
+    /// - If the trait contains methods which do not respect the ink! trait definition
+    ///   requirements:
+    ///     - All trait methods need to be declared as either `#[ink(message)]` or
+    ///       `#[ink(constructor)]` and need to respect their respective rules.
     ///
     /// # Note
     ///
@@ -212,8 +214,8 @@ impl InkItemTrait {
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    /// - If the method does not respect the properties of either an
-    ///   ink! message or ink! constructor.
+    /// - If the method does not respect the properties of either an ink! message or ink!
+    ///   constructor.
     fn analyse_trait_method(method: &syn::TraitItemMethod) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(

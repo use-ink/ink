@@ -65,14 +65,16 @@ mod mother {
         NotStarted,
         /// We are in the starting period of the auction, collecting initial bids.
         OpeningPeriod,
-        /// We are in the ending period of the auction, where we are taking snapshots of the winning
-        /// bids. Snapshots are taken currently on per-block basis, but this logic could be later evolve
-        /// to take snapshots of on arbitrary length (in blocks).
+        /// We are in the ending period of the auction, where we are taking snapshots of
+        /// the winning bids. Snapshots are taken currently on per-block basis,
+        /// but this logic could be later evolve to take snapshots of on
+        /// arbitrary length (in blocks).
         EndingPeriod(BlockNumber),
         /// Candle was blown.
         Ended(Outline),
-        /// We have completed the bidding process and are waiting for the Random Function to return some acceptable
-        /// randomness to select the winner. The number represents how many blocks we have been waiting.
+        /// We have completed the bidding process and are waiting for the Random Function
+        /// to return some acceptable randomness to select the winner. The number
+        /// represents how many blocks we have been waiting.
         RfDelay(BlockNumber),
     }
 

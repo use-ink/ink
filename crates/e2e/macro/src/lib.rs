@@ -29,10 +29,10 @@ use syn::Result;
 ///
 /// The system requirements are:
 ///
-/// - A Substrate node with `pallet-contracts` installed on the local system.
-///   You can e.g. use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
-///   and install it on your PATH, or provide a path to an executable using the `CONTRACTS_NODE`
-///   environment variable.
+/// - A Substrate node with `pallet-contracts` installed on the local system. You can e.g.
+///   use [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node)
+///   and install it on your PATH, or provide a path to an executable using the
+///   `CONTRACTS_NODE` environment variable.
 ///
 /// Before the test function is invoked the contract will have been build. Any errors
 /// that occur during the contract build will prevent the test function from being

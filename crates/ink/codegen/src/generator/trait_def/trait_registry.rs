@@ -156,7 +156,8 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generate the code for a single ink! trait message implemented by the trait registry.
+    /// Generate the code for a single ink! trait message implemented by the trait
+    /// registry.
     ///
     /// Generally the implementation of any ink! trait of the ink! trait registry
     fn generate_registry_for_message(

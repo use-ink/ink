@@ -4,8 +4,8 @@
 //! Demonstrates how to use [`set_code_hash`](https://docs.rs/ink_env/latest/ink_env/fn.set_code_hash.html)
 //! to swap out the `code_hash` of an on-chain contract.
 //!
-//! We will swap the code of our `Incrementer` contract with that of the an `Incrementer` found in
-//! the `updated_incrementer` folder.
+//! We will swap the code of our `Incrementer` contract with that of the an `Incrementer`
+//! found in the `updated_incrementer` folder.
 //!
 //! See the included End-to-End tests an example update workflow.
 
@@ -16,11 +16,11 @@ pub mod incrementer {
     ///
     /// # Note
     ///
-    /// Is is important to realize that after the call to `set_code_hash` the contract's storage
-    /// remains the same.
+    /// Is is important to realize that after the call to `set_code_hash` the contract's
+    /// storage remains the same.
     ///
-    /// If you change the storage layout in your storage struct you may introduce undefined
-    /// behavior to your contract!
+    /// If you change the storage layout in your storage struct you may introduce
+    /// undefined behavior to your contract!
     #[ink(storage)]
     #[derive(Default)]
     pub struct Incrementer {
@@ -50,10 +50,11 @@ pub mod incrementer {
             self.count
         }
 
-        /// Modifies the code which is used to execute calls to this contract address (`AccountId`).
+        /// Modifies the code which is used to execute calls to this contract address
+        /// (`AccountId`).
         ///
-        /// We use this to upgrade the contract logic. We don't do any authorization here, any caller
-        /// can execute this method.
+        /// We use this to upgrade the contract logic. We don't do any authorization here,
+        /// any caller can execute this method.
         ///
         /// In a production contract you would do some authorization here!
         #[ink(message)]
@@ -116,8 +117,8 @@ pub mod incrementer {
                 .expect("`set_code` failed");
 
             // Then
-            // Note that our contract's `AccountId` (so `contract_acc_id`) has stayed the same
-            // between updates!
+            // Note that our contract's `AccountId` (so `contract_acc_id`) has stayed the
+            // same between updates!
             let inc = build_message::<IncrementerRef>(contract_acc_id.clone())
                 .call(|incrementer| incrementer.inc());
 

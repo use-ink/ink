@@ -185,7 +185,8 @@ impl<'a> Events<'a> {
         )
     }
 
-    /// Generates the guard code that protects against having too many topics defined on an ink! event.
+    /// Generates the guard code that protects against having too many topics defined on
+    /// an ink! event.
     fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             let span = event.span();
