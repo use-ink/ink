@@ -364,15 +364,15 @@ mod multisig {
         ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .invoke();
         ///
-        /// // Wait until all required owners have confirmed and then execute the transaction
-        /// //
+        /// // Wait until all required owners have confirmed and then execute the
+        /// transaction //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
         /// ink::env::call::build_call::<Env>()
         ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
-        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236])).push_arg(&id))
-        ///     .returns::<()>()
+        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225,
+        /// 236])).push_arg(&id))     .returns::<()>()
         ///     .invoke();
         /// ```
         #[ink(message)]
