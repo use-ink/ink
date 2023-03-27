@@ -298,7 +298,7 @@ impl ItemMod {
                     2.. => {
                         let mut combined = format_err!(
                             wildcard.span(),
-                            "only one other message must be defined together with a wildcard selector",
+                            "exactly one other message must be defined together with a wildcard selector",
                         );
                         for message in &other_messages {
                             if !message.callable().has_wildcard_complement_selector() {
@@ -1070,7 +1070,7 @@ mod tests {
                     }
                 }
             },
-            "exactly one other message can be defined together with a wildcard selector",
+            "exactly one other message must be defined together with a wildcard selector",
         );
     }
 
@@ -1089,8 +1089,8 @@ mod tests {
                         #[ink(message, selector = _)]
                         pub fn fallback(&self) {}
 
-                        #[ink(message, selector = 0x00000000)]
-                        pub fn well_known_other_message(&self) {}
+                        #[ink(message, selector = @)]
+                        pub fn wildcard_complement(&self) {}
 
                         #[ink(message)]
                         pub fn another_message_not_allowed1(&self) {}
@@ -1103,12 +1103,12 @@ mod tests {
                     }
                 }
             },
-            "exactly one other message can be defined together with a wildcard selector",
+            "exactly one other message must be defined together with a wildcard selector",
         );
     }
 
     #[test]
-    fn wildcard_reserved_selector_used_without_wildcard_fails() {
+    fn wildcard_complement_used_without_wildcard_fails() {
         assert_fail(
             syn::parse_quote! {
                 mod my_module {
