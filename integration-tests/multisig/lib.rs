@@ -364,8 +364,8 @@ mod multisig {
         ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .invoke();
         ///
-        /// // Wait until all required owners have confirmed and then execute the
-        /// transaction //
+        /// // Wait until all owners have confirmed and then execute the tx.
+        /// //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
         /// ink::env::call::build_call::<Env>()
