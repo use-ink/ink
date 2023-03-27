@@ -178,7 +178,9 @@ pub fn extract_cfg_attributes(
         .iter()
         .filter(|a| a.path().is_ident(super::CFG_IDENT))
         .map(|a| {
-            let expr = a.parse_args::<Expr>().unwrap();
+            let expr = a
+                .parse_args::<Expr>()
+                .expect("Encountered cfg attribute in wrong format.");
             quote::quote_spanned!(span=> #[cfg( #expr )])
         })
         .collect()
