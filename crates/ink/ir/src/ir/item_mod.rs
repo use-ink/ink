@@ -265,14 +265,17 @@ impl ItemMod {
                 }
                 match wildcard_selector {
                     None => wildcard_selector = Some(message.callable()),
-                    Some(overlap) => return Err(format_err!(
-                        message.callable().span(),
-                        "encountered ink! messages with overlapping wildcard selectors",
-                    )
-                    .into_combine(format_err!(
-                        overlap.span(),
-                        "first ink! message with overlapping wildcard selector here",
-                    ))),
+                    Some(overlap) => {
+                        let err = format_err!(
+                            message.callable().span(),
+                            "encountered ink! messages with overlapping wildcard selectors",
+                        );
+                        let overlap_err = format_err!(
+                            overlap.span(),
+                            "first ink! message with overlapping wildcard selector here",
+                        );
+                        return Err(err.into_combine(overlap_err))
+                    }
                 }
             }
 
