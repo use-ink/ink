@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::{
+    error::ExtError as _,
     ir,
     ir::idents_lint,
     Callable,
@@ -191,7 +192,6 @@ impl ItemMod {
                 selector: ir::Selector,
                 kind: &str,
             ) -> syn::Error {
-                use crate::error::ExtError as _;
                 format_err!(
                     second_span,
                     "encountered ink! {}s with overlapping selectors (= {:02X?})\n\
@@ -266,7 +266,6 @@ impl ItemMod {
                 match wildcard_selector {
                     None => wildcard_selector = Some(message.callable()),
                     Some(overlap) => {
-                        use crate::error::ExtError as _;
                         return Err(format_err!(
                             message.callable().span(),
                             "encountered ink! messages with overlapping wildcard selectors",
@@ -289,7 +288,7 @@ impl ItemMod {
                     1 => {
                         if !other_messages[0].callable().has_wildcard_complement_selector() {
                             return Err(format_err!(
-                                other_messages[0].span(),
+                                other_messages[0].callable().span(),
                                 "when using a wildcard selector, the other message must use the \
                                  reserved selector `::ink::IIP2_WILDCARD_COMPLEMENT_SELECTOR`"
                             ))
@@ -304,12 +303,13 @@ impl ItemMod {
                             if !message.callable().has_wildcard_complement_selector() {
                                 combined.combine(
                                     format_err!(
-                                        message.span(),
+                                        message.callable().span(),
                                         "additional message not permitted together with a wildcard selector",
                                     )
                                 )
                             }
                         }
+                        return Err(combined)
                     }
                 }
             }
@@ -322,7 +322,6 @@ impl ItemMod {
                 match wildcard_selector {
                     None => wildcard_selector = Some(constructor.callable()),
                     Some(overlap) => {
-                        use crate::error::ExtError as _;
                         return Err(format_err!(
                             constructor.callable().span(),
                             "encountered ink! constructor with overlapping wildcard selectors",
