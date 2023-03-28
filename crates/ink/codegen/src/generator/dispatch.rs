@@ -89,8 +89,7 @@ impl GenerateCode for Dispatch<'_> {
             #constructor_decoder_type
             #message_decoder_type
 
-            #[cfg(not(test))]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
             const _: () = {
                 #entry_points
             };
@@ -333,10 +332,8 @@ impl Dispatch<'_> {
             self.any_constructor_accepts_payment(constructors);
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
         quote_spanned!(span=>
-            #[cfg(not(test))]
-            #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
-            fn deploy() {
+            fn internal_deploy() {
                 if !#any_constructor_accept_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
@@ -371,10 +368,8 @@ impl Dispatch<'_> {
                 })
             }
 
-            #[cfg(not(test))]
-            #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
-            fn call() {
+            fn internal_call() {
                 if !#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
@@ -407,6 +402,29 @@ impl Dispatch<'_> {
                 .unwrap_or_else(|error| {
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
+            }
+
+            #[cfg(target_arch = "wasm32")]
+            #[no_mangle]
+            pub extern "C" fn call() {
+                internal_call()
+            }
+
+            #[cfg(target_arch = "wasm32")]
+            #[no_mangle]
+            pub extern "C" fn deploy() {
+                internal_deploy()
+            }
+
+            #[cfg(target_arch = "riscv32")]
+            #[no_mangle]
+            pub extern "C" fn _start(call_flags: u32) {
+                let is_deploy = (call_flags & 0x0000_0001) == 1;
+                if is_deploy {
+                    internal_deploy()
+                } else {
+                    internal_call()
+                }
             }
         )
     }

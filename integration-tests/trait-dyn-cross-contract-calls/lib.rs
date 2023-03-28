@@ -4,7 +4,7 @@
 //! The `Caller` doesn't use the `trait_incrementer::IncrementerRef`. Instead,
 //! all interactions with the `Incrementer` is done through the wrapper from
 //! `ink::contract_ref!` and the trait `dyn_traits::Increment`.
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::contract]

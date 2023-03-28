@@ -18,7 +18,7 @@ include = ["Cargo.toml", "*.rs", "LICENSE"]
 crate-type = ["cdylib"]
 
 [dependencies]
-clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f4850f7292efa33759b4f7f9b7621268979e9914" }
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "1480cea393d0cee195e59949eabdfbcf1230f7f9" }
 dylint_linting = "2.0.0"
 if_chain = "1.0.2"
 log = "0.4.14"
