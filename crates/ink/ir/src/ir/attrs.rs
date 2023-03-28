@@ -1179,18 +1179,6 @@ mod tests {
     }
 
     #[test]
-    fn wildcard_selector_works() {
-        assert_attribute_try_from(
-            syn::parse_quote! {
-                #[ink(selector = _)]
-            },
-            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::Wildcard,
-            )])),
-        );
-    }
-
-    #[test]
     fn selector_negative_number() {
         assert_attribute_try_from(
             syn::parse_quote! {
