@@ -40,7 +40,7 @@ variables:
   # Remove the following line again as soon as `clippy` on stable succeeds again.
   CLIPPY_ALLOWED:                  "clippy::extra_unused_lifetimes"
   # We plan to fully support RISC-V as a bytecode for contracts soon.
-  # RISC-V does not have a standard library in contrast to Wasm. Compiloing against
+  # RISC-V does not have a standard library in contrast to Wasm. Compiling against
   # this target also makes sure that we don't pull in `std` by accident (through dependencies).
   # RISC-V is a modular archtitecture. We might switch to a different flavor with more features
   # later. For example, `riscv32imc-unknown-none-elf`.
