@@ -311,7 +311,8 @@ mod multisig {
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` and
-        /// `invoke_transaction`: ```should_panic
+        /// `invoke_transaction`:
+        /// ```should_panic
         /// use ink::{
         ///     env::{
         ///         call::{
@@ -371,8 +372,8 @@ mod multisig {
         /// ink::env::call::build_call::<Env>()
         ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
-        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225,
-        /// 236])).push_arg(&id))     .returns::<()>()
+        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236])).push_arg(&id))
+        ///     .returns::<()>()
         ///     .invoke();
         /// ```
         #[ink(message)]
