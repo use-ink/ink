@@ -1,4 +1,4 @@
-error: expected string or byte string literal as input. found Bool(LitBool { value: true })
+error: expected string or byte string literal as input. found Lit::Bool { value: true }
  --> tests/ui/selector_bytes/fail/invalid_parameter_type_01.rs:1:37
   |
 1 | const _: u32 = ink::selector_bytes!(true);

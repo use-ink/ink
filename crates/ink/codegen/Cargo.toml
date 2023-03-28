@@ -21,7 +21,7 @@ name = "ink_codegen"
 ink_primitives = { version = "4.1.0", path = "../../primitives" }
 ir = { version = "4.1.0", package = "ink_ir", path = "../ir", default-features = false }
 quote = "1"
-syn = { version = "1.0", features = ["parsing", "full", "extra-traits"] }
+syn = { version = "2.0", features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = "1.0"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 itertools = "0.10"

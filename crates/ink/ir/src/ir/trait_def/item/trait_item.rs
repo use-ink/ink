@@ -64,7 +64,7 @@ impl<'a> InkTraitItem<'a> {
 /// A checked ink! message of an ink! trait definition.
 #[derive(Debug, Clone)]
 pub struct InkTraitMessage<'a> {
-    item: &'a syn::TraitItemMethod,
+    item: &'a syn::TraitItemFn,
 }
 
 impl<'a> InkTraitMessage<'a> {
@@ -73,7 +73,7 @@ impl<'a> InkTraitMessage<'a> {
         "encountered invalid attributes for ink! trait message";
 
     /// Creates a new ink! trait definition message.
-    pub(super) fn new(item: &'a syn::TraitItemMethod) -> Self {
+    pub(super) fn new(item: &'a syn::TraitItemFn) -> Self {
         Self { item }
     }
 
@@ -179,16 +179,7 @@ impl<'a> InkTraitMessage<'a> {
     pub fn mutates(&self) -> bool {
         self.sig()
             .receiver()
-            .map(|fn_arg| match fn_arg {
-                syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => true,
-                syn::FnArg::Typed(pat_type) => {
-                    matches!(
-                        &*pat_type.ty,
-                        syn::Type::Reference(reference) if reference.mutability.is_some()
-                    )
-                }
-                _ => false,
-            })
+            .map(|receiver| receiver.mutability.is_some())
             .expect("encountered missing receiver for ink! message")
     }
 }

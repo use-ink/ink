@@ -365,13 +365,12 @@ where
 /// - Furthermore this is `true` if the externally callable is defined for a non default
 ///   ABI (e.g. `extern "C"`) or does not have valid visibility.
 pub(super) fn ensure_callable_invariants(
-    method_item: &syn::ImplItemMethod,
+    method_item: &syn::ImplItemFn,
     kind: CallableKind,
 ) -> Result<(), syn::Error> {
     let bad_visibility = match &method_item.vis {
         syn::Visibility::Inherited => None,
         syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
         syn::Visibility::Public(_) => None,
     };
     if let Some(bad_visibility) = bad_visibility {
@@ -442,7 +441,7 @@ pub(super) fn ensure_callable_invariants(
 /// The visibility of an ink! message or constructor.
 #[derive(Debug, Clone)]
 pub enum Visibility {
-    Public(syn::VisPublic),
+    Public(syn::Token![pub]),
     Inherited,
 }
 
@@ -567,17 +566,17 @@ mod tests {
     /// message result in the same composed selector as the expected bytes.
     fn assert_compose_selector<C, S>(
         item_impl: syn::ItemImpl,
-        item_method: syn::ImplItemMethod,
+        item_method: syn::ImplItemFn,
         expected_selector: S,
     ) where
-        C: Callable + TryFrom<syn::ImplItemMethod>,
-        <C as TryFrom<syn::ImplItemMethod>>::Error: Debug,
+        C: Callable + TryFrom<syn::ImplItemFn>,
+        <C as TryFrom<syn::ImplItemFn>>::Error: Debug,
         S: Into<ExpectedSelector>,
     {
         assert_eq!(
             compose_selector(
                 &<ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).unwrap(),
-                &<C as TryFrom<syn::ImplItemMethod>>::try_from(item_method).unwrap(),
+                &<C as TryFrom<syn::ImplItemFn>>::try_from(item_method).unwrap(),
             ),
             expected_selector.into().expected_selector(),
         )

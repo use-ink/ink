@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Upgraded `syn` to version `2` - [#1731](https://github.com/paritytech/ink/pull/1731)
+
 ## Version 4.1.0
 
 ### Added
