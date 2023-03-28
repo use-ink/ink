@@ -932,6 +932,24 @@
 <a href="#931" id="931">931</a>
 <a href="#932" id="932">932</a>
 <a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1023,8 +1041,7 @@
             #constructor_decoder_type
             #message_decoder_type
 
-            <span class="attr">#[cfg(not(test))]
-            #[cfg(not(feature = <span class="string">&quot;ink-as-dependency&quot;</span>))]
+            <span class="attr">#[cfg(not(any(test, feature = <span class="string">&quot;std&quot;</span>, feature = <span class="string">&quot;ink-as-dependency&quot;</span>)))]
             </span><span class="kw">const _</span>: () = {
                 #entry_points
             };
@@ -1286,10 +1303,8 @@
             <span class="self">self</span>.any_constructor_accepts_payment(constructors);
         <span class="kw">let </span>any_message_accepts_payment = <span class="self">self</span>.any_message_accepts_payment(messages);
         <span class="macro">quote_spanned!</span>(span=&gt;
-            <span class="attr">#[cfg(not(test))]
-            #[no_mangle]
-            #[allow(clippy::nonminimal_bool)]
-            </span><span class="kw">fn </span>deploy() {
+            <span class="attr">#[allow(clippy::nonminimal_bool)]
+            </span><span class="kw">fn </span>internal_deploy() {
                 <span class="kw">if </span>!#any_constructor_accept_payment {
                     ::ink::codegen::deny_payment::&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;()
                         .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, error))
@@ -1324,10 +1339,8 @@
                 })
             }
 
-            <span class="attr">#[cfg(not(test))]
-            #[no_mangle]
-            #[allow(clippy::nonminimal_bool)]
-            </span><span class="kw">fn </span>call() {
+            <span class="attr">#[allow(clippy::nonminimal_bool)]
+            </span><span class="kw">fn </span>internal_call() {
                 <span class="kw">if </span>!#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::&lt;&lt;#storage_ident <span class="kw">as </span>::ink::env::ContractEnv&gt;::Env&gt;()
                         .unwrap_or_else(|error| <span class="macro">::core::panic!</span>(<span class="string">&quot;{}&quot;</span>, error))
@@ -1360,6 +1373,29 @@
                 .unwrap_or_else(|error| {
                     <span class="macro">::core::panic!</span>(<span class="string">&quot;dispatching ink! message failed: {}&quot;</span>, error)
                 })
+            }
+
+            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+            #[no_mangle]
+            </span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>call() {
+                internal_call()
+            }
+
+            <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+            #[no_mangle]
+            </span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>deploy() {
+                internal_deploy()
+            }
+
+            <span class="attr">#[cfg(target_arch = <span class="string">&quot;riscv32&quot;</span>)]
+            #[no_mangle]
+            </span><span class="kw">pub extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>_start(call_flags: u32) {
+                <span class="kw">let </span>is_deploy = (call_flags &amp; <span class="number">0x0000_0001</span>) == <span class="number">1</span>;
+                <span class="kw">if </span>is_deploy {
+                    internal_deploy()
+                } <span class="kw">else </span>{
+                    internal_call()
+                }
             }
         )
     }

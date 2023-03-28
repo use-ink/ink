@@ -181,7 +181,6 @@
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
 <a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -241,19 +240,18 @@
     <span class="comment">// This code gets removed in release builds where the macro will expand into nothing.
     </span><span class="macro">debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, info);
 
-    <span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
-    </span>core::arch::wasm32::unreachable();
-
-    <span class="comment">// For any other nostd architecture we just call an imaginary
-    // `abort` function. No other architecture is supported. We
-    // just have this to check if compilation does not break
-    // for other true nostd targets.
-    </span><span class="attr">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
-    </span><span class="kw">unsafe </span>{
-        <span class="kw">extern </span><span class="string">&quot;C&quot; </span>{
-            <span class="kw">fn </span>abort() -&gt; !;
+    <span class="macro">cfg_if::cfg_if! </span>{
+        <span class="kw">if </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)] </span>{
+            core::arch::wasm32::unreachable();
+        } <span class="kw">else if </span><span class="attr">#[cfg(target_arch = <span class="string">&quot;riscv32&quot;</span>)] </span>{
+            <span class="comment">// Safety: The unimp instruction is guaranteed to trap
+            </span><span class="kw">unsafe </span>{
+                <span class="macro">core::arch::asm!</span>(<span class="string">&quot;unimp&quot;</span>);
+                core::hint::unreachable_unchecked();
+            }
+        } <span class="kw">else </span>{
+            <span class="macro">core::compile_error!</span>(<span class="string">&quot;ink! only supports wasm32 and riscv32&quot;</span>);
         }
-        abort();
     }
 }
 
