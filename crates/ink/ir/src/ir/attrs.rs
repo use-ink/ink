@@ -496,76 +496,6 @@ impl core::fmt::Display for AttributeArg {
     }
 }
 
-/// Either a wildcard selector or a specified selector.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum SelectorOrWildcard {
-    /// A wildcard selector. If no other selector matches, the message/constructor
-    /// annotated with the wildcard selector will be invoked.
-    Wildcard,
-    /// A user provided selector.
-    UserProvided(ir::Selector),
-}
-
-impl SelectorOrWildcard {
-    /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
-    fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
-        SelectorOrWildcard::UserProvided(Selector::from(bytes))
-    }
-}
-
-impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
-    type Error = syn::Error;
-
-    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
-        match value {
-            ast::PathOrLit::Lit(lit) => {
-                if let syn::Lit::Str(_) = lit {
-                    return Err(format_err_spanned!(
-                        lit,
-                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                    ));
-                }
-                if let syn::Lit::Int(lit_int) = lit {
-                    let selector_u32 = lit_int.base10_parse::<u32>()
-                        .map_err(|error| {
-                            format_err_spanned!(
-                                lit_int,
-                                "selector value out of range. selector must be a valid `u32` integer: {}",
-                                error
-                            )
-                        })?;
-                    let selector = Selector::from(selector_u32.to_be_bytes());
-                    return Ok(SelectorOrWildcard::UserProvided(selector))
-                }
-                Err(format_err_spanned!(
-                    value,
-                    "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
-                ))
-            }
-            ast::PathOrLit::Path(path) => {
-                if path.is_ident("_") {
-                    Ok(SelectorOrWildcard::Wildcard)
-                } else {
-                    Err(format_err_spanned!(
-                        path,
-                        "expected `selector` argument to be either a 4-digit hexcode or `_`"
-                    ))
-                }
-            }
-        }
-    }
-}
-
-impl core::fmt::Display for SelectorOrWildcard {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
-        match self {
-            Self::UserProvided(selector) => core::fmt::Debug::fmt(&selector, f),
-            Self::Wildcard => write!(f, "_"),
-        }
-    }
-}
-
 /// An ink! namespace applicable to a trait implementation block.
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Namespace {
@@ -888,31 +818,7 @@ impl Parse for AttributeFrag {
                 })?;
                 match ident.to_string().as_str() {
                     "selector" => {
-                        if name_value.value.as_string().is_some() {
-                            return Err(format_err_spanned!(
-                                name_value.value,
-                                "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                            ))
-                        }
-
-                        if let Some(lit_int) = name_value.value.as_lit_int() {
-                            let selector_u32 = lit_int.base10_parse::<u32>()
-                                .map_err(|error| {
-                                    format_err_spanned!(
-                                        lit_int,
-                                        "selector value out of range. selector must be a valid `u32` integer: {}",
-                                        error
-                                    )
-                                })?;
-                            let selector = Selector::from(selector_u32.to_be_bytes());
-                            Ok(AttributeArg::Selector(selector))
-                        } else {
-                            Err(format_err_spanned!(
-                                name_value.value,
-                                "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
-                            ))
-                        }
+                        selector_from_value(&name_value.value).map(AttributeArg::Selector)
                     }
                     "namespace" => {
                         Namespace::try_from(&name_value.value)
@@ -1002,6 +908,42 @@ impl Parse for AttributeFrag {
 
         Ok(Self { ast, arg })
     }
+}
+
+/// Extract the 4 byte selector from the given `value` of the `#[ink(selector = ..)]`
+/// attribute.
+fn selector_from_value(value: &ast::PathOrLit) -> Result<Selector, syn::Error> {
+    if value.as_string().is_some() {
+        return Err(format_err_spanned!(
+            value,
+            "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+            use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+        ))
+    }
+    if let Some(lit_int) = value.as_lit_int() {
+        let selector_u32 = lit_int.base10_parse::<u32>().map_err(|error| {
+            format_err_spanned!(
+                lit_int,
+                "selector value out of range. selector must be a valid `u32` integer: {}",
+                error
+            )
+        })?;
+        let selector = Selector::from(selector_u32.to_be_bytes());
+        return Ok(selector)
+    }
+    if let ast::PathOrLit::Path(path) = value {
+        if path.is_ident("_") {
+            return Err(format_err_spanned!(
+                path,
+                "#[ink(selector = _)] wildcard attributes are no longer supported. For upgradeable \
+                 contracts use `set_code_hash` instead."
+            ))
+        }
+    }
+    Err(format_err_spanned!(
+        value,
+        "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
+    ))
 }
 
 #[cfg(test)]
