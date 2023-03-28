@@ -994,8 +994,32 @@ mod tests {
                         #[ink(message, selector = _)]
                         pub fn fallback(&self) {}
 
+                        #[ink(message, selector = selector_bytes!("IIP2_WILDCARD_COMPLEMENT"))]
+                        pub fn wildcard_complement_message(&self) {}
+                    }
+                }
+            })
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_and_one_other_message_with_wildcard_complement_selector_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn fallback(&self) {}
+
                         #[ink(message, selector = @)]
-                        pub fn well_known_other_message(&self) {}
+                        pub fn wildcard_complement_message(&self) {}
                     }
                 }
             })
@@ -1063,7 +1087,7 @@ mod tests {
                         pub fn fallback(&self) {}
 
                         #[ink(message, selector = 0x00000000)]
-                        pub fn well_known_other_message(&self) {}
+                        pub fn wildcard_complement_message(&self) {}
 
                         #[ink(message)]
                         pub fn another_message_not_allowed(&self) {}
@@ -1120,6 +1144,28 @@ mod tests {
                         pub fn my_constructor() -> Self {}
 
                         #[ink(message, selector = @)]
+                        pub fn uses_reserved_wildcard_other_message_selector(&self) {}
+                    }
+                }
+            },
+            "encountered ink! message with wildcard complement `selector = @` but no \
+            wildcard `selector = _` defined",
+        )
+    }
+
+    #[test]
+    fn wildcard_reserved_selector_used_without_wildcard_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = selector_bytes!("IIP2_WILDCARD_COMPLEMENT"))]
                         pub fn uses_reserved_wildcard_other_message_selector(&self) {}
                     }
                 }

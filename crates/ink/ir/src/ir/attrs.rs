@@ -16,6 +16,7 @@ use crate::{
     error::ExtError as _,
     ir,
     ir::{
+        item_mod::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
         ExtensionId,
         Selector,
     },
@@ -926,11 +927,20 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                             error
                                         )
                                     })?;
-                                let selector = Selector::from(selector_u32.to_be_bytes());
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
-                                })
+                                let selector_bytes = selector_u32.to_be_bytes();
+                                println!("selector_bytes: {:?}", selector_bytes);
+                                return if selector_bytes == IIP2_WILDCARD_COMPLEMENT_SELECTOR {
+                                    Ok(AttributeFrag {
+                                        ast: meta,
+                                        arg: AttributeArg::Selector(SelectorOrWildcard::WildcardComplement),
+                                    })
+                                } else {
+                                    let selector = Selector::from(selector_bytes);
+                                    Ok(AttributeFrag {
+                                        ast: meta,
+                                        arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
+                                    })
+                                }
                             }
                             return Err(format_err!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
