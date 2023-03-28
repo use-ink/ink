@@ -21,10 +21,7 @@ use crate::{
 };
 use proc_macro2::Span;
 use std::collections::HashMap;
-use syn::{
-    spanned::Spanned,
-    Expr,
-};
+use syn::spanned::Spanned;
 
 /// Ensures that the given visibility is `pub` and otherwise returns an appropriate error.
 ///
