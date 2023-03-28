@@ -888,31 +888,31 @@ impl Parse for AttributeFrag {
                 })?;
                 match ident.to_string().as_str() {
                     "selector" => {
-                        if let syn::Lit::Str(_) = lit {
+                        if name_value.value.as_string().is_some() {
                             return Err(format_err_spanned!(
-                        lit,
-                        "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                    ));
+                                name_value.value,
+                                "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                                use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                            ))
                         }
-                        if let syn::Lit::Int(lit_int) = lit {
+
+                        if let Some(lit_int) = name_value.value.as_lit_int() {
                             let selector_u32 = lit_int.base10_parse::<u32>()
                                 .map_err(|error| {
                                     format_err_spanned!(
-                                lit_int,
-                                "selector value out of range. selector must be a valid `u32` integer: {}",
-                                error
-                            )
+                                        lit_int,
+                                        "selector value out of range. selector must be a valid `u32` integer: {}",
+                                        error
+                                    )
                                 })?;
                             let selector = Selector::from(selector_u32.to_be_bytes());
-                            return Ok(SelectorOrWildcard::UserProvided(selector))
+                            Ok(AttributeArg::Selector(selector))
+                        } else {
+                            Err(format_err_spanned!(
+                                name_value.value,
+                                "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
+                            ))
                         }
-                        Err(format_err_spanned!(
-                    value,
-                    "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
-                ))
-                        SelectorOrWildcard::try_from(&name_value.value)
-                            .map(AttributeArg::Selector)
                     }
                     "namespace" => {
                         Namespace::try_from(&name_value.value)
