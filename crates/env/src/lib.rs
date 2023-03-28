@@ -57,19 +57,18 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     // This code gets removed in release builds where the macro will expand into nothing.
     debug_print!("{}\n", info);
 
-    #[cfg(target_arch = "wasm32")]
-    core::arch::wasm32::unreachable();
-
-    // For any other nostd architecture we just call an imaginary
-    // `abort` function. No other architecture is supported. We
-    // just have this to check if compilation does not break
-    // for other true nostd targets.
-    #[cfg(not(target_arch = "wasm32"))]
-    unsafe {
-        extern "C" {
-            fn abort() -> !;
+    cfg_if::cfg_if! {
+        if #[cfg(target_arch = "wasm32")] {
+            core::arch::wasm32::unreachable();
+        } else if #[cfg(target_arch = "riscv32")] {
+            // Safety: The unimp instruction is guaranteed to trap
+            unsafe {
+                core::arch::asm!("unimp");
+                core::hint::unreachable_unchecked();
+            }
+        } else {
+            core::compile_error!("ink! only supports wasm32 and riscv32");
         }
-        abort();
     }
 }
 

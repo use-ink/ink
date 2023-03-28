@@ -26,11 +26,7 @@
 //!
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-// Since we opted out of the default allocator we must also bring our own out-of-memory
-// (OOM) handler. The Rust compiler doesn't let us do this unless we add this
-// unstable/nightly feature.
-#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 // Here we set `dlmalloc` to be the global memory allocator.
 //
@@ -39,15 +35,6 @@
 #[cfg(not(feature = "std"))]
 #[global_allocator]
 static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
-
-// As mentioned earlier, we need to provide our own OOM handler.
-//
-// We don't try and handle this and opt to abort contract execution instead.
-#[cfg(not(feature = "std"))]
-#[alloc_error_handler]
-fn oom(_: core::alloc::Layout) -> ! {
-    core::arch::wasm32::unreachable()
-}
 
 #[ink::contract]
 mod custom_allocator {
