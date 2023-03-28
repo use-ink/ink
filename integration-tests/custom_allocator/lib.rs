@@ -26,8 +26,7 @@
 //!
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), no_main)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 // Here we set `dlmalloc` to be the global memory allocator.
 //

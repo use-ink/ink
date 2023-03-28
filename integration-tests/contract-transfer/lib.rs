@@ -1,8 +1,7 @@
 //! A smart contract which demonstrates behavior of the `self.env().transfer()` function.
 //! It transfers some of it's balance to the caller.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), no_main)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::contract]

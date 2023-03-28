@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), no_main)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 //! Traits are extracted into a separate crate to show how the user can import
 //! several foreign traits and implement those for the contract.

@@ -1,8 +1,7 @@
 //! A smart contract which demonstrates behavior of the `self.env().terminate()`
 //! function. It terminates itself once `terminate_me()` is called.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), no_main)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::contract]

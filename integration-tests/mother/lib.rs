@@ -15,8 +15,7 @@
 //!   4. Perform debug printing from contract into the node's log.
 //!   5. Use complex types in storage.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), no_main)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod mother {
