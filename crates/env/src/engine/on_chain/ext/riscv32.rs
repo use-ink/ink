@@ -263,12 +263,10 @@ macro_rules! impl_wrapper_for {
 
             pub fn $name(output: &mut &mut [u8]) {
                 let mut output_len = output.len() as u32;
-                {
-					(
-						Ptr32Mut::from_slice(output),
-						Ptr32Mut::from_ref(&mut output_len),
-					).using_encoded(|in_data| sys::call(FUNC_ID, Ptr32::from_slice(in_data)));
-                }
+                (
+                    Ptr32Mut::from_slice(output),
+                    Ptr32Mut::from_ref(&mut output_len),
+                ).using_encoded(|in_data| sys::call(FUNC_ID, Ptr32::from_slice(in_data)));
             }
         )*
     }
