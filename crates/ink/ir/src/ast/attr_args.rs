@@ -12,19 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-};
-use quote::ToTokens;
+use super::MetaNameValue;
 use syn::{
-    ext::IdentExt as _,
     parse::{
         Parse,
         ParseStream,
     },
     punctuated::Punctuated,
-    spanned::Spanned,
     Token,
 };
 
@@ -35,24 +29,6 @@ use syn::{
 #[derive(Debug, PartialEq, Eq)]
 pub struct AttributeArgs {
     args: Punctuated<MetaNameValue, Token![,]>,
-}
-
-/// A name-value pair within an attribute, like `feature = "nightly"`.
-///
-/// The only difference from `syn::MetaNameValue` is that this additionally
-/// allows the `value` to be a plain identifier or path.
-#[derive(Debug, PartialEq, Eq)]
-pub struct MetaNameValue {
-    pub name: syn::Path,
-    pub eq_token: syn::token::Eq,
-    pub value: PathOrLit,
-}
-
-/// Either a path or a literal.
-#[derive(Debug, PartialEq, Eq)]
-pub enum PathOrLit {
-    Path(syn::Path),
-    Lit(syn::Lit),
 }
 
 impl IntoIterator for AttributeArgs {
@@ -72,94 +48,10 @@ impl Parse for AttributeArgs {
     }
 }
 
-impl Parse for MetaNameValue {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        let path = input.call(Self::parse_meta_path)?;
-        Self::parse_meta_name_value_after_path(path, input)
-    }
-}
-
-impl ToTokens for PathOrLit {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        match self {
-            Self::Lit(lit) => lit.to_tokens(tokens),
-            Self::Path(path) => path.to_tokens(tokens),
-        }
-    }
-}
-
-impl ToTokens for MetaNameValue {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        self.name.to_tokens(tokens);
-        self.eq_token.to_tokens(tokens);
-        self.value.to_tokens(tokens);
-    }
-}
-
-impl MetaNameValue {
-    /// Like [`syn::Path::parse_mod_style`] but accepts keywords in the path.
-    ///
-    /// # Note
-    ///
-    /// This code was taken from the `syn` implementation for a very similar
-    /// syntactical pattern.
-    fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
-        Ok(syn::Path {
-            leading_colon: input.parse()?,
-            segments: {
-                let mut segments = Punctuated::new();
-                while input.peek(Ident::peek_any) {
-                    let ident = Ident::parse_any(input)?;
-                    segments.push_value(syn::PathSegment::from(ident));
-                    if !input.peek(syn::Token![::]) {
-                        break
-                    }
-                    let punct = input.parse()?;
-                    segments.push_punct(punct);
-                }
-                if segments.is_empty() {
-                    return Err(input.error("expected path"))
-                } else if segments.trailing_punct() {
-                    return Err(input.error("expected path segment"))
-                }
-                segments
-            },
-        })
-    }
-
-    fn parse_meta_name_value_after_path(
-        name: syn::Path,
-        input: ParseStream,
-    ) -> Result<MetaNameValue, syn::Error> {
-        let span = name.span();
-        Ok(MetaNameValue {
-            name,
-            eq_token: input.parse().map_err(|_error| {
-                format_err!(
-                    span,
-                    "ink! config options require an argument separated by '='",
-                )
-            })?,
-            value: input.parse()?,
-        })
-    }
-}
-
-impl Parse for PathOrLit {
-    fn parse(input: ParseStream) -> Result<Self, syn::Error> {
-        if input.fork().peek(syn::Lit) {
-            return input.parse::<syn::Lit>().map(PathOrLit::Lit)
-        }
-        if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
-            return input.parse::<syn::Path>().map(PathOrLit::Path)
-        }
-        Err(input.error("cannot parse into either literal or path"))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::PathOrLit;
     use quote::quote;
 
     impl AttributeArgs {

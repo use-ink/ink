@@ -43,8 +43,8 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
         'outer: loop {
             match self.iter.next() {
                 None => return None,
-                Some(syn::TraitItem::Method(method)) => {
-                    let first_attr = ir::first_ink_attribute(&method.attrs)
+                Some(syn::TraitItem::Fn(function)) => {
+                    let first_attr = ir::first_ink_attribute(&function.attrs)
                         .ok()
                         .flatten()
                         .expect("unexpected missing ink! attribute for trait method")
@@ -54,7 +54,7 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
                     match first_attr {
                         ir::AttributeArg::Message => {
                             return Some(InkTraitItem::Message(InkTraitMessage::new(
-                                method,
+                                function,
                             )))
                         }
                         _ => continue 'outer,

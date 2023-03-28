@@ -70,7 +70,7 @@ impl ChainExtension {
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtensionMethod {
     /// The underlying validated AST of the chain extension method.
-    item: syn::TraitItemMethod,
+    item: syn::TraitItemFn,
     /// The unique identifier of the chain extension method.
     id: ExtensionId,
     /// If `false` the `u32` status code of the chain extension method call is going to
@@ -357,8 +357,8 @@ impl ChainExtension {
                         "encountered unsupported item in ink! chain extensions"
                     ))
                 }
-                syn::TraitItem::Method(method_trait_item) => {
-                    let method = Self::analyse_methods(method_trait_item)?;
+                syn::TraitItem::Fn(fn_trait_item) => {
+                    let method = Self::analyse_methods(fn_trait_item)?;
                     let method_id = method.id();
                     if let Some(previous) = seen_ids.get(&method_id) {
                         return Err(format_err!(
@@ -401,7 +401,7 @@ impl ChainExtension {
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    fn analyse_methods(method: &syn::TraitItemMethod) -> Result<ChainExtensionMethod> {
+    fn analyse_methods(method: &syn::TraitItemFn) -> Result<ChainExtensionMethod> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
@@ -470,7 +470,7 @@ impl ChainExtension {
     ///
     /// - If the chain extension method has a `self` receiver as first argument.
     fn analyse_chain_extension_method(
-        item_method: &syn::TraitItemMethod,
+        item_method: &syn::TraitItemFn,
         extension: ExtensionId,
     ) -> Result<ChainExtensionMethod> {
         let (ink_attrs, _) = ir::sanitize_attributes(
@@ -740,7 +740,7 @@ mod tests {
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "unknown ink! attribute (path)",
+            error: "encountered unknown ink! attribute argument: unknown",
             pub trait MyChainExtension {
                 #[ink(unknown)]
                 fn unknown_ink_attribute(&self);
@@ -751,7 +751,8 @@ mod tests {
     #[test]
     fn chain_extension_containing_method_with_invalid_marker() {
         assert_ink_chain_extension_eq_err!(
-            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
+            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            invalid digit found in string",
             pub trait MyChainExtension {
                 #[ink(extension = -1)]
                 fn has_self_receiver();
@@ -759,7 +760,8 @@ mod tests {
         );
         let too_large = (u32::MAX as u64) + 1;
         assert_ink_chain_extension_eq_err!(
-            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
+            error: "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            number too large to fit in target type",
             pub trait MyChainExtension {
                 #[ink(extension = #too_large)]
                 fn has_self_receiver();
