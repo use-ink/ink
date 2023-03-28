@@ -190,15 +190,6 @@
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -265,7 +256,7 @@
 <span class="doccomment">/// A checked ink! message of an ink! trait definition.
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>InkTraitMessage&lt;<span class="lifetime">&#39;a</span>&gt; {
-    item: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::TraitItemMethod,
+    item: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::TraitItemFn,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; InkTraitMessage&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -274,7 +265,7 @@
         <span class="string">&quot;encountered invalid attributes for ink! trait message&quot;</span>;
 
     <span class="doccomment">/// Creates a new ink! trait definition message.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(item: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::TraitItemMethod) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new(item: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::TraitItemFn) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ item }
     }
 
@@ -380,16 +371,7 @@
     </span><span class="kw">pub fn </span>mutates(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.sig()
             .receiver()
-            .map(|fn_arg| <span class="kw">match </span>fn_arg {
-                syn::FnArg::Receiver(receiver) <span class="kw">if </span>receiver.mutability.is_some() =&gt; <span class="bool-val">true</span>,
-                syn::FnArg::Typed(pat_type) =&gt; {
-                    <span class="macro">matches!</span>(
-                        <span class="kw-2">&amp;*</span>pat_type.ty,
-                        syn::Type::Reference(reference) <span class="kw">if </span>reference.mutability.is_some()
-                    )
-                }
-                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-            })
+            .map(|receiver| receiver.mutability.is_some())
             .expect(<span class="string">&quot;encountered missing receiver for ink! message&quot;</span>)
     }
 }

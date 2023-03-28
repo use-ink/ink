@@ -216,25 +216,25 @@
 
     <span class="kw">fn </span>try_from(impl_item: syn::ImplItem) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>impl_item {
-            syn::ImplItem::Method(method_item) =&gt; {
-                <span class="kw">if </span>!ir::contains_ink_attributes(<span class="kw-2">&amp;</span>method_item.attrs) {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::Other(method_item.into()))
+            syn::ImplItem::Fn(fn_item) =&gt; {
+                <span class="kw">if </span>!ir::contains_ink_attributes(<span class="kw-2">&amp;</span>fn_item.attrs) {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::Other(fn_item.into()))
                 }
-                <span class="kw">let </span>attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>method_item.attrs)<span class="question-mark">?
+                <span class="kw">let </span>attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>fn_item.attrs)<span class="question-mark">?
                     </span>.expect(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
                 <span class="kw">match </span>attr.first().kind() {
                     ir::AttributeArg::Message =&gt; {
-                        &lt;Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(method_item)
+                        &lt;Message <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(fn_item)
                             .map(Into::into)
                             .map(<span class="self">Self</span>::Message)
                     }
                     ir::AttributeArg::Constructor =&gt; {
-                        &lt;Constructor <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(method_item)
+                        &lt;Constructor <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(fn_item)
                             .map(Into::into)
                             .map(<span class="self">Self</span>::Constructor)
                     }
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        method_item,
+                        fn_item,
                         <span class="string">&quot;encountered invalid ink! attribute at this point, expected either \
                         #[ink(message)] or #[ink(constructor) attributes&quot;
                     </span>)),

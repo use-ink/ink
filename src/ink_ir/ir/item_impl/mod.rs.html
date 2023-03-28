@@ -458,7 +458,7 @@
     unsafety: <span class="prelude-ty">Option</span>&lt;syn::token::Unsafe&gt;,
     impl_token: syn::token::Impl,
     generics: syn::Generics,
-    trait_: <span class="prelude-ty">Option</span>&lt;(<span class="prelude-ty">Option</span>&lt;syn::token::Bang&gt;, syn::Path, syn::token::For)&gt;,
+    trait_: <span class="prelude-ty">Option</span>&lt;(<span class="prelude-ty">Option</span>&lt;<span class="macro">syn::Token!</span>[!]&gt;, syn::Path, syn::token::For)&gt;,
     self_ty: Box&lt;syn::Type&gt;,
     brace_token: syn::token::Brace,
     items: Vec&lt;ImplItem&gt;,
@@ -574,11 +574,11 @@
         // an ink! constructor or an ink! message:
         </span><span class="lifetime">&#39;repeat</span>: <span class="kw">for </span>item <span class="kw">in </span><span class="kw-2">&amp;</span>item_impl.items {
             <span class="kw">match </span>item {
-                syn::ImplItem::Method(method_item) =&gt; {
-                    <span class="kw">if </span>!ir::contains_ink_attributes(<span class="kw-2">&amp;</span>method_item.attrs) {
+                syn::ImplItem::Fn(fn_item) =&gt; {
+                    <span class="kw">if </span>!ir::contains_ink_attributes(<span class="kw-2">&amp;</span>fn_item.attrs) {
                         <span class="kw">continue </span><span class="lifetime">&#39;repeat
                     </span>}
-                    <span class="kw">let </span>attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>method_item.attrs)<span class="question-mark">?
+                    <span class="kw">let </span>attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>fn_item.attrs)<span class="question-mark">?
                         </span>.expect(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
                     <span class="kw">match </span>attr.first().kind() {
                         ir::AttributeArg::Constructor | ir::AttributeArg::Message =&gt; {

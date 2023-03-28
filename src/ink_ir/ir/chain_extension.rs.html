@@ -972,6 +972,8 @@
 <a href="#971" id="971">971</a>
 <a href="#972" id="972">972</a>
 <a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1044,7 +1046,7 @@
 </span><span class="attr">#[derive(Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>ChainExtensionMethod {
     <span class="doccomment">/// The underlying validated AST of the chain extension method.
-    </span>item: syn::TraitItemMethod,
+    </span>item: syn::TraitItemFn,
     <span class="doccomment">/// The unique identifier of the chain extension method.
     </span>id: ExtensionId,
     <span class="doccomment">/// If `false` the `u32` status code of the chain extension method call is going to
@@ -1331,8 +1333,8 @@
                         <span class="string">&quot;encountered unsupported item in ink! chain extensions&quot;
                     </span>))
                 }
-                syn::TraitItem::Method(method_trait_item) =&gt; {
-                    <span class="kw">let </span>method = <span class="self">Self</span>::analyse_methods(method_trait_item)<span class="question-mark">?</span>;
+                syn::TraitItem::Fn(fn_trait_item) =&gt; {
+                    <span class="kw">let </span>method = <span class="self">Self</span>::analyse_methods(fn_trait_item)<span class="question-mark">?</span>;
                     <span class="kw">let </span>method_id = method.id();
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(previous) = seen_ids.get(<span class="kw-2">&amp;</span>method_id) {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
@@ -1375,7 +1377,7 @@
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    </span><span class="kw">fn </span>analyse_methods(method: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;ChainExtensionMethod&gt; {
+    </span><span class="kw">fn </span>analyse_methods(method: <span class="kw-2">&amp;</span>syn::TraitItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;ChainExtensionMethod&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(default_impl) = <span class="kw-2">&amp;</span>method.default {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 default_impl,
@@ -1444,7 +1446,7 @@
     ///
     /// - If the chain extension method has a `self` receiver as first argument.
     </span><span class="kw">fn </span>analyse_chain_extension_method(
-        item_method: <span class="kw-2">&amp;</span>syn::TraitItemMethod,
+        item_method: <span class="kw-2">&amp;</span>syn::TraitItemFn,
         extension: ExtensionId,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ChainExtensionMethod&gt; {
         <span class="kw">let </span>(ink_attrs, <span class="kw">_</span>) = ir::sanitize_attributes(
@@ -1714,7 +1716,7 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;unknown ink! attribute (path)&quot;</span>,
+            error: <span class="string">&quot;encountered unknown ink! attribute argument: unknown&quot;</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(unknown)]
                 </span><span class="kw">fn </span>unknown_ink_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>);
@@ -1725,7 +1727,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>chain_extension_containing_method_with_invalid_marker() {
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
+            error: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            invalid digit found in string&quot;</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(extension = -<span class="number">1</span>)]
                 </span><span class="kw">fn </span>has_self_receiver();
@@ -1733,7 +1736,8 @@
         );
         <span class="kw">let </span>too_large = (u32::MAX <span class="kw">as </span>u64) + <span class="number">1</span>;
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            error: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
+            error: <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: \
+            number too large to fit in target type&quot;</span>,
             <span class="kw">pub trait </span>MyChainExtension {
                 <span class="attr">#[ink(extension = #too_large)]
                 </span><span class="kw">fn </span>has_self_receiver();

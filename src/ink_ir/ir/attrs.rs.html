@@ -1486,22 +1486,6 @@
 <a href="#1485" id="1485">1485</a>
 <a href="#1486" id="1486">1486</a>
 <a href="#1487" id="1487">1487</a>
-<a href="#1488" id="1488">1488</a>
-<a href="#1489" id="1489">1489</a>
-<a href="#1490" id="1490">1490</a>
-<a href="#1491" id="1491">1491</a>
-<a href="#1492" id="1492">1492</a>
-<a href="#1493" id="1493">1493</a>
-<a href="#1494" id="1494">1494</a>
-<a href="#1495" id="1495">1495</a>
-<a href="#1496" id="1496">1496</a>
-<a href="#1497" id="1497">1497</a>
-<a href="#1498" id="1498">1498</a>
-<a href="#1499" id="1499">1499</a>
-<a href="#1500" id="1500">1500</a>
-<a href="#1501" id="1501">1501</a>
-<a href="#1502" id="1502">1502</a>
-<a href="#1503" id="1503">1503</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1516,7 +1500,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-</span><span class="kw">use crate</span>::{
+</span><span class="kw">use </span>core::result::Result;
+<span class="kw">use </span>std::collections::HashMap;
+
+<span class="kw">use </span>proc_macro2::{
+    Span,
+    TokenStream <span class="kw">as </span>TokenStream2,
+};
+<span class="kw">use </span>quote::ToTokens;
+<span class="kw">use </span>syn::{
+    parse::{
+        Parse,
+        ParseStream,
+    },
+    punctuated::Punctuated,
+    spanned::Spanned,
+    Token,
+};
+
+<span class="kw">use crate</span>::{
+    ast::{<span class="self">self</span>,},
     error::ExtError <span class="kw">as _</span>,
     ir,
     ir::{
@@ -1524,16 +1527,6 @@
         Selector,
     },
 };
-<span class="kw">use </span>core::result::Result;
-<span class="kw">use </span>proc_macro2::{
-    Group <span class="kw">as </span>Group2,
-    Ident,
-    Span,
-    TokenStream <span class="kw">as </span>TokenStream2,
-    TokenTree <span class="kw">as </span>TokenTree2,
-};
-<span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>syn::spanned::Spanned;
 
 <span class="doccomment">/// An extension trait for [`syn::Attribute`] in order to query for documentation.
 </span><span class="kw">pub trait </span>IsDocAttribute {
@@ -1546,19 +1539,22 @@
 
 <span class="kw">impl </span>IsDocAttribute <span class="kw">for </span>syn::Attribute {
     <span class="kw">fn </span>is_doc_attribute(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.path.is_ident(<span class="string">&quot;doc&quot;</span>)
+        <span class="self">self</span>.path().is_ident(<span class="string">&quot;doc&quot;</span>)
     }
 
     <span class="kw">fn </span>extract_docs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.is_doc_attribute() {
             <span class="kw">return </span><span class="prelude-val">None
         </span>}
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(syn::Meta::NameValue(syn::MetaNameValue {
-            lit: syn::Lit::Str(lit_str),
-            ..
-        })) = <span class="self">self</span>.parse_meta()
-        {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(lit_str.value())
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.meta {
+            syn::Meta::NameValue(nv) =&gt; {
+                <span class="kw">if let </span>syn::Expr::Lit(l) = <span class="kw-2">&amp;</span>nv.value {
+                    <span class="kw">if let </span>syn::Lit::Str(s) = <span class="kw-2">&amp;</span>l.lit {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(s.value())
+                    }
+                }
+            }
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         }
         <span class="prelude-val">None
     </span>}
@@ -1586,7 +1582,7 @@
     <span class="kw">fn </span>attrs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[syn::Attribute] {
         <span class="kw">match </span><span class="self">self </span>{
             syn::ImplItem::Const(item) =&gt; <span class="kw-2">&amp;</span>item.attrs,
-            syn::ImplItem::Method(item) =&gt; <span class="kw-2">&amp;</span>item.attrs,
+            syn::ImplItem::Fn(item) =&gt; <span class="kw-2">&amp;</span>item.attrs,
             syn::ImplItem::Type(item) =&gt; <span class="kw-2">&amp;</span>item.attrs,
             syn::ImplItem::Macro(item) =&gt; <span class="kw-2">&amp;</span>item.attrs,
             <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>[],
@@ -1605,7 +1601,6 @@
             | Item::ForeignMod(syn::ItemForeignMod { attrs, .. })
             | Item::Impl(syn::ItemImpl { attrs, .. })
             | Item::Macro(syn::ItemMacro { attrs, .. })
-            | Item::Macro2(syn::ItemMacro2 { attrs, .. })
             | Item::Mod(syn::ItemMod { attrs, .. })
             | Item::Static(syn::ItemStatic { attrs, .. })
             | Item::Struct(syn::ItemStruct { attrs, .. })
@@ -1643,14 +1638,11 @@
     </span>args: Vec&lt;AttributeFrag&gt;,
 }
 
-<span class="kw">impl </span>Spanned <span class="kw">for </span>InkAttribute {
-    <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-        <span class="self">self</span>.args
-            .iter()
-            .map(|arg| arg.span())
-            .fold(<span class="self">self</span>.first().span(), |fst, snd| {
-                fst.join(snd).unwrap_or_else(|| <span class="self">self</span>.first().span())
-            })
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>InkAttribute {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream2) {
+        <span class="kw">for </span>arg <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.args {
+            arg.to_tokens(tokens)
+        }
     }
 }
 
@@ -1813,8 +1805,8 @@
 <span class="doccomment">/// An ink! specific attribute argument.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 </span><span class="kw">pub struct </span>AttributeFrag {
-    <span class="kw">pub </span>ast: syn::Meta,
-    <span class="kw">pub </span>arg: AttributeArg,
+    ast: ast::Meta,
+    arg: AttributeArg,
 }
 
 <span class="kw">impl </span>AttributeFrag {
@@ -1824,9 +1816,9 @@
     }
 }
 
-<span class="kw">impl </span>Spanned <span class="kw">for </span>AttributeFrag {
-    <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
-        <span class="self">self</span>.ast.span()
+<span class="kw">impl </span>ToTokens <span class="kw">for </span>AttributeFrag {
+    <span class="kw">fn </span>to_tokens(<span class="kw-2">&amp;</span><span class="self">self</span>, tokens: <span class="kw-2">&amp;mut </span>TokenStream2) {
+        <span class="self">self</span>.ast.to_tokens(tokens)
     }
 }
 
@@ -2023,6 +2015,50 @@
     }
 }
 
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>ast::PathOrLit&gt; <span class="kw">for </span>SelectorOrWildcard {
+    <span class="kw">type </span>Error = syn::Error;
+
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>ast::PathOrLit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span>value {
+            ast::PathOrLit::Lit(lit) =&gt; {
+                <span class="kw">if let </span>syn::Lit::Str(<span class="kw">_</span>) = lit {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        lit,
+                        <span class="string">&quot;#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].&quot;
+                    </span>));
+                }
+                <span class="kw">if let </span>syn::Lit::Int(lit_int) = lit {
+                    <span class="kw">let </span>selector_u32 = lit_int.base10_parse::&lt;u32&gt;()
+                        .map_err(|error| {
+                            <span class="macro">format_err_spanned!</span>(
+                                lit_int,
+                                <span class="string">&quot;selector value out of range. selector must be a valid `u32` integer: {}&quot;</span>,
+                                error
+                            )
+                        })<span class="question-mark">?</span>;
+                    <span class="kw">let </span>selector = Selector::from(selector_u32.to_be_bytes());
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(SelectorOrWildcard::UserProvided(selector))
+                }
+                <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    value,
+                    <span class="string">&quot;expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;
+                </span>))
+            }
+            ast::PathOrLit::Path(path) =&gt; {
+                <span class="kw">if </span>path.is_ident(<span class="string">&quot;_&quot;</span>) {
+                    <span class="prelude-val">Ok</span>(SelectorOrWildcard::Wildcard)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                        path,
+                        <span class="string">&quot;expected `selector` argument to be either a 4-digit hexcode or `_`&quot;
+                    </span>))
+                }
+            }
+        }
+    }
+}
+
 <span class="kw">impl </span>core::fmt::Display <span class="kw">for </span>SelectorOrWildcard {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter) -&gt; <span class="prelude-ty">Result</span>&lt;(), core::fmt::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
@@ -2037,6 +2073,28 @@
 </span><span class="kw">pub struct </span>Namespace {
     <span class="doccomment">/// The underlying bytes.
     </span>bytes: Vec&lt;u8&gt;,
+}
+
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>ast::PathOrLit&gt; <span class="kw">for </span>Namespace {
+    <span class="kw">type </span>Error = syn::Error;
+
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>ast::PathOrLit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if let </span>ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = value {
+            <span class="kw">let </span>argument = lit_str.value();
+            syn::parse_str::&lt;syn::Ident&gt;(<span class="kw-2">&amp;</span>argument).map_err(|_error| {
+                <span class="macro">format_err_spanned!</span>(
+                    lit_str,
+                    <span class="string">&quot;encountered invalid Rust identifier for namespace argument&quot;</span>,
+                )
+            })<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(Namespace::from(argument.into_bytes()))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                value,
+                <span class="string">&quot;expected string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>,
+            ))
+        }
+    }
 }
 
 <span class="kw">impl </span>From&lt;Vec&lt;u8&gt;&gt; <span class="kw">for </span>Namespace {
@@ -2063,7 +2121,7 @@
 <span class="kw">where
     </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Attribute&gt;,
 {
-    attrs.into_iter().any(|attr| attr.path.is_ident(<span class="string">&quot;ink&quot;</span>))
+    attrs.into_iter().any(|attr| attr.path().is_ident(<span class="string">&quot;ink&quot;</span>))
 }
 
 <span class="doccomment">/// Returns the first valid ink! attribute, if any.
@@ -2079,7 +2137,7 @@
 <span class="kw">where
     </span>I: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>syn::Attribute&gt;,
 {
-    <span class="kw">let </span>first = attrs.into_iter().find(|attr| attr.path.is_ident(<span class="string">&quot;ink&quot;</span>));
+    <span class="kw">let </span>first = attrs.into_iter().find(|attr| attr.path().is_ident(<span class="string">&quot;ink&quot;</span>));
     <span class="kw">match </span>first {
         <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
         <span class="prelude-val">Some</span>(ink_attr) =&gt; InkAttribute::try_from(ink_attr.clone()).map(<span class="prelude-val">Some</span>),
@@ -2233,7 +2291,7 @@
     <span class="kw">type </span>Error = syn::Error;
 
     <span class="kw">fn </span>try_from(attr: syn::Attribute) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">if </span>attr.path.is_ident(<span class="string">&quot;ink&quot;</span>) {
+        <span class="kw">if </span>attr.path().is_ident(<span class="string">&quot;ink&quot;</span>) {
             <span class="kw">return </span>&lt;InkAttribute <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(attr).map(Into::into)
         }
         <span class="prelude-val">Ok</span>(Attribute::Other(attr))
@@ -2246,86 +2304,27 @@
     }
 }
 
-<span class="doccomment">/// This function replaces occurrences of a `TokenTree::Ident` of the sequence
-/// `selector = _` with the sequence `selector = &quot;_&quot;`.
-///
-/// This is done because `syn::Attribute::parse_meta` does not support parsing a
-/// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
-/// which requires a more in-depth rewrite of our IR parsing.
-</span><span class="kw">fn </span>transform_wildcard_selector_to_string(group: Group2) -&gt; TokenTree2 {
-    <span class="kw">let </span><span class="kw-2">mut </span>found_selector = <span class="bool-val">false</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>found_equal = <span class="bool-val">false</span>;
-
-    <span class="kw">let </span>new_group: TokenStream2 = group
-        .stream()
-        .into_iter()
-        .map(|tt| {
-            <span class="kw">match </span>tt {
-                TokenTree2::Group(grp) =&gt; transform_wildcard_selector_to_string(grp),
-                TokenTree2::Ident(ident)
-                    <span class="kw">if </span>found_selector &amp;&amp; found_equal &amp;&amp; ident == <span class="string">&quot;_&quot; </span>=&gt;
-                {
-                    <span class="kw">let </span><span class="kw-2">mut </span>lit = proc_macro2::Literal::string(<span class="string">&quot;_&quot;</span>);
-                    lit.set_span(ident.span());
-                    found_selector = <span class="bool-val">false</span>;
-                    found_equal = <span class="bool-val">false</span>;
-                    TokenTree2::Literal(lit)
-                }
-                TokenTree2::Ident(ident) <span class="kw">if </span>ident == <span class="string">&quot;selector&quot; </span>=&gt; {
-                    found_selector = <span class="bool-val">true</span>;
-                    TokenTree2::Ident(ident)
-                }
-                TokenTree2::Punct(punct) <span class="kw">if </span>punct.as_char() == <span class="string">&#39;=&#39; </span>=&gt; {
-                    found_equal = <span class="bool-val">true</span>;
-                    TokenTree2::Punct(punct)
-                }
-                <span class="kw">_ </span>=&gt; tt,
-            }
-        })
-        .collect();
-    TokenTree2::Group(Group2::new(group.delimiter(), new_group))
-}
-
 <span class="kw">impl </span>TryFrom&lt;syn::Attribute&gt; <span class="kw">for </span>InkAttribute {
     <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn </span>try_from(<span class="kw-2">mut </span>attr: syn::Attribute) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">if </span>!attr.path.is_ident(<span class="string">&quot;ink&quot;</span>) {
+    <span class="kw">fn </span>try_from(attr: syn::Attribute) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if </span>!attr.path().is_ident(<span class="string">&quot;ink&quot;</span>) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(attr, <span class="string">&quot;unexpected non-ink! attribute&quot;</span>))
         }
 
-        <span class="kw">let </span>ts: TokenStream2 = attr
-            .tokens
-            .into_iter()
-            .map(|tt| {
-                <span class="kw">match </span>tt {
-                    TokenTree2::Group(grp) =&gt; transform_wildcard_selector_to_string(grp),
-                    <span class="kw">_ </span>=&gt; tt,
-                }
-            })
+        <span class="kw">let </span>args: Vec&lt;<span class="kw">_</span>&gt; = attr
+            .parse_args_with(Punctuated::&lt;AttributeFrag, <span class="macro">Token!</span>[,]&gt;::parse_terminated)<span class="question-mark">?
+            </span>.into_iter()
             .collect();
-        attr.tokens = ts;
 
-        <span class="kw">match </span>attr.parse_meta().map_err(|<span class="kw">_</span>| {
-            <span class="macro">format_err_spanned!</span>(attr, <span class="string">&quot;unexpected ink! attribute structure&quot;</span>)
-        })<span class="question-mark">? </span>{
-            syn::Meta::List(meta_list) =&gt; {
-                <span class="kw">let </span>args = meta_list
-                    .nested
-                    .into_iter()
-                    .map(&lt;AttributeFrag <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from)
-                    .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, syn::Error&gt;&gt;()<span class="question-mark">?</span>;
-                <span class="self">Self</span>::ensure_no_duplicate_args(<span class="kw-2">&amp;</span>args)<span class="question-mark">?</span>;
-                <span class="kw">if </span>args.is_empty() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        attr,
-                        <span class="string">&quot;encountered unsupported empty ink! attribute&quot;
-                    </span>))
-                }
-                <span class="prelude-val">Ok</span>(InkAttribute { args })
-            }
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(attr, <span class="string">&quot;unknown ink! attribute&quot;</span>)),
+        <span class="self">Self</span>::ensure_no_duplicate_args(<span class="kw-2">&amp;</span>args)<span class="question-mark">?</span>;
+        <span class="kw">if </span>args.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                attr,
+                <span class="string">&quot;encountered unsupported empty ink! attribute&quot;
+            </span>))
         }
+        <span class="prelude-val">Ok</span>(InkAttribute { args })
     }
 }
 
@@ -2377,153 +2376,110 @@
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;syn::NestedMeta&gt; <span class="kw">for </span>AttributeFrag {
-    <span class="kw">type </span>Error = syn::Error;
+<span class="kw">impl </span>Parse <span class="kw">for </span>AttributeFrag {
+    <span class="kw">fn </span>parse(input: ParseStream) -&gt; syn::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>ast: ast::Meta = input.parse()<span class="question-mark">?</span>;
 
-    <span class="kw">fn </span>try_from(nested_meta: syn::NestedMeta) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">match </span>nested_meta {
-            syn::NestedMeta::Meta(meta) =&gt; {
-                <span class="kw">match </span><span class="kw-2">&amp;</span>meta {
-                    syn::Meta::NameValue(name_value) =&gt; {
-                        <span class="kw">if </span>name_value.path.is_ident(<span class="string">&quot;selector&quot;</span>) {
-                            <span class="kw">if let </span>syn::Lit::Str(lit_str) = <span class="kw-2">&amp;</span>name_value.lit {
-                                <span class="kw">let </span>argument = lit_str.value();
-                                <span class="comment">// We&#39;ve pre-processed the verbatim `_` to `&quot;_&quot;`. This was done
-                                // because `syn::Attribute::parse_meta` does not support verbatim.
-                                </span><span class="kw">if </span>argument != <span class="string">&quot;_&quot; </span>{
-                                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                                        name_value,
-                                        <span class="string">&quot;#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].&quot;
-                                    </span>))
-                                }
-                                <span class="kw">return </span><span class="prelude-val">Ok</span>(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
-                                })
-                            }
-
-                            <span class="kw">if let </span>syn::Lit::Int(lit_int) = <span class="kw-2">&amp;</span>name_value.lit {
-                                <span class="kw">let </span>selector_u32 = lit_int.base10_parse::&lt;u32&gt;()
-                                    .map_err(|error| {
-                                        <span class="macro">format_err_spanned!</span>(
-                                            lit_int,
-                                            <span class="string">&quot;selector value out of range. selector must be a valid `u32` integer: {}&quot;</span>,
-                                            error
-                                        )
-                                    })<span class="question-mark">?</span>;
-                                <span class="kw">let </span>selector = Selector::from(selector_u32.to_be_bytes());
-                                <span class="kw">return </span><span class="prelude-val">Ok</span>(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
-                                })
-                            }
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(name_value, <span class="string">&quot;expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>))
-                        }
-                        <span class="kw">if </span>name_value.path.is_ident(<span class="string">&quot;namespace&quot;</span>) {
-                            <span class="kw">if let </span>syn::Lit::Str(lit_str) = <span class="kw-2">&amp;</span>name_value.lit {
-                                <span class="kw">let </span>argument = lit_str.value();
-                                syn::parse_str::&lt;syn::Ident&gt;(<span class="kw-2">&amp;</span>argument)
-                                    .map_err(|_error| <span class="macro">format_err!</span>(
-                                        lit_str,
-                                        <span class="string">&quot;encountered invalid Rust identifier for namespace argument&quot;</span>,
-                                    ))<span class="question-mark">?</span>;
-                                <span class="kw">return </span><span class="prelude-val">Ok</span>(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Namespace(
-                                        Namespace::from(argument.into_bytes()),
-                                    ),
-                                })
-                            }
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(name_value, <span class="string">&quot;expected string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>))
-                        }
-                        <span class="kw">if </span>name_value.path.is_ident(<span class="string">&quot;extension&quot;</span>) {
-                            <span class="kw">if let </span>syn::Lit::Int(lit_int) = <span class="kw-2">&amp;</span>name_value.lit {
-                                <span class="kw">let </span>id = lit_int.base10_parse::&lt;u32&gt;().map_err(|parse_err| {
-                                    <span class="macro">format_err!</span>(
-                                        name_value,
-                                        <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
-                                    ).into_combine(parse_err)
+        <span class="kw">let </span>arg = <span class="kw">match </span><span class="kw-2">&amp;</span>ast {
+            ast::Meta::NameValue(name_value) =&gt; {
+                <span class="kw">let </span>ident = name_value.name.get_ident().ok_or_else(|| {
+                    <span class="macro">format_err_spanned!</span>(
+                        name_value.name,
+                        <span class="string">&quot;expected identifier for ink! attribute argument&quot;</span>,
+                    )
+                })<span class="question-mark">?</span>;
+                <span class="kw">match </span>ident.to_string().as_str() {
+                    <span class="string">&quot;selector&quot; </span>=&gt; {
+                        SelectorOrWildcard::try_from(<span class="kw-2">&amp;</span>name_value.value)
+                            .map(AttributeArg::Selector)
+                    }
+                    <span class="string">&quot;namespace&quot; </span>=&gt; {
+                        Namespace::try_from(<span class="kw-2">&amp;</span>name_value.value)
+                            .map(AttributeArg::Namespace)
+                    }
+                    <span class="string">&quot;extension&quot; </span>=&gt; {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(lit_int) = name_value.value.as_lit_int() {
+                            <span class="kw">let </span>id = lit_int.base10_parse::&lt;u32&gt;()
+                                .map_err(|error| {
+                                    <span class="macro">format_err_spanned!</span>(
+                                        lit_int,
+                                        <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: {}&quot;</span>, error)
                                 })<span class="question-mark">?</span>;
-                                <span class="kw">return </span><span class="prelude-val">Ok</span>(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Extension(
-                                        ExtensionId::from_u32(id),
-                                    ),
-                                })
-                            }
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(name_value, <span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>))
+                            <span class="prelude-val">Ok</span>(AttributeArg::Extension(ExtensionId::from_u32(id)))
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                                name_value.value,
+                                <span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>,
+                            ))
                         }
-                        <span class="kw">if </span>name_value.path.is_ident(<span class="string">&quot;handle_status&quot;</span>) {
-                            <span class="kw">if let </span>syn::Lit::Bool(lit_bool) = <span class="kw-2">&amp;</span>name_value.lit {
-                                <span class="kw">let </span>value = lit_bool.value;
-                                <span class="kw">return </span><span class="prelude-val">Ok</span>(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::HandleStatus(value),
-                                })
-                            }
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(name_value, <span class="string">&quot;expected `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>))
+                    }
+                    <span class="string">&quot;handle_status&quot; </span>=&gt; {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = name_value.value.as_bool() {
+                            <span class="prelude-val">Ok</span>(AttributeArg::HandleStatus(value))
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                                name_value.value,
+                                <span class="string">&quot;expected `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>,
+                            ))
                         }
+                    }
+                    <span class="kw">_ </span>=&gt; {
                         <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                            meta,
-                            <span class="string">&quot;unknown ink! attribute argument (name = value)&quot;</span>,
+                            ident,
+                            <span class="string">&quot;encountered unknown ink! attribute argument: {}&quot;</span>,
+                            ident
                         ))
-                    }
-                    syn::Meta::Path(path) =&gt; {
-                        path
-                            .get_ident()
-                            .map(Ident::to_string)
-                            .ok_or_else(|| <span class="macro">format_err_spanned!</span>(meta, <span class="string">&quot;unknown ink! attribute (path)&quot;</span>))
-                            .and_then(|ident| <span class="kw">match </span>ident.as_str() {
-                                <span class="string">&quot;storage&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Storage),
-                                <span class="string">&quot;message&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Message),
-                                <span class="string">&quot;constructor&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Constructor),
-                                <span class="string">&quot;event&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Event),
-                                <span class="string">&quot;anonymous&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Anonymous),
-                                <span class="string">&quot;topic&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Topic),
-                                <span class="string">&quot;payable&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Payable),
-                                <span class="string">&quot;impl&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Implementation),
-                                <span class="string">&quot;selector&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                                    meta,
-                                    <span class="string">&quot;encountered #[ink(selector)] that is missing its u32 parameter. \
-                                    Did you mean #[ink(selector = value: u32)] ?&quot;
-                                </span>)),
-                                <span class="string">&quot;namespace&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                                    meta,
-                                    <span class="string">&quot;encountered #[ink(namespace)] that is missing its string parameter. \
-                                    Did you mean #[ink(namespace = name: str)] ?&quot;
-                                </span>)),
-                                <span class="string">&quot;extension&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                                    meta,
-                                    <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
-                                    Did you mean #[ink(extension = id: u32)] ?&quot;
-                                </span>)),
-                                <span class="string">&quot;handle_status&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
-                                    meta,
-                                    <span class="string">&quot;encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
-                                    Did you mean #[ink(handle_status = flag: bool)] ?&quot;
-                                </span>)),
-                                <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                                    meta, <span class="string">&quot;unknown ink! attribute (path)&quot;
-                                </span>))
-                            })
-                            .map(|kind| AttributeFrag { ast: meta, arg: kind, })
-                    }
-                    syn::Meta::List(<span class="kw">_</span>) =&gt; {
-                        <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                            meta,
-                            <span class="string">&quot;unknown ink! attribute argument (list)&quot;
-                        </span>))
                     }
                 }
             }
-            syn::NestedMeta::Lit(<span class="kw">_</span>) =&gt; {
-                <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                    nested_meta,
-                    <span class="string">&quot;unknown ink! attribute argument (literal)&quot;
-                </span>))
+            ast::Meta::Path(path) =&gt; {
+                <span class="kw">let </span>ident = path.get_ident().ok_or_else(|| {
+                    <span class="macro">format_err_spanned!</span>(
+                        path,
+                        <span class="string">&quot;expected identifier for ink! attribute argument&quot;</span>,
+                    )
+                })<span class="question-mark">?</span>;
+                <span class="kw">match </span>ident.to_string().as_str() {
+                    <span class="string">&quot;storage&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Storage),
+                    <span class="string">&quot;message&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Message),
+                    <span class="string">&quot;constructor&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Constructor),
+                    <span class="string">&quot;event&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Event),
+                    <span class="string">&quot;anonymous&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Anonymous),
+                    <span class="string">&quot;topic&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Topic),
+                    <span class="string">&quot;payable&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Payable),
+                    <span class="string">&quot;impl&quot; </span>=&gt; <span class="prelude-val">Ok</span>(AttributeArg::Implementation),
+                    <span class="kw">_ </span>=&gt; <span class="kw">match </span>ident.to_string().as_str() {
+                        <span class="string">&quot;extension&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                            path,
+                            <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
+                            Did you mean #[ink(extension = id: u32)] ?&quot;
+                        </span>)),
+                        <span class="string">&quot;handle_status&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                            path,
+                           <span class="string">&quot;encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
+                            Did you mean #[ink(handle_status = flag: bool)] ?&quot;
+                        </span>)),
+                        <span class="string">&quot;namespace&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                            path,
+                           <span class="string">&quot;encountered #[ink(namespace)] that is missing its string parameter. \
+                            Did you mean #[ink(namespace = name: str)] ?&quot;
+                        </span>)),
+                        <span class="string">&quot;selector&quot; </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                            path,
+                           <span class="string">&quot;encountered #[ink(selector)] that is missing its u32 parameter. \
+                            Did you mean #[ink(selector = value: u32)] ?&quot;
+                        </span>)),
+                        <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                            path,
+                            <span class="string">&quot;encountered unknown ink! attribute argument: {}&quot;</span>,
+                            ident
+                        )),
+                    },
+                }
             }
-        }
+        }<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ ast, arg })
     }
 }
 
@@ -2578,7 +2534,7 @@
         );
         assert_first_ink_attribute(
             <span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote! </span>{ <span class="attr">#[ink(invalid)] </span>}],
-            <span class="prelude-val">Err</span>(<span class="string">&quot;unknown ink! attribute (path)&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;encountered unknown ink! attribute argument: invalid&quot;</span>),
         );
     }
 
@@ -2702,6 +2658,18 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>wildcard_selector_works() {
+        assert_attribute_try_from(
+            <span class="macro">syn::parse_quote! </span>{
+                <span class="attr">#[ink(selector = <span class="kw">_</span>)]
+            </span>},
+            <span class="prelude-val">Ok</span>(test::Attribute::Ink(<span class="macro">vec!</span>[AttributeArg::Selector(
+                SelectorOrWildcard::Wildcard,
+            )])),
+        );
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>selector_negative_number() {
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{
@@ -2810,7 +2778,7 @@
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(extension = -<span class="number">1</span>)]
             </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: invalid digit found in string&quot;</span>)
         );
     }
 
@@ -2821,7 +2789,7 @@
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(extension = #max_u32_plus_1)]
             </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer: number too large to fit in target type&quot;</span>),
         );
     }
 
@@ -2937,7 +2905,7 @@
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink]
             </span>},
-            <span class="prelude-val">Err</span>(<span class="string">&quot;unknown ink! attribute&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected attribute arguments in parentheses: #[ink(...)]&quot;</span>),
         );
         assert_attribute_try_from(
             <span class="macro">syn::parse_quote! </span>{

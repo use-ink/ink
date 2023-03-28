@@ -653,7 +653,6 @@
 <a href="#652" id="652">652</a>
 <a href="#653" id="653">653</a>
 <a href="#654" id="654">654</a>
-<a href="#655" id="655">655</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1021,13 +1020,12 @@
 /// - Furthermore this is `true` if the externally callable is defined for a non default
 ///   ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>ensure_callable_invariants(
-    method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
+    method_item: <span class="kw-2">&amp;</span>syn::ImplItemFn,
     kind: CallableKind,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
     <span class="kw">let </span>bad_visibility = <span class="kw">match </span><span class="kw-2">&amp;</span>method_item.vis {
         syn::Visibility::Inherited =&gt; <span class="prelude-val">None</span>,
         syn::Visibility::Restricted(vis_restricted) =&gt; <span class="prelude-val">Some</span>(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) =&gt; <span class="prelude-val">Some</span>(vis_crate.span()),
         syn::Visibility::Public(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
     };
     <span class="kw">if let </span><span class="prelude-val">Some</span>(bad_visibility) = bad_visibility {
@@ -1098,7 +1096,7 @@
 <span class="doccomment">/// The visibility of an ink! message or constructor.
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub enum </span>Visibility {
-    Public(syn::VisPublic),
+    Public(<span class="macro">syn::Token!</span>[<span class="kw">pub</span>]),
     Inherited,
 }
 
@@ -1223,17 +1221,17 @@
     /// message result in the same composed selector as the expected bytes.
     </span><span class="kw">fn </span>assert_compose_selector&lt;C, S&gt;(
         item_impl: syn::ItemImpl,
-        item_method: syn::ImplItemMethod,
+        item_method: syn::ImplItemFn,
         expected_selector: S,
     ) <span class="kw">where
-        </span>C: Callable + TryFrom&lt;syn::ImplItemMethod&gt;,
-        &lt;C <span class="kw">as </span>TryFrom&lt;syn::ImplItemMethod&gt;&gt;::Error: Debug,
+        </span>C: Callable + TryFrom&lt;syn::ImplItemFn&gt;,
+        &lt;C <span class="kw">as </span>TryFrom&lt;syn::ImplItemFn&gt;&gt;::Error: Debug,
         S: Into&lt;ExpectedSelector&gt;,
     {
         <span class="macro">assert_eq!</span>(
             compose_selector(
                 <span class="kw-2">&amp;</span>&lt;ir::ItemImpl <span class="kw">as </span>TryFrom&lt;syn::ItemImpl&gt;&gt;::try_from(item_impl).unwrap(),
-                <span class="kw-2">&amp;</span>&lt;C <span class="kw">as </span>TryFrom&lt;syn::ImplItemMethod&gt;&gt;::try_from(item_method).unwrap(),
+                <span class="kw-2">&amp;</span>&lt;C <span class="kw">as </span>TryFrom&lt;syn::ImplItemFn&gt;&gt;::try_from(item_method).unwrap(),
             ),
             expected_selector.into().expected_selector(),
         )

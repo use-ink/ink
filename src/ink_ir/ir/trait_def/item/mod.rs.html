@@ -590,8 +590,8 @@
                         <span class="string">&quot;encountered unsupported item in ink! trait definition&quot;
                     </span>))
                 }
-                syn::TraitItem::Method(method_trait_item) =&gt; {
-                    <span class="self">Self</span>::analyse_trait_method(method_trait_item)<span class="question-mark">?</span>;
+                syn::TraitItem::Fn(fn_trait_item) =&gt; {
+                    <span class="self">Self</span>::analyse_trait_fn(fn_trait_item)<span class="question-mark">?</span>;
                 }
                 unknown =&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
@@ -613,7 +613,7 @@
     /// - If the method is variadic or has generic parameters.
     /// - If the method does not respect the properties of either an ink! message or ink!
     ///   constructor.
-    </span><span class="kw">fn </span>analyse_trait_method(method: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">fn </span>analyse_trait_fn(method: <span class="kw-2">&amp;</span>syn::TraitItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(default_impl) = <span class="kw-2">&amp;</span>method.default {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 default_impl,
@@ -685,7 +685,7 @@
     }
 
     <span class="doccomment">/// Constructors are generally not allowed in ink! trait definitions.
-    </span><span class="kw">fn </span>analyse_trait_constructor(constructor: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">fn </span>analyse_trait_constructor(constructor: <span class="kw-2">&amp;</span>syn::TraitItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
             constructor.span(),
             <span class="string">&quot;ink! trait definitions must not have constructors&quot;</span>,
@@ -697,16 +697,16 @@
     /// # Errors
     ///
     /// - If the message has no `&amp;self` or `&amp;mut self` receiver.
-    </span><span class="kw">fn </span>analyse_trait_message(message: <span class="kw-2">&amp;</span>syn::TraitItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">fn </span>analyse_trait_message(message: <span class="kw-2">&amp;</span>syn::TraitItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         InkTraitMessage::extract_attributes(message.span(), <span class="kw-2">&amp;</span>message.attrs)<span class="question-mark">?</span>;
         <span class="kw">match </span>message.sig.receiver() {
-            <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(syn::FnArg::Typed(<span class="kw">_</span>)) =&gt; {
+            <span class="prelude-val">None </span>=&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                message.sig,
-                <span class="string">&quot;missing or malformed `&amp;self` or `&amp;mut self` receiver for ink! message&quot;</span>,
-            ))
+                    message.sig,
+                    <span class="string">&quot;missing `&amp;self` or `&amp;mut self` receiver for ink! message&quot;</span>,
+                ))
             }
-            <span class="prelude-val">Some</span>(syn::FnArg::Receiver(receiver)) =&gt; {
+            <span class="prelude-val">Some</span>(receiver) =&gt; {
                 <span class="kw">if </span>receiver.reference.is_none() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         receiver,

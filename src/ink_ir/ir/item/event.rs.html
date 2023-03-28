@@ -626,7 +626,7 @@
             <span class="kw">let </span>some_cfg_attrs = field
                 .attrs
                 .iter()
-                .find(|attr| attr.path.is_ident(CFG_IDENT));
+                .find(|attr| attr.path().is_ident(CFG_IDENT));
             <span class="kw">if </span>some_cfg_attrs.is_some() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                     field_span,

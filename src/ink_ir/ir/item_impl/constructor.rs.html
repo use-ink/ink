@@ -610,8 +610,6 @@
 <a href="#609" id="609">609</a>
 <a href="#610" id="610">610</a>
 <a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -681,7 +679,7 @@
 </span><span class="attr">#[derive(Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>Constructor {
     <span class="doccomment">/// The underlying Rust method item.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) item: syn::ImplItemMethod,
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) item: syn::ImplItemFn,
     <span class="doccomment">/// If the ink! constructor can receive funds.
     </span>is_payable: bool,
     <span class="doccomment">/// An optional user provided selector.
@@ -708,7 +706,7 @@
     /// # Errors
     ///
     /// If the ink! constructor is missing a return type.
-    </span><span class="kw">fn </span>ensure_return(method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+    </span><span class="kw">fn </span>ensure_return(method_item: <span class="kw-2">&amp;</span>syn::ImplItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
         <span class="kw">if let </span>syn::ReturnType::Default = <span class="kw-2">&amp;</span>method_item.sig.output {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="kw-2">&amp;</span>method_item.sig,
@@ -726,9 +724,7 @@
     ///
     /// If the ink! constructor has a `&amp;self`, `&amp;mut self`, `self` or any other
     /// kind of a `self` receiver as first argument.
-    </span><span class="kw">fn </span>ensure_no_self_receiver(
-        method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
+    </span><span class="kw">fn </span>ensure_no_self_receiver(method_item: <span class="kw-2">&amp;</span>syn::ImplItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;(), syn::Error&gt; {
         <span class="kw">match </span>method_item.sig.inputs.iter().next() {
             <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(syn::FnArg::Typed(<span class="kw">_</span>)) =&gt; (),
             <span class="prelude-val">Some</span>(syn::FnArg::Receiver(receiver)) =&gt; {
@@ -745,7 +741,7 @@
     ///
     /// Returns a tuple of ink! attributes and non-ink! attributes.
     </span><span class="kw">fn </span>sanitize_attributes(
-        method_item: <span class="kw-2">&amp;</span>syn::ImplItemMethod,
+        method_item: <span class="kw-2">&amp;</span>syn::ImplItemFn,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(ir::InkAttribute, Vec&lt;syn::Attribute&gt;), syn::Error&gt; {
         ir::sanitize_attributes(
             method_item.span(),
@@ -763,10 +759,10 @@
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;syn::ImplItemMethod&gt; <span class="kw">for </span>Constructor {
+<span class="kw">impl </span>TryFrom&lt;syn::ImplItemFn&gt; <span class="kw">for </span>Constructor {
     <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn </span>try_from(method_item: syn::ImplItemMethod) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>try_from(method_item: syn::ImplItemFn) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         ensure_callable_invariants(<span class="kw-2">&amp;</span>method_item, CallableKind::Constructor)<span class="question-mark">?</span>;
         <span class="self">Self</span>::ensure_return(<span class="kw-2">&amp;</span>method_item)<span class="question-mark">?</span>;
         <span class="self">Self</span>::ensure_no_self_receiver(<span class="kw-2">&amp;</span>method_item)<span class="question-mark">?</span>;
@@ -776,7 +772,7 @@
         <span class="prelude-val">Ok</span>(Constructor {
             selector,
             is_payable,
-            item: syn::ImplItemMethod {
+            item: syn::ImplItemFn {
                 attrs: other_attrs,
                 ..method_item
             },
@@ -813,7 +809,7 @@
 
     <span class="kw">fn </span>visibility(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Visibility {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.item.vis {
-            syn::Visibility::Public(vis_public) =&gt; Visibility::Public(vis_public.clone()),
+            syn::Visibility::Public(vis_public) =&gt; Visibility::Public(<span class="kw-2">*</span>vis_public),
             syn::Visibility::Inherited =&gt; Visibility::Inherited,
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid visibility for ink! constructor&quot;</span>),
         }
@@ -869,7 +865,7 @@
                 ]
             }};
         }
-        <span class="kw">let </span>test_inputs: Vec&lt;(Vec&lt;syn::FnArg&gt;, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>test_inputs: Vec&lt;(Vec&lt;syn::FnArg&gt;, syn::ImplItemFn)&gt; = <span class="macro">vec!</span>[
             (
                 <span class="comment">// No inputs:
                 </span><span class="macro">expected_inputs!</span>(),
@@ -908,7 +904,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>is_payable_works() {
-        <span class="kw">let </span>test_inputs: Vec&lt;(bool, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>test_inputs: Vec&lt;(bool, syn::ImplItemFn)&gt; = <span class="macro">vec!</span>[
             <span class="comment">// Not payable.
             </span>(
                 <span class="bool-val">false</span>,
@@ -954,7 +950,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>visibility_works() {
-        <span class="kw">let </span>test_inputs: Vec&lt;(bool, syn::ImplItemMethod)&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>test_inputs: Vec&lt;(bool, syn::ImplItemFn)&gt; = <span class="macro">vec!</span>[
             <span class="comment">// inherited
             </span>(
                 <span class="bool-val">false</span>,
@@ -983,7 +979,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_works() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// simple + inherited visibility
             </span><span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
@@ -1010,7 +1006,7 @@
         }
     }
 
-    <span class="kw">fn </span>assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: <span class="kw-2">&amp;</span>str) {
+    <span class="kw">fn </span>assert_try_from_fails(item_method: syn::ImplItemFn, expected_err: <span class="kw-2">&amp;</span>str) {
         <span class="macro">assert_eq!</span>(
             &lt;ir::Constructor <span class="kw">as </span>TryFrom&lt;<span class="kw">_</span>&gt;&gt;::try_from(item_method)
                 .map_err(|err| err.to_string()),
@@ -1020,7 +1016,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_missing_return_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">fn </span>my_constructor() {}
@@ -1037,7 +1033,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_invalid_self_receiver_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">fn </span>my_constructor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{}
@@ -1065,7 +1061,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_generics_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">fn </span>my_constructor&lt;T&gt;() -&gt; <span class="self">Self </span>{}
@@ -1082,7 +1078,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_const_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">const fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
@@ -1099,7 +1095,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_async_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">async fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
@@ -1116,7 +1112,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_unsafe_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">unsafe fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
@@ -1133,7 +1129,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_explicit_abi_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
@@ -1153,7 +1149,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_variadic_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
                 </span><span class="kw">fn </span>my_constructor(...) -&gt; <span class="self">Self </span>{}
@@ -1170,10 +1166,10 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_visibility_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
-                </span><span class="kw">crate fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
+                </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
             },
             <span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor)]
@@ -1190,7 +1186,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>conflicting_attributes_fails() {
-        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemMethod&gt; = <span class="macro">vec!</span>[
+        <span class="kw">let </span>item_methods: Vec&lt;syn::ImplItemFn&gt; = <span class="macro">vec!</span>[
             <span class="comment">// storage
             </span><span class="macro">syn::parse_quote! </span>{
                 <span class="attr">#[ink(constructor, storage)]
@@ -1218,7 +1214,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>try_from_wildcard_constructor_works() {
-        <span class="kw">let </span>item: syn::ImplItemMethod = <span class="macro">syn::parse_quote! </span>{
+        <span class="kw">let </span>item: syn::ImplItemFn = <span class="macro">syn::parse_quote! </span>{
             <span class="attr">#[ink(constructor, selector = <span class="kw">_</span>)]
             </span><span class="kw">pub fn </span>my_constructor() -&gt; <span class="self">Self </span>{}
         };

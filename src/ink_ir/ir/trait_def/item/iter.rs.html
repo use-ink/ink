@@ -138,8 +138,8 @@
         <span class="lifetime">&#39;outer</span>: <span class="kw">loop </span>{
             <span class="kw">match </span><span class="self">self</span>.iter.next() {
                 <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(syn::TraitItem::Method(method)) =&gt; {
-                    <span class="kw">let </span>first_attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>method.attrs)
+                <span class="prelude-val">Some</span>(syn::TraitItem::Fn(function)) =&gt; {
+                    <span class="kw">let </span>first_attr = ir::first_ink_attribute(<span class="kw-2">&amp;</span>function.attrs)
                         .ok()
                         .flatten()
                         .expect(<span class="string">&quot;unexpected missing ink! attribute for trait method&quot;</span>)
@@ -149,7 +149,7 @@
                     <span class="kw">match </span>first_attr {
                         ir::AttributeArg::Message =&gt; {
                             <span class="kw">return </span><span class="prelude-val">Some</span>(InkTraitItem::Message(InkTraitMessage::new(
-                                method,
+                                function,
                             )))
                         }
                         <span class="kw">_ </span>=&gt; <span class="kw">continue </span><span class="lifetime">&#39;outer</span>,
