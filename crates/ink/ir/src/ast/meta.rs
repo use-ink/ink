@@ -17,10 +17,6 @@ use proc_macro2::{
     TokenStream as TokenStream2,
 };
 use quote::ToTokens;
-use std::hash::{
-    Hash,
-    Hasher,
-};
 use syn::{
     ext::IdentExt as _,
     parse::{
