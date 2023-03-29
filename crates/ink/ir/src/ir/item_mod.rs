@@ -29,12 +29,6 @@ use syn::{
     token,
 };
 
-/// A well know selector reserved for the message required to be defined
-/// alongside a wildcard selector. See https://github.com/paritytech/ink/issues/1676.
-///
-/// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
-pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0x9B, 0xAE, 0x9D, 0x5E];
-
 /// The ink! module.
 ///
 /// This is the root of all ink! smart contracts and is defined similarly to

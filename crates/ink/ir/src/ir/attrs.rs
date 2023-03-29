@@ -35,7 +35,6 @@ use crate::{
     error::ExtError as _,
     ir,
     ir::{
-        item_mod::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
         ExtensionId,
         Selector,
     },
@@ -511,23 +510,31 @@ impl core::fmt::Display for AttributeArg {
     }
 }
 
+/// A well know selector reserved for the message required to be defined
+/// alongside a wildcard selector. See https://github.com/paritytech/ink/issues/1676.
+///
+/// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
+pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0x9B, 0xAE, 0x9D, 0x5E];
+
 /// Either a wildcard selector or a specified selector.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SelectorOrWildcard {
     /// A wildcard selector. If no other selector matches, the message/constructor
     /// annotated with the wildcard selector will be invoked.
     Wildcard,
-    /// A wildcard selector complement, must be used in combination with a message
-    /// wildcard selector
-    WildcardComplement,
     /// A user provided selector.
     UserProvided(Selector),
 }
 
 impl SelectorOrWildcard {
     /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
-    fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
+    fn selector(bytes: [u8; 4]) -> Self {
         SelectorOrWildcard::UserProvided(Selector::from(bytes))
+    }
+
+    /// The selector of the wildcard complement message.
+    pub fn wildcard_complement() -> Self {
+        Self::selector(IIP2_WILDCARD_COMPLEMENT_SELECTOR)
     }
 }
 
@@ -564,7 +571,7 @@ impl TryFrom<&ast::MetaValue> for SelectorOrWildcard {
             ast::MetaValue::Symbol(symbol) => {
                 match symbol {
                     ast::Symbol::Underscore(_) => Ok(SelectorOrWildcard::Wildcard),
-                    ast::Symbol::AtSign(_) => Ok(SelectorOrWildcard::WildcardComplement),
+                    ast::Symbol::AtSign(_) => Ok(SelectorOrWildcard::wildcard_complement()),
                 }
             }
             ast::MetaValue::Path(path) => {
@@ -583,7 +590,6 @@ impl core::fmt::Display for SelectorOrWildcard {
         match self {
             Self::UserProvided(selector) => core::fmt::Debug::fmt(&selector, f),
             Self::Wildcard => write!(f, "_"),
-            Self::WildcardComplement => write!(f, "@"),
         }
     }
 }
