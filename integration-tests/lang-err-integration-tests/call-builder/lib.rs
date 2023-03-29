@@ -14,7 +14,7 @@
 //! Note that during testing we make use of ink!'s end-to-end testing features, so ensure
 //! that you have a node which includes the Contracts pallet running alongside your tests.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod call_builder {

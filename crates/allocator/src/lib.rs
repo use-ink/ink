@@ -23,16 +23,12 @@
     html_favicon_url = "https://use.ink/crate-docs/favicon.png"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
 
 #[cfg(not(any(feature = "std", feature = "no-allocator")))]
 #[global_allocator]
 static mut ALLOC: bump::BumpAllocator = bump::BumpAllocator {};
 
 mod bump;
-
-#[cfg(not(feature = "std"))]
-mod handlers;
 
 #[cfg(all(test, feature = "std", feature = "ink-fuzz-tests",))]
 #[macro_use(quickcheck)]

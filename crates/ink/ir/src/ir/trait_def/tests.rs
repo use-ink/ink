@@ -261,7 +261,7 @@ fn trait_def_containing_method_with_unsupported_ink_attribute_is_denied() {
         }
     );
     assert_ink_trait_eq_err!(
-        error: "unknown ink! attribute (path)",
+        error: "encountered unknown ink! attribute argument: unknown",
         pub trait MyTrait {
             #[ink(unknown)]
             fn unknown_ink_attribute(&self);
@@ -272,14 +272,14 @@ fn trait_def_containing_method_with_unsupported_ink_attribute_is_denied() {
 #[test]
 fn trait_def_containing_invalid_message_is_denied() {
     assert_ink_trait_eq_err!(
-        error: "missing or malformed `&self` or `&mut self` receiver for ink! message",
+        error: "missing `&self` or `&mut self` receiver for ink! message",
         pub trait MyTrait {
             #[ink(message)]
             fn does_not_return_self();
         }
     );
     assert_ink_trait_eq_err!(
-        error: "missing or malformed `&self` or `&mut self` receiver for ink! message",
+        error: "self receiver of ink! message must be `&self` or `&mut self`",
         pub trait MyTrait {
             #[ink(message)]
             fn does_not_return_self(self: &Self);

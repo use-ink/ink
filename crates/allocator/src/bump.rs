@@ -68,13 +68,21 @@ struct InnerAlloc {
 impl InnerAlloc {
     const fn new() -> Self {
         Self {
-            next: 0,
-            upper_limit: 0,
+            next: Self::heap_start(),
+            upper_limit: Self::heap_end(),
         }
     }
 
     cfg_if::cfg_if! {
         if #[cfg(test)] {
+            const fn heap_start() -> usize {
+                0
+            }
+
+            const fn heap_end() -> usize {
+                0
+            }
+
             /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page is not available.
@@ -85,6 +93,14 @@ impl InnerAlloc {
                 Some(self.upper_limit)
             }
         } else if #[cfg(feature = "std")] {
+            const fn heap_start() -> usize {
+                0
+            }
+
+            const fn heap_end() -> usize {
+                0
+            }
+
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
                 unreachable!(
                     "This branch is only used to keep the compiler happy when building tests, and
@@ -92,6 +108,14 @@ impl InnerAlloc {
                 )
             }
         } else if #[cfg(target_arch = "wasm32")] {
+            const fn heap_start() -> usize {
+                0
+            }
+
+            const fn heap_end() -> usize {
+                0
+            }
+
             /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page is not available.
@@ -103,11 +127,24 @@ impl InnerAlloc {
 
                 prev_page.checked_mul(PAGE_SIZE)
             }
-        } else {
-            /// On other architectures growing memory probably doesn't make sense.
+        } else if #[cfg(target_arch = "riscv32")] {
+            const fn heap_start() -> usize {
+                // Placeholder value until we specified our riscv VM
+                0x7000_0000
+            }
+
+            const fn heap_end() -> usize {
+                // Placeholder value until we specified our riscv VM
+                // Let's just assume a cool megabyte of mem for now
+                0x7000_0400
+            }
+
             fn request_pages(&mut self, _pages: usize) -> Option<usize> {
+                // On riscv the memory can't be grown
                 None
             }
+        } else {
+            core::compile_error!("ink! only supports wasm32 and riscv32");
         }
     }
 

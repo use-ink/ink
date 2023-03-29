@@ -37,7 +37,6 @@ pub fn ensure_pub_visibility(
     let bad_visibility = match vis {
         syn::Visibility::Inherited => Some(parent_span),
         syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
         syn::Visibility::Public(_) => None,
     };
     if let Some(bad_visibility) = bad_visibility {
@@ -112,7 +111,7 @@ impl WhitelistedAttributes {
         attrs
             .into_iter()
             .filter(|attr| {
-                if let Some(ident) = attr.path.get_ident() {
+                if let Some(ident) = attr.path().get_ident() {
                     self.0.contains_key(&ident.to_string())
                 } else {
                     false
@@ -174,13 +173,7 @@ pub fn extract_cfg_attributes(
 ) -> Vec<proc_macro2::TokenStream> {
     attrs
         .iter()
-        .filter(|a| a.path.is_ident(super::CFG_IDENT))
-        .map(|a| {
-            a.tokens
-                .clone()
-                .into_iter()
-                .map(|token| quote::quote_spanned!(span=> #[cfg #token]))
-                .collect()
-        })
+        .filter(|a| a.path().is_ident(super::CFG_IDENT))
+        .map(|a| quote::quote_spanned!(span=> #a ))
         .collect()
 }

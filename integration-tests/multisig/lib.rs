@@ -53,7 +53,7 @@
 //! of this contract. Use them to dispatch arbitrary messages to other contracts
 //! with the wallet as a sender.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::multisig::{
     ConfirmationStatus,
@@ -311,18 +311,18 @@ mod multisig {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` and
         /// `invoke_transaction`:
-        ///
         /// ```should_panic
         /// use ink::{
         ///     env::{
         ///         call::{
         ///             utils::ArgumentList,
+        ///             Call,
         ///             CallParams,
         ///             ExecutionInput,
         ///             Selector,
         ///         },
-        ///         AccountId,
         ///         DefaultEnvironment as Env,
+        ///         Environment,
         ///     },
         ///     selector_bytes,
         /// };
@@ -331,6 +331,8 @@ mod multisig {
         ///     Transaction,
         /// };
         /// use scale::Encode;
+        ///
+        /// type AccountId = <Env as Environment>::AccountId;
         ///
         /// // address of an existing `Multisig` contract
         /// let wallet_id: AccountId = [7u8; 32].into();
@@ -345,14 +347,15 @@ mod multisig {
         ///     input: add_owner_args.encode(),
         ///     transferred_value: 0,
         ///     gas_limit: 0,
+        ///     allow_reentry: true,
         /// };
         ///
         /// // Submit the transaction for confirmation
         /// //
         /// // Note that the selector bytes of the `submit_transaction` method
         /// // are `[86, 244, 13, 223]`.
-        /// let (id, _status) = ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-        ///     .call_type(Call::new().callee(wallet_id))
+        /// let (id, _status) = ink::env::call::build_call::<Env>()
+        ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(
         ///         ExecutionInput::new(Selector::new([86, 244, 13, 223]))
@@ -361,12 +364,12 @@ mod multisig {
         ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .invoke();
         ///
-        /// // Wait until all required owners have confirmed and then execute the transaction
+        /// // Wait until all owners have confirmed and then execute the tx.
         /// //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
-        /// ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-        ///     .call_type(Call::new().callee(wallet_id))
+        /// ink::env::call::build_call::<Env>()
+        ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
         ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236])).push_arg(&id))
         ///     .returns::<()>()
