@@ -31,7 +31,9 @@ use syn::{
 
 /// A well know selector reserved for the message required to be defined
 /// alongside a wildcard selector. See https://github.com/paritytech/ink/issues/1676.
-pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0xFF, 0xFF, 0xFF, 0xFF]; // todo: selector_bytes!("IIP2_WILDCARD_COMPLEMENT");
+///
+/// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
+pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0x9B, 0xAE, 0x9D, 0x5E];
 
 /// The ink! module.
 ///
@@ -994,7 +996,7 @@ mod tests {
                         #[ink(message, selector = _)]
                         pub fn fallback(&self) {}
 
-                        #[ink(message, selector = selector_bytes!("IIP2_WILDCARD_COMPLEMENT"))]
+                        #[ink(message, selector = 0x9BAE9D5E)]
                         pub fn wildcard_complement_message(&self) {}
                     }
                 }
@@ -1165,7 +1167,7 @@ mod tests {
                         #[ink(constructor)]
                         pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = selector_bytes!("IIP2_WILDCARD_COMPLEMENT"))]
+                        #[ink(message, selector = 0x9BAE9D5E)]
                         pub fn uses_reserved_wildcard_other_message_selector(&self) {}
                     }
                 }
