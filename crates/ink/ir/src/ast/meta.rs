@@ -17,6 +17,10 @@ use proc_macro2::{
     TokenStream as TokenStream2,
 };
 use quote::ToTokens;
+use std::hash::{
+    Hash,
+    Hasher,
+};
 use syn::{
     ext::IdentExt as _,
     parse::{
@@ -70,7 +74,7 @@ impl ToTokens for Meta {
 pub struct MetaNameValue {
     pub name: syn::Path,
     pub eq_token: syn::token::Eq,
-    pub value: PathOrLit,
+    pub value: MetaValue,
 }
 
 impl Parse for MetaNameValue {
@@ -107,35 +111,40 @@ impl MetaNameValue {
     }
 }
 
-/// Either a path or a literal.
+/// Represents a value in a meta name-value pair.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum PathOrLit {
+pub enum MetaValue {
     Path(syn::Path),
     Lit(syn::Lit),
+    Symbol(Symbol),
 }
 
-impl Parse for PathOrLit {
+impl Parse for MetaValue {
     fn parse(input: ParseStream) -> Result<Self, syn::Error> {
+        if input.peek(Token![_]) || input.peek(Token![@]) {
+            return input.parse::<Symbol>().map(MetaValue::Symbol)
+        }
         if input.fork().peek(syn::Lit) {
-            return input.parse::<syn::Lit>().map(PathOrLit::Lit)
+            return input.parse::<syn::Lit>().map(MetaValue::Lit)
         }
         if input.fork().peek(Ident::peek_any) || input.fork().peek(Token![::]) {
-            return input.call(parse_meta_path).map(PathOrLit::Path)
+            return input.call(parse_meta_path).map(MetaValue::Path)
         }
-        Err(input.error("cannot parse into either literal or path"))
+        Err(input.error("expected a literal, a path or a punct for a meta value"))
     }
 }
 
-impl ToTokens for PathOrLit {
+impl ToTokens for MetaValue {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         match self {
             Self::Lit(lit) => lit.to_tokens(tokens),
             Self::Path(path) => path.to_tokens(tokens),
+            Self::Symbol(symbol) => symbol.to_tokens(tokens),
         }
     }
 }
 
-impl PathOrLit {
+impl MetaValue {
     /// Returns the value of the literal if it is a boolean literal.
     pub fn as_bool(&self) -> Option<bool> {
         match self {
@@ -157,6 +166,33 @@ impl PathOrLit {
         match self {
             Self::Lit(syn::Lit::Int(lit_int)) => Some(lit_int),
             _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Symbol {
+    Underscore(Token![_]),
+    AtSign(Token![@]),
+}
+
+impl Parse for Symbol {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        if input.peek(Token![_]) {
+            Ok(Symbol::Underscore(input.parse()?))
+        } else if input.peek(Token![@]) {
+            Ok(Symbol::AtSign(input.parse()?))
+        } else {
+            Err(input.error("expected either a `_` or a `@` symbol"))
+        }
+    }
+}
+
+impl ToTokens for Symbol {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        match self {
+            Self::Underscore(underscore) => underscore.to_tokens(tokens),
+            Self::AtSign(at_sign) => at_sign.to_tokens(tokens),
         }
     }
 }
@@ -194,7 +230,10 @@ fn parse_meta_path(input: ParseStream) -> Result<syn::Path, syn::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::PathOrLit;
+    use crate::ast::{
+        MetaValue,
+        Symbol,
+    };
     use quote::quote;
 
     #[test]
@@ -204,7 +243,7 @@ mod tests {
             Meta::NameValue(MetaNameValue {
                 name: syn::parse_quote! { selector },
                 eq_token: syn::parse_quote! { = },
-                value: PathOrLit::Path(syn::Path::from(quote::format_ident!("_"))),
+                value: MetaValue::Symbol(Symbol::Underscore(syn::parse_quote! { _ })),
             })
         )
     }

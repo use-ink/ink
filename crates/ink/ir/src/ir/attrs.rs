@@ -531,12 +531,12 @@ impl SelectorOrWildcard {
     }
 }
 
-impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
+impl TryFrom<&ast::MetaValue> for SelectorOrWildcard {
     type Error = syn::Error;
 
-    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
+    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
         match value {
-            ast::PathOrLit::Lit(lit) => {
+            ast::MetaValue::Lit(lit) => {
                 if let syn::Lit::Str(_) = lit {
                     return Err(format_err_spanned!(
                         lit,
@@ -561,15 +561,18 @@ impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
                     "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
                 ))
             }
-            ast::PathOrLit::Path(path) => {
-                if path.is_ident("_") {
-                    Ok(SelectorOrWildcard::Wildcard)
-                } else {
-                    Err(format_err_spanned!(
-                        path,
-                        "expected `selector` argument to be either a 4-digit hexcode or `_`"
-                    ))
+            ast::MetaValue::Symbol(symbol) => {
+                match symbol {
+                    ast::Symbol::Underscore(_) => Ok(SelectorOrWildcard::Wildcard),
+                    ast::Symbol::AtSign(_) => Ok(SelectorOrWildcard::WildcardComplement),
                 }
+            }
+            ast::MetaValue::Path(path) => {
+                Err(format_err_spanned!(
+                    path,
+                    "unexpected path for `selector` argument, expected a 4-digit hexcode or one of \
+                    the wildcard symbols: `_` or `@`"
+                ))
             }
         }
     }
@@ -592,11 +595,11 @@ pub struct Namespace {
     bytes: Vec<u8>,
 }
 
-impl TryFrom<&ast::PathOrLit> for Namespace {
+impl TryFrom<&ast::MetaValue> for Namespace {
     type Error = syn::Error;
 
-    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
-        if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = value {
+    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
+        if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = value {
             let argument = lit_str.value();
             syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
                 format_err_spanned!(
