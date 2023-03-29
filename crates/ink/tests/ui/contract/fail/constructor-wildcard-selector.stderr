@@ -1,5 +1,5 @@
 error: #[ink(selector = _)] wildcard attributes are no longer supported. For upgradeable contracts use `set_code_hash` instead.
- --> tests/ui/contract/fail/constructor-wildcard-selector.rs:7:28
+ --> tests/ui/contract/fail/constructor-wildcard-selector.rs:7:39
   |
 7 |         #[ink(constructor, selector = _)]
-  |                            ^^^^^^^^
+  |                                       ^
