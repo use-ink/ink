@@ -73,6 +73,15 @@ impl<E, RetType> Message<E, RetType>
 where
     E: Environment,
 {
+    /// Create a new message from the given account id and encoded message data.
+    pub fn new(account_id: E::AccountId, exec_input: Vec<u8>) -> Self {
+        Self {
+            account_id,
+            exec_input,
+            _return_type: Default::default(),
+        }
+    }
+
     /// The account id of the contract being called to invoke the message.
     pub fn account_id(&self) -> &E::AccountId {
         &self.account_id
@@ -160,8 +169,7 @@ where
         F: FnMut(
             &mut <Ref as TraitCallBuilder>::Builder,
         ) -> CallBuilder<
-            E,
-            Set<Call<E>>,
+            E, Set<Call<E>>,
             Set<ExecutionInput<Args>>,
             Set<ReturnType<RetType>>,
         >,
