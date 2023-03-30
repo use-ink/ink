@@ -89,60 +89,31 @@ pub mod wildcard_selector {
                 .await
                 .expect("wildcard failed");
 
+            const ARBITRARY_SELECTOR_2: [u8; 4] = [0x01, 0x23, 0x45, 0x67];
+            let wildcard_message2 = "WILDCARD_MESSAGE 2".to_string();
+            let wildcard2 = build_message(
+                &contract_acc_id,
+                ARBITRARY_SELECTOR_2,
+                wildcard_message2.clone(),
+            );
+
+            let result2 = client
+                .call(&ink_e2e::bob(), wildcard2, 0, None)
+                .await
+                .expect("wildcard failed");
+
             // then
             assert!(result.debug_message().contains(&format!(
                 "Wildcard selector: {:?}, message: {}",
                 ARBITRARY_SELECTOR, wildcard_message
             )));
 
-            Ok(())
+            assert!(result2.debug_message().contains(&format!(
+                "Wildcard selector: {:?}, message: {}",
+                ARBITRARY_SELECTOR_2, wildcard_message2
+            )));
 
-            //         let get = build_message::<FlipperRef>(contract_acc_id.clone())
-            //             .call(|flipper| flipper.get());
-            //         let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0,
-            // None).await;         assert!(matches!(get_res.return_value(),
-            // false));
-            //
-            //         // when
-            //         let flip = build_message::<FlipperRef>(contract_acc_id.clone())
-            //             .call(|flipper| flipper.flip());
-            //         let _flip_res = client
-            //             .call(&ink_e2e::bob(), flip, 0, None)
-            //             .await
-            //             .expect("flip failed");
-            //
-            //         // then
-            //         let get = build_message::<FlipperRef>(contract_acc_id.clone())
-            //             .call(|flipper| flipper.get());
-            //         let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0,
-            // None).await;         assert!(matches!(get_res.return_value(),
-            // true));
-            //
-            //         Ok(())
-            //     }
-            //
-            //     #[ink_e2e::test]
-            //     async fn default_works(mut client: ink_e2e::Client<C, E>) ->
-            // E2EResult<()> {         // given
-            //         let constructor = FlipperRef::new_default();
-            //
-            //         // when
-            //         let contract_acc_id = client
-            //             .instantiate("flipper", &ink_e2e::bob(), constructor, 0, None)
-            //             .await
-            //             .expect("instantiate failed")
-            //             .account_id;
-            //
-            //         // then
-            //         let get = build_message::<FlipperRef>(contract_acc_id.clone())
-            //             .call(|flipper| flipper.get());
-            //         let get_res = client.call_dry_run(&ink_e2e::bob(), &get, 0,
-            // None).await;         assert!(matches!(get_res.return_value(),
-            // false));
-            //
-            //         Ok(())
-            //     }
-            // }
+            Ok(())
         }
     }
 }
