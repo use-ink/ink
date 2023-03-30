@@ -18,19 +18,19 @@ pub mod wildcard_selector {
         /// Wildcard selector handles messages with any selector.
         #[ink(message, selector = _)]
         pub fn wildcard(&mut self) {
-            let (selector, message) =
+            let (_selector, _message) =
                 ink::env::decode_input::<([u8; 4], String)>().unwrap();
             ink::env::debug_println!(
                 "Wildcard selector: {:?}, message: {}",
-                selector,
-                message
+                _selector,
+                _message
             );
         }
 
         /// Wildcard complement handles messages with a well-known reserved selector.
         #[ink(message, selector = @)]
-        pub fn wildcard_complement(&mut self, message: String) {
-            ink::env::debug_println!("Wildcard complement message: {}", message);
+        pub fn wildcard_complement(&mut self, _message: String) {
+            ink::env::debug_println!("Wildcard complement message: {}", _message);
         }
     }
 
