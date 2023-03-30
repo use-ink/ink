@@ -10,6 +10,7 @@ pub mod wildcard_selector {
     impl WildcardSelector {
         /// Creates a new wildcard selector smart contract.
         #[ink(constructor)]
+        #[allow(clippy::new_without_default)]
         pub fn new() -> Self {
             Self {}
         }
@@ -43,12 +44,12 @@ pub mod wildcard_selector {
         type Environment = <WildcardSelectorRef as ink::env::ContractEnv>::Env;
 
         fn build_message(
-            account_id: &AccountId,
+            account_id: AccountId,
             selector: [u8; 4],
             message: String,
         ) -> Message<Environment, ()> {
             let call_builder = ink::env::call::build_call::<Environment>()
-                .call(account_id.clone())
+                .call(account_id)
                 .exec_input(
                     ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(
                         selector,
@@ -57,10 +58,7 @@ pub mod wildcard_selector {
                 )
                 .returns::<()>();
             let exec_input = call_builder.params().exec_input().encode();
-            Message::<ink::env::DefaultEnvironment, ()>::new(
-                account_id.clone(),
-                exec_input,
-            )
+            Message::<ink::env::DefaultEnvironment, ()>::new(account_id, exec_input)
         }
 
         #[ink_e2e::test]
@@ -79,7 +77,7 @@ pub mod wildcard_selector {
             const ARBITRARY_SELECTOR: [u8; 4] = [0xF9, 0xF9, 0xF9, 0xF9];
             let wildcard_message = "WILDCARD_MESSAGE 1".to_string();
             let wildcard = build_message(
-                &contract_acc_id,
+                contract_acc_id,
                 ARBITRARY_SELECTOR,
                 wildcard_message.clone(),
             );
@@ -92,7 +90,7 @@ pub mod wildcard_selector {
             const ARBITRARY_SELECTOR_2: [u8; 4] = [0x01, 0x23, 0x45, 0x67];
             let wildcard_message2 = "WILDCARD_MESSAGE 2".to_string();
             let wildcard2 = build_message(
-                &contract_acc_id,
+                contract_acc_id,
                 ARBITRARY_SELECTOR_2,
                 wildcard_message2.clone(),
             );
@@ -131,7 +129,7 @@ pub mod wildcard_selector {
             // when
             let wildcard_complement_message = "WILDCARD COMPLEMENT MESSAGE".to_string();
             let wildcard = build_message(
-                &contract_acc_id,
+                contract_acc_id,
                 ink::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
                 wildcard_complement_message.clone(),
             );
