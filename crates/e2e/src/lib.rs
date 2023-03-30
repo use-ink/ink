@@ -27,8 +27,8 @@ mod xts;
 
 pub use builders::{
     build_message,
-    MessageBuilder,
     Message,
+    MessageBuilder,
 };
 pub use client::{
     CallDryRunResult,

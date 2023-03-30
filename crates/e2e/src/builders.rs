@@ -169,7 +169,8 @@ where
         F: FnMut(
             &mut <Ref as TraitCallBuilder>::Builder,
         ) -> CallBuilder<
-            E, Set<Call<E>>,
+            E,
+            Set<Call<E>>,
             Set<ExecutionInput<Args>>,
             Set<ReturnType<RetType>>,
         >,
