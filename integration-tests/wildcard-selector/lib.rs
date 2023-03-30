@@ -29,7 +29,7 @@ pub mod wildcard_selector {
         /// Wildcard complement handles messages with a well-known reserved selector.
         #[ink(message, selector = @)]
         pub fn wildcard_complement(&mut self, message: String) {
-            ink::env::debug_println!("Wildcard complement: @, message: {}", message);
+            ink::env::debug_println!("Wildcard complement message: {}", message);
         }
     }
 
@@ -111,6 +111,40 @@ pub mod wildcard_selector {
             assert!(result2.debug_message().contains(&format!(
                 "Wildcard selector: {:?}, message: {}",
                 ARBITRARY_SELECTOR_2, wildcard_message2
+            )));
+
+            Ok(())
+        }
+
+        #[ink_e2e::test]
+        async fn wildcard_complement_works(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
+            // given
+            let constructor = WildcardSelectorRef::new();
+            let contract_acc_id = client
+                .instantiate("wildcard_selector", &ink_e2e::alice(), constructor, 0, None)
+                .await
+                .expect("instantiate failed")
+                .account_id;
+
+            // when
+            let wildcard_complement_message = "WILDCARD COMPLEMENT MESSAGE".to_string();
+            let wildcard = build_message(
+                &contract_acc_id,
+                ink::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
+                wildcard_complement_message.clone(),
+            );
+
+            let result = client
+                .call(&ink_e2e::bob(), wildcard, 0, None)
+                .await
+                .expect("wildcard failed");
+
+            // then
+            assert!(result.debug_message().contains(&format!(
+                "Wildcard complement message: {}",
+                wildcard_complement_message
             )));
 
             Ok(())

@@ -15,6 +15,7 @@
 use core::result::Result;
 use std::collections::HashMap;
 
+use ink_prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -509,12 +510,6 @@ impl core::fmt::Display for AttributeArg {
         }
     }
 }
-
-/// A well know selector reserved for the message required to be defined
-/// alongside a wildcard selector. See https://github.com/paritytech/ink/issues/1676.
-///
-/// Calculated from `selector_bytes!("IIP2_WILDCARD_COMPLEMENT")`
-pub const IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; 4] = [0x9B, 0xAE, 0x9D, 0x5E];
 
 /// Either a wildcard selector or a specified selector.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
