@@ -163,6 +163,37 @@ mod mother {
         }
 
         /// Takes an auction data struct as input and returns it back.
+#[ink(message)]
+pub fn default_auction(&mut self) -> Auction {
+    let mut auction = Auction::default();
+    auction.name = String::from("My name");
+    auction.vector.push(0xCA);
+    auction.vector.push(0xFE);
+    auction.vector.push(0xBA);
+    auction.vector.push(0xBE);
+
+
+    //pub struct Bids(Vec<Vec<Option<(AccountId, Balance)>>>);
+    let mut foo = Vec::new();
+    let mut bar = Vec::new();
+    bar.push(
+        Some(
+            (self.env().caller(),
+            self.env().balance())
+        )
+    );
+    bar.push(None);
+    foo.push(bar);
+
+    auction.bids.0 = foo;
+
+    self.env().emit_event(AuctionEchoed {
+        auction: auction.clone(),
+    });
+    auction
+}
+
+        /// Takes an auction data struct as input and returns it back.
         #[ink(message)]
         pub fn echo_auction(&mut self, auction: Auction) -> Auction {
             self.env().emit_event(AuctionEchoed {
