@@ -764,7 +764,7 @@ where
     /// Note:
     /// `pallet_name` must be in camel case ex: "System"
     /// `call_name` must be snake case ex: "kill_prefix"
-    /// `call_data` must be a Vec of subxt::dynamic::Value that holds a representation of
+    /// `call_data` is a Vec<subxt::dynamic::Value> that holds a representation of
     /// some value
     ///
     /// Returns when the transaction is included in a block. The return value
