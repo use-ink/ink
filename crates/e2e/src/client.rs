@@ -777,7 +777,7 @@ where
     ) -> Result<ExtrinsicEvents<C>, Error<C, E>> {
         let tx_events = self
             .api
-            .runtime_call(&signer, pallet_name, call_name, call_data)
+            .runtime_call(signer, pallet_name, call_name, call_data)
             .await;
 
         for evt in tx_events.iter() {
