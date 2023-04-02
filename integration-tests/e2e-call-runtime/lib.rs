@@ -49,7 +49,7 @@ pub mod e2e_call_runtime {
             client
                 .runtime_call(&ink_e2e::alice(), "Balances", "transfer", call_data)
                 .await
-                .expect("system remark call failed");
+                .expect("runtime call failed");
 
             // then
             let get_balance = build_message::<ContractRef>(contract_acc_id.clone())
