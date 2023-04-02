@@ -421,4 +421,27 @@ where
 
         self.submit_extrinsic(&call, signer).await
     }
+
+    /// Submit an extrinsic `call_name` for the `pallet_name`.
+    /// The `call_data` is the call data bytes.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn runtime_call(
+        &self,
+        signer: &Signer<C>,
+        pallet_name: &'static str,
+        call_name: &'static str,
+        call_data: Vec<u8>,
+    ) -> ExtrinsicEvents<C> {
+        let call = tx::StaticTxPayload::new(
+            pallet_name,
+            call_name,
+            call_data,
+            Default::default(),
+        )
+            .unvalidated();
+
+        self.submit_extrinsic(&call, signer).await
+    }
 }
