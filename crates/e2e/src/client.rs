@@ -768,16 +768,16 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn runtime_call(
+    pub async fn runtime_call<'a>(
         &mut self,
         signer: &Signer<C>,
-        pallet_name: &'static str,
-        call_name: &'static str,
-        call_data: Vec<u8>,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
     ) -> Result<ExtrinsicEvents<C>, Error<C, E>> {
         let tx_events = self
             .api
-            .runtime_call(signer, pallet_name, call_name, call_data)
+            .runtime_call(&signer, pallet_name, call_name, call_data)
             .await;
 
         for evt in tx_events.iter() {

@@ -427,20 +427,18 @@ where
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    pub async fn runtime_call(
+    pub async fn runtime_call<'a >(
         &self,
         signer: &Signer<C>,
-        pallet_name: &'static str,
-        call_name: &'static str,
-        call_data: Vec<u8>,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<subxt::dynamic::Value>,
     ) -> ExtrinsicEvents<C> {
-        let call = tx::StaticTxPayload::new(
+        let call = subxt::dynamic::tx(
             pallet_name,
             call_name,
             call_data,
-            Default::default(),
-        )
-            .unvalidated();
+        );
 
         self.submit_extrinsic(&call, signer).await
     }
