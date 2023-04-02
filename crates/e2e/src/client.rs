@@ -759,12 +759,12 @@ where
     }
 
     /// Executes a runtime call `call_name` for the `pallet_name`.
-    /// The `call_data` is the call data bytes.
+    /// The `call_data` is a Vec<Value>
     ///
     /// Note:
     /// `pallet_name` must be in camel case ex: "System"
     /// `call_name` must be snake case ex: "kill_prefix"
-    /// `call_data` scale encoded call.
+    /// `call_data` must be a Vec of subxt::dynamic::Value that holds a representation of some value
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
