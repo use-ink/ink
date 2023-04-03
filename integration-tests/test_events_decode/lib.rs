@@ -1,7 +1,6 @@
 //! This is a reference implementation with one approach to decoding
 //! (capturing emitted) events within unit and e2e tests.
 
-
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::contract]
@@ -28,6 +27,12 @@ mod testing_event_decode {
         value: bool,
     }
 
+    impl Default for TestingEventDecode {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl TestingEventDecode {
 
         #[ink(constructor)]
@@ -38,7 +43,6 @@ mod testing_event_decode {
         /// This message emits two events for test verification.
         #[ink(message)]
         pub fn flipflop(&mut self) {
-
             let caller = self.env().caller();
             let contract = self.env().account_id();
 
@@ -78,8 +82,8 @@ mod testing_event_decode {
 
         #[ink::test]
         fn unittest_event_emission_capture_decode() {
-
-            let accounts = ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
+            let accounts =
+                ink::env::test::default_accounts::<ink::env::DefaultEnvironment>();
             ink::env::test::set_caller::<ink::env::DefaultEnvironment>(accounts.bob);
 
             let mut contract = TestingEventDecode::new();
@@ -96,16 +100,29 @@ mod testing_event_decode {
             for event in &decoded_events {
                 match event {
                     Event::FlipEvent(FlipEvent { flipper, value }) => {
-                        assert_eq!(*value, true, "unexpected FlipEvent.value");
-                        assert_eq!(*flipper, accounts.bob, "unexpected FlipEvent.flipper");
+                        assert!(*value, "unexpected FlipEvent.value");
+                        assert_eq!(
+                            *flipper, accounts.bob,
+                            "unexpected FlipEvent.flipper"
+                        );
                         gotflip = true;
-                    },
-                    Event::FlopEvent(FlopEvent { flipper, flopper, value }) => {
-                        assert_eq!(*value, false, "unexpected FlopEvent.value");
-                        assert_eq!(*flipper, accounts.bob, "unexpected FlopEvent.flipper");
-                        assert_eq!(*flopper, accounts.alice, "unexpected FlopEvent.flopper");
+                    }
+                    Event::FlopEvent(FlopEvent {
+                        flipper,
+                        flopper,
+                        value,
+                    }) => {
+                        assert!(!*value, "unexpected FlopEvent.value");
+                        assert_eq!(
+                            *flipper, accounts.bob,
+                            "unexpected FlopEvent.flipper"
+                        );
+                        assert_eq!(
+                            *flopper, accounts.alice,
+                            "unexpected FlopEvent.flopper"
+                        );
                         gotflop = true;
-                    },
+                    }
                 };
             }
             assert!(gotflip, "expected flip event not captured");
@@ -124,8 +141,9 @@ mod testing_event_decode {
 
         /// Verify that we can capture emitted events and decode to check their fields.
         #[ink_e2e::test]
-        async fn e2etest_event_emission_capture_decode(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-
+        async fn e2etest_event_emission_capture_decode(
+            mut client: ink_e2e::Client<C, E>,
+        ) -> E2EResult<()> {
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let constructor = TestingEventDecodeRef::new();
             let contract_account_id = client
@@ -142,7 +160,7 @@ mod testing_event_decode {
 
             // Check that FlipEvent was successfully emitted.
             let flipflop_msg =
-                build_message::<TestingEventDecodeRef>(contract_account_id.clone())
+                build_message::<TestingEventDecodeRef>(contract_account_id)
                     .call(|contract| contract.flipflop());
             let flipflop_result = client
                 .call(&ink_e2e::bob(), flipflop_msg, 0, None)
@@ -154,16 +172,13 @@ mod testing_event_decode {
                 .events
                 .iter()
                 .find(|event| {
-                    event
-                        .as_ref()
-                        .expect("bad event")
-                        .event_metadata()
-                        .event()
+                    event.as_ref().expect("bad event").event_metadata().event()
                         == "ContractEmitted"
-                        &&
-                        String::from_utf8_lossy(
-                            event.as_ref().expect("bad event").bytes()).to_string()
-                       .contains("TestingEventDecode::FlipEvent")
+                        && String::from_utf8_lossy(
+                            event.as_ref().expect("bad event").bytes(),
+                        )
+                        .to_string()
+                        .contains("TestingEventDecode::FlipEvent")
                 })
                 .expect("Expected flip event")
                 .unwrap();
@@ -176,12 +191,12 @@ mod testing_event_decode {
             let FlipEvent { flipper, value } = decode_event;
 
             // Check that FlopEvent was successully emitted.
-            assert_eq!(value, true, "unexpected FlipEvent.value");
+            assert!(value, "unexpected FlipEvent.value");
             assert_eq!(flipper, bob_account, "unexpected FlipEvent.flipper");
 
             // Build flipflop message.
             let flipflop_msg =
-                build_message::<TestingEventDecodeRef>(contract_account_id.clone())
+                build_message::<TestingEventDecodeRef>(contract_account_id)
                     .call(|contract| contract.flipflop());
             let flipflop_result = client
                 .call(&ink_e2e::bob(), flipflop_msg, 0, None)
@@ -193,16 +208,13 @@ mod testing_event_decode {
                 .events
                 .iter()
                 .find(|event| {
-                    event
-                        .as_ref()
-                        .expect("bad event")
-                        .event_metadata()
-                        .event()
+                    event.as_ref().expect("bad event").event_metadata().event()
                         == "ContractEmitted"
-                        &&
-                        String::from_utf8_lossy(
-                            event.as_ref().expect("bad event").bytes()).to_string()
-                       .contains("TestingEventDecode::FlopEvent")
+                        && String::from_utf8_lossy(
+                            event.as_ref().expect("bad event").bytes(),
+                        )
+                        .to_string()
+                        .contains("TestingEventDecode::FlopEvent")
                 })
                 .expect("Expected flop event")
                 .unwrap();
@@ -212,10 +224,14 @@ mod testing_event_decode {
             let decode_event = <FlopEvent as scale::Decode>::decode(&mut &event[35..])
                 .expect("invalid data");
 
-            let FlopEvent { flipper, flopper, value } = decode_event;
+            let FlopEvent {
+                flipper,
+                flopper,
+                value,
+            } = decode_event;
 
             // Check event emitted by the `flip` function.
-            assert_eq!(value, false, "unexpected FlopEvent.value");
+            assert!(!value, "unexpected FlopEvent.value");
             assert_eq!(flipper, bob_account, "unexpected FlopEvent.flipper");
             assert_eq!(flopper, contract_account_id, "unexpected FlopEvent.flopper");
 
