@@ -53,6 +53,7 @@ impl GenerateCode for Contract<'_> {
         quote! {
             #( #attrs )*
             #vis mod #ident {
+                use ink::prelude::{borrow::*, boxed::*, format, string::*, vec::*};
                 #env
                 #storage
                 #events
