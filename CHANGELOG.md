@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Upgraded `syn` to version `2` - [#1731](https://github.com/paritytech/ink/pull/1731)
+- Automatically export preludes - [#1737](https://github.com/paritytech/ink/pull/1737)
 
 ## Version 4.1.0
 
