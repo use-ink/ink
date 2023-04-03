@@ -762,8 +762,8 @@ where
     /// The `call_data` is a `Vec<Value>`
     ///
     /// Note:
-    /// `pallet_name` must be in camel case ex: "Balances"
-    /// `call_name` must be snake case ex: "force_transfer"
+    /// `pallet_name` must be in camel case ex: `Balances`
+    /// `call_name` must be snake case ex: `force_transfer`
     /// `call_data` is a Vec<subxt::dynamic::Value> that holds a representation of
     /// some value
     ///
