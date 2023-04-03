@@ -423,7 +423,7 @@ where
     }
 
     /// Submit an extrinsic `call_name` for the `pallet_name`.
-    /// The `call_data` is a Vec<subxt::dynamic::Value> that holds a representation of
+    /// The `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
     /// some value
     ///
     /// Returns when the transaction is included in a block. The return value

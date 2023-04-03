@@ -759,7 +759,7 @@ where
     }
 
     /// Executes a runtime call `call_name` for the `pallet_name`.
-    /// The `call_data` is a Vec<Value>
+    /// The `call_data` is a `Vec<Value>`
     ///
     /// Note:
     /// `pallet_name` must be in camel case ex: "System"
