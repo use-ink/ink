@@ -3,6 +3,7 @@
 #[ink::contract]
 pub mod e2e_call_runtime {
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Contract {}
 
     impl Contract {
