@@ -14,33 +14,15 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::{
-    serde_hex,
-    utils::trim_extra_whitespace,
-};
+use crate::{serde_hex, utils::trim_extra_whitespace};
 #[cfg(not(feature = "std"))]
-use alloc::{
-    format,
-    vec,
-    vec::Vec,
-};
+use alloc::{format, vec, vec::Vec};
 use core::marker::PhantomData;
 use scale_info::{
-    form::{
-        Form,
-        MetaForm,
-        PortableForm,
-    },
-    meta_type,
-    IntoPortable,
-    Registry,
-    TypeInfo,
+    form::{Form, MetaForm, PortableForm},
+    meta_type, IntoPortable, Registry, TypeInfo,
 };
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -516,6 +498,18 @@ mod state {
     pub struct IsPayable;
     /// Type state for the message return type.
     pub struct Returns;
+    /// Type state for the `AccountId` type of the environment.
+    pub struct AccountId;
+     /// Type state for the `Balance` type of the environment.
+    pub struct Balance;
+     /// Type state for the `Timestampt` type of the environment.
+    pub struct Timestamp;
+     /// Type state for the BlockNumber` type of the environment.
+    pub struct BlockNumber;
+     /// Type state for the `ChainExtension` type of the environment.
+    pub struct ChainExtension;
+     /// Type state for the max number of topics specified in the environment.
+    pub struct MaxEventTopics;
 }
 
 impl<F> MessageSpec<F>
@@ -1298,3 +1292,59 @@ where
         self.spec
     }
 }
+
+/// Describes a contract message.
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
+#[serde(rename_all = "camelCase")]
+pub struct EnvironmentSpec<F: Form = MetaForm> {
+    account_id: TypeSpec<F>,
+    balance: TypeSpec<F>,
+    hash: TypeSpec<F>,
+    timestamp: TypeSpec<F>,
+    block_number: TypeSpec<F>,
+    chain_extension: TypeSpec<F>,
+    max_event_topics: usize,
+}
+
+impl<F> EnvironmentSpec<F>
+where
+    F: Form,
+{
+    pub fn account_id(&self) -> &TypeSpec<F> {
+        &self.account_id
+    }
+
+    pub fn balance(&self) -> &TypeSpec<F> {
+        &self.balance
+    }
+    pub fn hash(&self) -> &TypeSpec<F> {
+        &self.hash
+    }
+    pub fn timestamp(&self) -> &TypeSpec<F> {
+        &self.timestamp
+    }
+    pub fn block_number(&self) -> &TypeSpec<F> {
+        &self.block_number
+    }
+    pub fn chain_extension(&self) -> &TypeSpec<F> {
+        &self.chain_extension
+    }
+    pub fn max_event_topics(&self) -> usize {
+        self.max_event_topics
+    }
+}
+
+/// An environment specification builder.
+#[must_use]
+pub struct EnvironmentSpecBuilder<F>
+where
+    F: Form,
+{
+    spec: EnvironmentSpec<F>,
+}
+
+

@@ -86,6 +86,7 @@ impl Metadata<'_> {
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
         let events = self.generate_events();
+        let env = self.contract.config().env();
         let docs = self
             .contract
             .module()
