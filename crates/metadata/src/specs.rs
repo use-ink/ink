@@ -551,7 +551,7 @@ mod state {
     pub struct Hash;
     /// Type state for the `Timestamp` type of the environment.
     pub struct Timestamp;
-    /// Type state for the BlockNumber` type of the environment.
+    /// Type state for the `BlockNumber` type of the environment.
     pub struct BlockNumber;
     /// Type state for the `ChainExtension` type of the environment.
     pub struct ChainExtension;
