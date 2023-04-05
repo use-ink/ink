@@ -39,7 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           repo: ${{ matrix.repo }}
           # Users to ignore if they are authors. They are separated by commas
-          ignoreAuthors: ascjones,HCastano,Robbepop,athei,agryaznov,SkymanOne,xermicus,statictype,DoubleOTheven,cmichi,safina12
+          ignoreAuthors: ascjones,HCastano,Robbepop,athei,agryaznov,SkymanOne,xermicus,statictype,DoubleOTheven,cmichi,safina12,lean-apple,juangirini,pgherveou
           # only fetch issues that don't have any replies
           noComments: true
           # from today onwards. Increase this number to set how much time without interaction must pass for the issue to be analyzed
