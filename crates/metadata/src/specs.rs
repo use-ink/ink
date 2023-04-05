@@ -1340,7 +1340,7 @@ where
     }
 }
 
-/// Describes a contract message.
+/// Describes a contract environment.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
@@ -1399,24 +1399,31 @@ where
     F: Form,
     TypeSpec<F>: Default,
 {
+    /// Returns the `AccountId` type of the environment.
     pub fn account_id(&self) -> &TypeSpec<F> {
         &self.account_id
     }
+    /// Returns the `Balance` type of the environment.
     pub fn balance(&self) -> &TypeSpec<F> {
         &self.balance
     }
+    /// Returns the `Hash` type of the environment.
     pub fn hash(&self) -> &TypeSpec<F> {
         &self.hash
     }
+    /// Returns the `Timestamp` type of the environment.
     pub fn timestamp(&self) -> &TypeSpec<F> {
         &self.timestamp
     }
+    /// Returns the `BlockNumber` type of the environment.
     pub fn block_number(&self) -> &TypeSpec<F> {
         &self.block_number
     }
+    /// Returns the `ChainExtension` type of the environment.
     pub fn chain_extension(&self) -> &TypeSpec<F> {
         &self.chain_extension
     }
+    /// Returns the `MAX_EVENT_TOPICS` value of the environment.
     pub fn max_event_topics(&self) -> usize {
         self.max_event_topics
     }
@@ -1466,6 +1473,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `AccountId` type of the environment.
     pub fn account_id(
         self,
         account_id: TypeSpec<F>,
@@ -1487,6 +1495,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `Balance` type of the environment.
     pub fn balance(
         self,
         balance: TypeSpec<F>,
@@ -1508,6 +1517,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `Hash` type of the environment.
     pub fn hash(
         self,
         hash: TypeSpec<F>,
@@ -1526,6 +1536,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `Timestamp` type of the environment.
     pub fn timestamp(
         self,
         timestamp: TypeSpec<F>,
@@ -1547,6 +1558,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `BlockNumber` type of the environment.
     pub fn block_number(
         self,
         block_number: TypeSpec<F>,
@@ -1568,6 +1580,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `ChainExtension` type of the environment.
     pub fn chain_extension(
         self,
         chain_extension: TypeSpec<F>,
@@ -1589,6 +1602,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Sets the `MAX_EVENT_TOPICS` value of the environment.
     pub fn max_event_topics(
         self,
         max_event_topics: usize,
@@ -1619,6 +1633,7 @@ where
     TypeSpec<F>: Default,
     EnvironmentSpec<F>: Default,
 {
+    /// Finished constructing the `EnvironmentSpec` object.
     pub fn done(self) -> EnvironmentSpec<F> {
         self.spec
     }
