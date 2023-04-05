@@ -99,8 +99,6 @@ jobs:
           message: |
             ## Good morning, team 🥞!
             This weekly digest lists GitHub issues without any reply that were created by non-team members.
-
-            This weekly digest lists GitHub issues without any reply that were created by non-team members. 
             
             The list is an aggregation of repositories which the Smart Contracts ☂️ owns ([list](https://www.notion.so/paritytechnologies/What-belongs-to-our-umbrella-b9a80b72fedc47d6b35224a15bdec64c)).
 
