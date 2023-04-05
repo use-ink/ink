@@ -36,6 +36,8 @@ pub use self::specs::{
     ContractSpec,
     ContractSpecBuilder,
     DisplayName,
+    EnvironmentSpec,
+    EnvironmentSpecBuilder,
     EventParamSpec,
     EventParamSpecBuilder,
     EventSpec,

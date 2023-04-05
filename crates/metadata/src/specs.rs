@@ -14,15 +14,33 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::{serde_hex, utils::trim_extra_whitespace};
+use crate::{
+    serde_hex,
+    utils::trim_extra_whitespace,
+};
 #[cfg(not(feature = "std"))]
-use alloc::{format, vec, vec::Vec};
+use alloc::{
+    format,
+    vec,
+    vec::Vec,
+};
 use core::marker::PhantomData;
 use scale_info::{
-    form::{Form, MetaForm, PortableForm},
-    meta_type, IntoPortable, Registry, TypeInfo,
+    form::{
+        Form,
+        MetaForm,
+        PortableForm,
+    },
+    meta_type,
+    IntoPortable,
+    Registry,
+    TypeInfo,
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Describes a contract.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -30,7 +48,10 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
-pub struct ContractSpec<F: Form = MetaForm> {
+pub struct ContractSpec<F: Form = MetaForm>
+where
+    TypeSpec<F>: Default,
+{
     /// The set of constructors of the contract.
     constructors: Vec<ConstructorSpec<F>>,
     /// The external messages of the contract.
@@ -41,6 +62,7 @@ pub struct ContractSpec<F: Form = MetaForm> {
     docs: Vec<F::String>,
     /// The language specific error type.
     lang_error: TypeSpec<F>,
+    environment: EnvironmentSpec<F>,
 }
 
 impl IntoPortable for ContractSpec {
@@ -65,6 +87,7 @@ impl IntoPortable for ContractSpec {
                 .collect::<Vec<_>>(),
             docs: registry.map_into_portable(self.docs),
             lang_error: self.lang_error.into_portable(registry),
+            environment: self.environment.into_portable(registry),
         }
     }
 }
@@ -72,6 +95,7 @@ impl IntoPortable for ContractSpec {
 impl<F> ContractSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Returns the set of constructors of the contract.
     pub fn constructors(&self) -> &[ConstructorSpec<F>] {
@@ -97,6 +121,10 @@ where
     pub fn lang_error(&self) -> &TypeSpec<F> {
         &self.lang_error
     }
+
+    pub fn environment(&self) -> &EnvironmentSpec<F> {
+        &self.environment
+    }
 }
 
 /// The message builder is ready to finalize construction.
@@ -108,6 +136,7 @@ pub enum Invalid {}
 pub struct ContractSpecBuilder<F, S = Invalid>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// The to-be-constructed contract specification.
     spec: ContractSpec<F>,
@@ -118,6 +147,7 @@ where
 impl<F> ContractSpecBuilder<F, Invalid>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Sets the constructors of the contract specification.
     pub fn constructors<C>(self, constructors: C) -> ContractSpecBuilder<F, Valid>
@@ -138,6 +168,7 @@ where
 impl<F, S> ContractSpecBuilder<F, S>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Sets the messages of the contract specification.
     pub fn messages<M>(self, messages: M) -> Self
@@ -184,11 +215,22 @@ where
         }
     }
 
-    /// Sets the language error of the contract specification
+    /// Sets the language error of the contract specification.
     pub fn lang_error(self, lang_error: TypeSpec<F>) -> Self {
         Self {
             spec: ContractSpec {
                 lang_error,
+                ..self.spec
+            },
+            ..self
+        }
+    }
+
+    /// sets the environment types of the contract specification.
+    pub fn environment(self, environment: EnvironmentSpec<F>) -> Self {
+        Self {
+            spec: ContractSpec {
+                environment,
                 ..self.spec
             },
             ..self
@@ -199,6 +241,7 @@ where
 impl<F> ContractSpecBuilder<F, Valid>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     /// Finalizes construction of the contract specification.
     pub fn done(self) -> ContractSpec<F> {
@@ -218,6 +261,7 @@ impl<F> ContractSpec<F>
 where
     F: Form,
     TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
 {
     /// Creates a new contract specification.
     pub fn new() -> ContractSpecBuilder<F, Invalid> {
@@ -228,6 +272,7 @@ where
                 events: Vec::new(),
                 docs: Vec::new(),
                 lang_error: Default::default(),
+                environment: Default::default(),
             },
             marker: PhantomData,
         }
@@ -500,15 +545,17 @@ mod state {
     pub struct Returns;
     /// Type state for the `AccountId` type of the environment.
     pub struct AccountId;
-     /// Type state for the `Balance` type of the environment.
+    /// Type state for the `Balance` type of the environment.
     pub struct Balance;
-     /// Type state for the `Timestampt` type of the environment.
+    /// Type state for the `Hash` type of the environment.
+    pub struct Hash;
+    /// Type state for the `Timestamp` type of the environment.
     pub struct Timestamp;
-     /// Type state for the BlockNumber` type of the environment.
+    /// Type state for the BlockNumber` type of the environment.
     pub struct BlockNumber;
-     /// Type state for the `ChainExtension` type of the environment.
+    /// Type state for the `ChainExtension` type of the environment.
     pub struct ChainExtension;
-     /// Type state for the max number of topics specified in the environment.
+    /// Type state for the max number of topics specified in the environment.
     pub struct MaxEventTopics;
 }
 
@@ -1300,7 +1347,10 @@ where
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 #[serde(rename_all = "camelCase")]
-pub struct EnvironmentSpec<F: Form = MetaForm> {
+pub struct EnvironmentSpec<F: Form = MetaForm>
+where
+    TypeSpec<F>: Default,
+{
     account_id: TypeSpec<F>,
     balance: TypeSpec<F>,
     hash: TypeSpec<F>,
@@ -1310,14 +1360,48 @@ pub struct EnvironmentSpec<F: Form = MetaForm> {
     max_event_topics: usize,
 }
 
+impl<F> Default for EnvironmentSpec<F>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+{
+    fn default() -> Self {
+        Self {
+            account_id: Default::default(),
+            balance: Default::default(),
+            hash: Default::default(),
+            timestamp: Default::default(),
+            block_number: Default::default(),
+            chain_extension: Default::default(),
+            max_event_topics: Default::default(),
+        }
+    }
+}
+
+impl IntoPortable for EnvironmentSpec {
+    type Output = EnvironmentSpec<PortableForm>;
+
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
+        EnvironmentSpec {
+            account_id: self.account_id.into_portable(registry),
+            balance: self.balance.into_portable(registry),
+            hash: self.hash.into_portable(registry),
+            timestamp: self.timestamp.into_portable(registry),
+            block_number: self.block_number.into_portable(registry),
+            chain_extension: self.chain_extension.into_portable(registry),
+            max_event_topics: self.max_event_topics,
+        }
+    }
+}
+
 impl<F> EnvironmentSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
 {
     pub fn account_id(&self) -> &TypeSpec<F> {
         &self.account_id
     }
-
     pub fn balance(&self) -> &TypeSpec<F> {
         &self.balance
     }
@@ -1338,13 +1422,204 @@ where
     }
 }
 
-/// An environment specification builder.
-#[must_use]
-pub struct EnvironmentSpecBuilder<F>
+#[allow(clippy::type_complexity)]
+impl<F> EnvironmentSpec<F>
 where
     F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
 {
-    spec: EnvironmentSpec<F>,
+    pub fn new() -> EnvironmentSpecBuilder<
+        F,
+        Missing<state::AccountId>,
+        Missing<state::Balance>,
+        Missing<state::Hash>,
+        Missing<state::Timestamp>,
+        Missing<state::BlockNumber>,
+        Missing<state::ChainExtension>,
+        Missing<state::MaxEventTopics>,
+    > {
+        EnvironmentSpecBuilder {
+            spec: Default::default(),
+            marker: PhantomData,
+        }
+    }
 }
 
+/// An environment specification builder.
+#[allow(clippy::type_complexity)]
+#[must_use]
+pub struct EnvironmentSpecBuilder<F, A, B, H, T, BN, C, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    spec: EnvironmentSpec<F>,
+    marker: PhantomData<fn() -> (A, B, H, T, BN, C, M)>,
+}
 
+impl<F, B, H, T, BN, C, M>
+    EnvironmentSpecBuilder<F, Missing<state::AccountId>, B, H, T, BN, C, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn account_id(
+        self,
+        account_id: TypeSpec<F>,
+    ) -> EnvironmentSpecBuilder<F, state::AccountId, B, H, T, BN, C, M> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                account_id,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, H, T, BN, C, M>
+    EnvironmentSpecBuilder<F, A, Missing<state::Balance>, H, T, BN, C, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn balance(
+        self,
+        balance: TypeSpec<F>,
+    ) -> EnvironmentSpecBuilder<F, A, state::Balance, H, T, BN, C, M> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                balance,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, T, BN, C, M>
+    EnvironmentSpecBuilder<F, A, B, Missing<state::Hash>, T, BN, C, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn hash(
+        self,
+        hash: TypeSpec<F>,
+    ) -> EnvironmentSpecBuilder<F, A, B, state::Hash, T, BN, C, M> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec { hash, ..self.spec },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, BN, C, M>
+    EnvironmentSpecBuilder<F, A, B, H, Missing<state::Timestamp>, BN, C, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn timestamp(
+        self,
+        timestamp: TypeSpec<F>,
+    ) -> EnvironmentSpecBuilder<F, A, B, H, state::Timestamp, BN, C, M> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                timestamp,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, T, C, M>
+    EnvironmentSpecBuilder<F, A, B, H, T, Missing<state::BlockNumber>, C, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn block_number(
+        self,
+        block_number: TypeSpec<F>,
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, state::BlockNumber, C, M> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                block_number,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, T, BN, M>
+    EnvironmentSpecBuilder<F, A, B, H, T, BN, Missing<state::ChainExtension>, M>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn chain_extension(
+        self,
+        chain_extension: TypeSpec<F>,
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, state::ChainExtension, M> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                chain_extension,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F, A, B, H, T, BN, C>
+    EnvironmentSpecBuilder<F, A, B, H, T, BN, C, Missing<state::MaxEventTopics>>
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn max_event_topics(
+        self,
+        max_event_topics: usize,
+    ) -> EnvironmentSpecBuilder<F, A, B, H, T, BN, C, state::MaxEventTopics> {
+        EnvironmentSpecBuilder {
+            spec: EnvironmentSpec {
+                max_event_topics,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<F>
+    EnvironmentSpecBuilder<
+        F,
+        state::AccountId,
+        state::Balance,
+        state::Hash,
+        state::Timestamp,
+        state::BlockNumber,
+        state::ChainExtension,
+        state::MaxEventTopics,
+    >
+where
+    F: Form,
+    TypeSpec<F>: Default,
+    EnvironmentSpec<F>: Default,
+{
+    pub fn done(self) -> EnvironmentSpec<F> {
+        self.spec
+    }
+}
