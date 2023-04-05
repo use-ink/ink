@@ -40,3 +40,4 @@ pub use self::{
         TraitMessageSelector,
     },
 };
+pub use paste::paste;

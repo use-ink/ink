@@ -42,6 +42,7 @@ pub mod utils {
 pub use self::{
     call_builder::{
         build_call,
+        build_call_from_variable,
         Call,
         CallBuilder,
         CallParams,

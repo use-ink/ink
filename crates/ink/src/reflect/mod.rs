@@ -25,6 +25,7 @@
 
 mod contract;
 mod dispatch;
+mod message;
 mod trait_def;
 
 pub use self::{
@@ -40,6 +41,7 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
     },
+    message::MessageDescription,
     trait_def::{
         TraitDefinitionRegistry,
         TraitInfo,
