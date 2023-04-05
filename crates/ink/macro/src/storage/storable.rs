@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{
-    quote,
-    quote_spanned,
-};
+use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;
 
 /// `Storable` derive implementation for `struct` types.
@@ -36,9 +33,24 @@ fn storable_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             ::ink::storage::traits::Storable::encode(#binding, __dest);
         )
     });
+    let size_hint_body = variant.each(|binding| {
+        let span = binding.ast().ty.span();
+        quote_spanned!(span =>
+            size_hint += ::ink::storage::traits::Storable::size_hint(#binding);
+        )
+    });
 
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
+            #[inline(always)]
+            #[allow(non_camel_case_types)]
+            #[allow(unused_mut)]
+            fn size_hint(&self) -> ::core::primitive::usize {
+                let mut size_hint = 0;
+                match self { #size_hint_body }
+                size_hint
+            }
+
             #[inline(always)]
             #[allow(non_camel_case_types)]
             fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
@@ -66,7 +78,7 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
             s.ast().span(),
             "Currently only enums with at most 256 variants are supported.",
         )
-        .to_compile_error()
+        .to_compile_error();
     }
 
     let decode_body = s
@@ -108,8 +120,41 @@ fn storable_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
              }
          }
     });
+
+    let size_hint_body = s.variants().iter().enumerate().map(|(index, variant)| {
+        let pat = variant.pat();
+        let index = index as u8;
+        let fields = variant.bindings().iter().map(|field| {
+            let span = field.ast().ty.span();
+            quote_spanned!(span =>
+                size_hint += ::ink::storage::traits::Storable::size_hint(#field);
+            )
+        });
+        quote! {
+             #pat => {
+                 { size_hint += <::core::primitive::u8 as ::ink::storage::traits::Storable>::size_hint(&#index); }
+                 #(
+                     { #fields }
+                 )*
+             }
+         }
+    });
+
     s.gen_impl(quote! {
          gen impl ::ink::storage::traits::Storable for @Self {
+            #[inline(always)]
+            #[allow(non_camel_case_types)]
+            #[allow(unused_mut)]
+            fn size_hint(&self) -> ::core::primitive::usize {
+                let mut size_hint = 0;
+                match self {
+                    #(
+                        #size_hint_body
+                    )*
+                }
+                size_hint
+            }
+
             #[inline(always)]
             #[allow(non_camel_case_types)]
             fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {

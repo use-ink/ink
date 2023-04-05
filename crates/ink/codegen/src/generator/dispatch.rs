@@ -585,7 +585,7 @@ impl Dispatch<'_> {
                         ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                             &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                             contract,
-                        );
+                        ).unwrap(); // TODO (unwrapping here should roughly be the same as is)
                     }
 
                     ::ink::env::return_value::<
@@ -838,7 +838,7 @@ impl Dispatch<'_> {
                         ::ink::env::set_contract_storage::<::ink::primitives::Key, #storage_ident>(
                             &<#storage_ident as ::ink::storage::traits::StorageKey>::KEY,
                             &contract,
-                        );
+                        ).unwrap(); // TODO (unwrapping here should roughly be the same as is)
                     }
                 }
 

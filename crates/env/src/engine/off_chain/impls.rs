@@ -186,14 +186,17 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
-    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Result<Option<u32>>
     where
         K: scale::Encode,
         V: Storable,
     {
         let mut v = vec![];
+        if value.size_hint() > 9600 {
+            return Err(Error::Unknown)
+        }
         Storable::encode(value, &mut v);
-        self.engine.set_storage(&key.encode(), &v[..])
+        Ok(self.engine.set_storage(&key.encode(), &v[..]))
     }
 
     fn get_contract_storage<K, R>(&mut self, key: &K) -> Result<Option<R>>

@@ -212,4 +212,9 @@ impl<'a> ScopedBuffer<'a> {
         debug_assert!(!self.buffer.is_empty());
         self.buffer
     }
+
+    /// Return the length of the internal buffer.
+    pub fn len(&self) -> usize {
+        self.buffer.len()
+    }
 }

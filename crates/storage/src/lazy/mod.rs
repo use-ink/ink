@@ -143,8 +143,8 @@ where
     }
 
     /// Writes the given `value` to the contract storage.
-    pub fn set(&mut self, value: &V) {
-        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value);
+    pub fn set(&mut self, value: &V) -> ink_env::Result<Option<u32>> {
+        ink_env::set_contract_storage::<Key, V>(&KeyType::KEY, value)
     }
 }
 
@@ -168,6 +168,11 @@ impl<V, KeyType> Storable for Lazy<V, KeyType>
 where
     KeyType: StorageKey,
 {
+    #[inline(always)]
+    fn size_hint(&self) -> usize {
+        0
+    }
+
     #[inline(always)]
     fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
 
@@ -226,7 +231,7 @@ mod tests {
     fn set_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut storage: Lazy<u8> = Lazy::new();
-            storage.set(&2);
+            storage.set(&2).expect("buffer can hold an u8");
             assert_eq!(storage.get(), Some(2));
 
             Ok(())
@@ -238,7 +243,7 @@ mod tests {
     fn set_and_get_work_for_two_lazy_with_same_manual_key() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut storage: Lazy<u8, ManualKey<123>> = Lazy::new();
-            storage.set(&2);
+            storage.set(&2).expect("buffer can hold an u8");
 
             let storage2: Lazy<u8, ManualKey<123>> = Lazy::new();
             assert_eq!(storage2.get(), Some(2));

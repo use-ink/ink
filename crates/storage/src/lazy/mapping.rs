@@ -136,7 +136,7 @@ where
     ///
     /// Returns the size in bytes of the pre-existing value at the specified key if any.
     #[inline]
-    pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> Option<u32>
+    pub fn insert<Q, R>(&mut self, key: Q, value: &R) -> ink_env::Result<Option<u32>>
     where
         Q: scale::EncodeLike<K>,
         R: Storable + scale::EncodeLike<V>,
@@ -213,6 +213,11 @@ where
     KeyType: StorageKey,
 {
     #[inline]
+    fn size_hint(&self) -> usize {
+        0
+    }
+
+    #[inline]
     fn encode<T: Output + ?Sized>(&self, _dest: &mut T) {}
 
     #[inline]
@@ -272,7 +277,7 @@ mod tests {
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert(1, &2);
+            mapping.insert(1, &2).expect("buffer can hold an u8");
             assert_eq!(mapping.get(1), Some(2));
 
             Ok(())
@@ -284,7 +289,7 @@ mod tests {
     fn insert_and_get_work_for_two_mapping_with_same_manual_key() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
-            mapping.insert(1, &2);
+            mapping.insert(1, &2).expect("buffer can hold an u8");
 
             let mapping2: Mapping<u8, u8, ManualKey<123>> = Mapping::new();
             assert_eq!(mapping2.get(1), Some(2));
@@ -309,7 +314,7 @@ mod tests {
     fn insert_and_take_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping: Mapping<u8, _> = Mapping::new();
-            mapping.insert(1, &2);
+            mapping.insert(1, &2).expect("buffer can hold an u8");
             assert_eq!(mapping.take(1), Some(2));
             assert!(mapping.get(1).is_none());
 
@@ -335,7 +340,7 @@ mod tests {
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new();
 
-            mapping.insert(1, &2);
+            mapping.insert(1, &2).expect("buffer can hold an u8");
             assert_eq!(mapping.get(1), Some(2));
 
             // When

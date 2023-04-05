@@ -172,7 +172,7 @@ pub trait EnvBackend {
     /// Writes the value to the contract storage under the given storage key.
     ///
     /// Returns the size of the pre-existing value at the specified key if any.
-    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Option<u32>
+    fn set_contract_storage<K, V>(&mut self, key: &K, value: &V) -> Result<Option<u32>>
     where
         K: scale::Encode,
         V: Storable;

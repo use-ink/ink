@@ -192,7 +192,7 @@ where
 ///
 /// - If the encode length of value exceeds the configured maximum value length of a
 ///   storage entry.
-pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
+pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Result<Option<u32>>
 where
     K: scale::Encode,
     V: Storable,

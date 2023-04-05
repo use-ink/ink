@@ -33,6 +33,17 @@ fn unit_struct_works() {
                 impl ::ink::storage::traits::Storable for UnitStruct {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn size_hint(&self) -> ::core::primitive::usize {
+                        let mut size_hint = 0;
+                        match self {
+                            UnitStruct => {}
+                        }
+                        size_hint
+                    }
+
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(UnitStruct)
                     }
@@ -63,6 +74,27 @@ fn struct_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::Storable for NamedFields {
+                    #[inline (always)]
+                    #[allow (non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn size_hint(&self) -> ::core::primitive::usize {
+                        let mut size_hint = 0;
+                        match self {
+                            NamedFields { a : __binding_0 , b : __binding_1 , d : __binding_2 , } => {
+                                {
+                                    size_hint += ::ink::storage:: traits:: Storable:: size_hint(__binding_0);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_1);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_2);
+                                }
+                            }
+                        }
+                        size_hint
+                    }
+
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
@@ -125,6 +157,20 @@ fn one_variant_enum_works() {
                 impl ::ink::storage::traits::Storable for OneVariantEnum {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn size_hint (&self) -> ::core::primitive::usize {
+                        let mut size_hint = 0;
+                        match self {
+                            OneVariantEnum::A => {
+                                {
+                                    size_hint += <::core::primitive::u8 as ::ink::storage::traits::Storable>::size_hint(&0u8);
+                                }
+                            }
+                        }
+                        size_hint
+                    }
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
                             match <::core::primitive::u8 as ::ink::storage::traits::Storable>::decode(__input)?
@@ -168,6 +214,43 @@ fn enum_works() {
         expands to {
             const _: () = {
                 impl ::ink::storage::traits::Storable for MixedEnum {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn size_hint (&self) -> ::core::primitive::usize{
+                        let mut size_hint = 0;
+                        match self {
+                            MixedEnum::A => {
+                                {
+                                    size_hint += <::core::primitive::u8 as ::ink::storage::traits::Storable>::size_hint(&0u8);
+                                }
+                            }
+                            MixedEnum::B(__binding_0, __binding_1,) => {
+                                {
+                                    size_hint += <::core::primitive::u8 as ::ink::storage::traits::Storable>::size_hint(&1u8);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_0);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_1);
+                                }
+                            }
+                            MixedEnum::C { a: __binding_0, b: __binding_1, } => {
+                                {
+                                    size_hint += <::core::primitive::u8 as ::ink::storage::traits::Storable>::size_hint(&2u8);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_0);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_1);
+                                }
+                            }
+                        }
+                        size_hint
+                    }
+
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
@@ -274,6 +357,23 @@ fn generic_struct_works() {
                 {
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn size_hint(&self) -> ::core::primitive::usize {
+                        let mut size_hint = 0;
+                        match self {
+                            GenericStruct { a : __binding_0 , b : __binding_1 , } => {
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_0);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_1);
+                                }
+                            }
+                        }
+                        size_hint
+                    }
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
                         ::core::result::Result::Ok(
                             GenericStruct {
@@ -332,6 +432,38 @@ fn generic_enum_works() {
                     T1: ::ink::storage::traits::Storable,
                     T2: ::ink::storage::traits::Storable
                 {
+                    #[inline(always)]
+                    #[allow(non_camel_case_types)]
+                    #[allow(unused_mut)]
+                    fn size_hint(&self) -> ::core::primitive::usize {
+                        let mut size_hint = 0;
+                        match self {
+                            GenericEnum::Tuple (__binding_0, __binding_1,) => {
+                                {
+                                    size_hint += <::core::primitive:: u8 as::ink::storage::traits::Storable>::size_hint(&0u8);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_0);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_1);
+                                }
+                            }
+                            GenericEnum::Named { a: __binding_0, b: __binding_1,} => {
+                                {
+                                    size_hint += <::core::primitive::u8 as::ink::storage::traits::Storable>::size_hint(&1u8);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_0);
+                                }
+                                {
+                                    size_hint += ::ink::storage::traits::Storable::size_hint(__binding_1);
+                                }
+                            }
+                        }
+                        size_hint
+                    }
+
                     #[inline(always)]
                     #[allow(non_camel_case_types)]
                     fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {

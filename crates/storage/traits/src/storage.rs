@@ -20,6 +20,8 @@ use ink_primitives::Key;
 /// [`scale::Codec`] are storable by default and transferable between contracts.
 /// But not each storable type is transferable.
 pub trait Storable: Sized {
+    fn size_hint(&self) -> usize;
+
     /// Convert self to a slice and append it to the destination.
     fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T);
 
@@ -33,6 +35,11 @@ impl<P> Storable for P
 where
     P: scale::Codec,
 {
+    #[inline]
+    fn size_hint(&self) -> usize {
+        scale::Encode::size_hint(&self)
+    }
+
     #[inline]
     fn encode<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         scale::Encode::encode_to(self, dest)
