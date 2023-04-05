@@ -24,6 +24,7 @@ jobs:
           - nft-marketplace-demo
           - pallet-contracts-xcm
           - link
+          - ink-examples
     steps:
       - name: Generate token
         id: generate_token
