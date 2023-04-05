@@ -16,6 +16,7 @@
 
 use super::TraitDefinition;
 use heck::ToLowerCamelCase as _;
+use ir::Selector;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -24,7 +25,10 @@ use quote::{
 };
 
 impl<'a> TraitDefinition<'a> {
-    fn generate_for_message(message: ir::InkTraitMessage<'a>) -> TokenStream2 {
+    fn generate_for_message(
+        message: ir::InkTraitMessage<'a>,
+        selector: Selector,
+    ) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
         let sig = message.sig();
@@ -37,6 +41,12 @@ impl<'a> TraitDefinition<'a> {
         };
         let output_ident =
             format_ident!("{}Output", ident.to_string().to_lower_camel_case());
+
+        let description_ident = format_ident!("__ink_{}_description", sig.ident);
+        let is_mutable = message.receiver().is_ref_mut();
+        let is_payable = message.ink_attrs().is_payable();
+        let selector_bytes = selector.hex_lits();
+
         quote_spanned!(span =>
             /// Output type of the respective trait message.
             #(#cfg_attrs)*
@@ -44,6 +54,16 @@ impl<'a> TraitDefinition<'a> {
 
             #(#attrs)*
             fn #ident(#inputs) -> Self::#output_ident;
+
+            #(#cfg_attrs)*
+            #[inline(always)]
+            fn #description_ident(&self) -> ::ink::reflect::MessageDescription {
+                ::ink::reflect::MessageDescription::new(
+                    #is_mutable,
+                    #is_payable,
+                    [ #( #selector_bytes ),* ]
+                )
+            }
         )
     }
 }
@@ -54,11 +74,10 @@ impl TraitDefinition<'_> {
         let span = item.span();
         let attrs = item.attrs();
         let ident = item.ident();
-        let messages = item
-            .iter_items()
-            .map(|(item, _)| item)
-            .flat_map(ir::InkTraitItem::filter_map_message)
-            .map(Self::generate_for_message);
+        let messages = item.iter_items().flat_map(|(item, selector)| {
+            ir::InkTraitItem::filter_map_message(item)
+                .map(|message| Self::generate_for_message(message, selector))
+        });
         quote_spanned!(span =>
             #(#attrs)*
             pub trait #ident: ::ink::env::ContractEnv {

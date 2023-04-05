@@ -23,6 +23,7 @@ ink_metadata = { version = "4.1.0", path = "../metadata", default-features = fal
 ink_prelude = { version = "4.1.0", path = "../prelude", default-features = false }
 ink_macro = { version = "4.1.0", path = "macro", default-features = false }
 
+paste = "1.0.12"
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 

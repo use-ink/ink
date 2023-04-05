@@ -211,10 +211,30 @@ macro_rules! contract_ref {
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// Allows them to return their underlying account identifier.
-pub trait ToAccountId<T>
+pub trait ToAccountId<E>
 where
-    T: Environment,
+    E: Environment,
 {
     /// Returns the underlying account identifier of the instantiated contract.
-    fn to_account_id(&self) -> <T as Environment>::AccountId;
+    fn to_account_id(&self) -> <E as Environment>::AccountId;
+}
+
+impl<T, E> ToAccountId<E> for &T
+where
+    T: ToAccountId<E>,
+    E: Environment,
+{
+    fn to_account_id(&self) -> <E as Environment>::AccountId {
+        T::to_account_id(self)
+    }
+}
+
+impl<T, E> ToAccountId<E> for &mut T
+where
+    T: ToAccountId<E>,
+    E: Environment,
+{
+    fn to_account_id(&self) -> <E as Environment>::AccountId {
+        T::to_account_id(self)
+    }
 }

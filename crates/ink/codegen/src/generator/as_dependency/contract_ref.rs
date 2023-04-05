@@ -23,6 +23,7 @@ use ir::{
 };
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
+    format_ident,
     quote,
     quote_spanned,
 };
@@ -392,6 +393,13 @@ impl ContractRef<'_> {
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let output_type = message.output().map(|ty| quote! { -> #ty });
         let wrapped_output_type = message.wrapped_output();
+
+        let cfg_attrs = message.get_cfg_attrs(span);
+        let description_ident = format_ident!("__ink_{}_description", message_ident);
+        let is_mutable = message.receiver().is_ref_mut();
+        let is_payable = message.is_payable();
+        let selector_bytes = message.composed_selector().hex_lits();
+
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
@@ -423,6 +431,15 @@ impl ContractRef<'_> {
                         ::core::stringify!(#message_ident),
                         error,
                     ))
+            }
+
+            #(#cfg_attrs)*
+            pub const fn #description_ident(&self) -> ::ink::reflect::MessageDescription {
+                ::ink::reflect::MessageDescription::new(
+                    #is_mutable,
+                    #is_payable,
+                    [ #( #selector_bytes ),* ]
+                )
             }
         )
     }

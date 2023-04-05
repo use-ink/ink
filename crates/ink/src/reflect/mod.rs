@@ -26,6 +26,7 @@
 mod contract;
 mod dispatch;
 mod event;
+mod message;
 mod trait_def;
 
 pub use self::{
@@ -42,6 +43,7 @@ pub use self::{
         ExecuteDispatchable,
     },
     event::ContractEventBase,
+    message::MessageDescription,
     trait_def::{
         TraitDefinitionRegistry,
         TraitInfo,

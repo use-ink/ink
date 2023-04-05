@@ -93,6 +93,14 @@ pub trait ContractEnv {
     type Env: crate::Environment;
 }
 
+impl<T: ContractEnv> ContractEnv for &T {
+    type Env = T::Env;
+}
+
+impl<T: ContractEnv> ContractEnv for &mut T {
+    type Env = T::Env;
+}
+
 /// Refers to the generated ink! smart contract reference type.
 ///
 /// # Note

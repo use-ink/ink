@@ -24,6 +24,7 @@ use crate::{
         ExecutionInput,
     },
     types::Gas,
+    ContractEnv,
     Environment,
     Error,
 };
@@ -776,4 +777,186 @@ where
     pub fn try_invoke(self) -> Result<R, Error> {
         self.params().try_invoke()
     }
+}
+
+/// The analog of the [`build_call`] but from variable to get the [`ContractEnv::Env`].
+#[doc(hidden)]
+#[allow(clippy::type_complexity)]
+pub fn build_call_from_variable<V>(
+    _: V,
+) -> CallBuilder<
+    V::Env,
+    Unset<Call<V::Env>>,
+    Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<ReturnType<()>>,
+>
+where
+    V: ContractEnv,
+{
+    build_call::<V::Env>()
+}
+
+/// The helper macro reverses the order of the token stream.
+///
+/// ```rust
+/// use ink_env::reverse_tokens_order;
+/// assert_eq!(
+///     core::any::TypeId::of::<u64>(),
+///     reverse_tokens_order!(()>u64<::of::TypeId::any::core)
+/// )
+/// ```
+#[doc(hidden)]
+#[macro_export]
+macro_rules! reverse_tokens_order {
+    (@main_loop [ $( $heads:tt, )+ ],) => {
+        $( $heads )*
+    };
+    (@main_loop [ $( $heads:tt, )+ ], $head:tt $( $tail:tt )*) => {
+        $crate::reverse_tokens_order!(@main_loop [ $head, $( $heads, )+ ], $( $tail )*)
+    };
+    ($head:tt $( $tail:tt )*) => {
+        $crate::reverse_tokens_order!(@main_loop [ $head, ], $( $tail )*)
+    };
+}
+
+/// The primary internal implementation of the [`call_builder`](crate::call_builder)
+/// macro. It parses the token stream and generates [`CallBuilder`].
+///
+/// The macro works as a state machine with the next steps:
+/// - Reverses the token stream.
+/// - Tries to find the template `(args)method.` or `(args, receiver)method::`.
+/// - Collects arguments, receiver, and message descriptor getter.
+/// - Reverse the token stream back.
+/// - Expands into [`CallBuilder`].
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_builder_inner {
+    // Reverses the initial token stream to simplify handling in the `@reversed`.
+    (@reverse $head:tt $( $tail:tt )*) => {
+        $crate::call_builder_inner!(@reverse_main_loop [ $head, ], $( $tail )*)
+    };
+    (@reverse_main_loop [ $( $heads:tt, )+ ],) => {
+        $crate::call_builder_inner!(@reversed $( $heads )*)
+    };
+    (@reverse_main_loop [ $( $heads:tt, )+ ], $head:tt $( $tail:tt )*) => {
+        $crate::call_builder_inner!(@reverse_main_loop [ $head, $( $heads, )+ ], $( $tail )*)
+    };
+
+    // Entry point for the `... .method(inputs)`.
+    // The `$input_bindings` are not reversed because it is part
+    // of the `( $( $input_bindings:expr ),* )` that is single `tt`.
+    (@reversed ( $( $input_bindings:expr ),* ) $method:ident . $( $rest:tt )+ ) => {
+        $crate::call_builder_inner!(
+            @final
+            $crate::reverse_tokens_order!( $( $rest )+ ),
+            $crate::reverse_tokens_order!( ( $( $input_bindings ),* ) $method . $( $rest )+ ),
+            ::ink::codegen::paste! {
+                $crate::reverse_tokens_order!( () [<__ink_ $method _description>] . $( $rest )+ )
+            },
+            $( $input_bindings )*
+        )
+    };
+
+    // Entry point for the `... ::method(self, inputs)`.
+    // The `$receiver` and `$input_bindings` are not reversed because it is part
+    // of the `( $receiver:expr $(, $input_bindings:expr )* )` that is single `tt`.
+    (@reversed ( $receiver:expr $(, $input_bindings:expr )* ) $method:ident :: $( $rest:tt )+ ) => {
+        $crate::call_builder_inner!(
+            @final
+            $receiver,
+            $crate::reverse_tokens_order!( ( $receiver $(, $input_bindings )* ) $method :: $( $rest )+ ),
+            ::ink::codegen::paste! {
+                $crate::reverse_tokens_order!( ($receiver) [<__ink_ $method _description>] :: $( $rest )+ )
+            },
+            $( $input_bindings )*
+        )
+    };
+
+    // The final generated code by the macro.
+    (@final $caller:expr, $call:expr, $description:expr, $( $input_bindings:expr)* ) => {{
+        // Gets the message description with selector information.
+        let message_description = $description;
+        let call_builder = match $caller {
+            ref caller => {
+                // Creates the call builder with the selector from
+                // the message descriptor with input arguments.
+                let call_builder = $crate::call::build_call_from_variable(caller)
+                    .call(::ink::ToAccountId::to_account_id(caller))
+                    .exec_input(
+                        $crate::call::ExecutionInput::new(
+                            message_description.selector()
+                        )
+                        $(
+                            .push_arg($input_bindings)
+                        )*
+                    )
+                    .returns::<_>();
+
+                call_builder
+            }
+        };
+
+        // Forces setting of the return type of the call builder.
+        if false {
+            let _ = $call == call_builder.invoke();
+            unreachable!();
+        };
+        call_builder
+    }};
+}
+
+/// Returns a [`CallBuilder`] based on the message call signature.
+///
+///
+/// ```should_panic
+/// use ink::contract_ref;
+/// use ink_env::{
+///     call_builder,
+///     CallFlags,
+///     DefaultEnvironment,
+/// };
+/// use ink_primitives::AccountId;
+///
+/// #[ink::trait_definition]
+/// pub trait Erc20 {
+///     /// Returns the total supply of the ERC-20 smart contract.
+///     #[ink(message)]
+///     fn total_supply(&self) -> u128;
+///
+///     /// Transfers balance from the caller to the given address.
+///     #[ink(message)]
+///     fn transfer(&mut self, amount: u128, to: AccountId) -> bool;
+/// }
+///
+/// let mut callee: contract_ref!(Erc20, DefaultEnvironment) =
+///     AccountId::from([0; 32]).into();
+/// call_builder!(callee.total_supply())
+///     .transferred_value(1000)
+///     .invoke();
+/// call_builder!(callee.transfer(20, AccountId::from([1; 32])))
+///     .call_flags(CallFlags::default().set_allow_reentry(true))
+///     .invoke();
+/// let ink_err = call_builder!(callee.total_supply()).try_invoke();
+/// let message_err = ink_err.unwrap();
+/// let supply = message_err.unwrap();
+///
+/// // Other supported syntax
+/// call_builder!(Erc20::total_supply(&callee)).invoke();
+/// call_builder!(Erc20::transfer(&mut callee, 20, AccountId::from([2; 32]))).invoke();
+/// call_builder!(<_ as Erc20>::total_supply(&callee)).invoke();
+/// call_builder!(<_ as Erc20>::transfer(
+///     &mut callee,
+///     20,
+///     AccountId::from([3; 32])
+/// ))
+/// .invoke();
+/// call_builder!(Erc20::total_supply(&callee)).invoke();
+/// ```
+#[macro_export]
+macro_rules! call_builder {
+( $( $tokens:tt )* ) => {{
+        // Forces the compiler to check first that the expression is valid.
+        let _ = || { $( $tokens )* };
+        $crate::call_builder_inner!(@reverse $( $tokens )* )
+    }};
 }
