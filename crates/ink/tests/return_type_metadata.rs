@@ -110,7 +110,7 @@ mod tests {
         let ty = resolve_type(&metadata, type_spec.ty().id);
         let (ok_ty, _) = extract_result(&metadata, ty);
 
-        assert_eq!(&TypeDef::Primitive(TypeDefPrimitive::U32), &ok_ty.type_def);
+        assert_eq!(TypeDef::Primitive(TypeDefPrimitive::U32), ok_ty.type_def);
     }
 
     #[test]
