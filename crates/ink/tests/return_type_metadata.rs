@@ -136,7 +136,7 @@ mod tests {
 
         let unit_ty = TypeDef::Tuple(TypeDefTuple::new_portable(vec![]));
         assert_eq!(
-            &unit_ty, &inner_ok_ty.type_def,
+            unit_ty, inner_ok_ty.type_def,
             "Ok variant should be a unit `()` type"
         );
     }
