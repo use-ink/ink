@@ -898,7 +898,11 @@ macro_rules! call_builder_inner {
 
         // Forces setting of the return type of the call builder.
         if false {
-            let _ = $call == call_builder.invoke();
+            let _ = if false {
+                $call
+            } else {
+                call_builder.invoke()
+            };
             unreachable!();
         };
         call_builder
