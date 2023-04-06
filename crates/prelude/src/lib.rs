@@ -38,7 +38,11 @@ cfg_if! {
             boxed,
             format,
             string,
+            string::String,
+            string::ToString,
             vec,
+            vec::Vec,
+            vec::IntoIter,
         };
 
         /// Collection types.
@@ -59,7 +63,11 @@ cfg_if! {
             boxed,
             format,
             string,
+            string::String,
+            string::ToString,
             vec,
+            vec::Vec,
+            vec::IntoIter,
         };
 
         /// Collection types.
