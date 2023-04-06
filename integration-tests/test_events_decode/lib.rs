@@ -1,5 +1,5 @@
 //! This is a reference implementation with one approach to decoding
-//! (capturing emitted) events within unit and e2e tests.
+//! (capturing emitted) events within unit and E2E tests.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -130,7 +130,7 @@ mod testing_event_decode {
         }
     }
 
-    /// This is one way to capture and check event emission in ink e2e tests.
+    /// This is one way to capture and check event emission in ink E2E tests.
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
 
