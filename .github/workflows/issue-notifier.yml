@@ -25,6 +25,11 @@ jobs:
           - pallet-contracts-xcm
           - link
           - ink-examples
+          - useink
+          - awesome-ink
+          - squink-splash-beginner
+          - squink-splash-advanced
+          - ink-workshop
     steps:
       - name: Generate token
         id: generate_token
