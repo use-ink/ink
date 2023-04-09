@@ -883,6 +883,7 @@ macro_rules! call_builder_inner {
     // The final generated code by the macro.
     (@final $caller:expr, $call:expr, $description:expr, $( $input_bindings:expr)* ) => {{
         // Gets the message description with selector information.
+        #[allow(clippy::unnecessary_mut_passed)]
         let message_description = $description;
         let call_builder = match $caller {
             ref caller => {
