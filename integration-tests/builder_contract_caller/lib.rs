@@ -1,5 +1,7 @@
-//! The integration test is the same as `../basic_contract_caller`
-//! but it uses the [`ink::env::call::CallBuilder`] to do cross contract calls.
+//! The integration test does cross contract calls to the
+//! [`other_contract::OtherContract`] via the [`ink::env::call::CallBuilder`].
+//! It tests how to call read-only methods, mutable methods, methods that return
+//! something, and methods with several input arguments.
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
@@ -7,9 +9,6 @@
 mod builder_contract_caller {
     use ink::env::call_builder;
     /// We import the generated `ContractRef` of our other contract.
-    ///
-    /// Note that the other contract must have re-exported it (`pub use
-    /// OtherContractRef`) for us to have access to it.
     use other_contract::OtherContractRef;
 
     #[ink(storage)]
@@ -24,7 +23,7 @@ mod builder_contract_caller {
         /// To do this we will use the uploaded `code_hash` of `OtherContract`.
         #[ink(constructor)]
         pub fn new(other_contract_code_hash: Hash) -> Self {
-            let other_contract = OtherContractRef::new(true)
+            let other_contract = OtherContractRef::new()
                 .code_hash(other_contract_code_hash)
                 .endowment(0)
                 .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
@@ -33,20 +32,38 @@ mod builder_contract_caller {
             Self { other_contract }
         }
 
-        /// Return the value of the `OtherContract`.
+        /// Return the total supply of the `OtherContract`.
         #[ink(message)]
-        pub fn get(&self) -> bool {
-            use other_contract::Trait;
-            call_builder!(self.other_contract.get()).invoke()
+        pub fn total_supply(&self) -> u128 {
+            use other_contract::Erc20;
+            call_builder!(self.other_contract.total_supply()).invoke()
         }
 
-        /// Using the `ContractRef` we can call all the messages of the `OtherContract` as
-        /// if they were normal Rust methods (because at the end of the day, they
-        /// are!).
+        /// Return the balance of the `owner` in the `OtherContract`.
         #[ink(message)]
-        pub fn flip_and_get(&mut self) -> bool {
-            call_builder!(self.other_contract.flip()).invoke();
-            call_builder!(other_contract::Trait::get(&self.other_contract)).invoke()
+        pub fn balance_of(&self, owner: AccountId) -> u128 {
+            call_builder!(<_ as other_contract::Erc20>::balance_of(
+                &self.other_contract,
+                owner
+            ))
+            .invoke()
+        }
+
+        /// Using the `{Contract}Ref` we can call all the messages of the `OtherContract`
+        /// as if they were normal Rust methods (because at the end of the day,
+        /// they are!).
+        #[ink(message)]
+        pub fn mint_and_transfer(&mut self, to: AccountId, amount: u128) {
+            // Mint tokens to self.
+            call_builder!(self.other_contract.mint(self.env().account_id(), amount))
+                .invoke();
+            // Transfer tokens from self to `to`.
+            call_builder!(other_contract::Erc20::transfer(
+                &mut self.other_contract,
+                to,
+                amount
+            ))
+            .invoke();
         }
     }
 }
@@ -54,6 +71,7 @@ mod builder_contract_caller {
 #[cfg(all(test, feature = "e2e-tests"))]
 mod e2e_tests {
     use super::builder_contract_caller::BuilderContractCallerRef;
+    use ink::primitives::AccountId;
     use ink_e2e::build_message;
 
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -61,7 +79,8 @@ mod e2e_tests {
     /// A test deploys and instantiates the
     /// `builder_contract_caller::BuilderContractCaller` contract.
     ///
-    /// The test verifies that we can call `BuilderContractCaller::flip_and_get`.
+    /// The test verifies that we can call `BuilderContractCaller::mint_and_transfer` and
+    /// `BuilderContractCaller::total_supply`.
     #[ink_e2e::test(additional_contracts = "other_contract/Cargo.toml")]
     async fn e2e_cross_contract_calls(
         mut client: ink_e2e::Client<C, E>,
@@ -92,42 +111,46 @@ mod e2e_tests {
             .expect("instantiate failed")
             .account_id;
 
-        // Check that the `get` return `true`(default value).
-        let get = build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-            .call(|contract| contract.get());
+        // Check that the `total_supply` return `0`(default value).
+        let total_supply =
+            build_message::<BuilderContractCallerRef>(caller_account_id.clone())
+                .call(|contract| contract.total_supply());
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &get, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &total_supply, 0, None)
             .await
             .return_value();
-        assert_eq!(value, true);
+        assert_eq!(value, 0);
 
-        // Flip the value
-        let flip_and_get =
+        // Mint tokens and transfer them to `to`.
+        let to = AccountId::from([13; 32]);
+        let amount = 100;
+        let mint_and_transfer =
             build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-                .call(|contract| contract.flip_and_get());
+                .call(|contract| contract.mint_and_transfer(to, amount));
         let _ = client
-            .call(&ink_e2e::alice(), flip_and_get, 0, None)
+            .call(&ink_e2e::alice(), mint_and_transfer, 0, None)
             .await
-            .expect("calling `flip_and_get` failed");
+            .expect("calling `mint_and_transfer` failed");
 
-        // The value should be updated
-        let get = build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-            .call(|contract| contract.get());
-        let value = client
-            .call_dry_run(&ink_e2e::alice(), &get, 0, None)
-            .await
-            .return_value();
-        assert_eq!(value, false);
-
-        // The dry run for `flip_and_get` should return `true` again.
-        let flip_and_get =
+        // The total supply should be equal to `amount`.
+        let total_supply =
             build_message::<BuilderContractCallerRef>(caller_account_id.clone())
-                .call(|contract| contract.flip_and_get());
+                .call(|contract| contract.total_supply());
         let value = client
-            .call_dry_run(&ink_e2e::alice(), &flip_and_get, 0, None)
+            .call_dry_run(&ink_e2e::alice(), &total_supply, 0, None)
             .await
             .return_value();
-        assert_eq!(value, true);
+        assert_eq!(value, amount);
+
+        // The balance of the `to` should be equal to `amount`.
+        let balance_of =
+            build_message::<BuilderContractCallerRef>(caller_account_id.clone())
+                .call(|contract| contract.balance_of(to));
+        let value = client
+            .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
+            .await
+            .return_value();
+        assert_eq!(value, amount);
 
         Ok(())
     }

@@ -5,40 +5,81 @@
 /// This let's other crates which pull this contract in as a dependency to interact
 /// with this contract in a type-safe way.
 pub use self::other_contract::{
+    Erc20,
+    OtherContract,
     OtherContractRef,
-    Trait,
 };
 
 #[ink::contract]
 mod other_contract {
+    use ink::storage::Mapping;
 
+    #[derive(Default)]
     #[ink(storage)]
     pub struct OtherContract {
-        value: bool,
+        balances: Mapping<AccountId, u128>,
+        total_supply: u128,
     }
 
     #[ink::trait_definition]
-    pub trait Trait {
+    pub trait Erc20 {
         #[ink(message)]
-        fn get(&self) -> bool;
+        fn total_supply(&self) -> u128;
+
+        #[ink(message)]
+        fn balance_of(&self, account_id: AccountId) -> u128;
+
+        #[ink(message)]
+        fn transfer(&mut self, to: AccountId, amount: u128);
     }
 
     impl OtherContract {
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+        pub fn new() -> Self {
+            Default::default()
         }
 
         #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
+        pub fn mint(&mut self, to: AccountId, amount: u128) {
+            self._mint(&to, amount)
+        }
+
+        fn _balance_of(&self, owner: &AccountId) -> u128 {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        fn _mint(&mut self, to: &AccountId, amount: u128) {
+            let mut balance = self._balance_of(to);
+            balance += amount;
+            self.balances.insert(to, &balance);
+            self.total_supply += amount;
         }
     }
 
-    impl Trait for OtherContract {
+    impl Erc20 for OtherContract {
         #[ink(message)]
-        fn get(&self) -> bool {
-            self.value
+        fn total_supply(&self) -> u128 {
+            self.total_supply
+        }
+
+        #[ink(message)]
+        fn balance_of(&self, account_id: AccountId) -> u128 {
+            self._balance_of(&account_id)
+        }
+
+        #[ink(message)]
+        fn transfer(&mut self, to: AccountId, amount: u128) {
+            let caller = self.env().caller();
+            let mut balance = self._balance_of(&caller);
+
+            if balance < amount {
+                panic!("The balance is too low");
+            }
+            balance -= amount;
+            self.balances.insert(&caller, &balance);
+            self.total_supply -= amount;
+
+            self._mint(&to, amount)
         }
     }
 }
