@@ -1,21 +1,23 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::primitives::AccountId;
 use sp_runtime::MultiAddress;
 
 /// A part of the runtime dispatchable API.
 ///
-/// For now, `ink!` doesn't provide any support for exposing the real `RuntimeCall` enum, which
-/// fully describes the composed API of all the pallets present in runtime. Hence, in order to use
-/// `call-runtime` functionality, we have to provide at least a partial object, which correctly
-/// encodes the target extrinsic.
+/// For now, `ink!` doesn't provide any support for exposing the real `RuntimeCall` enum,
+/// which fully describes the composed API of all the pallets present in runtime. Hence,
+/// in order to use `call-runtime` functionality, we have to provide at least a partial
+/// object, which correctly encodes the target extrinsic.
 ///
-/// You can investigate the full `RuntimeCall` definition by either expanding `construct_runtime!`
-/// macro application or by using secondary tools for reading chain metadata, like `subxt`.
+/// You can investigate the full `RuntimeCall` definition by either expanding
+/// `construct_runtime!` macro application or by using secondary tools for reading chain
+/// metadata, like `subxt`.
 #[derive(scale::Encode)]
 enum RuntimeCall {
-    /// This index can be found by investigating runtime configuration. You can check the pallet
-    /// order inside `construct_runtime!` block and read the position of your pallet (0-based).
+    /// This index can be found by investigating runtime configuration. You can check the
+    /// pallet order inside `construct_runtime!` block and read the position of your
+    /// pallet (0-based).
     ///
     ///
     /// [See here for more.](https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime)
@@ -25,9 +27,10 @@ enum RuntimeCall {
 
 #[derive(scale::Encode)]
 enum BalancesCall {
-    /// This index can be found by investigating the pallet dispatchable API. In your pallet code,
-    /// look for `#[pallet::call]` section and check `#[pallet::call_index(x)]` attribute of the
-    /// call. If these attributes are missing, use source-code order (0-based).
+    /// This index can be found by investigating the pallet dispatchable API. In your
+    /// pallet code, look for `#[pallet::call]` section and check
+    /// `#[pallet::call_index(x)]` attribute of the call. If these attributes are
+    /// missing, use source-code order (0-based).
     #[codec(index = 0)]
     Transfer {
         dest: MultiAddress<AccountId, ()>,
@@ -45,8 +48,8 @@ mod runtime_call {
 
     use ink::env::Error as EnvError;
 
-    /// A trivial contract with a single message, that uses `call-runtime` API for performing
-    /// native token transfer.
+    /// A trivial contract with a single message, that uses `call-runtime` API for
+    /// performing native token transfer.
     #[ink(storage)]
     #[derive(Default)]
     pub struct RuntimeCaller;
@@ -67,8 +70,9 @@ mod runtime_call {
     }
 
     impl RuntimeCaller {
-        /// The constructor is `payable`, so that during instantiation it can be given some tokens
-        /// that will be further transferred with `transfer_through_runtime` message.
+        /// The constructor is `payable`, so that during instantiation it can be given
+        /// some tokens that will be further transferred with
+        /// `transfer_through_runtime` message.
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             Default::default()
@@ -78,9 +82,10 @@ mod runtime_call {
         ///
         /// Fails if:
         ///  - called in the off-chain environment
-        ///  - the chain doesn't allow `call-runtime` API (`UnsafeUnstableInterface` is turned off)
-        ///  - the chain forbids contracts to call `Balances::transfer` (`CallFilter` is too
-        ///    restrictive)
+        ///  - the chain doesn't allow `call-runtime` API (`UnsafeUnstableInterface` is
+        ///    turned off)
+        ///  - the chain forbids contracts to call `Balances::transfer` (`CallFilter` is
+        ///    too restrictive)
         ///  - after the transfer, `receiver` doesn't have at least existential deposit
         ///  - the contract doesn't have enough balance
         #[ink(message)]
@@ -123,7 +128,8 @@ mod runtime_call {
 
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-        /// The base number of indivisible units for balances on the `substrate-contracts-node`.
+        /// The base number of indivisible units for balances on the
+        /// `substrate-contracts-node`.
         const UNIT: Balance = 1_000_000_000_000;
 
         /// The contract will be given 1000 tokens during instantiation.
@@ -135,8 +141,8 @@ mod runtime_call {
         /// If your chain has this threshold higher, increase the transfer value.
         const TRANSFER_VALUE: Balance = 1 / 10 * UNIT;
 
-        /// An amount that is below the existential deposit, so that a transfer to an empty account
-        /// fails.
+        /// An amount that is below the existential deposit, so that a transfer to an
+        /// empty account fails.
         ///
         /// Must not be zero, because such an operation would be a successful no-op.
         #[cfg(feature = "permissive-node")]

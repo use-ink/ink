@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod dns {
@@ -179,9 +179,9 @@ mod dns {
         }
     }
 
-    /// Helper for referencing the zero address (`0x00`). Note that in practice this address should
-    /// not be treated in any special way (such as a default placeholder) since it has a known
-    /// private key.
+    /// Helper for referencing the zero address (`0x00`). Note that in practice this
+    /// address should not be treated in any special way (such as a default
+    /// placeholder) since it has a known private key.
     fn zero_address() -> AccountId {
         [0u8; 32].into()
     }

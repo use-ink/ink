@@ -198,15 +198,13 @@ pub trait Callable {
 /// Then the selector is composed in the following way:
 ///
 /// - If `s` is given we simply return `s`.
-/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate
-///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.
-///   If `T` refers to a relative path or is just an identifier we only take
-///   its last segment `p` (e.g. the trait's identifier) into consideration
-///   and use it instead of `P` in the above concatenation.
+/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate `S`, `T` and `i`
+///   with `::` as separator if `T` refers to a full-path. If `T` refers to a relative
+///   path or is just an identifier we only take its last segment `p` (e.g. the trait's
+///   identifier) into consideration and use it instead of `P` in the above concatenation.
 ///   In the following we refer to the resulting concatenation as `C`.
-/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output
-///   and take the first 4 bytes that are returned in order as the composed
-///   selector.
+/// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output and take the
+///   first 4 bytes that are returned in order as the composed selector.
 ///
 /// # Examples
 ///
@@ -301,9 +299,9 @@ pub trait Callable {
 /// wherever possible; OR import the trait and use only its identifier with
 /// an additional namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.
-/// - Avoid directly setting the selector of an ink! message or constructor.
-///   Only do this if nothing else helps and you need a very specific selector,
-///   e.g. in case of backwards compatibility.
+/// - Avoid directly setting the selector of an ink! message or constructor. Only do this
+///   if nothing else helps and you need a very specific selector, e.g. in case of
+///   backwards compatibility.
 /// - Do not use the namespace unless required to disambiguate.
 pub fn compose_selector<C>(item_impl: &ir::ItemImpl, callable: &C) -> ir::Selector
 where
@@ -364,16 +362,15 @@ where
 ///  - `const` (compile-time evaluable)
 ///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)
 ///  - `unsafe` (caller provided assertions not yet stable)
-/// - Furthermore this is `true` if the externally callable is defined for a
-///   non default ABI (e.g. `extern "C"`) or does not have valid visibility.
+/// - Furthermore this is `true` if the externally callable is defined for a non default
+///   ABI (e.g. `extern "C"`) or does not have valid visibility.
 pub(super) fn ensure_callable_invariants(
-    method_item: &syn::ImplItemMethod,
+    method_item: &syn::ImplItemFn,
     kind: CallableKind,
 ) -> Result<(), syn::Error> {
     let bad_visibility = match &method_item.vis {
         syn::Visibility::Inherited => None,
         syn::Visibility::Restricted(vis_restricted) => Some(vis_restricted.span()),
-        syn::Visibility::Crate(vis_crate) => Some(vis_crate.span()),
         syn::Visibility::Public(_) => None,
     };
     if let Some(bad_visibility) = bad_visibility {
@@ -444,7 +441,7 @@ pub(super) fn ensure_callable_invariants(
 /// The visibility of an ink! message or constructor.
 #[derive(Debug, Clone)]
 pub enum Visibility {
-    Public(syn::VisPublic),
+    Public(syn::Token![pub]),
     Inherited,
 }
 
@@ -458,7 +455,8 @@ impl quote::ToTokens for Visibility {
 }
 
 impl Visibility {
-    /// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
+    /// Returns `true` if the visibility of the ink! message of constructor is public
+    /// (`pub`).
     ///
     /// # Note
     ///
@@ -568,17 +566,17 @@ mod tests {
     /// message result in the same composed selector as the expected bytes.
     fn assert_compose_selector<C, S>(
         item_impl: syn::ItemImpl,
-        item_method: syn::ImplItemMethod,
+        item_method: syn::ImplItemFn,
         expected_selector: S,
     ) where
-        C: Callable + TryFrom<syn::ImplItemMethod>,
-        <C as TryFrom<syn::ImplItemMethod>>::Error: Debug,
+        C: Callable + TryFrom<syn::ImplItemFn>,
+        <C as TryFrom<syn::ImplItemFn>>::Error: Debug,
         S: Into<ExpectedSelector>,
     {
         assert_eq!(
             compose_selector(
                 &<ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).unwrap(),
-                &<C as TryFrom<syn::ImplItemMethod>>::try_from(item_method).unwrap(),
+                &<C as TryFrom<syn::ImplItemFn>>::try_from(item_method).unwrap(),
             ),
             expected_selector.into().expected_selector(),
         )

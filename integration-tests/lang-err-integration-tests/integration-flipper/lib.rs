@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::integration_flipper::{
     Flipper,
@@ -17,7 +17,8 @@ pub mod integration_flipper {
     pub struct FlipperError;
 
     impl Flipper {
-        /// Creates a new integration_flipper smart contract initialized with the given value.
+        /// Creates a new integration_flipper smart contract initialized with the given
+        /// value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
             Self { value: init_value }
@@ -29,8 +30,8 @@ pub mod integration_flipper {
             Self::new(Default::default())
         }
 
-        /// Attemps to create a new integration_flipper smart contract initialized with the given
-        /// value.
+        /// Attemps to create a new integration_flipper smart contract initialized with
+        /// the given value.
         #[ink(constructor)]
         pub fn try_new(succeed: bool) -> Result<Self, FlipperError> {
             if succeed {

@@ -100,8 +100,9 @@ where
     L: KeyType,
     R: KeyType,
 {
-    /// The right key is always an auto-generated key, the user can specify only the left key.
-    /// So the left key defines the [`KeyType::IS_AUTO_KEY`] of the [`ResolverKey`].
+    /// The right key is always an auto-generated key, the user can specify only the left
+    /// key. So the left key defines the [`KeyType::IS_AUTO_KEY`] of the
+    /// [`ResolverKey`].
     const IS_AUTO_KEY: bool = L::IS_AUTO_KEY;
 }
 
@@ -109,7 +110,8 @@ type FinalKey<T, const KEY: Key, ParentKey> =
     ResolverKey<<T as StorableHint<ParentKey>>::PreferredKey, ManualKey<KEY, ParentKey>>;
 
 // `AutoStorableHint` trait figures out that storage key it should use.
-// - If the `PreferredKey` is `AutoKey` it will use an auto-generated key passed as generic
+// - If the `PreferredKey` is `AutoKey` it will use an auto-generated key passed as
+//   generic
 // into `AutoStorableHint`.
 // - If `PreferredKey` is `ManualKey`, then it will use it.
 impl<T, const KEY: Key, ParentKey> AutoStorableHint<ManualKey<KEY, ParentKey>> for T

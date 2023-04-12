@@ -94,11 +94,24 @@ impl FromLittleEndian for u128 {
     }
 }
 
+/// A trait to enforce that a type should be an [`Environment::AccountId`].
+///
+/// If you have an [`Environment`] which uses an [`Environment::AccountId`] type other
+/// than the ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// you will need to implement this trait for your [`Environment::AccountId`] concrete
+/// type.
+pub trait AccountIdGuard {}
+
+/// The ink! provided [`AccountId`](https://docs.rs/ink_primitives/latest/ink_primitives/struct.AccountId.html)
+/// used in the [`DefaultEnvironment`].
+impl AccountIdGuard for AccountId {}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
     /// The maximum number of supported event topics provided by the runtime.
     ///
-    /// The value must match the maximum number of supported event topics of the used runtime.
+    /// The value must match the maximum number of supported event topics of the used
+    /// runtime.
     const MAX_EVENT_TOPICS: usize;
 
     /// The account id type.
@@ -155,8 +168,9 @@ pub trait Environment {
 
     /// The chain extension for the environment.
     ///
-    /// This is a type that is defined through the `#[ink::chain_extension]` procedural macro.
-    /// For more information about usage and definition click [this][chain_extension] link.
+    /// This is a type that is defined through the `#[ink::chain_extension]` procedural
+    /// macro. For more information about usage and definition click
+    /// [this][chain_extension] link.
     ///
     /// [chain_extension]: https://paritytech.github.io/ink/ink/attr.chain_extension.html
     type ChainExtension;

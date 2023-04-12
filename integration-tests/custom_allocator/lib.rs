@@ -9,26 +9,24 @@
 //! We **do not** recommend you opt-out of the provided allocator for production contract
 //! deployments!
 //!
-//! If you don't handle allocations correctly you can introduce security vulnerabilities to your
-//! contracts.
+//! If you don't handle allocations correctly you can introduce security vulnerabilities
+//! to your contracts.
 //!
-//! You may also introduce performance issues. This is because the code of your allocator will
-//! be included in the final contract binary, potentially increasing gas usage significantly.
+//! You may also introduce performance issues. This is because the code of your allocator
+//! will be included in the final contract binary, potentially increasing gas usage
+//! significantly.
 //!
 //! ## Why Change the Allocator?
 //!
 //! The default memory allocator was designed to have a tiny size footprint, and made some
 //! compromises to achieve that, e.g it does not free/deallocate memory.
 //!
-//! You may have a use case where you want to deallocate memory, or allocate it using a different
-//! strategy.
+//! You may have a use case where you want to deallocate memory, or allocate it using a
+//! different strategy.
 //!
 //! Providing your own allocator lets you choose the right tradeoffs for your use case.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-// Since we opted out of the default allocator we must also bring our own out-of-memory (OOM)
-// handler. The Rust compiler doesn't let us do this unless we add this unstable/nightly feature.
-#![cfg_attr(not(feature = "std"), feature(alloc_error_handler))]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 // Here we set `dlmalloc` to be the global memory allocator.
 //
@@ -37,15 +35,6 @@
 #[cfg(not(feature = "std"))]
 #[global_allocator]
 static ALLOC: dlmalloc::GlobalDlmalloc = dlmalloc::GlobalDlmalloc;
-
-// As mentioned earlier, we need to provide our own OOM handler.
-//
-// We don't try and handle this and opt to abort contract execution instead.
-#[cfg(not(feature = "std"))]
-#[alloc_error_handler]
-fn oom(_: core::alloc::Layout) -> ! {
-    core::arch::wasm32::unreachable()
-}
 
 #[ink::contract]
 mod custom_allocator {
@@ -60,8 +49,9 @@ mod custom_allocator {
         ///
         /// # Note
         ///
-        /// We're using a `Vec` here as it allocates its elements onto the heap, as opposed to the
-        /// stack. This allows us to demonstrate that our new allocator actually works.
+        /// We're using a `Vec` here as it allocates its elements onto the heap, as
+        /// opposed to the stack. This allows us to demonstrate that our new
+        /// allocator actually works.
         value: Vec<bool>,
     }
 
@@ -122,7 +112,8 @@ mod custom_allocator {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        /// We test that we can upload and instantiate the contract using its default constructor.
+        /// We test that we can upload and instantiate the contract using its default
+        /// constructor.
         #[ink_e2e::test]
         async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // Given
@@ -144,7 +135,8 @@ mod custom_allocator {
             Ok(())
         }
 
-        /// We test that we can read and write a value from the on-chain contract contract.
+        /// We test that we can read and write a value from the on-chain contract
+        /// contract.
         #[ink_e2e::test]
         async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // Given

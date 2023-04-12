@@ -177,7 +177,8 @@ pub trait EnvBackend {
         K: scale::Encode,
         V: Storable;
 
-    /// Returns the value stored under the given storage key in the contract's storage if any.
+    /// Returns the value stored under the given storage key in the contract's storage if
+    /// any.
     ///
     /// # Errors
     ///
@@ -187,8 +188,8 @@ pub trait EnvBackend {
         K: scale::Encode,
         R: Storable;
 
-    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage if
-    /// any.
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage
+    /// if any.
     ///
     /// # Errors
     ///
@@ -214,10 +215,10 @@ pub trait EnvBackend {
     ///
     /// # Note
     ///
-    /// - The input is the 4-bytes selector followed by the arguments
-    ///   of the called function in their SCALE encoded representation.
-    /// - No prior interaction with the environment must take place before
-    ///   calling this procedure.
+    /// - The input is the 4-bytes selector followed by the arguments of the called
+    ///   function in their SCALE encoded representation.
+    /// - No prior interaction with the environment must take place before calling this
+    ///   procedure.
     ///
     /// # Usage
     ///
@@ -252,12 +253,12 @@ pub trait EnvBackend {
 
     /// Emit a custom debug message.
     ///
-    /// The message is appended to the debug buffer which is then supplied to the calling RPC
-    /// client. This buffer is also printed as a debug message to the node console if the
-    /// `debug` log level is enabled for the `runtime::contracts` target.
+    /// The message is appended to the debug buffer which is then supplied to the calling
+    /// RPC client. This buffer is also printed as a debug message to the node console
+    /// if the `debug` log level is enabled for the `runtime::contracts` target.
     ///
-    /// If debug message recording is disabled in the contracts pallet, which is always the case
-    /// when the code is executing on-chain, then this will have no effect.
+    /// If debug message recording is disabled in the contracts pallet, which is always
+    /// the case when the code is executing on-chain, then this will have no effect.
     fn debug_message(&mut self, content: &str);
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
@@ -265,7 +266,8 @@ pub trait EnvBackend {
     where
         H: CryptoHash;
 
-    /// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+    /// Conducts the crypto hash of the given encoded input and stores the result in
+    /// `output`.
     fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
     where
         H: CryptoHash,
@@ -426,7 +428,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
+    /// For more details visit:
+    /// [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         call_data: &CallParams<E, DelegateCall<E>, Args, R>,
@@ -484,7 +487,8 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment;
 
-    /// Checks whether the caller of the current contract is the origin of the whole call stack.
+    /// Checks whether the caller of the current contract is the origin of the whole call
+    /// stack.
     ///
     /// # Note
     ///

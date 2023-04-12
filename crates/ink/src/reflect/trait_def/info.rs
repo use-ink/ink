@@ -28,18 +28,15 @@
 ///
 /// # Note
 ///
-/// - The `TraitMessageInfo<LOCAL_ID>` is implemented by the
-///   automatically generated ink! trait definition information object
-///   associated to the ink! trait definition at hand.
-/// - For every ink! trait message defined by the ink! trait definition
-///   the associated ink! trait definition information object implements
-///   this trait given the `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait
-///   message respectively.
-/// - The local IDs uniquely identifying all the ink! trait messages
-///   of the ink! trait definition are computed solely using the Rust
-///   identifier of the ink! trait message which can be derived from
-///   ink! implementation blocks in order to query the information
-///   stored by this ink! trait information object trait implementation.
+/// - The `TraitMessageInfo<LOCAL_ID>` is implemented by the automatically generated ink!
+///   trait definition information object associated to the ink! trait definition at hand.
+/// - For every ink! trait message defined by the ink! trait definition the associated
+///   ink! trait definition information object implements this trait given the
+///   `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait message respectively.
+/// - The local IDs uniquely identifying all the ink! trait messages of the ink! trait
+///   definition are computed solely using the Rust identifier of the ink! trait message
+///   which can be derived from ink! implementation blocks in order to query the
+///   information stored by this ink! trait information object trait implementation.
 ///
 /// # Usage
 ///
