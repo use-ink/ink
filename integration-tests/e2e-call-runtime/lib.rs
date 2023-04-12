@@ -38,7 +38,7 @@ pub mod e2e_call_runtime {
 
             // when
             let call_data = vec![
-                // A value representing a MultiAddress<AccountId32, _>. We want the "Id"
+                // A value representing a `MultiAddress<AccountId32, _>`. We want the "Id"
                 // variant, and that will ultimately contain the bytes
                 // for our destination address
                 Value::unnamed_variant("Id", [Value::from_bytes(&contract_acc_id)]),
