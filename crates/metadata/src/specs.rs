@@ -62,6 +62,7 @@ where
     docs: Vec<F::String>,
     /// The language specific error type.
     lang_error: TypeSpec<F>,
+    /// The environment types of the contract specification.
     environment: EnvironmentSpec<F>,
 }
 
@@ -121,7 +122,7 @@ where
     pub fn lang_error(&self) -> &TypeSpec<F> {
         &self.lang_error
     }
-
+    // Returns The environment types of the contract specification.
     pub fn environment(&self) -> &EnvironmentSpec<F> {
         &self.environment
     }
@@ -226,7 +227,7 @@ where
         }
     }
 
-    /// sets the environment types of the contract specification.
+    /// Sets the environment types of the contract specification.
     pub fn environment(self, environment: EnvironmentSpec<F>) -> Self {
         Self {
             spec: ContractSpec {
