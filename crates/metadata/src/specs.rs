@@ -525,7 +525,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     return_type: ReturnTypeSpec<F>,
     /// The message documentation.
     docs: Vec<F::String>,
-    /// If the message is default
+    /// If the message is default.
     default: bool,
 }
 
