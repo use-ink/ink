@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod erc20 {
@@ -135,7 +135,8 @@ mod erc20 {
         /// Allows `spender` to withdraw from the caller's account multiple times, up to
         /// the `value` amount.
         ///
-        /// If this function is called again it overwrites the current allowance with `value`.
+        /// If this function is called again it overwrites the current allowance with
+        /// `value`.
         ///
         /// An `Approval` event is emitted.
         #[ink(message)]
@@ -437,7 +438,8 @@ mod erc20 {
                 Some(AccountId::from([0x01; 32])),
                 100,
             );
-            // The second event `emitted_events[1]` is an Approve event that we skip checking.
+            // The second event `emitted_events[1]` is an Approve event that we skip
+            // checking.
             assert_transfer_event(
                 &emitted_events[2],
                 Some(AccountId::from([0x01; 32])),

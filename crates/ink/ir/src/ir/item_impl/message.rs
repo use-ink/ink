@@ -23,10 +23,12 @@ use crate::ir::{
     self,
     attrs::SelectorOrWildcard,
     utils,
+    utils::extract_cfg_attributes,
 };
 use proc_macro2::{
     Ident,
     Span,
+    TokenStream,
 };
 use syn::spanned::Spanned as _;
 
@@ -72,7 +74,7 @@ impl Receiver {
 /// impl MyStorage {
 ///     #[ink(message)]
 ///     pub fn my_message(&self, input: i32) -> bool {
-///         /* message implementation goes here */
+///         // message implementation goes here
 /// #       unimplemented!()
 ///     }
 /// }
@@ -95,7 +97,7 @@ impl Receiver {
 #[derive(Debug, PartialEq, Eq)]
 pub struct Message {
     /// The underlying Rust method item.
-    pub(super) item: syn::ImplItemMethod,
+    pub(super) item: syn::ImplItemFn,
     /// If the ink! message can receive funds.
     is_payable: bool,
     /// An optional user provided selector.
@@ -126,7 +128,7 @@ impl Message {
     /// - If the method inputs yields no elements.
     /// - If the first method input is not `&self` or `&mut self`.
     fn ensure_receiver_is_self_ref(
-        method_item: &syn::ImplItemMethod,
+        method_item: &syn::ImplItemFn,
     ) -> Result<(), syn::Error> {
         let mut fn_args = method_item.sig.inputs.iter();
         fn bail(span: Span) -> syn::Error {
@@ -152,9 +154,7 @@ impl Message {
     /// # Errors
     ///
     /// If the given Rust method has a `Self` return type.
-    fn ensure_not_return_self(
-        method_item: &syn::ImplItemMethod,
-    ) -> Result<(), syn::Error> {
+    fn ensure_not_return_self(method_item: &syn::ImplItemFn) -> Result<(), syn::Error> {
         match &method_item.sig.output {
             syn::ReturnType::Default => (),
             syn::ReturnType::Type(_arrow, ret_type) => {
@@ -175,7 +175,7 @@ impl Message {
     ///
     /// Returns a tuple of ink! attributes and non-ink! attributes.
     fn sanitize_attributes(
-        method_item: &syn::ImplItemMethod,
+        method_item: &syn::ImplItemFn,
     ) -> Result<(ir::InkAttribute, Vec<syn::Attribute>), syn::Error> {
         ir::sanitize_attributes(
             method_item.span(),
@@ -193,10 +193,10 @@ impl Message {
     }
 }
 
-impl TryFrom<syn::ImplItemMethod> for Message {
+impl TryFrom<syn::ImplItemFn> for Message {
     type Error = syn::Error;
 
-    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
+    fn try_from(method_item: syn::ImplItemFn) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Message)?;
         Self::ensure_receiver_is_self_ref(&method_item)?;
         Self::ensure_not_return_self(&method_item)?;
@@ -206,7 +206,7 @@ impl TryFrom<syn::ImplItemMethod> for Message {
         Ok(Self {
             is_payable,
             selector,
-            item: syn::ImplItemMethod {
+            item: syn::ImplItemFn {
                 attrs: other_attrs,
                 ..method_item
             },
@@ -243,7 +243,7 @@ impl Callable for Message {
 
     fn visibility(&self) -> Visibility {
         match &self.item.vis {
-            syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
+            syn::Visibility::Public(vis_public) => Visibility::Public(*vis_public),
             syn::Visibility::Inherited => Visibility::Inherited,
             _ => unreachable!("encountered invalid visibility for ink! message"),
         }
@@ -266,6 +266,11 @@ impl Message {
     /// Returns a slice of all non-ink! attributes of the ink! message.
     pub fn attrs(&self) -> &[syn::Attribute] {
         &self.item.attrs
+    }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        extract_cfg_attributes(self.attrs(), span)
     }
 
     /// Returns the `self` receiver of the ink! message.
@@ -293,8 +298,8 @@ impl Message {
 
     /// Returns the return type of the message, but wrapped within a `Result`.
     ///
-    /// This is used to to allow callers to handle certain types of errors which are not exposed
-    /// by messages.
+    /// This is used to to allow callers to handle certain types of errors which are not
+    /// exposed by messages.
     pub fn wrapped_output(&self) -> syn::Type {
         let return_type = self
             .output()
@@ -306,7 +311,8 @@ impl Message {
         }
     }
 
-    /// Returns a local ID unique to the ink! message with respect to its implementation block.
+    /// Returns a local ID unique to the ink! message with respect to its implementation
+    /// block.
     ///
     /// # Note
     ///
@@ -329,7 +335,7 @@ mod tests {
 
     #[test]
     fn output_works() {
-        let test_inputs: Vec<(Option<syn::Type>, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(Option<syn::Type>, syn::ImplItemFn)> = vec![
             (
                 // No output:
                 None,
@@ -377,7 +383,7 @@ mod tests {
                 ]
             }};
         }
-        let test_inputs: Vec<(Vec<syn::FnArg>, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(Vec<syn::FnArg>, syn::ImplItemFn)> = vec![
             (
                 // No inputs:
                 expected_inputs!(),
@@ -416,7 +422,7 @@ mod tests {
 
     #[test]
     fn is_payable_works() {
-        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(bool, syn::ImplItemFn)> = vec![
             // Not payable.
             (
                 false,
@@ -462,7 +468,7 @@ mod tests {
 
     #[test]
     fn receiver_works() {
-        let test_inputs: Vec<(Receiver, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(Receiver, syn::ImplItemFn)> = vec![
             (
                 Receiver::Ref,
                 syn::parse_quote! {
@@ -488,7 +494,7 @@ mod tests {
 
     #[test]
     fn visibility_works() {
-        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(bool, syn::ImplItemFn)> = vec![
             // &self
             (
                 false,
@@ -533,7 +539,7 @@ mod tests {
 
     #[test]
     fn try_from_works() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self
             syn::parse_quote! {
                 #[ink(message)]
@@ -580,7 +586,7 @@ mod tests {
         }
     }
 
-    fn assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: &str) {
+    fn assert_try_from_fails(item_method: syn::ImplItemFn, expected_err: &str) {
         assert_eq!(
             <ir::Message as TryFrom<_>>::try_from(item_method)
                 .map_err(|err| err.to_string()),
@@ -590,7 +596,7 @@ mod tests {
 
     #[test]
     fn try_from_generics_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(message)]
                 fn my_message<T>(&self) {}
@@ -615,7 +621,7 @@ mod tests {
 
     #[test]
     fn try_from_receiver_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(message)]
                 fn my_message() {}
@@ -647,7 +653,7 @@ mod tests {
 
     #[test]
     fn try_from_const_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self
             syn::parse_quote! {
                 #[ink(message)]
@@ -666,7 +672,7 @@ mod tests {
 
     #[test]
     fn try_from_async_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self
             syn::parse_quote! {
                 #[ink(message)]
@@ -685,7 +691,7 @@ mod tests {
 
     #[test]
     fn try_from_unsafe_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self
             syn::parse_quote! {
                 #[ink(message)]
@@ -704,7 +710,7 @@ mod tests {
 
     #[test]
     fn try_from_explicit_abi_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self
             syn::parse_quote! {
                 #[ink(message)]
@@ -723,7 +729,7 @@ mod tests {
 
     #[test]
     fn try_from_variadic_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self
             syn::parse_quote! {
                 #[ink(message)]
@@ -742,16 +748,16 @@ mod tests {
 
     #[test]
     fn try_from_visibility_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // &self + crate visibility
             syn::parse_quote! {
                 #[ink(message)]
-                crate fn my_message(&self) {}
+                pub(crate) fn my_message(&self) {}
             },
             // &mut self + crate visibility
             syn::parse_quote! {
                 #[ink(message)]
-                crate fn my_message(&mut self) {}
+                pub(crate) fn my_message(&mut self) {}
             },
             // &self + pub restricted visibility
             syn::parse_quote! {
@@ -774,7 +780,7 @@ mod tests {
 
     #[test]
     fn conflicting_attributes_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // storage
             syn::parse_quote! {
                 #[ink(message, storage)]

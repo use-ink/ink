@@ -147,7 +147,8 @@ impl InkItemTrait {
         Ok(())
     }
 
-    /// Returns `Ok` if all trait items respects the requirements for an ink! trait definition.
+    /// Returns `Ok` if all trait items respects the requirements for an ink! trait
+    /// definition.
     ///
     /// # Errors
     ///
@@ -157,9 +158,10 @@ impl InkItemTrait {
     ///     - macros definitions or usages
     ///     - unknown token sequences (verbatim)
     ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
-    ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`
-    ///       and need to respect their respective rules.
+    /// - If the trait contains methods which do not respect the ink! trait definition
+    ///   requirements:
+    ///     - All trait methods need to be declared as either `#[ink(message)]` or
+    ///       `#[ink(constructor)]` and need to respect their respective rules.
     ///
     /// # Note
     ///
@@ -191,8 +193,8 @@ impl InkItemTrait {
                         "encountered unsupported item in ink! trait definition"
                     ))
                 }
-                syn::TraitItem::Method(method_trait_item) => {
-                    Self::analyse_trait_method(method_trait_item)?;
+                syn::TraitItem::Fn(fn_trait_item) => {
+                    Self::analyse_trait_fn(fn_trait_item)?;
                 }
                 unknown => {
                     return Err(format_err_spanned!(
@@ -212,9 +214,9 @@ impl InkItemTrait {
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    /// - If the method does not respect the properties of either an
-    ///   ink! message or ink! constructor.
-    fn analyse_trait_method(method: &syn::TraitItemMethod) -> Result<()> {
+    /// - If the method does not respect the properties of either an ink! message or ink!
+    ///   constructor.
+    fn analyse_trait_fn(method: &syn::TraitItemFn) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
@@ -286,7 +288,7 @@ impl InkItemTrait {
     }
 
     /// Constructors are generally not allowed in ink! trait definitions.
-    fn analyse_trait_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_constructor(constructor: &syn::TraitItemFn) -> Result<()> {
         Err(format_err!(
             constructor.span(),
             "ink! trait definitions must not have constructors",
@@ -298,16 +300,16 @@ impl InkItemTrait {
     /// # Errors
     ///
     /// - If the message has no `&self` or `&mut self` receiver.
-    fn analyse_trait_message(message: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_message(message: &syn::TraitItemFn) -> Result<()> {
         InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
         match message.sig.receiver() {
-            None | Some(syn::FnArg::Typed(_)) => {
+            None => {
                 return Err(format_err_spanned!(
-                message.sig,
-                "missing or malformed `&self` or `&mut self` receiver for ink! message",
-            ))
+                    message.sig,
+                    "missing `&self` or `&mut self` receiver for ink! message",
+                ))
             }
-            Some(syn::FnArg::Receiver(receiver)) => {
+            Some(receiver) => {
                 if receiver.reference.is_none() {
                     return Err(format_err_spanned!(
                         receiver,

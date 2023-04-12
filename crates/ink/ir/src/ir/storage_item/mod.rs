@@ -38,7 +38,7 @@ impl StorageItem {
 
         for attr in &ast.attrs {
             if attr
-                .path
+                .path()
                 .to_token_stream()
                 .to_string()
                 .contains("storage_item")

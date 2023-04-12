@@ -1,7 +1,7 @@
 //! A smart contract which demonstrates behavior of the `self.env().transfer()` function.
 //! It transfers some of it's balance to the caller.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::contract]
@@ -22,9 +22,8 @@ pub mod give_me {
         /// # Errors
         ///
         /// - Panics in case the requested transfer exceeds the contract balance.
-        /// - Panics in case the requested transfer would have brought this
-        ///   contract's balance below the minimum balance (i.e. the chain's
-        ///   existential deposit).
+        /// - Panics in case the requested transfer would have brought this contract's
+        ///   balance below the minimum balance (i.e. the chain's existential deposit).
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: Balance) {

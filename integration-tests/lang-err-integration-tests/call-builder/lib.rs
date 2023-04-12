@@ -1,19 +1,20 @@
 //! # Integration Tests for `LangError`
 //!
-//! This contract is used to ensure that the behavior around `LangError`s works as expected.
+//! This contract is used to ensure that the behavior around `LangError`s works as
+//! expected.
 //!
 //! In particular, it exercises the codepaths that stem from the usage of the
-//! [`CallBuilder`](`ink::env::call::CallBuilder`) and [`CreateBuilder`](`ink::env::call::CreateBuilder`)
-//! structs.
+//! [`CallBuilder`](`ink::env::call::CallBuilder`) and
+//! [`CreateBuilder`](`ink::env::call::CreateBuilder`) structs.
 //!
-//! This differs from the codepath used by external tooling, such as `cargo-contract` or the
-//! `Contracts-UI` which instead depend on methods from the Contracts pallet which are exposed via
-//! RPC.
+//! This differs from the codepath used by external tooling, such as `cargo-contract` or
+//! the `Contracts-UI` which instead depend on methods from the Contracts pallet which are
+//! exposed via RPC.
 //!
-//! Note that during testing we make use of ink!'s end-to-end testing features, so ensure that you
-//! have a node which includes the Contracts pallet running alongside your tests.
+//! Note that during testing we make use of ink!'s end-to-end testing features, so ensure
+//! that you have a node which includes the Contracts pallet running alongside your tests.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod call_builder {
@@ -39,11 +40,12 @@ mod call_builder {
 
         /// Call a contract using the `CallBuilder`.
         ///
-        /// Since we can't use the `CallBuilder` in a test environment directly we need this
-        /// wrapper to test things like crafting calls with invalid selectors.
+        /// Since we can't use the `CallBuilder` in a test environment directly we need
+        /// this wrapper to test things like crafting calls with invalid
+        /// selectors.
         ///
-        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
-        /// contract message without erroring out ourselves.
+        /// We also wrap the output in an `Option` since we can't return a `Result`
+        /// directly from a contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call(
             &mut self,
@@ -68,11 +70,12 @@ mod call_builder {
 
         /// Call a contract using the `CallBuilder`.
         ///
-        /// Since we can't use the `CallBuilder` in a test environment directly we need this
-        /// wrapper to test things like crafting calls with invalid selectors.
+        /// Since we can't use the `CallBuilder` in a test environment directly we need
+        /// this wrapper to test things like crafting calls with invalid
+        /// selectors.
         ///
-        /// This message does not allow the caller to handle any `LangErrors`, for that use the
-        /// `call` message instead.
+        /// This message does not allow the caller to handle any `LangErrors`, for that
+        /// use the `call` message instead.
         #[ink(message)]
         pub fn invoke(&mut self, address: AccountId, selector: [u8; 4]) {
             use ink::env::call::build_call;
@@ -86,11 +89,12 @@ mod call_builder {
 
         /// Instantiate a contract using the `CreateBuilder`.
         ///
-        /// Since we can't use the `CreateBuilder` in a test environment directly we need this
-        /// wrapper to test things like crafting calls with invalid selectors.
+        /// Since we can't use the `CreateBuilder` in a test environment directly we need
+        /// this wrapper to test things like crafting calls with invalid
+        /// selectors.
         ///
-        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
-        /// contract message without erroring out ourselves.
+        /// We also wrap the output in an `Option` since we can't return a `Result`
+        /// directly from a contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call_instantiate(
             &mut self,
@@ -122,11 +126,12 @@ mod call_builder {
 
         /// Attempt to instantiate a contract using the `CreateBuilder`.
         ///
-        /// Since we can't use the `CreateBuilder` in a test environment directly we need this
-        /// wrapper to test things like crafting calls with invalid selectors.
+        /// Since we can't use the `CreateBuilder` in a test environment directly we need
+        /// this wrapper to test things like crafting calls with invalid
+        /// selectors.
         ///
-        /// We also wrap the output in an `Option` since we can't return a `Result` directly from a
-        /// contract message without erroring out ourselves.
+        /// We also wrap the output in an `Option` since we can't return a `Result`
+        /// directly from a contract message without erroring out ourselves.
         #[ink(message)]
         pub fn call_instantiate_fallible(
             &mut self,
@@ -166,9 +171,7 @@ mod call_builder {
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-        #[ink_e2e::test(
-            additional_contracts = "../integration-flipper/Cargo.toml ../constructors-return-value/Cargo.toml"
-        )]
+        #[ink_e2e::test]
         async fn e2e_invalid_message_selector_can_be_handled(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -221,7 +224,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../integration-flipper/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_invalid_message_selector_panics_on_invoke(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -243,8 +246,8 @@ mod call_builder {
                 .expect("instantiate `flipper` failed")
                 .account_id;
 
-            // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method we expect
-            // this to panic.
+            // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
+            // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
             let call = build_message::<CallBuilderTestRef>(contract_acc_id)
                 .call(|contract| contract.invoke(flipper_acc_id, invalid_selector));
@@ -258,7 +261,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_works_with_valid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -299,7 +302,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_fails_with_invalid_selector(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -340,7 +343,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_with_infallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -385,7 +388,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_can_handle_fallible_constructor_success(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -426,7 +429,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_can_handle_fallible_constructor_error(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -474,7 +477,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_ok(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {
@@ -519,7 +522,7 @@ mod call_builder {
             Ok(())
         }
 
-        #[ink_e2e::test(additional_contracts = "../constructors-return-value/Cargo.toml")]
+        #[ink_e2e::test]
         async fn e2e_create_builder_with_fallible_revert_constructor_encodes_err(
             mut client: ink_e2e::Client<C, E>,
         ) -> E2EResult<()> {

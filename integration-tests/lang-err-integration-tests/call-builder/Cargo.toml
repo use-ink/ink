@@ -1,6 +1,6 @@
 [package]
 name = "call_builder"
-version = "4.0.1"
+version = "4.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -9,7 +9,7 @@ publish = false
 ink = { path = "../../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
 
 constructors_return_value = { path = "../constructors-return-value", default-features = false, features = ["ink-as-dependency"] }
 integration_flipper = { path = "../integration-flipper", default-features = false, features = ["ink-as-dependency"] }
@@ -18,12 +18,7 @@ integration_flipper = { path = "../integration-flipper", default-features = fals
 ink_e2e = { path = "../../../crates/e2e" }
 
 [lib]
-name = "call_builder"
 path = "lib.rs"
-crate-type = [
-    # Used for normal contract Wasm blobs.
-    "cdylib",
-]
 
 [features]
 default = ["std"]

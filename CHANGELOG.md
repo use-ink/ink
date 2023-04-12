@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Upgraded `syn` to version `2` - [#1731](https://github.com/paritytech/ink/pull/1731)
+
+## Version 4.1.0
+
+### Added
+- Basic support for `dyn Trait` to allow cross-contract calls only with trait - [#1673](https://github.com/paritytech/ink/pull/1673)
+- E2E: auto detect contracts to be built - [#1691](https://github.com/paritytech/ink/pull/1691)
+- Add `set_code_hash` to `EnvAccess` - [#1698](https://github.com/paritytech/ink/pull/1698)
+- Add `set_block_timestamp` to off-chain test api `Engine` - [#1721](https://github.com/paritytech/ink/pull/1721)
+
+### Changed
+- Support conditional compilation - [#1707](https://github.com/paritytech/ink/pull/1707)
+
 ## Version 4.0.1
 
 ### Fixed
@@ -44,7 +58,7 @@ In order to build contracts which use ink! `v4.0.0` you need to use
 [`v2.0.0`](https://github.com/paritytech/cargo-contract/releases/tag/v2.0.0).
 You can install it as follows:
 
-`cargo install cargo-contract --forced --locked`
+`cargo install cargo-contract --force --locked`
 
 You will also need to use a version of [`pallet-contracts`](https://github.com/paritytech/substrate/tree/master/frame/contracts)
 later than [polkadot-v0.9.37](https://github.com/paritytech/substrate/tree/polkadot-v0.9.37)
@@ -57,7 +71,7 @@ compatible with the ink! `4.0.0` release.
 For full compatibility requirements see the [migration guide](https://use.ink/faq/migrating-from-ink-3-to-4/#compatibility).
 
 - Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
-- Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248) (thanks [@kanishkatn](https://github.com/kanishkatn)!)
+- Add [`payment-channel`](https://github.com/paritytech/ink-examples/tree/main/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248) (thanks [@kanishkatn](https://github.com/kanishkatn)!)
 - Add `version` field to ink! metadata ‒ [#1313](https://github.com/paritytech/ink/pull/1313)
 - The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
 - Add `ink_env::pay_with_call!` helper macro for off-chain emulation of sending payments with contract message calls ‒ [#1379](https://github.com/paritytech/ink/pull/1379)
@@ -349,7 +363,7 @@ return an `Option<u32>` instead of `()`.
 
 ### Added
 - :x: Add `Mapping::contains(key)` and `Mapping::insert_return_size(key, val)` ‒ [#1224](https://github.com/paritytech/ink/pull/1224)
-- Add [`payment-channel`](https://github.com/paritytech/ink/tree/master/examples/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248)
+- Add [`payment-channel`](https://github.com/paritytech/ink-examples/tree/main/payment-channel) example ‒ [#1248](https://github.com/paritytech/ink/pull/1248)
 - :x: Add `version` field to ink! metadata ‒ [#1313](https://github.com/paritytech/ink/pull/1313)
 - The `rand-extension` example has been adapted to an updated version of the `ChainExtension` API ‒ [#1356](https://github.com/paritytech/ink/pull/1356)
 
@@ -463,7 +477,7 @@ Additionally there are a couple new `ink_env` functions now:
 
 ### New Upgradeable Contract Example
 
-We've added a new example: [`upgradeable-contracts/set-code-hash`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts#set-code-hash).
+We've added a new example: [`upgradeable-contracts/set-code-hash`](https://github.com/paritytech/ink-examples/tree/main/upgradeable-contracts#set-code-hash#set-code-hash).
 
 It illustrates how the newly added [`ink_env::set_code_hash`](https://paritytech.github.io/ink/ink_env/fn.set_code_hash.html)
 can be used to implement an upgradeable contract that replaces its own code.
@@ -520,7 +534,7 @@ for the API documentation.
 
 We've also switched all our examples to this new environment, you
 can find more "template use-cases" there (e.g. for
-[chain extension testing](https://github.com/paritytech/ink/tree/master/examples/rand-extension))
+[chain extension testing](https://github.com/paritytech/ink-examples/tree/main/rand-extension))
 
 #### We removed the dynamic storage allocator
 More details on the reasoning behind this can be found in [#1148](https://github.com/paritytech/ink/pull/1148).
@@ -533,7 +547,7 @@ The `CallBuilder` API changed to now support two types of calls:
 * `DelegateCall`: a delegated call.<br/>
   This enables writing upgradeable contracts using
   the `delegate` pattern. An example has been added to demonstrate this:
-  [`delegate-calls`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contracts/delegate-calls).
+  [`delegate-calls`](https://github.com/paritytech/ink-examples/tree/main/upgradeable-contracts).
 
 This is a breaking change, users must now specify the `call_type` to the builder manually.
 
@@ -704,7 +718,6 @@ Specifically you need to upgrade to at least the pallet version
 ### Added
 - Added support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
     - This enables writing upgradeable smart contracts using the proxy/forward pattern.
-      We added a new example to illustrate this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
     - Annotating a wildcard selector in traits is not supported.
 - The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang` ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - Some of those traits and their carried information can be used for static reflection of ink!

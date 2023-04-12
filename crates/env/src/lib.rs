@@ -50,17 +50,26 @@
 #[allow(unused_extern_crates)]
 extern crate rlibc;
 
-#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+#[cfg(not(feature = "std"))]
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     // This code gets removed in release builds where the macro will expand into nothing.
     debug_print!("{}\n", info);
 
-    // We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    // This is used in order to make any panic a direct abort avoiding Rust's general
-    // panic infrastructure.
-    core::arch::wasm32::unreachable();
+    cfg_if::cfg_if! {
+        if #[cfg(target_arch = "wasm32")] {
+            core::arch::wasm32::unreachable();
+        } else if #[cfg(target_arch = "riscv32")] {
+            // Safety: The unimp instruction is guaranteed to trap
+            unsafe {
+                core::arch::asm!("unimp");
+                core::hint::unreachable_unchecked();
+            }
+        } else {
+            core::compile_error!("ink! only supports wasm32 and riscv32");
+        }
+    }
 }
 
 // This extern crate definition is required since otherwise rustc
@@ -108,6 +117,7 @@ pub use self::{
     },
     topics::Topics,
     types::{
+        AccountIdGuard,
         DefaultEnvironment,
         Environment,
         FromLittleEndian,
