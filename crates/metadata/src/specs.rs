@@ -283,7 +283,7 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub return_type: ReturnTypeSpec<F>,
     /// The deployment handler documentation.
     pub docs: Vec<F::String>,
-    /// If the constructor is default
+    /// If the constructor is default.
     default: bool,
 }
 
