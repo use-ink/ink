@@ -762,10 +762,10 @@ where
     /// The `call_data` is a `Vec<Value>`
     ///
     /// Note:
-    /// `pallet_name` must be in camel case ex: `Balances`
-    /// `call_name` must be snake case ex: `force_transfer`
-    /// `call_data` is a Vec<subxt::dynamic::Value> that holds a representation of
-    /// some value
+    /// - `pallet_name` must be in camel case, for example `Balances`.
+    /// - `call_name` must be snake case, for example `force_transfer`.
+    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
+    ///    some value
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
