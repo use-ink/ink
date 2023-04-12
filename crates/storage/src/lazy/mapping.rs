@@ -83,7 +83,7 @@ use scale::{
 /// # }
 /// ```
 ///
-/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
+/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink-examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
     #[allow(clippy::type_complexity)]
