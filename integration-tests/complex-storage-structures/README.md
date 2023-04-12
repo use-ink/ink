@@ -1,81 +1,8 @@
 # Storage refactoring
 
-In ink! v4.0.0-beta the way storage works was refactored.
+In ink! v4 the way storage works was refactored.
 
-## Pre-ink! v4.0.0-beta storage
-
-Previously, your custom data structures were relying on `SpreadLayout` and `PackedLayout`
-traits. These traits described how your custom data structures should be persisted
-in storage cells.
-
-However, the storage keys that these data structures would occupy are determined in
-runtime. Storage keys for individual fields in structs, that were deriving
-`SpreadLayout` were determined by simple iteration on the fields of a parent struct.
-
-For example, consider the following structure:
-
-```rust
-#[derive(SpreadLayout)]
-struct TestStruct {
-    first: Mapping<u32, u32>,
-    second: Mapping<u64, u64>
-}
-```
-
-The struct has two fields, and both fields need their own storage cell.
-
-A (shortened) result of a macro expansion on this struct looks like this:
-
-```rust
-impl ::ink_storage::traits::SpreadLayout for TestStruct {
-    // ...
-
-    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
-        match self {
-            TestStruct { first: __binding_0, second: __binding_1 } => {
-                {
-                    ::ink_storage::traits::SpreadLayout::push_spread(
-                        __binding_0,
-                        __key_ptr,
-                    );
-                }
-                {
-                    ::ink_storage::traits::SpreadLayout::push_spread(
-                        __binding_1,
-                        __key_ptr,
-                    );
-                }
-            }
-        }
-    }
-
-    // ...
-}
-```
-
-Every single operation on `KeyPtr` would advance it further, allowing us
-to read multiple storage cells, thus processing every single storage key operation
-in runtime.
-
-If you wanted to created a packed struct (which stores its fields under a single storage key)
-you had to implement a `PackedLayout` trait for your struct. Only some eligible
-fields could be stored using `PackedLayout`. For example, you could
-store `i32` or `AccountId` using `PackedLayout`, but you were unable to do the same with `Mapping`.
-
-In order to implement `PackedLayout` automatically, you could just derive `PackedLayout` macro:
-
-```rust
-#[derive(PackedLayout)]
-struct TestStruct {
-    first: u32,
-    second: u64
-}
-```
-
-It would generate a code similar to that of a `SpreadLayout`, but with the usage
-of a single storage cell instead of a variety of those cells.
-
-## Post-ink! 4.0.0-beta storage
+## ink! v4 storage
 
 First of all, new version of ink!'s storage substantially changes
 the way you can interact with "spread structs" (structs that span multiple

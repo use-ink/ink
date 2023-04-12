@@ -3,29 +3,19 @@
 #[ink::contract]
 pub mod complex_structures {
     use ink::storage::{
-        traits::{
-            AutoKey,
-            ManualKey,
-            Packed,
-            Storable,
-            StorableHint,
-            StorageKey,
-        },
+        traits::{AutoKey, ManualKey, Storable, StorableHint, StorageKey},
         Mapping,
     };
 
-    /// Non-packed type with
+    /// Non-packed type usage
     #[ink::storage_item(derive = false)]
     #[derive(Storable, StorableHint, StorageKey, Default, Debug)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
     )]
-    pub struct TokenManagement<
-        KEY: StorageKey,
-        T: Packed + BalancesStateManagement = Balances,
-    > {
-        balances_state: T,
+    pub struct TokenManagement {
+        balances: Balances,
         allowances: Allowances<ManualKey<100>>,
     }
 
@@ -44,12 +34,6 @@ pub mod complex_structures {
         pub balance_state: u128,
     }
 
-    pub trait BalancesStateManagement {
-        fn increase_balance_state(&mut self, amount: u128);
-        fn decrease_balance_state(&mut self, amount: u128);
-        fn get_balance_state(&self) -> u128;
-    }
-
     impl<KEY: StorageKey> Allowances<KEY> {
         fn get_allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             self.allowances.get(&(owner, spender)).unwrap_or(0)
@@ -65,24 +49,10 @@ pub mod complex_structures {
         }
     }
 
-    impl BalancesStateManagement for Balances {
-        fn increase_balance_state(&mut self, amount: u128) {
-            self.balance_state += amount;
-        }
-
-        fn decrease_balance_state(&mut self, amount: u128) {
-            self.balance_state -= amount;
-        }
-
-        fn get_balance_state(&self) -> u128 {
-            self.balance_state
-        }
-    }
-
     #[ink(storage)]
     #[derive(Default)]
     pub struct Contract {
-        pub token_management: TokenManagement<ManualKey<123>>,
+        pub token_management: TokenManagement,
     }
 
     impl Contract {
@@ -93,21 +63,17 @@ pub mod complex_structures {
 
         #[ink(message)]
         pub fn increase_balances_state(&mut self, amount: u128) {
-            self.token_management
-                .balances_state
-                .increase_balance_state(amount);
+            self.token_management.balances.balance_state += amount;
         }
 
         #[ink(message)]
         pub fn decrease_balances_state(&mut self, amount: u128) {
-            self.token_management
-                .balances_state
-                .decrease_balance_state(amount);
+            self.token_management.balances.balance_state -= amount;
         }
 
         #[ink(message)]
         pub fn get_balances_state(&self) -> u128 {
-            self.token_management.balances_state.get_balance_state()
+            self.token_management.balances.balance_state
         }
 
         #[ink(message)]
