@@ -880,6 +880,48 @@
 <a href="#879" id="879">879</a>
 <a href="#880" id="880">880</a>
 <a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1638,6 +1680,48 @@
             dry_run,
             events: tx_events,
         })
+    }
+
+    <span class="doccomment">/// Executes a runtime call `call_name` for the `pallet_name`.
+    /// The `call_data` is a `Vec&lt;Value&gt;`
+    ///
+    /// Note:
+    /// - `pallet_name` must be in camel case, for example `Balances`.
+    /// - `call_name` must be snake case, for example `force_transfer`.
+    /// - `call_data` is a `Vec&lt;subxt::dynamic::Value&gt;` that holds a representation of
+    ///   some value.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    </span><span class="kw">pub async fn </span>runtime_call&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
+        pallet_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        call_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        call_data: Vec&lt;Value&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ExtrinsicEvents&lt;C&gt;, Error&lt;C, E&gt;&gt; {
+        <span class="kw">let </span>tx_events = <span class="self">self
+            </span>.api
+            .runtime_call(signer, pallet_name, call_name, call_data)
+            .<span class="kw">await</span>;
+
+        <span class="kw">for </span>evt <span class="kw">in </span>tx_events.iter() {
+            <span class="kw">let </span>evt = evt.unwrap_or_else(|err| {
+                <span class="macro">panic!</span>(<span class="string">&quot;unable to unwrap event: {err:?}&quot;</span>);
+            });
+
+            <span class="kw">if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
+                <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
+                <span class="kw">let </span>dispatch_error = subxt::error::DispatchError::decode_from(
+                    evt.field_bytes(),
+                    <span class="kw-2">&amp;</span>metadata,
+                );
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error:?}&quot;</span>));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(tx_events)
     }
 
     <span class="doccomment">/// Executes a dry-run `call`.

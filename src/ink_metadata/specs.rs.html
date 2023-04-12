@@ -1299,6 +1299,10 @@
 <a href="#1298" id="1298">1298</a>
 <a href="#1299" id="1299">1299</a>
 <a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -2089,13 +2093,17 @@
     }
 
     <span class="doccomment">/// Sets the input arguments of the event specification.
-    </span><span class="kw">pub fn </span>docs&lt;D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
+    </span><span class="kw">pub fn </span>docs&lt;<span class="lifetime">&#39;a</span>, D&gt;(<span class="self">self</span>, docs: D) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>D: IntoIterator&lt;Item = &lt;F <span class="kw">as </span>Form&gt;::String&gt;,
+        </span>D: IntoIterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
+        F::String: From&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,
     {
         <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>;
         <span class="macro">debug_assert!</span>(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        this.spec.docs = docs
+            .into_iter()
+            .map(|s| trim_extra_whitespace(s).into())
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         this
     }
 
