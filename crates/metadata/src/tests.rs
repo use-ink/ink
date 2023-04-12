@@ -301,6 +301,50 @@ fn trim_docs_with_code() {
     assert_eq!(deserialized.docs, compact_spec.docs);
 }
 
+#[test]
+fn should_trim_whitespaces_in_events_docs() {
+    // given
+    let path: Path<PortableForm> =
+        Path::from_segments_unchecked(["FooBarEvent".to_string()]);
+    let spec = TypeSpec::new(789.into(), path);
+    let args = [EventParamSpec::new("something".into())
+        .of_type(spec)
+        .indexed(true)
+        .docs(vec!["test".to_string()])
+        .done()];
+    let es = EventSpec::new("foobar".into())
+        .args(args)
+        .docs([" FooBarEvent  "])
+        .done();
+
+    let event_spec_name = serde_json::to_value(es).unwrap();
+
+    // when
+    let expected_event_spec = serde_json::json!(
+        {
+            "args": [
+            {
+                "docs": ["test"],
+                "indexed": true,
+                "label": "something",
+                "type": {
+                    "displayName": [
+                        "FooBarEvent"
+                    ],
+                    "type": 789
+                }
+            }],
+            "docs": [
+                "FooBarEvent"
+            ],
+            "label": "foobar"
+        }
+    );
+
+    // then
+    assert_eq!(event_spec_name, expected_event_spec);
+}
+
 /// Helper for creating a constructor spec at runtime
 fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
@@ -347,7 +391,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .done()];
     EventSpec::new("foobar".into())
         .args(args)
-        .docs(["foobar event".into()])
+        .docs(["foobar event"])
         .done()
 }
 
