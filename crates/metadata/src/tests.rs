@@ -303,7 +303,7 @@ fn trim_docs_with_code() {
 
 #[test]
 fn should_trim_whitespaces_in_events_docs() {
-    // GIVEN
+    // given
     let path: Path<PortableForm> =
         Path::from_segments_unchecked(["FooBarEvent".to_string()]);
     let spec = TypeSpec::new(789.into(), path);
@@ -319,7 +319,7 @@ fn should_trim_whitespaces_in_events_docs() {
 
     let event_spec_name = serde_json::to_value(es).unwrap();
 
-    // WHEN
+    // when
     let expected_event_spec = serde_json::json!(
         {
             "args": [
@@ -341,7 +341,7 @@ fn should_trim_whitespaces_in_events_docs() {
         }
     );
 
-    // THEN
+    // then
     assert_eq!(event_spec_name, expected_event_spec);
 }
 
