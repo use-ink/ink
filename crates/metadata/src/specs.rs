@@ -122,7 +122,7 @@ where
     pub fn lang_error(&self) -> &TypeSpec<F> {
         &self.lang_error
     }
-    // Returns The environment types of the contract specification.
+    // Returns the environment types of the contract specification.
     pub fn environment(&self) -> &EnvironmentSpec<F> {
         &self.environment
     }
