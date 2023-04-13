@@ -31,6 +31,7 @@ use ink_env::Environment;
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
+#[cfg(feature = "std")]
 use std::{
     collections::BTreeMap,
     fmt::Debug,
