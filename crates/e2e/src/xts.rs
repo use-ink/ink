@@ -33,48 +33,40 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     rpc_params,
+    utils::MultiAddress,
     OnlineClient,
 };
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
-#[derive(Debug, scale::Encode, scale::Decode, scale_decode::DecodeAsType)]
-pub struct InstantiateWithCode<B: scale_decode::DecodeAsType> {
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "")]
+pub struct InstantiateWithCode<E: Environment> {
     #[codec(compact)]
-    value: B,
-    gas_limit: Weight,
-    storage_deposit_limit: Option<B>,
+    value: E::Balance,
+    gas_limit: subxt::utils::Static<Weight>,
+    storage_deposit_limit: Option<E::Balance>,
     code: Vec<u8>,
     data: Vec<u8>,
     salt: Vec<u8>,
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Decode, scale::Encode, scale_decode::DecodeAsType)]
-pub struct Call<E: Environment, B: scale_decode::DecodeAsType> {
-    dest: sp_runtime::MultiAddress<E::AccountId, ()>,
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "")]
+pub struct Call<E: Environment> {
+    dest: MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
-    value: B,
-    gas_limit: Weight,
-    storage_deposit_limit: Option<B>,
+    value: E::Balance,
+    gas_limit: subxt::utils::Static<Weight>,
+    storage_deposit_limit: Option<E::Balance>,
     data: Vec<u8>,
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
-#[derive(
-    Debug,
-    scale::Decode,
-    scale::Encode,
-    scale_decode::DecodeAsType,
-    scale_encode::EncodeAsType,
-)]
-#[decode_as_type(
-    trait_bounds = "C::Address: scale_decode::DecodeAsType, E::Balance: scale_decode::DecodeAsType"
-)]
-#[encode_as_type(
-    trait_bounds = "C::Address: scale_encode::EncodeAsType, E::Balance: scale_encode::EncodeAsType"
-)]
+#[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "")]
 pub struct Transfer<E: Environment, C: subxt::Config> {
-    dest: C::Address,
+    dest: subxt::utils::Static<C::Address>,
     #[codec(compact)]
     value: E::Balance,
 }
@@ -88,7 +80,7 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     serde::Serialize,
     scale::Decode,
     scale::Encode,
-    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
 )]
 pub enum Determinism {
     /// The execution should be deterministic and hence no indeterministic instructions
@@ -109,10 +101,11 @@ pub enum Determinism {
 }
 
 /// A raw call to `pallet-contracts`'s `upload`.
-#[derive(Debug, scale::Encode, scale::Decode, scale_decode::DecodeAsType)]
-pub struct UploadCode<B: scale_decode::DecodeAsType> {
+#[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
+#[encode_as_type(trait_bounds = "")]
+pub struct UploadCode<E: Environment> {
     code: Vec<u8>,
-    storage_deposit_limit: Option<B>,
+    storage_deposit_limit: Option<E::Balance>,
     determinism: Determinism,
 }
 
@@ -206,7 +199,7 @@ where
             "Balances",
             "transfer",
             Transfer::<E, C> {
-                dest: dest.into(),
+                dest: subxt::utils::Static(dest.into()),
                 value,
             },
             Default::default(),
@@ -316,7 +309,7 @@ where
             "instantiate_with_code",
             InstantiateWithCode::<E> {
                 value,
-                gas_limit,
+                gas_limit: subxt::utils::Static(gas_limit),
                 storage_deposit_limit,
                 code,
                 data,
@@ -369,7 +362,7 @@ where
         let call = subxt::tx::Payload::new_static(
             "Contracts",
             "upload_code",
-            UploadCode::<E::Balance> {
+            UploadCode::<E> {
                 code,
                 storage_deposit_limit,
                 determinism: Determinism::Deterministic,
@@ -417,7 +410,7 @@ where
     /// contains all events that are associated with this transaction.
     pub async fn call(
         &self,
-        contract: sp_runtime::MultiAddress<E::AccountId, ()>,
+        contract: MultiAddress<E::AccountId, ()>,
         value: E::Balance,
         gas_limit: Weight,
         storage_deposit_limit: Option<E::Balance>,
@@ -427,10 +420,10 @@ where
         let call = subxt::tx::Payload::new_static(
             "Contracts",
             "call",
-            Call::<E, E::Balance> {
+            Call::<E> {
                 dest: contract,
                 value,
-                gas_limit,
+                gas_limit: subxt::utils::Static(gas_limit),
                 storage_deposit_limit,
                 data,
             },

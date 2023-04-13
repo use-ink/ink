@@ -309,6 +309,7 @@ where
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
             Error::Balance(msg) => write!(f, "Balance: {msg}"),
+            Error::Decoding(err) => write!(f, "Decoding: {err}"),
         }
     }
 }
@@ -742,7 +743,7 @@ where
         let tx_events = self
             .api
             .call(
-                sp_runtime::MultiAddress::Id(message.account_id().clone()),
+                subxt::utils::MultiAddress::Id(message.account_id().clone()),
                 value,
                 dry_run.exec_result.gas_required,
                 storage_deposit_limit,
