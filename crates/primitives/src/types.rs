@@ -15,6 +15,7 @@
 use core::array::TryFromSliceError;
 use derive_more::From;
 use scale::{
+    alloc::vec::Vec,
     Decode,
     Encode,
 };

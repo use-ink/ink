@@ -322,7 +322,7 @@ where
     scale_decode::DecodeAsType,
     scale_encode::EncodeAsType,
 )]
-#[decode_as_type(trait_bounds = "E::AccountId: scale_decode::DecodeAsType")]
+#[decode_as_type(trait_bounds = "")]
 struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
     pub deployer: E::AccountId,
@@ -346,7 +346,7 @@ where
     scale_decode::DecodeAsType,
     scale_encode::EncodeAsType,
 )]
-#[decode_as_type(trait_bounds = "E::Hash: scale_decode::DecodeAsType")]
+#[decode_as_type(trait_bounds = "")]
 struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
     pub code_hash: E::Hash,
