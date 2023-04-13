@@ -109,5 +109,5 @@ jobs:
 
             ${{ steps.message.outputs.MESSAGE }}
 
-            Find all the stale issues [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+            Unfortunately there are more stale issues. The above list is limited to 8 entries. Find all the stale issues [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
           server: "m.parity.io"
