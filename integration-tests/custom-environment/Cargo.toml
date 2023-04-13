@@ -26,6 +26,3 @@ std = [
 ]
 ink-as-dependency = []
 e2e-tests = []
-
-# Assumes that the node used in E2E testing allows for at least 6 event topics.
-permissive-node = []
