@@ -23,8 +23,6 @@ ink_prelude = { version = "4.1.0", path = "../prelude", default-features = false
 ink_primitives = { version = "4.1.0", path = "../primitives", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.5.0", default-features = false }
-scale-encode = { version = "0.1.0", default-features = false }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 cfg-if = "1.0"
@@ -50,6 +48,8 @@ secp256k1 = { version = "0.27.0", features = ["recovery", "global-context"], opt
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
+scale-decode = { version = "0.5.0", default-features = false, optional = true }
+scale-encode = { version = "0.1.0", default-features = false, optional = true }
 scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
@@ -65,6 +65,8 @@ std = [
     "ink_storage_traits/std",
     "ink_engine/std",
     "scale/std",
+    "scale-decode",
+    "scale-encode",
     "scale-info/std",
     "secp256k1",
     "num-traits/std",

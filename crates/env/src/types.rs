@@ -106,6 +106,15 @@ pub trait AccountIdGuard {}
 /// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
 
+#[cfg(feature = "std")]
+pub trait CodecAsType: scale_decode::DecodeAsType + scale_encode::EncodeAsType {}
+#[cfg(feature = "std")]
+impl<T: scale_decode::DecodeAsType + scale_encode::EncodeAsType> CodecAsType for T {}
+#[cfg(not(feature = "std"))]
+pub trait CodecAsType {}
+#[cfg(not(feature = "std"))]
+impl<T> CodecAsType for T {}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
     /// The maximum number of supported event topics provided by the runtime.
@@ -117,8 +126,7 @@ pub trait Environment {
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
-        + scale_decode::DecodeAsType
-        + scale_encode::EncodeAsType
+        + CodecAsType
         + Clone
         + PartialEq
         + Eq
@@ -129,8 +137,7 @@ pub trait Environment {
     /// The type of balances.
     type Balance: 'static
         + scale::Codec
-        + scale_decode::DecodeAsType
-        + scale_encode::EncodeAsType
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
@@ -141,8 +148,7 @@ pub trait Environment {
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
-        + scale_decode::DecodeAsType
-        + scale_encode::EncodeAsType
+        + CodecAsType
         + Copy
         + Clone
         + Clear
@@ -155,8 +161,7 @@ pub trait Environment {
     /// The type of a timestamp.
     type Timestamp: 'static
         + scale::Codec
-        + scale_decode::DecodeAsType
-        + scale_encode::EncodeAsType
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
@@ -167,8 +172,7 @@ pub trait Environment {
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec
-        + scale_decode::DecodeAsType
-        + scale_encode::EncodeAsType
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
