@@ -84,7 +84,7 @@ jobs:
           if [ $COUNT = "0" ]; then
             echo "MESSAGE=$EMPTY_MESSAGE" >> $GITHUB_OUTPUT
           else
-            MESSAGE=$(echo $COMBINED | jq -r '. | sort_by(.daysStale) | reverse[:8]| .[] | "- [\(.title)](\(.url)) | \(.daysStale) days with no reply"')
+            MESSAGE=$(echo $COMBINED | jq -r '. | sort_by(.daysStale) | reverse[:8]| to_entries | .[] | "\(.key). [\(.value.title)](\(.value.url)) | \(.value.daysStale) days with no reply"')
             delimiter="$(openssl rand -hex 8)"
             echo "MESSAGE<<${delimiter}" >> "${GITHUB_OUTPUT}"
             echo "$MESSAGE" >> "${GITHUB_OUTPUT}"
