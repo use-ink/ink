@@ -24,6 +24,7 @@ use scale_encode::EncodeAsType;
 use scale_info::TypeInfo;
 
 #[allow(clippy::all)]
+#[allow(unused)]
 use std;
 
 /// The default environment `AccountId` type.
