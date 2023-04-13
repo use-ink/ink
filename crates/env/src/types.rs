@@ -117,6 +117,8 @@ pub trait Environment {
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
+        + scale_decode::DecodeAsType
+        + scale_encode::EncodeAsType
         + Clone
         + PartialEq
         + Eq
@@ -127,6 +129,8 @@ pub trait Environment {
     /// The type of balances.
     type Balance: 'static
         + scale::Codec
+        + scale_decode::DecodeAsType
+        + scale_encode::EncodeAsType
         + Copy
         + Clone
         + PartialEq
@@ -137,6 +141,8 @@ pub trait Environment {
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
+        + scale_decode::DecodeAsType
+        + scale_encode::EncodeAsType
         + Copy
         + Clone
         + Clear
@@ -149,6 +155,8 @@ pub trait Environment {
     /// The type of a timestamp.
     type Timestamp: 'static
         + scale::Codec
+        + scale_decode::DecodeAsType
+        + scale_encode::EncodeAsType
         + Copy
         + Clone
         + PartialEq
@@ -159,6 +167,8 @@ pub trait Environment {
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec
+        + scale_decode::DecodeAsType
+        + scale_encode::EncodeAsType
         + Copy
         + Clone
         + PartialEq

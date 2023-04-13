@@ -279,6 +279,8 @@ where
     CallExtrinsic(subxt::error::DispatchError),
     /// Error fetching account balance.
     Balance(String),
+    /// Decoding failed.
+    Decoding(subxt::Error),
 }
 
 // We implement a custom `Debug` here, as to avoid requiring the trait
@@ -312,7 +314,14 @@ where
 }
 
 /// A contract was successfully instantiated.
-#[derive(Debug, scale::Decode, scale::Encode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = "E::AccountId: scale_decode::DecodeAsType")]
 struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
     pub deployer: E::AccountId,
@@ -329,7 +338,14 @@ where
 }
 
 /// Code with the specified hash has been stored.
-#[derive(Debug, scale::Decode, scale::Encode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = "E::Hash: scale_decode::DecodeAsType")]
 struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
     pub code_hash: E::Hash,
@@ -580,10 +596,9 @@ where
                 // multiple accounts as part of its constructor!
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error:?}"
                 ));
@@ -672,10 +687,10 @@ where
                 break
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+
                 log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
                 return Err(Error::UploadExtrinsic(dispatch_error))
             }
@@ -743,10 +758,9 @@ where
 
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
@@ -788,10 +802,10 @@ where
 
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+
                 log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
@@ -857,7 +871,7 @@ where
             .api
             .client
             .storage()
-            .at(None)
+            .at_latest()
             .await
             .unwrap_or_else(|err| {
                 panic!("unable to fetch balance: {err:?}");

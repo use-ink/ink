@@ -33,13 +33,12 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     rpc_params,
-    tx,
     OnlineClient,
 };
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct InstantiateWithCode<B> {
+#[derive(Debug, scale::Encode, scale::Decode, scale_decode::DecodeAsType)]
+pub struct InstantiateWithCode<B: scale_decode::DecodeAsType> {
     #[codec(compact)]
     value: B,
     gas_limit: Weight,
@@ -50,8 +49,8 @@ pub struct InstantiateWithCode<B> {
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct Call<E: Environment, B> {
+#[derive(Debug, scale::Decode, scale::Encode, scale_decode::DecodeAsType)]
+pub struct Call<E: Environment, B: scale_decode::DecodeAsType> {
     dest: sp_runtime::MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
     value: B,
@@ -61,7 +60,19 @@ pub struct Call<E: Environment, B> {
 }
 
 /// A raw call to `pallet-contracts`'s `call`.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(
+    trait_bounds = "C::Address: scale_decode::DecodeAsType, E::Balance: scale_decode::DecodeAsType"
+)]
+#[encode_as_type(
+    trait_bounds = "C::Address: scale_encode::EncodeAsType, E::Balance: scale_encode::EncodeAsType"
+)]
 pub struct Transfer<E: Environment, C: subxt::Config> {
     dest: C::Address,
     #[codec(compact)]
@@ -69,7 +80,15 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
 }
 
 #[derive(
-    Debug, Clone, Copy, scale::Encode, scale::Decode, PartialEq, Eq, serde::Serialize,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    serde::Serialize,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
 )]
 pub enum Determinism {
     /// The execution should be deterministic and hence no indeterministic instructions
@@ -90,8 +109,8 @@ pub enum Determinism {
 }
 
 /// A raw call to `pallet-contracts`'s `upload`.
-#[derive(Debug, scale::Encode, scale::Decode)]
-pub struct UploadCode<B> {
+#[derive(Debug, scale::Encode, scale::Decode, scale_decode::DecodeAsType)]
+pub struct UploadCode<B: scale_decode::DecodeAsType> {
     code: Vec<u8>,
     storage_deposit_limit: Option<B>,
     determinism: Determinism,
@@ -183,7 +202,7 @@ where
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new_static(
             "Balances",
             "transfer",
             Transfer::<E, C> {
@@ -249,7 +268,7 @@ where
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C>
     where
-        Call: tx::TxPayload,
+        Call: subxt::tx::TxPayload,
     {
         self.client
             .tx()
@@ -292,10 +311,10 @@ where
         salt: Vec<u8>,
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new_static(
             "Contracts",
             "instantiate_with_code",
-            InstantiateWithCode::<E::Balance> {
+            InstantiateWithCode::<E> {
                 value,
                 gas_limit,
                 storage_deposit_limit,
@@ -347,7 +366,7 @@ where
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new_static(
             "Contracts",
             "upload_code",
             UploadCode::<E::Balance> {
@@ -405,7 +424,7 @@ where
         data: Vec<u8>,
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::StaticTxPayload::new(
+        let call = subxt::tx::Payload::new_static(
             "Contracts",
             "call",
             Call::<E, E::Balance> {

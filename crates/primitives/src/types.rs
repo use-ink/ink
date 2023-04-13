@@ -18,6 +18,8 @@ use scale::{
     Decode,
     Encode,
 };
+use scale_decode::DecodeAsType;
+use scale_encode::EncodeAsType;
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
 
@@ -28,7 +30,19 @@ use scale_info::TypeInfo;
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Encode, Decode, From,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Decode,
+    Encode,
+    DecodeAsType,
+    EncodeAsType,
+    From,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
@@ -85,8 +99,10 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     Ord,
     PartialOrd,
     Hash,
-    Encode,
     Decode,
+    Encode,
+    DecodeAsType,
+    EncodeAsType,
     From,
     Default,
 )]
