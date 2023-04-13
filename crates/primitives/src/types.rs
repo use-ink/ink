@@ -18,14 +18,12 @@ use scale::{
     Decode,
     Encode,
 };
-use scale_decode::DecodeAsType;
-use scale_encode::EncodeAsType;
 #[cfg(feature = "std")]
-use scale_info::TypeInfo;
-
-#[allow(clippy::all)]
-#[allow(unused)]
-use std;
+use {
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+    scale_info::TypeInfo,
+};
 
 /// The default environment `AccountId` type.
 ///
@@ -34,21 +32,9 @@ use std;
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Decode,
-    Encode,
-    DecodeAsType,
-    EncodeAsType,
-    From,
+    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Decode, Encode, From,
 )]
-#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
 pub struct AccountId([u8; 32]);
 
 impl AsRef<[u8; 32]> for AccountId {
@@ -105,12 +91,10 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     Hash,
     Decode,
     Encode,
-    DecodeAsType,
-    EncodeAsType,
     From,
     Default,
 )]
-#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
 pub struct Hash([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for Hash {
