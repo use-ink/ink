@@ -177,6 +177,7 @@ pub trait Environment {
 }
 
 /// Placeholder for chains that have no defined chain extension.
+#[cfg_attr(feature = "std", derive(TypeInfo))]
 pub enum NoChainExtension {}
 
 /// The fundamental types of the default configuration.
