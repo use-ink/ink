@@ -28,7 +28,10 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::spanned::Spanned as _;
+use syn::{
+    parse_quote,
+    spanned::Spanned as _,
+};
 
 /// Generates code to generate the metadata of the contract.
 #[derive(From)]
@@ -96,6 +99,7 @@ impl Metadata<'_> {
             ::ink::LangError
         };
         let error = Self::generate_type_spec(&error_ty);
+        let environment = self.generate_environment();
         quote! {
             ::ink::metadata::ContractSpec::new()
                 .constructors([
@@ -112,6 +116,9 @@ impl Metadata<'_> {
                 ])
                 .lang_error(
                      #error
+                )
+                .environment(
+                    #environment
                 )
                 .done()
         }
@@ -406,6 +413,35 @@ impl Metadata<'_> {
                     .done()
             )
         })
+    }
+
+    fn generate_environment(&self) -> TokenStream2 {
+        let span = self.contract.module().span();
+
+        let account_id: syn::Type = parse_quote!(AccountId);
+        let balance: syn::Type = parse_quote!(Balance);
+        let hash: syn::Type = parse_quote!(Hash);
+        let timestamp: syn::Type = parse_quote!(Timestamp);
+        let block_number: syn::Type = parse_quote!(BlockNumber);
+        let chain_extension: syn::Type = parse_quote!(ChainExtension);
+
+        let account_id = Self::generate_type_spec(&account_id);
+        let balance = Self::generate_type_spec(&balance);
+        let hash = Self::generate_type_spec(&hash);
+        let timestamp = Self::generate_type_spec(&timestamp);
+        let block_number = Self::generate_type_spec(&block_number);
+        let chain_extension = Self::generate_type_spec(&chain_extension);
+        quote_spanned!(span=>
+            ::ink::metadata::EnvironmentSpec::new()
+                .account_id(#account_id)
+                .balance(#balance)
+                .hash(#hash)
+                .timestamp(#timestamp)
+                .block_number(#block_number)
+                .chain_extension(#chain_extension)
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .done()
+        )
     }
 }
 

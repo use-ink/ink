@@ -55,6 +55,17 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
 #[test]
 fn spec_contract_json() {
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum NoChainExtension {}
+
+    type AccountId = ink_primitives::AccountId;
+    type Balance = u64;
+    type Hash = ink_primitives::Hash;
+    type Timestamp = u64;
+    type BlockNumber = u128;
+    type ChainExtension = NoChainExtension;
+    const MAX_EVENT_TOPICS: usize = 4;
+
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -117,6 +128,47 @@ fn spec_contract_json() {
                 ::core::convert::AsRef::as_ref,
             ),
         ))
+        .environment(
+            EnvironmentSpec::new()
+                .account_id(TypeSpec::with_name_segs::<AccountId, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["AccountId"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .balance(TypeSpec::with_name_segs::<Balance, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Balance"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .hash(TypeSpec::with_name_segs::<Hash, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Hash"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .timestamp(TypeSpec::with_name_segs::<Timestamp, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Timestamp"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .block_number(TypeSpec::with_name_segs::<BlockNumber, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["BlockNumber"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .chain_extension(TypeSpec::with_name_segs::<ChainExtension, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["ChainExtension"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .done(),
+        )
         .done();
 
     let mut registry = Registry::new();
@@ -172,6 +224,45 @@ fn spec_contract_json() {
                 }
             ],
             "docs": [],
+            "environment":  {
+                "accountId":  {
+                    "displayName":  [
+                        "AccountId",
+                    ],
+                    "type": 4,
+                },
+                "balance":  {
+                    "displayName":  [
+                        "Balance",
+                    ],
+                    "type": 7,
+                },
+                "blockNumber":  {
+                    "displayName":  [
+                        "BlockNumber",
+                    ],
+                    "type": 9,
+                },
+                "chainExtension":  {
+                    "displayName":  [
+                        "ChainExtension",
+                    ],
+                    "type": 10,
+                },
+                "hash":  {
+                    "displayName":  [
+                        "Hash",
+                    ],
+                    "type": 8,
+                },
+                "maxEventTopics": 4,
+                "timestamp":  {
+                    "displayName":  [
+                        "Timestamp",
+                    ],
+                    "type": 7,
+                },
+            },
             "events": [],
             "lang_error": {
               "displayName": [
