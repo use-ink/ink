@@ -151,6 +151,9 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -189,6 +192,8 @@
     ContractSpec,
     ContractSpecBuilder,
     DisplayName,
+    EnvironmentSpec,
+    EnvironmentSpecBuilder,
     EventParamSpec,
     EventParamSpecBuilder,
     EventSpec,
@@ -204,6 +209,7 @@
 
 <span class="kw">use </span>impl_serde::serialize <span class="kw">as </span>serde_hex;
 
+<span class="kw">pub use </span>scale_info::TypeInfo;
 <span class="attr">#[cfg(feature = <span class="string">&quot;derive&quot;</span>)]
 </span><span class="kw">use </span>scale_info::{
     form::PortableForm,
