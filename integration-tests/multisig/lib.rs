@@ -53,7 +53,7 @@
 //! of this contract. Use them to dispatch arbitrary messages to other contracts
 //! with the wallet as a sender.
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 pub use self::multisig::{
     ConfirmationStatus,
@@ -76,7 +76,8 @@ mod multisig {
     };
     use scale::Output;
 
-    /// Tune this to your liking but be wary that allowing too many owners will not perform well.
+    /// Tune this to your liking but be wary that allowing too many owners will not
+    /// perform well.
     const MAX_OWNERS: u32 = 50;
 
     type TransactionId = u32;
@@ -94,7 +95,8 @@ mod multisig {
         }
     }
 
-    /// Indicates whether a transaction is already confirmed or needs further confirmations.
+    /// Indicates whether a transaction is already confirmed or needs further
+    /// confirmations.
     #[derive(Clone, Copy, scale::Decode, scale::Encode)]
     #[cfg_attr(
         feature = "std",
@@ -123,7 +125,8 @@ mod multisig {
     pub struct Transaction {
         /// The `AccountId` of the contract that is called in this transaction.
         pub callee: AccountId,
-        /// The selector bytes that identifies the function of the callee that should be called.
+        /// The selector bytes that identifies the function of the callee that should be
+        /// called.
         pub selector: [u8; 4],
         /// The SCALE encoded parameters that are passed to the called function.
         pub input: Vec<u8>,
@@ -131,8 +134,9 @@ mod multisig {
         pub transferred_value: Balance,
         /// Gas limit for the execution of the call.
         pub gas_limit: u64,
-        /// If set to true the transaction will be allowed to re-enter the multisig contract.
-        /// Re-entrancy can lead to vulnerabilities. Use at your own risk.
+        /// If set to true the transaction will be allowed to re-enter the multisig
+        /// contract. Re-entrancy can lead to vulnerabilities. Use at your own
+        /// risk.
         pub allow_reentry: bool,
     }
 
@@ -292,21 +296,30 @@ mod multisig {
         /// # Examples
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
-        /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
+        /// `Transaction` and dispatched through `submit_transaction` and
+        /// `invoke_transaction`:
         /// ```should_panic
-        /// use ink::env::{
-        ///     call::{
-        ///         utils::ArgumentList,
-        ///         CallParams,
-        ///         ExecutionInput,
-        ///         Selector,
+        /// use ink::{
+        ///     env::{
+        ///         call::{
+        ///             utils::ArgumentList,
+        ///             Call,
+        ///             CallParams,
+        ///             ExecutionInput,
+        ///             Selector,
+        ///         },
+        ///         DefaultEnvironment as Env,
+        ///         Environment,
         ///     },
-        ///     AccountId,
-        ///     DefaultEnvironment as Env,
+        ///     selector_bytes,
         /// };
-        /// use ink::selector_bytes;
+        /// use multisig::{
+        ///     ConfirmationStatus,
+        ///     Transaction,
+        /// };
         /// use scale::Encode;
-        /// use multisig::{Transaction, ConfirmationStatus};
+        ///
+        /// type AccountId = <Env as Environment>::AccountId;
         ///
         /// // address of an existing `Multisig` contract
         /// let wallet_id: AccountId = [7u8; 32].into();
@@ -320,32 +333,32 @@ mod multisig {
         ///     selector: selector_bytes!("add_owner"),
         ///     input: add_owner_args.encode(),
         ///     transferred_value: 0,
-        ///     gas_limit: 0
+        ///     gas_limit: 0,
+        ///     allow_reentry: true,
         /// };
         ///
         /// // Submit the transaction for confirmation
         /// //
         /// // Note that the selector bytes of the `submit_transaction` method
         /// // are `[86, 244, 13, 223]`.
-        /// let (id, _status) = ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-        ///     .call_type(Call::new().callee(wallet_id))
+        /// let (id, _status) = ink::env::call::build_call::<Env>()
+        ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
-        ///     .exec_input(ExecutionInput::new(Selector::new([86, 244, 13, 223]))
-        ///         .push_arg(&transaction_candidate)
+        ///     .exec_input(
+        ///         ExecutionInput::new(Selector::new([86, 244, 13, 223]))
+        ///             .push_arg(&transaction_candidate),
         ///     )
         ///     .returns::<(u32, ConfirmationStatus)>()
         ///     .invoke();
         ///
-        /// // Wait until all required owners have confirmed and then execute the transaction
+        /// // Wait until all owners have confirmed and then execute the tx.
         /// //
         /// // Note that the selector bytes of the `invoke_transaction` method
         /// // are `[185, 50, 225, 236]`.
-        /// ink::env::call::build_call::<ink::env::DefaultEnvironment>()
-        ///     .call_type(Call::new().callee(wallet_id))
+        /// ink::env::call::build_call::<Env>()
+        ///     .call_type(Call::new(wallet_id))
         ///     .gas_limit(0)
-        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236]))
-        ///         .push_arg(&id)
-        ///     )
+        ///     .exec_input(ExecutionInput::new(Selector::new([185, 50, 225, 236])).push_arg(&id))
         ///     .returns::<()>()
         ///     .invoke();
         /// ```
@@ -425,7 +438,8 @@ mod multisig {
 
         /// Add a new transaction candidate to the contract.
         ///
-        /// This also confirms the transaction for the caller. This can be called by any owner.
+        /// This also confirms the transaction for the caller. This can be called by any
+        /// owner.
         #[ink(message)]
         pub fn submit_transaction(
             &mut self,
@@ -550,8 +564,8 @@ mod multisig {
 
         /// Evaluate a confirmed execution and return its output as bytes.
         ///
-        /// Its return value indicates whether the called transaction was successful and contains
-        /// its output when successful.
+        /// Its return value indicates whether the called transaction was successful and
+        /// contains its output when successful.
         /// This can be called by anyone.
         #[ink(message, payable)]
         pub fn eval_transaction(

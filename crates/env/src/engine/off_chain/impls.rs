@@ -293,7 +293,8 @@ impl EnvBackend for EnvInstance {
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
-        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+        // as well.
         let recovery_byte = if signature[64] > 26 {
             signature[64] - 27
         } else {
@@ -514,11 +515,11 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn is_contract<E>(&mut self, _account: &E::AccountId) -> bool
+    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
     where
         E: Environment,
     {
-        unimplemented!("off-chain environment does not support contract instantiation")
+        self.engine.is_contract(scale::Encode::encode(&account))
     }
 
     fn caller_is_origin<E>(&mut self) -> bool

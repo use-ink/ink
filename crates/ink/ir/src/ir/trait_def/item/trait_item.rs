@@ -18,11 +18,15 @@ use crate::{
         self,
         attrs::SelectorOrWildcard,
         utils,
+        utils::extract_cfg_attributes,
     },
     InputsIter,
     Receiver,
 };
-use proc_macro2::Span;
+use proc_macro2::{
+    Span,
+    TokenStream,
+};
 use syn::{
     spanned::Spanned as _,
     Result,
@@ -60,7 +64,7 @@ impl<'a> InkTraitItem<'a> {
 /// A checked ink! message of an ink! trait definition.
 #[derive(Debug, Clone)]
 pub struct InkTraitMessage<'a> {
-    item: &'a syn::TraitItemMethod,
+    item: &'a syn::TraitItemFn,
 }
 
 impl<'a> InkTraitMessage<'a> {
@@ -69,7 +73,7 @@ impl<'a> InkTraitMessage<'a> {
         "encountered invalid attributes for ink! trait message";
 
     /// Creates a new ink! trait definition message.
-    pub(super) fn new(item: &'a syn::TraitItemMethod) -> Self {
+    pub(super) fn new(item: &'a syn::TraitItemFn) -> Self {
         Self { item }
     }
 
@@ -101,6 +105,11 @@ impl<'a> InkTraitMessage<'a> {
         let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
             .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
         rust_attrs
+    }
+
+    /// Returns a list of `cfg` attributes if any.
+    pub fn get_cfg_attrs(&self, span: Span) -> Vec<TokenStream> {
+        extract_cfg_attributes(&self.attrs(), span)
     }
 
     /// Returns all ink! attributes.
@@ -170,20 +179,7 @@ impl<'a> InkTraitMessage<'a> {
     pub fn mutates(&self) -> bool {
         self.sig()
             .receiver()
-            .map(|fn_arg| {
-                match fn_arg {
-                    syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
-                        true
-                    }
-                    syn::FnArg::Typed(pat_type) => {
-                        matches!(
-                            &*pat_type.ty,
-                            syn::Type::Reference(reference) if reference.mutability.is_some()
-                        )
-                    }
-                    _ => false,
-                }
-            })
+            .map(|receiver| receiver.mutability.is_some())
             .expect("encountered missing receiver for ink! message")
     }
 }

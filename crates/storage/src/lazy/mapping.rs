@@ -39,11 +39,12 @@ use scale::{
 ///
 /// # Important
 ///
-/// The mapping requires its own pre-defined storage key where to store values. By default,
-/// the is automatically calculated using [`AutoKey`](crate::traits::AutoKey) during compilation.
-/// However, anyone can specify a storage key using [`ManualKey`](crate::traits::ManualKey).
-/// Specifying the storage key can be helpful for upgradeable contracts or you want to be resistant
-/// to future changes of storage key calculation strategy.
+/// The mapping requires its own pre-defined storage key where to store values. By
+/// default, the is automatically calculated using [`AutoKey`](crate::traits::AutoKey)
+/// during compilation. However, anyone can specify a storage key using
+/// [`ManualKey`](crate::traits::ManualKey). Specifying the storage key can be helpful for
+/// upgradeable contracts or you want to be resistant to future changes of storage key
+/// calculation strategy.
 ///
 /// This is an example of how you can do this:
 /// ```rust
@@ -55,7 +56,10 @@ use scale::{
 ///
 /// # #[ink::contract]
 /// # mod my_module {
-/// use ink::storage::{traits::ManualKey, Mapping};
+/// use ink::storage::{
+///     traits::ManualKey,
+///     Mapping,
+/// };
 ///
 /// #[ink(storage)]
 /// #[derive(Default)]
@@ -79,7 +83,7 @@ use scale::{
 /// # }
 /// ```
 ///
-/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
+/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink-examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
     #[allow(clippy::type_complexity)]
@@ -152,7 +156,8 @@ where
             .unwrap_or_else(|error| panic!("Failed to get value in Mapping: {error:?}"))
     }
 
-    /// Removes the `value` at `key`, returning the previous `value` at `key` from storage.
+    /// Removes the `value` at `key`, returning the previous `value` at `key` from
+    /// storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     ///
@@ -170,7 +175,7 @@ where
             .unwrap_or_else(|error| panic!("Failed to take value in Mapping: {error:?}"))
     }
 
-    /// Get the size of a value stored at `key` in the contract storage.
+    /// Get the size in bytes of a value stored at `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]

@@ -70,21 +70,21 @@ mod tests {
     ) -> (&'a Type<PortableForm>, &'a Type<PortableForm>) {
         assert_eq!(
             "Result",
-            format!("{}", ty.path()),
+            format!("{}", ty.path),
             "Message return type should be a Result"
         );
-        match ty.type_def() {
+        match &ty.type_def {
             TypeDef::Variant(variant) => {
-                assert_eq!(2, variant.variants().len());
-                let ok_variant = &variant.variants()[0];
-                let ok_field = &ok_variant.fields()[0];
-                let ok_ty = resolve_type(metadata, ok_field.ty().id());
-                assert_eq!("Ok", ok_variant.name());
+                assert_eq!(2, variant.variants.len());
+                let ok_variant = &variant.variants[0];
+                let ok_field = &ok_variant.fields[0];
+                let ok_ty = resolve_type(metadata, ok_field.ty.id);
+                assert_eq!("Ok", ok_variant.name);
 
-                let err_variant = &variant.variants()[1];
-                let err_field = &err_variant.fields()[0];
-                let err_ty = resolve_type(metadata, err_field.ty().id());
-                assert_eq!("Err", err_variant.name());
+                let err_variant = &variant.variants[1];
+                let err_field = &err_variant.fields[0];
+                let err_ty = resolve_type(metadata, err_field.ty.id);
+                assert_eq!("Err", err_variant.name);
 
                 (ok_ty, err_ty)
             }
@@ -108,10 +108,10 @@ mod tests {
         assert_eq!("TraitDefinition::get_value", message.label());
 
         let type_spec = message.return_type().opt_type().unwrap();
-        let ty = resolve_type(&metadata, type_spec.ty().id());
+        let ty = resolve_type(&metadata, type_spec.ty().id);
         let (ok_ty, _) = extract_result(&metadata, ty);
 
-        assert_eq!(&TypeDef::Primitive(TypeDefPrimitive::U32), ok_ty.type_def());
+        assert_eq!(TypeDef::Primitive(TypeDefPrimitive::U32), ok_ty.type_def);
     }
 
     #[test]
@@ -126,19 +126,18 @@ mod tests {
             format!("{}", type_spec.display_name())
         );
 
-        let outer_result_ty = resolve_type(&metadata, type_spec.ty().id());
+        let outer_result_ty = resolve_type(&metadata, type_spec.ty().id);
         let (outer_ok_ty, outer_err_ty) = extract_result(&metadata, outer_result_ty);
         let (inner_ok_ty, _) = extract_result(&metadata, outer_ok_ty);
 
         assert_eq!(
-            format!("{}", outer_err_ty.path()),
+            format!("{}", outer_err_ty.path),
             "ink_primitives::LangError"
         );
 
         let unit_ty = TypeDef::Tuple(TypeDefTuple::new_portable(vec![]));
         assert_eq!(
-            &unit_ty,
-            inner_ok_ty.type_def(),
+            unit_ty, inner_ok_ty.type_def,
             "Ok variant should be a unit `()` type"
         );
     }

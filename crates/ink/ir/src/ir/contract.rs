@@ -97,8 +97,7 @@ impl Contract {
     /// macro annotation itself within the `(config)` part. The available fields
     /// are the following:
     ///
-    /// - `types`: To specify `Environment` different from the default environment
-    ///            types.
+    /// - `types`: To specify `Environment` different from the default environment types.
     ///
     /// Note that we might add more configuration fields in the future if
     /// necessary.

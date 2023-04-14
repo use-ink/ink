@@ -27,7 +27,6 @@ use super::{
     ContractsApi,
     Signer,
 };
-use contract_metadata::ContractMetadata;
 use ink_env::Environment;
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
@@ -36,7 +35,7 @@ use std::{
     collections::BTreeMap,
     fmt::Debug,
     marker::PhantomData,
-    path::Path,
+    path::PathBuf,
 };
 
 use subxt::{
@@ -130,8 +129,7 @@ where
     ///
     /// # Panics
     /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value
-    ///   type.
+    /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
         self.dry_run.message_result()
     }
@@ -217,8 +215,7 @@ where
     ///
     /// # Panics
     /// - if the dry-run message call failed to execute.
-    /// - if message result cannot be decoded into the expected return value
-    ///   type.
+    /// - if message result cannot be decoded into the expected return value type.
     pub fn message_result(&self) -> MessageResult<V> {
         let data = &self.exec_return_value().data;
         scale::Decode::decode(&mut data.as_ref()).unwrap_or_else(|env_err| {
@@ -356,7 +353,7 @@ where
     E: Environment,
 {
     api: ContractsApi<C, E>,
-    contracts: BTreeMap<String, ContractMetadata>,
+    contracts: BTreeMap<String, PathBuf>,
 }
 
 impl<C, E> Client<C, E>
@@ -382,15 +379,11 @@ where
         let contracts = contracts
             .into_iter()
             .map(|path| {
-                let path = Path::new(path);
-                let contract = ContractMetadata::load(path).unwrap_or_else(|err| {
-                    panic!(
-                        "Error loading contract metadata {}: {:?}",
-                        path.display(),
-                        err
-                    )
+                let wasm_path = PathBuf::from(path);
+                let contract_name = wasm_path.file_stem().unwrap_or_else(|| {
+                    panic!("Invalid contract wasm path '{}'", wasm_path.display(),)
                 });
-                (contract.contract.name.clone(), contract)
+                (contract_name.to_string_lossy().to_string(), wasm_path)
             })
             .collect();
 
@@ -402,8 +395,9 @@ where
 
     /// Generate a new keypair and fund with the given amount from the origin account.
     ///
-    /// Because many tests may execute this in parallel, transfers may fail due to a race condition
-    /// with account indices. Therefore this will reattempt transfers a number of times.
+    /// Because many tests may execute this in parallel, transfers may fail due to a race
+    /// condition with account indices. Therefore this will reattempt transfers a
+    /// number of times.
     pub async fn create_and_fund_account(
         &self,
         origin: &Signer<C>,
@@ -458,11 +452,7 @@ where
     where
         Args: scale::Encode,
     {
-        let contract_metadata = self
-            .contracts
-            .get(contract_name)
-            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
-        let code = crate::utils::extract_wasm(contract_metadata);
+        let code = self.load_code(contract_name);
         let ret = self
             .exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
             .await?;
@@ -482,11 +472,7 @@ where
     where
         Args: scale::Encode,
     {
-        let contract_metadata = self
-            .contracts
-            .get(contract_name)
-            .unwrap_or_else(|| panic!("Unknown contract {contract_name}"));
-        let code = crate::utils::extract_wasm(contract_metadata);
+        let code = self.load_code(contract_name);
         let data = constructor_exec_input(constructor);
 
         let salt = Self::salt();
@@ -500,6 +486,26 @@ where
                 signer,
             )
             .await
+    }
+
+    /// Load the Wasm code for the given contract.
+    fn load_code(&self, contract: &str) -> Vec<u8> {
+        let wasm_path = self
+            .contracts
+            .get(&contract.replace('-', "_"))
+            .unwrap_or_else(||
+                panic!(
+                    "Unknown contract {contract}. Available contracts: {:?}.\n\
+                     For a contract to be built, add it as a dependency to the `Cargo.toml`, or add \
+                     the manifest path to `#[ink_e2e::test(additional_contracts = ..)]`",
+                    self.contracts.keys()
+                )
+            );
+        let code = std::fs::read(wasm_path).unwrap_or_else(|err| {
+            panic!("Error loading '{}': {:?}", wasm_path.display(), err)
+        });
+        log_info(&format!("{:?} has {} KiB", contract, code.len() / 1024));
+        code
     }
 
     /// Executes an `instantiate_with_code` call and captures the resulting events.
@@ -620,11 +626,7 @@ where
         signer: &Signer<C>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<UploadResult<C, E>, Error<C, E>> {
-        let contract_metadata = self
-            .contracts
-            .get(contract_name)
-            .ok_or_else(|| Error::ContractNotFound(contract_name.to_owned()))?;
-        let code = crate::utils::extract_wasm(contract_metadata);
+        let code = self.load_code(contract_name);
         let ret = self
             .exec_upload(signer, code, storage_deposit_limit)
             .await?;
@@ -680,9 +682,9 @@ where
         }
 
         // The `pallet-contracts` behavior is that if the code was already stored on the
-        // chain we won't get an event with the hash, but the extrinsic will still succeed.
-        // We then don't error (`cargo-contract` would), but instead return the hash from
-        // the dry-run.
+        // chain we won't get an event with the hash, but the extrinsic will still
+        // succeed. We then don't error (`cargo-contract` would), but instead
+        // return the hash from the dry-run.
         let code_hash = match hash {
             Some(hash) => hash,
             None => {
@@ -756,10 +758,52 @@ where
         })
     }
 
+    /// Executes a runtime call `call_name` for the `pallet_name`.
+    /// The `call_data` is a `Vec<Value>`
+    ///
+    /// Note:
+    /// - `pallet_name` must be in camel case, for example `Balances`.
+    /// - `call_name` must be snake case, for example `force_transfer`.
+    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
+    ///   some value.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn runtime_call<'a>(
+        &mut self,
+        signer: &Signer<C>,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
+    ) -> Result<ExtrinsicEvents<C>, Error<C, E>> {
+        let tx_events = self
+            .api
+            .runtime_call(signer, pallet_name, call_name, call_data)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error = subxt::error::DispatchError::decode_from(
+                    evt.field_bytes(),
+                    &metadata,
+                );
+                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
+                return Err(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(tx_events)
+    }
+
     /// Executes a dry-run `call`.
     ///
-    /// Returns the result of the dry run, together with the decoded return value of the invoked
-    /// message.
+    /// Returns the result of the dry run, together with the decoded return value of the
+    /// invoked message.
     pub async fn call_dry_run<RetType>(
         &mut self,
         signer: &Signer<C>,
@@ -803,7 +847,8 @@ where
             "System",
             "Account",
             vec![
-                // Something that encodes to an AccountId32 is what we need for the map key here:
+                // Something that encodes to an AccountId32 is what we need for the map
+                // key here:
                 Value::from_bytes(&account_id),
             ],
         );

@@ -185,12 +185,13 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given storage key and returns the size
-/// of pre-existing value if any.
+/// Writes the value to the contract storage under the given storage key and returns the
+/// size of pre-existing value if any.
 ///
 /// # Panics
 ///
-/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+/// - If the encode length of value exceeds the configured maximum value length of a
+///   storage entry.
 pub fn set_contract_storage<K, V>(key: &K, value: &V) -> Option<u32>
 where
     K: scale::Encode,
@@ -231,7 +232,8 @@ where
     })
 }
 
-/// Checks whether there is a value stored under the given storage key in the contract's storage.
+/// Checks whether there is a value stored under the given storage key in the contract's
+/// storage.
 ///
 /// If a value is stored under the specified key, the size of the value is returned.
 pub fn contains_contract_storage<K>(key: &K) -> Option<u32>
@@ -245,7 +247,8 @@ where
 
 /// Clears the contract's storage entry under the given storage key.
 ///
-/// If a value was stored under the specified storage key, the size of the value is returned.
+/// If a value was stored under the specified storage key, the size of the value is
+/// returned.
 pub fn clear_contract_storage<K>(key: &K) -> Option<u32>
 where
     K: scale::Encode,
@@ -314,7 +317,8 @@ where
 ///
 /// This is a low level way to instantiate another smart contract.
 ///
-/// Prefer to use methods on a `ContractRef` or the [`CreateBuilder`](`crate::call::CreateBuilder`)
+/// Prefer to use methods on a `ContractRef` or the
+/// [`CreateBuilder`](`crate::call::CreateBuilder`)
 /// through [`build_create`](`crate::call::build_create`) instead.
 ///
 /// # Errors
@@ -374,9 +378,8 @@ where
 /// # Errors
 ///
 /// - If the contract does not have sufficient free funds.
-/// - If the transfer had brought the sender's total balance below the
-///   minimum balance. You need to use [`terminate_contract`] in case
-///   this is your intention.
+/// - If the transfer had brought the sender's total balance below the minimum balance.
+///   You need to use [`terminate_contract`] in case this is your intention.
 pub fn transfer<E>(destination: E::AccountId, value: E::Balance) -> Result<()>
 where
     E: Environment,
@@ -390,10 +393,10 @@ where
 ///
 /// # Note
 ///
-/// - The input is the 4-bytes selector followed by the arguments
-///   of the called function in their SCALE encoded representation.
-/// - No prior interaction with the environment must take place before
-///   calling this procedure.
+/// - The input is the 4-bytes selector followed by the arguments of the called function
+///   in their SCALE encoded representation.
+/// - No prior interaction with the environment must take place before calling this
+///   procedure.
 ///
 /// # Usage
 ///
@@ -444,10 +447,13 @@ pub fn debug_message(message: &str) {
 /// # Example
 ///
 /// ```
-/// use ink_env::hash::{Sha2x256, HashOutput};
+/// use ink_env::hash::{
+///     HashOutput,
+///     Sha2x256,
+/// };
 /// let input: &[u8] = &[13, 14, 15];
 /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
-/// let hash  = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
+/// let hash = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
 /// ```
 pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
@@ -465,8 +471,8 @@ where
 /// ```
 /// # use ink_env::hash::{Sha2x256, HashOutput};
 /// const EXPECTED: [u8; 32] = [
-///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
-///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+///     243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248, 29, 136, 145, 115, 186,
+///     134, 14, 175, 178, 99, 183, 21, 4, 94, 92, 69, 199, 207, 241, 179,
 /// ];
 /// let encodable = (42, "foo", true); // Implements `scale::Encode`
 /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
@@ -526,7 +532,7 @@ pub fn ecdsa_recover(
 ///     3, 110, 192, 35, 209, 24, 189, 55, 218, 250, 100, 89, 40, 76, 222, 208, 202, 127,
 ///     31, 13, 58, 51, 242, 179, 13, 63, 19, 22, 252, 164, 226, 248, 98,
 /// ];
-///  let EXPECTED_ETH_ADDRESS = [
+/// let EXPECTED_ETH_ADDRESS = [
 ///     253, 240, 181, 194, 143, 66, 163, 109, 18, 211, 78, 49, 177, 94, 159, 79, 207,
 ///     37, 21, 191,
 /// ];
@@ -587,14 +593,15 @@ where
     })
 }
 
-/// Checks whether the caller of the current contract is the origin of the whole call stack.
+/// Checks whether the caller of the current contract is the origin of the whole call
+/// stack.
 ///
-/// Prefer this over [`is_contract`] when checking whether your contract is being called by
-/// a contract or a plain account. The reason is that it performs better since it does not
-/// need to do any storage lookups.
+/// Prefer this over [`is_contract`] when checking whether your contract is being called
+/// by a contract or a plain account. The reason is that it performs better since it does
+/// not need to do any storage lookups.
 ///
-/// A return value of `true` indicates that this contract is being called by a plain account.
-/// and `false` indicates that the caller is another contract.
+/// A return value of `true` indicates that this contract is being called by a plain
+/// account. and `false` indicates that the caller is another contract.
 ///
 /// # Errors
 ///
@@ -612,19 +619,30 @@ where
 ///
 /// # Note
 ///
-/// There are a couple of important considerations which must be taken into account when
+/// There are a few important considerations which must be taken into account when
 /// using this API:
 ///
-/// 1. The storage at the code hash will remain untouched. This means that contract developers
-/// must ensure that the storage layout of the new code is compatible with that of the old code.
+/// 1. The storage at the code hash will remain untouched.
 ///
-/// 2. Contracts using this API can't be assumed as having deterministic addresses. Said another way,
-/// when using this API you lose the guarantee that an address always identifies a specific code hash.
+/// Contract developers **must ensure** that the storage layout of the new code is
+/// compatible with that of the old code.
 ///
-/// 3. If a contract calls into itself after changing its code the new call would use
-/// the new code. However, if the original caller panics after returning from the sub call it
-/// would revert the changes made by `set_code_hash` and the next caller would use
-/// the old code.
+/// 2. The contract address (`AccountId`) remains the same, while the `code_hash` changes.
+///
+/// Contract addresses are initially derived from `hash(deploying_address ++ code_hash ++
+/// salt)`. This makes it possible to determine a contracts address (`AccountId`) using
+/// the `code_hash` of the *initial* code used to instantiate the contract.
+///
+/// However, because `set_code_hash` can modify the underlying `code_hash` of a contract,
+/// it should not be relied upon that a contracts address can always be derived from its
+/// stored `code_hash`.
+///
+/// 3. Re-entrant calls use new `code_hash`.
+///
+/// If a contract calls into itself after changing its code the new call would use the new
+/// code. However, if the original caller panics after returning from the sub call it
+/// would revert the changes made by `set_code_hash` and the next caller would use the old
+/// code.
 ///
 /// # Errors
 ///
@@ -701,9 +719,27 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.set_code_hash(code_hash))
 }
 
+/// Replace the contract code at the specified address with new code.
+///
+/// # Compatibility
+///
+/// This is new version of the existing [`set_code_hash`] function. We plan to place the
+/// old function with this in the next `MAJOR` release.
+///
+/// See the original [`set_code_hash`] function for full details.
+pub fn set_code_hash2<E>(code_hash: &E::Hash) -> Result<()>
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.set_code_hash(code_hash.as_ref())
+    })
+}
+
 /// Tries to trigger a runtime dispatchable, i.e. an extrinsic from a pallet.
 ///
-/// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall` enum.
+/// `call` (after SCALE encoding) should be decodable to a valid instance of `RuntimeCall`
+/// enum.
 ///
 /// For more details consult
 /// [host function documentation](https://paritytech.github.io/substrate/master/pallet_contracts/api_doc/trait.Current.html#tymethod.call_runtime).
@@ -716,8 +752,8 @@ pub fn set_code_hash(code_hash: &[u8; 32]) -> Result<()> {
 ///
 /// # Note
 ///
-/// The `call_runtime` host function is still part of `pallet-contracts`' unstable interface and
-/// thus can be changed at anytime.
+/// The `call_runtime` host function is still part of `pallet-contracts`' unstable
+/// interface and thus can be changed at anytime.
 ///
 /// # Panics
 ///

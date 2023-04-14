@@ -72,10 +72,11 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     Debug, Clone, Copy, scale::Encode, scale::Decode, PartialEq, Eq, serde::Serialize,
 )]
 pub enum Determinism {
-    /// The execution should be deterministic and hence no indeterministic instructions are
-    /// allowed.
+    /// The execution should be deterministic and hence no indeterministic instructions
+    /// are allowed.
     ///
-    /// Dispatchables always use this mode in order to make on-chain execution deterministic.
+    /// Dispatchables always use this mode in order to make on-chain execution
+    /// deterministic.
     Deterministic,
     /// Allow calling or uploading an indeterministic code.
     ///
@@ -417,6 +418,24 @@ where
             Default::default(),
         )
         .unvalidated();
+
+        self.submit_extrinsic(&call, signer).await
+    }
+
+    /// Submit an extrinsic `call_name` for the `pallet_name`.
+    /// The `call_data` is a `Vec<subxt::dynamic::Value>` that holds
+    /// a representation of some value.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn runtime_call<'a>(
+        &self,
+        signer: &Signer<C>,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<subxt::dynamic::Value>,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
 
         self.submit_extrinsic(&call, signer).await
     }
