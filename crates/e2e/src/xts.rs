@@ -32,6 +32,7 @@ use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
+    ext::scale_encode,
     rpc_params,
     utils::MultiAddress,
     OnlineClient,
@@ -39,7 +40,7 @@ use subxt::{
 
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = "")]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct InstantiateWithCode<E: Environment> {
     #[codec(compact)]
     value: E::Balance,
@@ -52,7 +53,7 @@ pub struct InstantiateWithCode<E: Environment> {
 
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = "")]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Call<E: Environment> {
     dest: MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
@@ -64,7 +65,7 @@ pub struct Call<E: Environment> {
 
 /// A raw call to `pallet-contracts`'s `call`.
 #[derive(Debug, scale::Decode, scale::Encode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = "")]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct Transfer<E: Environment, C: subxt::Config> {
     dest: subxt::utils::Static<C::Address>,
     #[codec(compact)]
@@ -82,6 +83,7 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
     scale::Encode,
     scale_encode::EncodeAsType,
 )]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub enum Determinism {
     /// The execution should be deterministic and hence no indeterministic instructions
     /// are allowed.
@@ -102,7 +104,7 @@ pub enum Determinism {
 
 /// A raw call to `pallet-contracts`'s `upload`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
-#[encode_as_type(trait_bounds = "")]
+#[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct UploadCode<E: Environment> {
     code: Vec<u8>,
     storage_deposit_limit: Option<E::Balance>,
@@ -195,14 +197,13 @@ where
         dest: C::AccountId,
         value: E::Balance,
     ) -> Result<(), subxt::Error> {
-        let call = subxt::tx::Payload::new_static(
+        let call = subxt::tx::Payload::new(
             "Balances",
             "transfer",
             Transfer::<E, C> {
                 dest: subxt::utils::Static(dest.into()),
                 value,
             },
-            Default::default(),
         )
         .unvalidated();
 
@@ -304,18 +305,17 @@ where
         salt: Vec<u8>,
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new_static(
+        let call = subxt::tx::Payload::new(
             "Contracts",
             "instantiate_with_code",
             InstantiateWithCode::<E> {
                 value,
-                gas_limit: subxt::utils::Static(gas_limit),
+                gas_limit: gas_limit.into(),
                 storage_deposit_limit,
                 code,
                 data,
                 salt,
             },
-            Default::default(),
         )
         .unvalidated();
 
@@ -359,7 +359,7 @@ where
         code: Vec<u8>,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new_static(
+        let call = subxt::tx::Payload::new(
             "Contracts",
             "upload_code",
             UploadCode::<E> {
@@ -367,7 +367,6 @@ where
                 storage_deposit_limit,
                 determinism: Determinism::Deterministic,
             },
-            Default::default(),
         )
         .unvalidated();
 
@@ -417,17 +416,16 @@ where
         data: Vec<u8>,
         signer: &Signer<C>,
     ) -> ExtrinsicEvents<C> {
-        let call = subxt::tx::Payload::new_static(
+        let call = subxt::tx::Payload::new(
             "Contracts",
             "call",
             Call::<E> {
                 dest: contract,
                 value,
-                gas_limit: subxt::utils::Static(gas_limit),
+                gas_limit: gas_limit.into(),
                 storage_deposit_limit,
                 data,
             },
-            Default::default(),
         )
         .unvalidated();
 

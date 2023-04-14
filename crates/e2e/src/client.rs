@@ -43,10 +43,14 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
+    ext::{
+        scale_decode,
+        scale_encode,
+        scale_value::{
+            Composite,
+            Value,
+            ValueDef,
+        },
     },
     tx::PairSigner,
 };
@@ -323,7 +327,8 @@ where
     scale_decode::DecodeAsType,
     scale_encode::EncodeAsType,
 )]
-#[decode_as_type(trait_bounds = "")]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
     pub deployer: E::AccountId,
@@ -347,7 +352,8 @@ where
     scale_decode::DecodeAsType,
     scale_encode::EncodeAsType,
 )]
-#[decode_as_type(trait_bounds = "")]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
     pub code_hash: E::Hash,

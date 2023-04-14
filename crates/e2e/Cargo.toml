@@ -29,8 +29,6 @@ tokio = { version = "1.18.2", features = ["rt-multi-thread"] }
 log = { version = "0.4" }
 env_logger = { version = "0.10" }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-decode = { version = "0.5.0", default-features = false, features = ["derive"] }
-scale-encode = { version = "0.1.0", default-features = false, features = ["derive"] }
 subxt = "0.28.0"
 
 # Substrate
