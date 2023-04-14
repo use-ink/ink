@@ -153,6 +153,17 @@ fn spec_contract_only_one_default_constructor_allowed() {
 
 #[test]
 fn spec_contract_json() {
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum NoChainExtension {}
+
+    type AccountId = ink_primitives::AccountId;
+    type Balance = u64;
+    type Hash = ink_primitives::Hash;
+    type Timestamp = u64;
+    type BlockNumber = u128;
+    type ChainExtension = NoChainExtension;
+    const MAX_EVENT_TOPICS: usize = 4;
+
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
@@ -217,6 +228,47 @@ fn spec_contract_json() {
                 ::core::convert::AsRef::as_ref,
             ),
         ))
+        .environment(
+            EnvironmentSpec::new()
+                .account_id(TypeSpec::with_name_segs::<AccountId, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["AccountId"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .balance(TypeSpec::with_name_segs::<Balance, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Balance"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .hash(TypeSpec::with_name_segs::<Hash, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Hash"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .timestamp(TypeSpec::with_name_segs::<Timestamp, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["Timestamp"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .block_number(TypeSpec::with_name_segs::<BlockNumber, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["BlockNumber"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .chain_extension(TypeSpec::with_name_segs::<ChainExtension, _>(
+                    ::core::iter::Iterator::map(
+                        ::core::iter::IntoIterator::into_iter(["ChainExtension"]),
+                        ::core::convert::AsRef::as_ref,
+                    ),
+                ))
+                .max_event_topics(MAX_EVENT_TOPICS)
+                .done(),
+        )
         .done();
 
     let mut registry = Registry::new();
@@ -275,6 +327,45 @@ fn spec_contract_json() {
                 }
             ],
             "docs": [],
+            "environment":  {
+                "accountId":  {
+                    "displayName":  [
+                        "AccountId",
+                    ],
+                    "type": 4,
+                },
+                "balance":  {
+                    "displayName":  [
+                        "Balance",
+                    ],
+                    "type": 7,
+                },
+                "blockNumber":  {
+                    "displayName":  [
+                        "BlockNumber",
+                    ],
+                    "type": 9,
+                },
+                "chainExtension":  {
+                    "displayName":  [
+                        "ChainExtension",
+                    ],
+                    "type": 10,
+                },
+                "hash":  {
+                    "displayName":  [
+                        "Hash",
+                    ],
+                    "type": 8,
+                },
+                "maxEventTopics": 4,
+                "timestamp":  {
+                    "displayName":  [
+                        "Timestamp",
+                    ],
+                    "type": 7,
+                },
+            },
             "events": [],
             "lang_error": {
               "displayName": [
@@ -408,6 +499,50 @@ fn trim_docs_with_code() {
     assert_eq!(deserialized.docs, compact_spec.docs);
 }
 
+#[test]
+fn should_trim_whitespaces_in_events_docs() {
+    // given
+    let path: Path<PortableForm> =
+        Path::from_segments_unchecked(["FooBarEvent".to_string()]);
+    let spec = TypeSpec::new(789.into(), path);
+    let args = [EventParamSpec::new("something".into())
+        .of_type(spec)
+        .indexed(true)
+        .docs(vec!["test".to_string()])
+        .done()];
+    let es = EventSpec::new("foobar".into())
+        .args(args)
+        .docs([" FooBarEvent  "])
+        .done();
+
+    let event_spec_name = serde_json::to_value(es).unwrap();
+
+    // when
+    let expected_event_spec = serde_json::json!(
+        {
+            "args": [
+            {
+                "docs": ["test"],
+                "indexed": true,
+                "label": "something",
+                "type": {
+                    "displayName": [
+                        "FooBarEvent"
+                    ],
+                    "type": 789
+                }
+            }],
+            "docs": [
+                "FooBarEvent"
+            ],
+            "label": "foobar"
+        }
+    );
+
+    // then
+    assert_eq!(event_spec_name, expected_event_spec);
+}
+
 /// Helper for creating a constructor spec at runtime
 fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     let path: Path<PortableForm> = Path::from_segments_unchecked(["FooType".to_string()]);
@@ -454,7 +589,7 @@ fn runtime_event_spec() -> EventSpec<PortableForm> {
         .done()];
     EventSpec::new("foobar".into())
         .args(args)
-        .docs(["foobar event".into()])
+        .docs(["foobar event"])
         .done()
 }
 

@@ -1,5 +1,5 @@
 [package]
-name = "flipper"
+name = "e2e_call_runtime"
 version = "4.1.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -13,6 +13,7 @@ scale-info = { version = "2.5", default-features = false, features = ["derive"],
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
+subxt = { version = "0.27.1", default-features = false }
 
 [lib]
 path = "lib.rs"

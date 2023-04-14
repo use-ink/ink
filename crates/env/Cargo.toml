@@ -16,7 +16,6 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "4.1.0", path = "../metadata", default-features = false, features = ["derive"], optional = true }
 ink_allocator = { version = "4.1.0", path = "../allocator", default-features = false }
 ink_storage_traits = { version = "4.1.0", path = "../storage/traits", default-features = false }
 ink_prelude = { version = "4.1.0", path = "../prelude", default-features = false }
@@ -48,7 +47,7 @@ secp256k1 = { version = "0.27.0", features = ["recovery", "global-context"], opt
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
-scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 ink = { path = "../ink" }
@@ -56,7 +55,6 @@ ink = { path = "../ink" }
 [features]
 default = ["std"]
 std = [
-    "ink_metadata/std",
     "ink_allocator/std",
     "ink_prelude/std",
     "ink_primitives/std",

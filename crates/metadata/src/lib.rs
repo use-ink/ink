@@ -36,6 +36,8 @@ pub use self::specs::{
     ContractSpec,
     ContractSpecBuilder,
     DisplayName,
+    EnvironmentSpec,
+    EnvironmentSpecBuilder,
     EventParamSpec,
     EventParamSpecBuilder,
     EventSpec,
@@ -51,6 +53,7 @@ pub use self::specs::{
 
 use impl_serde::serialize as serde_hex;
 
+pub use scale_info::TypeInfo;
 #[cfg(feature = "derive")]
 use scale_info::{
     form::PortableForm,

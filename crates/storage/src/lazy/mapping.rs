@@ -83,7 +83,7 @@ use scale::{
 /// # }
 /// ```
 ///
-/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
+/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink-examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V: Packed, KeyType: StorageKey = AutoKey> {
     #[allow(clippy::type_complexity)]
@@ -175,7 +175,7 @@ where
             .unwrap_or_else(|error| panic!("Failed to take value in Mapping: {error:?}"))
     }
 
-    /// Get the size of a value stored at `key` in the contract storage.
+    /// Get the size in bytes of a value stored at `key` in the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
