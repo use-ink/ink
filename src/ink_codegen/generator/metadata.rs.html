@@ -529,6 +529,10 @@
 <a href="#528" id="528">528</a>
 <a href="#529" id="529">529</a>
 <a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -678,6 +682,7 @@
         <span class="kw">let </span>selector_bytes = constructor.composed_selector().hex_lits();
         <span class="kw">let </span>selector_id = constructor.composed_selector().into_be_u32();
         <span class="kw">let </span>is_payable = constructor.is_payable();
+        <span class="kw">let </span>is_default = constructor.is_default();
         <span class="kw">let </span>constructor = constructor.callable();
         <span class="kw">let </span>ident = constructor.ident();
         <span class="kw">let </span>args = constructor.inputs().map(<span class="self">Self</span>::generate_dispatch_argument);
@@ -694,6 +699,7 @@
                     #( #args ),*
                 ])
                 .payable(#is_payable)
+                .default(#is_default)
                 .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
@@ -773,6 +779,7 @@
                     .filter_map(|attr| attr.extract_docs());
                 <span class="kw">let </span>selector_bytes = message.composed_selector().hex_lits();
                 <span class="kw">let </span>is_payable = message.is_payable();
+                <span class="kw">let </span>is_default = message.is_default();
                 <span class="kw">let </span>message = message.callable();
                 <span class="kw">let </span>mutates = message.receiver().is_ref_mut();
                 <span class="kw">let </span>ident = message.ident();
@@ -791,6 +798,7 @@
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
+                        .default(#is_default)
                         .docs([
                             #( #docs ),*
                         ])

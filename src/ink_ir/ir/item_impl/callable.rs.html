@@ -653,6 +653,17 @@
 <a href="#652" id="652">652</a>
 <a href="#653" id="653">653</a>
 <a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -771,6 +782,10 @@
         &lt;C <span class="kw">as </span>Callable&gt;::is_payable(<span class="self">self</span>.callable)
     }
 
+    <span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        &lt;C <span class="kw">as </span>Callable&gt;::is_default(<span class="self">self</span>.callable)
+    }
+
     <span class="kw">fn </span>has_wildcard_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         &lt;C <span class="kw">as </span>Callable&gt;::has_wildcard_selector(<span class="self">self</span>.callable)
     }
@@ -820,6 +835,13 @@
     ///
     /// Flagging as payable is done using the `#[ink(payable)]` attribute.
     </span><span class="kw">fn </span>is_payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+
+    <span class="doccomment">/// Returns `true` if the ink! callable is flagged as default.
+    ///
+    /// # Note
+    ///
+    /// Flagging as default is done using the `#[ink(default)]` attribute.
+    </span><span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
     <span class="doccomment">/// Returns `true` if the ink! callable is flagged as a wildcard selector.
     </span><span class="kw">fn </span>has_wildcard_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;

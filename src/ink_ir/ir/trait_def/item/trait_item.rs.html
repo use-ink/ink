@@ -190,6 +190,7 @@
 <a href="#189" id="189">189</a>
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -284,6 +285,7 @@
                         <span class="prelude-val">Err</span>(<span class="prelude-val">Some</span>(<span class="macro">format_err!</span>(arg.span(), <span class="string">&quot;wildcard selectors are only supported for inherent ink! messages or constructors, not for traits.&quot;</span>))),
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Default
                     | ir::AttributeArg::Selector(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
