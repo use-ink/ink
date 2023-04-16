@@ -920,7 +920,6 @@ macro_rules! call_builder_inner {
 
 /// Returns a [`CallBuilder`] based on the message call signature.
 ///
-///
 /// ```should_panic
 /// use ink::contract_ref;
 /// use ink_env::{
