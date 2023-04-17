@@ -572,7 +572,7 @@ where
             .api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required,
+                dry_run.gas_required.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -752,7 +752,7 @@ where
             .call(
                 subxt::utils::MultiAddress::Id(message.account_id().clone()),
                 value,
-                dry_run.exec_result.gas_required,
+                dry_run.exec_result.gas_required.into(),
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,

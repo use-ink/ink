@@ -28,7 +28,6 @@ use sp_core::{
     Bytes,
     H256,
 };
-use sp_weights::Weight;
 use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
@@ -38,13 +37,53 @@ use subxt::{
     OnlineClient,
 };
 
+/// Copied from `sp_weight` to additionally implement `scale_encode::EncodeAsType`.
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Debug,
+    Default,
+    scale::Encode,
+    scale::Decode,
+    scale::MaxEncodedLen,
+    scale_encode::EncodeAsType,
+    serde::Serialize,
+    serde::Deserialize,
+)]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
+pub struct Weight {
+    #[codec(compact)]
+    /// The weight of computational time used based on some reference hardware.
+    ref_time: u64,
+    #[codec(compact)]
+    /// The weight of storage space used by proof of validity.
+    proof_size: u64,
+}
+
+impl From<sp_weights::Weight> for Weight {
+    fn from(weight: sp_weights::Weight) -> Self {
+        Self {
+            ref_time: weight.ref_time(),
+            proof_size: weight.proof_size(),
+        }
+    }
+}
+
+impl From<Weight> for sp_weights::Weight {
+    fn from(weight: Weight) -> Self {
+        sp_weights::Weight::from_parts(weight.ref_time, weight.proof_size)
+    }
+}
+
 /// A raw call to `pallet-contracts`'s `instantiate_with_code`.
 #[derive(Debug, scale::Encode, scale::Decode, scale_encode::EncodeAsType)]
 #[encode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_encode")]
 pub struct InstantiateWithCode<E: Environment> {
     #[codec(compact)]
     value: E::Balance,
-    gas_limit: subxt::utils::Static<Weight>,
+    gas_limit: Weight,
     storage_deposit_limit: Option<E::Balance>,
     code: Vec<u8>,
     data: Vec<u8>,
@@ -58,7 +97,7 @@ pub struct Call<E: Environment> {
     dest: MultiAddress<E::AccountId, ()>,
     #[codec(compact)]
     value: E::Balance,
-    gas_limit: subxt::utils::Static<Weight>,
+    gas_limit: Weight,
     storage_deposit_limit: Option<E::Balance>,
     data: Vec<u8>,
 }
@@ -310,7 +349,7 @@ where
             "instantiate_with_code",
             InstantiateWithCode::<E> {
                 value,
-                gas_limit: gas_limit.into(),
+                gas_limit,
                 storage_deposit_limit,
                 code,
                 data,
@@ -422,7 +461,7 @@ where
             Call::<E> {
                 dest: contract,
                 value,
-                gas_limit: gas_limit.into(),
+                gas_limit,
                 storage_deposit_limit,
                 data,
             },

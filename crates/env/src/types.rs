@@ -106,14 +106,15 @@ pub trait AccountIdGuard {}
 /// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
 
-#[cfg(feature = "std")]
-pub trait CodecAsType: scale_decode::DecodeAsType + scale_encode::EncodeAsType {}
-#[cfg(feature = "std")]
-impl<T: scale_decode::DecodeAsType + scale_encode::EncodeAsType> CodecAsType for T {}
-#[cfg(not(feature = "std"))]
-pub trait CodecAsType {}
-#[cfg(not(feature = "std"))]
-impl<T> CodecAsType for T {}
+cfg_if::cfg_if! {
+    if #[cfg(feature = "std")] {
+        pub trait CodecAsType: scale_decode::DecodeAsType + scale_encode::EncodeAsType {}
+        impl<T: scale_decode::DecodeAsType + scale_encode::EncodeAsType> CodecAsType for T {}
+    } else {
+        pub trait CodecAsType {}
+        impl<T> CodecAsType for T {}
+    }
+}
 
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
