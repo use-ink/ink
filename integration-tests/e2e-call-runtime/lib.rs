@@ -21,8 +21,10 @@ pub mod e2e_call_runtime {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::build_message;
-        use subxt::dynamic::Value;
+        use ink_e2e::{
+            build_message,
+            subxt::dynamic::Value,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
