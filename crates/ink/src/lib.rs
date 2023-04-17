@@ -36,6 +36,8 @@ pub use ink_env as env;
 pub use ink_metadata as metadata;
 pub use ink_prelude as prelude;
 pub use ink_primitives as primitives;
+#[cfg(feature = "std")]
+pub use metadata::TypeInfo;
 
 pub mod storage {
     pub mod traits {

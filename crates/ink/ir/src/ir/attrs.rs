@@ -288,6 +288,12 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Payable))
     }
 
+    /// Returns `true` if the ink! attribute contains the `default` argument.
+    pub fn is_default(&self) -> bool {
+        self.args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::Default))
+    }
+
     /// Returns `true` if the ink! attribute contains the wildcard selector.
     pub fn has_wildcard_selector(&self) -> bool {
         self.args().any(|arg| {
@@ -352,6 +358,8 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
+    /// `#[ink(default)]`
+    Default,
     /// `#[ink(selector = _)]`
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
@@ -404,6 +412,9 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
+    /// Applied on ink! constructors or messages in order to indicate
+    /// they are default.
+    Default,
     /// Can be either one of:
     ///
     /// - `#[ink(selector = 0xDEADBEEF)]` Applied on ink! constructors or messages to
@@ -464,6 +475,7 @@ impl core::fmt::Display for AttributeArgKind {
             }
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus => write!(f, "handle_status"),
+            Self::Default => write!(f, "default"),
         }
     }
 }
@@ -484,6 +496,7 @@ impl AttributeArg {
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
             Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
+            Self::Default => AttributeArgKind::Default,
         }
     }
 }
@@ -507,6 +520,7 @@ impl core::fmt::Display for AttributeArg {
             }
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {value:?}"),
+            Self::Default => write!(f, "default"),
         }
     }
 }
@@ -968,6 +982,7 @@ impl Parse for AttributeFrag {
                     "anonymous" => Ok(AttributeArg::Anonymous),
                     "topic" => Ok(AttributeArg::Topic),
                     "payable" => Ok(AttributeArg::Payable),
+                    "default" => Ok(AttributeArg::Default),
                     "impl" => Ok(AttributeArg::Implementation),
                     _ => match ident.to_string().as_str() {
                         "extension" => Err(format_err_spanned!(
@@ -1224,6 +1239,16 @@ mod tests {
             },
             Err("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
         );
+    }
+
+    #[test]
+    fn default_works() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(default)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Default])),
+        )
     }
 
     #[test]

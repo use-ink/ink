@@ -6,8 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Persist `Environment` in metadata - [#1741](https://github.com/paritytech/ink/pull/1741)
+
 ### Changed
 - Upgraded `syn` to version `2` - [#1731](https://github.com/paritytech/ink/pull/1731)
+- Added `default` attribute to constructors and messages - [#1703](https://github.com/paritytech/ink/pull/1724)
 
 ## Version 4.1.0
 

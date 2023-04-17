@@ -421,4 +421,22 @@ where
 
         self.submit_extrinsic(&call, signer).await
     }
+
+    /// Submit an extrinsic `call_name` for the `pallet_name`.
+    /// The `call_data` is a `Vec<subxt::dynamic::Value>` that holds
+    /// a representation of some value.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn runtime_call<'a>(
+        &self,
+        signer: &Signer<C>,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<subxt::dynamic::Value>,
+    ) -> ExtrinsicEvents<C> {
+        let call = subxt::dynamic::tx(pallet_name, call_name, call_data);
+
+        self.submit_extrinsic(&call, signer).await
+    }
 }
