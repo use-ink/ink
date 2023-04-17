@@ -208,6 +208,21 @@
 <a href="#207" id="207">207</a>
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -316,6 +331,16 @@
 /// used in the [`DefaultEnvironment`].
 </span><span class="kw">impl </span>AccountIdGuard <span class="kw">for </span>AccountId {}
 
+<span class="macro">cfg_if::cfg_if! </span>{
+    <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)] </span>{
+        <span class="kw">pub trait </span>CodecAsType: scale_decode::DecodeAsType + scale_encode::EncodeAsType {}
+        <span class="kw">impl</span>&lt;T: scale_decode::DecodeAsType + scale_encode::EncodeAsType&gt; CodecAsType <span class="kw">for </span>T {}
+    } <span class="kw">else </span>{
+        <span class="kw">pub trait </span>CodecAsType {}
+        <span class="kw">impl</span>&lt;T&gt; CodecAsType <span class="kw">for </span>T {}
+    }
+}
+
 <span class="doccomment">/// The environmental types usable by contracts defined with ink!.
 </span><span class="kw">pub trait </span>Environment {
     <span class="doccomment">/// The maximum number of supported event topics provided by the runtime.
@@ -327,6 +352,7 @@
     <span class="doccomment">/// The account id type.
     </span><span class="kw">type </span>AccountId: <span class="lifetime">&#39;static
         </span>+ scale::Codec
+        + CodecAsType
         + Clone
         + PartialEq
         + Eq
@@ -337,6 +363,7 @@
     <span class="doccomment">/// The type of balances.
     </span><span class="kw">type </span>Balance: <span class="lifetime">&#39;static
         </span>+ scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
@@ -347,6 +374,7 @@
     <span class="doccomment">/// The type of hash.
     </span><span class="kw">type </span>Hash: <span class="lifetime">&#39;static
         </span>+ scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + Clear
@@ -359,6 +387,7 @@
     <span class="doccomment">/// The type of a timestamp.
     </span><span class="kw">type </span>Timestamp: <span class="lifetime">&#39;static
         </span>+ scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
@@ -369,6 +398,7 @@
     <span class="doccomment">/// The type of block number.
     </span><span class="kw">type </span>BlockNumber: <span class="lifetime">&#39;static
         </span>+ scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq

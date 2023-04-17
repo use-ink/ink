@@ -922,6 +922,28 @@
 <a href="#921" id="921">921</a>
 <a href="#922" id="922">922</a>
 <a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -955,7 +977,8 @@
 <span class="kw">use </span>ink_primitives::MessageResult;
 <span class="kw">use </span>pallet_contracts_primitives::ExecReturnValue;
 <span class="kw">use </span>sp_core::Pair;
-<span class="kw">use </span>std::{
+<span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::{
     collections::BTreeMap,
     fmt::Debug,
     marker::PhantomData,
@@ -966,10 +989,14 @@
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
+    ext::{
+        scale_decode,
+        scale_encode,
+        scale_value::{
+            Composite,
+            Value,
+            ValueDef,
+        },
     },
     tx::PairSigner,
 };
@@ -1203,6 +1230,8 @@
     </span>CallExtrinsic(subxt::error::DispatchError),
     <span class="doccomment">/// Error fetching account balance.
     </span>Balance(String),
+    <span class="doccomment">/// Decoding failed.
+    </span>Decoding(subxt::Error),
 }
 
 <span class="comment">// We implement a custom `Debug` here, as to avoid requiring the trait
@@ -1231,12 +1260,21 @@
             Error::CallDryRun(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;CallDryRun&quot;</span>),
             Error::CallExtrinsic(<span class="kw">_</span>) =&gt; f.write_str(<span class="string">&quot;CallExtrinsic&quot;</span>),
             Error::Balance(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Balance: {msg}&quot;</span>),
+            Error::Decoding(err) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Decoding: {err}&quot;</span>),
         }
     }
 }
 
 <span class="doccomment">/// A contract was successfully instantiated.
-</span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode)]
+</span><span class="attr">#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_decode&quot;</span>)]
+#[encode_as_type(crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
 </span><span class="kw">struct </span>ContractInstantiatedEvent&lt;E: Environment&gt; {
     <span class="doccomment">/// Account id of the deployer.
     </span><span class="kw">pub </span>deployer: E::AccountId,
@@ -1253,7 +1291,15 @@
 }
 
 <span class="doccomment">/// Code with the specified hash has been stored.
-</span><span class="attr">#[derive(Debug, scale::Decode, scale::Encode)]
+</span><span class="attr">#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = <span class="string">&quot;&quot;</span>, crate_path = <span class="string">&quot;subxt::ext::scale_decode&quot;</span>)]
+#[encode_as_type(crate_path = <span class="string">&quot;subxt::ext::scale_encode&quot;</span>)]
 </span><span class="kw">struct </span>CodeStoredEvent&lt;E: Environment&gt; {
     <span class="doccomment">/// Hash under which the contract code was stored.
     </span><span class="kw">pub </span>code_hash: E::Hash,
@@ -1472,7 +1518,7 @@
             </span>.api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required,
+                dry_run.gas_required.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -1504,10 +1550,9 @@
                 // multiple accounts as part of its constructor!
             </span>} <span class="kw">else if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
-                <span class="kw">let </span>dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    <span class="kw-2">&amp;</span>metadata,
-                );
+                <span class="kw">let </span>dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)<span class="question-mark">?</span>;
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
                     <span class="string">&quot;extrinsic for instantiate failed: {dispatch_error:?}&quot;
                 </span>));
@@ -1596,10 +1641,10 @@
                 <span class="kw">break
             </span>} <span class="kw">else if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
-                <span class="kw">let </span>dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    <span class="kw-2">&amp;</span>metadata,
-                );
+                <span class="kw">let </span>dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)<span class="question-mark">?</span>;
+
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for upload failed: {dispatch_error:?}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UploadExtrinsic(dispatch_error))
             }
@@ -1651,9 +1696,9 @@
         <span class="kw">let </span>tx_events = <span class="self">self
             </span>.api
             .call(
-                sp_runtime::MultiAddress::Id(message.account_id().clone()),
+                subxt::utils::MultiAddress::Id(message.account_id().clone()),
                 value,
-                dry_run.exec_result.gas_required,
+                dry_run.exec_result.gas_required.into(),
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,
@@ -1667,10 +1712,9 @@
 
             <span class="kw">if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
-                <span class="kw">let </span>dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    <span class="kw-2">&amp;</span>metadata,
-                );
+                <span class="kw">let </span>dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)<span class="question-mark">?</span>;
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error:?}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
@@ -1712,10 +1756,10 @@
 
             <span class="kw">if </span>is_extrinsic_failed_event(<span class="kw-2">&amp;</span>evt) {
                 <span class="kw">let </span>metadata = <span class="self">self</span>.api.client.metadata();
-                <span class="kw">let </span>dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    <span class="kw-2">&amp;</span>metadata,
-                );
+                <span class="kw">let </span>dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)<span class="question-mark">?</span>;
+
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error:?}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
@@ -1781,7 +1825,7 @@
             </span>.api
             .client
             .storage()
-            .at(<span class="prelude-val">None</span>)
+            .at_latest()
             .<span class="kw">await
             </span>.unwrap_or_else(|err| {
                 <span class="macro">panic!</span>(<span class="string">&quot;unable to fetch balance: {err:?}&quot;</span>);

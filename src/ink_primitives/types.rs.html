@@ -141,6 +141,10 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -162,7 +166,11 @@
     Encode,
 };
 <span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
-</span><span class="kw">use </span>scale_info::TypeInfo;
+</span><span class="kw">use </span>{
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+    scale_info::TypeInfo,
+};
 
 <span class="doccomment">/// The default environment `AccountId` type.
 ///
@@ -171,9 +179,9 @@
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 </span><span class="attr">#[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Encode, Decode, From,
+    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Decode, Encode, From,
 )]
-#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo))]
+#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo, DecodeAsType, EncodeAsType))]
 </span><span class="kw">pub struct </span>AccountId([u8; <span class="number">32</span>]);
 
 <span class="kw">impl </span>AsRef&lt;[u8; <span class="number">32</span>]&gt; <span class="kw">for </span>AccountId {
@@ -228,12 +236,12 @@
     Ord,
     PartialOrd,
     Hash,
-    Encode,
     Decode,
+    Encode,
     From,
     Default,
 )]
-#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo))]
+#[cfg_attr(feature = <span class="string">&quot;std&quot;</span>, derive(TypeInfo, DecodeAsType, EncodeAsType))]
 </span><span class="kw">pub struct </span>Hash([u8; <span class="number">32</span>]);
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TryFrom&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]&gt; <span class="kw">for </span>Hash {
