@@ -100,6 +100,8 @@ pub struct Message {
     pub(super) item: syn::ImplItemFn,
     /// If the ink! message can receive funds.
     is_payable: bool,
+    /// If the ink! message is default.
+    is_default: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -185,6 +187,7 @@ impl Message {
                 match arg.kind() {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Default
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
@@ -202,9 +205,11 @@ impl TryFrom<syn::ImplItemFn> for Message {
         Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
+        let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
         Ok(Self {
             is_payable,
+            is_default,
             selector,
             item: syn::ImplItemFn {
                 attrs: other_attrs,
@@ -239,6 +244,10 @@ impl Callable for Message {
 
     fn is_payable(&self) -> bool {
         self.is_payable
+    }
+
+    fn is_default(&self) -> bool {
+        self.is_default
     }
 
     fn visibility(&self) -> Visibility {
@@ -463,6 +472,34 @@ mod tests {
                 .unwrap()
                 .is_payable();
             assert_eq!(is_payable, expect_payable);
+        }
+    }
+
+    #[test]
+    fn is_default_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemFn)> = vec![
+            // Not default.
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(message)]
+                    fn my_message(&self) {}
+                },
+            ),
+            // Default message.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(message, payable, default)]
+                    pub fn my_message(&self) {}
+                },
+            ),
+        ];
+        for (expect_default, item_method) in test_inputs {
+            let is_default = <ir::Message as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .is_default();
+            assert_eq!(is_default, expect_default);
         }
     }
 

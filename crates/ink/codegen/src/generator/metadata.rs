@@ -147,6 +147,7 @@ impl Metadata<'_> {
         let selector_bytes = constructor.composed_selector().hex_lits();
         let selector_id = constructor.composed_selector().into_be_u32();
         let is_payable = constructor.is_payable();
+        let is_default = constructor.is_default();
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
@@ -163,6 +164,7 @@ impl Metadata<'_> {
                     #( #args ),*
                 ])
                 .payable(#is_payable)
+                .default(#is_default)
                 .returns(#ret_ty)
                 .docs([
                     #( #docs ),*
@@ -242,6 +244,7 @@ impl Metadata<'_> {
                     .filter_map(|attr| attr.extract_docs());
                 let selector_bytes = message.composed_selector().hex_lits();
                 let is_payable = message.is_payable();
+                let is_default = message.is_default();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
@@ -260,6 +263,7 @@ impl Metadata<'_> {
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
+                        .default(#is_default)
                         .docs([
                             #( #docs ),*
                         ])
