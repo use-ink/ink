@@ -1,0 +1,41 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo-fmt
+        description: Format files with cargo fmt
+        entry: cargo +nightly fmt
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-fmt-check
+        name: cargo-fmt-check
+        description: Check formatting files with cargo fmt
+        entry: cargo +nightly fmt --check
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: cargo-clippy
+        description: Run the Clippy linter on the project.
+        entry: cargo +nightly clippy --all-features
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: contract-check
+        name: cargo contract check
+        description: Check that smart contracts build to WASM
+        entry: cargo contract check
+        language: system
+        types: [rust]
+        pass_filenames: false
