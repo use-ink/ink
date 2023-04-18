@@ -290,6 +290,13 @@ pub trait EnvBackend {
         output: &mut [u8; 20],
     ) -> Result<()>;
 
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64], 
+        message: &[u8],
+        pub_key: &[u8; 32]
+    ) -> Result<()>;
+
     /// Low-level interface to call a chain extension method.
     ///
     /// Returns the output of the chain extension of the specified type.

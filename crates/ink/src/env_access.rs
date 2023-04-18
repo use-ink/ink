@@ -880,6 +880,16 @@ where
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 
+    pub fn sr25519_verify(
+        self,
+        signature: &[u8; 64], 
+        message: &[u8],
+        pub_key: &[u8; 32],        
+    ) -> Result<()> {        
+        ink_env::sr25519_verify(signature, message, pub_key)
+            .map_err(|_| Error::Sr25519VerifyFailed)
+    }
+
     /// Checks whether a specified account belongs to a contract.
     ///
     /// # Example

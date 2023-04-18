@@ -115,6 +115,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
             ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+            ext::Error::Sr25519VerifyFailed => Self::Sr25519VerifyFailed,
         }
     }
 }
@@ -330,6 +331,17 @@ impl EnvBackend for EnvInstance {
         let mut hash = <Keccak256 as HashOutput>::Type::default();
         <Keccak256>::hash(&uncompressed[1..], &mut hash);
         output.as_mut().copy_from_slice(&hash[12..]);
+        Ok(())
+    }
+
+
+    fn sr25519_verify(
+        &mut self,
+        signature: &[u8; 64], 
+        message: &[u8],
+        pub_key: &[u8; 32]
+    ) -> Result<()> {
+        // todo: impl
         Ok(())
     }
 
