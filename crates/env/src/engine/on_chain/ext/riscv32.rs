@@ -372,6 +372,8 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result 
     ret_code.into()
 }
 
+/// **WARNING**: this function is from the [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
+/// which is unsafe and normally is not available on production chains.
 pub fn sr25519_verify(
     signature: &[u8; 64],
     message: &[u8],
