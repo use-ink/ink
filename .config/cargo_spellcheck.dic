@@ -60,6 +60,7 @@ reentrancy
 refcount
 scalability
 scalable
+sr25519
 stdin
 stdout
 tuple
