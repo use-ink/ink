@@ -150,7 +150,7 @@ mod sys {
             signature_ptr: Ptr32<[u8]>,
             public_key_ptr: Ptr32<[u8]>,
             message_len: u32,
-            message_ptr: Ptr32<[u8]>,                
+            message_ptr: Ptr32<[u8]>,
         ) -> ReturnCode;
 
         pub fn take_storage(
@@ -605,17 +605,16 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result 
 }
 
 pub fn sr25519_verify(
-    signature: &[u8; 64], 
+    signature: &[u8; 64],
     message: &[u8],
     pub_key: &[u8; 32],
 ) -> Result {
     let ret_code = unsafe {
         sys::sr25519_verify(
-            Ptr32::from_slice(signature), 
-            Ptr32::from_slice(pub_key),        
+            Ptr32::from_slice(signature),
+            Ptr32::from_slice(pub_key),
             message.len() as u32,
-            Ptr32::from_slice(message), 
-            
+            Ptr32::from_slice(message),
         )
     };
     ret_code.into()

@@ -332,9 +332,9 @@ impl EnvBackend for EnvInstance {
 
     fn sr25519_verify(
         &mut self,
-        signature: &[u8; 64], 
+        signature: &[u8; 64],
         message: &[u8],
-        pub_key: &[u8; 32]
+        pub_key: &[u8; 32],
     ) -> Result<()> {
         ext::sr25519_verify(signature, message, pub_key).map_err(Into::into)
     }

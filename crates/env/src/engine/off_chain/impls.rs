@@ -47,8 +47,11 @@ use ink_engine::{
     ext::Engine,
 };
 use ink_storage_traits::Storable;
-use schnorrkel::{signing_context, PublicKey, Signature};
-
+use schnorrkel::{
+    signing_context,
+    PublicKey,
+    Signature,
+};
 
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
@@ -338,15 +341,16 @@ impl EnvBackend for EnvInstance {
 
     fn sr25519_verify(
         &mut self,
-        signature: &[u8; 64], 
+        signature: &[u8; 64],
         message: &[u8],
-        pub_key: &[u8; 32]
+        pub_key: &[u8; 32],
     ) -> Result<()> {
         let context = signing_context(b"substrate");
-        let signature:  Signature = Signature::from_bytes(signature).unwrap();
+        let signature: Signature = Signature::from_bytes(signature).unwrap();
         let public_key: PublicKey = PublicKey::from_bytes(pub_key).unwrap();
 
-        public_key.verify(context.bytes(message), &signature)
+        public_key
+            .verify(context.bytes(message), &signature)
             .map_err(|_| Error::Sr25519VerifyFailed)
     }
 

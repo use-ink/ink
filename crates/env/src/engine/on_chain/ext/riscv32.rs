@@ -373,13 +373,13 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result 
 }
 
 pub fn sr25519_verify(
-    signature: &[u8; 64], 
+    signature: &[u8; 64],
     message: &[u8],
-    pub_key: &[u8; 32]
+    pub_key: &[u8; 32],
 ) -> Result {
     let ret_code = (
         Ptr32::from_slice(signature),
-        Ptr32::from_slice(pub_key),        
+        Ptr32::from_slice(pub_key),
         input.len() as u32,
         Ptr32::from_slice(message),
     )
