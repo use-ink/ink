@@ -380,7 +380,7 @@ pub fn sr25519_verify(
     let ret_code = (
         Ptr32::from_slice(signature),
         Ptr32::from_slice(pub_key),
-        input.len() as u32,
+        message.len() as u32,
         Ptr32::from_slice(message),
     )
         .using_encoded(|in_data| sys::call(FUNC_ID, Ptr32::from_slice(in_data)));
