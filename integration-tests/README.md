@@ -18,6 +18,11 @@ For end users it's better to take a look at the
 repository. The contracts in there are ensured to be running with
 the latest published ink! version.
 
+## Documentation
+
+For more information on contract testing and end-to-end (E2E) tests,
+please refer to the [documentation](https://use.ink/basics/contract-testing/#end-to-end-e2e-tests).
+
 ## License
 
 The examples in this folder are released into the public domain.
