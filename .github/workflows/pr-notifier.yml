@@ -1,0 +1,102 @@
+name: Find stale PRs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 4"
+
+jobs:
+  fetch-issues:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 3
+      matrix:
+        # List of repositories to fetch the issues
+        repo:
+          - ink
+          - cargo-contract
+          - substrate-contracts-node
+          - contracts-ui
+          - ink-docs
+          - smart-bench
+          - ink-waterfall
+          - ink-playground
+          - nft-marketplace-demo
+          - pallet-contracts-xcm
+          - link
+          - ink-examples
+          - useink
+          - awesome-ink
+          - squink-splash-beginner
+          - squink-splash-advanced
+          - ink-workshop
+    steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.ISSUE_TRACKER_APP_ID }}
+          private_key: ${{ secrets.ISSUE_TRACKER_APP_KEY }}
+      - run: mkdir outputs
+      - name: Fetch PRs from ${{ matrix.repo }}
+        id: pr
+        uses: paritytech/stale-pr-finder@main
+        with:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          repo: ${{ matrix.repo }}
+          # only fetch PRs that don't have any reviews
+          noReviews: true
+          # from today onwards. Increase this number to set how much time without interaction must pass for the issue to be analyzed
+          days-stale: 0
+          fileOutput: outputs/${{ matrix.repo }}.json
+      - uses: actions/upload-artifact@v3
+        with:
+          name: outputs
+          path: outputs/*.json
+
+  message:
+    runs-on: ubuntu-latest
+    needs: fetch-issues
+    steps:
+      - uses: actions/checkout@v3
+      - name: Load outputs
+        uses: actions/download-artifact@v3
+        with:
+          name: outputs
+          path: outputs
+      - name: Run combine script
+        id: pr
+        run: python ./.github/scripts/combine-pr.py $LIMIT
+        shell: bash
+        env:
+          # How many PRs to show in the message
+          LIMIT: 8
+      - name: send message
+        if: ${{ steps.pr.outputs.MESSAGE != '' }}
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: "!EBuECvRavzBxijipBi:parity.io"
+          access_token: ${{ secrets.STALE_MATRIX_ACCESS_TOKEN }}
+          # Remember to keep at least one empty line between paragraphs
+          message: |
+            ## Good morning, team 🥐!
+            This weekly digest contains the longest unreviewed pull requests from repositories which the Smart Contracts ☂️ owns ([list](https://www.notion.so/paritytechnologies/What-belongs-to-our-umbrella-b9a80b72fedc47d6b35224a15bdec64c)).
+
+            ${{ steps.pr.outputs.MESSAGE }}
+
+            Unfortunately there are more stale PRs. The above list is limited to 8 entries. Find all the stale PRs [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          server: "m.parity.io"
+      - name: send message for no PRs found
+        if: ${{ steps.pr.outputs.MESSAGE == '' }}
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: "!EBuECvRavzBxijipBi:parity.io"
+          access_token: ${{ secrets.STALE_MATRIX_ACCESS_TOKEN }}
+          # Remember to keep at least one empty line between paragraphs
+          message: |
+            ## Good morning, team 🥐!
+
+            We have no Pull Requests waiting for reviews.
+
+            **Good job everyone!**
+          server: "m.parity.io"
