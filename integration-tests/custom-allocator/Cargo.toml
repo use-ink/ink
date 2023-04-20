@@ -1,5 +1,5 @@
 [package]
-name = "custom_allocator"
+name = "custom-allocator"
 version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
