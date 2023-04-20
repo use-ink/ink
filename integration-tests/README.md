@@ -20,7 +20,7 @@ the latest published ink! version.
 
 ## Documentation
 
-For more information on contract testing and end-to-end (E2E) tests,
+For more information on contract testing and end-to-end tests,
 please refer to the [documentation](https://use.ink/basics/contract-testing/#end-to-end-e2e-tests).
 
 ## License
