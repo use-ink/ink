@@ -130,7 +130,7 @@ examples-fmt:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
       done
-    - cargo +nightly fmt --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml -- --check
+    - cargo +nightly fmt --verbose --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml -- --check
     # This file is not a part of the cargo project, so it wouldn't be formatted the usual way
     - rustfmt +nightly --verbose --check ./integration-tests/psp22-extension/runtime/psp22-extension-example.rs
   allow_failure:                   true
@@ -169,7 +169,7 @@ examples-clippy-std:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --all-targets --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --all-targets --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 examples-clippy-wasm:
@@ -187,7 +187,7 @@ examples-clippy-wasm:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
-    - cargo clippy --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+    - cargo clippy --verbose --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
   allow_failure:                   true
 
 
@@ -395,7 +395,7 @@ examples-test:
         cargo clean --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
         cargo test --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --features e2e-tests;
       done
-    - cargo test --verbose --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml;
+    - cargo test --verbose --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml;
 
 examples-contract-build:
   stage:                           examples
@@ -425,7 +425,7 @@ examples-contract-build:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
-    - cargo +stable contract build --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml
+    - cargo +stable contract build --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml
 
 # TODO: Use cargo contract as soon as it has RISC-V support
 examples-contract-build-riscv:
@@ -476,7 +476,7 @@ examples-docs:
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
-    - cargo doc --manifest-path ./integration-tests/set_code_hash/updated_incrementer/Cargo.toml --document-private-items --verbose --no-deps
+    - cargo doc --manifest-path ./integration-tests/set-code-hash/updated-incrementer/Cargo.toml --document-private-items --verbose --no-deps
 
 
 #### stage:                        ink-waterfall

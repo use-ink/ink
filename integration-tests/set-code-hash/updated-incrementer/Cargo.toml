@@ -1,5 +1,5 @@
 [package]
-name = "updated_incrementer"
+name = "updated-incrementer"
 version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
