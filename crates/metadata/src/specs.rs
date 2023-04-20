@@ -254,6 +254,14 @@ where
             !self.spec.messages.is_empty(),
             "must have at least one message"
         );
+        assert!(
+            self.spec.constructors.iter().filter(|c| c.default).count() < 2,
+            "only one default constructor is allowed"
+        );
+        assert!(
+            self.spec.messages.iter().filter(|m| m.default).count() < 2,
+            "only one default message is allowed"
+        );
         self.spec
     }
 }
@@ -303,6 +311,8 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub return_type: ReturnTypeSpec<F>,
     /// The deployment handler documentation.
     pub docs: Vec<F::String>,
+    /// If the constructor is the default for off-chain consumers (e.g UIs).
+    default: bool,
 }
 
 impl IntoPortable for ConstructorSpec {
@@ -320,6 +330,7 @@ impl IntoPortable for ConstructorSpec {
                 .collect::<Vec<_>>(),
             return_type: self.return_type.into_portable(registry),
             docs: self.docs.into_iter().map(|s| s.into()).collect(),
+            default: self.default,
         }
     }
 }
@@ -360,6 +371,10 @@ where
     pub fn docs(&self) -> &[F::String] {
         &self.docs
     }
+
+    pub fn default(&self) -> &bool {
+        &self.default
+    }
 }
 
 /// A builder for constructors.
@@ -397,6 +412,7 @@ where
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
+                default: false,
             },
             marker: PhantomData,
         }
@@ -445,7 +461,7 @@ impl<F, S, P> ConstructorSpecBuilder<F, S, P, Missing<state::Returns>>
 where
     F: Form,
 {
-    /// Sets the return type of the message.
+    /// Sets the return type of the constructor.
     pub fn returns(
         self,
         return_type: ReturnTypeSpec<F>,
@@ -464,7 +480,7 @@ impl<F, S, P, R> ConstructorSpecBuilder<F, S, P, R>
 where
     F: Form,
 {
-    /// Sets the input arguments of the message specification.
+    /// Sets the input arguments of the constructor specification.
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec<F>>,
@@ -475,7 +491,7 @@ where
         this
     }
 
-    /// Sets the documentation of the message specification.
+    /// Sets the documentation of the constructor specification.
     pub fn docs<'a, D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'a str>,
@@ -488,6 +504,17 @@ where
             .map(|s| trim_extra_whitespace(s).into())
             .collect::<Vec<_>>();
         this
+    }
+
+    /// Sets the default of the constructor specification.
+    pub fn default(self, default: bool) -> Self {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                default,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
     }
 }
 
@@ -526,6 +553,8 @@ pub struct MessageSpec<F: Form = MetaForm> {
     return_type: ReturnTypeSpec<F>,
     /// The message documentation.
     docs: Vec<F::String>,
+    /// If the message is the default for off-chain consumers (e.g UIs).
+    default: bool,
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
@@ -583,6 +612,7 @@ where
                 args: Vec::new(),
                 return_type: ReturnTypeSpec::new(None),
                 docs: Vec::new(),
+                default: false,
             },
             marker: PhantomData,
         }
@@ -629,6 +659,10 @@ where
     /// Returns the message documentation.
     pub fn docs(&self) -> &[F::String] {
         &self.docs
+    }
+
+    pub fn default(&self) -> &bool {
+        &self.default
     }
 }
 
@@ -751,6 +785,17 @@ where
         this.spec.docs = docs.into_iter().collect::<Vec<_>>();
         this
     }
+
+    /// Sets the default of the message specification.
+    pub fn default(self, default: bool) -> Self {
+        MessageSpecBuilder {
+            spec: MessageSpec {
+                default,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
 }
 
 impl<F>
@@ -779,6 +824,7 @@ impl IntoPortable for MessageSpec {
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
+            default: self.default,
             args: self
                 .args
                 .into_iter()

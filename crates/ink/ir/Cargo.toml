@@ -1,6 +1,6 @@
 [package]
 name = "ink_ir"
-version = "4.1.0"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -24,6 +24,7 @@ proc-macro2 = "1.0"
 itertools = { version = "0.10", default-features = false }
 either = { version = "1.5", default-features = false }
 blake2 = "0.10"
+ink_prelude = { version = "4.1.0", path = "../../prelude/", default-features = false }
 
 [features]
 default = ["std"]

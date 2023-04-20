@@ -27,6 +27,7 @@ mod xts;
 
 pub use builders::{
     build_message,
+    Message,
     MessageBuilder,
 };
 pub use client::{
