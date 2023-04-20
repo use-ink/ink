@@ -66,7 +66,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
                         "trait definition",
                     ))
                 }
-                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {
                         return Err(format_err_spanned!(
                             lit_str,

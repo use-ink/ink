@@ -124,6 +124,10 @@ where
         <C as Callable>::has_wildcard_selector(self.callable)
     }
 
+    fn has_wildcard_complement_selector(&self) -> bool {
+        <C as Callable>::has_wildcard_complement_selector(self.callable)
+    }
+
     fn visibility(&self) -> Visibility {
         <C as Callable>::visibility(self.callable)
     }
@@ -179,6 +183,9 @@ pub trait Callable {
 
     /// Returns `true` if the ink! callable is flagged as a wildcard selector.
     fn has_wildcard_selector(&self) -> bool;
+
+    /// Returns `true` if the ink! callable is flagged as a wildcard complement selector.
+    fn has_wildcard_complement_selector(&self) -> bool;
 
     /// Returns the visibility of the ink! callable.
     fn visibility(&self) -> Visibility;

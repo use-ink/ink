@@ -57,7 +57,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                         "E2E test",
                     ))
                 }
-                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     additional_contracts = Some((lit_str.clone(), arg))
                 } else {
                     return Err(format_err_spanned!(
@@ -69,7 +69,7 @@ impl TryFrom<ast::AttributeArgs> for E2EConfig {
                 if let Some((_, ast)) = environment {
                     return Err(duplicate_config_err(ast, arg, "environment", "E2E test"))
                 }
-                if let ast::PathOrLit::Path(path) = &arg.value {
+                if let ast::MetaValue::Path(path) = &arg.value {
                     environment = Some((path.clone(), arg))
                 } else {
                     return Err(format_err_spanned!(

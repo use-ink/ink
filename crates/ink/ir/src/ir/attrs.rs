@@ -15,6 +15,7 @@
 use core::result::Result;
 use std::collections::HashMap;
 
+use ink_prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -531,22 +532,27 @@ pub enum SelectorOrWildcard {
     /// annotated with the wildcard selector will be invoked.
     Wildcard,
     /// A user provided selector.
-    UserProvided(ir::Selector),
+    UserProvided(Selector),
 }
 
 impl SelectorOrWildcard {
     /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
-    fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
+    fn selector(bytes: [u8; 4]) -> Self {
         SelectorOrWildcard::UserProvided(Selector::from(bytes))
+    }
+
+    /// The selector of the wildcard complement message.
+    pub fn wildcard_complement() -> Self {
+        Self::selector(IIP2_WILDCARD_COMPLEMENT_SELECTOR)
     }
 }
 
-impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
+impl TryFrom<&ast::MetaValue> for SelectorOrWildcard {
     type Error = syn::Error;
 
-    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
+    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
         match value {
-            ast::PathOrLit::Lit(lit) => {
+            ast::MetaValue::Lit(lit) => {
                 if let syn::Lit::Str(_) = lit {
                     return Err(format_err_spanned!(
                         lit,
@@ -571,15 +577,18 @@ impl TryFrom<&ast::PathOrLit> for SelectorOrWildcard {
                     "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"
                 ))
             }
-            ast::PathOrLit::Path(path) => {
-                if path.is_ident("_") {
-                    Ok(SelectorOrWildcard::Wildcard)
-                } else {
-                    Err(format_err_spanned!(
-                        path,
-                        "expected `selector` argument to be either a 4-digit hexcode or `_`"
-                    ))
+            ast::MetaValue::Symbol(symbol) => {
+                match symbol {
+                    ast::Symbol::Underscore(_) => Ok(SelectorOrWildcard::Wildcard),
+                    ast::Symbol::AtSign(_) => Ok(SelectorOrWildcard::wildcard_complement()),
                 }
+            }
+            ast::MetaValue::Path(path) => {
+                Err(format_err_spanned!(
+                    path,
+                    "unexpected path for `selector` argument, expected a 4-digit hexcode or one of \
+                    the wildcard symbols: `_` or `@`"
+                ))
             }
         }
     }
@@ -601,11 +610,11 @@ pub struct Namespace {
     bytes: Vec<u8>,
 }
 
-impl TryFrom<&ast::PathOrLit> for Namespace {
+impl TryFrom<&ast::MetaValue> for Namespace {
     type Error = syn::Error;
 
-    fn try_from(value: &ast::PathOrLit) -> Result<Self, Self::Error> {
-        if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = value {
+    fn try_from(value: &ast::MetaValue) -> Result<Self, Self::Error> {
+        if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = value {
             let argument = lit_str.value();
             syn::parse_str::<syn::Ident>(&argument).map_err(|_error| {
                 format_err_spanned!(
