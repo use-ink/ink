@@ -290,6 +290,11 @@ pub trait EnvBackend {
         output: &mut [u8; 20],
     ) -> Result<()>;
 
+    /// Verifies a sr25519 signature.
+    ///
+    /// # Errors
+    ///
+    /// - If the signature verification failed.
     fn sr25519_verify(
         &mut self,
         signature: &[u8; 64],
