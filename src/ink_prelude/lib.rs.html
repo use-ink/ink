@@ -77,6 +77,12 @@
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -109,6 +115,12 @@
 </span><span class="kw">extern crate </span>alloc;
 
 <span class="kw">use </span>cfg_if::cfg_if;
+
+<span class="doccomment">/// A well know selector reserved for the message required to be defined
+/// alongside a wildcard selector. See [IIP-2](https://github.com/paritytech/ink/issues/1676).
+///
+/// Calculated from `selector_bytes!(&quot;IIP2_WILDCARD_COMPLEMENT&quot;)`
+</span><span class="kw">pub const </span>IIP2_WILDCARD_COMPLEMENT_SELECTOR: [u8; <span class="number">4</span>] = [<span class="number">0x9B</span>, <span class="number">0xAE</span>, <span class="number">0x9D</span>, <span class="number">0x5E</span>];
 
 <span class="macro">cfg_if! </span>{
     <span class="kw">if </span><span class="attr">#[cfg(feature = <span class="string">&quot;std&quot;</span>)] </span>{

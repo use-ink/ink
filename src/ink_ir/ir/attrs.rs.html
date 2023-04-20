@@ -1511,6 +1511,15 @@
 <a href="#1510" id="1510">1510</a>
 <a href="#1511" id="1511">1511</a>
 <a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1528,6 +1537,7 @@
 </span><span class="kw">use </span>core::result::Result;
 <span class="kw">use </span>std::collections::HashMap;
 
+<span class="kw">use </span>ink_prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR;
 <span class="kw">use </span>proc_macro2::{
     Span,
     TokenStream <span class="kw">as </span>TokenStream2,
@@ -2044,22 +2054,27 @@
     /// annotated with the wildcard selector will be invoked.
     </span>Wildcard,
     <span class="doccomment">/// A user provided selector.
-    </span>UserProvided(ir::Selector),
+    </span>UserProvided(Selector),
 }
 
 <span class="kw">impl </span>SelectorOrWildcard {
     <span class="doccomment">/// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
-    </span><span class="kw">fn </span>selector(bytes: [u8; <span class="number">4</span>]) -&gt; SelectorOrWildcard {
+    </span><span class="kw">fn </span>selector(bytes: [u8; <span class="number">4</span>]) -&gt; <span class="self">Self </span>{
         SelectorOrWildcard::UserProvided(Selector::from(bytes))
+    }
+
+    <span class="doccomment">/// The selector of the wildcard complement message.
+    </span><span class="kw">pub fn </span>wildcard_complement() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::selector(IIP2_WILDCARD_COMPLEMENT_SELECTOR)
     }
 }
 
-<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>ast::PathOrLit&gt; <span class="kw">for </span>SelectorOrWildcard {
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>ast::MetaValue&gt; <span class="kw">for </span>SelectorOrWildcard {
     <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>ast::PathOrLit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>ast::MetaValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="kw">match </span>value {
-            ast::PathOrLit::Lit(lit) =&gt; {
+            ast::MetaValue::Lit(lit) =&gt; {
                 <span class="kw">if let </span>syn::Lit::Str(<span class="kw">_</span>) = lit {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         lit,
@@ -2084,15 +2099,18 @@
                     <span class="string">&quot;expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;
                 </span>))
             }
-            ast::PathOrLit::Path(path) =&gt; {
-                <span class="kw">if </span>path.is_ident(<span class="string">&quot;_&quot;</span>) {
-                    <span class="prelude-val">Ok</span>(SelectorOrWildcard::Wildcard)
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
-                        path,
-                        <span class="string">&quot;expected `selector` argument to be either a 4-digit hexcode or `_`&quot;
-                    </span>))
+            ast::MetaValue::Symbol(symbol) =&gt; {
+                <span class="kw">match </span>symbol {
+                    ast::Symbol::Underscore(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(SelectorOrWildcard::Wildcard),
+                    ast::Symbol::AtSign(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(SelectorOrWildcard::wildcard_complement()),
                 }
+            }
+            ast::MetaValue::Path(path) =&gt; {
+                <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+                    path,
+                    <span class="string">&quot;unexpected path for `selector` argument, expected a 4-digit hexcode or one of \
+                    the wildcard symbols: `_` or `@`&quot;
+                </span>))
             }
         }
     }
@@ -2114,11 +2132,11 @@
     </span>bytes: Vec&lt;u8&gt;,
 }
 
-<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>ast::PathOrLit&gt; <span class="kw">for </span>Namespace {
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>ast::MetaValue&gt; <span class="kw">for </span>Namespace {
     <span class="kw">type </span>Error = syn::Error;
 
-    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>ast::PathOrLit) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
-        <span class="kw">if let </span>ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = value {
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>ast::MetaValue) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = value {
             <span class="kw">let </span>argument = lit_str.value();
             syn::parse_str::&lt;syn::Ident&gt;(<span class="kw-2">&amp;</span>argument).map_err(|_error| {
                 <span class="macro">format_err_spanned!</span>(

@@ -177,7 +177,7 @@
                         <span class="string">&quot;trait definition&quot;</span>,
                     ))
                 }
-                <span class="kw">if let </span>ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = <span class="kw-2">&amp;</span>arg.value {
+                <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = <span class="kw-2">&amp;</span>arg.value {
                     <span class="kw">if </span>syn::parse_str::&lt;syn::Ident&gt;(<span class="kw-2">&amp;</span>lit_str.value()).is_err() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             lit_str,

@@ -844,6 +844,7 @@
 <a href="#843" id="843">843</a>
 <a href="#844" id="844">844</a>
 <a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -1082,11 +1083,12 @@
     </span>}
 
     <span class="kw">fn </span>has_wildcard_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(SelectorOrWildcard::Wildcard) = <span class="self">self</span>.selector {
-            <span class="kw">return </span><span class="bool-val">true
-        </span>}
-        <span class="bool-val">false
-    </span>}
+        <span class="macro">matches!</span>(<span class="self">self</span>.selector, <span class="prelude-val">Some</span>(SelectorOrWildcard::Wildcard))
+    }
+
+    <span class="kw">fn </span>has_wildcard_complement_selector(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.selector == <span class="prelude-val">Some</span>(SelectorOrWildcard::wildcard_complement())
+    }
 
     <span class="kw">fn </span>is_payable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.is_payable

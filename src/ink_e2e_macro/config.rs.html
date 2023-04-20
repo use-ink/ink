@@ -292,7 +292,7 @@
                         <span class="string">&quot;E2E test&quot;</span>,
                     ))
                 }
-                <span class="kw">if let </span>ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = <span class="kw-2">&amp;</span>arg.value {
+                <span class="kw">if let </span>ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = <span class="kw-2">&amp;</span>arg.value {
                     additional_contracts = <span class="prelude-val">Some</span>((lit_str.clone(), arg))
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
@@ -304,7 +304,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, ast)) = environment {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(duplicate_config_err(ast, arg, <span class="string">&quot;environment&quot;</span>, <span class="string">&quot;E2E test&quot;</span>))
                 }
-                <span class="kw">if let </span>ast::PathOrLit::Path(path) = <span class="kw-2">&amp;</span>arg.value {
+                <span class="kw">if let </span>ast::MetaValue::Path(path) = <span class="kw-2">&amp;</span>arg.value {
                     environment = <span class="prelude-val">Some</span>((path.clone(), arg))
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
