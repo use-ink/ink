@@ -1,5 +1,5 @@
 [package]
-name = "basic_contract_caller"
+name = "basic-contract-caller"
 version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -14,7 +14,7 @@ scale-info = { version = "2.5", default-features = false, features = ["derive"],
 # Note: We **need** to specify the `ink-as-dependency` feature.
 #
 # If we don't we will end up with linking errors!
-other_contract = { path = "other_contract", default-features = false, features = ["ink-as-dependency"] }
+other_contract = { path = "other-contract", default-features = false, features = ["ink-as-dependency"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
