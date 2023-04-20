@@ -1,20 +1,20 @@
 [package]
-name = "basic_contract_caller"
+name = "custom-allocator"
 version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+# We're going to use a different allocator than the one provided by ink!. To do that we
+# first need to disable the included memory allocator.
+ink = { path = "../../crates/ink", default-features = false, features = ["no-allocator"]  }
+
+# This is going to be our new global memory allocator.
+dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
-
-# Note: We **need** to specify the `ink-as-dependency` feature.
-#
-# If we don't we will end up with linking errors!
-other_contract = { path = "other_contract", default-features = false, features = ["ink-as-dependency"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
@@ -28,10 +28,6 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
-
-    # Note: The metadata generation step requires `std`. If we don't specify this the metadata
-    # generation for our contract will fail!
-    "other_contract/std",
 ]
 ink-as-dependency = []
 e2e-tests = []
