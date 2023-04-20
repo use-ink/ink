@@ -19,7 +19,11 @@ use scale::{
     Encode,
 };
 #[cfg(feature = "std")]
-use scale_info::TypeInfo;
+use {
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+    scale_info::TypeInfo,
+};
 
 /// The default environment `AccountId` type.
 ///
@@ -28,9 +32,9 @@ use scale_info::TypeInfo;
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Encode, Decode, From,
+    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Decode, Encode, From,
 )]
-#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
 pub struct AccountId([u8; 32]);
 
 impl AsRef<[u8; 32]> for AccountId {
@@ -85,12 +89,12 @@ impl<'a> TryFrom<&'a [u8]> for AccountId {
     Ord,
     PartialOrd,
     Hash,
-    Encode,
     Decode,
+    Encode,
     From,
     Default,
 )]
-#[cfg_attr(feature = "std", derive(TypeInfo))]
+#[cfg_attr(feature = "std", derive(TypeInfo, DecodeAsType, EncodeAsType))]
 pub struct Hash([u8; 32]);
 
 impl<'a> TryFrom<&'a [u8]> for Hash {

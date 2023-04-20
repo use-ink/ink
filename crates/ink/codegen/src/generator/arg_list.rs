@@ -87,7 +87,8 @@ where
     )
 }
 
-/// Generates code to uniquely identify a trait by its unique ID given only its identifier.
+/// Generates code to uniquely identify a trait by its unique ID given only its
+/// identifier.
 ///
 /// # Note
 ///

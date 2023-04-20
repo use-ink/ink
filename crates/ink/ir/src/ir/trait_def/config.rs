@@ -31,7 +31,8 @@ pub struct TraitDefinitionConfig {
     /// selectors of the ink! trait messages. This is useful to disambiguate
     /// ink! trait definitions with equal names.
     namespace: Option<syn::LitStr>,
-    /// The set of attributes that can be passed to call builder and forwarder in the codegen.
+    /// The set of attributes that can be passed to call builder and forwarder in the
+    /// codegen.
     whitelisted_attributes: WhitelistedAttributes,
 }
 
@@ -65,7 +66,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
                         "trait definition",
                     ))
                 }
-                if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                if let ast::MetaValue::Lit(syn::Lit::Str(lit_str)) = &arg.value {
                     if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {
                         return Err(format_err_spanned!(
                             lit_str,

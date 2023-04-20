@@ -14,7 +14,6 @@
 /// # Usage: Default Environment
 ///
 /// ```
-/// 
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]
@@ -22,7 +21,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
+///         pub fn constructor() -> Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}
@@ -66,7 +67,9 @@
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
+///         pub fn constructor() -> Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}
@@ -103,7 +106,6 @@ pub trait ContractEnv {
 /// # Usage
 ///
 /// ```
-/// 
 /// #[ink::contract]
 /// pub mod contract {
 ///     #[ink(storage)]
@@ -111,14 +113,19 @@ pub trait ContractEnv {
 ///
 ///     impl Contract {
 ///         #[ink(constructor)]
-///         pub fn constructor() -> Self { Self {} }
+///         pub fn constructor() -> Self {
+///             Self {}
+///         }
 ///
 ///         #[ink(message)]
 ///         pub fn message(&self) {}
 ///     }
 /// }
 ///
-/// use contract::{Contract, ContractRef};
+/// use contract::{
+///     Contract,
+///     ContractRef,
+/// };
 /// # use ink::codegen::utils::IsSameType;
 /// # use ink::env::ContractReference;
 ///

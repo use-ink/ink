@@ -1,6 +1,6 @@
 [package]
 name = "erc20"
-version = "4.0.1"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -9,15 +9,13 @@ publish = false
 ink = { path = "../../crates/ink", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
 
 [lib]
-name = "erc20"
 path = "lib.rs"
-crate-type = ["cdylib"]
 
 [features]
 default = ["std"]

@@ -32,12 +32,11 @@ impl<'a> TraitDefinition<'a> {
     ///
     /// # Note
     ///
-    /// - The generated call builder type implements the ink! trait definition
-    ///   and allows to build up contract calls that allow for customization by
-    ///   the user to provide gas limit, endowment etc.
-    /// - The call builder is used directly by the generated call forwarder.
-    ///   There exists one global call forwarder and call builder pair for every
-    ///   ink! trait definition.
+    /// - The generated call builder type implements the ink! trait definition and allows
+    ///   to build up contract calls that allow for customization by the user to provide
+    ///   gas limit, endowment etc.
+    /// - The call builder is used directly by the generated call forwarder. There exists
+    ///   one global call forwarder and call builder pair for every ink! trait definition.
     pub fn generate_call_builder(&self) -> TokenStream2 {
         CallBuilder::from(*self).generate_code()
     }
@@ -125,7 +124,8 @@ impl CallBuilder<'_> {
     /// # Note
     ///
     /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    /// trait bounds it is not recommended to derive the `StorageLayout` trait
+    /// implementation.
     fn generate_storage_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -212,7 +212,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the account wrapper.
+    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the
+    /// account wrapper.
     ///
     /// # Note
     ///
@@ -308,7 +309,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate the code for all ink! trait messages implemented by the trait call builder.
+    /// Generate the code for all ink! trait messages implemented by the trait call
+    /// builder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
@@ -322,7 +324,8 @@ impl CallBuilder<'_> {
         }
     }
 
-    /// Generate the code for a single ink! trait message implemented by the trait call builder.
+    /// Generate the code for a single ink! trait message implemented by the trait call
+    /// builder.
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,

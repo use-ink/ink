@@ -109,8 +109,9 @@ pub fn recorded_debug_messages() -> RecordedDebugMessages {
 ///
 /// # Note
 ///
-/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
-/// because lazy storage structures automatically clear their associated cells when they are dropped.
+/// Useful for benchmarks because it ensures the initialized storage is maintained across
+/// runs, because lazy storage structures automatically clear their associated cells when
+/// they are dropped.
 pub fn set_clear_storage_disabled(_disable: bool) {
     unimplemented!(
         "off-chain environment does not yet support `set_clear_storage_disabled`"
@@ -203,7 +204,8 @@ where
 
 /// Sets the value transferred from the caller to the callee as part of the call.
 ///
-/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
+/// Please note that the acting accounts should be set with [`set_caller()`] and
+/// [`set_callee()`] beforehand.
 pub fn set_value_transferred<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
@@ -215,7 +217,8 @@ where
 
 /// Transfers value from the caller account to the contract.
 ///
-/// Please note that the acting accounts should be set with [`set_caller()`] and [`set_callee()`] beforehand.
+/// Please note that the acting accounts should be set with [`set_caller()`] and
+/// [`set_callee()`] beforehand.
 pub fn transfer_in<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
@@ -263,6 +266,16 @@ where
             .engine
             .count_used_storage_cells(&scale::Encode::encode(&account_id))
             .map_err(Into::into)
+    })
+}
+
+/// Sets the block timestamp for the next [`advance_block`] invocation.
+pub fn set_block_timestamp<T>(value: T::Timestamp)
+where
+    T: Environment<Timestamp = u64>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_block_timestamp(value);
     })
 }
 
@@ -358,9 +371,9 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 ///
 /// * `should_terminate`: A closure in which the function supposed to terminate is called.
 /// * `expected_beneficiary`: The beneficiary account who should have received the
-///    remaining value in the contract
-/// * `expected_value_transferred_to_beneficiary`: The value which should have been transferred
-///   to the `expected_beneficiary`.
+///   remaining value in the contract
+/// * `expected_value_transferred_to_beneficiary`: The value which should have been
+///   transferred to the `expected_beneficiary`.
 /// # Usage
 ///
 /// ```no_compile
@@ -398,7 +411,8 @@ pub fn assert_contract_termination<T, F>(
     assert_eq!(beneficiary, expected_beneficiary);
 }
 
-/// Prepend contract message call with value transfer. Used for tests in off-chain environment.
+/// Prepend contract message call with value transfer. Used for tests in off-chain
+/// environment.
 #[macro_export]
 macro_rules! pay_with_call {
     ($contract:ident . $message:ident ( $( $params:expr ),* ) , $amount:expr) => {{

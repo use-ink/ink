@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 use ink::{
     env::Environment,
@@ -232,8 +232,8 @@ mod psp22_ext {
 
         // PSP22 increase_allowance
 
-        /// Atomically increases the allowance for the specified asset granted to `spender`
-        /// by the caller.
+        /// Atomically increases the allowance for the specified asset granted to
+        /// `spender` by the caller.
         #[ink(message, selector = 0x96d6b57a)]
         pub fn increase_allowance(
             &mut self,
@@ -248,8 +248,8 @@ mod psp22_ext {
 
         // PSP22 decrease_allowance
 
-        /// Atomically decreases the allowance for the specified asset granted to `spender`
-        /// by the caller.
+        /// Atomically decreases the allowance for the specified asset granted to
+        /// `spender` by the caller.
         #[ink(message, selector = 0xfecb57d5)]
         pub fn decrease_allowance(
             &mut self,
