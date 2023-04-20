@@ -3,7 +3,7 @@ name: Find stale PRs
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 7 * * 4"
+    - cron: "0 7 * * 2"
 
 jobs:
   fetch-issues:
