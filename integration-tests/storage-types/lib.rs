@@ -1,3 +1,8 @@
+//! # Integration Test for Storage Types
+//!
+//! This contract is made to showcase all of ink!'s storage types.
+//! With this the proper decoding of the storage types can be tested.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[ink::contract]
