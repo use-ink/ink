@@ -125,7 +125,7 @@ examples-fmt:
         cargo +nightly fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo +nightly fmt --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml -- --check;
+        cargo +nightly fmt --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml -- --check;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +nightly fmt --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- --check;
@@ -164,7 +164,7 @@ examples-clippy-std:
         cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
+        cargo clippy --verbose --all-targets --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED;
@@ -182,7 +182,7 @@ examples-clippy-wasm:
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
+        cargo clippy --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo clippy --verbose --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings -A $CLIPPY_ALLOWED;
@@ -387,7 +387,7 @@ examples-test:
         fi;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml;
       done
     # TODO (#1502): We need to clean before running, otherwise the CI fails with a
     # linking error.
@@ -421,7 +421,7 @@ examples-contract-build:
         cargo +stable contract build &&
         popd;
       done
-    - pushd ./integration-tests/multi_contract_caller/ && ./build-all.sh && popd
+    - pushd ./integration-tests/multi-contract-caller/ && ./build-all.sh && popd
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo +stable contract build --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml;
       done
@@ -471,7 +471,7 @@ examples-docs:
         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${MULTI_CONTRACT_CALLER_SUBCONTRACTS}; do
-        cargo doc --manifest-path ./integration-tests/multi_contract_caller/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+        cargo doc --manifest-path ./integration-tests/multi-contract-caller/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
       done
     - for contract in ${LANG_ERR_INTEGRATION_CONTRACTS}; do
         cargo doc --manifest-path ./integration-tests/lang-err-integration-tests/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
