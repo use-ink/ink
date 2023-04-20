@@ -106,6 +106,16 @@ pub trait AccountIdGuard {}
 /// used in the [`DefaultEnvironment`].
 impl AccountIdGuard for AccountId {}
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "std")] {
+        pub trait CodecAsType: scale_decode::DecodeAsType + scale_encode::EncodeAsType {}
+        impl<T: scale_decode::DecodeAsType + scale_encode::EncodeAsType> CodecAsType for T {}
+    } else {
+        pub trait CodecAsType {}
+        impl<T> CodecAsType for T {}
+    }
+}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
     /// The maximum number of supported event topics provided by the runtime.
@@ -117,6 +127,7 @@ pub trait Environment {
     /// The account id type.
     type AccountId: 'static
         + scale::Codec
+        + CodecAsType
         + Clone
         + PartialEq
         + Eq
@@ -127,6 +138,7 @@ pub trait Environment {
     /// The type of balances.
     type Balance: 'static
         + scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
@@ -137,6 +149,7 @@ pub trait Environment {
     /// The type of hash.
     type Hash: 'static
         + scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + Clear
@@ -149,6 +162,7 @@ pub trait Environment {
     /// The type of a timestamp.
     type Timestamp: 'static
         + scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq
@@ -159,6 +173,7 @@ pub trait Environment {
     /// The type of block number.
     type BlockNumber: 'static
         + scale::Codec
+        + CodecAsType
         + Copy
         + Clone
         + PartialEq

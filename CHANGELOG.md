@@ -6,12 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Version 4.2.0
+
 ### Added
-- Persist `Environment` in metadata - [#1741](https://github.com/paritytech/ink/pull/1741)
+- Persist `Environment` in metadata ‒ [#1741](https://github.com/paritytech/ink/pull/1741)
+- Added possibility for `runtime_call` in E2E tests ‒ [#1736](https://github.com/paritytech/ink/pull/1736)
+- Added `default` attribute to constructors and messages ‒ [#1724](https://github.com/paritytech/ink/pull/1724)
+- Added clarification about `Mapping::size` unit ‒ [#1735](https://github.com/paritytech/ink/pull/1735)
 
 ### Changed
-- Upgraded `syn` to version `2` - [#1731](https://github.com/paritytech/ink/pull/1731)
-- Added `default` attribute to constructors and messages - [#1703](https://github.com/paritytech/ink/pull/1724)
+- Upgraded `syn` to version `2` ‒ [#1731](https://github.com/paritytech/ink/pull/1731)
+- Update `scale-info` requirement to `2.5` ‒ [#1733](https://github.com/paritytech/ink/pull/1733)
+- Bump `subxt` to `0.28.0` ‒ [#1750](https://github.com/paritytech/ink/pull/1750)
 
 ## Version 4.1.0
 

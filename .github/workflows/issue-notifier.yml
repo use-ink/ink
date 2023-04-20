@@ -10,6 +10,7 @@ jobs:
   fetch-issues:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 3
       matrix:
         # List of repositories to fetch the issues
         repo:
