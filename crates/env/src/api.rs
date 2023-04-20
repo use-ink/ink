@@ -550,7 +550,7 @@ pub fn ecdsa_to_eth_address(pubkey: &[u8; 33], output: &mut [u8; 20]) -> Result<
     })
 }
 
-/// Verifies a sr25519 signature
+/// Verifies a sr25519 signature.
 ///
 /// # Example
 ///
