@@ -22,6 +22,7 @@ use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
 };
+use quote::ToTokens;
 use syn::{
     spanned::Spanned as _,
     Result,
@@ -104,8 +105,9 @@ impl TryFrom<syn::ItemEnum> for InkEventDefinition {
                 let ident = field.ident.clone().unwrap_or_else(|| {
                     panic!("FIELDS SHOULD HAVE A NAME {:?}", field.ident)
                 });
-                // .unwrap_or(quote::format_ident!("{}", index));  // todo: should it also handle tuple variants? This breaks
-                // strip out the `#[ink(topic)] attributes, since the item will be used to
+                // .unwrap_or(quote::format_ident!("{}", index));  // todo: should it also
+                // handle tuple variants? This breaks strip out the
+                // `#[ink(topic)] attributes, since the item will be used to
                 // regenerate the event enum
                 field.attrs = other_attrs;
                 fields.push(EventField {
@@ -230,13 +232,13 @@ impl EventVariant {
         self.index
     }
 
-    /// Returns an iterator yielding all the `#[ink(topic)]` annotated fields
-    /// of the event variant struct.
+    /// Returns an iterator yielding all the fields of the event variant struct.
     pub fn fields(&self) -> impl Iterator<Item = &EventField> {
         self.fields.iter()
     }
 
-    /// Returns true if the signature of the event variant should *not* be indexed by a topic.
+    /// Returns true if the signature of the event variant should *not* be indexed by a
+    /// topic.
     pub fn anonymous(&self) -> bool {
         self.anonymous
     }
@@ -249,6 +251,23 @@ impl EventVariant {
         } else {
             topics_len + 1usize
         }
+    }
+
+    /// The signature topic of an event variant.
+    ///
+    /// Calculated with `blake2b("EventEnum::EventVariant(field1_type,field2_type)")`.
+    pub fn signature_topic(&self, event_ident: &Ident) -> [u8; 32] {
+        let fields = self
+            .fields()
+            .map(|event_field| event_field.field.ty.to_token_stream().to_string().replace(" ", ""))
+            .collect::<Vec<_>>()
+            .join(",");
+        let topic_str = format!("{}::{}({fields})", event_ident, self.ident());
+        println!("topic_str: {}", topic_str);
+        let input = topic_str.as_bytes();
+        let mut output = [0; 32];
+        blake2b_256(&input, &mut output);
+        output
     }
 }
 
@@ -478,5 +497,51 @@ mod tests {
                 }
             }
         });
+    }
+
+    #[test]
+    fn event_variant_signature_topics() {
+        let event_def =
+            <InkEventDefinition as TryFrom<syn::ItemEnum>>::try_from(syn::parse_quote! {
+                #[ink::event_definition]
+                pub enum MyEvent {
+                    EventA {
+                        field_1: i32,
+                        field_2: u64,
+                        field_3: [u8; 32],
+                    },
+                    EventB {},
+                    EventC {
+                        field_1: (i32, u64),
+                    }
+                }
+            })
+            .unwrap();
+
+        let mut variants = event_def.variants();
+
+        fn signature_topic(input: &str) -> [u8; 32] {
+            let mut output = [0; 32];
+            blake2b_256(input.as_bytes(), &mut output);
+            output
+        }
+
+        let event_variant = variants.next().expect("EventA variant");
+        assert_eq!(
+            event_variant.signature_topic(event_def.ident()),
+            signature_topic("MyEvent::EventA(i32,u64,[u8;32])")
+        );
+
+        let event_variant = variants.next().expect("EventB variant");
+        assert_eq!(
+            event_variant.signature_topic(event_def.ident()),
+            signature_topic("MyEvent::EventB()")
+        );
+
+        let event_variant = variants.next().expect("EventC variant");
+        assert_eq!(
+            event_variant.signature_topic(event_def.ident()),
+            signature_topic("MyEvent::EventC((i32,u64))")
+        );
     }
 }

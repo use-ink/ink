@@ -260,10 +260,7 @@ use core::marker::PhantomData;
 /// // definitions respects the topic limitation: it must have an amount of
 /// // topics less than or equal to the topic limit.
 /// const _: () = ::ink::codegen::utils::consume_type::<
-///     ::ink::codegen::EventRespectsTopicLimit<
-///         ExampleEvent,
-///         TOPICS_LIMIT,
-///     >
+///     ::ink::codegen::EventRespectsTopicLimit<ExampleEvent, TOPICS_LIMIT>,
 /// >();
 /// ```
 pub struct EventRespectsTopicLimit<Event, const LEN_MAX_TOPICS: usize>

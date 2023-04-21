@@ -53,7 +53,7 @@ use syn::{
 ///     pub enum MyEvent {
 ///         Event {
 ///             // event fields
-///         }
+///         },
 ///     }
 ///
 ///     impl MyStorage {

@@ -77,6 +77,7 @@ impl<'a> EventDefinition<'a> {
 
         let impls = self.event_def.variants().map(|ev| {
             let event_variant_ident = ev.ident();
+            let signature_topic = ev.signature_topic(event_ident);
             let index = ev.index();
             quote_spanned!(span=>
                 impl ::ink::reflect::EventVariantInfo<#index> for #event_ident {
@@ -104,7 +105,8 @@ impl<'a> EventDefinition<'a> {
     fn generate_topics_guard(&self) -> TokenStream2 {
         let span = self.event_def.span();
         let event_ident = self.event_def.ident();
-        // todo: [AJ] check if event signature topic should be included here (it is now, wasn't before)
+        // todo: [AJ] check if event signature topic should be included here (it is now,
+        // wasn't before)
         let len_topics = self.event_def.max_len_topics();
         let max_len_topics = quote_spanned!(span=>
             <<#event_ident as ::ink::env::Topics>::Env
