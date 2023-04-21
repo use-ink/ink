@@ -132,19 +132,21 @@ mod storage_types {
         mapping_account_balance: Mapping<AccountId, Balance, ManualKey<123>>,
     }
 
+    impl Default for StorageTypes {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl StorageTypes {
         #[ink(constructor)]
         pub fn new() -> Self {
-            // Vectors
-            let mut vec_string_value: Vec<String> = Vec::new();
-            vec_string_value.push(String::from("This is a string"));
-            vec_string_value.push(String::from("This is another string"));
+            let vec_string_value = vec![
+                "This is a String".to_string(),
+                "This is another String".to_string(),
+            ];
 
-            let mut vec_vec_string_value: Vec<Vec<String>> = Vec::new();
-            vec_vec_string_value.push(vec_string_value.clone());
-
-            let mut vec_vec_string_value: Vec<Vec<String>> = Vec::new();
-            vec_vec_string_value.push(vec_string_value.clone());
+            let vec_vec_string_value = vec![vec_string_value.clone()];
 
             // Mappings
             let mut mapping_account_balance = Mapping::new();
