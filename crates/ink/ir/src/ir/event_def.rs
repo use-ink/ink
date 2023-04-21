@@ -16,6 +16,7 @@ use crate::{
     blake2b_256,
     error::ExtError as _,
     ir,
+    literal::HexLiteral,
 };
 use proc_macro2::{
     Ident,
@@ -259,15 +260,29 @@ impl EventVariant {
     pub fn signature_topic(&self, event_ident: &Ident) -> [u8; 32] {
         let fields = self
             .fields()
-            .map(|event_field| event_field.field.ty.to_token_stream().to_string().replace(" ", ""))
+            .map(|event_field| {
+                event_field
+                    .field
+                    .ty
+                    .to_token_stream()
+                    .to_string()
+                    .replace(" ", "")
+            })
             .collect::<Vec<_>>()
             .join(",");
         let topic_str = format!("{}::{}({fields})", event_ident, self.ident());
-        println!("topic_str: {}", topic_str);
         let input = topic_str.as_bytes();
         let mut output = [0; 32];
         blake2b_256(&input, &mut output);
         output
+    }
+
+    /// The signature topic literal of an event variant.
+    ///
+    /// Calculated with `blake2b("EventEnum::EventVariant(field1_type,field2_type)")`.
+    pub fn signature_topic_hex_lits(&self, event_ident: &Ident) -> [syn::LitInt; 32] {
+        self.signature_topic(event_ident)
+            .map(<u8 as HexLiteral>::hex_padded_suffixed)
     }
 }
 

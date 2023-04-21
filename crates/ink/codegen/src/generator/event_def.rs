@@ -77,15 +77,12 @@ impl<'a> EventDefinition<'a> {
 
         let impls = self.event_def.variants().map(|ev| {
             let event_variant_ident = ev.ident();
-            let signature_topic = ev.signature_topic(event_ident);
+            let signature_topic = ev.signature_topic_hex_lits(event_ident);
             let index = ev.index();
             quote_spanned!(span=>
                 impl ::ink::reflect::EventVariantInfo<#index> for #event_ident {
                     const NAME: &'static str = ::core::stringify!(#event_variant_ident);
-                    const SIGNATURE_TOPIC: [u8; 32] = ::ink::primitives::event_signature_topic(
-                        <Self as ::ink::reflect::EventInfo>::PATH,
-                        <Self as ::ink::reflect::EventVariantInfo<#index>>::NAME,
-                    );
+                    const SIGNATURE_TOPIC: [u8; 32] = [ #( #signature_topic ),* ];
                 }
             )
         });
