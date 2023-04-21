@@ -883,7 +883,7 @@ where
     }
 
     /// Sets the documentation of the event specification.
-    pub fn docs<D>(self, docs: D) -> Self
+    pub fn docs<'a, D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'a str>,
         F::String: From<&'a str>,
