@@ -7,10 +7,18 @@
 
 #[ink::contract]
 mod storage_types {
-    use ink::prelude::string::String;
-    use ink::prelude::vec::Vec;
-    use ink::storage::{traits::ManualKey, Mapping};
-    use scale::{Decode, Encode};
+    use ink::{
+        prelude::{
+            string::String,
+            vec,
+            vec::Vec,
+        },
+        storage::Mapping,
+    };
+    use scale::{
+        Decode,
+        Encode,
+    };
 
     #[derive(Debug, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
@@ -129,7 +137,7 @@ mod storage_types {
         signed_integers: SignedIntegers,
         substrate_types: SubstrateTypes,
         unsigned_integers: UnsignedIntegers,
-        mapping_account_balance: Mapping<AccountId, Balance, ManualKey<123>>,
+        mapping_account_balance: Mapping<AccountId, Balance>,
     }
 
     impl Default for StorageTypes {
@@ -142,10 +150,9 @@ mod storage_types {
         #[ink(constructor)]
         pub fn new() -> Self {
             let vec_string_value = vec![
-                "This is a String".to_string(),
-                "This is another String".to_string(),
+                String::from("This is a String"),
+                String::from("This is another String"),
             ];
-
             let vec_vec_string_value = vec![vec_string_value.clone()];
 
             // Mappings
