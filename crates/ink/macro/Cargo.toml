@@ -31,7 +31,7 @@ ink = { path = ".." }
 ink_metadata = { path = "../../metadata" }
 ink_prelude = { path = "../../prelude" }
 ink_storage = { path = "../../storage" }
-scale-info = { version = "2.5", default-features = false, features = ["derive"] }
+scale-info = { git = "https://github.com/paritytech/scale-info", branch = "gn/json-schema", default-features = false, features = ["derive", "schema"] }
 
 [lib]
 name = "ink_macro"
