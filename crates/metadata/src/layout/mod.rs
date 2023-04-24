@@ -133,6 +133,7 @@ impl LayoutKey {
 ))]
 pub struct RootLayout<F: Form = MetaForm> {
     /// The root key of the sub-tree.
+    #[schemars(with = "String")]
     root_key: LayoutKey,
     /// The storage layout of the unbounded layout elements.
     layout: Box<Layout<F>>,
@@ -271,6 +272,7 @@ where
 ))]
 pub struct HashLayout<F: Form = MetaForm> {
     /// The key offset used by the strategy.
+    #[schemars(with = "String")]
     offset: LayoutKey,
     /// The hashing strategy to layout the underlying elements.
     strategy: HashingStrategy,
@@ -396,6 +398,7 @@ pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
     /// This is the same key as the element at index 0 of the array layout.
+    #[schemars(with = "String")]
     offset: LayoutKey,
     /// The number of elements in the array layout.
     len: u32,
@@ -594,6 +597,7 @@ pub struct EnumLayout<F: Form = MetaForm> {
     /// The name of the Enum.
     name: F::String,
     /// The key where the discriminant is stored to dispatch the variants.
+    #[schemars(with = "String")]
     dispatch_key: LayoutKey,
     /// The variants of the enum.
     variants: BTreeMap<Discriminant, StructLayout<F>>,
