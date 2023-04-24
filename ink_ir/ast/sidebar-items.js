@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Meta","MetaValue","Symbol"],"struct":["AttributeArgs","MetaNameValue"]};
+window.SIDEBAR_ITEMS = {"enum":[["Meta","Content of a compile-time structured attribute."],["MetaValue","Represents a value in a meta name-value pair."],["Symbol",""]],"struct":[["AttributeArgs","The attribute arguments for the configuration of an ink! smart contract."],["MetaNameValue","A name-value pair within an attribute, like `feature = \"nightly\"`."]]};

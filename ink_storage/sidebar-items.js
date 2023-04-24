@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Lazy","Mapping"]};
+window.SIDEBAR_ITEMS = {"struct":[["Lazy","A simple wrapper around a type to store it in a separate storage cell under its own storage key. If you want to update the value, first you need to `get` it, update the value, and then call `set` with the new value."],["Mapping","A mapping of key-value pairs directly into contract storage."]]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["test"]};
+window.SIDEBAR_ITEMS = {"attr":[["test","Defines an End-to-End test."]]};
