@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["LangError","An error emitted by the smart contracting language."]],"struct":[["AccountId","The default environment `AccountId` type."],["Hash","The default environment `Hash` type."],["KeyComposer","Contains all rules related to storage key creation."]],"trait":[["Clear","The equivalent of `Zero` for hashes."]],"type":[["Key","A key into the smart contract storage."]]};
+window.SIDEBAR_ITEMS = {"enum":["LangError"],"struct":["AccountId","Hash","KeyComposer"],"trait":["Clear"],"type":["Key"]};
