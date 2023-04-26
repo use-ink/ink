@@ -31,7 +31,7 @@ ink = { path = ".." }
 ink_metadata = { path = "../../metadata" }
 ink_prelude = { path = "../../prelude" }
 ink_storage = { path = "../../storage" }
-scale-info = { version = "2.6.0", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 
 [lib]
 name = "ink_macro"
