@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod event;
 mod storable;
 mod storable_hint;
 mod storage_key;
 mod storage_layout;
 
 use crate::storage::{
-    storable::storable_derive,
-    storable_hint::storable_hint_derive,
-    storage_key::storage_key_derive,
-    storage_layout::storage_layout_derive,
+    storable_derive,
+    storable_hint_derive,
+    storage_key_derive,
+    storage_layout_derive,
 };
 
 #[macro_export]
