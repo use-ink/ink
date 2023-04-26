@@ -35,7 +35,6 @@ pub fn event_derive(mut s: synstructure::Structure) -> TokenStream2 {
 /// `Event` derive implementation for `struct` types.
 fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
-    let mut variant= &s.variants_mut()[0];
 
     let anonymous = false; // todo read from struct attribute e.g. #[event(anonymous)]
 
@@ -52,18 +51,20 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
     //         ::ink::storage::traits::Storable::encode(#binding, __dest);
     //     )
     // });
-    let topics = variant.filter(|bi| {
+    s.variants_mut()[0].filter(|bi| {
         bi.ast().attrs.iter().any(|attr| {
-            attr.path.is_ident("topic")
+            attr.path().is_ident("topic")
         })
     });
 
-    let len_topics = topics.bindings().len();
+    let variant= &s.variants()[0];
+
+    let len_topics = variant.bindings().len();
     // Anonymous events require 1 fewer topics since they do not include their signature.
     let anonymous_topics_offset = usize::from(!anonymous);
     let remaining_topics_ty = match len_topics + anonymous_topics_offset {
-        0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
-        n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
+        0 => quote_spanned!(s.ast().span()=> ::ink::env::topics::state::NoRemainingTopics),
+        n => quote_spanned!(s.ast().span()=> [::ink::env::topics::state::HasRemainingTopics; #n]),
     };
 
     let event_signature_topic = signature_topic(variant.ast().fields, &variant.ast().ident);
@@ -80,14 +81,15 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
                 E: ::ink::env::Environment,
                 B: ::ink::env::topics::TopicsBuilderBackend<E>,
             {
-                match self { #topics_body }
-                builder
-                    .build::<Self>()
-                    #event_signature_topic
-                    #(
-                        #topic_impls
-                    )*
-                    .finish()
+                todo!()
+                // match self { #topics_body }
+                // builder
+                //     .build::<Self>()
+                //     #event_signature_topic
+                //     #(
+                //         #topic_impls
+                //     )*
+                //     .finish()
             }
          }
      })
@@ -100,9 +102,7 @@ pub fn signature_topic(fields: &syn::Fields, event_ident: &syn::Ident) -> [syn::
     let fields = fields
         .iter()
         .map(|field| {
-            field
-                .ty
-                .to_token_stream()
+            quote::ToTokens::to_token_stream(&field.ty)
                 .to_string()
                 .replace(" ", "")
         })
