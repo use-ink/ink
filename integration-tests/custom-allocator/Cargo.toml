@@ -1,19 +1,20 @@
 [package]
-name = "multi_contract_caller"
-version = "4.1.0"
+name = "custom-allocator"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
 
 [dependencies]
-ink = { path = "../../crates/ink", default-features = false }
+# We're going to use a different allocator than the one provided by ink!. To do that we
+# first need to disable the included memory allocator.
+ink = { path = "../../crates/ink", default-features = false, features = ["no-allocator"]  }
+
+# This is going to be our new global memory allocator.
+dlmalloc = {version = "0.2", default-features = false, features = ["global"] }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
-
-adder = { path = "adder", default-features = false, features = ["ink-as-dependency"] }
-subber = { path = "subber", default-features = false, features = ["ink-as-dependency"] }
-accumulator = { path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }
@@ -27,17 +28,6 @@ std = [
     "ink/std",
     "scale/std",
     "scale-info/std",
-
-    "adder/std",
-    "subber/std",
-    "accumulator/std",
 ]
 ink-as-dependency = []
 e2e-tests = []
-
-[workspace]
-members = [
-    "accumulator",
-    "adder",
-    "subber",
-]
