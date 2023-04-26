@@ -32,7 +32,7 @@ ink_metadata = { path = "../metadata", default-features = false }
 
 trybuild = { version = "1.0.60", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "gn/json-schema", default-features = false, features = ["derive", "schema"] }
+scale-info = { git = "https://github.com/paritytech/scale-info", default-features = false, features = ["derive"] }
 
 [features]
 default = ["std"]
