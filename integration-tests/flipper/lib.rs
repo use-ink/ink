@@ -2,9 +2,6 @@
 
 #[ink::contract]
 pub mod flipper {
-
-    const myConstant: bool = false;
-
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
@@ -14,7 +11,7 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self { value: myConstant }
+            Self { value: init_value }
         }
 
         /// Creates a new flipper smart contract initialized to `false`.
