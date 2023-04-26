@@ -195,6 +195,8 @@ pub trait Topics {
     /// builder.
     type RemainingTopics: EventTopicsAmount;
 
+    // const EVENT_SIGNATURE_TOPIC: [u8; 32];
+
     /// Guides event topic serialization using the given topics builder.
     fn topics<E, B>(
         &self,

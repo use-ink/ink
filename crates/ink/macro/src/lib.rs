@@ -22,6 +22,7 @@ extern crate proc_macro;
 mod blake2b;
 mod chain_extension;
 mod contract;
+mod event;
 mod ink_test;
 mod selector;
 mod storage;
@@ -1278,6 +1279,12 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
     chain_extension::generate(attr.into(), item.into()).into()
 }
+
+synstructure::decl_derive!(
+    [Event] =>
+    /// todo
+    event::event_derive
+);
 
 synstructure::decl_derive!(
     [Storable] =>
