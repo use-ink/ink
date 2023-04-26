@@ -29,6 +29,9 @@ mod storage;
 mod storage_item;
 mod trait_def;
 
+#[cfg(test)]
+mod tests;
+
 use proc_macro::TokenStream;
 
 /// Computes and expands into the BLAKE2b 256-bit hash of the string input.
