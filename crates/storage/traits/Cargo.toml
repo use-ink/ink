@@ -19,7 +19,7 @@ ink_metadata = { version = "4.1.0", path = "../../metadata", default-features = 
 ink_primitives = { version = "4.1.0", path = "../../primitives", default-features = false }
 ink_prelude = { version = "4.1.0", path = "../../prelude", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-info = { git = "https://github.com/paritytech/scale-info", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.6.0", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 paste = "1.0"
