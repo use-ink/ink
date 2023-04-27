@@ -24,29 +24,27 @@ use crate::event::event_derive;
 
 #[test]
 fn unit_struct_works() {
-    todo!()
-    // crate::test_derive! {
-    //     event_derive {
-    //         struct UnitStruct;
-    //     }
-    //     expands to {
-    //         const _: () = {
-    //             impl ::ink::storage::traits::Storable for UnitStruct {
-    //                 #[inline(always)]
-    //                 #[allow(non_camel_case_types)]
-    //                 fn decode<__ink_I: ::scale::Input>(__input: &mut __ink_I) -> ::core::result::Result<Self, ::scale::Error> {
-    //                     ::core::result::Result::Ok(UnitStruct)
-    //                 }
-    //
-    //                 #[inline(always)]
-    //                 #[allow(non_camel_case_types)]
-    //                 fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(&self, __dest: &mut __ink_O) {
-    //                     match self {
-    //                         UnitStruct => { }
-    //                     }
-    //                 }
-    //             }
-    //         };
-    //     }
-    // }
+    crate::test_derive! {
+        event_derive {
+            struct UnitStruct;
+        }
+        expands to {
+            const _: () = {
+                impl ::ink::env::Topics for UnitStruct {
+                    type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 1usize];
+
+                    fn topics<E, B>(
+                        &self,
+                        builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink::env::Environment,
+                        B: ::ink::env::topics::TopicsBuilderBackend<E>,
+                    {
+                        todo!()
+                    }
+                }
+            };
+        }
+    }
 }
