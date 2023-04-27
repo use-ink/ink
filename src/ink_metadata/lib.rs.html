@@ -154,6 +154,7 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -217,6 +218,7 @@
     PortableRegistry,
     Registry,
 };
+<span class="kw">use </span>schemars::JsonSchema;
 <span class="kw">use </span>serde::{
     Deserialize,
     Serialize,
@@ -232,7 +234,7 @@
 /// Versions other than the `Default` are considered deprecated. If you want to
 /// deserialize legacy metadata versions you will need to use an old version of
 /// this crate.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, JsonSchema)]
 </span><span class="kw">pub enum </span>MetadataVersion {
     <span class="attr">#[serde(rename = <span class="string">&quot;4&quot;</span>)]
     </span>V4,
@@ -245,7 +247,7 @@
 }
 
 <span class="doccomment">/// An entire ink! project for metadata file generation purposes.
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 </span><span class="kw">pub struct </span>InkProject {
     version: MetadataVersion,
     <span class="attr">#[serde(flatten)]

@@ -685,6 +685,20 @@
 <a href="#684" id="684">684</a>
 <a href="#685" id="685">685</a>
 <a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -727,6 +741,7 @@
     Registry,
     TypeInfo,
 };
+<span class="kw">use </span>schemars::JsonSchema;
 <span class="kw">use </span>serde::{
     de::DeserializeOwned,
     Deserialize,
@@ -734,7 +749,9 @@
 };
 
 <span class="doccomment">/// Represents the static storage layout of an ink! smart contract.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+</span><span class="attr">#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
@@ -761,7 +778,7 @@
 }
 
 <span class="doccomment">/// A pointer into some storage region.
-</span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, From)]
+</span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, From, JsonSchema)]
 </span><span class="kw">pub struct </span>LayoutKey {
     key: Key,
 }
@@ -808,13 +825,16 @@
 }
 
 <span class="doccomment">/// Sub-tree root.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+</span><span class="attr">#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
 </span>))]
 </span><span class="kw">pub struct </span>RootLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The root key of the sub-tree.
+    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
     </span>root_key: LayoutKey,
     <span class="doccomment">/// The storage layout of the unbounded layout elements.
     </span>layout: Box&lt;Layout&lt;F&gt;&gt;,
@@ -858,13 +878,16 @@
 }
 
 <span class="doccomment">/// A SCALE encoded cell.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+</span><span class="attr">#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize, JsonSchema,
+)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
 </span>))]
 </span><span class="kw">pub struct </span>LeafLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The offset key into the storage.
+    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
     </span>key: LayoutKey,
     <span class="doccomment">/// The type of the encoded entity.
     </span>ty: &lt;F <span class="kw">as </span>Form&gt;::Type,
@@ -943,13 +966,14 @@
 <span class="doccomment">/// A hashing layout potentially hitting all cells of the storage.
 ///
 /// Every hashing layout has an offset and a strategy to compute its keys.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
 </span>))]
 </span><span class="kw">pub struct </span>HashLayout&lt;F: Form = MetaForm&gt; {
     <span class="doccomment">/// The key offset used by the strategy.
+    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
     </span>offset: LayoutKey,
     <span class="doccomment">/// The hashing strategy to layout the underlying elements.
     </span>strategy: HashingStrategy,
@@ -1009,7 +1033,7 @@
 /// The offset key is used as another postfix for the computation.
 /// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
 /// Where `+` in this contexts means append of the byte slices.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 </span><span class="kw">pub struct </span>HashingStrategy {
     <span class="doccomment">/// One of the supported crypto hashers.
     </span>hasher: CryptoHasher,
@@ -1054,7 +1078,7 @@
 }
 
 <span class="doccomment">/// One of the supported crypto hashers.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 </span><span class="kw">pub enum </span>CryptoHasher {
     <span class="doccomment">/// The BLAKE-2 crypto hasher with an output of 256 bits.
     </span>Blake2x256,
@@ -1065,7 +1089,7 @@
 }
 
 <span class="doccomment">/// A layout for an array of associated cells with the same encoding.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
@@ -1075,6 +1099,7 @@
     <span class="doccomment">/// The offset key of the array layout.
     ///
     /// This is the same key as the element at index 0 of the array layout.
+    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
     </span>offset: LayoutKey,
     <span class="doccomment">/// The number of elements in the array layout.
     </span>len: u32,
@@ -1133,7 +1158,7 @@
 }
 
 <span class="doccomment">/// A struct layout with consecutive fields of different layout.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
@@ -1187,7 +1212,7 @@
 }
 
 <span class="doccomment">/// The layout for a particular field of a struct layout.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
@@ -1244,7 +1269,9 @@
 }
 
 <span class="doccomment">/// The discriminant of an enum variant.
-</span><span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(
+    Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema,
+)]
 </span><span class="kw">pub struct </span>Discriminant(usize);
 
 <span class="kw">impl </span>From&lt;usize&gt; <span class="kw">for </span>Discriminant {
@@ -1261,7 +1288,7 @@
 }
 
 <span class="doccomment">/// An enum storage layout.
-</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     deserialize = <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;
@@ -1271,6 +1298,7 @@
     <span class="doccomment">/// The name of the Enum.
     </span>name: F::String,
     <span class="doccomment">/// The key where the discriminant is stored to dispatch the variants.
+    </span><span class="attr">#[schemars(with = <span class="string">&quot;String&quot;</span>)]
     </span>dispatch_key: LayoutKey,
     <span class="doccomment">/// The variants of the enum.
     </span>variants: BTreeMap&lt;Discriminant, StructLayout&lt;F&gt;&gt;,
