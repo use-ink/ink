@@ -97,8 +97,6 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
         }
     );
 
-    println!("topics_builder: {}", topics_builder.to_string());
-
     s.gen_impl(quote! {
          gen impl ::ink::env::Topics for @Self {
             type RemainingTopics = #remaining_topics_ty;
