@@ -195,7 +195,9 @@ pub trait Topics {
     /// builder.
     type RemainingTopics: EventTopicsAmount;
 
-    // const EVENT_SIGNATURE_TOPIC: [u8; 32];
+    /// The unique signature topic of the event. `None` for anonymous events.
+    /// todo: document how this is calculated
+    const SIGNATURE_TOPIC: Option<[u8; 32]> = None;
 
     /// Guides event topic serialization using the given topics builder.
     fn topics<E, B>(

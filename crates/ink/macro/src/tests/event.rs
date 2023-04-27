@@ -41,7 +41,14 @@ fn unit_struct_works() {
                         E: ::ink::env::Environment,
                         B: ::ink::env::topics::TopicsBuilderBackend<E>,
                     {
-                        todo!()
+                        match self {
+                            UnitStruct => {
+                                builder
+                                    .build::<Self>()
+                                    .push_topic(&Self::SIGNATURE_TOPIC.expect("non-anonymous events must have a signature topic"))
+                                    .finish()
+                            }
+                        }
                     }
                 }
             };
