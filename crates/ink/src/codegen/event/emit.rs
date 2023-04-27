@@ -12,15 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::ContractEventBase;
-
 /// Allows for `self.env().emit_event(...)` syntax in ink! implementation blocks.
-pub trait EmitEvent<C>
-where
-    C: ContractEventBase,
-{
-    /// Emits an event that can be trivially converted into the base event.
+pub trait EmitEvent {
+    /// Emits an event.
     fn emit_event<E>(self, event: E)
     where
-        E: Into<<C as ContractEventBase>::Type>;
+        E: ink_env::Topics;
 }

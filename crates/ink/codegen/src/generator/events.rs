@@ -38,16 +38,16 @@ impl GenerateCode for Events<'_> {
             return TokenStream2::new()
         }
         let emit_event_trait_impl = self.generate_emit_event_trait_impl();
-        let event_base = self.generate_event_base();
-        let topic_guards = self.generate_topic_guards();
-        let topics_impls = self.generate_topics_impls();
+        // let event_base = self.generate_event_base();
+        // let topic_guards = self.generate_topic_guards();
+        // let topics_impls = self.generate_topics_impls();
         let event_structs = self.generate_event_structs();
         quote! {
             #emit_event_trait_impl
-            #event_base
-            #( #topic_guards )*
+            // #event_base
+            // #( #topic_guards )*
             #( #event_structs )*
-            #( #topics_impls )*
+            // #( #topics_impls )*
         }
     }
 }
@@ -56,18 +56,19 @@ impl<'a> Events<'a> {
     /// Used to allow emitting user defined events directly instead of converting
     /// them first into the automatically generated base trait of the contract.
     fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
-        let storage_ident = &self.contract.module().storage().ident();
         quote! {
             const _: () = {
-                impl<'a> ::ink::codegen::EmitEvent<#storage_ident> for ::ink::EnvAccess<'a, Environment> {
+                impl<'a> ::ink::codegen::EmitEvent for ::ink::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
-                        E: Into<<#storage_ident as ::ink::reflect::ContractEventBase>::Type>,
+                        E: ::ink::env::Topics,
                     {
+                        // todo: use pattern from playground to enforce max topics length here?
+                        // get concrete <Environment as Environment>::MAX_TOPICS. Do `Assert` inside emit_event???
                         ::ink::env::emit_event::<
                             Environment,
-                            <#storage_ident as ::ink::reflect::ContractEventBase>::Type
-                        >(event.into());
+                            E
+                        >(event);
                     }
                 }
             };
@@ -291,7 +292,7 @@ impl<'a> Events<'a> {
             });
             quote_spanned!(span =>
                 #( #attrs )*
-                #[derive(scale::Encode, scale::Decode)]
+                #[derive(::ink::Event, scale::Encode, scale::Decode)]
                 pub struct #ident {
                     #( #fields ),*
                 }
