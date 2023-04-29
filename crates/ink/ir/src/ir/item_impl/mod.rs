@@ -62,11 +62,11 @@ use super::utils::extract_cfg_attributes;
 /// # Note
 ///
 /// - This can be either an inherent implementation block that implements some
-///   constructors, messages or internal functions for the storage struct; OR it
-///   can be a trait implementation for the storage struct.
+///   constructors, messages or internal functions for the storage struct; OR it can be a
+///   trait implementation for the storage struct.
 /// - We try to support all fields that are supported by the underlying `syn`
-///   implementation for [`syn::ItemImpl`] even though they are not really
-///   required to represent ink!. This is done for consistency with `syn`.
+///   implementation for [`syn::ItemImpl`] even though they are not really required to
+///   represent ink!. This is done for consistency with `syn`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ItemImpl {
     attrs: Vec<syn::Attribute>,
@@ -74,7 +74,7 @@ pub struct ItemImpl {
     unsafety: Option<syn::token::Unsafe>,
     impl_token: syn::token::Impl,
     generics: syn::Generics,
-    trait_: Option<(Option<syn::token::Bang>, syn::Path, syn::token::For)>,
+    trait_: Option<(Option<syn::Token![!]>, syn::Path, syn::token::For)>,
     self_ty: Box<syn::Type>,
     brace_token: syn::token::Brace,
     items: Vec<ImplItem>,
@@ -130,22 +130,22 @@ impl ItemImpl {
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_function(&self) {
-    ///         /* inherent method implementation */
+    ///         // inherent method implementation
     ///         unimplemented!()
     ///     }
     /// }
     /// # }).unwrap();
     /// ```
     ///
-    /// - Or if any of the ink! implementation block methods do have ink!
-    ///   specific annotations:
+    /// - Or if any of the ink! implementation block methods do have ink! specific
+    ///   annotations:
     ///
     /// ```
     /// # <ink_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]
     ///     pub fn my_constructor() -> Self {
-    ///         /* constructor implementation */
+    ///         // constructor implementation
     ///         unimplemented!()
     ///     }
     /// }
@@ -190,11 +190,11 @@ impl ItemImpl {
         // an ink! constructor or an ink! message:
         'repeat: for item in &item_impl.items {
             match item {
-                syn::ImplItem::Method(method_item) => {
-                    if !ir::contains_ink_attributes(&method_item.attrs) {
+                syn::ImplItem::Fn(fn_item) => {
+                    if !ir::contains_ink_attributes(&fn_item.attrs) {
                         continue 'repeat
                     }
-                    let attr = ir::first_ink_attribute(&method_item.attrs)?
+                    let attr = ir::first_ink_attribute(&fn_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
                         ir::AttributeArg::Constructor | ir::AttributeArg::Message => {

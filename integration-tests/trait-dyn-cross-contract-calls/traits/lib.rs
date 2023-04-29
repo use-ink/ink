@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 //! The trait is extracted into a separate crate to show how to do cross-contract
 //! calls only with traits without importing the contract.

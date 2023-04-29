@@ -20,7 +20,8 @@
 //! from and to the contract's storage.
 //!
 //! The [`Packed`] shows that the type can be stored into single storage cell.
-//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed structures.
+//! In most cases, collections(`Vec`, `HashMap`, `HashSet` etc.) work only with packed
+//! structures.
 //!
 //! If at least one of the type's fields occupies its own separate storage cell, it is a
 //! non-[`Packed`] type because it occupies more than one storage cell.

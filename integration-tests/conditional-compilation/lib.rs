@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::trait_definition]
@@ -55,21 +55,21 @@ pub mod conditional_compilation {
             }
         }
 
-        /// Constructor that included when `foo` is enabled
+        /// Constructor that is included when `foo` is enabled
         #[cfg(feature = "foo")]
         #[ink(constructor)]
         pub fn new_foo(value: bool) -> Self {
             Self { value }
         }
 
-        /// Constructor that included when `bar` is enabled
+        /// Constructor that is included when `bar` is enabled
         #[cfg(feature = "bar")]
         #[ink(constructor)]
         pub fn new_bar(value: bool) -> Self {
             Self { value }
         }
 
-        /// Constructor that included with either `foo` or `bar` features enabled
+        /// Constructor that is included with either `foo` or `bar` features enabled
         #[cfg(feature = "foo")]
         #[cfg(feature = "bar")]
         #[ink(constructor)]

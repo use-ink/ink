@@ -36,6 +36,8 @@ pub use self::specs::{
     ContractSpec,
     ContractSpecBuilder,
     DisplayName,
+    EnvironmentSpec,
+    EnvironmentSpecBuilder,
     EventParamSpec,
     EventParamSpecBuilder,
     EventSpec,
@@ -51,6 +53,7 @@ pub use self::specs::{
 
 use impl_serde::serialize as serde_hex;
 
+pub use scale_info::TypeInfo;
 #[cfg(feature = "derive")]
 use scale_info::{
     form::PortableForm,
@@ -58,6 +61,7 @@ use scale_info::{
     PortableRegistry,
     Registry,
 };
+use schemars::JsonSchema;
 use serde::{
     Deserialize,
     Serialize,
@@ -73,7 +77,7 @@ use serde::{
 /// Versions other than the `Default` are considered deprecated. If you want to
 /// deserialize legacy metadata versions you will need to use an old version of
 /// this crate.
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, JsonSchema)]
 pub enum MetadataVersion {
     #[serde(rename = "4")]
     V4,
@@ -86,7 +90,7 @@ impl Default for MetadataVersion {
 }
 
 /// An entire ink! project for metadata file generation purposes.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct InkProject {
     version: MetadataVersion,
     #[serde(flatten)]

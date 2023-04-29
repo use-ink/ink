@@ -58,7 +58,7 @@ use syn::spanned::Spanned as _;
 /// impl MyTrait for MyStorage {
 ///     #[ink(constructor)]
 ///     fn new(init_value: i32) -> Self {
-///         /* contract initialization goes here */
+///         // contract initialization goes here
 /// #       unimplemented!()
 ///     }
 /// }
@@ -67,9 +67,11 @@ use syn::spanned::Spanned as _;
 #[derive(Debug, PartialEq, Eq)]
 pub struct Constructor {
     /// The underlying Rust method item.
-    pub(super) item: syn::ImplItemMethod,
+    pub(super) item: syn::ImplItemFn,
     /// If the ink! constructor can receive funds.
     is_payable: bool,
+    /// If the ink! constructor is default.
+    is_default: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -94,7 +96,7 @@ impl Constructor {
     /// # Errors
     ///
     /// If the ink! constructor is missing a return type.
-    fn ensure_return(method_item: &syn::ImplItemMethod) -> Result<(), syn::Error> {
+    fn ensure_return(method_item: &syn::ImplItemFn) -> Result<(), syn::Error> {
         if let syn::ReturnType::Default = &method_item.sig.output {
             return Err(format_err_spanned!(
                 &method_item.sig,
@@ -112,9 +114,7 @@ impl Constructor {
     ///
     /// If the ink! constructor has a `&self`, `&mut self`, `self` or any other
     /// kind of a `self` receiver as first argument.
-    fn ensure_no_self_receiver(
-        method_item: &syn::ImplItemMethod,
-    ) -> Result<(), syn::Error> {
+    fn ensure_no_self_receiver(method_item: &syn::ImplItemFn) -> Result<(), syn::Error> {
         match method_item.sig.inputs.iter().next() {
             None | Some(syn::FnArg::Typed(_)) => (),
             Some(syn::FnArg::Receiver(receiver)) => {
@@ -131,7 +131,7 @@ impl Constructor {
     ///
     /// Returns a tuple of ink! attributes and non-ink! attributes.
     fn sanitize_attributes(
-        method_item: &syn::ImplItemMethod,
+        method_item: &syn::ImplItemFn,
     ) -> Result<(ir::InkAttribute, Vec<syn::Attribute>), syn::Error> {
         ir::sanitize_attributes(
             method_item.span(),
@@ -141,6 +141,7 @@ impl Constructor {
                 match arg.kind() {
                     ir::AttributeArg::Constructor
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Default
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
@@ -149,20 +150,22 @@ impl Constructor {
     }
 }
 
-impl TryFrom<syn::ImplItemMethod> for Constructor {
+impl TryFrom<syn::ImplItemFn> for Constructor {
     type Error = syn::Error;
 
-    fn try_from(method_item: syn::ImplItemMethod) -> Result<Self, Self::Error> {
+    fn try_from(method_item: syn::ImplItemFn) -> Result<Self, Self::Error> {
         ensure_callable_invariants(&method_item, CallableKind::Constructor)?;
         Self::ensure_return(&method_item)?;
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
+        let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
         Ok(Constructor {
             selector,
             is_payable,
-            item: syn::ImplItemMethod {
+            is_default,
+            item: syn::ImplItemFn {
                 attrs: other_attrs,
                 ..method_item
             },
@@ -187,19 +190,24 @@ impl Callable for Constructor {
     }
 
     fn has_wildcard_selector(&self) -> bool {
-        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
-            return true
-        }
-        false
+        matches!(self.selector, Some(SelectorOrWildcard::Wildcard))
+    }
+
+    fn has_wildcard_complement_selector(&self) -> bool {
+        self.selector == Some(SelectorOrWildcard::wildcard_complement())
     }
 
     fn is_payable(&self) -> bool {
         self.is_payable
     }
 
+    fn is_default(&self) -> bool {
+        self.is_default
+    }
+
     fn visibility(&self) -> Visibility {
         match &self.item.vis {
-            syn::Visibility::Public(vis_public) => Visibility::Public(vis_public.clone()),
+            syn::Visibility::Public(vis_public) => Visibility::Public(*vis_public),
             syn::Visibility::Inherited => Visibility::Inherited,
             _ => unreachable!("encountered invalid visibility for ink! constructor"),
         }
@@ -255,7 +263,7 @@ mod tests {
                 ]
             }};
         }
-        let test_inputs: Vec<(Vec<syn::FnArg>, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(Vec<syn::FnArg>, syn::ImplItemFn)> = vec![
             (
                 // No inputs:
                 expected_inputs!(),
@@ -294,7 +302,7 @@ mod tests {
 
     #[test]
     fn is_payable_works() {
-        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(bool, syn::ImplItemFn)> = vec![
             // Not payable.
             (
                 false,
@@ -339,8 +347,36 @@ mod tests {
     }
 
     #[test]
+    fn is_default_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemFn)> = vec![
+            // Not default.
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // Default constructor.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor, default)]
+                    pub fn my_constructor() -> Self {}
+                },
+            ),
+        ];
+        for (expect_default, item_method) in test_inputs {
+            let is_default = <ir::Constructor as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .is_default();
+            assert_eq!(is_default, expect_default);
+        }
+    }
+
+    #[test]
     fn visibility_works() {
-        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+        let test_inputs: Vec<(bool, syn::ImplItemFn)> = vec![
             // inherited
             (
                 false,
@@ -369,7 +405,7 @@ mod tests {
 
     #[test]
     fn try_from_works() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // simple + inherited visibility
             syn::parse_quote! {
                 #[ink(constructor)]
@@ -396,7 +432,7 @@ mod tests {
         }
     }
 
-    fn assert_try_from_fails(item_method: syn::ImplItemMethod, expected_err: &str) {
+    fn assert_try_from_fails(item_method: syn::ImplItemFn, expected_err: &str) {
         assert_eq!(
             <ir::Constructor as TryFrom<_>>::try_from(item_method)
                 .map_err(|err| err.to_string()),
@@ -406,7 +442,7 @@ mod tests {
 
     #[test]
     fn try_from_missing_return_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 fn my_constructor() {}
@@ -423,7 +459,7 @@ mod tests {
 
     #[test]
     fn try_from_invalid_self_receiver_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 fn my_constructor(&self) -> Self {}
@@ -451,7 +487,7 @@ mod tests {
 
     #[test]
     fn try_from_generics_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 fn my_constructor<T>() -> Self {}
@@ -468,7 +504,7 @@ mod tests {
 
     #[test]
     fn try_from_const_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 const fn my_constructor() -> Self {}
@@ -485,7 +521,7 @@ mod tests {
 
     #[test]
     fn try_from_async_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 async fn my_constructor() -> Self {}
@@ -502,7 +538,7 @@ mod tests {
 
     #[test]
     fn try_from_unsafe_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 unsafe fn my_constructor() -> Self {}
@@ -519,7 +555,7 @@ mod tests {
 
     #[test]
     fn try_from_explicit_abi_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 extern "C" fn my_constructor() -> Self {}
@@ -539,7 +575,7 @@ mod tests {
 
     #[test]
     fn try_from_variadic_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
                 fn my_constructor(...) -> Self {}
@@ -556,10 +592,10 @@ mod tests {
 
     #[test]
     fn try_from_visibility_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             syn::parse_quote! {
                 #[ink(constructor)]
-                crate fn my_constructor() -> Self {}
+                pub(crate) fn my_constructor() -> Self {}
             },
             syn::parse_quote! {
                 #[ink(constructor)]
@@ -576,7 +612,7 @@ mod tests {
 
     #[test]
     fn conflicting_attributes_fails() {
-        let item_methods: Vec<syn::ImplItemMethod> = vec![
+        let item_methods: Vec<syn::ImplItemFn> = vec![
             // storage
             syn::parse_quote! {
                 #[ink(constructor, storage)]
@@ -604,7 +640,7 @@ mod tests {
 
     #[test]
     fn try_from_wildcard_constructor_works() {
-        let item: syn::ImplItemMethod = syn::parse_quote! {
+        let item: syn::ImplItemFn = syn::parse_quote! {
             #[ink(constructor, selector = _)]
             pub fn my_constructor() -> Self {}
         };

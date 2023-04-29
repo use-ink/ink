@@ -89,8 +89,7 @@ impl GenerateCode for Dispatch<'_> {
             #constructor_decoder_type
             #message_decoder_type
 
-            #[cfg(not(test))]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #[cfg(not(any(test, feature = "std", feature = "ink-as-dependency")))]
             const _: () = {
                 #entry_points
             };
@@ -108,7 +107,8 @@ impl Dispatch<'_> {
             .position(|item| item.has_wildcard_selector())
     }
 
-    /// Returns the index of the ink! constructor which has a wildcard selector, if existent.
+    /// Returns the index of the ink! constructor which has a wildcard selector, if
+    /// existent.
     fn query_wildcard_constructor(&self) -> Option<usize> {
         self.contract
             .module()
@@ -351,10 +351,8 @@ impl Dispatch<'_> {
             self.any_constructor_accepts_payment(constructors);
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
         quote_spanned!(span=>
-            #[cfg(not(test))]
-            #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
-            fn deploy() {
+            fn internal_deploy() {
                 if !#any_constructor_accept_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
@@ -389,10 +387,8 @@ impl Dispatch<'_> {
                 })
             }
 
-            #[cfg(not(test))]
-            #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
-            fn call() {
+            fn internal_call() {
                 if !#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
@@ -426,13 +422,37 @@ impl Dispatch<'_> {
                     ::core::panic!("dispatching ink! message failed: {}", error)
                 })
             }
+
+            #[cfg(target_arch = "wasm32")]
+            #[no_mangle]
+            pub extern "C" fn call() {
+                internal_call()
+            }
+
+            #[cfg(target_arch = "wasm32")]
+            #[no_mangle]
+            pub extern "C" fn deploy() {
+                internal_deploy()
+            }
+
+            #[cfg(target_arch = "riscv32")]
+            #[no_mangle]
+            pub extern "C" fn _start(call_flags: u32) {
+                let is_deploy = (call_flags & 0x0000_0001) == 1;
+                if is_deploy {
+                    internal_deploy()
+                } else {
+                    internal_call()
+                }
+            }
         )
     }
 
     /// Generates code for the ink! constructor decoder type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `deploy`
-    /// into one of the available dispatchable ink! constructors and their arguments.
+    /// This type can be used in order to decode the input bytes received by a call to
+    /// `deploy` into one of the available dispatchable ink! constructors and their
+    /// arguments.
     fn generate_constructor_decoder_type(
         &self,
         constructors: &[ConstructorDispatchable],
@@ -634,8 +654,9 @@ impl Dispatch<'_> {
 
     /// Generates code for the ink! message decoder type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `call`
-    /// into one of the available dispatchable ink! messages and their arguments.
+    /// This type can be used in order to decode the input bytes received by a call to
+    /// `call` into one of the available dispatchable ink! messages and their
+    /// arguments.
     fn generate_message_decoder_type(
         &self,
         messages: &[MessageDispatchable],
@@ -899,8 +920,8 @@ impl Dispatch<'_> {
     /// in which case the default assignment `let constructor_{id} = false` exists.
     ///
     /// This information can be used to speed-up dispatch since denying of payment
-    /// can be generalized to work before dispatch happens if none of the ink! constructors
-    /// accept payment anyways.
+    /// can be generalized to work before dispatch happens if none of the ink!
+    /// constructors accept payment anyways.
     fn any_constructor_accepts_payment(
         &self,
         constructors: &[ConstructorDispatchable],

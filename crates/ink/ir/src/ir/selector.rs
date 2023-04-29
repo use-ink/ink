@@ -34,8 +34,8 @@ pub struct TraitPrefix<'a> {
     /// The namespace of the ink! trait definition.
     ///
     /// By default this is equal to the `module_path!` at the ink! trait definition site.
-    /// It can be customized by the ink! trait definition author using `#[ink(namespace = N)]`
-    /// ink! attribute.
+    /// It can be customized by the ink! trait definition author using `#[ink(namespace =
+    /// N)]` ink! attribute.
     namespace: Option<&'a syn::LitStr>,
     /// The Rust identifier of the ink! trait definition.
     trait_ident: &'a syn::Ident,
@@ -73,15 +73,15 @@ impl Selector {
 
     /// # Note
     ///
-    /// - `trait_prefix` is `None` when computing the selector of ink! constructors
-    ///   and messages in inherent implementation blocks.
-    /// - `trait_prefix` is `Some` when computing the selector of ink! constructors
-    ///   and messages in trait implementation blocks. In this case the `namespace`
-    ///   is either the full path of the trait definition gained by Rust's
-    ///   `module_path!` macro by default or it is customized by manual application
-    ///   of the `#[ink(namespace = "my_namespace")]` ink! attribute. In the
-    ///   example `my_namespace` concatenated with `::` and the identifier of the
-    ///   trait definition would then be part of the provided `trait_prefix` parameter.
+    /// - `trait_prefix` is `None` when computing the selector of ink! constructors and
+    ///   messages in inherent implementation blocks.
+    /// - `trait_prefix` is `Some` when computing the selector of ink! constructors and
+    ///   messages in trait implementation blocks. In this case the `namespace` is either
+    ///   the full path of the trait definition gained by Rust's `module_path!` macro by
+    ///   default or it is customized by manual application of the `#[ink(namespace =
+    ///   "my_namespace")]` ink! attribute. In the example `my_namespace` concatenated
+    ///   with `::` and the identifier of the trait definition would then be part of the
+    ///   provided `trait_prefix` parameter.
     /// - `fn_ident` refers to the ink! constructor or message identifier.
     ///
     /// # Inherent Implementation Blocks

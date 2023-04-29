@@ -108,7 +108,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             let some_cfg_attrs = field
                 .attrs
                 .iter()
-                .find(|attr| attr.path.is_ident(CFG_IDENT));
+                .find(|attr| attr.path().is_ident(CFG_IDENT));
             if some_cfg_attrs.is_some() {
                 return Err(format_err!(
                     field_span,

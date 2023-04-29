@@ -4,7 +4,7 @@
 //! The `Caller` doesn't use the `trait_incrementer::IncrementerRef`. Instead,
 //! all interactions with the `Incrementer` is done through the wrapper from
 //! `ink::contract_ref!` and the trait `dyn_traits::Increment`.
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 #![allow(clippy::new_without_default)]
 
 #[ink::contract]
@@ -55,8 +55,8 @@ mod e2e_tests {
     type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
     /// A test deploys and instantiates the `trait_incrementer::Incrementer` and
-    /// `trait_incrementer_caller::Caller` contracts, where the `Caller` uses the account id
-    /// of the `Incrementer` for instantiation.
+    /// `trait_incrementer_caller::Caller` contracts, where the `Caller` uses the account
+    /// id of the `Incrementer` for instantiation.
     ///
     /// The test verifies that we can increment the value of the `Incrementer` contract
     /// through the `Caller` contract.

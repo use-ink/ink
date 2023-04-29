@@ -208,8 +208,9 @@ struct ContractManifests {
 }
 
 impl ContractManifests {
-    /// Load any manifests for packages which are detected to be `ink!` contracts. Any package
-    /// with the `ink-as-dependency` feature enabled is assumed to be an `ink!` contract.
+    /// Load any manifests for packages which are detected to be `ink!` contracts. Any
+    /// package with the `ink-as-dependency` feature enabled is assumed to be an
+    /// `ink!` contract.
     fn from_cargo_metadata() -> Self {
         let cmd = cargo_metadata::MetadataCommand::new();
         let metadata = cmd
@@ -248,8 +249,8 @@ impl ContractManifests {
         }
     }
 
-    /// Returns all the contract manifests which are to be built, including the root package
-    /// if it is determined to be an `ink!` contract.
+    /// Returns all the contract manifests which are to be built, including the root
+    /// package if it is determined to be an `ink!` contract.
     fn all_contracts_to_build(&self) -> Vec<String> {
         let mut all_manifests: Vec<String> = self.root_package.iter().cloned().collect();
         all_manifests.append(&mut self.contract_dependencies.clone());

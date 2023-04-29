@@ -9,10 +9,7 @@ mod contract {
             Self {}
         }
 
-        #[ink(message)]
-        pub fn message_0(&self) {}
-
-        #[ink(message, selector = 1)]
+        #[ink(message, selector = @)]
         pub fn message_1(&self) {}
 
         #[ink(message, selector = _)]

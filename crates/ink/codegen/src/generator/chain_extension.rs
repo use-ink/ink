@@ -133,6 +133,9 @@ impl GenerateCode for ChainExtension<'_> {
         let instance_ident = format_ident!("__ink_{}Instance", ident);
         quote_spanned!(span =>
             #(#attrs)*
+            #[cfg_attr(feature = "std", derive(
+                ::scale_info::TypeInfo,
+            ))]
             pub enum #ident {}
 
             const _: () = {
