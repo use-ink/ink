@@ -122,7 +122,7 @@ impl InnerAlloc {
                 // # SAFETY
                 //
                 // The `__heap_base` symbol is defined by the wasm linker and is guaranteed
-                // to point to the start of the heap. 
+                // to point to the start of the heap.
                 let heap_start =  unsafe { &__heap_base as *const usize as usize };
                 // if the symbol isn't found it will resolve to 0
                 // for that to happen the rust compiler or linker need to break or change
