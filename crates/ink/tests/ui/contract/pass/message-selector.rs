@@ -30,7 +30,7 @@ mod contract {
         #[ink(message, selector = 0xC0DE_CAFE)]
         pub fn message_2(&self) {}
 
-        #[ink(message, selector = _)]
+        #[ink(message)]
         pub fn message_3(&self) {}
     }
 

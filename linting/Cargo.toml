@@ -1,6 +1,6 @@
 [package]
 name = "ink_linting"
-version = "4.1.0"
+version = "4.2.0"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 publish = false
@@ -34,7 +34,7 @@ ink_metadata = { path = "../crates/metadata", default-features = false }
 ink_primitives = { path = "../crates/primitives", default-features = false }
 ink_storage = { path = "../crates/storage", default-features = false }
 scale = { package = "parity-scale-codec", version = "3.4", default-features = false, features = ["derive"] }
-scale-info = { version = "2.5", default-features = false, features = ["derive"] }
+scale-info = { version = "2.6", default-features = false, features = ["derive"] }
 
 # For the moment we have to include the tests as examples and
 # then use `dylint_testing::ui_test_examples`.

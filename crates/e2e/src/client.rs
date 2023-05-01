@@ -31,6 +31,7 @@ use ink_env::Environment;
 use ink_primitives::MessageResult;
 use pallet_contracts_primitives::ExecReturnValue;
 use sp_core::Pair;
+#[cfg(feature = "std")]
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -42,10 +43,14 @@ use subxt::{
     blocks::ExtrinsicEvents,
     config::ExtrinsicParams,
     events::EventDetails,
-    ext::scale_value::{
-        Composite,
-        Value,
-        ValueDef,
+    ext::{
+        scale_decode,
+        scale_encode,
+        scale_value::{
+            Composite,
+            Value,
+            ValueDef,
+        },
     },
     tx::PairSigner,
 };
@@ -279,6 +284,8 @@ where
     CallExtrinsic(subxt::error::DispatchError),
     /// Error fetching account balance.
     Balance(String),
+    /// Decoding failed.
+    Decoding(subxt::Error),
 }
 
 // We implement a custom `Debug` here, as to avoid requiring the trait
@@ -307,12 +314,21 @@ where
             Error::CallDryRun(_) => f.write_str("CallDryRun"),
             Error::CallExtrinsic(_) => f.write_str("CallExtrinsic"),
             Error::Balance(msg) => write!(f, "Balance: {msg}"),
+            Error::Decoding(err) => write!(f, "Decoding: {err}"),
         }
     }
 }
 
 /// A contract was successfully instantiated.
-#[derive(Debug, scale::Decode, scale::Encode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 struct ContractInstantiatedEvent<E: Environment> {
     /// Account id of the deployer.
     pub deployer: E::AccountId,
@@ -329,7 +345,15 @@ where
 }
 
 /// Code with the specified hash has been stored.
-#[derive(Debug, scale::Decode, scale::Encode)]
+#[derive(
+    Debug,
+    scale::Decode,
+    scale::Encode,
+    scale_decode::DecodeAsType,
+    scale_encode::EncodeAsType,
+)]
+#[decode_as_type(trait_bounds = "", crate_path = "subxt::ext::scale_decode")]
+#[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 struct CodeStoredEvent<E: Environment> {
     /// Hash under which the contract code was stored.
     pub code_hash: E::Hash,
@@ -548,7 +572,7 @@ where
             .api
             .instantiate_with_code(
                 value,
-                dry_run.gas_required,
+                dry_run.gas_required.into(),
                 storage_deposit_limit,
                 code,
                 data.clone(),
@@ -580,10 +604,9 @@ where
                 // multiple accounts as part of its constructor!
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
                 log_error(&format!(
                     "extrinsic for instantiate failed: {dispatch_error:?}"
                 ));
@@ -672,10 +695,10 @@ where
                 break
             } else if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+
                 log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
                 return Err(Error::UploadExtrinsic(dispatch_error))
             }
@@ -727,9 +750,9 @@ where
         let tx_events = self
             .api
             .call(
-                sp_runtime::MultiAddress::Id(message.account_id().clone()),
+                subxt::utils::MultiAddress::Id(message.account_id().clone()),
                 value,
-                dry_run.exec_result.gas_required,
+                dry_run.exec_result.gas_required.into(),
                 storage_deposit_limit,
                 message.exec_input().to_vec(),
                 signer,
@@ -743,10 +766,9 @@ where
 
             if is_extrinsic_failed_event(&evt) {
                 let metadata = self.api.client.metadata();
-                let dispatch_error = subxt::error::DispatchError::decode_from(
-                    evt.field_bytes(),
-                    &metadata,
-                );
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
                 log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
@@ -756,6 +778,48 @@ where
             dry_run,
             events: tx_events,
         })
+    }
+
+    /// Executes a runtime call `call_name` for the `pallet_name`.
+    /// The `call_data` is a `Vec<Value>`
+    ///
+    /// Note:
+    /// - `pallet_name` must be in camel case, for example `Balances`.
+    /// - `call_name` must be snake case, for example `force_transfer`.
+    /// - `call_data` is a `Vec<subxt::dynamic::Value>` that holds a representation of
+    ///   some value.
+    ///
+    /// Returns when the transaction is included in a block. The return value
+    /// contains all events that are associated with this transaction.
+    pub async fn runtime_call<'a>(
+        &mut self,
+        signer: &Signer<C>,
+        pallet_name: &'a str,
+        call_name: &'a str,
+        call_data: Vec<Value>,
+    ) -> Result<ExtrinsicEvents<C>, Error<C, E>> {
+        let tx_events = self
+            .api
+            .runtime_call(signer, pallet_name, call_name, call_data)
+            .await;
+
+        for evt in tx_events.iter() {
+            let evt = evt.unwrap_or_else(|err| {
+                panic!("unable to unwrap event: {err:?}");
+            });
+
+            if is_extrinsic_failed_event(&evt) {
+                let metadata = self.api.client.metadata();
+                let dispatch_error =
+                    subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
+                        .map_err(Error::Decoding)?;
+
+                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
+                return Err(Error::CallExtrinsic(dispatch_error))
+            }
+        }
+
+        Ok(tx_events)
     }
 
     /// Executes a dry-run `call`.
@@ -815,7 +879,7 @@ where
             .api
             .client
             .storage()
-            .at(None)
+            .at_latest()
             .await
             .unwrap_or_else(|err| {
                 panic!("unable to fetch balance: {err:?}");

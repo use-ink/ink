@@ -10,6 +10,7 @@ jobs:
   fetch-issues:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 3
       matrix:
         # List of repositories to fetch the issues
         repo:
@@ -25,6 +26,11 @@ jobs:
           - pallet-contracts-xcm
           - link
           - ink-examples
+          - useink
+          - awesome-ink
+          - squink-splash-beginner
+          - squink-splash-advanced
+          - ink-workshop
     steps:
       - name: Generate token
         id: generate_token
@@ -79,7 +85,7 @@ jobs:
           if [ $COUNT = "0" ]; then
             echo "MESSAGE=$EMPTY_MESSAGE" >> $GITHUB_OUTPUT
           else
-            MESSAGE=$(echo $COMBINED | jq -r '. | sort_by(.daysStale) | reverse[:8]| .[] | "- [\(.title)](\(.url)) | \(.daysStale) days with no reply"')
+            MESSAGE=$(echo $COMBINED | jq -r '. | sort_by(.daysStale) | reverse[:8]| to_entries | .[] | "\(.key). [\(.value.title)](\(.value.url)) | \(.value.daysStale) days with no reply"')
             delimiter="$(openssl rand -hex 8)"
             echo "MESSAGE<<${delimiter}" >> "${GITHUB_OUTPUT}"
             echo "$MESSAGE" >> "${GITHUB_OUTPUT}"
@@ -104,5 +110,5 @@ jobs:
 
             ${{ steps.message.outputs.MESSAGE }}
 
-            Find all the stale issues [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+            Unfortunately there are more stale issues. The above list is limited to 8 entries. Find all the stale issues [here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
           server: "m.parity.io"

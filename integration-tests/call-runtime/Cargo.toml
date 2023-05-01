@@ -9,7 +9,7 @@ publish = false
 ink = { path = "../../crates/ink", default-features = false, features = ["call-runtime"] }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2.5", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
 # Substrate
 #
@@ -17,8 +17,8 @@ scale-info = { version = "2.5", default-features = false, features = ["derive"],
 # (especially for global allocator).
 #
 # See also: https://substrate.stackexchange.com/questions/4733/error-when-compiling-a-contract-using-the-xcm-chain-extension.
-sp-io = { version = "18.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
-sp-runtime = { version = "19.0.0", default-features = false }
+sp-io = { version = "22.0.0", default-features = false, features = ["disable_panic_handler", "disable_oom", "disable_allocator"] }
+sp-runtime = { version = "23.0.0", default-features = false }
 
 [dev-dependencies]
 ink_e2e = { path = "../../crates/e2e" }

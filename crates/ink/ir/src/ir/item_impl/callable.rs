@@ -116,8 +116,16 @@ where
         <C as Callable>::is_payable(self.callable)
     }
 
+    fn is_default(&self) -> bool {
+        <C as Callable>::is_default(self.callable)
+    }
+
     fn has_wildcard_selector(&self) -> bool {
         <C as Callable>::has_wildcard_selector(self.callable)
+    }
+
+    fn has_wildcard_complement_selector(&self) -> bool {
+        <C as Callable>::has_wildcard_complement_selector(self.callable)
     }
 
     fn visibility(&self) -> Visibility {
@@ -166,8 +174,18 @@ pub trait Callable {
     /// Flagging as payable is done using the `#[ink(payable)]` attribute.
     fn is_payable(&self) -> bool;
 
+    /// Returns `true` if the ink! callable is flagged as default.
+    ///
+    /// # Note
+    ///
+    /// Flagging as default is done using the `#[ink(default)]` attribute.
+    fn is_default(&self) -> bool;
+
     /// Returns `true` if the ink! callable is flagged as a wildcard selector.
     fn has_wildcard_selector(&self) -> bool;
+
+    /// Returns `true` if the ink! callable is flagged as a wildcard complement selector.
+    fn has_wildcard_complement_selector(&self) -> bool;
 
     /// Returns the visibility of the ink! callable.
     fn visibility(&self) -> Visibility;
