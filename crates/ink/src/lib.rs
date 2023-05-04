@@ -67,7 +67,6 @@ pub use self::{
     prelude::IIP2_WILDCARD_COMPLEMENT_SELECTOR,
 };
 pub use ink_macro::{
-    Event,
     blake2x256,
     chain_extension,
     contract,
@@ -76,6 +75,7 @@ pub use ink_macro::{
     storage_item,
     test,
     trait_definition,
+    Event,
 };
 pub use ink_primitives::{
     ConstructorResult,

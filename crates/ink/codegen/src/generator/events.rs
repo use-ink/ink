@@ -33,17 +33,13 @@ impl_as_ref_for_generator!(Events);
 
 impl GenerateCode for Events<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        if self.contract.module().events().next().is_none() {
-            // Generate no code in case there are no event definitions.
-            return TokenStream2::new()
-        }
-        let emit_event_trait_impl = self.generate_emit_event_trait_impl();
+        // let emit_event_trait_impl = self.generate_emit_event_trait_impl();
         // let event_base = self.generate_event_base();
         // let topic_guards = self.generate_topic_guards();
         // let topics_impls = self.generate_topics_impls();
         let event_structs = self.generate_event_structs();
         quote! {
-            #emit_event_trait_impl
+            // #emit_event_trait_impl
             // #event_base
             // #( #topic_guards )*
             #( #event_structs )*
@@ -53,28 +49,6 @@ impl GenerateCode for Events<'_> {
 }
 
 impl<'a> Events<'a> {
-    /// Used to allow emitting user defined events directly instead of converting
-    /// them first into the automatically generated base trait of the contract.
-    fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
-        quote! {
-            const _: () = {
-                impl<'a> ::ink::codegen::EmitEvent for ::ink::EnvAccess<'a, Environment> {
-                    fn emit_event<E>(self, event: E)
-                    where
-                        E: ::ink::env::Topics,
-                    {
-                        // todo: use pattern from playground to enforce max topics length here?
-                        // get concrete <Environment as Environment>::MAX_TOPICS. Do `Assert` inside emit_event???
-                        ::ink::env::emit_event::<
-                            Environment,
-                            E
-                        >(event);
-                    }
-                }
-            };
-        }
-    }
-
     /// Generates the base event enum that comprises all user defined events.
     /// All emitted events are converted into a variant of this enum before being
     /// serialized and emitted to apply their unique event discriminant (ID).

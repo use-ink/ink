@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod emit;
 mod topics;
 
-pub use self::{
-    emit::EmitEvent,
-    topics::{
-        EventLenTopics,
-        EventRespectsTopicLimit,
-        EventTopics,
-        RespectTopicLimit,
-    },
+pub use self::topics::{
+    EventLenTopics,
+    EventRespectsTopicLimit,
+    EventTopics,
+    RespectTopicLimit,
 };
