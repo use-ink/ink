@@ -97,23 +97,21 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
         }
     );
 
-    s.gen_impl(quote! {
-         gen impl ::ink::env::Topics for @Self {
-            type RemainingTopics = #remaining_topics_ty;
+    s.bound_impl(quote!(::ink::env::Topics), quote! {
+        type RemainingTopics = #remaining_topics_ty;
 
-            fn topics<E, B>(
-                &self,
-                builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
-            ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
-            where
-                E: ::ink::env::Environment,
-                B: ::ink::env::topics::TopicsBuilderBackend<E>,
-            {
-                match self {
-                    #topics_builder
-                }
+        fn topics<E, B>(
+            &self,
+            builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
+        ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
+        where
+            E: ::ink::env::Environment,
+            B: ::ink::env::topics::TopicsBuilderBackend<E>,
+        {
+            match self {
+                #topics_builder
             }
-         }
+        }
      })
 }
 
