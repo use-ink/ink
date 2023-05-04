@@ -76,6 +76,7 @@ pub use ink_macro::{
     test,
     trait_definition,
     Event,
+    EventMetadata,
 };
 pub use ink_primitives::{
     ConstructorResult,

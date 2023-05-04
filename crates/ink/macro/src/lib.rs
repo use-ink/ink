@@ -1290,6 +1290,12 @@ synstructure::decl_derive!(
 );
 
 synstructure::decl_derive!(
+    [EventMetadata] =>
+    /// todo
+    event::event_metadata_derive
+);
+
+synstructure::decl_derive!(
     [Storable] =>
     /// Derives `ink::storage`'s `Storable` trait for the given `struct`, `enum` or `union`.
     ///

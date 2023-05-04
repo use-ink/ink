@@ -54,6 +54,9 @@ pub use self::specs::{
 use impl_serde::serialize as serde_hex;
 
 pub use scale_info::TypeInfo;
+#[doc(hidden)]
+pub use linkme;
+
 #[cfg(feature = "derive")]
 use scale_info::{
     form::PortableForm,
@@ -152,4 +155,14 @@ impl InkProject {
     pub fn spec(&self) -> &ContractSpec<PortableForm> {
         &self.spec
     }
+}
+
+/// Collects all event definitions in the contract binary at linking time.
+#[linkme::distributed_slice]
+pub static EVENTS: [fn() -> EventSpec] = [..];
+
+// todo: docs
+pub trait EventMetadata {
+    /// Returns the metadata of the event.
+    fn event_spec() -> EventSpec;
 }
