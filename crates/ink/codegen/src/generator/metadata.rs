@@ -108,10 +108,7 @@ impl Metadata<'_> {
                 .messages([
                     #( #messages ),*
                 ])
-                .events(
-                    // collects metadata for all events linked into the contract.
-                    ::ink::metadata::event_specs()
-                )
+                .collect_events()
                 .docs([
                     #( #docs ),*
                 ])
