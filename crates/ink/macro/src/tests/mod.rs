@@ -13,6 +13,7 @@
 // limitations under the License.
 
 mod event;
+mod event_metadata;
 mod storable;
 mod storable_hint;
 mod storage_key;

@@ -36,16 +36,27 @@ pub fn event_metadata_derive(mut s: synstructure::Structure) -> TokenStream2 {
 fn event_metadata_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
     assert_eq!(s.variants().len(), 1, "can only operate on structs");
     let span = s.ast().span();
-    let event = &s.ast().ident;
 
-    let _variant = &s.variants()[0];
+    let variant = &s.variants()[0];
+    let ident = variant.ast().ident;
 
     s.bound_impl(quote!(::ink::metadata::EventMetadata), quote! {
         fn event_spec() -> ::ink::metadata::EventSpec {
+            // register this event metadata function in the distributed slice for combining all
+            // events referenced in the contract binary.
             #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
             #[linkme(crate = ::ink::metadata::linkme)]
-            static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec = <#event as ::ink::metadata::EventMetadata>::event_spec;
-            todo!()
+            static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
+                <#ident as ::ink::metadata::EventMetadata>::event_spec;
+
+            ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
+                    .args([
+                        // #( #args ),*
+                    ])
+                    .docs([
+                        // #( #docs ),*
+                    ])
+                    .done()
         }
      })
 }
