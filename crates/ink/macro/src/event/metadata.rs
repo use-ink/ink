@@ -49,10 +49,14 @@ fn event_metadata_derive_struct(mut s: synstructure::Structure) -> TokenStream2 
             static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
                 <#ident as ::ink::metadata::EventMetadata>::event_spec;
 
+            // todo: check that cfg attributes work here
             ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
+                    // todo: add signanture topic if not anonymous
+                    // todo: add fields, with topic flag.
                     .args([
                         // #( #args ),*
                     ])
+                    // todo: add docs
                     .docs([
                         // #( #docs ),*
                     ])
