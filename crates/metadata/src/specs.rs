@@ -239,13 +239,10 @@ where
     }
 }
 
-impl ContractSpecBuilder<MetaForm> {
+impl<S> ContractSpecBuilder<MetaForm, S> {
     /// Collect metadata for all events linked into the contract.
     pub fn collect_events(self) -> Self {
-        let events =
-            crate::EVENTS
-                .iter()
-                .map(|event| event());
+        let events = crate::EVENTS.iter().map(|event| event());
         self.events(events)
     }
 }
@@ -285,7 +282,6 @@ where
 {
     /// Creates a new contract specification.
     pub fn new() -> ContractSpecBuilder<F, Invalid> {
-
         ContractSpecBuilder {
             spec: Self {
                 constructors: Vec::new(),

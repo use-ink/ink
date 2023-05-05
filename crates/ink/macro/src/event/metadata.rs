@@ -40,27 +40,30 @@ fn event_metadata_derive_struct(mut s: synstructure::Structure) -> TokenStream2 
     let variant = &s.variants()[0];
     let ident = variant.ast().ident;
 
-    s.bound_impl(quote!(::ink::metadata::EventMetadata), quote! {
-        fn event_spec() -> ::ink::metadata::EventSpec {
-            // register this event metadata function in the distributed slice for combining all
-            // events referenced in the contract binary.
-            #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
-            #[linkme(crate = ::ink::metadata::linkme)]
-            static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
-                <#ident as ::ink::metadata::EventMetadata>::event_spec;
+    s.bound_impl(
+        quote!(::ink::metadata::EventMetadata),
+        quote! {
+           fn event_spec() -> ::ink::metadata::EventSpec {
+               // register this event metadata function in the distributed slice for combining all
+               // events referenced in the contract binary.
+               #[::ink::metadata::linkme::distributed_slice(::ink::metadata::EVENTS)]
+               #[linkme(crate = ::ink::metadata::linkme)]
+               static EVENT_METADATA: fn() -> ::ink::metadata::EventSpec =
+                   <#ident as ::ink::metadata::EventMetadata>::event_spec;
 
-            // todo: check that cfg attributes work here
-            ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
-                    // todo: add signanture topic if not anonymous
-                    // todo: add fields, with topic flag.
-                    .args([
-                        // #( #args ),*
-                    ])
-                    // todo: add docs
-                    .docs([
-                        // #( #docs ),*
-                    ])
-                    .done()
-        }
-     })
+               // todo: check that cfg attributes work here
+               ::ink::metadata::EventSpec::new(::core::stringify!(#ident))
+                       // todo: add signanture topic if not anonymous
+                       // todo: add fields, with topic flag.
+                       .args([
+                           // #( #args ),*
+                       ])
+                       // todo: add docs
+                       .docs([
+                           // #( #docs ),*
+                       ])
+                       .done()
+           }
+        },
+    )
 }
