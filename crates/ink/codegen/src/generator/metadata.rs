@@ -88,7 +88,7 @@ impl Metadata<'_> {
     fn generate_contract(&self) -> TokenStream2 {
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
-        let events = self.generate_events();
+        // let events = self.generate_events();
         let docs = self
             .contract
             .module()
@@ -108,9 +108,10 @@ impl Metadata<'_> {
                 .messages([
                     #( #messages ),*
                 ])
-                .events([
-                    #( #events ),*
-                ])
+                .events(
+                    // collects metadata for all events linked into the contract.
+                    ::ink::metadata::event_specs()
+                )
                 .docs([
                     #( #docs ),*
                 ])

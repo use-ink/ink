@@ -274,6 +274,7 @@ where
 {
     /// Creates a new contract specification.
     pub fn new() -> ContractSpecBuilder<F, Invalid> {
+
         ContractSpecBuilder {
             spec: Self {
                 constructors: Vec::new(),

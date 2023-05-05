@@ -161,6 +161,14 @@ impl InkProject {
 #[linkme::distributed_slice]
 pub static EVENTS: [fn() -> EventSpec] = [..];
 
+/// Load metadata for all events linked into the contract.
+pub fn event_specs() -> Vec<EventSpec> {
+    EVENTS
+        .iter()
+        .map(|event| event())
+        .collect()
+}
+
 // todo: docs
 pub trait EventMetadata {
     /// Returns the metadata of the event.
