@@ -63,5 +63,17 @@ mod tests {
         let metadata = generate_metadata();
 
         assert_eq!(metadata.spec().events().len(), 2);
+        assert!(metadata
+            .spec()
+            .events()
+            .iter()
+            .find(|e| e.label() == "EventExternal")
+            .is_some());
+        assert!(metadata
+            .spec()
+            .events()
+            .iter()
+            .find(|e| e.label() == "EventInline")
+            .is_some());
     }
 }
