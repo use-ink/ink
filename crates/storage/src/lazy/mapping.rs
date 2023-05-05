@@ -159,7 +159,7 @@ where
     /// Removes the `value` at `key`, returning the previous `value` at `key` from
     /// storage.
     ///
-    /// Returns `None` if no `value` exists at the given `key`.
+    /// Returns `false` if no `value` exists at the given `key`.
     ///
     /// # Warning
     ///
@@ -188,7 +188,7 @@ where
 
     /// Checks if a value is stored at the given `key` in the contract storage.
     ///
-    /// Returns `None` if no `value` exists at the given `key`.
+    /// Returns `false` if no `value` exists at the given `key`.
     #[inline]
     pub fn contains<Q>(&self, key: Q) -> bool
     where
