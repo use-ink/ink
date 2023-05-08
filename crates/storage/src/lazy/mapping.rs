@@ -159,7 +159,7 @@ where
     /// Removes the `value` at `key`, returning the previous `value` at `key` from
     /// storage.
     ///
-    /// Returns `false` if no `value` exists at the given `key`.
+    /// Returns `None` if no `value` exists at the given `key`.
     ///
     /// # Warning
     ///
