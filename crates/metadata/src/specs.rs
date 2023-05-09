@@ -36,6 +36,7 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
+use schemars::JsonSchema;
 use serde::{
     de::DeserializeOwned,
     Deserialize,
@@ -43,7 +44,7 @@ use serde::{
 };
 
 /// Describes a contract.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -297,7 +298,7 @@ where
 }
 
 /// Describes a constructor of a contract.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned",
@@ -537,7 +538,7 @@ where
 }
 
 /// Describes a contract message.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -845,7 +846,7 @@ impl IntoPortable for MessageSpec {
 }
 
 /// Describes an event definition.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -957,8 +958,8 @@ where
 }
 
 /// The 4 byte selector to identify constructors and messages
-#[derive(Debug, Default, PartialEq, Eq, derive_more::From)]
-pub struct Selector([u8; 4]);
+#[derive(Debug, Default, PartialEq, Eq, derive_more::From, JsonSchema)]
+pub struct Selector(#[schemars(with = "String")] [u8; 4]);
 
 impl serde::Serialize for Selector {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -1031,7 +1032,7 @@ pub type DisplayName<F> = scale_info::Path<F>;
 /// `pred`s display name is `Predicate` and the display name of
 /// the return type is simply `bool`. Note that `Predicate` could
 /// simply be a type alias to `fn(i32, i32) -> Ordering`.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -1153,7 +1154,7 @@ where
 }
 
 /// Describes a pair of parameter label and type.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -1272,7 +1273,7 @@ where
 }
 
 /// Describes the contract message return type.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(transparent)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
@@ -1324,7 +1325,7 @@ where
 }
 
 /// Describes a pair of parameter label and type.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
@@ -1400,7 +1401,7 @@ where
 }
 
 /// Describes a contract environment.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"

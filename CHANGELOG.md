@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
+
 ## Version 4.2.0
 
 ### Added

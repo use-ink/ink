@@ -111,6 +111,14 @@
         "language"
       ],
       "properties": {
+        "build_info": {
+          "description": "Extra information about the environment in which the contract was built.\n\nUseful for producing deterministic builds.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
         "compiler": {
           "description": "The compiler used to compile the contract.",
           "type": "string"
@@ -137,7 +145,7 @@
       }
     },
     "SourceWasm": {
-      "description": "The bytes of the compiled Wasm smart contract.\n\nTODO: This might need to be a \"string\"",
+      "description": "The bytes of the compiled Wasm smart contract.",
       "type": "array",
       "items": {
         "type": "integer",
