@@ -768,3 +768,13 @@ where
         TypedEnvBackend::call_runtime::<E, _>(instance, call)
     })
 }
+
+/// Returns how many times caller exists on call stack.
+pub fn reentrance_count<E>() -> u32
+where
+    E: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::reentrance_count::<E>(instance)
+    })
+}

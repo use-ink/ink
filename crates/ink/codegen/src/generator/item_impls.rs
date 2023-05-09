@@ -97,6 +97,15 @@ impl ItemImpls<'_> {
                         }> = ::ink::codegen::TraitMessagePayable::<true>;
                     )
                 });
+                let message_guard_reentrant = message.allow_reentrancy().then(|| {
+                    quote_spanned!(message_span=>
+                        const _: ::ink::codegen::TraitMessageReentrant<{
+                            <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
+                                as #trait_path>::__ink_TraitInfo
+                                as ::ink::reflect::TraitMessageInfo<#message_local_id>>::ALLOW_REENTRANCY
+                        }> = ::ink::codegen::TraitMessageReentrant::<true>;
+                    )
+                });
                 let message_guard_selector = message.user_provided_selector().map(|selector| {
                     let given_selector = selector.into_be_u32().hex_padded_suffixed();
                     quote_spanned!(message_span=>
@@ -111,6 +120,7 @@ impl ItemImpls<'_> {
                 });
                 quote_spanned!(message_span=>
                     #message_guard_payable
+                    #message_guard_reentrant
                     #message_guard_selector
                 )
             });

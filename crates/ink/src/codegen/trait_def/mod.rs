@@ -23,6 +23,7 @@ pub use self::{
     },
     trait_message::{
         TraitMessagePayable,
+        TraitMessageReentrant,
         TraitMessageSelector,
     },
 };

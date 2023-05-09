@@ -62,12 +62,23 @@ impl ReturnFlags {
 
 /// The flags used to change the behavior of a contract call.
 #[must_use]
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, Debug)]
 pub struct CallFlags {
     forward_input: bool,
     clone_input: bool,
     tail_call: bool,
     allow_reentry: bool,
+}
+
+impl Default for CallFlags {
+    fn default() -> Self {
+        Self {
+            forward_input: false,
+            clone_input: false,
+            tail_call: false,
+            allow_reentry: true,
+        }
+    }
 }
 
 impl CallFlags {
@@ -114,7 +125,7 @@ impl CallFlags {
     /// Without this flag any reentrancy into the current contract that originates from
     /// the callee (or any of its callees) is denied. This includes the first callee:
     /// You cannot call into yourself with this flag set.
-    pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
+    pub const fn set_deny_reentry(mut self, allow_reentry: bool) -> Self {
         self.allow_reentry = allow_reentry;
         self
     }
@@ -162,7 +173,7 @@ impl CallFlags {
     /// # Note
     ///
     /// See [`Self::set_allow_reentry`] for more information.
-    pub const fn allow_reentry(&self) -> bool {
+    pub const fn deny_reentry(&self) -> bool {
         self.allow_reentry
     }
 }
@@ -520,4 +531,8 @@ pub trait TypedEnvBackend: EnvBackend {
     where
         E: Environment,
         Call: scale::Encode;
+
+    fn reentrance_count<E>(&mut self) -> u32
+    where
+        E: Environment;
 }

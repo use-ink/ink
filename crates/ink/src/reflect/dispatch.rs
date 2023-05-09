@@ -115,6 +115,8 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     const MUTATES: bool;
     /// Yields `true` if the dispatchable ink! message is payable.
     const PAYABLE: bool;
+    /// Yields `true` if the dispatchable ink! message allows reentrancy.
+    const ALLOW_REENTRANCY: bool;
     /// The selectors of the dispatchable ink! message.
     const SELECTOR: [u8; 4];
     /// The label of the dispatchable ink! message.
@@ -207,6 +209,9 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 
     /// Yields `true` if the dispatchable ink! constructor is payable.
     const PAYABLE: bool;
+
+    /// Yields `true` if the dispatchable ink! constructor allows reentrancy.
+    const ALLOW_REENTRANCY: bool;
 
     /// The selectors of the dispatchable ink! constructor.
     const SELECTOR: [u8; 4];
@@ -496,6 +501,8 @@ pub enum DispatchError {
     CouldNotReadInput,
     /// Invalidly paid an unpayable dispatchable.
     PaidUnpayableMessage,
+    /// Tried to recursively call the same ink! message, which is not allowed.
+    ReentranceDenied,
 }
 
 impl Display for DispatchError {
@@ -514,6 +521,7 @@ impl DispatchError {
             Self::InvalidParameters => "unable to decode input",
             Self::CouldNotReadInput => "could not read input",
             Self::PaidUnpayableMessage => "paid an unpayable message",
+            Self::ReentranceDenied => "reentrance denied",
         }
     }
 }

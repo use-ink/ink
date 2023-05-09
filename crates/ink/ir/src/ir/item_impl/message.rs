@@ -100,6 +100,8 @@ pub struct Message {
     pub(super) item: syn::ImplItemFn,
     /// If the ink! message can receive funds.
     is_payable: bool,
+    /// If the ink! message is allowed to re-enter the contract.
+    allow_reentrancy: bool,
     /// If the ink! message is default.
     is_default: bool,
     /// An optional user provided selector.
@@ -205,10 +207,12 @@ impl TryFrom<syn::ImplItemFn> for Message {
         Self::ensure_not_return_self(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
+        let allow_reentrancy = ink_attrs.allow_reentrancy();
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
         Ok(Self {
             is_payable,
+            allow_reentrancy,
             is_default,
             selector,
             item: syn::ImplItemFn {
@@ -245,6 +249,10 @@ impl Callable for Message {
 
     fn is_payable(&self) -> bool {
         self.is_payable
+    }
+
+    fn allow_reentrancy(&self) -> bool {
+        self.allow_reentrancy
     }
 
     fn is_default(&self) -> bool {

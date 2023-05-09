@@ -325,9 +325,12 @@ impl TraitRegistry<'_> {
         let local_id = message.local_id();
         let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
+        let allow_reentrancy = message.ink_attrs().allow_reentrancy();
         quote_spanned!(span=>
             impl<E> ::ink::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
                 const PAYABLE: ::core::primitive::bool = #is_payable;
+
+                const ALLOW_REENTRANCY: ::core::primitive::bool = #allow_reentrancy;
 
                 const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
             }

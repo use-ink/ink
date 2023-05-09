@@ -116,6 +116,10 @@ where
         <C as Callable>::is_payable(self.callable)
     }
 
+    fn allow_reentrancy(&self) -> bool {
+        <C as Callable>::allow_reentrancy(self.callable)
+    }
+
     fn is_default(&self) -> bool {
         <C as Callable>::is_default(self.callable)
     }
@@ -173,6 +177,13 @@ pub trait Callable {
     ///
     /// Flagging as payable is done using the `#[ink(payable)]` attribute.
     fn is_payable(&self) -> bool;
+
+    /// Returns `true` if the ink! callable is flagged as reentrant.
+    ///
+    /// # Note
+    ///
+    /// Flagging as reentrant is done using the `#[ink(allow_reentrancy)]` attribute.
+    fn allow_reentrancy(&self) -> bool;
 
     /// Returns `true` if the ink! callable is flagged as default.
     ///

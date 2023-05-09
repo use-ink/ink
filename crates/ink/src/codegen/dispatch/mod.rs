@@ -17,7 +17,10 @@ mod info;
 mod type_check;
 
 pub use self::{
-    execution::deny_payment,
+    execution::{
+        deny_payment,
+        deny_reentrancy,
+    },
     info::ContractCallBuilder,
     type_check::{
         DispatchInput,

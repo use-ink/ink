@@ -550,4 +550,11 @@ impl TypedEnvBackend for EnvInstance {
     {
         unimplemented!("off-chain environment does not support `call_runtime`")
     }
+
+    fn reentrance_count<E>(&mut self) -> u32
+    where
+        E: Environment,
+    {
+        unimplemented!("off-chain environment does not support `reentrance_count`")
+    }
 }

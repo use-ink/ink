@@ -31,3 +31,17 @@ where
     }
     Ok(())
 }
+
+#[inline]
+pub fn deny_reentrancy<E>() -> Result<(), DispatchError>
+where
+    E: Environment,
+{
+    let reentrance_count = ink_env::reentrance_count::<E>();
+
+    if reentrance_count != 0 {
+        return Err(DispatchError::ReentranceDenied)
+    }
+
+    Ok(())
+}

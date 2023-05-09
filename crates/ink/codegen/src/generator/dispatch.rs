@@ -189,6 +189,7 @@ impl Dispatch<'_> {
                 let constructor_span = constructor.span();
                 let constructor_ident = constructor.ident();
                 let payable = constructor.is_payable();
+                let allow_reentrancy = constructor.allow_reentrancy();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
                 let cfg_attrs = constructor.get_cfg_attrs(constructor_span);
@@ -214,6 +215,7 @@ impl Dispatch<'_> {
                             #storage_ident::#constructor_ident(#( #input_bindings ),* )
                         };
                         const PAYABLE: ::core::primitive::bool = #payable;
+                        const ALLOW_REENTRANCY: ::core::primitive::bool = #allow_reentrancy;
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
                     }
@@ -241,6 +243,7 @@ impl Dispatch<'_> {
                 let message_span = message.span();
                 let message_ident = message.ident();
                 let payable = message.is_payable();
+                let allow_reentrancy = message.allow_reentrancy();
                 let mutates = message.receiver().is_ref_mut();
                 let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = message.composed_selector().hex_lits();
@@ -265,6 +268,7 @@ impl Dispatch<'_> {
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const PAYABLE: ::core::primitive::bool = #payable;
+                        const ALLOW_REENTRANCY: ::core::primitive::bool = #allow_reentrancy;
                         const MUTATES: ::core::primitive::bool = #mutates;
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
                     }
@@ -294,6 +298,11 @@ impl Dispatch<'_> {
                     <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink::reflect::TraitMessageInfo<#local_id>>::PAYABLE
+                }};
+                let allow_reentrancy = quote! {{
+                   <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink::reflect::TraitMessageInfo<#local_id>>::ALLOW_REENTRANCY
                 }};
                 let selector = quote! {{
                     <<::ink::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink::env::ContractEnv>::Env>
@@ -325,6 +334,7 @@ impl Dispatch<'_> {
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                         const PAYABLE: ::core::primitive::bool = #payable;
+                        const ALLOW_REENTRANCY: ::core::primitive::bool = #allow_reentrancy;
                         const MUTATES: ::core::primitive::bool = #mutates;
                         const LABEL: &'static ::core::primitive::str = #label;
                     }
@@ -350,11 +360,20 @@ impl Dispatch<'_> {
         let any_constructor_accept_payment =
             self.any_constructor_accepts_payment(constructors);
         let any_message_accepts_payment = self.any_message_accepts_payment(messages);
+        let any_constructor_accept_reentrancy =
+            self.any_constructor_accepts_reentrancy(constructors);
+        let any_message_accepts_reentrancy =
+            self.any_message_accepts_reentrancy(messages);
         quote_spanned!(span=>
             #[allow(clippy::nonminimal_bool)]
             fn internal_deploy() {
                 if !#any_constructor_accept_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+
+                if !#any_constructor_accept_reentrancy {
+                    ::ink::codegen::deny_reentrancy::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
@@ -391,6 +410,11 @@ impl Dispatch<'_> {
             fn internal_call() {
                 if !#any_message_accepts_payment {
                     ::ink::codegen::deny_payment::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+
+                if !#any_message_accepts_reentrancy {
+                    ::ink::codegen::deny_reentrancy::<<#storage_ident as ::ink::env::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
@@ -560,6 +584,9 @@ impl Dispatch<'_> {
             let deny_payment = quote_spanned!(constructor_span=>
                 !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::PAYABLE
             );
+            let deny_reentrancy = quote_spanned!(constructor_span=>
+                !<#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::ALLOW_REENTRANCY
+            );
             let constructor_value = quote_spanned!(constructor_span=>
                 <::ink::reflect::ConstructorOutputValue<#constructor_output>
                     as ::ink::reflect::ConstructorOutput::<#storage_ident>>
@@ -568,12 +595,20 @@ impl Dispatch<'_> {
             let constructor_accept_payment_assignment =
                 self.any_constructor_accepts_payment(constructors);
 
+            let constructor_accept_reentrancy_assignment =
+                self.any_constructor_accepts_reentrancy(constructors);
+
             quote_spanned!(constructor_span=>
                 #( #cfg_attrs )*
                 Self::#constructor_ident(input) => {
 
                     if #constructor_accept_payment_assignment && #deny_payment {
                         ::ink::codegen::deny_payment::<
+                            <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
+                    }
+
+                    if #constructor_accept_reentrancy_assignment && #deny_reentrancy {
+                        ::ink::codegen::deny_reentrancy::<
                             <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                     }
 
@@ -763,6 +798,9 @@ impl Dispatch<'_> {
                 let deny_payment = quote_spanned!(message_span=>
                     !<#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::PAYABLE
                 );
+                let deny_reentrancy = quote_spanned!(message_span=>
+                    !<#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::ALLOW_REENTRANCY
+                );
                 let mutates_storage = quote_spanned!(message_span=>
                     <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::MUTATES
                 );
@@ -770,12 +808,20 @@ impl Dispatch<'_> {
                 let any_message_accepts_payment =
                     self.any_message_accepts_payment(messages);
 
+                let any_message_accepts_reentrancy =
+                    self.any_message_accepts_reentrancy(messages);
+
                 quote_spanned!(message_span=>
                     #( #cfg_attrs )*
                     Self::#message_ident(input) => {
 
                         if #any_message_accepts_payment && #deny_payment {
                             ::ink::codegen::deny_payment::<
+                                <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
+                        }
+
+                        if #any_message_accepts_reentrancy && #deny_reentrancy {
+                            ::ink::codegen::deny_reentrancy::<
                                 <#storage_ident as ::ink::env::ContractEnv>::Env>()?;
                         }
 
@@ -913,6 +959,36 @@ impl Dispatch<'_> {
         )
     }
 
+    fn any_message_accepts_reentrancy(
+        &self,
+        messages: &[MessageDispatchable],
+    ) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let message_is_reentrant =  messages
+            .iter()
+            .enumerate()
+            .map(|(index, item)| {
+                let message_span = item.message.span();
+                let cfg_attrs = item.message.get_cfg_attrs(message_span);
+                let id = item.id.clone();
+                let ident = quote::format_ident!("message_{}", index);
+                quote_spanned!(message_span=>
+                {
+                    let #ident = false;
+                    #( #cfg_attrs )*
+                    let #ident = <#storage_ident as ::ink::reflect::DispatchableMessageInfo< #id >>::ALLOW_REENTRANCY;
+                    #ident
+                }
+            )
+            });
+        quote_spanned!(span=>
+            {
+                false #( || #message_is_reentrant )*
+            }
+        )
+    }
+
     /// Generates code to express if any dispatchable ink! constructor accepts payment.
     ///
     /// Generates code in the form of variable assignments
@@ -945,6 +1021,33 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             {
                 false #( || #constructor_is_payable )*
+            }
+        )
+    }
+
+    fn any_constructor_accepts_reentrancy(
+        &self,
+        constructors: &[ConstructorDispatchable],
+    ) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let constructor_is_reentrant = constructors.iter().enumerate().map(|(index, item)| {
+            let constructor_span = item.constructor.span();
+            let cfg_attrs = item.constructor.get_cfg_attrs(constructor_span);
+            let id = item.id.clone();
+            let ident = quote::format_ident!("constructor_{}", index);
+            quote_spanned!(constructor_span=>
+                {
+                    let #ident = false;
+                    #( #cfg_attrs )*
+                    let #ident = <#storage_ident as ::ink::reflect::DispatchableConstructorInfo< #id >>::ALLOW_REENTRANCY;
+                    #ident
+                }
+            )
+        });
+        quote_spanned!(span=>
+            {
+                false #( || #constructor_is_reentrant )*
             }
         )
     }

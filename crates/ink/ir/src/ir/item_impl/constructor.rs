@@ -70,6 +70,8 @@ pub struct Constructor {
     pub(super) item: syn::ImplItemFn,
     /// If the ink! constructor can receive funds.
     is_payable: bool,
+    /// If the ink! constructor can be called multiple times.
+    allow_reentrancy: bool,
     /// If the ink! constructor is default.
     is_default: bool,
     /// An optional user provided selector.
@@ -141,6 +143,7 @@ impl Constructor {
                 match arg.kind() {
                     ir::AttributeArg::Constructor
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::AllowReentrancy
                     | ir::AttributeArg::Default
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
@@ -159,11 +162,13 @@ impl TryFrom<syn::ImplItemFn> for Constructor {
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
+        let allow_reentrancy = ink_attrs.allow_reentrancy();
         let is_default = ink_attrs.is_default();
         let selector = ink_attrs.selector();
         Ok(Constructor {
             selector,
             is_payable,
+            allow_reentrancy,
             is_default,
             item: syn::ImplItemFn {
                 attrs: other_attrs,
@@ -199,6 +204,10 @@ impl Callable for Constructor {
 
     fn is_payable(&self) -> bool {
         self.is_payable
+    }
+
+    fn allow_reentrancy(&self) -> bool {
+        self.allow_reentrancy
     }
 
     fn is_default(&self) -> bool {

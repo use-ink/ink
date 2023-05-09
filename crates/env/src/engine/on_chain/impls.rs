@@ -588,4 +588,11 @@ impl TypedEnvBackend for EnvInstance {
         let enc_call = scope.take_encoded(call);
         ext::call_runtime(enc_call).map_err(Into::into)
     }
+
+    fn reentrance_count<E>(&mut self) -> u32
+    where
+        E: Environment,
+    {
+        ext::reentrance_count()
+    }
 }
