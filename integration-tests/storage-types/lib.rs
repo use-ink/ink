@@ -8,10 +8,17 @@
 #[ink::contract]
 mod storage_types {
     use ink::{
-        prelude::{string::String, vec, vec::Vec},
+        prelude::{
+            string::String,
+            vec,
+            vec::Vec,
+        },
         storage::Mapping,
     };
-    use scale::{Decode, Encode};
+    use scale::{
+        Decode,
+        Encode,
+    };
 
     #[derive(Debug, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
