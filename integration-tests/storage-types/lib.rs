@@ -7,13 +7,10 @@
 
 #[ink::contract]
 mod storage_types {
-    use ink::{
-        prelude::{
-            string::String,
-            vec,
-            vec::Vec,
-        },
-        storage::Mapping,
+    use ink::prelude::{
+        string::String,
+        vec,
+        vec::Vec,
     };
     use scale::{
         Decode,
@@ -121,15 +118,6 @@ mod storage_types {
         u8_value_min: u8,
     }
 
-    #[derive(Debug)]
-    #[ink::storage_item]
-    pub struct MappingTypes {
-        mapping_u128_u128_value: Mapping<u128, u128>,
-        mapping_account_balance_value: Mapping<AccountId, Balance>,
-        mapping_account_hash_value: Mapping<AccountId, Hash>,
-        mapping_account_account_balance_value: Mapping<(AccountId, AccountId), Balance>,
-    }
-
     #[ink(storage)]
     pub struct StorageTypes {
         ink_prelude_types: InkPreludeTypes,
@@ -137,7 +125,6 @@ mod storage_types {
         signed_integers: SignedIntegers,
         substrate_types: SubstrateTypes,
         unsigned_integers: UnsignedIntegers,
-        mapping_account_balance: Mapping<AccountId, Balance>,
     }
 
     impl Default for StorageTypes {
@@ -154,10 +141,6 @@ mod storage_types {
                 String::from("This is another String"),
             ];
             let vec_vec_string_value = vec![vec_string_value.clone()];
-
-            // Mappings
-            let mut mapping_account_balance = Mapping::new();
-            mapping_account_balance.insert(AccountId::from([0x01; 32]), &100);
 
             Self {
                 unsigned_integers: UnsignedIntegers {
@@ -202,7 +185,6 @@ mod storage_types {
                     balance_value_min: Balance::MIN,
                     hash_value: Hash::from([0x00; 32]),
                 },
-                mapping_account_balance,
             }
         }
 
@@ -256,14 +238,6 @@ mod storage_types {
         #[ink(message)]
         pub fn get_panic(&self) -> Result<(), ()> {
             panic!("This is the Panic message.")
-        }
-
-        #[ink(message)]
-        pub fn get_mapping_account_balance(
-            &self,
-            account_id: AccountId,
-        ) -> Option<Balance> {
-            self.mapping_account_balance.get(account_id)
         }
     }
 
