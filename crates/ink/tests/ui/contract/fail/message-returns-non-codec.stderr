@@ -46,7 +46,7 @@ error[E0599]: the method `try_invoke` exists for struct `CallBuilder<DefaultEnvi
    = note: the following trait bounds were not satisfied:
            `NonCodecType: parity_scale_codec::Decode`
 note: the trait `parity_scale_codec::Decode` must be implemented
-  --> $CARGO/parity-scale-codec-3.4.0/src/codec.rs
+  --> $CARGO/parity-scale-codec-3.5.0/src/codec.rs
    |
    | pub trait Decode: Sized {
    | ^^^^^^^^^^^^^^^^^^^^^^^
