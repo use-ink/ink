@@ -11,6 +11,9 @@ ink = { path = "../../crates/ink", default-features = false, features = ["call-r
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
+subxt-macro = { git = "https://github.com/pmikolajczyk41/subxt", branch = "pmikolajczyk41/no-std-imports" }
+primitive-types = { version = "0.12.1", default-features = false }
+
 # Substrate
 #
 # We need to explicitly turn off some of the `sp-io` features, to avoid conflicts

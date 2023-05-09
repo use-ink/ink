@@ -1,51 +1,35 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-use ink::primitives::AccountId;
-use sp_runtime::MultiAddress;
+pub mod subxt {
+    pub mod ext {
+        pub use scale as codec;
+    }
 
-/// A part of the runtime dispatchable API.
-///
-/// For now, `ink!` doesn't provide any support for exposing the real `RuntimeCall` enum,
-/// which fully describes the composed API of all the pallets present in runtime. Hence,
-/// in order to use `call-runtime` functionality, we have to provide at least a partial
-/// object, which correctly encodes the target extrinsic.
-///
-/// You can investigate the full `RuntimeCall` definition by either expanding
-/// `construct_runtime!` macro application or by using secondary tools for reading chain
-/// metadata, like `subxt`.
-#[derive(scale::Encode)]
-enum RuntimeCall {
-    /// This index can be found by investigating runtime configuration. You can check the
-    /// pallet order inside `construct_runtime!` block and read the position of your
-    /// pallet (0-based).
-    ///
-    ///
-    /// [See here for more.](https://substrate.stackexchange.com/questions/778/how-to-get-pallet-index-u8-of-a-pallet-in-runtime)
-    #[codec(index = 4)]
-    Balances(BalancesCall),
+    pub mod utils {
+        pub use primitive_types::H256;
+        pub use sp_runtime::{
+            AccountId32,
+            MultiAddress,
+        };
+    }
 }
 
-#[derive(scale::Encode)]
-enum BalancesCall {
-    /// This index can be found by investigating the pallet dispatchable API. In your
-    /// pallet code, look for `#[pallet::call]` section and check
-    /// `#[pallet::call_index(x)]` attribute of the call. If these attributes are
-    /// missing, use source-code order (0-based).
-    #[codec(index = 0)]
-    Transfer {
-        dest: MultiAddress<AccountId, ()>,
-        #[codec(compact)]
-        value: u128,
-    },
-}
+#[subxt_macro::subxt(
+    runtime_metadata_url = "ws://localhost:9944",
+    runtime_types_only,
+    no_default_derives,
+    derive_for_all_types = "crate::subxt::ext::codec::Encode",
+    attributes_for_all_types = "#[codec(crate = crate::subxt::ext::codec)]",
+    crate = "crate::subxt"
+)]
+mod substrate {}
 
 #[ink::contract]
 mod runtime_call {
-    use crate::{
-        BalancesCall,
-        RuntimeCall,
+    use crate::substrate::runtime_types::{
+        contracts_node_runtime::RuntimeCall,
+        pallet_balances::pallet::Call as BalanceCall,
     };
-
     use ink::env::Error as EnvError;
 
     /// A trivial contract with a single message, that uses `call-runtime` API for
@@ -94,8 +78,10 @@ mod runtime_call {
             receiver: AccountId,
             value: Balance,
         ) -> Result<(), RuntimeError> {
+            let receiver: [u8; 32] = *receiver.as_ref();
+            let receiver: sp_runtime::AccountId32 = receiver.into();
             self.env()
-                .call_runtime(&RuntimeCall::Balances(BalancesCall::Transfer {
+                .call_runtime(&RuntimeCall::Balances(BalanceCall::transfer {
                     dest: receiver.into(),
                     value,
                 }))

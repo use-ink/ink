@@ -13,7 +13,6 @@ To integrate this example into Substrate you need to adjust pallet contracts con
     …
     // `Everything` or anything that will allow for the `Balances::transfer` extrinsic.
     type CallFilter = frame_support::traits::Everything; 
-    type UnsafeUnstableInterface = ConstBool<true>;
     …
   }
   ```
