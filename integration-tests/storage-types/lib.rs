@@ -8,17 +8,10 @@
 #[ink::contract]
 mod storage_types {
     use ink::{
-        prelude::{
-            string::String,
-            vec,
-            vec::Vec,
-        },
+        prelude::{string::String, vec, vec::Vec},
         storage::Mapping,
     };
-    use scale::{
-        Decode,
-        Encode,
-    };
+    use scale::{Decode, Encode};
 
     #[derive(Debug, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
@@ -232,22 +225,22 @@ mod storage_types {
         }
 
         #[ink(message)]
-        pub fn get_option_some(&self) -> Option<()> {
-            Some(())
+        pub fn get_option_some(&self) -> Option<bool> {
+            Some(true)
         }
 
         #[ink(message)]
-        pub fn get_option_none(&self) -> Option<()> {
+        pub fn get_option_none(&self) -> Option<bool> {
             None
         }
 
         #[ink(message)]
-        pub fn get_result_ok(&self) -> Result<(), CustomError> {
-            Ok(())
+        pub fn get_result_ok(&self) -> Result<bool, CustomError> {
+            Ok(true)
         }
 
         #[ink(message)]
-        pub fn get_result_error(&self) -> Result<(), CustomError> {
+        pub fn get_result_error(&self) -> Result<bool, CustomError> {
             Err(CustomError::ErrorWithMessage(String::from(
                 "This is the Error Message.",
             )))
