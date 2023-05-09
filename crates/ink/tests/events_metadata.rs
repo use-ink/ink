@@ -28,6 +28,7 @@ mod contract {
 
     #[derive(ink::Event, scale::Encode)]
     #[cfg_attr(feature = "std", derive(ink::EventMetadata))]
+    // todo: allow the above to be written as `#[ink(event)]` instead
     pub struct EventInline {
         f3: bool,
         f4: u32,
