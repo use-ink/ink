@@ -407,7 +407,7 @@
         <span class="kw">if </span>already_built_contracts.is_empty() {
             <span class="comment">// Build all of them for the first time and initialize everything
             </span>BUILD_ONCE.call_once(|| {
-                env_logger::init();
+                tracing_subscriber::fmt::init();
                 <span class="kw">for </span>manifest_path <span class="kw">in </span>contracts_to_build_and_import {
                     <span class="kw">let </span>dest_wasm = build_contract(<span class="kw-2">&amp;</span>manifest_path);
                     <span class="kw">let _ </span>= already_built_contracts.insert(manifest_path, dest_wasm);
@@ -466,7 +466,7 @@
                 log_info(<span class="string">&quot;setting up e2e test&quot;</span>);
 
                 ::ink_e2e::INIT.call_once(|| {
-                    ::ink_e2e::env_logger::init();
+                    ::ink_e2e::tracing_subscriber::fmt::init();
                 });
 
                 log_info(<span class="string">&quot;creating new client&quot;</span>);

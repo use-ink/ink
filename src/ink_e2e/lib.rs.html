@@ -180,7 +180,6 @@
     UploadResult,
 };
 <span class="kw">pub use </span>default_accounts::<span class="kw-2">*</span>;
-<span class="kw">pub use </span>env_logger;
 <span class="kw">pub use </span>ink_e2e_macro::test;
 <span class="kw">pub use </span>node_proc::{
     TestNodeProcess,
@@ -193,6 +192,7 @@
     tx::PairSigner,
 };
 <span class="kw">pub use </span>tokio;
+<span class="kw">pub use </span>tracing_subscriber;
 
 <span class="kw">use </span>pallet_contracts_primitives::{
     CodeUploadResult,
@@ -258,12 +258,12 @@
 
 <span class="doccomment">/// Writes `msg` to stdout.
 </span><span class="kw">pub fn </span>log_info(msg: <span class="kw-2">&amp;</span>str) {
-    <span class="macro">log::info!</span>(<span class="string">&quot;[{}] {}&quot;</span>, log_prefix(), msg);
+    <span class="macro">tracing::info!</span>(<span class="string">&quot;[{}] {}&quot;</span>, log_prefix(), msg);
 }
 
 <span class="doccomment">/// Writes `msg` to stderr.
 </span><span class="kw">pub fn </span>log_error(msg: <span class="kw-2">&amp;</span>str) {
-    <span class="macro">log::error!</span>(<span class="string">&quot;[{}] {}&quot;</span>, log_prefix(), msg);
+    <span class="macro">tracing::error!</span>(<span class="string">&quot;[{}] {}&quot;</span>, log_prefix(), msg);
 }
 
 <span class="doccomment">/// Get an ink! [`ink_primitives::AccountId`] for a given keyring account.

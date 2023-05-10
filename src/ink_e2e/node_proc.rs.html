@@ -296,10 +296,10 @@
 
     <span class="doccomment">/// Attempt to kill the running substrate process.
     </span><span class="kw">pub fn </span>kill(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), String&gt; {
-        <span class="macro">log::info!</span>(<span class="string">&quot;Killing node process {}&quot;</span>, <span class="self">self</span>.proc.id());
+        <span class="macro">tracing::info!</span>(<span class="string">&quot;Killing node process {}&quot;</span>, <span class="self">self</span>.proc.id());
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.proc.kill() {
             <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;Error killing node process {}: {}&quot;</span>, <span class="self">self</span>.proc.id(), err);
-            <span class="macro">log::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
+            <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
             <span class="kw">return </span><span class="prelude-val">Err</span>(err)
         }
         <span class="prelude-val">Ok</span>(())
@@ -386,7 +386,7 @@
             }
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;Failed to connect to node rpc at {ws_url}: {err}&quot;</span>);
-                <span class="macro">log::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
+                <span class="macro">tracing::error!</span>(<span class="string">&quot;{}&quot;</span>, err);
                 proc.kill().map_err(|e| {
                     <span class="macro">format!</span>(<span class="string">&quot;Error killing substrate process &#39;{}&#39;: {}&quot;</span>, proc.id(), e)
                 })<span class="question-mark">?</span>;
