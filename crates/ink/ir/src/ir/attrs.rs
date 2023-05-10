@@ -997,6 +997,7 @@ impl Parse for AttributeFrag {
                     "anonymous" => Ok(AttributeArg::Anonymous),
                     "topic" => Ok(AttributeArg::Topic),
                     "payable" => Ok(AttributeArg::Payable),
+                    "allow_reentrancy" => Ok(AttributeArg::AllowReentrancy),
                     "default" => Ok(AttributeArg::Default),
                     "impl" => Ok(AttributeArg::Implementation),
                     _ => match ident.to_string().as_str() {
@@ -1437,6 +1438,7 @@ mod tests {
                     event,
                     topic,
                     payable,
+                    allow_reentrancy,
                     impl,
                 )]
             },
@@ -1447,6 +1449,7 @@ mod tests {
                 AttributeArg::Event,
                 AttributeArg::Topic,
                 AttributeArg::Payable,
+                AttributeArg::AllowReentrancy,
                 AttributeArg::Implementation,
             ])),
         );

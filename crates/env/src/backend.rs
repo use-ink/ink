@@ -126,7 +126,7 @@ impl CallFlags {
     /// the callee (or any of its callees) is denied. This includes the first callee:
     /// You cannot call into yourself with this flag set.
     pub const fn set_deny_reentry(mut self, allow_reentry: bool) -> Self {
-        self.allow_reentry = allow_reentry;
+        self.allow_reentry = !allow_reentry;
         self
     }
 

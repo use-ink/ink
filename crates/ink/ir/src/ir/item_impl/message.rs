@@ -189,6 +189,7 @@ impl Message {
                 match arg.kind() {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::AllowReentrancy
                     | ir::AttributeArg::Default
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
