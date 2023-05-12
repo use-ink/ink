@@ -72,12 +72,12 @@ use subxt::{
 pub struct InstantiationResult<
     C: subxt::Config,
     E: Environment,
-    Contract: ContractCallBuilder,
+    CallBuilder,
 > {
     /// The account id at which the contract was instantiated.
     pub account_id: E::AccountId,
     /// Call builder for constructing calls,
-    pub call_builder: <Contract as ContractCallBuilder>::Type,
+    pub call_builder: CallBuilder,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
@@ -85,13 +85,12 @@ pub struct InstantiationResult<
     pub events: ExtrinsicEvents<C>,
 }
 
-impl<C, E, Contract> InstantiationResult<C, E, Contract>
+impl<C, E, CallBuilder> InstantiationResult<C, E, CallBuilder>
 where
     C: subxt::Config,
     E: Environment,
-    Contract: ContractCallBuilder,
 {
-    pub fn call(&mut self) -> &mut <Contract as ContractCallBuilder>::Type {
+    pub fn call(&mut self) -> &mut CallBuilder {
         &mut self.call_builder
     }
 }
@@ -508,7 +507,7 @@ where
         >,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
+    ) -> Result<InstantiationResult<C, E, <Contract as ContractCallBuilder>::Type>, Error<C, E>>
     where
         Contract: ContractCallBuilder + ContractReference,
         <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
@@ -516,7 +515,7 @@ where
     {
         let code = self.load_code(contract_name);
         let ret = self
-            .exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
+            .exec_instantiate::<Contract, Args, R>(signer, code, constructor, value, storage_deposit_limit)
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
@@ -583,7 +582,7 @@ where
         >,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<C, E, Contract>, Error<C, E>>
+    ) -> Result<InstantiationResult<C, E, <Contract as ContractCallBuilder>::Type>, Error<C, E>>
     where
         Contract: ContractCallBuilder + ContractReference,
         <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
