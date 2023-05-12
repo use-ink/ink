@@ -70,7 +70,10 @@ pub mod e2e_call_runtime {
                 .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
                 .await;
 
-            assert_eq!(get_balance_res.return_value(), pre_balance + transfer_amount);
+            assert_eq!(
+                get_balance_res.return_value(),
+                pre_balance + transfer_amount
+            );
 
             Ok(())
         }
