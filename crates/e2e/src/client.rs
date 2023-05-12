@@ -496,7 +496,7 @@ where
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    pub async fn instantiate<Contract, ContractRef, Args, R>(
+    pub async fn instantiate<Contract, Args, R>(
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
