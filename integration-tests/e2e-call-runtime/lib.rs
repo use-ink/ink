@@ -38,6 +38,8 @@ pub mod e2e_call_runtime {
                 .expect("instantiate failed")
                 .account_id;
 
+            let transfer_amount = 100_000_000_000u128;
+
             // when
             let call_data = vec![
                 // A value representing a `MultiAddress<AccountId32, _>`. We want the
@@ -45,8 +47,15 @@ pub mod e2e_call_runtime {
                 // bytes for our destination address
                 Value::unnamed_variant("Id", [Value::from_bytes(&contract_acc_id)]),
                 // A value representing the amount we'd like to transfer.
-                Value::u128(100_000_000_000u128),
+                Value::u128(transfer_amount),
             ];
+
+            let get_balance = build_message::<ContractRef>(contract_acc_id.clone())
+                .call(|contract| contract.get_contract_balance());
+            let pre_balance = client
+                .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
+                .await
+                .return_value();
 
             // Send funds from Alice to the contract using Balances::transfer
             client
@@ -61,10 +70,7 @@ pub mod e2e_call_runtime {
                 .call_dry_run(&ink_e2e::alice(), &get_balance, 0, None)
                 .await;
 
-            assert!(matches!(
-                get_balance_res.return_value(),
-                100_000_000_000u128
-            ));
+            assert_eq!(get_balance_res.return_value(), pre_balance + transfer_amount);
 
             Ok(())
         }
