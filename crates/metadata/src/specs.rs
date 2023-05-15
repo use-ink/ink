@@ -473,7 +473,7 @@ impl<F, S, P, R> ConstructorSpecBuilder<F, S, P, Missing<state::AllowReentrancy>
 where
     F: Form,
 {
-    /// Sets if the constructor is payable, thus accepting value for the caller.
+    /// Sets if the constructor is reentrant.
     pub fn allow_reentrancy(
         self,
         allow_reentrancy: bool,
@@ -789,7 +789,7 @@ impl<F, S, M, P, R> MessageSpecBuilder<F, S, M, P, Missing<state::AllowReentranc
 where
     F: Form,
 {
-    /// Sets if the message is payable, thus accepting value for the caller.
+    /// Sets if the message is reentrant.
     pub fn allow_reentrancy(
         self,
         allow_reentrancy: bool,

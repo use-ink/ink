@@ -28,6 +28,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     let cs = ConstructorSpec::from_label(label)
         .selector(123_456_789u32.to_be_bytes())
         .payable(true)
+        .allow_reentrancy(true)
         .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
@@ -44,6 +45,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
         json!({
             "label": "foo",
             "payable": true,
+            "allowReentrancy": true,
             "selector": "0x075bcd15",
             "returnType": null,
             "args": [],
@@ -61,6 +63,7 @@ fn spec_contract_only_one_default_message_allowed() {
         .constructors(vec![ConstructorSpec::from_label("new")
             .selector([94u8, 189u8, 136u8, 214u8])
             .payable(true)
+            .allow_reentrancy(true)
             .args(vec![MessageParamSpec::new("init_value")
                 .of_type(TypeSpec::with_name_segs::<i32, _>(
                     vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -74,6 +77,7 @@ fn spec_contract_only_one_default_message_allowed() {
                 .selector([231u8, 208u8, 89u8, 15u8])
                 .mutates(true)
                 .payable(true)
+                .allow_reentrancy(true)
                 .args(vec![MessageParamSpec::new("by")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
                         vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -86,6 +90,7 @@ fn spec_contract_only_one_default_message_allowed() {
                 .selector([37u8, 68u8, 74u8, 254u8])
                 .mutates(false)
                 .payable(false)
+                .allow_reentrancy(false)
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_segs::<i32, _>(
                     vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -111,6 +116,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
             ConstructorSpec::from_label("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
                 .payable(true)
+                .allow_reentrancy(true)
                 .args(vec![MessageParamSpec::new("init_value")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
                         vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -123,6 +129,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
             ConstructorSpec::from_label("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .payable(Default::default())
+                .allow_reentrancy(Default::default())
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
@@ -133,6 +140,7 @@ fn spec_contract_only_one_default_constructor_allowed() {
             .selector([231u8, 208u8, 89u8, 15u8])
             .mutates(true)
             .payable(true)
+            .allow_reentrancy(true)
             .args(vec![MessageParamSpec::new("by")
                 .of_type(TypeSpec::with_name_segs::<i32, _>(
                     vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -170,6 +178,7 @@ fn spec_contract_json() {
             ConstructorSpec::from_label("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
                 .payable(true)
+                .allow_reentrancy(true)
                 .args(vec![MessageParamSpec::new("init_value")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
                         vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -181,6 +190,7 @@ fn spec_contract_json() {
             ConstructorSpec::from_label("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .payable(Default::default())
+                .allow_reentrancy(Default::default())
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(None))
                 .docs(Vec::new())
@@ -189,6 +199,7 @@ fn spec_contract_json() {
             ConstructorSpec::from_label("result_new")
                 .selector([6u8, 3u8, 55u8, 123u8])
                 .payable(Default::default())
+                .allow_reentrancy(Default::default())
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(Some(TypeSpec::with_name_str::<
                     Result<(), ()>,
@@ -203,6 +214,7 @@ fn spec_contract_json() {
                 .selector([231u8, 208u8, 89u8, 15u8])
                 .mutates(true)
                 .payable(true)
+                .allow_reentrancy(true)
                 .args(vec![MessageParamSpec::new("by")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
                         vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -215,6 +227,7 @@ fn spec_contract_json() {
                 .selector([37u8, 68u8, 74u8, 254u8])
                 .mutates(false)
                 .payable(false)
+                .allow_reentrancy(false)
                 .args(Vec::new())
                 .returns(ReturnTypeSpec::new(TypeSpec::with_name_segs::<i32, _>(
                     vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -297,6 +310,7 @@ fn spec_contract_json() {
                     "default": false,
                     "label": "new",
                     "payable": true,
+                    "allowReentrancy": true,
                     "returnType": null,
                     "selector": "0x5ebd88d6"
                 },
@@ -306,6 +320,7 @@ fn spec_contract_json() {
                     "default": true,
                     "label": "default",
                     "payable": false,
+                    "allowReentrancy": false,
                     "returnType": null,
                     "selector": "0x0222ff18"
                 },
@@ -315,6 +330,7 @@ fn spec_contract_json() {
                     "default": false,
                     "label": "result_new",
                     "payable": false,
+                    "allowReentrancy": false,
                     "returnType": {
                         "displayName": [
                             "core",
@@ -391,6 +407,7 @@ fn spec_contract_json() {
                     "docs": [],
                     "mutates": true,
                     "payable": true,
+                    "allowReentrancy": true,
                     "label": "inc",
                     "returnType": null,
                     "selector": "0xe7d0590f"
@@ -401,6 +418,7 @@ fn spec_contract_json() {
                     "docs": [],
                     "mutates": false,
                     "payable": false,
+                    "allowReentrancy": false,
                     "label": "get",
                     "returnType": {
                         "displayName": [
@@ -424,6 +442,7 @@ fn trim_docs() {
         .selector(123_456_789u32.to_be_bytes())
         .docs(vec![" foobar      "])
         .payable(Default::default())
+        .allow_reentrancy(Default::default())
         .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
@@ -440,6 +459,7 @@ fn trim_docs() {
         json!({
             "label": "foo",
             "payable": false,
+            "allowReentrancy": false,
             "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
@@ -466,6 +486,7 @@ fn trim_docs_with_code() {
             " ```",
         ])
         .payable(Default::default())
+        .allow_reentrancy(Default::default())
         .returns(ReturnTypeSpec::new(None))
         .done();
     let mut registry = Registry::new();
@@ -482,6 +503,7 @@ fn trim_docs_with_code() {
         json!({
             "label": "foo",
             "payable": false,
+            "allowReentrancy": false,
             "returnType": null,
             "selector": "0x075bcd15",
             "args": [],
@@ -554,6 +576,7 @@ fn runtime_constructor_spec() -> ConstructorSpec<PortableForm> {
     ConstructorSpec::from_label("foo".to_string())
         .selector(Default::default())
         .payable(true)
+        .allow_reentrancy(true)
         .args(args)
         .docs(vec!["foo", "bar"])
         .returns(ret_spec)
@@ -571,6 +594,7 @@ fn runtime_message_spec() -> MessageSpec<PortableForm> {
         .selector(Default::default())
         .mutates(false)
         .payable(true)
+        .allow_reentrancy(true)
         .args(args)
         .returns(ret_spec)
         .docs(["foo".to_string(), "bar".to_string()])
@@ -609,6 +633,7 @@ fn construct_runtime_contract_spec() {
             "label": "foo",
             "selector": "0x00000000",
             "payable": true,
+            "allowReentrancy": true,
             "returnType": null,
             "args": [
                 {
@@ -637,6 +662,7 @@ fn construct_runtime_contract_spec() {
             "selector": "0x00000000",
             "mutates": false,
             "payable": true,
+            "allowReentrancy": true,
             "args": [
                 {
                     "label": "foo_arg",

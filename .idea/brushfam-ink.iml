@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/crates/allocator/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/e2e/macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/e2e/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/engine/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/env/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/ink/codegen/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/ink/ir/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/ink/macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/ink/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/ink/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/metadata/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/prelude/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/primitives/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/storage/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/storage/traits/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

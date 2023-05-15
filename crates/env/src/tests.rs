@@ -70,34 +70,34 @@ fn test_call_flags() {
     // enable each flag one after the other
     let flags = flags.set_forward_input(true);
     assert!(flags.forward_input());
-    assert_eq!(flags.into_u32(), 0b0000_0001);
+    assert_eq!(flags.into_u32(), 0b0000_1001);
 
     let flags = flags.set_clone_input(true);
     assert!(flags.clone_input());
-    assert_eq!(flags.into_u32(), 0b0000_0011);
+    assert_eq!(flags.into_u32(), 0b0000_1011);
 
     let flags = flags.set_tail_call(true);
     assert!(flags.tail_call());
-    assert_eq!(flags.into_u32(), 0b0000_0111);
-
-    let flags = flags.set_allow_reentry(true);
-    assert!(flags.allow_reentry());
     assert_eq!(flags.into_u32(), 0b0000_1111);
 
-    // disable each flag one after the other
-    let flags = flags.set_allow_reentry(false);
-    assert!(!flags.allow_reentry());
+    let flags = flags.set_deny_reentry(true);
+    assert!(flags.deny_reentry());
     assert_eq!(flags.into_u32(), 0b0000_0111);
+
+    // disable each flag one after the other
+    let flags = flags.set_deny_reentry(false);
+    assert!(!flags.deny_reentry());
+    assert_eq!(flags.into_u32(), 0b0000_1111);
 
     let flags = flags.set_tail_call(false);
     assert!(!flags.tail_call());
-    assert_eq!(flags.into_u32(), 0b0000_0011);
+    assert_eq!(flags.into_u32(), 0b0000_1011);
 
     let flags = flags.set_clone_input(false);
     assert!(!flags.clone_input());
-    assert_eq!(flags.into_u32(), 0b0000_0001);
+    assert_eq!(flags.into_u32(), 0b0000_1001);
 
     let flags = flags.set_forward_input(false);
     assert!(!flags.forward_input());
-    assert_eq!(flags.into_u32(), 0b0000_0000);
+    assert_eq!(flags.into_u32(), 0b0000_1000);
 }

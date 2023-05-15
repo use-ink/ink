@@ -288,6 +288,7 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Payable))
     }
 
+    /// Returns `true` if the ink! attribute contains the `allow_reentrancy` argument.
     pub fn allow_reentrancy(&self) -> bool {
         self.args()
             .any(|arg| matches!(arg.kind(), AttributeArg::AllowReentrancy))

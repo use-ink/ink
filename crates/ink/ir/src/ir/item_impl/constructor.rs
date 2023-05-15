@@ -70,7 +70,7 @@ pub struct Constructor {
     pub(super) item: syn::ImplItemFn,
     /// If the ink! constructor can receive funds.
     is_payable: bool,
-    /// If the ink! constructor can be called multiple times.
+    /// If the ink! constructor can be called multiple times by reentering.
     allow_reentrancy: bool,
     /// If the ink! constructor is default.
     is_default: bool,

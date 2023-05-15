@@ -231,6 +231,7 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 | `#[ink(anonymous)]` | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
 | `#[ink(topic)]` | Applicable on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic fields. Similar semantics as to indexed event arguments in Solidity. |
 | `#[ink(payable)]` | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
+| `#[ink(allow_reentrancy)]` | Applicable to ink! messages. | Allows the ink! message to be called reentrantly. |
 | `#[ink(selector = S:u32)]` | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
 | `#[ink(selector = _)]` | Applicable to ink! messages. | Specifies a fallback message that is invoked if no other ink! message matches a selector. |
 | `#[ink(namespace = N:string)]` | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
@@ -253,7 +254,7 @@ We have [a very comprehensive documentation portal](https://use.ink),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 
-| Crate | Docs | Description |
+| Crate | Docs | Description |payable
 |:--|:--|:--|
 `ink` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://paritytech.github.io/ink/ink/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
 `ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
