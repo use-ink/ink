@@ -60,10 +60,10 @@ where
 
     /// Attempt to kill the running substrate process.
     pub fn kill(&mut self) -> Result<(), String> {
-        log::info!("Killing node process {}", self.proc.id());
+        tracing::info!("Killing node process {}", self.proc.id());
         if let Err(err) = self.proc.kill() {
             let err = format!("Error killing node process {}: {}", self.proc.id(), err);
-            log::error!("{}", err);
+            tracing::error!("{}", err);
             return Err(err)
         }
         Ok(())
@@ -150,7 +150,7 @@ where
             }
             Err(err) => {
                 let err = format!("Failed to connect to node rpc at {ws_url}: {err}");
-                log::error!("{}", err);
+                tracing::error!("{}", err);
                 proc.kill().map_err(|e| {
                     format!("Error killing substrate process '{}': {}", proc.id(), e)
                 })?;
