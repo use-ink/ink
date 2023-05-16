@@ -2,7 +2,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: parity_scale_codec::De
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `parity_scale_codec::Decode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`
@@ -13,7 +13,7 @@ error[E0277]: the trait bound `BTreeMap<u128, NonPacked>: Encode` is not satisfi
   --> tests/ui/storage_item/fail/collections_only_packed_2.rs:11:8
    |
 11 |     a: BTreeMap<u128, NonPacked>,
-   |        ^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `BTreeMap<u128, NonPacked>`
    |
    = help: the trait `Encode` is implemented for `BTreeMap<K, V>`
    = note: required for `BTreeMap<u128, NonPacked>` to implement `Packed`

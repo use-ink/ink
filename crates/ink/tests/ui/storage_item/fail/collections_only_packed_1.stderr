@@ -2,7 +2,7 @@ error[E0277]: the trait bound `Vec<NonPacked>: parity_scale_codec::Decode` is no
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:8
    |
 11 |     a: Vec<NonPacked>,
-   |        ^^^ the trait `parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
+   |        ^^^^^^^^^^^^^^ the trait `parity_scale_codec::Decode` is not implemented for `Vec<NonPacked>`
    |
    = help: the trait `parity_scale_codec::Decode` is implemented for `Vec<T>`
    = note: required for `Vec<NonPacked>` to implement `Packed`
@@ -13,7 +13,7 @@ error[E0277]: the trait bound `[NonPacked]: Encode` is not satisfied
   --> tests/ui/storage_item/fail/collections_only_packed_1.rs:11:8
    |
 11 |     a: Vec<NonPacked>,
-   |        ^^^ the trait `Encode` is not implemented for `[NonPacked]`
+   |        ^^^^^^^^^^^^^^ the trait `Encode` is not implemented for `[NonPacked]`
    |
    = help: the following other types implement trait `Encode`:
              [T; N]

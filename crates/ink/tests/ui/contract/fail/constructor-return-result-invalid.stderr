@@ -1,8 +1,10 @@
 error[E0277]: the trait bound `ConstructorOutputValue<Result<u8, contract::Error>>: ConstructorOutput<Contract>` is not satisfied
   --> tests/ui/contract/fail/constructor-return-result-invalid.rs:14:9
    |
-14 |         pub fn constructor() -> Result<u8, Error> {
-   |         ^^^ the trait `ConstructorOutput<Contract>` is not implemented for `ConstructorOutputValue<Result<u8, contract::Error>>`
+14 | /         pub fn constructor() -> Result<u8, Error> {
+15 | |             Ok(5_u8)
+16 | |         }
+   | |_________^ the trait `ConstructorOutput<Contract>` is not implemented for `ConstructorOutputValue<Result<u8, contract::Error>>`
    |
    = help: the following other types implement trait `ConstructorOutput<C>`:
              ConstructorOutputValue<C>

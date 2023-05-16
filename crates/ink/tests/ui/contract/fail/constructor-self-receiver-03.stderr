@@ -8,7 +8,7 @@ error[E0411]: cannot find type `Self` in this scope
  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:35
   |
 4 |     pub struct Contract {}
-  |     --- `Self` not allowed in a constant item
+  |     ---------------------- `Self` not allowed in a constant item
 ...
 8 |         pub fn constructor(this: &Self) -> Self {
   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
@@ -23,13 +23,15 @@ error[E0411]: cannot find type `Self` in this scope
   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
 
 error[E0277]: the trait bound `&Contract: WrapperTypeDecode` is not satisfied
- --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:9
-  |
-8 |         pub fn constructor(this: &Self) -> Self {
-  |         ^^^ the trait `WrapperTypeDecode` is not implemented for `&Contract`
-  |
-  = help: the following other types implement trait `WrapperTypeDecode`:
-            Arc<T>
-            Box<T>
-            Rc<T>
-  = note: required for `&Contract` to implement `parity_scale_codec::Decode`
+  --> tests/ui/contract/fail/constructor-self-receiver-03.rs:8:9
+   |
+8  | /         pub fn constructor(this: &Self) -> Self {
+9  | |             Self {}
+10 | |         }
+   | |_________^ the trait `WrapperTypeDecode` is not implemented for `&Contract`
+   |
+   = help: the following other types implement trait `WrapperTypeDecode`:
+             Arc<T>
+             Box<T>
+             Rc<T>
+   = note: required for `&Contract` to implement `parity_scale_codec::Decode`

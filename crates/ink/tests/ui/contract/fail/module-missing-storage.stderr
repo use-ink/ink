@@ -1,5 +1,11 @@
 error: missing ink! storage struct
- --> tests/ui/contract/fail/module-missing-storage.rs:2:1
-  |
-2 | mod contract {
-  | ^^^
+  --> tests/ui/contract/fail/module-missing-storage.rs:2:1
+   |
+2  | / mod contract {
+3  | |     // #[ink(storage)]
+4  | |     pub struct Contract {}
+5  | |
+...  |
+12 | |     }
+13 | | }
+   | |_^
