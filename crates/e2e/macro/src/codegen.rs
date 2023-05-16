@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use crate::ir;
-use contract_build::{ManifestPath, Target};
+use contract_build::{
+    ManifestPath,
+    Target,
+};
 use core::cell::RefCell;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
