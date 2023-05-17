@@ -21,7 +21,7 @@ proc-macro = true
 [dependencies]
 ink_ir = { version = "4.2.0", path = "../../ink/ir" }
 cargo_metadata = "0.15.3"
-contract-build = "3.0.0"
+contract-build = "2.0.2"
 derive_more = "0.99.17"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 serde_json = "1.0.89"
