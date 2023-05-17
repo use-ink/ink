@@ -544,27 +544,27 @@ mod erc20 {
             // given
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
-            let mut erc20 = client
-                // todo: would be nice to not require type param hint here.
-                .instantiate::<Erc20, _, _>("erc20", &ink_e2e::alice(), constructor, 0, None)
+            let erc20 = client
+                .instantiate("erc20", &ink_e2e::alice(), constructor, 0, None)
                 .await
                 .expect("instantiate failed");
+            let mut call = erc20.call::<Erc20>();
 
             // when
-            let total_supply_msg = erc20.call().total_supply();
+            let total_supply_msg = call.total_supply();
             let total_supply_res = client
                 .call_dry_run(&ink_e2e::bob(), &total_supply_msg, 0, None)
                 .await;
 
             let bob_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Bob);
             let transfer_to_bob = 500_000_000u128;
-            let transfer = erc20.call().transfer(bob_account.clone(), transfer_to_bob);
+            let transfer = call.transfer(bob_account.clone(), transfer_to_bob);
             let _transfer_res = client
                 .call(&ink_e2e::alice(), &transfer, 0, None)
                 .await
                 .expect("transfer failed");
 
-            let balance_of = erc20.call().balance_of(bob_account);
+            let balance_of = call.balance_of(bob_account);
             let balance_of_res = client
                 .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
                 .await;
@@ -585,16 +585,11 @@ mod erc20 {
             // given
             let total_supply = 1_000_000_000;
             let constructor = Erc20Ref::new(total_supply);
-            let mut erc20 = client
-                .instantiate::<Erc20, _, _>(
-                    "erc20",
-                    &ink_e2e::bob(),
-                    constructor,
-                    0,
-                    None,
-                )
+            let erc20 = client
+                .instantiate("erc20", &ink_e2e::bob(), constructor, 0, None)
                 .await
                 .expect("instantiate failed");
+            let mut call = erc20.call::<Erc20>();
 
             // when
 
@@ -602,11 +597,8 @@ mod erc20 {
             let charlie_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Charlie);
 
             let amount = 500_000_000u128;
-            let transfer_from = erc20.call().transfer_from(
-                bob_account.clone(),
-                charlie_account.clone(),
-                amount,
-            );
+            let transfer_from =
+                call.transfer_from(bob_account.clone(), charlie_account.clone(), amount);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;
@@ -618,16 +610,14 @@ mod erc20 {
 
             // Bob approves Charlie to transfer up to amount on his behalf
             let approved_value = 1_000u128;
-            let approve_call = erc20
-                .call()
-                .approve(charlie_account.clone(), approved_value);
+            let approve_call = call.approve(charlie_account.clone(), approved_value);
             client
                 .call(&ink_e2e::bob(), &approve_call, 0, None)
                 .await
                 .expect("approve failed");
 
             // `transfer_from` the approved amount
-            let transfer_from = erc20.call().transfer_from(
+            let transfer_from = call.transfer_from(
                 bob_account.clone(),
                 charlie_account.clone(),
                 approved_value,
@@ -640,17 +630,14 @@ mod erc20 {
                 "approved transfer_from should succeed"
             );
 
-            let balance_of = erc20.call().balance_of(bob_account);
+            let balance_of = call.balance_of(bob_account);
             let balance_of_res = client
                 .call_dry_run(&ink_e2e::alice(), &balance_of, 0, None)
                 .await;
 
             // `transfer_from` again, this time exceeding the approved amount
-            let transfer_from = erc20.call().transfer_from(
-                bob_account.clone(),
-                charlie_account.clone(),
-                1,
-            );
+            let transfer_from =
+                call.transfer_from(bob_account.clone(), charlie_account.clone(), 1);
             let transfer_from_result = client
                 .call(&ink_e2e::charlie(), &transfer_from, 0, None)
                 .await;

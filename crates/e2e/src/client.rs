@@ -38,7 +38,6 @@ use ink_env::{
         ExecutionInput,
         FromAccountId,
     },
-    ContractReference,
     Environment,
 };
 use ink_primitives::MessageResult;
@@ -69,15 +68,9 @@ use subxt::{
 };
 
 /// Result of a contract instantiation.
-pub struct InstantiationResult<
-    C: subxt::Config,
-    E: Environment,
-    CallBuilder,
-> {
+pub struct InstantiationResult<C: subxt::Config, E: Environment> {
     /// The account id at which the contract was instantiated.
     pub account_id: E::AccountId,
-    /// Call builder for constructing calls,
-    pub call_builder: CallBuilder,
     /// The result of the dry run, contains debug messages
     /// if there were any.
     pub dry_run: ContractInstantiateResult<C::AccountId, E::Balance>,
@@ -85,13 +78,19 @@ pub struct InstantiationResult<
     pub events: ExtrinsicEvents<C>,
 }
 
-impl<C, E, CallBuilder> InstantiationResult<C, E, CallBuilder>
+impl<C, E> InstantiationResult<C, E>
 where
     C: subxt::Config,
     E: Environment,
 {
-    pub fn call(&mut self) -> &mut CallBuilder {
-        &mut self.call_builder
+    pub fn call<Contract>(&self) -> <Contract as ContractCallBuilder>::Type
+    where
+        Contract: ContractCallBuilder,
+        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
+    {
+        <<Contract as ContractCallBuilder>::Type as FromAccountId<E>>::from_account_id(
+            self.account_id.clone(),
+        )
     }
 }
 
@@ -126,14 +125,13 @@ where
 
 /// We implement a custom `Debug` here, as to avoid requiring the trait
 /// bound `Debug` for `E`.
-impl<C, E, Contract> core::fmt::Debug for InstantiationResult<C, E, Contract>
+impl<C, E> core::fmt::Debug for InstantiationResult<C, E>
 where
     C: subxt::Config,
     C::AccountId: Debug,
     E: Environment,
     <E as Environment>::AccountId: Debug,
     <E as Environment>::Balance: Debug,
-    Contract: ContractCallBuilder,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("InstantiationResult")
@@ -499,23 +497,22 @@ where
         &mut self,
         contract_name: &str,
         signer: &Signer<C>,
-        constructor: CreateBuilderPartial<
-            E,
-            <Contract as ContractReference>::Type,
-            Args,
-            R,
-        >,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<C, E, <Contract as ContractCallBuilder>::Type>, Error<C, E>>
+    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
-        Contract: ContractCallBuilder + ContractReference,
-        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
         let code = self.load_code(contract_name);
         let ret = self
-            .exec_instantiate::<Contract, Args, R>(signer, code, constructor, value, storage_deposit_limit)
+            .exec_instantiate::<Contract, Args, R>(
+                signer,
+                code,
+                constructor,
+                value,
+                storage_deposit_limit,
+            )
             .await?;
         log_info(&format!("instantiated contract at {:?}", ret.account_id));
         Ok(ret)
@@ -574,18 +571,11 @@ where
         &mut self,
         signer: &Signer<C>,
         code: Vec<u8>,
-        constructor: CreateBuilderPartial<
-            E,
-            <Contract as ContractReference>::Type,
-            Args,
-            R,
-        >,
+        constructor: CreateBuilderPartial<E, Contract, Args, R>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
-    ) -> Result<InstantiationResult<C, E, <Contract as ContractCallBuilder>::Type>, Error<C, E>>
+    ) -> Result<InstantiationResult<C, E>, Error<C, E>>
     where
-        Contract: ContractCallBuilder + ContractReference,
-        <Contract as ContractCallBuilder>::Type: FromAccountId<E>,
         Args: scale::Encode,
     {
         let salt = Self::salt();
@@ -658,13 +648,9 @@ where
             }
         }
         let account_id = account_id.expect("cannot extract `account_id` from events");
-        let call_builder = <<Contract as ContractCallBuilder>::Type as FromAccountId<
-            E,
-        >>::from_account_id(account_id.clone());
 
         Ok(InstantiationResult {
             dry_run,
-            call_builder,
             // The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
             account_id,
