@@ -365,7 +365,7 @@ codecov:
 
 #### stage:                        examples
 
-examples-test:
+.examples-test:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
