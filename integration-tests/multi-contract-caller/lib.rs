@@ -50,7 +50,7 @@ mod multi_contract_caller {
     impl MultiContractCaller {
         /// Instantiate a `multi_contract_caller` contract with the given sub-contract
         /// codes.
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new(
             init_value: i32,
             version: u32,
@@ -155,7 +155,7 @@ mod multi_contract_caller {
                     "multi_contract_caller",
                     &ink_e2e::alice(),
                     constructor,
-                    0,
+                    10_000_000_000_000,
                     None,
                 )
                 .await
