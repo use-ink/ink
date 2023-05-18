@@ -124,12 +124,11 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
 )]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub enum Determinism {
-    /// The execution should be deterministic and hence no indeterministic instructions
-    /// are allowed.
+    /// The execution should be deterministic and hence no indeterministic instructions are
+    /// allowed.
     ///
-    /// Dispatchables always use this mode in order to make on-chain execution
-    /// deterministic.
-    Deterministic,
+    /// Dispatchables always use this mode in order to make on-chain execution deterministic.
+    Enforced,
     /// Allow calling or uploading an indeterministic code.
     ///
     /// This is only possible when calling into `pallet-contracts` directly via
@@ -138,7 +137,7 @@ pub enum Determinism {
     /// # Note
     ///
     /// **Never** use this mode for on-chain execution.
-    AllowIndeterminism,
+    Relaxed,
 }
 
 /// A raw call to `pallet-contracts`'s `upload`.
@@ -372,7 +371,7 @@ where
             origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
-            determinism: Determinism::Deterministic,
+            determinism: Determinism::Enforced,
         };
         let func = "ContractsApi_upload_code";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
@@ -404,7 +403,7 @@ where
             UploadCode::<E> {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Deterministic,
+                determinism: Determinism::Enforced,
             },
         )
         .unvalidated();
