@@ -412,7 +412,7 @@ where
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
-    pub async fn call_dry_run<RetType>(
+    pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
         dest: E::AccountId,

@@ -597,6 +597,7 @@ mod erc20 {
             let charlie_account = ink_e2e::account_id(ink_e2e::AccountKeyring::Charlie);
 
             let amount = 500_000_000u128;
+            // tx
             let transfer_from =
                 call.transfer_from(bob_account.clone(), charlie_account.clone(), amount);
             let transfer_from_result = client

@@ -34,7 +34,6 @@ use ink_env::{
             Set,
         },
         Call,
-        CallBuilder,
         ExecutionInput,
         FromAccountId,
     },
@@ -66,6 +65,13 @@ use subxt::{
     },
     tx::PairSigner,
 };
+
+type CallBuilder<E, Args, RetType> = ink_env::call::CallBuilder<
+    E,
+    Set<Call<E>>,
+    Set<ExecutionInput<Args>>,
+    Set<ReturnType<RetType>>,
+>;
 
 /// Result of a contract instantiation.
 pub struct InstantiationResult<C: subxt::Config, E: Environment> {
@@ -767,20 +773,14 @@ where
     pub async fn call<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: &CallBuilder<
-            E,
-            Set<Call<E>>,
-            Set<ExecutionInput<Args>>,
-            Set<ReturnType<RetType>>,
-        >,
+        message: &CallBuilder<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<C, E, RetType>, Error<C, E>>
     where
         Args: scale::Encode,
         RetType: scale::Decode,
-        CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>:
-            Clone,
+        CallBuilder<E, Args, RetType>: Clone,
     {
         let account_id = message.clone().params().callee().clone();
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
@@ -874,27 +874,21 @@ where
     pub async fn call_dry_run<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: &CallBuilder<
-            E,
-            Set<Call<E>>,
-            Set<ExecutionInput<Args>>,
-            Set<ReturnType<RetType>>,
-        >,
+        message: &CallBuilder<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> CallDryRunResult<E, RetType>
     where
         Args: scale::Encode,
         RetType: scale::Decode,
-        CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>:
-            Clone,
+        CallBuilder<E, Args, RetType>: Clone,
     {
         let dest = message.clone().params().callee().clone();
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
 
         let exec_result = self
             .api
-            .call_dry_run::<RetType>(
+            .call_dry_run(
                 Signer::account_id(signer).clone(),
                 dest,
                 exec_input,
