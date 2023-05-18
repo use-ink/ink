@@ -124,10 +124,11 @@ pub struct Transfer<E: Environment, C: subxt::Config> {
 )]
 #[encode_as_type(crate_path = "subxt::ext::scale_encode")]
 pub enum Determinism {
-    /// The execution should be deterministic and hence no indeterministic instructions are
-    /// allowed.
+    /// The execution should be deterministic and hence no indeterministic instructions
+    /// are allowed.
     ///
-    /// Dispatchables always use this mode in order to make on-chain execution deterministic.
+    /// Dispatchables always use this mode in order to make on-chain execution
+    /// deterministic.
     Enforced,
     /// Allow calling or uploading an indeterministic code.
     ///
