@@ -92,8 +92,6 @@ mod runtime_call {
     mod e2e_tests {
         use super::*;
 
-        use ink_e2e::MessageBuilder;
-
         type E2EResult<T> = Result<T, Box<dyn std::error::Error>>;
 
         #[cfg(feature = "permissive-node")]
@@ -103,7 +101,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "custom-environment",
                     &ink_e2e::alice(),
@@ -112,18 +110,14 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let call = contract.call::<Topics>();
 
             // when
-            let message =
-                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
-                    contract_acc_id,
-                )
-                .call(|caller| caller.trigger());
+            let message = call.trigger();
 
             let call_res = client
-                .call(&ink_e2e::alice(), message, 0, None)
+                .call(&ink_e2e::alice(), &message, 0, None)
                 .await
                 .expect("call failed");
 
@@ -140,7 +134,7 @@ mod runtime_call {
         ) -> E2EResult<()> {
             // given
             let constructor = TopicsRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate(
                     "custom-environment",
                     &ink_e2e::alice(),
@@ -149,14 +143,10 @@ mod runtime_call {
                     None,
                 )
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<Topics>();
 
-            let message =
-                MessageBuilder::<crate::EnvironmentWithManyTopics, TopicsRef>::from_account_id(
-                    contract_acc_id,
-                )
-                    .call(|caller| caller.trigger());
+            let message = call.trigger();
 
             // when
             let call_res = client
