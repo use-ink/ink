@@ -642,7 +642,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)?;
                 log_error(&format!(
-                    "extrinsic for instantiate failed: {dispatch_error:?}"
+                    "extrinsic for instantiate failed: {dispatch_error}"
                 ));
                 return Err(Error::InstantiateExtrinsic(dispatch_error))
             }
@@ -734,7 +734,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)?;
 
-                log_error(&format!("extrinsic for upload failed: {dispatch_error:?}"));
+                log_error(&format!("extrinsic for upload failed: {dispatch_error}"));
                 return Err(Error::UploadExtrinsic(dispatch_error))
             }
         }
@@ -859,7 +859,7 @@ where
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)?;
 
-                log_error(&format!("extrinsic for call failed: {dispatch_error:?}"));
+                log_error(&format!("extrinsic for call failed: {dispatch_error}"));
                 return Err(Error::CallExtrinsic(dispatch_error))
             }
         }
