@@ -254,7 +254,7 @@ We have [a very comprehensive documentation portal](https://use.ink),
 but if you are looking for the crate level documentation itself, then these are
 the relevant links:
 
-| Crate | Docs | Description |payable
+| Crate | Docs | Description |
 |:--|:--|:--|
 `ink` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://paritytech.github.io/ink/ink/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
 `ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
