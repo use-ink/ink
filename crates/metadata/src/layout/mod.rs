@@ -37,6 +37,7 @@ use scale_info::{
     },
     meta_type,
     IntoPortable,
+    MetaType,
     Registry,
     TypeInfo,
 };
@@ -137,6 +138,8 @@ pub struct RootLayout<F: Form = MetaForm> {
     root_key: LayoutKey,
     /// The storage layout of the unbounded layout elements.
     layout: Box<Layout<F>>,
+    /// The type of the encoded entity.
+    ty: <F as Form>::Type,
 }
 
 impl IntoPortable for RootLayout {
@@ -146,6 +149,7 @@ impl IntoPortable for RootLayout {
         RootLayout {
             root_key: self.root_key,
             layout: Box::new(self.layout.into_portable(registry)),
+            ty: registry.register_type(&self.ty),
         }
     }
 }
@@ -153,16 +157,27 @@ impl IntoPortable for RootLayout {
 impl<F> RootLayout<F>
 where
     F: Form,
+    F::Type: From<MetaType>,
 {
     /// Creates a new root layout.
-    pub fn new<L>(root_key: LayoutKey, layout: L) -> Self
+    pub fn new<Root, L>(root_key: LayoutKey, layout: L) -> Self
     where
+        Root: TypeInfo + 'static,
         L: Into<Layout<F>>,
     {
         Self {
             root_key,
             layout: Box::new(layout.into()),
+            ty: meta_type::<Root>().into(),
         }
+    }
+
+    /// Creates a new root layout with empty root type.
+    pub fn new_empty<L>(root_key: LayoutKey, layout: L) -> Self
+    where
+        L: Into<Layout<F>>,
+    {
+        Self::new::<(), L>(root_key, layout)
     }
 
     /// Returns the root key of the sub-tree.
@@ -173,6 +188,11 @@ where
     /// Returns the storage layout of the unbounded layout elements.
     pub fn layout(&self) -> &Layout<F> {
         &self.layout
+    }
+
+    /// Returns the type of the encoded entity.
+    pub fn ty(&self) -> &F::Type {
+        &self.ty
     }
 }
 
