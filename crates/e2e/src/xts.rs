@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::{
-    builders::Message,
     log_info,
     sr25519,
     ContractExecResult,
@@ -413,20 +412,21 @@ where
     }
 
     /// Dry runs a call of the contract at `contract` with the given parameters.
-    pub async fn call_dry_run<RetType>(
+    pub async fn call_dry_run(
         &self,
         origin: C::AccountId,
-        message: &Message<E, RetType>,
+        dest: E::AccountId,
+        input_data: Vec<u8>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> ContractExecResult<E::Balance> {
         let call_request = RpcCallRequest::<C, E> {
             origin,
-            dest: message.account_id().clone(),
+            dest,
             value,
             gas_limit: None,
             storage_deposit_limit,
-            input_data: message.exec_input().to_vec(),
+            input_data,
         };
         let func = "ContractsApi_call";
         let params = rpc_params![func, Bytes(scale::Encode::encode(&call_request))];
