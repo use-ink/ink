@@ -38,17 +38,10 @@ pub mod wildcard_selector {
     mod e2e_tests {
         use super::*;
 
-        use ink::env::call::{
-            utils::{
-                Argument,
-                ArgumentList,
-                EmptyArgumentList,
-                ReturnType,
-                Set,
-            },
-            Call,
-            CallBuilder,
-            ExecutionInput,
+        use ink::env::call::utils::{
+            Argument,
+            ArgumentList,
+            EmptyArgumentList,
         };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -58,11 +51,10 @@ pub mod wildcard_selector {
             account_id: AccountId,
             selector: [u8; 4],
             message: String,
-        ) -> CallBuilder<
+        ) -> ink_e2e::CallBuilderFinal<
             Environment,
-            Set<Call<Environment>>,
-            Set<ExecutionInput<ArgumentList<Argument<String>, EmptyArgumentList>>>,
-            Set<ReturnType<()>>,
+            ArgumentList<Argument<String>, EmptyArgumentList>,
+            (),
         > {
             ink::env::call::build_call::<Environment>()
                 .call(account_id)

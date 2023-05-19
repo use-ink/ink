@@ -26,6 +26,7 @@ mod node_proc;
 mod xts;
 
 pub use client::{
+    CallBuilderFinal,
     CallDryRunResult,
     CallResult,
     Client,

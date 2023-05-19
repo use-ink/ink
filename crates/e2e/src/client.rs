@@ -66,7 +66,8 @@ use subxt::{
     tx::PairSigner,
 };
 
-type CallBuilder<E, Args, RetType> = ink_env::call::CallBuilder<
+/// Represents an initialized contract message builder.
+pub type CallBuilderFinal<E, Args, RetType> = ink_env::call::CallBuilder<
     E,
     Set<Call<E>>,
     Set<ExecutionInput<Args>>,
@@ -773,14 +774,14 @@ where
     pub async fn call<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: &CallBuilder<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> Result<CallResult<C, E, RetType>, Error<C, E>>
     where
         Args: scale::Encode,
         RetType: scale::Decode,
-        CallBuilder<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType>: Clone,
     {
         let account_id = message.clone().params().callee().clone();
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
@@ -874,14 +875,14 @@ where
     pub async fn call_dry_run<Args, RetType>(
         &mut self,
         signer: &Signer<C>,
-        message: &CallBuilder<E, Args, RetType>,
+        message: &CallBuilderFinal<E, Args, RetType>,
         value: E::Balance,
         storage_deposit_limit: Option<E::Balance>,
     ) -> CallDryRunResult<E, RetType>
     where
         Args: scale::Encode,
         RetType: scale::Decode,
-        CallBuilder<E, Args, RetType>: Clone,
+        CallBuilderFinal<E, Args, RetType>: Clone,
     {
         let dest = message.clone().params().callee().clone();
         let exec_input = scale::Encode::encode(message.clone().params().exec_input());
