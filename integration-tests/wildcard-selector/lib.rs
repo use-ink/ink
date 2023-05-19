@@ -37,8 +37,12 @@ pub mod wildcard_selector {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::Message;
-        use scale::Encode as _;
+
+        use ink::env::call::utils::{
+            Argument,
+            ArgumentList,
+            EmptyArgumentList,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
         type Environment = <WildcardSelectorRef as ink::env::ContractEnv>::Env;
@@ -47,8 +51,12 @@ pub mod wildcard_selector {
             account_id: AccountId,
             selector: [u8; 4],
             message: String,
-        ) -> Message<Environment, ()> {
-            let call_builder = ink::env::call::build_call::<Environment>()
+        ) -> ink_e2e::CallBuilderFinal<
+            Environment,
+            ArgumentList<Argument<String>, EmptyArgumentList>,
+            (),
+        > {
+            ink::env::call::build_call::<Environment>()
                 .call(account_id)
                 .exec_input(
                     ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(
@@ -56,9 +64,7 @@ pub mod wildcard_selector {
                     ))
                     .push_arg(message),
                 )
-                .returns::<()>();
-            let exec_input = call_builder.params().exec_input().encode();
-            Message::<ink::env::DefaultEnvironment, ()>::new(account_id, exec_input)
+                .returns::<()>()
         }
 
         #[ink_e2e::test]
@@ -83,7 +89,7 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), wildcard, 0, None)
+                .call(&ink_e2e::bob(), &wildcard, 0, None)
                 .await
                 .expect("wildcard failed");
 
@@ -96,7 +102,7 @@ pub mod wildcard_selector {
             );
 
             let result2 = client
-                .call(&ink_e2e::bob(), wildcard2, 0, None)
+                .call(&ink_e2e::bob(), &wildcard2, 0, None)
                 .await
                 .expect("wildcard failed");
 
@@ -135,7 +141,7 @@ pub mod wildcard_selector {
             );
 
             let result = client
-                .call(&ink_e2e::bob(), wildcard, 0, None)
+                .call(&ink_e2e::bob(), &wildcard, 0, None)
                 .await
                 .expect("wildcard failed");
 

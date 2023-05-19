@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Schema generation - [#1765](https://github.com/paritytech/ink/pull/1765)
 
+### Changed
+- E2E: improve call API, remove `build_message` + callback - [#1782](https://github.com/paritytech/ink/pull/1782)
+
 ## Version 4.2.0
 
 ### Added

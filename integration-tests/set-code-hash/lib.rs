@@ -68,7 +68,6 @@ pub mod incrementer {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::build_message;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -76,26 +75,23 @@ pub mod incrementer {
         async fn set_code_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
             // Given
             let constructor = IncrementerRef::new();
-            let contract_acc_id = client
+            let contract = client
                 .instantiate("incrementer", &ink_e2e::alice(), constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call = contract.call::<Incrementer>();
 
-            let get = build_message::<IncrementerRef>(contract_acc_id.clone())
-                .call(|incrementer| incrementer.get());
+            let get = call.get();
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_res.return_value(), 0));
 
-            let inc = build_message::<IncrementerRef>(contract_acc_id.clone())
-                .call(|incrementer| incrementer.inc());
+            let inc = call.inc();
             let _inc_result = client
-                .call(&ink_e2e::alice(), inc, 0, None)
+                .call(&ink_e2e::alice(), &inc, 0, None)
                 .await
                 .expect("`inc` failed");
 
-            let get = build_message::<IncrementerRef>(contract_acc_id.clone())
-                .call(|incrementer| incrementer.get());
+            let get = call.get();
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_res.return_value(), 1));
 
@@ -107,27 +103,24 @@ pub mod incrementer {
                 .code_hash;
 
             let new_code_hash = new_code_hash.as_ref().try_into().unwrap();
-            let set_code = build_message::<IncrementerRef>(contract_acc_id.clone())
-                .call(|incrementer| incrementer.set_code(new_code_hash));
+            let set_code = call.set_code(new_code_hash);
 
             let _set_code_result = client
-                .call(&ink_e2e::alice(), set_code, 0, None)
+                .call(&ink_e2e::alice(), &set_code, 0, None)
                 .await
                 .expect("`set_code` failed");
 
             // Then
             // Note that our contract's `AccountId` (so `contract_acc_id`) has stayed the
             // same between updates!
-            let inc = build_message::<IncrementerRef>(contract_acc_id.clone())
-                .call(|incrementer| incrementer.inc());
+            let inc = call.inc();
 
             let _inc_result = client
-                .call(&ink_e2e::alice(), inc, 0, None)
+                .call(&ink_e2e::alice(), &inc, 0, None)
                 .await
                 .expect("`inc` failed");
 
-            let get = build_message::<IncrementerRef>(contract_acc_id.clone())
-                .call(|incrementer| incrementer.get());
+            let get = call.get();
             let get_res = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
 
             // Remember, we updated our incrementer contract to increment by `4`.

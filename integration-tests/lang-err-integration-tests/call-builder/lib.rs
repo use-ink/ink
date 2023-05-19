@@ -165,9 +165,11 @@ mod call_builder {
 
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
-        use super::CallBuilderTestRef;
-        use ink_e2e::build_message;
-        use integration_flipper::FlipperRef;
+        use super::*;
+        use integration_flipper::{
+            Flipper,
+            FlipperRef,
+        };
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -180,30 +182,28 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder_contract = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder_contract.call::<CallBuilderTest>();
 
             let flipper_constructor = FlipperRef::new_default();
-            let flipper_acc_id = client
+            let flipper = client
                 .instantiate("integration_flipper", &origin, flipper_constructor, 0, None)
                 .await
-                .expect("instantiate `flipper` failed")
-                .account_id;
+                .expect("instantiate `flipper` failed");
+            let flipper_call = flipper.call::<Flipper>();
 
-            let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
-                .call(|contract| contract.get());
+            let flipper_get = flipper_call.get();
             let get_call_result =
                 client.call_dry_run(&origin, &flipper_get, 0, None).await;
             let initial_value = get_call_result.return_value();
 
             let selector = ink::selector_bytes!("invalid_selector");
-            let call = build_message::<CallBuilderTestRef>(contract_acc_id)
-                .call(|contract| contract.call(flipper_acc_id, selector));
+            let call = call_builder_call.call(flipper.account_id, selector);
             let call_result = client
-                .call(&origin, call, 0, None)
+                .call(&origin, &call, 0, None)
                 .await
                 .expect("Calling `call_builder::call` failed");
 
@@ -214,8 +214,7 @@ mod call_builder {
                 Some(ink::LangError::CouldNotReadInput)
             ));
 
-            let flipper_get = build_message::<FlipperRef>(flipper_acc_id)
-                .call(|contract| contract.get());
+            let flipper_get = flipper_call.get();
             let get_call_result =
                 client.call_dry_run(&origin, &flipper_get, 0, None).await;
             let flipped_value = get_call_result.return_value();
@@ -233,24 +232,22 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let flipper_constructor = FlipperRef::new_default();
-            let flipper_acc_id = client
+            let flipper = client
                 .instantiate("integration_flipper", &origin, flipper_constructor, 0, None)
                 .await
-                .expect("instantiate `flipper` failed")
-                .account_id;
+                .expect("instantiate `flipper` failed");
 
             // Since `LangError`s can't be handled by the `CallBuilder::invoke()` method
             // we expect this to panic.
             let invalid_selector = [0x00, 0x00, 0x00, 0x00];
-            let call = build_message::<CallBuilderTestRef>(contract_acc_id)
-                .call(|contract| contract.invoke(flipper_acc_id, invalid_selector));
+            let call = call_builder_call.invoke(flipper.account_id, invalid_selector);
             let call_result = client.call_dry_run(&origin, &call, 0, None).await;
 
             assert!(call_result.is_err());
@@ -270,11 +267,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -285,11 +282,9 @@ mod call_builder {
             let selector = ink::selector_bytes!("new");
             let init_value = true;
             let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate(code_hash, selector, init_value)
-                });
+                call_builder_call.call_instantiate(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, call, 0, None)
+                .call(&origin, &call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value();
@@ -311,11 +306,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -326,11 +321,9 @@ mod call_builder {
             let selector = ink::selector_bytes!("invalid_selector");
             let init_value = true;
             let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate(code_hash, selector, init_value)
-                });
+                call_builder_call.call_instantiate(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, call, 0, None)
+                .call(&origin, &call, 0, None)
                 .await
                 .expect("Client failed to call `call_builder::call_instantiate`.")
                 .return_value();
@@ -352,11 +345,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -367,9 +360,7 @@ mod call_builder {
             let selector = ink::selector_bytes!("revert_new");
             let init_value = false;
             let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate(code_hash, selector, init_value)
-                });
+                call_builder_call.call_instantiate(code_hash, selector, init_value);
 
             let call_result = client.call_dry_run(&origin, &call, 0, None).await;
             assert!(
@@ -397,11 +388,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -411,12 +402,10 @@ mod call_builder {
 
             let selector = ink::selector_bytes!("try_new");
             let init_value = true;
-            let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_fallible(code_hash, selector, init_value)
-                });
+            let call = call_builder_call
+                .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, call, 0, None)
+                .call(&origin, &call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value();
@@ -438,11 +427,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -452,12 +441,10 @@ mod call_builder {
 
             let selector = ink::selector_bytes!("try_new");
             let init_value = false;
-            let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_fallible(code_hash, selector, init_value)
-                });
+            let call = call_builder_call
+                .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, call, 0, None)
+                .call(&origin, &call, 0, None)
                 .await
                 .expect("Calling `call_builder::call_instantiate_fallible` failed")
                 .return_value();
@@ -486,11 +473,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -500,10 +487,8 @@ mod call_builder {
 
             let selector = ink::selector_bytes!("try_revert_new");
             let init_value = true;
-            let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_fallible(code_hash, selector, init_value)
-                });
+            let call = call_builder_call
+                .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client.call_dry_run(&origin, &call, 0, None).await;
 
             assert!(
@@ -531,11 +516,11 @@ mod call_builder {
                 .await;
 
             let constructor = CallBuilderTestRef::new();
-            let contract_acc_id = client
+            let call_builder = client
                 .instantiate("call_builder", &origin, constructor, 0, None)
                 .await
-                .expect("instantiate failed")
-                .account_id;
+                .expect("instantiate failed");
+            let mut call_builder_call = call_builder.call::<CallBuilderTest>();
 
             let code_hash = client
                 .upload("constructors_return_value", &origin, None)
@@ -545,12 +530,10 @@ mod call_builder {
 
             let selector = ink::selector_bytes!("try_revert_new");
             let init_value = false;
-            let call =
-                build_message::<CallBuilderTestRef>(contract_acc_id).call(|contract| {
-                    contract.call_instantiate_fallible(code_hash, selector, init_value)
-                });
+            let call = call_builder_call
+                .call_instantiate_fallible(code_hash, selector, init_value);
             let call_result = client
-                .call(&origin, call, 0, None)
+                .call(&origin, &call, 0, None)
                 .await
                 .expect(
                     "Client failed to call `call_builder::call_instantiate_fallible`.",

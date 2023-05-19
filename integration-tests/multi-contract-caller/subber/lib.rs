@@ -18,7 +18,7 @@ mod subber {
 
     impl Subber {
         /// Creates a new `subber` from the given `accumulator`.
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new(accumulator: AccumulatorRef) -> Self {
             Self { accumulator }
         }
