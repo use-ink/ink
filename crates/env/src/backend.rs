@@ -70,6 +70,17 @@ pub struct CallFlags {
     allow_reentry: bool,
 }
 
+impl Default for CallFlags {
+    fn default() -> Self {
+        Self {
+            forward_input: false,
+            clone_input: false,
+            tail_call: false,
+            allow_reentry: true,
+        }
+    }
+}
+
 impl CallFlags {
     /// Forwards the input for the current function to the callee.
     ///
