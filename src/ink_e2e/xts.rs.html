@@ -621,7 +621,7 @@
     ///
     /// Dispatchables always use this mode in order to make on-chain execution
     /// deterministic.
-    </span>Deterministic,
+    </span>Enforced,
     <span class="doccomment">/// Allow calling or uploading an indeterministic code.
     ///
     /// This is only possible when calling into `pallet-contracts` directly via
@@ -630,7 +630,7 @@
     /// # Note
     ///
     /// **Never** use this mode for on-chain execution.
-    </span>AllowIndeterminism,
+    </span>Relaxed,
 }
 
 <span class="doccomment">/// A raw call to `pallet-contracts`&#39;s `upload`.
@@ -864,7 +864,7 @@
             origin: subxt::tx::Signer::account_id(signer).clone(),
             code,
             storage_deposit_limit,
-            determinism: Determinism::Deterministic,
+            determinism: Determinism::Enforced,
         };
         <span class="kw">let </span>func = <span class="string">&quot;ContractsApi_upload_code&quot;</span>;
         <span class="kw">let </span>params = <span class="macro">rpc_params!</span>[func, Bytes(scale::Encode::encode(<span class="kw-2">&amp;</span>call_request))];
@@ -896,7 +896,7 @@
             UploadCode::&lt;E&gt; {
                 code,
                 storage_deposit_limit,
-                determinism: Determinism::Deterministic,
+                determinism: Determinism::Enforced,
             },
         )
         .unvalidated();
