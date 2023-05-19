@@ -37,7 +37,6 @@ use scale_info::{
     },
     meta_type,
     IntoPortable,
-    MetaType,
     Registry,
     TypeInfo,
 };
