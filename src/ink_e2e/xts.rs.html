@@ -505,7 +505,6 @@
 // limitations under the License.
 
 </span><span class="kw">use super</span>::{
-    builders::Message,
     log_info,
     sr25519,
     ContractExecResult,
@@ -905,20 +904,21 @@
     </span>}
 
     <span class="doccomment">/// Dry runs a call of the contract at `contract` with the given parameters.
-    </span><span class="kw">pub async fn </span>call_dry_run&lt;RetType&gt;(
+    </span><span class="kw">pub async fn </span>call_dry_run(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         origin: C::AccountId,
-        message: <span class="kw-2">&amp;</span>Message&lt;E, RetType&gt;,
+        dest: E::AccountId,
+        input_data: Vec&lt;u8&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; ContractExecResult&lt;E::Balance&gt; {
         <span class="kw">let </span>call_request = RpcCallRequest::&lt;C, E&gt; {
             origin,
-            dest: message.account_id().clone(),
+            dest,
             value,
             gas_limit: <span class="prelude-val">None</span>,
             storage_deposit_limit,
-            input_data: message.exec_input().to_vec(),
+            input_data,
         };
         <span class="kw">let </span>func = <span class="string">&quot;ContractsApi_call&quot;</span>;
         <span class="kw">let </span>params = <span class="macro">rpc_params!</span>[func, Bytes(scale::Encode::encode(<span class="kw-2">&amp;</span>call_request))];

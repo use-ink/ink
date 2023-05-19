@@ -275,7 +275,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::call::Selector;
 
 <span class="doccomment">/// The input data for a smart contract execution.
-</span><span class="attr">#[derive(Default, Debug)]
+</span><span class="attr">#[derive(Clone, Default, Debug)]
 </span><span class="kw">pub struct </span>ExecutionInput&lt;Args&gt; {
     <span class="doccomment">/// The selector for the smart contract execution.
     </span>selector: Selector,
@@ -340,7 +340,7 @@
 /// arguments. The potentially heap allocating encoding is done right at the end
 /// where we can leverage the static environmental buffer instead of allocating
 /// heap memory.
-</span><span class="attr">#[derive(Default, Debug)]
+</span><span class="attr">#[derive(Clone, Default, Debug)]
 </span><span class="kw">pub struct </span>ArgumentList&lt;Head, Rest&gt; {
     <span class="doccomment">/// The first argument of the argument list.
     </span>head: Head,
@@ -352,7 +352,7 @@
 </span><span class="kw">pub type </span>ArgsList&lt;Head, Rest&gt; = ArgumentList&lt;Argument&lt;Head&gt;, Rest&gt;;
 
 <span class="doccomment">/// A single argument and its reference to a known value.
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Argument&lt;T&gt; {
     <span class="doccomment">/// The reference to the known value.
     ///
@@ -369,7 +369,7 @@
 }
 
 <span class="doccomment">/// The end of an argument list.
-</span><span class="attr">#[derive(Default, Debug)]
+</span><span class="attr">#[derive(Clone, Default, Debug)]
 </span><span class="kw">pub struct </span>ArgumentListEnd;
 
 <span class="doccomment">/// An empty argument list.

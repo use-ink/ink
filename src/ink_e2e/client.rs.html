@@ -944,6 +944,58 @@
 <a href="#943" id="943">943</a>
 <a href="#944" id="944">944</a>
 <a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -962,7 +1014,6 @@
     builders::{
         constructor_exec_input,
         CreateBuilderPartial,
-        Message,
     },
     log_error,
     log_info,
@@ -973,7 +1024,19 @@
     ContractsApi,
     Signer,
 };
-<span class="kw">use </span>ink_env::Environment;
+<span class="kw">use </span>ink::codegen::ContractCallBuilder;
+<span class="kw">use </span>ink_env::{
+    call::{
+        utils::{
+            ReturnType,
+            Set,
+        },
+        Call,
+        ExecutionInput,
+        FromAccountId,
+    },
+    Environment,
+};
 <span class="kw">use </span>ink_primitives::MessageResult;
 <span class="kw">use </span>pallet_contracts_primitives::ExecReturnValue;
 <span class="kw">use </span>sp_core::Pair;
@@ -1001,6 +1064,14 @@
     tx::PairSigner,
 };
 
+<span class="doccomment">/// Represents an initialized contract message builder.
+</span><span class="kw">pub type </span>CallBuilderFinal&lt;E, Args, RetType&gt; = ink_env::call::CallBuilder&lt;
+    E,
+    Set&lt;Call&lt;E&gt;&gt;,
+    Set&lt;ExecutionInput&lt;Args&gt;&gt;,
+    Set&lt;ReturnType&lt;RetType&gt;&gt;,
+&gt;;
+
 <span class="doccomment">/// Result of a contract instantiation.
 </span><span class="kw">pub struct </span>InstantiationResult&lt;C: subxt::Config, E: Environment&gt; {
     <span class="doccomment">/// The account id at which the contract was instantiated.
@@ -1010,6 +1081,22 @@
     </span><span class="kw">pub </span>dry_run: ContractInstantiateResult&lt;C::AccountId, E::Balance&gt;,
     <span class="doccomment">/// Events that happened with the contract instantiation.
     </span><span class="kw">pub </span>events: ExtrinsicEvents&lt;C&gt;,
+}
+
+<span class="kw">impl</span>&lt;C, E&gt; InstantiationResult&lt;C, E&gt;
+<span class="kw">where
+    </span>C: subxt::Config,
+    E: Environment,
+{
+    <span class="kw">pub fn </span>call&lt;Contract&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type
+    <span class="kw">where
+        </span>Contract: ContractCallBuilder,
+        &lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type: FromAccountId&lt;E&gt;,
+    {
+        &lt;&lt;Contract <span class="kw">as </span>ContractCallBuilder&gt;::Type <span class="kw">as </span>FromAccountId&lt;E&gt;&gt;::from_account_id(
+            <span class="self">self</span>.account_id.clone(),
+        )
+    }
 }
 
 <span class="doccomment">/// Result of a contract upload.
@@ -1411,11 +1498,11 @@
     /// Calling this function multiple times is idempotent, the contract is
     /// newly instantiated each time using a unique salt. No existing contract
     /// instance is reused!
-    </span><span class="kw">pub async fn </span>instantiate&lt;ContractRef, Args, R&gt;(
+    </span><span class="kw">pub async fn </span>instantiate&lt;Contract, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-        constructor: CreateBuilderPartial&lt;E, ContractRef, Args, R&gt;,
+        constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;C, E&gt;, Error&lt;C, E&gt;&gt;
@@ -1424,18 +1511,24 @@
     {
         <span class="kw">let </span>code = <span class="self">self</span>.load_code(contract_name);
         <span class="kw">let </span>ret = <span class="self">self
-            </span>.exec_instantiate(signer, code, constructor, value, storage_deposit_limit)
+            </span>.exec_instantiate::&lt;Contract, Args, R&gt;(
+                signer,
+                code,
+                constructor,
+                value,
+                storage_deposit_limit,
+            )
             .<span class="kw">await</span><span class="question-mark">?</span>;
         log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;instantiated contract at {:?}&quot;</span>, ret.account_id));
         <span class="prelude-val">Ok</span>(ret)
     }
 
     <span class="doccomment">/// Dry run contract instantiation using the given constructor.
-    </span><span class="kw">pub async fn </span>instantiate_dry_run&lt;ContractRef, Args, R&gt;(
+    </span><span class="kw">pub async fn </span>instantiate_dry_run&lt;Contract, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         contract_name: <span class="kw-2">&amp;</span>str,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-        constructor: CreateBuilderPartial&lt;E, ContractRef, Args, R&gt;,
+        constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; ContractInstantiateResult&lt;C::AccountId, E::Balance&gt;
@@ -1479,11 +1572,11 @@
     }
 
     <span class="doccomment">/// Executes an `instantiate_with_code` call and captures the resulting events.
-    </span><span class="kw">async fn </span>exec_instantiate&lt;ContractRef, Args, R&gt;(
+    </span><span class="kw">async fn </span>exec_instantiate&lt;Contract, Args, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
         code: Vec&lt;u8&gt;,
-        constructor: CreateBuilderPartial&lt;E, ContractRef, Args, R&gt;,
+        constructor: CreateBuilderPartial&lt;E, Contract, Args, R&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;InstantiationResult&lt;C, E&gt;, Error&lt;C, E&gt;&gt;
@@ -1554,17 +1647,18 @@
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)<span class="question-mark">?</span>;
                 log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                    <span class="string">&quot;extrinsic for instantiate failed: {dispatch_error:?}&quot;
+                    <span class="string">&quot;extrinsic for instantiate failed: {dispatch_error}&quot;
                 </span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InstantiateExtrinsic(dispatch_error))
             }
         }
+        <span class="kw">let </span>account_id = account_id.expect(<span class="string">&quot;cannot extract `account_id` from events&quot;</span>);
 
         <span class="prelude-val">Ok</span>(InstantiationResult {
             dry_run,
             <span class="comment">// The `account_id` must exist at this point. If the instantiation fails
             // the dry-run must already return that.
-            </span>account_id: account_id.expect(<span class="string">&quot;cannot extract `account_id` from events&quot;</span>),
+            </span>account_id,
             events: tx_events,
         })
     }
@@ -1645,7 +1739,7 @@
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)<span class="question-mark">?</span>;
 
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for upload failed: {dispatch_error:?}&quot;</span>));
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for upload failed: {dispatch_error}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UploadExtrinsic(dispatch_error))
             }
         }
@@ -1675,19 +1769,23 @@
     ///
     /// Returns when the transaction is included in a block. The return value
     /// contains all events that are associated with this transaction.
-    </span><span class="kw">pub async fn </span>call&lt;RetType&gt;(
+    </span><span class="kw">pub async fn </span>call&lt;Args, RetType&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-        message: Message&lt;E, RetType&gt;,
+        message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallResult&lt;C, E, RetType&gt;, Error&lt;C, E&gt;&gt;
     <span class="kw">where
-        </span>RetType: scale::Decode,
+        </span>Args: scale::Encode,
+        RetType: scale::Decode,
+        CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
-        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;call: {:02X?}&quot;</span>, message.exec_input()));
+        <span class="kw">let </span>account_id = message.clone().params().callee().clone();
+        <span class="kw">let </span>exec_input = scale::Encode::encode(message.clone().params().exec_input());
+        log_info(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;call: {:02X?}&quot;</span>, exec_input));
 
-        <span class="kw">let </span>dry_run = <span class="self">self</span>.call_dry_run(signer, <span class="kw-2">&amp;</span>message, value, <span class="prelude-val">None</span>).<span class="kw">await</span>;
+        <span class="kw">let </span>dry_run = <span class="self">self</span>.call_dry_run(signer, message, value, <span class="prelude-val">None</span>).<span class="kw">await</span>;
 
         <span class="kw">if </span>dry_run.exec_result.result.is_err() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallDryRun(dry_run.exec_result))
@@ -1696,11 +1794,11 @@
         <span class="kw">let </span>tx_events = <span class="self">self
             </span>.api
             .call(
-                subxt::utils::MultiAddress::Id(message.account_id().clone()),
+                subxt::utils::MultiAddress::Id(account_id.clone()),
                 value,
                 dry_run.exec_result.gas_required.into(),
                 storage_deposit_limit,
-                message.exec_input().to_vec(),
+                exec_input,
                 signer,
             )
             .<span class="kw">await</span>;
@@ -1715,7 +1813,7 @@
                 <span class="kw">let </span>dispatch_error =
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)<span class="question-mark">?</span>;
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error:?}&quot;</span>));
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
         }
@@ -1760,7 +1858,7 @@
                     subxt::error::DispatchError::decode_from(evt.field_bytes(), metadata)
                         .map_err(Error::Decoding)<span class="question-mark">?</span>;
 
-                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error:?}&quot;</span>));
+                log_error(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;extrinsic for call failed: {dispatch_error}&quot;</span>));
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::CallExtrinsic(dispatch_error))
             }
         }
@@ -1772,21 +1870,27 @@
     ///
     /// Returns the result of the dry run, together with the decoded return value of the
     /// invoked message.
-    </span><span class="kw">pub async fn </span>call_dry_run&lt;RetType&gt;(
+    </span><span class="kw">pub async fn </span>call_dry_run&lt;Args, RetType&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         signer: <span class="kw-2">&amp;</span>Signer&lt;C&gt;,
-        message: <span class="kw-2">&amp;</span>Message&lt;E, RetType&gt;,
+        message: <span class="kw-2">&amp;</span>CallBuilderFinal&lt;E, Args, RetType&gt;,
         value: E::Balance,
         storage_deposit_limit: <span class="prelude-ty">Option</span>&lt;E::Balance&gt;,
     ) -&gt; CallDryRunResult&lt;E, RetType&gt;
     <span class="kw">where
-        </span>RetType: scale::Decode,
+        </span>Args: scale::Encode,
+        RetType: scale::Decode,
+        CallBuilderFinal&lt;E, Args, RetType&gt;: Clone,
     {
+        <span class="kw">let </span>dest = message.clone().params().callee().clone();
+        <span class="kw">let </span>exec_input = scale::Encode::encode(message.clone().params().exec_input());
+
         <span class="kw">let </span>exec_result = <span class="self">self
             </span>.api
             .call_dry_run(
                 Signer::account_id(signer).clone(),
-                message,
+                dest,
+                exec_input,
                 value,
                 storage_deposit_limit,
             )
