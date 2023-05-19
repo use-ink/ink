@@ -154,32 +154,33 @@ impl IntoPortable for RootLayout {
     }
 }
 
-impl<F> RootLayout<F>
-where
-    F: Form,
-    F::Type: From<MetaType>,
-{
+impl RootLayout<MetaForm> {
     /// Creates a new root layout.
     pub fn new<Root, L>(root_key: LayoutKey, layout: L) -> Self
     where
         Root: TypeInfo + 'static,
-        L: Into<Layout<F>>,
+        L: Into<Layout<MetaForm>>,
     {
         Self {
             root_key,
             layout: Box::new(layout.into()),
-            ty: meta_type::<Root>().into(),
+            ty: meta_type::<Root>(),
         }
     }
 
     /// Creates a new root layout with empty root type.
     pub fn new_empty<L>(root_key: LayoutKey, layout: L) -> Self
     where
-        L: Into<Layout<F>>,
+        L: Into<Layout<MetaForm>>,
     {
         Self::new::<(), L>(root_key, layout)
     }
+}
 
+impl<F> RootLayout<F>
+where
+    F: Form,
+{
     /// Returns the root key of the sub-tree.
     pub fn root_key(&self) -> &LayoutKey {
         &self.root_key
