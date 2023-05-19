@@ -407,11 +407,11 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>valid_layout_tree_only_roots() {
         <span class="comment">// Root(0) -&gt; Root(1) -&gt; Root(2) -&gt; u32
-        </span><span class="kw">let </span>layout = RootLayout::new(
+        </span><span class="kw">let </span>layout = RootLayout::new_empty(
             <span class="number">0</span>.into(),
-            RootLayout::new(
+            RootLayout::new_empty(
                 <span class="number">1</span>.into(),
-                RootLayout::new(<span class="number">2</span>.into(), LeafLayout::from_key::&lt;u32&gt;(<span class="number">2</span>.into())),
+                RootLayout::new_empty(<span class="number">2</span>.into(), LeafLayout::from_key::&lt;u32&gt;(<span class="number">2</span>.into())),
             ),
         );
 
@@ -448,7 +448,7 @@
         //                           Root(4)      String
         //                             |
         //                      g:BTreeSet&lt;u64&gt;(4)
-        </span><span class="kw">let </span>layout = RootLayout::new(
+        </span><span class="kw">let </span>layout = RootLayout::new_empty(
             root_0,
             StructLayout::new(
                 <span class="string">&quot;Contract&quot;</span>,
@@ -461,7 +461,7 @@
                                 FieldLayout::new(<span class="string">&quot;d&quot;</span>, LeafLayout::from_key::&lt;u128&gt;(root_0)),
                                 FieldLayout::new(
                                     <span class="string">&quot;f&quot;</span>,
-                                    RootLayout::new(
+                                    RootLayout::new_empty(
                                         root_2,
                                         EnumLayout::new(
                                             <span class="string">&quot;Enum&quot;</span>,
@@ -477,7 +477,7 @@
                                                                 <span class="string">&quot;Struct1&quot;</span>,
                                                                 <span class="macro">vec!</span>[FieldLayout::new(
                                                                     <span class="string">&quot;g&quot;</span>,
-                                                                    RootLayout::new(
+                                                                    RootLayout::new_empty(
                                                                         root_4,
                                                                         LeafLayout::from_key::&lt;
                                                                             BTreeSet&lt;u64&gt;,
@@ -506,7 +506,7 @@
                                                         <span class="string">&quot;Third&quot;</span>,
                                                         <span class="macro">vec!</span>[FieldLayout::new(
                                                             <span class="string">&quot;0&quot;</span>,
-                                                            RootLayout::new(
+                                                            RootLayout::new_empty(
                                                                 root_3,
                                                                 LeafLayout::from_key::&lt;String&gt;(
                                                                     root_3,
@@ -525,7 +525,7 @@
                     FieldLayout::new(<span class="string">&quot;b&quot;</span>, LeafLayout::from_key::&lt;u32&gt;(root_0)),
                     FieldLayout::new(
                         <span class="string">&quot;c&quot;</span>,
-                        RootLayout::new(root_1, LeafLayout::from_key::&lt;Vec&lt;u8&gt;&gt;(root_1)),
+                        RootLayout::new_empty(root_1, LeafLayout::from_key::&lt;Vec&lt;u8&gt;&gt;(root_1)),
                     ),
                 ],
             ),

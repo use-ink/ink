@@ -699,6 +699,26 @@
 <a href="#698" id="698">698</a>
 <a href="#699" id="699">699</a>
 <a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -838,6 +858,8 @@
     </span>root_key: LayoutKey,
     <span class="doccomment">/// The storage layout of the unbounded layout elements.
     </span>layout: Box&lt;Layout&lt;F&gt;&gt;,
+    <span class="doccomment">/// The type of the encoded entity.
+    </span>ty: &lt;F <span class="kw">as </span>Form&gt;::Type,
 }
 
 <span class="kw">impl </span>IntoPortable <span class="kw">for </span>RootLayout {
@@ -847,7 +869,31 @@
         RootLayout {
             root_key: <span class="self">self</span>.root_key,
             layout: Box::new(<span class="self">self</span>.layout.into_portable(registry)),
+            ty: registry.register_type(<span class="kw-2">&amp;</span><span class="self">self</span>.ty),
         }
+    }
+}
+
+<span class="kw">impl </span>RootLayout&lt;MetaForm&gt; {
+    <span class="doccomment">/// Creates a new root layout.
+    </span><span class="kw">pub fn </span>new&lt;Root, L&gt;(root_key: LayoutKey, layout: L) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>Root: TypeInfo + <span class="lifetime">&#39;static</span>,
+        L: Into&lt;Layout&lt;MetaForm&gt;&gt;,
+    {
+        <span class="self">Self </span>{
+            root_key,
+            layout: Box::new(layout.into()),
+            ty: meta_type::&lt;Root&gt;(),
+        }
+    }
+
+    <span class="doccomment">/// Creates a new root layout with empty root type.
+    </span><span class="kw">pub fn </span>new_empty&lt;L&gt;(root_key: LayoutKey, layout: L) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>L: Into&lt;Layout&lt;MetaForm&gt;&gt;,
+    {
+        <span class="self">Self</span>::new::&lt;(), L&gt;(root_key, layout)
     }
 }
 
@@ -855,17 +901,6 @@
 <span class="kw">where
     </span>F: Form,
 {
-    <span class="doccomment">/// Creates a new root layout.
-    </span><span class="kw">pub fn </span>new&lt;L&gt;(root_key: LayoutKey, layout: L) -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span>L: Into&lt;Layout&lt;F&gt;&gt;,
-    {
-        <span class="self">Self </span>{
-            root_key,
-            layout: Box::new(layout.into()),
-        }
-    }
-
     <span class="doccomment">/// Returns the root key of the sub-tree.
     </span><span class="kw">pub fn </span>root_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>LayoutKey {
         <span class="kw-2">&amp;</span><span class="self">self</span>.root_key
@@ -874,6 +909,11 @@
     <span class="doccomment">/// Returns the storage layout of the unbounded layout elements.
     </span><span class="kw">pub fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Layout&lt;F&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.layout
+    }
+
+    <span class="doccomment">/// Returns the type of the encoded entity.
+    </span><span class="kw">pub fn </span>ty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>F::Type {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.ty
     }
 }
 
