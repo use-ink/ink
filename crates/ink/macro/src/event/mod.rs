@@ -75,7 +75,12 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
     };
 
     let event_ident = variant.ast().ident;
-    let signature_topic = signature_topic(variant.ast().fields, event_ident);
+    let signature_topic = if !anonymous {
+        let topic_bytes = signature_topic(variant.ast().fields, event_ident);
+        quote_spanned!(span=> ::core::option::Option::Some([ #( #topic_bytes ),* ]))
+    } else {
+        quote_spanned!(span=> None)
+    };
     let event_signature_topic = if anonymous {
         None
     } else {
@@ -107,6 +112,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
         type RemainingTopics = #remaining_topics_ty;
 
         const TOPICS_LEN: usize = #len_topics;
+        const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = #signature_topic;
 
         fn topics<const MAX_TOPICS: usize, E, B>(
             &self,

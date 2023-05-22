@@ -33,7 +33,10 @@ fn unit_struct_works() {
                 impl ::ink::env::Topics for UnitStruct {
                     type RemainingTopics = [::ink::env::topics::state::HasRemainingTopics; 1usize];
 
-                    fn topics<E, B>(
+                    const TOPICS_LEN: usize = 1usize;
+                    const SIGNATURE_TOPIC: ::core::option::Option<[::core::primitive::u8; 32]> = None;
+
+                    fn topics<const MAX_TOPICS: usize, E, B>(
                         &self,
                         builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
                     ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
@@ -41,6 +44,8 @@ fn unit_struct_works() {
                         E: ::ink::env::Environment,
                         B: ::ink::env::topics::TopicsBuilderBackend<E>,
                     {
+                        let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
+
                         match self {
                             UnitStruct => {
                                 builder

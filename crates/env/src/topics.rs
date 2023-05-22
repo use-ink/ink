@@ -199,7 +199,7 @@ pub trait Topics {
 
     /// The unique signature topic of the event. `None` for anonymous events.
     /// todo: document how this is calculated
-    const SIGNATURE_TOPIC: Option<[u8; 32]> = None;
+    const SIGNATURE_TOPIC: Option<[u8; 32]>;
 
     /// Guides event topic serialization using the given topics builder.
     fn topics<const MAX_TOPICS: usize, E, B>(
