@@ -392,13 +392,13 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<const MAX_TOPICS: usize, E, Event>(&mut self, event: Event)
     where
         E: Environment,
         Event: Topics + scale::Encode,
     {
         let (mut scope, enc_topics) =
-            event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+            event.topics::<MAX_TOPICS, E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
         let enc_data = scope.take_encoded(&event);
         ext::deposit_event(enc_topics, enc_data);
     }

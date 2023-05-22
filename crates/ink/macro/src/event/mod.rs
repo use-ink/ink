@@ -104,7 +104,11 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
     s.bound_impl(quote!(::ink::env::Topics), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
-        fn topics<E, B>(
+        // todo: bring this back...
+        // const TOPICS_LEN: usize = #len_topics + #anonymous_topics_offset;
+        const TOPICS_LEN: usize = 5;
+
+        fn topics<const MAX_TOPICS: usize, E, B>(
             &self,
             builder: ::ink::env::topics::TopicsBuilder<::ink::env::topics::state::Uninit, E, B>,
         ) -> <B as ::ink::env::topics::TopicsBuilderBackend<E>>::Output
@@ -112,6 +116,17 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
             E: ::ink::env::Environment,
             B: ::ink::env::topics::TopicsBuilderBackend<E>,
         {
+            // todo: debug_assert environment and max topics length.
+
+            // todo: move these out of codegen
+            // todo: or possibly utilize existing RespectTopicLimit trait
+            pub struct Assert<const L: usize, const R: usize>;
+            impl<const L: usize, const R: usize> Assert<L, R> {
+                const LESS_EQ: () = assert!(L <= R, "too many topics!");
+            }
+
+            let _ = Assert::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::LESS_EQ;
+
             match self {
                 #topics_builder
             }

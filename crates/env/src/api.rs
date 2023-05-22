@@ -175,13 +175,13 @@ where
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<E, Event>(event: Event)
+pub fn emit_event<const MAX_TOPICS: usize, E, Event>(event: Event)
 where
     E: Environment,
     Event: Topics + scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<E, Event>(instance, event)
+        TypedEnvBackend::emit_event::<MAX_TOPICS, E, Event>(instance, event)
     })
 }
 

@@ -405,7 +405,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`emit_event`][`crate::emit_event`]
-    fn emit_event<E, Event>(&mut self, event: Event)
+    fn emit_event<const MAX_TOPICS: usize, E, Event>(&mut self, event: Event)
     where
         E: Environment,
         Event: Topics + scale::Encode;
