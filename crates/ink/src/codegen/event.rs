@@ -38,10 +38,16 @@
 ///     ::ink::codegen::EventRespectsTopicLimit<ExampleEvent, TOPICS_LIMIT>,
 /// >();
 /// ```
-pub struct EventRespectsTopicLimit<const LEN_EVENT_TOPICS: usize, const LEN_MAX_TOPICS: usize>;
+pub struct EventRespectsTopicLimit<
+    const LEN_EVENT_TOPICS: usize,
+    const LEN_MAX_TOPICS: usize,
+>;
 
-impl<const LEN_EVENT_TOPICS: usize, const LEN_MAX_TOPICS: usize> EventRespectsTopicLimit<
-    LEN_EVENT_TOPICS,
-    LEN_MAX_TOPICS> {
-    pub const ASSERT: () = assert!(LEN_EVENT_TOPICS <= LEN_MAX_TOPICS, "The event definition exceeded the maximum number of topics.");
+impl<const LEN_EVENT_TOPICS: usize, const LEN_MAX_TOPICS: usize>
+    EventRespectsTopicLimit<LEN_EVENT_TOPICS, LEN_MAX_TOPICS>
+{
+    pub const ASSERT: () = assert!(
+        LEN_EVENT_TOPICS <= LEN_MAX_TOPICS,
+        "The event definition exceeded the maximum number of topics."
+    );
 }
