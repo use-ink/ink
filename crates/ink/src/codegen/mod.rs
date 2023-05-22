@@ -32,12 +32,7 @@ pub use self::{
         Env,
         StaticEnv,
     },
-    event::{
-        EventLenTopics,
-        EventRespectsTopicLimit,
-        EventTopics,
-        RespectTopicLimit,
-    },
+    event::EventRespectsTopicLimit,
     implies_return::ImpliesReturn,
     trait_def::{
         TraitCallBuilder,

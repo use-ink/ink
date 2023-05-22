@@ -65,15 +65,17 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
 
     let variant = &s.variants()[0];
 
-    let len_topics = variant.bindings().len();
     // Anonymous events require 1 fewer topics since they do not include their signature.
     let anonymous_topics_offset = usize::from(!anonymous);
-    let remaining_topics_ty = match len_topics + anonymous_topics_offset {
+    let len_topics = variant.bindings().len() + anonymous_topics_offset;
+
+    let remaining_topics_ty = match len_topics {
         0 => quote_spanned!(span=> ::ink::env::topics::state::NoRemainingTopics),
         n => quote_spanned!(span=> [::ink::env::topics::state::HasRemainingTopics; #n]),
     };
 
-    let signature_topic = signature_topic(variant.ast().fields, &variant.ast().ident);
+    let event_ident = variant.ast().ident;
+    let signature_topic = signature_topic(variant.ast().fields, event_ident);
     let event_signature_topic = if anonymous {
         None
     } else {
@@ -104,9 +106,7 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
     s.bound_impl(quote!(::ink::env::Topics), quote! {
         type RemainingTopics = #remaining_topics_ty;
 
-        // todo: bring this back...
-        // const TOPICS_LEN: usize = #len_topics + #anonymous_topics_offset;
-        const TOPICS_LEN: usize = 5;
+        const TOPICS_LEN: usize = #len_topics;
 
         fn topics<const MAX_TOPICS: usize, E, B>(
             &self,
@@ -116,16 +116,9 @@ fn event_derive_struct(mut s: synstructure::Structure) -> TokenStream2 {
             E: ::ink::env::Environment,
             B: ::ink::env::topics::TopicsBuilderBackend<E>,
         {
-            // todo: debug_assert environment and max topics length.
-
-            // todo: move these out of codegen
-            // todo: or possibly utilize existing RespectTopicLimit trait
-            pub struct Assert<const L: usize, const R: usize>;
-            impl<const L: usize, const R: usize> Assert<L, R> {
-                const LESS_EQ: () = assert!(L <= R, "too many topics!");
-            }
-
-            let _ = Assert::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::LESS_EQ;
+            // assert at compile time the number of topics defined by this event is within the
+            // given limit.
+            let _ = ::ink::codegen::EventRespectsTopicLimit::<{ Self::TOPICS_LEN }, { MAX_TOPICS }>::ASSERT;
 
             match self {
                 #topics_builder
