@@ -397,8 +397,8 @@ impl TypedEnvBackend for EnvInstance {
         E: Environment,
         Event: Topics + scale::Encode,
     {
-        let (mut scope, enc_topics) =
-            event.topics::<MAX_TOPICS, E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+        let (mut scope, enc_topics) = event
+            .topics::<MAX_TOPICS, E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
         let enc_data = scope.take_encoded(&event);
         ext::deposit_event(enc_topics, enc_data);
     }
